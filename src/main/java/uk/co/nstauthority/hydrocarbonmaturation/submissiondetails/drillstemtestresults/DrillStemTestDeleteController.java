@@ -67,7 +67,7 @@ class DrillStemTestDeleteController {
     var drillStemTestResult = drillStemTestResultPersistenceService
         .getDrillStemTestResultByIdOrThrow(drillStemTestResultId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     addRedirectNotification(drillStemTestResult.getFormationName(), redirectAttributes);
 
     drillStemTestResultPersistenceService.deleteDrillStemTestResult(drillStemTestResult);
@@ -89,7 +89,7 @@ class DrillStemTestDeleteController {
   private ModelAndView getDrillStemTestResultDeleteConfirmationModelAndView(UUID reservoirSubmissionDetailId,
                                                                             DrillStemTestResult drillStemTestResult) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var modelAndView = new ModelAndView("remi/submissiondetails/drillstemtest/drillStemTestResultDeleteConfirmation")
         .addObject("backToSummaryUrl", ReverseRouter.route(on(DrillStemTestSummaryController.class)

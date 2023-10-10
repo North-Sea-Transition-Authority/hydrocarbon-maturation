@@ -74,7 +74,7 @@ class MixedCaseVolumetricsControllerTest extends AbstractSubmissionControllerTes
 
     reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     reservoirSubmissionDetailId = reservoirSubmissionDetail.getId();
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
   }
 
@@ -240,7 +240,7 @@ class MixedCaseVolumetricsControllerTest extends AbstractSubmissionControllerTes
 
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
     when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(discoveryReservoirSubmissionDetailId)).thenReturn(discoveryReservoirSubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(discoveryReservoirSubmissionDetailId)).thenReturn(discoveryReservoirSubmissionDetail);
     when(mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(discoveryReservoirSubmissionDetail)).thenReturn(form);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(

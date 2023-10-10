@@ -25,7 +25,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionReso
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView;
@@ -97,7 +96,6 @@ class SubmissionSummaryModelServiceTest {
   private ResourceDetailSummaryView resourceDetailSummaryView;
   private List<SummarySection> summarySections;
   private List<ReservoirSummary> reservoirSummaries;
-  private DrillStemTestSummaryView drillStemTestSummaryView;
   private OutlineForMaximumCaseSummaryView outlineForMaximumCaseSummaryView;
   private DiscoveryWellDetailsSummaryView discoveryWellDetailsSummaryView;
 
@@ -147,7 +145,6 @@ class SubmissionSummaryModelServiceTest {
         "", "", false, "", "Offshore", "resourceType");
     summarySections = Collections.emptyList();
     reservoirSummaries = Collections.emptyList();
-    drillStemTestSummaryView = DrillStemTestSummaryView.empty();
     outlineForMaximumCaseSummaryView = OutlineForMaximumCaseSummaryView.empty();
     discoveryWellDetailsSummaryView = DiscoveryWellDetailsSummaryView.empty();
   }
@@ -183,7 +180,7 @@ class SubmissionSummaryModelServiceTest {
   void createProspectSubmissionSummaryModelAndView() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var reservoirSubmissionDetail = Mockito.mock(ReservoirSubmissionDetail.class);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     when(prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
@@ -251,7 +248,7 @@ class SubmissionSummaryModelServiceTest {
   void createPostDrillDryWellSubmissionSummaryModelAndView() {
     var submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
     var reservoirSubmissionDetail = Mockito.mock(ReservoirSubmissionDetail.class);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     when(postDrillDryWellSummaryService.getDryWellDetailSummaryViewFromSubmissionDetail(submissionDetail))

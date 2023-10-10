@@ -62,7 +62,7 @@ public class FieldGasVolumetricsController {
   public ModelAndView getGasVolumetrics(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                         @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getGasVolumetricsModelAndView(
         fieldGasVolumetricsService.getGasVolumetricsForm(reservoirSubmissionDetail), reservoirSubmissionDetail);
   }
@@ -76,7 +76,7 @@ public class FieldGasVolumetricsController {
                                          ServiceUserDetail user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     if (!gasCaseVolumetricsFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
       return getGasVolumetricsModelAndViewWithErrors(bindingResult, form, reservoirSubmissionDetail);
     } else {

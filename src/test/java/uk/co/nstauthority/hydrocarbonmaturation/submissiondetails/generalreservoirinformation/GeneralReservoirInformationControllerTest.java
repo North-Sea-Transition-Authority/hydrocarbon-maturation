@@ -68,7 +68,7 @@ class GeneralReservoirInformationControllerTest extends AbstractSubmissionContro
     when(submissionDetailService.getSubmissionDetail(submissionDetail.getId())).thenReturn(Optional.of(submissionDetail));
 
     reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
         .thenReturn(reservoirSubmissionDetail);
   }
 

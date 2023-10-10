@@ -46,7 +46,7 @@ class GeneralReservoirInformationFormValidatorTest {
   void isValid_validForm_valid(ValidationType validationType) {
     var form = getValidForm_nonField();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
         .thenReturn(List.of(reservoirSubmissionDetail));
 
     assertTrue(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType));
@@ -57,7 +57,7 @@ class GeneralReservoirInformationFormValidatorTest {
   void isValid_validForm_field_valid(ValidationType validationType) {
     var form = getValidForm_field();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
         .thenReturn(List.of(reservoirSubmissionDetail));
     reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_CSR);
 
@@ -69,7 +69,7 @@ class GeneralReservoirInformationFormValidatorTest {
   void isValid_noReservoirName_invalidForm_invalid(ValidationType validationType) {
     var form = getInvalidFormNoReservoirName();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
         .thenReturn(List.of(reservoirSubmissionDetail));
 
     assertFalse(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType));
@@ -91,7 +91,7 @@ class GeneralReservoirInformationFormValidatorTest {
     var form = getValidForm_nonField();
     form.setReservoirName("duplicate reservoir name");
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
         .thenReturn(List.of(reservoirSubmissionDetail, duplicatedReservoirNameReservoirSubmissionDetail));
 
     assertFalse(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType));
@@ -108,7 +108,7 @@ class GeneralReservoirInformationFormValidatorTest {
   void isValid_noAssociatedDiscoveryReservoirs_partial_validForm_valid() {
     var form = getInvalidFormNoAssociatedDiscoveryReservoirs();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
         .thenReturn(List.of(reservoirSubmissionDetail));
 
     assertTrue(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.PARTIAL));
@@ -118,7 +118,7 @@ class GeneralReservoirInformationFormValidatorTest {
   void isValid_noAssociatedDiscoveryReservoirs_full_nonField_validForm_valid() {
     var form = getInvalidFormNoAssociatedDiscoveryReservoirs();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
         .thenReturn(List.of(reservoirSubmissionDetail));
 
     assertTrue(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL));
@@ -128,7 +128,7 @@ class GeneralReservoirInformationFormValidatorTest {
   void isValid_noAssociatedDiscoveryReservoirs_field_invalidForm_invalid() {
     var form = getInvalidFormNoAssociatedDiscoveryReservoirs();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
         .thenReturn(List.of(reservoirSubmissionDetail));
     reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_CSR);
 
@@ -146,7 +146,7 @@ class GeneralReservoirInformationFormValidatorTest {
   void isValid_noHydrocarbonsDiscovered_partial_validForm_valid() {
     var form = getInvalidFormNoReservoirHydrocarbons();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
         .thenReturn(List.of(reservoirSubmissionDetail));
 
     assertTrue(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.PARTIAL));
@@ -156,7 +156,7 @@ class GeneralReservoirInformationFormValidatorTest {
   void isValid_noHydrocarbonsDiscovered_full_invalidForm_invalid() {
     var form = getInvalidFormNoReservoirHydrocarbons();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
         .thenReturn(List.of(reservoirSubmissionDetail));
 
     assertFalse(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL));
@@ -173,7 +173,7 @@ class GeneralReservoirInformationFormValidatorTest {
   void isValid_empty_invalidForm_nonField_invalid() {
     var form = getInvalidEmptyForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
         .thenReturn(List.of(reservoirSubmissionDetail));
 
     assertFalse(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL));
@@ -191,7 +191,7 @@ class GeneralReservoirInformationFormValidatorTest {
   void isValid_empty_invalidForm_field_invalid() {
     var form = getInvalidEmptyForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
         .thenReturn(List.of(reservoirSubmissionDetail));
     reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_CSR);
 

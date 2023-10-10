@@ -67,7 +67,7 @@ public class OilCaseVolumetricsController {
   public ModelAndView getOilCaseVolumetrics(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                             @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getOilCaseVolumetricsModelAndView(
         oilCaseVolumetricsFormService.getOilCaseVolumetricsForm(reservoirSubmissionDetail), reservoirSubmissionDetail);
   }
@@ -81,7 +81,7 @@ public class OilCaseVolumetricsController {
                                              ServiceUserDetail user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     if (!oilCaseVolumetricsFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
       return getOilVolumetricsModelAndViewWithErrors(bindingResult, form, reservoirSubmissionDetail);
     } else {

@@ -69,7 +69,7 @@ public class GasCaseOutputsController {
   public ModelAndView getGasCaseOutputs(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                         @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getGasCaseOutputsModelAndView(
         gasCaseOutputsFormService.getGasCaseOutputsForm(reservoirSubmissionDetail), reservoirSubmissionDetail);
   }
@@ -83,7 +83,7 @@ public class GasCaseOutputsController {
                                          ServiceUserDetail user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     if (!gasCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
       return getGasOutputsModelAndViewWithErrors(bindingResult, form, reservoirSubmissionDetail);
     } else {

@@ -32,7 +32,7 @@ public class GeneralReservoirInformationFormValidator implements ReservoirSubmis
         "Enter a reservoir name");
 
     var reservoirNames = reservoirSubmissionDetailPersistenceService
-        .getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail)
+        .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail)
         .stream()
         .map(reservoirSubmissionDetailLambda -> reservoirSubmissionDetailLambda.getReservoir().getName())
         // Filter out the current reservoir name

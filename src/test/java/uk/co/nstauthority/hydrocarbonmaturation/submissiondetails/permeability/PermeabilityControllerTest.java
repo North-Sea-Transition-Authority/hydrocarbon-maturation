@@ -72,7 +72,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
 
     reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     reservoirSubmissionDetailId = reservoirSubmissionDetail.getId();
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
   }
 

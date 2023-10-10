@@ -68,7 +68,7 @@ public class OilCaseOutputsController {
   public ModelAndView getOilCaseOutputs(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                         @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getOilCaseOutputsModelAndView(
         oilCaseOutputsFormService.getOilCaseOutputsForm(reservoirSubmissionDetail), reservoirSubmissionDetail);
   }
@@ -82,7 +82,7 @@ public class OilCaseOutputsController {
                                          ServiceUserDetail user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
 
     if (!oilCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
       return getOilOutputsModelAndViewWithErrors(bindingResult, form, reservoirSubmissionDetail);

@@ -73,7 +73,7 @@ class ReservoirQueryServiceTest {
     var secondReservoir = new Reservoir();
     secondReservoir.setName("b");
     var secondDiscoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(secondReservoir);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(firstDiscoverySubmissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(firstDiscoverySubmissionDetail))
         .thenReturn(List.of(firstDiscoveryReservoirSubmissionDetail, secondDiscoveryReservoirSubmissionDetail));
 
     var thirdReservoir = new Reservoir();
@@ -82,7 +82,7 @@ class ReservoirQueryServiceTest {
     var fourthReservoir = new Reservoir();
     fourthReservoir.setName("B");
     var fourthDiscoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fourthReservoir);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(secondDiscoverySubmissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(secondDiscoverySubmissionDetail))
         .thenReturn(List.of(thirdDiscoveryReservoirSubmissionDetail, fourthDiscoveryReservoirSubmissionDetail));
 
     var reservoirViewFromFirstReservoir = new ReservoirView(firstReservoir.getId(), firstReservoir.getName());

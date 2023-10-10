@@ -166,7 +166,7 @@ class SubmissionCreateServiceTest {
         .thenReturn(Optional.of(newGeneralDetail));
     var reservoir = new Reservoir();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
 
     submissionCreateService.createUpdateProspect(form);
@@ -214,7 +214,7 @@ class SubmissionCreateServiceTest {
         .thenReturn(submissionDetailNew);
     var reservoir = new Reservoir();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
 
     submissionCreateService.createPostDrillDryHoleSubmission(form);
@@ -284,7 +284,7 @@ class SubmissionCreateServiceTest {
         .thenReturn(submissionDetailNew);
     var reservoir = new Reservoir();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
 
     submissionCreateService.createUpdateDiscovery(form);
@@ -338,7 +338,7 @@ class SubmissionCreateServiceTest {
         .thenReturn(newSubmissionDetail);
     var reservoir = new Reservoir();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
 
     submissionCreateService.createProspectRelinquishment(prospectRelinquishmentForm);
@@ -371,7 +371,7 @@ class SubmissionCreateServiceTest {
         .thenReturn(newSubmissionDetail);
     var reservoir = new Reservoir();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
 
     submissionCreateService.createDiscoveryRelinquishment(discoveryRelinquishmentForm);
@@ -395,7 +395,7 @@ class SubmissionCreateServiceTest {
         .thenReturn(updateSubmissionDetail);
     var reservoir = new Reservoir();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
 
     assertThat(submissionCreateService.createUpdateSubmissionDetail(oldSubmissionDetail))
@@ -443,7 +443,7 @@ class SubmissionCreateServiceTest {
         .thenReturn(Optional.of(oldSubmissionDetail));
     var firstReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
     var secondReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail))
         .thenReturn(List.of(firstReservoirSubmissionDetail, secondReservoirSubmissionDetail));
 
     submissionCreateService.createCsrFieldSubmissionDetail(resource);
@@ -494,7 +494,7 @@ class SubmissionCreateServiceTest {
         .thenReturn(Optional.of(oldSubmissionDetail));
     var firstReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
     var secondReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail))
         .thenReturn(List.of(firstReservoirSubmissionDetail, secondReservoirSubmissionDetail));
 
     submissionCreateService.createFdpFieldSubmissionDetail(resource);
@@ -545,7 +545,7 @@ class SubmissionCreateServiceTest {
         .thenReturn(Optional.of(oldSubmissionDetail));
     var firstReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
     var secondReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail))
         .thenReturn(List.of(firstReservoirSubmissionDetail, secondReservoirSubmissionDetail));
 
     submissionCreateService.createFdpaFieldSubmissionDetail(resource);
@@ -596,7 +596,7 @@ class SubmissionCreateServiceTest {
         .thenReturn(Optional.of(oldSubmissionDetail));
     var firstReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
     var secondReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail))
         .thenReturn(List.of(firstReservoirSubmissionDetail, secondReservoirSubmissionDetail));
 
     submissionCreateService.createCoPFieldSubmissionDetail(resource);

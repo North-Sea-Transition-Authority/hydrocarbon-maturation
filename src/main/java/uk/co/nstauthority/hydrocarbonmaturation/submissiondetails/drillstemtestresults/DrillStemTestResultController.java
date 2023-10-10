@@ -56,7 +56,7 @@ public class DrillStemTestResultController {
                                                  @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
                                                  @PathVariable("drillStemTestResultId") UUID drillStemTestResultId) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     var drillStemTestResult = drillStemTestResultPersistenceService
         .getDrillStemTestResultByIdOrThrow(drillStemTestResultId);
     return getDrillStemTestResultModelAndView(
@@ -70,7 +70,7 @@ public class DrillStemTestResultController {
       @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
 
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
 
     return getDrillStemTestResultModelAndView(
         new DrillStemTestResultForm(),
@@ -83,7 +83,7 @@ public class DrillStemTestResultController {
                                                  @ModelAttribute("form") DrillStemTestResultForm form,
                                                  BindingResult bindingResult) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
 
     var drillStemTest = drillStemTestResultPersistenceService
         .getDrillStemTestByReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail);
@@ -119,7 +119,7 @@ public class DrillStemTestResultController {
 
 
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     var drillStemTestResult = drillStemTestResultPersistenceService
         .getDrillStemTestResultByIdOrThrow(drillStemTestResultId);
     var drillStemTestResults = drillStemTestResultPersistenceService

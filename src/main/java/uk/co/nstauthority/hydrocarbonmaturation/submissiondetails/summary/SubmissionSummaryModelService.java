@@ -57,7 +57,8 @@ public class SubmissionSummaryModelService {
 
   public ModelAndView createProspectSubmissionSummaryModelAndView(SubmissionDetail submissionDetail,
                                                                   String viewName) {
-    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getExtantReservoirSubmissionDetail(submissionDetail);
     var modelAndView = new ModelAndView(viewName)
         .addObject("generalDetailsSummaryView",
             prospectSummaryService.getGeneralDetailSummaryViewFromSubmissionDetail(submissionDetail))
@@ -108,7 +109,8 @@ public class SubmissionSummaryModelService {
   }
 
   public ModelAndView createPostDrillDryWellSubmissionSummaryModelAndView(SubmissionDetail submissionDetail, String viewName) {
-    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getExtantReservoirSubmissionDetail(submissionDetail);
     var modelAndView = new ModelAndView(viewName)
         .addObject("dryWellDetailsSummaryView",
             postDrillDryWellSummaryService.getDryWellDetailSummaryViewFromSubmissionDetail(submissionDetail))

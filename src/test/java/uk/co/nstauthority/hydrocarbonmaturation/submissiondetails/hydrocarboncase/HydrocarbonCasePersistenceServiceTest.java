@@ -208,7 +208,7 @@ class HydrocarbonCasePersistenceServiceTest {
   void hydrocarbonsNotPresent_assertCleanUp() {
     var form = new HydrocarbonCaseForm();
     var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
     hydrocarbonCasePersistenceService.saveHydrocarbonCase(form, submissionDetail);
 
@@ -285,7 +285,7 @@ class HydrocarbonCasePersistenceServiceTest {
     form.setGasOnlyCaseType(true);
     form.setGasOnlyProbability(new DecimalInput("100"));
     var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
     hydrocarbonCasePersistenceService.saveHydrocarbonCase(form, submissionDetail);
 
@@ -320,7 +320,7 @@ class HydrocarbonCasePersistenceServiceTest {
     form.setOilOnlyCaseType(true);
     form.setOilOnlyProbability(new DecimalInput("100"));
     var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
     hydrocarbonCasePersistenceService.saveHydrocarbonCase(form, submissionDetail);
 
@@ -355,7 +355,7 @@ class HydrocarbonCasePersistenceServiceTest {
     form.setOilAndGasCaseType(true);
     form.setOilAndGasProbability(new DecimalInput("100"));
     var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
     hydrocarbonCasePersistenceService.saveHydrocarbonCase(form, submissionDetail);
 

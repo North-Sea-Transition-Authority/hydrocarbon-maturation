@@ -24,10 +24,10 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   @Autowired
-  public ReservoirTaskListSectionService(ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService,
-                                         PermeabilitySubmissionService permeabilitySubmissionService,
-                                         ReservoirSubmissionDetailPersistenceService
-                                               reservoirSubmissionDetailPersistenceService) {
+  public ReservoirTaskListSectionService(
+      ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService,
+      PermeabilitySubmissionService permeabilitySubmissionService,
+      ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
     this.reservoirPropertiesSubmissionService = reservoirPropertiesSubmissionService;
     this.permeabilitySubmissionService = permeabilitySubmissionService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
@@ -41,7 +41,7 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
     if (submissionDetail.isDiscoverySubmission() || submissionDetail.isFieldSubmission()) {
       items.add(
           new TaskListItem("%s reservoirs".formatted(
-              submissionDetail.isDiscoverySubmission() ? "Discovery" : "Field"),
+              submissionDetail.getSubmission().getResource().getType().getDisplayName()),
               //TODO base task list label on completeness of reservoir sub-tasks
               TaskListLabel.NOT_COMPLETE,
               reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail)
@@ -53,7 +53,7 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
 
     if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
       var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-          .getReservoirSubmissionDetail(submissionDetail);
+          .getExtantReservoirSubmissionDetail(submissionDetail);
 
       if (submissionDetail.isDryWellSubmission()) {
         items.add(new TaskListItem("Permeability",
@@ -73,7 +73,7 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
     }
 
     return Optional.of(new TaskListSection(
-        submissionDetail.isFieldSubmission() ? "Field reservoirs" : "Reservoir",
+        "Reservoirs",
         40,
         items));
   }
@@ -82,7 +82,7 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
       var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-          .getReservoirSubmissionDetail(submissionDetail);
+          .getExtantReservoirSubmissionDetail(submissionDetail);
 
       if (submissionDetail.isDryWellSubmission()) {
         return reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)

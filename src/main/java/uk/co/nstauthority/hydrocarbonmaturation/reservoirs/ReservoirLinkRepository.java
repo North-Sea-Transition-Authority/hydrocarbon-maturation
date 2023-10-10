@@ -10,4 +10,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 public interface ReservoirLinkRepository extends CrudRepository<ReservoirLink, UUID> {
 
   List<ReservoirLink> findReservoirLinksByReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail);
+
+  List<ReservoirLink> findReservoirLinksByLinkedReservoir(Reservoir linkedReservoir);
 }

@@ -20,12 +20,12 @@ public class ReservoirLink implements ReservoirSubmissionDetailChildEntity {
   @GenericGenerator(name = "uuid", strategy = "uuid2")
   private UUID id;
 
-  @JoinColumn(name = "reservoir_submission_detail_id")
   @ManyToOne
+  @JoinColumn(name = "reservoir_submission_detail_id")
   private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
-  @JoinColumn(name = "linked_reservoir_id")
   @ManyToOne
+  @JoinColumn(name = "linked_reservoir_id")
   private Reservoir linkedReservoir;
 
   public UUID getId() {

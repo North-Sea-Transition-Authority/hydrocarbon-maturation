@@ -78,7 +78,7 @@ class OilCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
 
     reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     reservoirSubmissionDetailId = reservoirSubmissionDetail.getId();
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
   }
 
@@ -129,7 +129,7 @@ class OilCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
   void saveOilCaseOutputs_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
     when(oilCaseOutputsFormValidator.isValid(any(OilCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(true);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId)).thenReturn(reservoirSubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId)).thenReturn(reservoirSubmissionDetail);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(OilCaseOutputsController.class)
@@ -150,7 +150,7 @@ class OilCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
 
     when(oilCaseOutputsFormValidator.isValid(any(OilCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(false);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId)).thenReturn(reservoirSubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId)).thenReturn(reservoirSubmissionDetail);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(OilCaseOutputsController.class)
@@ -167,7 +167,7 @@ class OilCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
   void getOilCaseOutputsModelAndView_whenProspect_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(oilCaseOutputsFormService.getOilCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(form);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId)).thenReturn(reservoirSubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId)).thenReturn(reservoirSubmissionDetail);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(OilCaseOutputsController.class)
@@ -211,7 +211,7 @@ class OilCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
 
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
     when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(discoveryReservoirSubmissionDetailId)).thenReturn(discoveryReservoirSubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(discoveryReservoirSubmissionDetailId)).thenReturn(discoveryReservoirSubmissionDetail);
     when(oilCaseOutputsFormService.getOilCaseOutputsForm(discoveryReservoirSubmissionDetail)).thenReturn(form);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(

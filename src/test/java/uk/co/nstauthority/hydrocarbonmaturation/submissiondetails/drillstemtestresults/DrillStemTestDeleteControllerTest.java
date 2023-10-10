@@ -17,6 +17,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import static uk.co.nstauthority.hydrocarbonmaturation.util.NotificationBannerTestUtil.notificationBanner;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,7 +57,7 @@ class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
         .thenReturn(submissionDetail);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
         .thenReturn(reservoirSubmissionDetail);
     when(drillStemTestResultsSummaryService.createSummaryViewFromDrillStemTestResult(drillStemTestResult, DrillStemTestResultSummaryMode.VIEW, 1))
         .thenReturn(DrillStemTestResultSummaryView.empty(1, "", ""));
@@ -77,20 +78,21 @@ class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
         .thenReturn(submissionDetail);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
         .thenReturn(reservoirSubmissionDetail);
     when(drillStemTestResultPersistenceService.getDrillStemTestResultByIdOrThrow(drillStemTestResultId))
         .thenReturn(drillStemTestResult);
     when(drillStemTestResultsSummaryService.createSummaryViewFromDrillStemTestResult(drillStemTestResult, DrillStemTestResultSummaryMode.VIEW, 1))
         .thenReturn(summaryView);
 
-    var modelMap = mockMvc.perform(
-            get(ReverseRouter.route(on(DrillStemTestDeleteController.class)
-                .getDrillStemTestResultDeleteConfirmationPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), drillStemTestResultId)))
-                .with(user(USER)))
-        .andExpect(status().isOk())
-        .andReturn()
-        .getModelAndView()
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+                get(ReverseRouter.route(on(DrillStemTestDeleteController.class)
+                    .getDrillStemTestResultDeleteConfirmationPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(),
+                        drillStemTestResultId)))
+                    .with(user(USER)))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getModelAndView())
         .getModel();
 
     assertThat(modelMap)
@@ -171,7 +173,7 @@ class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest
         .thenReturn(drillStemTestResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
         .thenReturn(submissionDetail);
-    when( reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
+    when( reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
         .thenReturn(reservoirSubmissionDetail);
     when(drillStemTestResultPersistenceService.getDrillStemTestByReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail))
         .thenReturn(drillStemTest);

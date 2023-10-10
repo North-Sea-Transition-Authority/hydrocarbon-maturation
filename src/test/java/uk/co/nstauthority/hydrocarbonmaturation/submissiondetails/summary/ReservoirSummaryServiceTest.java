@@ -61,7 +61,7 @@ class ReservoirSummaryServiceTest {
         reservoir3,
         submissionDetail
     );
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail1, reservoirSubmissionDetail2, reservoirSubmissionDetail3));
     var reservoirSubmissionDetailList = List.of(reservoirSubmissionDetail1, reservoirSubmissionDetail2, reservoirSubmissionDetail3);
     reservoirSubmissionDetailList.forEach(reservoirSubmissionDetail ->

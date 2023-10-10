@@ -77,7 +77,7 @@ class DrillStemTestResultControllerTest extends AbstractSubmissionControllerTest
   void getDrillStemTestResultPage_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
 
     var drillStemTestResult = mock(DrillStemTestResult.class);
@@ -108,7 +108,7 @@ class DrillStemTestResultControllerTest extends AbstractSubmissionControllerTest
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
     setUpWhenUserIsResponsibleTeam_passSecurity();
     mockMvc.perform(
@@ -145,7 +145,7 @@ class DrillStemTestResultControllerTest extends AbstractSubmissionControllerTest
     when(drillStemTestResultFormService.validateForUpdate(any(), any(), any(), any()))
         .thenReturn(bindingResult);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
@@ -182,7 +182,7 @@ class DrillStemTestResultControllerTest extends AbstractSubmissionControllerTest
         .thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
     when(drillStemTestResultPersistenceService.getDrillStemTestByReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail))
         .thenReturn(drillStemTest);
@@ -210,7 +210,7 @@ class DrillStemTestResultControllerTest extends AbstractSubmissionControllerTest
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
     when(drillStemTestResultPersistenceService.getDrillStemTestByReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail))
         .thenReturn(drillStemTest);
@@ -240,7 +240,7 @@ class DrillStemTestResultControllerTest extends AbstractSubmissionControllerTest
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var drillStemTestResult = mock(DrillStemTestResult.class);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
     when(drillStemTestResultPersistenceService.getDrillStemTestResultByIdOrThrow(drillStemTestId))
         .thenReturn(drillStemTestResult);
@@ -268,7 +268,7 @@ class DrillStemTestResultControllerTest extends AbstractSubmissionControllerTest
   void getCreateNewDrillStemTestResultPage_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
 
     var drillStemTestResult = mock(DrillStemTestResult.class);

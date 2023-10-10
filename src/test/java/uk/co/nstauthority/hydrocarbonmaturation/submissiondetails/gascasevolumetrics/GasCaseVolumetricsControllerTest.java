@@ -80,7 +80,7 @@ class GasCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest 
 
     reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     reservoirSubmissionDetailId = reservoirSubmissionDetail.getId();
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
   }
 
@@ -227,7 +227,7 @@ class GasCaseVolumetricsControllerTest extends AbstractSubmissionControllerTest 
 
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
     when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(discoveryReservoirSubmissionDetailId))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(discoveryReservoirSubmissionDetailId))
         .thenReturn(discoveryReservoirSubmissionDetail);
     when(gasCaseVolumetricsFormService.getGasCaseVolumetricsForm(discoveryReservoirSubmissionDetail)).thenReturn(
         form);

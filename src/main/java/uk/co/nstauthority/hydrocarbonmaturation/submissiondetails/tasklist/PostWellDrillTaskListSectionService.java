@@ -68,7 +68,7 @@ class PostWellDrillTaskListSectionService implements TaskListSectionService {
   @Override
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetail(submissionDetail);
+        .getExtantReservoirSubmissionDetail(submissionDetail);
 
     if (submissionDetail.isDryWellSubmission()) {
       return dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail);

@@ -24,7 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -45,16 +44,12 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
   @MockBean
   private ReservoirListValidator reservoirListValidator;
 
-  private ReservoirListForm form;
-  private BindingResult bindingResult;
-
   @BeforeEach
   void setUp() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID)).thenReturn(submissionDetail);
-    form = new ReservoirListForm();
+    ReservoirListForm form = new ReservoirListForm();
     when(reservoirListFormService.getReservoirForm(submissionDetail)).thenReturn(form);
-    bindingResult = new BeanPropertyBindingResult(form, "form");
   }
 
   @SecurityTest

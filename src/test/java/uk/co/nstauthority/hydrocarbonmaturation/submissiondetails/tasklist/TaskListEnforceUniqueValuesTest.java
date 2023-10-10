@@ -77,7 +77,7 @@ class TaskListEnforceUniqueValuesTest {
     reservoirSubmissionDetail = ReservoirSubmissionDetailsIntegrationTestUtils.createReservoirSubmissionDetail(submissionDetail, entityManager);
 
     when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     var taskListSectionItemsList = taskListSectionServices.stream()
@@ -137,7 +137,7 @@ class TaskListEnforceUniqueValuesTest {
     reservoirSubmissionDetail = ReservoirSubmissionDetailsIntegrationTestUtils.createReservoirSubmissionDetail(submissionDetail, entityManager);
 
     when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail)).thenReturn(resourceDetail);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     var sectionItemMap = taskListSectionServices.stream()

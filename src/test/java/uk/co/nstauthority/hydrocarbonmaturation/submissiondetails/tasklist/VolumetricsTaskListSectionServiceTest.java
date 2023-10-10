@@ -84,7 +84,7 @@ class VolumetricsTaskListSectionServiceTest {
 
   @Test
   void getSection_prospectSubmission_whenAllCase_assertItems() {
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     when(gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
@@ -156,7 +156,7 @@ class VolumetricsTaskListSectionServiceTest {
     var hydrocarbonCase = new HydrocarbonCaseDetail();
     when(hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail))
         .thenReturn(Optional.of(hydrocarbonCase));
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     when(hydrocarbonCasePersistenceService.isGasOnlyPresent(hydrocarbonCase)).thenReturn(true);
@@ -178,7 +178,7 @@ class VolumetricsTaskListSectionServiceTest {
     var hydrocarbonCase = new HydrocarbonCaseDetail();
     when(hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail))
         .thenReturn(Optional.of(hydrocarbonCase));
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     when(hydrocarbonCasePersistenceService.isGasOnlyPresent(hydrocarbonCase)).thenReturn(true);
@@ -195,7 +195,7 @@ class VolumetricsTaskListSectionServiceTest {
     var hydrocarbonCase = new HydrocarbonCaseDetail();
     when(hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail))
         .thenReturn(Optional.of(hydrocarbonCase));
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     when(hydrocarbonCasePersistenceService.isGasOnlyPresent(hydrocarbonCase)).thenReturn(true);
@@ -213,7 +213,7 @@ class VolumetricsTaskListSectionServiceTest {
     var hydrocarbonCase = new HydrocarbonCaseDetail();
     when(hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail))
         .thenReturn(Optional.of(hydrocarbonCase));
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     when(hydrocarbonCasePersistenceService.isGasOnlyPresent(hydrocarbonCase)).thenReturn(false);
@@ -230,7 +230,7 @@ class VolumetricsTaskListSectionServiceTest {
     var hydrocarbonCase = new HydrocarbonCaseDetail();
     when(hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail))
         .thenReturn(Optional.of(hydrocarbonCase));
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     when(hydrocarbonCasePersistenceService.isGasOnlyPresent(hydrocarbonCase)).thenReturn(false);
@@ -248,7 +248,7 @@ class VolumetricsTaskListSectionServiceTest {
     var hydrocarbonCase = new HydrocarbonCaseDetail();
     when(hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail))
         .thenReturn(Optional.of(hydrocarbonCase));
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     when(hydrocarbonCasePersistenceService.isGasOnlyPresent(hydrocarbonCase)).thenReturn(true);
@@ -265,7 +265,7 @@ class VolumetricsTaskListSectionServiceTest {
     var hydrocarbonCase = new HydrocarbonCaseDetail();
     when(hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail))
         .thenReturn(Optional.of(hydrocarbonCase));
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     when(hydrocarbonCasePersistenceService.isGasOnlyPresent(hydrocarbonCase)).thenReturn(false);
@@ -282,7 +282,7 @@ class VolumetricsTaskListSectionServiceTest {
     var hydrocarbonCase = new HydrocarbonCaseDetail();
     when(hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail))
         .thenReturn(Optional.of(hydrocarbonCase));
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     when(hydrocarbonCasePersistenceService.isGasOnlyPresent(hydrocarbonCase)).thenReturn(false);
@@ -300,7 +300,7 @@ class VolumetricsTaskListSectionServiceTest {
     var hydrocarbonCase = new HydrocarbonCaseDetail();
     when(hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail))
         .thenReturn(Optional.of(hydrocarbonCase));
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     when(hydrocarbonCasePersistenceService.isGasOnlyPresent(hydrocarbonCase)).thenReturn(true);

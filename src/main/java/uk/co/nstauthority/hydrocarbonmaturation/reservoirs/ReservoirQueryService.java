@@ -22,7 +22,8 @@ public class ReservoirQueryService {
   private final ReservoirLinkService reservoirLinkService;
 
   @Autowired
-  public ReservoirQueryService(FieldPersistenceService fieldPersistenceService, ResourceLinkService resourceLinkService,
+  public ReservoirQueryService(FieldPersistenceService fieldPersistenceService,
+                               ResourceLinkService resourceLinkService,
                                SubmissionDetailService submissionDetailService,
                                ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
                                ReservoirLinkService reservoirLinkService) {
@@ -52,7 +53,7 @@ public class ReservoirQueryService {
     // gets all the reservoir submission details for each of the above submission details and flattens the Streams into a singular
     var discoveryReservoirSubmissionDetails =
         latestDiscoverySubmissionDetails
-            .map(reservoirSubmissionDetailPersistenceService::getAllReservoirSubmissionDetailsForSubmissionDetail)
+            .map(reservoirSubmissionDetailPersistenceService::getAllExtantReservoirSubmissionDetailsForSubmissionDetail)
             .flatMap(Collection::stream);
 
     // filters the reservoirs containing the searched for name and create the reservoir views

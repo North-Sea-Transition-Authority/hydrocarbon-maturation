@@ -59,7 +59,6 @@ class DrillStemTestSummaryControllerTest extends AbstractSubmissionControllerTes
   private BindingResult bindingResult;
   private UUID submissionDetailId;
   private UUID reservoirSubmissionDetailId;
-  private UUID drillStemTestId;
 
   private DrillStemTest drillStemTest;
 
@@ -70,7 +69,7 @@ class DrillStemTestSummaryControllerTest extends AbstractSubmissionControllerTes
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     submissionDetailId = submissionDetail.getId();
     reservoirSubmissionDetailId = reservoirSubmissionDetail.getId();
-    drillStemTestId = UUID.randomUUID();
+    UUID drillStemTestId = UUID.randomUUID();
     drillStemTest = new DrillStemTest();
     drillStemTest.setId(drillStemTestId);
   }
@@ -80,7 +79,7 @@ class DrillStemTestSummaryControllerTest extends AbstractSubmissionControllerTes
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
     when(drillStemTestFormService.getDrillStemTestSummaryForm(reservoirSubmissionDetail)).thenReturn(form);
     when(drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail))
@@ -152,7 +151,7 @@ class DrillStemTestSummaryControllerTest extends AbstractSubmissionControllerTes
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
     when(drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(drillStemTest));
@@ -190,7 +189,7 @@ class DrillStemTestSummaryControllerTest extends AbstractSubmissionControllerTes
     when(drillStemTestFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
     when(drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(drillStemTest));
@@ -211,7 +210,7 @@ class DrillStemTestSummaryControllerTest extends AbstractSubmissionControllerTes
   void getDrillStemTestSummaryModelAndView_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
 
     when(drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail))

@@ -25,7 +25,7 @@ public class ReservoirSummaryService {
   }
 
   public List<ReservoirSummary> getReservoirSummaries(SubmissionDetail submissionDetail) {
-    var reservoirs = reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(
+    var reservoirs = reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail
     );
     return reservoirs.stream()
@@ -34,6 +34,12 @@ public class ReservoirSummaryService {
             getSummarySections(reservoirSubmissionDetail)))
         .sorted(Comparator.comparing(ReservoirSummary::reservoirName))
         .toList();
+  }
+
+  public ReservoirSummary getReservoirSummaryForIndividualReservoir(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return new ReservoirSummary(
+        reservoirSubmissionDetail.getReservoir().getName(),
+        getSummarySections(reservoirSubmissionDetail));
   }
 
   private List<SummarySection> getSummarySections(ReservoirSubmissionDetail reservoirSubmissionDetail) {

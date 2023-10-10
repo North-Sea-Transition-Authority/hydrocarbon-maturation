@@ -75,18 +75,26 @@ public class ReservoirTaskListService {
 
   public List<ReservoirTaskListItem> getAllReservoirTaskLists(SubmissionDetail submissionDetail) {
     var reservoirSubmissionDetails = reservoirSubmissionDetailPersistenceService
-            .getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
+            .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
 
     var taskLists = new ArrayList<ReservoirTaskListItem>();
 
     reservoirSubmissionDetails.forEach(reservoirSubmissionDetail -> {
       var reservoirTaskListItem = new ReservoirTaskListItem(
           reservoirSubmissionDetail.getReservoir().getName(),
+          getReservoirDeleteUrl(reservoirSubmissionDetail),
           getTaskList(reservoirSubmissionDetail)
       );
       taskLists.add(reservoirTaskListItem);
     });
     return taskLists;
+  }
+
+  private String getReservoirDeleteUrl(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return ReverseRouter.route(on(DeleteReservoirController.class).deleteReservoir(
+        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+        reservoirSubmissionDetail.getId(),
+        null));
   }
 
   private List<TaskListItem> getTaskList(ReservoirSubmissionDetail reservoirSubmissionDetail) {

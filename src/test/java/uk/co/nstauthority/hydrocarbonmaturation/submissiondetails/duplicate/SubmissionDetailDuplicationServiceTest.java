@@ -46,9 +46,9 @@ class SubmissionDetailDuplicationServiceTest {
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(newSubmissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(newSubmissionDetail))
         .thenReturn(List.of(newReservoirSubmissionDetail));
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail))
         .thenReturn(List.of(oldReservoirSubmissionDetail));
 
     submissionDetailDuplicationService.duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
@@ -62,7 +62,7 @@ class SubmissionDetailDuplicationServiceTest {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
     var newSubmissionDetail = mock(SubmissionDetail.class);
 
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(newSubmissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(newSubmissionDetail))
         .thenReturn(List.of());
 
     submissionDetailDuplicationService.duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);

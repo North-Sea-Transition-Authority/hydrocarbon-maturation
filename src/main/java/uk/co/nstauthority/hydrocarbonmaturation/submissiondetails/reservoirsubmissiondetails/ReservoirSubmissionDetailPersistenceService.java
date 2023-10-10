@@ -29,12 +29,18 @@ public class ReservoirSubmissionDetailPersistenceService {
     this.reservoirPersistenceService = reservoirPersistenceService;
   }
 
-  public List<ReservoirSubmissionDetail> getAllReservoirSubmissionDetailsForSubmissionDetail(SubmissionDetail submissionDetail) {
-    return reservoirSubmissionDetailRepository.findBySubmissionDetailOrderByReservoir_Name(submissionDetail);
+  public List<ReservoirSubmissionDetail> getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
+      SubmissionDetail submissionDetail
+  ) {
+    return reservoirSubmissionDetailRepository.findBySubmissionDetailAndStatusOrderByReservoir_Name(
+        submissionDetail, ReservoirSubmissionDetailStatus.EXTANT
+    );
   }
 
   public boolean submissionHasReservoirs(SubmissionDetail submissionDetail) {
-    return reservoirSubmissionDetailRepository.existsBySubmissionDetail(submissionDetail);
+    return reservoirSubmissionDetailRepository.existsBySubmissionDetailAndStatus(
+        submissionDetail, ReservoirSubmissionDetailStatus.EXTANT
+    );
   }
 
   @Transactional
@@ -45,6 +51,7 @@ public class ReservoirSubmissionDetailPersistenceService {
       var newReservoirSubmissionDetail = new ReservoirSubmissionDetail();
       newReservoirSubmissionDetail.setReservoir(newReservoir);
       newReservoirSubmissionDetail.setSubmissionDetail(submissionDetail);
+      newReservoirSubmissionDetail.setStatus(ReservoirSubmissionDetailStatus.EXTANT);
       reservoirSubmissionDetails.add(newReservoirSubmissionDetail);
     });
     reservoirSubmissionDetailRepository.saveAll(reservoirSubmissionDetails);
@@ -55,21 +62,30 @@ public class ReservoirSubmissionDetailPersistenceService {
     var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
     reservoirSubmissionDetail.setReservoir(reservoir);
     reservoirSubmissionDetail.setSubmissionDetail(submissionDetail);
+    reservoirSubmissionDetail.setStatus(ReservoirSubmissionDetailStatus.EXTANT);
     reservoirSubmissionDetailRepository.save(reservoirSubmissionDetail);
   }
 
-  public Optional<ReservoirSubmissionDetail> getReservoirSubmissionDetail(UUID reservoirSubmissionDetailId) {
-    return reservoirSubmissionDetailRepository.findById(reservoirSubmissionDetailId);
+  @Transactional
+  public void deleteReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    reservoirSubmissionDetail.setStatus(ReservoirSubmissionDetailStatus.DELETED);
+    reservoirSubmissionDetailRepository.save(reservoirSubmissionDetail);
   }
 
-  public ReservoirSubmissionDetail getReservoirSubmissionDetailOrThrow(UUID reservoirSubmissionDetailId) {
-    return getReservoirSubmissionDetail(reservoirSubmissionDetailId)
+  public Optional<ReservoirSubmissionDetail> getExtantReservoirSubmissionDetail(UUID reservoirSubmissionDetailId) {
+    return reservoirSubmissionDetailRepository.findByIdAndStatus(
+        reservoirSubmissionDetailId, ReservoirSubmissionDetailStatus.EXTANT
+    );
+  }
+
+  public ReservoirSubmissionDetail getExtantReservoirSubmissionDetailOrThrow(UUID reservoirSubmissionDetailId) {
+    return getExtantReservoirSubmissionDetail(reservoirSubmissionDetailId)
         .orElseThrow(() -> new RemiEntityNotFoundException(
             "Could not find reservoir submission detail for id %s".formatted(reservoirSubmissionDetailId)));
   }
 
-  public ReservoirSubmissionDetail getReservoirSubmissionDetail(SubmissionDetail submissionDetail) {
-    return getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail).stream().findFirst()
+  public ReservoirSubmissionDetail getExtantReservoirSubmissionDetail(SubmissionDetail submissionDetail) {
+    return getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail).stream().findFirst()
         .orElseThrow(() -> new RemiEntityNotFoundException(
             "Could not find reservoir submission detail for submission detail %s".formatted(submissionDetail.getId())));
   }

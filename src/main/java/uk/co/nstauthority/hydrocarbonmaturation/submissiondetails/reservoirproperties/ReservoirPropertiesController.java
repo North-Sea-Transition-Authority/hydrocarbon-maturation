@@ -90,7 +90,7 @@ public class ReservoirPropertiesController {
   public ModelAndView getReservoirProperties(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                              @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getReservoirPropertiesModelAndView(
         reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail), reservoirSubmissionDetail);
   }
@@ -103,7 +103,7 @@ public class ReservoirPropertiesController {
                                               ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     if (!reservoirPropertiesFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType)) {
       return getReservoirPropertiesWithErrors(bindingResult, form, reservoirSubmissionDetail);
     } else {

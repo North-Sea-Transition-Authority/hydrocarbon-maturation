@@ -39,8 +39,8 @@ class ReservoirTaskListControllerTest extends AbstractSubmissionControllerTest {
     );
 
     var taskLists = List.of(
-        new ReservoirTaskListItem("reservoir 1", taskListItems),
-        new ReservoirTaskListItem("reservoir 2", taskListItems)
+        new ReservoirTaskListItem("reservoir 1", "deleteUrl1", taskListItems),
+        new ReservoirTaskListItem("reservoir 2", "deleteUrl1", taskListItems)
     );
 
     when(reservoirTaskListService.getAllReservoirTaskLists(submissionDetail)).thenReturn(taskLists);

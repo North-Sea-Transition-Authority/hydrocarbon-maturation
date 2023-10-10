@@ -96,7 +96,7 @@ class ReservoirTaskListServiceTest {
     var reservoirSubmissionDetail2 = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
         reservoir2,
         submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail1, reservoirSubmissionDetail2));
     when(generalReservoirInformationSubmissionService.isSectionSubmittable(any(ReservoirSubmissionDetail.class))).thenReturn(true);
     when(permeabilitySubmissionService.isSectionSubmittable(any(ReservoirSubmissionDetail.class))).thenReturn(true);
@@ -107,10 +107,15 @@ class ReservoirTaskListServiceTest {
 
     assertThat(reservoirTaskListItems).extracting(
         ReservoirTaskListItem::reservoirName,
+        ReservoirTaskListItem::reservoirDeleteUrl,
         ReservoirTaskListItem::taskListItems
     ).containsExactly(
         tuple(
             RESERVOIR_NAME_1,
+            ReverseRouter.route(on(DeleteReservoirController.class).deleteReservoir(
+                reservoirSubmissionDetail1.getSubmissionDetail().getId(),
+                reservoirSubmissionDetail1.getId(),
+                null)),
             List.of(
                 new TaskListItem(
                     "Discovery reservoir",
@@ -145,6 +150,10 @@ class ReservoirTaskListServiceTest {
         ),
         tuple(
             RESERVOIR_NAME_2,
+            ReverseRouter.route(on(DeleteReservoirController.class).deleteReservoir(
+                reservoirSubmissionDetail2.getSubmissionDetail().getId(),
+                reservoirSubmissionDetail2.getId(),
+                null)),
             List.of(
                 new TaskListItem(
                     "Discovery reservoir",
@@ -188,7 +197,7 @@ class ReservoirTaskListServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
         reservoir,
         fieldSubmissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(fieldSubmissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(fieldSubmissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
     when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
@@ -198,10 +207,15 @@ class ReservoirTaskListServiceTest {
 
     assertThat(reservoirTaskListItems).extracting(
         ReservoirTaskListItem::reservoirName,
+        ReservoirTaskListItem::reservoirDeleteUrl,
         ReservoirTaskListItem::taskListItems
     ).containsExactly(
         tuple(
             RESERVOIR_NAME_1,
+            ReverseRouter.route(on(DeleteReservoirController.class).deleteReservoir(
+                reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                reservoirSubmissionDetail.getId(),
+                null)),
             List.of(
                 new TaskListItem(
                     "Field reservoir",
@@ -245,17 +259,22 @@ class ReservoirTaskListServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
         reservoir,
         submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
     when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
     assertThat(reservoirTaskListItems).extracting(
         ReservoirTaskListItem::reservoirName,
+        ReservoirTaskListItem::reservoirDeleteUrl,
         ReservoirTaskListItem::taskListItems
     ).containsExactly(
         tuple(
             RESERVOIR_NAME_1,
+            ReverseRouter.route(on(DeleteReservoirController.class).deleteReservoir(
+                reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                reservoirSubmissionDetail.getId(),
+                null)),
             List.of(
                 new TaskListItem(
                     "Discovery reservoir",
@@ -277,7 +296,7 @@ class ReservoirTaskListServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
         reservoir,
         submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
     when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
@@ -293,10 +312,15 @@ class ReservoirTaskListServiceTest {
 
     assertThat(reservoirTaskListItems).extracting(
         ReservoirTaskListItem::reservoirName,
+        ReservoirTaskListItem::reservoirDeleteUrl,
         ReservoirTaskListItem::taskListItems
     ).containsExactly(
         tuple(
             RESERVOIR_NAME_1,
+            ReverseRouter.route(on(DeleteReservoirController.class).deleteReservoir(
+                reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                reservoirSubmissionDetail.getId(),
+                null)),
             List.of(
                 new TaskListItem(
                     "Discovery reservoir",
@@ -354,7 +378,7 @@ class ReservoirTaskListServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
         reservoir,
         submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
     when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
@@ -367,10 +391,15 @@ class ReservoirTaskListServiceTest {
 
     assertThat(reservoirTaskListItems).extracting(
         ReservoirTaskListItem::reservoirName,
+        ReservoirTaskListItem::reservoirDeleteUrl,
         ReservoirTaskListItem::taskListItems
     ).containsExactly(
         tuple(
             RESERVOIR_NAME_1,
+            ReverseRouter.route(on(DeleteReservoirController.class).deleteReservoir(
+                reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                reservoirSubmissionDetail.getId(),
+                null)),
             List.of(
                 new TaskListItem(
                     "Field reservoir",
@@ -421,7 +450,7 @@ class ReservoirTaskListServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
         reservoir,
         submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
     when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
@@ -437,10 +466,15 @@ class ReservoirTaskListServiceTest {
 
     assertThat(reservoirTaskListItems).extracting(
         ReservoirTaskListItem::reservoirName,
+        ReservoirTaskListItem::reservoirDeleteUrl,
         ReservoirTaskListItem::taskListItems
     ).containsExactly(
         tuple(
             RESERVOIR_NAME_1,
+            ReverseRouter.route(on(DeleteReservoirController.class).deleteReservoir(
+                reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                reservoirSubmissionDetail.getId(),
+                null)),
             List.of(
                 new TaskListItem(
                     "Discovery reservoir",
@@ -498,7 +532,7 @@ class ReservoirTaskListServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
         reservoir,
         submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
     when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
@@ -511,10 +545,15 @@ class ReservoirTaskListServiceTest {
 
     assertThat(reservoirTaskListItems).extracting(
         ReservoirTaskListItem::reservoirName,
+        ReservoirTaskListItem::reservoirDeleteUrl,
         ReservoirTaskListItem::taskListItems
     ).containsExactly(
         tuple(
             RESERVOIR_NAME_1,
+            ReverseRouter.route(on(DeleteReservoirController.class).deleteReservoir(
+                reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                reservoirSubmissionDetail.getId(),
+                null)),
             List.of(
                 new TaskListItem(
                     "Field reservoir",
@@ -565,7 +604,7 @@ class ReservoirTaskListServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
         reservoir,
         submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
     when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
@@ -584,10 +623,15 @@ class ReservoirTaskListServiceTest {
 
     assertThat(reservoirTaskListItems).extracting(
         ReservoirTaskListItem::reservoirName,
+        ReservoirTaskListItem::reservoirDeleteUrl,
         ReservoirTaskListItem::taskListItems
     ).containsExactly(
         tuple(
             RESERVOIR_NAME_1,
+            ReverseRouter.route(on(DeleteReservoirController.class).deleteReservoir(
+                reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                reservoirSubmissionDetail.getId(),
+                null)),
             List.of(
                 new TaskListItem(
                     "Discovery reservoir",
@@ -660,7 +704,7 @@ class ReservoirTaskListServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
         reservoir,
         submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
         .thenReturn(List.of(reservoirSubmissionDetail));
     when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
@@ -675,10 +719,15 @@ class ReservoirTaskListServiceTest {
 
     assertThat(reservoirTaskListItems).extracting(
         ReservoirTaskListItem::reservoirName,
+        ReservoirTaskListItem::reservoirDeleteUrl,
         ReservoirTaskListItem::taskListItems
     ).containsExactly(
         tuple(
             RESERVOIR_NAME_1,
+            ReverseRouter.route(on(DeleteReservoirController.class).deleteReservoir(
+                reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                reservoirSubmissionDetail.getId(),
+                null)),
             List.of(
                 new TaskListItem(
                     "Field reservoir",

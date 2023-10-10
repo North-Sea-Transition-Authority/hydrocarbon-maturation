@@ -339,7 +339,7 @@ public class SubmissionCreateService {
 
   private void createReservoirSubmissionDetails(SubmissionDetail newSubmissionDetail,
                                                 SubmissionDetail oldSubmissionDetail) {
-    reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail)
+    reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail)
         .forEach(reservoirSubmissionDetail -> saveReservoirSubmissionDetails(
             reservoirSubmissionDetail.getReservoir(),
             newSubmissionDetail)

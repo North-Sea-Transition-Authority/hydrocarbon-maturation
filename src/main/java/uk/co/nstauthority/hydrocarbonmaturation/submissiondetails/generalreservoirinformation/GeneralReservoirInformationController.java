@@ -55,7 +55,7 @@ public class GeneralReservoirInformationController {
                                                          @PathVariable("reservoirSubmissionDetailId")
                                                          UUID reservoirSubmissionDetailId) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getGeneralReservoirInformationModelAndView(
         generalReservoirInformationService.getGeneralReservoirInformationForm(reservoirSubmissionDetail),
         reservoirSubmissionDetail);
@@ -69,7 +69,7 @@ public class GeneralReservoirInformationController {
                                                       BindingResult bindingResult,
                                                       ValidationType validationType) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     if (!generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType)) {
       return getGeneralReservoirInformationModelAndView(form, reservoirSubmissionDetail);
     } else {

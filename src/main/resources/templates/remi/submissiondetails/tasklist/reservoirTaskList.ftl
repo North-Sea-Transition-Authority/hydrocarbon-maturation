@@ -12,7 +12,7 @@ breadcrumbsMap=breadcrumbsMap>
     <#list reservoirTaskListItems as reservoirs>
         <#assign actions>
             <@fdsSummaryList.summaryListCardActionList>
-                <@fdsSummaryList.summaryListCardActionItem itemUrl="#" itemText="Remove" itemScreenReaderText="${reservoirs.reservoirName()}"/>
+                <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(reservoirs.reservoirDeleteUrl()) itemText="Remove" itemScreenReaderText="${reservoirs.reservoirName()}"/>
             </@fdsSummaryList.summaryListCardActionList>
         </#assign>
         <@fdsSummaryList.summaryListCard headingText="${reservoirs.reservoirName()}" cardActionsContent=actions summaryListId="reservoir${reservoirs?index}">

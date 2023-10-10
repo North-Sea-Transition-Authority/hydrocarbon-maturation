@@ -11,27 +11,31 @@
 <#macro reservoirSummary reservoirSummaries>
     <#list reservoirSummaries as reservoirSummary>
         <@fdsAccordion.accordionSection sectionHeading="${reservoirSummary.reservoirName()}" summaryText="General reservoir information, properties, volumetric parameters, and outputs for ${reservoirSummary.reservoirName()}">
-            <#list reservoirSummary.summarySections() as summarySection>
-                <#list summarySection.summaryItems() as summaryItem>
-                    <#assign summaryItemId = "reservoirsummaryitem" + summaryItem?index + reservoirSummary?index/>
-                    <@fdsSummaryList.summaryListCard headingText="${summaryItem.displayName()}" summaryListId=summaryItemId>
-                        <#list summaryItem.summaryCards() as summaryCard>
-                            <#if summaryCard.summaryCardType() == "SIMPLE_SUMMARY">
-                                <@simpleSummary.simpleSummary
-                                summaryDataView=summaryCard.summaryData()
-                                summaryHeading=summaryCard.displayName()!""/>
-                            <#elseif summaryCard.summaryCardType() == "TABLE_SUMMARY">
-                                <@tableSummary.tableSummary
-                                summaryTableView=summaryCard.summaryData()
-                                summaryHeading=summaryCard.displayName()!""/>
-                            <#elseif summaryCard.summaryCardType() == "EMPTY_SUMMARY">
-                                <@emptySummary.emptySummary/>
-                            </#if>
-                        </#list>
-                    </@fdsSummaryList.summaryListCard>
-                </#list>
-            </#list>
+            <@reservoirSummarySections reservoirSummary=reservoirSummary/>
         </@fdsAccordion.accordionSection>
     </#list>
 
+</#macro>
+
+<#macro reservoirSummarySections reservoirSummary>
+    <#list reservoirSummary.summarySections() as summarySection>
+        <#list summarySection.summaryItems() as summaryItem>
+            <#assign summaryItemId = "reservoirsummaryitem" + summaryItem?index + summarySection?index/>
+            <@fdsSummaryList.summaryListCard headingText="${summaryItem.displayName()}" summaryListId=summaryItemId>
+                <#list summaryItem.summaryCards() as summaryCard>
+                    <#if summaryCard.summaryCardType() == "SIMPLE_SUMMARY">
+                        <@simpleSummary.simpleSummary
+                        summaryDataView=summaryCard.summaryData()
+                        summaryHeading=summaryCard.displayName()!""/>
+                    <#elseif summaryCard.summaryCardType() == "TABLE_SUMMARY">
+                        <@tableSummary.tableSummary
+                        summaryTableView=summaryCard.summaryData()
+                        summaryHeading=summaryCard.displayName()!""/>
+                    <#elseif summaryCard.summaryCardType() == "EMPTY_SUMMARY">
+                        <@emptySummary.emptySummary/>
+                    </#if>
+                </#list>
+            </@fdsSummaryList.summaryListCard>
+        </#list>
+    </#list>
 </#macro>

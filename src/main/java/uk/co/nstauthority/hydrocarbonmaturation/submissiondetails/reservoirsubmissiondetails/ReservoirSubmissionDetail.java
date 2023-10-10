@@ -2,6 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubm
 
 import java.util.UUID;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -29,6 +31,9 @@ public class ReservoirSubmissionDetail implements SubmissionDetailChildEntity {
   @JoinColumn(name = "submission_detail_id")
   private SubmissionDetail submissionDetail;
 
+  @Enumerated(EnumType.STRING)
+  private ReservoirSubmissionDetailStatus status;
+
   public UUID getId() {
     return id;
   }
@@ -53,5 +58,14 @@ public class ReservoirSubmissionDetail implements SubmissionDetailChildEntity {
   @Override
   public void setSubmissionDetail(SubmissionDetail submissionDetail) {
     this.submissionDetail = submissionDetail;
+  }
+
+  public ReservoirSubmissionDetailStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(
+      ReservoirSubmissionDetailStatus status) {
+    this.status = status;
   }
 }

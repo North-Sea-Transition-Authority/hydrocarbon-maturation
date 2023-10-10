@@ -59,7 +59,7 @@ public class DrillStemTestController {
                                            @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
                                            @ModelAttribute("form") DrillStemTestInitialForm form) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
 
     if (drillStemTestResultPersistenceService.getDrillStemTestResultsByReservoirSubmissionDetail(
         reservoirSubmissionDetail).isEmpty()) {
@@ -77,7 +77,7 @@ public class DrillStemTestController {
                                                @ModelAttribute("form") DrillStemTestInitialForm form,
                                                BindingResult bindingResult) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
     bindingResult = drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);

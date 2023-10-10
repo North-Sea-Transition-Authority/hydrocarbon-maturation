@@ -3,5 +3,5 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.rese
 import java.util.List;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListItem;
 
-public record ReservoirTaskListItem(String reservoirName, List<TaskListItem> taskListItems) {
+public record ReservoirTaskListItem(String reservoirName, String reservoirDeleteUrl, List<TaskListItem> taskListItems) {
 }

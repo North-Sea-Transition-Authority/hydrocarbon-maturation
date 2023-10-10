@@ -78,6 +78,7 @@ public class GeneralReservoirInformationService {
           form.getAssociatedDiscoveryReservoirs()
               .stream()
               .map(UUID::fromString)
+              .distinct()
               .toList()
       );
 

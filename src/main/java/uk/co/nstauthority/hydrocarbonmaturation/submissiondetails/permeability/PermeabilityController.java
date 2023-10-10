@@ -65,7 +65,7 @@ public class PermeabilityController {
   public ModelAndView getPermeabilityPage(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                           @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getPermeabilityModelAndView(
         permeabilityFormService.getPermeabilityForm(reservoirSubmissionDetail), reservoirSubmissionDetail
     );
@@ -79,7 +79,7 @@ public class PermeabilityController {
                                               ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     if (!permeabilityFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
       return getPermeabilityModelAndViewWithErrors(bindingResult, form, reservoirSubmissionDetail);
     } else {

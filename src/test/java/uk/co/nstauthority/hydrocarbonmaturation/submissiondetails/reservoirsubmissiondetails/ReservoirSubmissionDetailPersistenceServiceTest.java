@@ -55,15 +55,17 @@ class ReservoirSubmissionDetailPersistenceServiceTest {
   @Test
   void getAllReservoirsForSubmissionDetail() {
     var submissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY);
-    reservoirSubmissionDetailPersistenceService.getAllReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
-    verify(reservoirSubmissionDetailRepository, times(1)).findBySubmissionDetailOrderByReservoir_Name(submissionDetail);
+    reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
+    verify(reservoirSubmissionDetailRepository, times(1))
+        .findBySubmissionDetailAndStatusOrderByReservoir_Name(submissionDetail, ReservoirSubmissionDetailStatus.EXTANT);
   }
 
   @Test
   void submissionHasReservoirs() {
     var submissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY);
     reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail);
-    verify(reservoirSubmissionDetailRepository, times(1)).existsBySubmissionDetail(submissionDetail);
+    verify(reservoirSubmissionDetailRepository, times(1))
+        .existsBySubmissionDetailAndStatus(submissionDetail, ReservoirSubmissionDetailStatus.EXTANT);
   }
 
   @Test
@@ -104,8 +106,8 @@ class ReservoirSubmissionDetailPersistenceServiceTest {
   @Test
   void getReservoirSubmissionDetail_verifyCalls() {
     var id = UUID.randomUUID();
-    reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(id);
-    verify(reservoirSubmissionDetailRepository, times(1)).findById(id);
+    reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(id);
+    verify(reservoirSubmissionDetailRepository, times(1)).findByIdAndStatus(id, ReservoirSubmissionDetailStatus.EXTANT);
   }
 
   @Test
@@ -113,16 +115,16 @@ class ReservoirSubmissionDetailPersistenceServiceTest {
     var id = UUID.randomUUID();
     var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
     reservoirSubmissionDetail.setId(id);
-    when(reservoirSubmissionDetailRepository.findById(id)).thenReturn(Optional.of(reservoirSubmissionDetail));
-    assertThat(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(id))
+    when(reservoirSubmissionDetailRepository.findByIdAndStatus(id, ReservoirSubmissionDetailStatus.EXTANT)).thenReturn(Optional.of(reservoirSubmissionDetail));
+    assertThat(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(id))
         .isEqualTo(reservoirSubmissionDetail);
   }
 
   @Test
   void getReservoirSubmissionDetailOrThrow_throws() {
     var id = UUID.randomUUID();
-    when(reservoirSubmissionDetailRepository.findById(id)).thenReturn(Optional.empty());
-    assertThatThrownBy(() -> reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(id))
+    when(reservoirSubmissionDetailRepository.findByIdAndStatus(id, ReservoirSubmissionDetailStatus.EXTANT)).thenReturn(Optional.empty());
+    assertThatThrownBy(() -> reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(id))
         .isInstanceOf(RemiEntityNotFoundException.class)
         .hasMessage("Could not find reservoir submission detail for id %s".formatted(id));
   }
@@ -134,19 +136,19 @@ class ReservoirSubmissionDetailPersistenceServiceTest {
     reservoirSubmissionDetail.setId(id);
 
     var submissionDetail = new SubmissionDetail();
-    when(reservoirSubmissionDetailRepository.findBySubmissionDetailOrderByReservoir_Name(submissionDetail))
+    when(reservoirSubmissionDetailRepository.findBySubmissionDetailAndStatusOrderByReservoir_Name(submissionDetail, ReservoirSubmissionDetailStatus.EXTANT))
         .thenReturn(List.of(reservoirSubmissionDetail));
 
-    assertThat(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    assertThat(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .isEqualTo(reservoirSubmissionDetail);
   }
 
   @Test
   void getReservoirSubmissionDetail_submissionDetail_throws() {
     var submissionDetail = new SubmissionDetail();
-    when(reservoirSubmissionDetailRepository.findBySubmissionDetailOrderByReservoir_Name(submissionDetail))
+    when(reservoirSubmissionDetailRepository.findBySubmissionDetailAndStatusOrderByReservoir_Name(submissionDetail, ReservoirSubmissionDetailStatus.EXTANT))
         .thenReturn(List.of());
-    assertThatThrownBy(() -> reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail))
+    assertThatThrownBy(() -> reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .isInstanceOf(RemiEntityNotFoundException.class)
         .hasMessage("Could not find reservoir submission detail for submission detail %s".formatted(submissionDetail.getId()));
   }

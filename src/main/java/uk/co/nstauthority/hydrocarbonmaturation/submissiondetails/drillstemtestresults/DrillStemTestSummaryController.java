@@ -66,8 +66,7 @@ public class DrillStemTestSummaryController {
   public ModelAndView getDrillStemTestSummaryPage(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                                   @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
-
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     var drillStemTest = drillStemTestInitialPersistenceService
         .getDrillStemTestByReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail);
     var drillStemTestResults = drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest);
@@ -88,7 +87,7 @@ public class DrillStemTestSummaryController {
                                                BindingResult bindingResult) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
 
     bindingResult = drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
 

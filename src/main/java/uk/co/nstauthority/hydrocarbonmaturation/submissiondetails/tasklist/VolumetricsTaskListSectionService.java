@@ -79,7 +79,7 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     if (submissionDetail.isProspectSubmission()) {
       var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-          .getReservoirSubmissionDetail(submissionDetail);
+          .getExtantReservoirSubmissionDetail(submissionDetail);
       var hydrocarbonCaseDetail = hydrocarbonCasePersistenceService
           .getHydrocarbonCaseDetail(submissionDetail)
           .orElseGet(HydrocarbonCaseDetail::new);
@@ -111,7 +111,7 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
   private List<TaskListItem> getTaskListItemsByHydrocarbonCase(SubmissionDetail submissionDetail) {
     var listOfItems = new ArrayList<TaskListItem>();
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetail(submissionDetail);
+        .getExtantReservoirSubmissionDetail(submissionDetail);
     var hydrocarbonCaseDetail = hydrocarbonCasePersistenceService
         .getHydrocarbonCaseDetail(submissionDetail)
         .orElseGet(HydrocarbonCaseDetail::new);

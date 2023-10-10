@@ -93,7 +93,9 @@ public class HydrocarbonCasePersistenceService {
   }
 
   private void cleanHydrocarbonCase(HydrocarbonCaseForm form, SubmissionDetail submissionDetail) {
-    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetail(submissionDetail);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(
+        submissionDetail
+    );
     if (BooleanUtils.isNotTrue(form.getGasOnlyCaseType())) {
       probabilityDistributionPersistenceService.deleteProbabilityDistributions(
           List.of(

@@ -35,11 +35,11 @@ public class SubmissionDetailDuplicationService {
     );
 
     var newReservoirSubmissionDetails = reservoirSubmissionDetailPersistenceService
-        .getAllReservoirSubmissionDetailsForSubmissionDetail(newSubmissionDetail);
+        .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(newSubmissionDetail);
 
     if (!newReservoirSubmissionDetails.isEmpty()) {
       var oldReservoirSubmissionDetails = reservoirSubmissionDetailPersistenceService
-          .getAllReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail);
+          .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail);
 
       var newReservoirSubmissionDetailsMap = newReservoirSubmissionDetails
           .stream()

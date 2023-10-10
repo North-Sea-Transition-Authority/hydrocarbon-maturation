@@ -68,7 +68,7 @@ public class MixedCaseVolumetricsController {
                                               @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getMixedCaseVolumetricsModelAndView(
         mixedCaseVolumetricsFormService.getMixedCaseVolumetricsForm(reservoirSubmissionDetail), submissionDetail);
   }
@@ -81,7 +81,7 @@ public class MixedCaseVolumetricsController {
                                                ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     bindingResult = mixedCaseVolumetricsFormService.validate(form, bindingResult, validationType, submissionDetail);
 
     return controllerHelperService.checkErrorsAndRedirect(

@@ -79,7 +79,7 @@ class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest
         .thenReturn(Optional.of(submissionDetail));
     reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     reservoirSubmissionDetailId = reservoirSubmissionDetail.getId();
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
 
     var field = new Field();
@@ -182,7 +182,7 @@ class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest
   void getGasVolumetricsModelAndView_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetail(reservoirSubmissionDetailId)).thenReturn(Optional.of(submissionDetail));
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
     when(fieldGasVolumetricsService.getGasVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
 

@@ -227,6 +227,27 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         .thenReturn(false);
   }
 
+  protected void setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(ServiceUserDetail user, SubmissionDetail submissionDetail) {
+    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
+        .thenReturn(operatorTeamMembershipInterceptorRule);
+    var responsibleTeam = new RegulatorManagedInformation();
+    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+    responsibleTeam.setResource(submissionDetail.getSubmission().getResource());
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
+        submissionDetail.getSubmission().getResource()))
+        .thenReturn(responsibleTeam);
+    when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
+        .thenReturn(false);
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOrganisationId(1);
+    when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(resourceDetail));
+    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(resourceDetail.getOrganisationId()))
+        .thenReturn(List.of(1));
+    when(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1)))
+        .thenReturn(false);
+  }
+
   protected void setUpWhenIsLatestExtantSubmissionVersion_passSecurity(SubmissionDetail submissionDetail) {
     if (submissionDetail.getVersionNumber() > 1 || submissionDetail.getStatus() != SubmissionDetailStatus.DRAFT) {
       switch (submissionDetail.getStatus()) {

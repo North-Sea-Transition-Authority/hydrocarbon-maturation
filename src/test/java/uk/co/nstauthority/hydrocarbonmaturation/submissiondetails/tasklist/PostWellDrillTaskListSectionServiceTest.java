@@ -126,7 +126,7 @@ class PostWellDrillTaskListSectionServiceTest {
   void isSectionSubmittable_prospectSubmission_assertTrue() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetail(submissionDetail))
+        .getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     assertTrue(postWellDrillTaskListSectionService.isSectionSubmittable(submissionDetail));
@@ -138,7 +138,7 @@ class PostWellDrillTaskListSectionServiceTest {
     when(dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail))
         .thenReturn(true);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetail(submissionDetail))
+        .getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     assertTrue(postWellDrillTaskListSectionService.isSectionSubmittable(submissionDetail));
@@ -149,7 +149,7 @@ class PostWellDrillTaskListSectionServiceTest {
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     when(dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetail(submissionDetail))
+        .getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     assertFalse(postWellDrillTaskListSectionService.isSectionSubmittable(submissionDetail));
@@ -164,7 +164,7 @@ class PostWellDrillTaskListSectionServiceTest {
     when(drillStemTestSubmissionService.isSectionSubmittable(reservoirSubmissionDetail))
         .thenReturn(true);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetail(submissionDetail))
+        .getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     assertTrue(postWellDrillTaskListSectionService.isSectionSubmittable(submissionDetail));
@@ -176,7 +176,7 @@ class PostWellDrillTaskListSectionServiceTest {
     when(discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail))
         .thenReturn(false);
     when(reservoirSubmissionDetailPersistenceService
-        .getReservoirSubmissionDetail(submissionDetail))
+        .getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
     assertFalse(postWellDrillTaskListSectionService.isSectionSubmittable(submissionDetail));
