@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.prospectmixedcaseoutputs;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,7 +19,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +29,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -37,10 +37,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceTypeUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -48,14 +47,17 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
-@ContextConfiguration(classes = MixedCaseOutputsController.class)
-class MixedCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
+@ContextConfiguration(classes = ProspectMixedCaseOutputsController.class)
+class ProspectMixedCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
-  private MixedCaseOutputsFormService mixedCaseOutputsFormService;
+  private ProspectMixedCaseOutputsFormService prospectMixedCaseOutputsFormService;
 
   @MockBean
-  private MixedCaseOutputsPersistenceService mixedCaseOutputsPersistenceService;
+  private ProspectMixedCaseOutputsFormValidator prospectMixedCaseOutputsFormValidator;
+
+  @MockBean
+  private ProspectMixedCaseOutputsPersistenceService prospectMixedCaseOutputsPersistenceService;
 
   @Autowired
   private ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
@@ -81,11 +83,11 @@ class MixedCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void getMixedCaseOutputs_assertOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(mixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(new MixedCaseOutputsForm());
+    when(prospectMixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(new MixedCaseOutputsForm());
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
-        get(ReverseRouter.route(on(MixedCaseOutputsController.class)
+        get(ReverseRouter.route(on(ProspectMixedCaseOutputsController.class)
             .getMixedCaseOutputs(submissionDetailId, reservoirSubmissionDetailId)))
             .with(user(USER)))
         .andExpect(status().isOk())
@@ -96,7 +98,7 @@ class MixedCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
   void getMixedCaseOutputs_andStatusIsNotDraft_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     mockMvc.perform(
-            get(ReverseRouter.route(on(MixedCaseOutputsController.class)
+            get(ReverseRouter.route(on(ProspectMixedCaseOutputsController.class)
                 .getMixedCaseOutputs(submissionDetailId, reservoirSubmissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
@@ -106,7 +108,7 @@ class MixedCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
   void getMixedCaseOutputs_andNotProspectOrDiscovery_assertForbidden() throws Exception {
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     mockMvc.perform(
-            get(ReverseRouter.route(on(MixedCaseOutputsController.class)
+            get(ReverseRouter.route(on(ProspectMixedCaseOutputsController.class)
                 .getMixedCaseOutputs(submissionDetailId, reservoirSubmissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
@@ -117,7 +119,7 @@ class MixedCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
   void getMixedCaseOutputs_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
-            get(ReverseRouter.route(on(MixedCaseOutputsController.class)
+            get(ReverseRouter.route(on(ProspectMixedCaseOutputsController.class)
                 .getMixedCaseOutputs(submissionDetailId, reservoirSubmissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
@@ -127,7 +129,7 @@ class MixedCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
   void saveMixedCaseOutputs_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
-            post(ReverseRouter.route(on(MixedCaseOutputsController.class).saveMixedCaseOutputs(
+            post(ReverseRouter.route(on(ProspectMixedCaseOutputsController.class).saveMixedCaseOutputs(
                 submissionDetailId, reservoirSubmissionDetailId, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
@@ -137,11 +139,12 @@ class MixedCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveMixedCaseOutputs_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(mixedCaseOutputsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    when(prospectMixedCaseOutputsFormValidator.isValid(
+        any(MixedCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(true);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(MixedCaseOutputsController.class)
+        post(ReverseRouter.route(on(ProspectMixedCaseOutputsController.class)
             .saveMixedCaseOutputs(submissionDetailId, reservoirSubmissionDetailId, null, null, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
@@ -149,36 +152,35 @@ class MixedCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
 
-    verify(mixedCaseOutputsPersistenceService, times(1)).saveMixedCaseOutputs(any(MixedCaseOutputsForm.class), eq(reservoirSubmissionDetail));
+    verify(prospectMixedCaseOutputsPersistenceService, times(1)).saveMixedCaseOutputs(any(MixedCaseOutputsForm.class), eq(reservoirSubmissionDetail));
   }
 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveMixedCaseOutputs_partialValidation_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-
-    when(mixedCaseOutputsFormService.validate(
-        any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    when(prospectMixedCaseOutputsFormValidator.isValid(
+        any(MixedCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(false);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(MixedCaseOutputsController.class)
+        post(ReverseRouter.route(on(ProspectMixedCaseOutputsController.class)
             .saveMixedCaseOutputs(submissionDetailId, reservoirSubmissionDetailId, null, null, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(mixedCaseOutputsPersistenceService, never()).saveMixedCaseOutputs(any(MixedCaseOutputsForm.class), any());
+    verify(prospectMixedCaseOutputsPersistenceService, never()).saveMixedCaseOutputs(any(MixedCaseOutputsForm.class), any());
   }
 
   @Test
-  void getMixedCaseOutputsModelAndView_whenProspect_assertModelProperties() throws Exception {
+  void getMixedCaseOutputsModelAndView_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(mixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(form);
+    when(prospectMixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(form);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-        get(ReverseRouter.route(on(MixedCaseOutputsController.class)
+        get(ReverseRouter.route(on(ProspectMixedCaseOutputsController.class)
             .getMixedCaseOutputs(submissionDetailId, reservoirSubmissionDetailId)))
             .with(user(USER)))
         .andReturn()
@@ -195,6 +197,7 @@ class MixedCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
     assertThat(modelMap)
         .contains(
             entry("form", form),
+            entry("pageTitle", ProspectMixedCaseOutputsController.PAGE_NAME),
             entry("oilInPlaceTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT)),
             entry("oilRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
@@ -209,69 +212,6 @@ class MixedCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
                 ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT)),
             entry("oilEquivalentRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT)),
-            entry("oilInPlaceError", ProbabilityDistributionTypeError.emptyError()),
-            entry("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
-            entry("associatedGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
-            entry("gasInPlaceError", ProbabilityDistributionTypeError.emptyError()),
-            entry("gasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
-            entry("associatedCondensateRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
-            entry("oilEquivalentRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
-        );
-  }
-
-  @Test
-  void getMixedCaseOutputsModelAndView_whenDiscovery_assertModelProperties() throws Exception {
-    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-    var discoverySubmissionDetailId = discoverySubmissionDetail.getId();
-    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
-    var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
-
-    when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
-    when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
-    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(discoveryReservoirSubmissionDetailId)).thenReturn(discoveryReservoirSubmissionDetail);
-    when(mixedCaseOutputsFormService.getMixedCaseOutputsForm(discoveryReservoirSubmissionDetail)).thenReturn(form);
-
-
-    var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(MixedCaseOutputsController.class)
-                .getMixedCaseOutputs(discoverySubmissionDetailId, discoveryReservoirSubmissionDetailId)))
-                .with(user(USER)))
-        .andReturn()
-        .getModelAndView()).getModelMap();
-
-    @SuppressWarnings(value = "unchecked")
-    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
-    assertThat(breadcrumbsMap.entrySet())
-        .containsExactly(
-            entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME)
-        );
-
-    var contingentUncertaintyCategoryPromptOverrides =
-        ProbabilityOfExceedanceTypeUtil.getContingentUncertaintyCategoryPromptOverrides();
-
-    assertThat(modelMap)
-        .contains(
-            entry("form", form),
-            entry("oilInPlaceTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_DISCOVERY)),
-            entry("oilRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
-                contingentUncertaintyCategoryPromptOverrides)),
-            entry("associatedGasRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
-                contingentUncertaintyCategoryPromptOverrides)),
-            entry("gasInPlaceTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_DISCOVERY)),
-            entry("gasRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
-                contingentUncertaintyCategoryPromptOverrides)),
-            entry("associatedCondensateRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
-                contingentUncertaintyCategoryPromptOverrides)),
-            entry("oilEquivalentRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY,
-                contingentUncertaintyCategoryPromptOverrides)),
             entry("oilInPlaceError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
             entry("associatedGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),

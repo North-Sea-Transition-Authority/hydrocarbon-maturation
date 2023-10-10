@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverymixedcaseoutputs.DiscoveryMixedCaseOutputsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverymixedcaseoutputs.DiscoveryMixedCaseOutputsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSubmissionService;
@@ -48,6 +50,7 @@ public class ReservoirTaskListService {
   private final GasCaseVolumetricsSubmissionService gasCaseVolumetricsSubmissionService;
   private final GasCaseOutputsSubmissionService gasCaseOutputsSubmissionService;
   private final DrillStemTestSubmissionService drillStemTestSubmissionService;
+  private final DiscoveryMixedCaseOutputsSubmissionService discoveryMixedCaseOutputsSubmissionService;
 
   @Autowired
   public ReservoirTaskListService(
@@ -60,7 +63,8 @@ public class ReservoirTaskListService {
       OilCaseVolumetricsSubmissionService oilCaseVolumetricsSubmissionService,
       GasCaseVolumetricsSubmissionService gasCaseVolumetricsSubmissionService,
       GasCaseOutputsSubmissionService gasCaseOutputsSubmissionService,
-      DrillStemTestSubmissionService drillStemTestSubmissionService) {
+      DrillStemTestSubmissionService drillStemTestSubmissionService,
+      DiscoveryMixedCaseOutputsSubmissionService discoveryMixedCaseOutputsSubmissionService) {
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.permeabilitySubmissionService = permeabilitySubmissionService;
     this.generalReservoirInformationSubmissionService = generalReservoirInformationSubmissionService;
@@ -71,6 +75,7 @@ public class ReservoirTaskListService {
     this.gasCaseVolumetricsSubmissionService = gasCaseVolumetricsSubmissionService;
     this.gasCaseOutputsSubmissionService = gasCaseOutputsSubmissionService;
     this.drillStemTestSubmissionService = drillStemTestSubmissionService;
+    this.discoveryMixedCaseOutputsSubmissionService = discoveryMixedCaseOutputsSubmissionService;
   }
 
   public List<ReservoirTaskListItem> getAllReservoirTaskLists(SubmissionDetail submissionDetail) {
@@ -149,7 +154,10 @@ public class ReservoirTaskListService {
                     submissionDetail.getId(),
                     reservoirSubmissionDetail.getId())))
         );
+      }
 
+      if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
+          && resourceType == ResourceType.DISCOVERY) {
         items.add(
             new TaskListItem("Oil case outputs (resources)",
                 TaskListLabel.notStartedOrComplete(
@@ -184,7 +192,10 @@ public class ReservoirTaskListService {
                     submissionDetail.getId(),
                     reservoirSubmissionDetail.getId())))
         );
+      }
 
+      if ((hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY)
+          && resourceType == ResourceType.DISCOVERY) {
         items.add(
             new TaskListItem("Gas case outputs (resources)",
                 TaskListLabel.notStartedOrComplete(
@@ -208,17 +219,27 @@ public class ReservoirTaskListService {
         );
       }
 
-      if (submissionDetail.isDiscoverySubmission() || submissionDetail.isFieldSubmission()) {
+      if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS
+          && resourceType == ResourceType.DISCOVERY) {
         items.add(
-            new TaskListItem("Well test results",
+            new TaskListItem("Oil and gas case outputs (resources)",
                 TaskListLabel.notStartedOrComplete(
-                    drillStemTestSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-                ReverseRouter.route(on(DrillStemTestController.class).getDrillStemTestPage(
+                    discoveryMixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                ReverseRouter.route(on(DiscoveryMixedCaseOutputsController.class).getMixedCaseOutputs(
                     submissionDetail.getId(),
-                    reservoirSubmissionDetail.getId(),
-                    null)))
+                    reservoirSubmissionDetail.getId())))
         );
       }
+
+      items.add(
+          new TaskListItem("Well test results",
+              TaskListLabel.notStartedOrComplete(
+                  drillStemTestSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+              ReverseRouter.route(on(DrillStemTestController.class).getDrillStemTestPage(
+                  submissionDetail.getId(),
+                  reservoirSubmissionDetail.getId(),
+                  null)))
+      );
     }
     return items;
   }

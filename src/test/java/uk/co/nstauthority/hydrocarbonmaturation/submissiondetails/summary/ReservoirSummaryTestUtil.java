@@ -12,16 +12,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 
 public class ReservoirSummaryTestUtil {
 
-  public static final int GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER = 10;
-
   public static final List<SummaryKeyValue> keyValues =
       List.of(new SummaryKeyValue("k1", "v1"), new SummaryKeyValue("k2", "v2"));
 
   public static SummaryCard simpleSummaryCard = SummaryCard.simpleSummaryCard(new SummaryDataView(keyValues));
-
-  public static SummarySection getGeneralReservoirSummarySection(List<SummaryItem> summaryItems) {
-    return new SummarySection(GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER, summaryItems, "");
-  }
 
   public static void assertSummarySection(SummarySection summarySection, int displayOrder) {
     assertThat(summarySection.displayOrder()).isEqualTo(displayOrder);

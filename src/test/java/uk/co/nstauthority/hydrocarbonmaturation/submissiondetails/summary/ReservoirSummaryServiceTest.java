@@ -66,10 +66,19 @@ class ReservoirSummaryServiceTest {
     var reservoirSubmissionDetailList = List.of(reservoirSubmissionDetail1, reservoirSubmissionDetail2, reservoirSubmissionDetail3);
     reservoirSubmissionDetailList.forEach(reservoirSubmissionDetail ->
         when(generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail))
-            .thenReturn(Optional.of(ReservoirSummaryTestUtil.getGeneralReservoirSummarySection(null))));
+            .thenReturn(
+                Optional.of(
+                    new SummarySection(
+                        GeneralReservoirInformationSummarySectionService.GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER,
+                    null,
+                    ""
+                    )
+                )
+            )
+    );
 
     var reservoirSummaries = reservoirSummaryService.getReservoirSummaries(submissionDetail);
-    var generalReservoirInfoSummarySection = new SummarySection(ReservoirSummaryTestUtil.GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER, null, "");
+    var generalReservoirInfoSummarySection = new SummarySection(GeneralReservoirInformationSummarySectionService.GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER, null, "");
     var reservoirSummary1 = new ReservoirSummary(reservoirName1, List.of(generalReservoirInfoSummarySection));
     var reservoirSummary2 = new ReservoirSummary(reservoirName3, List.of(generalReservoirInfoSummarySection));
     var reservoirSummary3 = new ReservoirSummary(reservoirName2, List.of(generalReservoirInfoSummarySection));

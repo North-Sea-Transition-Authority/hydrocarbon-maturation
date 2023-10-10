@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Repository
-interface MixedCaseOutputsRepository extends CrudRepository<MixedCaseOutput, UUID> {
+public interface MixedCaseOutputsRepository extends CrudRepository<MixedCaseOutput, UUID> {
 
   Optional<MixedCaseOutput> findByReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail);
 

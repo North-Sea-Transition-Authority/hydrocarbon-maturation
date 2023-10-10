@@ -17,7 +17,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumet
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics.MixedCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
@@ -72,9 +71,6 @@ class DiscoverySummaryServiceTest {
 
   @Mock
   private MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService;
-
-  @Mock
-  private MixedCaseOutputsSummaryService mixedCaseOutputsSummaryService;
 
   @Mock
   private DiscoveryWellDetailsSummaryService discoveryWellDetailsSummaryService;
@@ -207,14 +203,6 @@ class DiscoverySummaryServiceTest {
 
     verify(mixedCaseVolumetricsSummaryService, times(1))
         .getMixedCaseVolumetricsSummaryView(reservoirSubmissionDetail);
-  }
-
-  @Test
-  void getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
-    discoverySummaryService.getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
-
-    verify(mixedCaseOutputsSummaryService, times(1))
-        .getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   @Test

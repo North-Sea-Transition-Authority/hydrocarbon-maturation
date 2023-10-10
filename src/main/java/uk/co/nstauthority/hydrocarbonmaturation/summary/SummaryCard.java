@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.summary;
 
 import java.util.List;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 
 public record SummaryCard(
     String displayName,
@@ -52,6 +53,21 @@ public record SummaryCard(
 
   public static SummaryCard tableSummaryCard(SummaryTableView summaryData) {
     return tableSummaryCardWithHeading(null, summaryData);
+  }
+
+  public static SummaryCard probabilitySummaryCardWithHeading(
+      String displayName,
+      List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews) {
+    return new SummaryCard(
+        displayName,
+        SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
+        probabilityDistributionSummaryViews
+    );
+  }
+
+  public static SummaryCard probabilitySummaryCard(
+      List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews) {
+    return probabilitySummaryCardWithHeading(null, probabilityDistributionSummaryViews);
   }
 
 }

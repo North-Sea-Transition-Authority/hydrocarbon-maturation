@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.prospectmixedcaseoutputs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,7 +24,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.OngoingStubbing;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
@@ -33,13 +32,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
-class MixedCaseOutputsDuplicationServiceTest {
+class ProspectMixedCaseOutputsDuplicationServiceTest {
   @Mock
-  private MixedCaseOutputsPersistenceService mixedCaseOutputsPersistenceService;
+  private ProspectMixedCaseOutputsPersistenceService prospectMixedCaseOutputsPersistenceService;
 
   @Mock
   private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
@@ -48,10 +48,10 @@ class MixedCaseOutputsDuplicationServiceTest {
   private ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @InjectMocks
-  private MixedCaseOutputsDuplicationService mixedCaseOutputsDuplicationService;
+  private ProspectMixedCaseOutputsDuplicationService prospectMixedCaseOutputsDuplicationService;
 
   @ParameterizedTest
-  @MethodSource("allDiscoveryAndProspectSubmissionTypes")
+  @MethodSource("allProspectSubmissionTypes")
   void duplicateReservoirSection_MixedCaseOutputExists_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
@@ -61,17 +61,17 @@ class MixedCaseOutputsDuplicationServiceTest {
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
     var mixedCaseOutput = mock(MixedCaseOutput.class);
-    when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(oldReservoirSubmissionDetail))
+    when(prospectMixedCaseOutputsPersistenceService.getMixedCaseOutput(oldReservoirSubmissionDetail))
         .thenReturn(Optional.of(mixedCaseOutput));
 
-    mixedCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+    prospectMixedCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
     verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newReservoirSubmissionDetail, mixedCaseOutput,
         MixedCaseOutput.class);
   }
 
   @ParameterizedTest
-  @MethodSource("allDiscoveryAndProspectSubmissionTypes")
+  @MethodSource("allProspectSubmissionTypes")
   void duplicateReservoirSection_MixedCaseOutputDoesNotExist_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
@@ -80,17 +80,17 @@ class MixedCaseOutputsDuplicationServiceTest {
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
-    when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(oldReservoirSubmissionDetail))
+    when(prospectMixedCaseOutputsPersistenceService.getMixedCaseOutput(oldReservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
-    mixedCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+    prospectMixedCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
     verify(reservoirDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(MixedCaseOutput.class), eq(MixedCaseOutput.class));
   }
 
   @ParameterizedTest
-  @MethodSource("allDiscoveryAndProspectSubmissionTypes")
+  @MethodSource("allProspectSubmissionTypes")
   void duplicateReservoirSection_ProbabilityDistributionsExist_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
@@ -104,7 +104,7 @@ class MixedCaseOutputsDuplicationServiceTest {
     whenGetAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail)
         .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
 
-    mixedCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+    prospectMixedCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
     var argumentCaptor1 = ArgumentCaptor.forClass(ReservoirSubmissionDetail.class);
     verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(argumentCaptor1.capture(), eq(probabilityDistribution1),
@@ -117,7 +117,7 @@ class MixedCaseOutputsDuplicationServiceTest {
   }
 
   @ParameterizedTest
-  @MethodSource("allDiscoveryAndProspectSubmissionTypes")
+  @MethodSource("allProspectSubmissionTypes")
   void duplicateReservoirSection_ProbabilityDistributionsDoNotExist_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
@@ -129,14 +129,14 @@ class MixedCaseOutputsDuplicationServiceTest {
     whenGetAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail)
         .thenReturn(Collections.emptyList());
 
-    mixedCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+    prospectMixedCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
     verify(reservoirDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
 
   @ParameterizedTest
-  @MethodSource("allDiscoveryAndProspectSubmissionTypes")
+  @MethodSource("allProspectSubmissionTypes")
   void duplicateReservoirSection_DoesNotDuplicateToNonApplicableSubmissionType(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
@@ -145,7 +145,7 @@ class MixedCaseOutputsDuplicationServiceTest {
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
-    mixedCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+    prospectMixedCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
     verify(reservoirDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(MixedCaseOutput.class), eq(MixedCaseOutput.class));
@@ -162,7 +162,7 @@ class MixedCaseOutputsDuplicationServiceTest {
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
-    mixedCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+    prospectMixedCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
     verify(reservoirDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
@@ -179,25 +179,13 @@ class MixedCaseOutputsDuplicationServiceTest {
         ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT,
         ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
     );
-    var resourceType = oldReservoirSubmissionDetail.getSubmissionDetail().getSubmission().getResource().getType();
-    if (resourceType == ResourceType.DISCOVERY) {
-      applicableInstances = Set.of(
-          ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_DISCOVERY,
-          ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
-          ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
-          ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_DISCOVERY,
-          ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
-          ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
-          ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
-      );
-    }
 
     return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail, applicableInstances));
   }
 
-  private static Stream<Arguments> allDiscoveryAndProspectSubmissionTypes() {
+  private static Stream<Arguments> allProspectSubmissionTypes() {
     return Arrays.stream(SubmissionType.values())
-        .filter(submissionType -> SubmissionDetailUtil.isDiscoverySubmission(submissionType) || SubmissionDetailUtil.isProspectSubmission(submissionType))
+        .filter(SubmissionDetailUtil::isProspectSubmission)
         .map(Arguments::of);
   }
 }

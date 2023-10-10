@@ -4,7 +4,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
-class MixedCaseOutputsForm implements SubmissionForm {
+public class MixedCaseOutputsForm implements SubmissionForm {
 
   private ProbabilityDistributionForm oilInPlace = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm oilRecoverableResources = new ProbabilityDistributionForm();

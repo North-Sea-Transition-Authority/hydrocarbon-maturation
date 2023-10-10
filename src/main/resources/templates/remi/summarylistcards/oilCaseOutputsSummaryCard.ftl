@@ -1,5 +1,5 @@
 <#include '../layout/layout.ftl'>
-<#import '../probabilitydistribution/probabilityDistributionSummary.ftl' as probabilityDistribution>
+<#import '../summary/_probabilityDistributionSummary.ftl' as probabilityDistribution>
 
 <#-- @ftlvariable name="oilCaseOutputsValues" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryView" -->
 

@@ -14,7 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 
 @Entity
 @Table(name = "mixed_case_outputs")
-class MixedCaseOutput implements ReservoirSubmissionDetailChildEntity {
+public class MixedCaseOutput implements ReservoirSubmissionDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")

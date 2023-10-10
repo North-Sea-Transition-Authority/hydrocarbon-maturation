@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.prospectmixedcaseoutputs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -19,20 +19,22 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutput;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
-class MixedCaseOutputSummaryServiceTest {
+class ProspectMixedCaseOutputsSummaryServiceTest {
 
   @Mock
-  private MixedCaseOutputsPersistenceService mixedCaseOutputsPersistenceService;
+  private ProspectMixedCaseOutputsPersistenceService prospectMixedCaseOutputsPersistenceService;
 
   @Mock
   private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
 
   @InjectMocks
-  private MixedCaseOutputsSummaryService mixedCaseOutputsSummaryService;
+  private ProspectMixedCaseOutputsSummaryService prospectMixedCaseOutputsSummaryService;
 
   private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
@@ -47,7 +49,7 @@ class MixedCaseOutputSummaryServiceTest {
   void getMixedCaseOutputsSummaryFromReservoirSubmissionDetail_whenPresent_fullSummary() {
     var emptySummary = ProbabilityDistributionSummaryView.empty("empty");
 
-    when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail))
+    when(prospectMixedCaseOutputsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(mixedCaseOutput));
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail), eq(reservoirSubmissionDetail)))
@@ -56,7 +58,7 @@ class MixedCaseOutputSummaryServiceTest {
     mixedCaseOutput.setHasAssociatedGasRecoverableResources(true);
     mixedCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ONE);
 
-    var view = mixedCaseOutputsSummaryService.getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
+    var view = prospectMixedCaseOutputsSummaryService.getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
     assertThat(view)
         .extracting(
             MixedCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
@@ -83,7 +85,7 @@ class MixedCaseOutputSummaryServiceTest {
         "20", "20", "20", "20", "20", "20", "20", "20", "20",
         "20", "", "20", "unit", "comments");
 
-    when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail))
+    when(prospectMixedCaseOutputsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(mixedCaseOutput));
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
@@ -131,85 +133,7 @@ class MixedCaseOutputSummaryServiceTest {
     mixedCaseOutput.setHasAssociatedGasRecoverableResources(true);
     mixedCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ZERO);
 
-    var view = mixedCaseOutputsSummaryService.getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
-    assertThat(view)
-        .extracting(
-            MixedCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
-            MixedCaseOutputsSummaryView::riskedOilEquivalentRecoverableMean,
-            MixedCaseOutputsSummaryView::probabilityDistributionSummaryViews)
-        .containsExactly(
-            "Yes",
-            "0",
-            List.of(
-                testSummary,
-                testSummary,
-                testSummary,
-                testSummary,
-                testSummary,
-                testSummary,
-                testSummary)
-        );
-  }
-
-  @Test
-  void getMixedCaseOutputsSummaryFromReservoirSubmissionDetail_whenPresent_notEmptySummary_whenDiscovery() {
-    var testSummary = new ProbabilityDistributionSummaryView(
-        "test", "type", "20",
-        "20", "20", "20", "20", "20", "20", "20", "20", "20",
-        "20", "", "20", "unit", "comments");
-    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
-    mixedCaseOutput.setReservoirSubmissionDetail(discoveryReservoirSubmissionDetail);
-
-    when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(discoveryReservoirSubmissionDetail))
-        .thenReturn(Optional.of(mixedCaseOutput));
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_DISCOVERY,
-            discoverySubmissionDetail,
-            discoveryReservoirSubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
-            discoverySubmissionDetail,
-            discoveryReservoirSubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
-            discoverySubmissionDetail,
-            discoveryReservoirSubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_DISCOVERY,
-            discoverySubmissionDetail,
-            discoveryReservoirSubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
-            discoverySubmissionDetail,
-            discoveryReservoirSubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
-            discoverySubmissionDetail,
-            discoveryReservoirSubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY,
-            discoverySubmissionDetail,
-            discoveryReservoirSubmissionDetail))
-        .thenReturn(testSummary);
-
-    mixedCaseOutput.setHasAssociatedGasRecoverableResources(true);
-    mixedCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ZERO);
-
-    var view = mixedCaseOutputsSummaryService.getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(discoveryReservoirSubmissionDetail);
+    var view = prospectMixedCaseOutputsSummaryService.getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
     assertThat(view)
         .extracting(
             MixedCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
@@ -231,10 +155,10 @@ class MixedCaseOutputSummaryServiceTest {
 
   @Test
   void getMixedCaseOutputsSummaryFromReservoirSubmissionDetail_whenNotPresent_notEmptySummary() {
-    when(mixedCaseOutputsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail))
+    when(prospectMixedCaseOutputsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
-    var view = mixedCaseOutputsSummaryService.getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
+    var view = prospectMixedCaseOutputsSummaryService.getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
     assertThat(view)
         .extracting(
             MixedCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,

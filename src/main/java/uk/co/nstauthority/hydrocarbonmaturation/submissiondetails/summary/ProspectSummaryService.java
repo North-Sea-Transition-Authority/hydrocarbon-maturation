@@ -13,7 +13,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics.MixedCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
@@ -23,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydet
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.prospectmixedcaseoutputs.ProspectMixedCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -43,7 +43,7 @@ class ProspectSummaryService {
   private final ReservoirPropertiesSummaryService reservoirPropertiesSummaryService;
   private final TrapPropertiesSummaryService trapPropertiesSummaryService;
   private final MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService;
-  private final MixedCaseOutputsSummaryService mixedCaseOutputsSummaryService;
+  private final ProspectMixedCaseOutputsSummaryService prospectMixedCaseOutputsSummaryService;
   private final OilCaseVolumetricsSummaryService oilCaseVolumetricsSummaryService;
   private final OilCaseOutputsSummaryService oilCaseOutputsSummaryService;
   private final GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService;
@@ -64,7 +64,7 @@ class ProspectSummaryService {
                                 GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService,
                                 GasCaseOutputsSummaryService gasCaseOutputsSummaryService,
                                 MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService,
-                                MixedCaseOutputsSummaryService mixedCaseOutputsSummaryService,
+                                ProspectMixedCaseOutputsSummaryService prospectMixedCaseOutputsSummaryService,
                                 OpportunityDetailsSummaryService opportunityDetailsSummaryService,
                                 ResourceDetailSummaryService resourceDetailSummaryService,
                                 OutlineForMaximumCaseSummaryService outlineForMaximumCaseSummaryService) {
@@ -78,7 +78,7 @@ class ProspectSummaryService {
     this.gasCaseVolumetricsSummaryService = gasCaseVolumetricsSummaryService;
     this.gasCaseOutputsSummaryService = gasCaseOutputsSummaryService;
     this.mixedCaseVolumetricsSummaryService = mixedCaseVolumetricsSummaryService;
-    this.mixedCaseOutputsSummaryService = mixedCaseOutputsSummaryService;
+    this.prospectMixedCaseOutputsSummaryService = prospectMixedCaseOutputsSummaryService;
     this.trapPropertiesSummaryService = trapPropertiesSummaryService;
     this.opportunityDetailsSummaryService = opportunityDetailsSummaryService;
     this.resourceDetailSummaryService = resourceDetailSummaryService;
@@ -140,7 +140,9 @@ class ProspectSummaryService {
 
   public MixedCaseOutputsSummaryView getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    return mixedCaseOutputsSummaryService.getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
+    return prospectMixedCaseOutputsSummaryService.getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(
+        reservoirSubmissionDetail
+    );
   }
 
   public TrapPropertiesSummaryView getTrapPropertiesSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {

@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,19 @@ public class ProbabilityDistributionSummaryService {
       SubmissionDetail submissionDetail) {
     return getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
         probabilityDistributionFieldInstance, submissionDetail, null);
+  }
+
+  public List<ProbabilityDistributionSummaryView> getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+      List<ProbabilityDistributionFieldInstance> probabilityDistributionFieldInstances,
+      SubmissionDetail submissionDetail,
+      @Nullable ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
+
+    probabilityDistributionFieldInstances.forEach(instance -> listOfSummaryViews.add(
+        getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            instance, submissionDetail, reservoirSubmissionDetail)));
+
+    return listOfSummaryViews;
   }
 
   public ProbabilityDistributionSummaryView getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(

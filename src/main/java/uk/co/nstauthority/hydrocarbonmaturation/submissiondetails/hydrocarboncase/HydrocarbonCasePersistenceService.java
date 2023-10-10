@@ -10,8 +10,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.prospectmixedcaseoutputs.ProspectMixedCaseOutputsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 
 @Service
@@ -21,7 +21,7 @@ public class HydrocarbonCasePersistenceService {
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
   private final OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService;
   private final GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService;
-  private final MixedCaseOutputsPersistenceService mixedCaseOutputsPersistenceService;
+  private final ProspectMixedCaseOutputsPersistenceService prospectMixedCaseOutputsPersistenceService;
 
   @Autowired
   public HydrocarbonCasePersistenceService(
@@ -30,13 +30,13 @@ public class HydrocarbonCasePersistenceService {
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
       OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService,
       GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService,
-      MixedCaseOutputsPersistenceService mixedCaseOutputsPersistenceService) {
+      ProspectMixedCaseOutputsPersistenceService prospectMixedCaseOutputsPersistenceService) {
     this.hydrocarbonCaseRepository = hydrocarbonCaseRepository;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.oilCaseOutputsPersistenceService = oilCaseOutputsPersistenceService;
     this.gasCaseOutputsPersistenceService = gasCaseOutputsPersistenceService;
-    this.mixedCaseOutputsPersistenceService = mixedCaseOutputsPersistenceService;
+    this.prospectMixedCaseOutputsPersistenceService = prospectMixedCaseOutputsPersistenceService;
   }
 
   @Transactional
@@ -151,7 +151,7 @@ public class HydrocarbonCasePersistenceService {
           ),
           reservoirSubmissionDetail
       );
-      mixedCaseOutputsPersistenceService.deleteMixedCaseOutputForReservoirSubmissionDetail(reservoirSubmissionDetail);
+      prospectMixedCaseOutputsPersistenceService.deleteMixedCaseOutputForReservoirSubmissionDetail(reservoirSubmissionDetail);
     }
 
     // delete gas expansion factor as this is migration only data that should be removed on saving a new version of the submission

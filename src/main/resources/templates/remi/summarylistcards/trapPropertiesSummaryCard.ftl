@@ -1,5 +1,5 @@
 <#include '../layout/layout.ftl'>
-<#import '../probabilitydistribution/probabilityDistributionSummary.ftl' as probabilityDistribution>
+<#import '../summary/_probabilityDistributionSummary.ftl' as probabilityDistribution>
 <#import 'fileUploadSummaryCard.ftl' as fileUploadSummary>
 
 <#-- @ftlvariable name="trapPropertiesValues" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView" -->

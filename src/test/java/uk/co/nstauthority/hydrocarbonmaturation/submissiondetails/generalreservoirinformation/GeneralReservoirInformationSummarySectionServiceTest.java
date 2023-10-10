@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreserv
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.assertSummarySection;
 
 import java.util.Collections;
@@ -42,7 +41,7 @@ class GeneralReservoirInformationSummarySectionServiceTest {
     var summarySection = generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail);
 
     assertThat(summarySection).isPresent();
-    assertSummarySection(summarySection.get(), GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER);
+    assertSummarySection(summarySection.get(), GeneralReservoirInformationSummarySectionService.GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(
         GeneralReservoirInformationSummarySectionService.HYDROCARBONS_DISCOVERED,
         HydrocarbonsDiscovered.GAS_ONLY.getDisplayName()
@@ -60,7 +59,7 @@ class GeneralReservoirInformationSummarySectionServiceTest {
     var summarySection = generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail);
 
     assertThat(summarySection).isPresent();
-    assertSummarySection(summarySection.get(), GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER);
+    assertSummarySection(summarySection.get(), GeneralReservoirInformationSummarySectionService.GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(GeneralReservoirInformationSummarySectionService.HYDROCARBONS_DISCOVERED, "");
     var summaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
     var summaryItem = SummaryItem.withCard(GeneralReservoirInformationSummarySectionService.RESERVOIR_INFORMATION, summaryCard);
@@ -84,7 +83,7 @@ class GeneralReservoirInformationSummarySectionServiceTest {
     var summarySection = generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail);
 
     assertThat(summarySection).isPresent();
-    assertSummarySection(summarySection.get(), GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER);
+    assertSummarySection(summarySection.get(), GeneralReservoirInformationSummarySectionService.GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(
         GeneralReservoirInformationSummarySectionService.HYDROCARBONS_DISCOVERED,
         HydrocarbonsDiscovered.GAS_ONLY.getDisplayName()
@@ -108,7 +107,7 @@ class GeneralReservoirInformationSummarySectionServiceTest {
     var summarySection = generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail);
 
     assertThat(summarySection).isPresent();
-    assertSummarySection(summarySection.get(), GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER);
+    assertSummarySection(summarySection.get(), GeneralReservoirInformationSummarySectionService.GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(
         GeneralReservoirInformationSummarySectionService.HYDROCARBONS_DISCOVERED,
         HydrocarbonsDiscovered.GAS_ONLY.getDisplayName()

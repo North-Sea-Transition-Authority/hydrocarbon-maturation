@@ -14,14 +14,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumet
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics.MixedCaseVolumetricsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics.MixedCaseVolumetricsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.prospectmixedcaseoutputs.ProspectMixedCaseOutputsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.prospectmixedcaseoutputs.ProspectMixedCaseOutputsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 
 
@@ -33,7 +33,7 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
   private final OilCaseOutputsSubmissionService oilCaseOutputsSubmissionService;
   private final GasCaseVolumetricsSubmissionService gasCaseVolumetricsSubmissionService;
   private final GasCaseOutputsSubmissionService gasCaseOutputsSubmissionService;
-  private final MixedCaseOutputsSubmissionService mixedCaseOutputsSubmissionService;
+  private final ProspectMixedCaseOutputsSubmissionService prospectMixedCaseOutputsSubmissionService;
   private final MixedCaseVolumetricsSubmissionService mixedCaseVolumetricsSubmissionService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
@@ -43,7 +43,7 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
       OilCaseOutputsSubmissionService oilCaseOutputsSubmissionService,
       GasCaseVolumetricsSubmissionService gasCaseVolumetricsSubmissionService,
       GasCaseOutputsSubmissionService gasCaseOutputsSubmissionService,
-      MixedCaseOutputsSubmissionService mixedCaseOutputsSubmissionService,
+      ProspectMixedCaseOutputsSubmissionService prospectMixedCaseOutputsSubmissionService,
       MixedCaseVolumetricsSubmissionService mixedCaseVolumetricsSubmissionService,
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
@@ -51,7 +51,7 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
     this.oilCaseOutputsSubmissionService = oilCaseOutputsSubmissionService;
     this.gasCaseVolumetricsSubmissionService = gasCaseVolumetricsSubmissionService;
     this.gasCaseOutputsSubmissionService = gasCaseOutputsSubmissionService;
-    this.mixedCaseOutputsSubmissionService = mixedCaseOutputsSubmissionService;
+    this.prospectMixedCaseOutputsSubmissionService = prospectMixedCaseOutputsSubmissionService;
     this.mixedCaseVolumetricsSubmissionService = mixedCaseVolumetricsSubmissionService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
@@ -100,7 +100,7 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
       if (hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCaseDetail)) {
         sectionSubmittable = sectionSubmittable
             && mixedCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)
-            && mixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail);
+            && prospectMixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail);
       }
 
       return sectionSubmittable;
@@ -164,8 +164,8 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
           new TaskListItem(
               "Mixed case outputs (resources)",
               TaskListLabel.notStartedOrComplete(
-                  mixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-              ReverseRouter.route(on(MixedCaseOutputsController.class)
+                  prospectMixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+              ReverseRouter.route(on(ProspectMixedCaseOutputsController.class)
                   .getMixedCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
       );
     }

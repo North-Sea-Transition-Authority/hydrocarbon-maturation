@@ -1,22 +1,24 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverymixedcaseoutputs;
 
 import java.util.Optional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutput;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-public class MixedCaseOutputsPersistenceService {
+public class DiscoveryMixedCaseOutputsPersistenceService {
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final MixedCaseOutputsRepository mixedCaseOutputsRepository;
 
   @Autowired
-  public MixedCaseOutputsPersistenceService(
+  public DiscoveryMixedCaseOutputsPersistenceService(
       ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
       MixedCaseOutputsRepository mixedCaseOutputsRepository) {
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
@@ -42,12 +44,8 @@ public class MixedCaseOutputsPersistenceService {
   private void saveProbabilityDistributionFields(MixedCaseOutputsForm mixedCaseOutputsForm,
                                                  ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
-    var resourceType = submissionDetail.getSubmission().getResource().getType();
 
-    var oilInPlace = ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT;
-    if (resourceType == ResourceType.DISCOVERY) {
-      oilInPlace = ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_DISCOVERY;
-    }
+    var oilInPlace = ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         oilInPlace,
         mixedCaseOutputsForm.getOilInPlace(),
@@ -56,11 +54,7 @@ public class MixedCaseOutputsPersistenceService {
     );
 
     var oilEquivalentRecoverableResources =
-        ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT;
-    if (resourceType == ResourceType.DISCOVERY) {
-      oilEquivalentRecoverableResources =
-          ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY;
-    }
+          ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         oilEquivalentRecoverableResources,
         mixedCaseOutputsForm.getOilEquivalentRecoverableResources(),
@@ -69,11 +63,7 @@ public class MixedCaseOutputsPersistenceService {
     );
 
     var associatedGasRecoverableResources =
-        ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT;
-    if (resourceType == ResourceType.DISCOVERY) {
-      associatedGasRecoverableResources =
-          ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY;
-    }
+          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY;
     if (hasAssociatedGasRecoverableResources(mixedCaseOutputsForm)) {
       probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           associatedGasRecoverableResources,
@@ -87,10 +77,7 @@ public class MixedCaseOutputsPersistenceService {
           reservoirSubmissionDetail);
     }
 
-    var gasInPlace = ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_PROSPECT;
-    if (resourceType == ResourceType.DISCOVERY) {
-      gasInPlace = ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_DISCOVERY;
-    }
+    var gasInPlace = ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         gasInPlace,
         mixedCaseOutputsForm.getGasInPlace(),
@@ -98,11 +85,7 @@ public class MixedCaseOutputsPersistenceService {
         reservoirSubmissionDetail
     );
 
-    var gasRecoverableResources =
-        ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT;
-    if (resourceType == ResourceType.DISCOVERY) {
-      gasRecoverableResources = ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_DISCOVERY;
-    }
+    var gasRecoverableResources = ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         gasRecoverableResources,
         mixedCaseOutputsForm.getGasRecoverableResources(),
@@ -111,11 +94,7 @@ public class MixedCaseOutputsPersistenceService {
     );
 
     var associatedCondensateRecoverableResources =
-        ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT;
-    if (resourceType == ResourceType.DISCOVERY) {
-      associatedCondensateRecoverableResources =
-          ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY;
-    }
+          ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         associatedCondensateRecoverableResources,
         mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
@@ -123,11 +102,7 @@ public class MixedCaseOutputsPersistenceService {
         reservoirSubmissionDetail
     );
 
-    var oilRecoverableResources =
-        ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT;
-    if (resourceType == ResourceType.DISCOVERY) {
-      oilRecoverableResources = ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_DISCOVERY;
-    }
+    var oilRecoverableResources = ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         oilRecoverableResources,
         mixedCaseOutputsForm.getOilRecoverableResources(),

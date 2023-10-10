@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverymixedcaseoutputs;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,36 +11,40 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
-class MixedCaseOutputsSubmissionServiceTest {
+class DiscoveryMixedCaseOutputsSubmissionServiceTest {
 
   @Mock
-  private MixedCaseOutputsFormService mixedCaseOutputsFormService;
+  private DiscoveryMixedCaseOutputsFormService discoveryMixedCaseOutputsFormService;
+
+  @Mock
+  private DiscoveryMixedCaseOutputsFormValidator discoveryMixedCaseOutputsFormValidator;
 
   @InjectMocks
-  private MixedCaseOutputsSubmissionService mixedCaseOutputsSubmissionService;
+  private DiscoveryMixedCaseOutputsSubmissionService discoveryMixedCaseOutputsSubmissionService;
 
   @Test
   void isSectionSubmittable_whenSubmittable_thenTrue() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new MixedCaseOutputsForm();
 
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
-    when(mixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(form);
-    when(mixedCaseOutputsFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(emptyBindingResult);
+    when(discoveryMixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(form);
+    when(discoveryMixedCaseOutputsFormValidator.isValid(
+        any(MixedCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(ValidationType.FULL))
+    ).thenReturn(true);
 
-    assertTrue(mixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
+    assertTrue(discoveryMixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 
   @Test
@@ -51,11 +55,11 @@ class MixedCaseOutputsSubmissionServiceTest {
     var bindingResultWithError = ReverseRouter.emptyBindingResult();
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
-    when(mixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(form);
-    when(mixedCaseOutputsFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(bindingResultWithError);
+    when(discoveryMixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(form);
+    when(discoveryMixedCaseOutputsFormValidator.isValid(
+        any(MixedCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(ValidationType.FULL))
+    ).thenReturn(false);
 
-    assertFalse(mixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
+    assertFalse(discoveryMixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 }

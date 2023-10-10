@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverymixedcaseoutputs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -19,92 +19,38 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
-class MixedCaseOutputsFormValidatorTest {
+class DiscoveryMixedCaseOutputsFormValidatorTest {
 
-  private MixedCaseOutputsFormValidator mixedCaseOutputsFormValidator;
+  private DiscoveryMixedCaseOutputsFormValidator discoveryMixedCaseOutputsFormValidator;
 
   private SubmissionDetail submissionDetail;
 
   @BeforeEach
   void setUp() {
-    mixedCaseOutputsFormValidator = new MixedCaseOutputsFormValidator();
-    submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-  }
-
-  @Test
-  void supports_whenMixedCaseOutputsFormClass_thenTrue() {
-    var supportedClass = MixedCaseOutputsForm.class;
-    assertThat(mixedCaseOutputsFormValidator.supports(supportedClass)).isTrue();
-  }
-
-  @Test
-  void supports_whenNotMixedCaseOutputsFormClass_thenFalse() {
-    var nonSupportedClass = NonSupportedClass.class;
-    assertThat(mixedCaseOutputsFormValidator.supports(nonSupportedClass)).isFalse();
+    discoveryMixedCaseOutputsFormValidator = new DiscoveryMixedCaseOutputsFormValidator();
+    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
   }
 
   @ParameterizedTest
   @EnumSource(value = ValidationType.class)
-  void validate_whenValidForm_whenProspect_thenNoValidationErrors(ValidationType validationType) {
-    var form = getProspectValidForm();
+  void validate_whenValidForm_thenNoValidationErrors(ValidationType validationType) {
+    var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    mixedCaseOutputsFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
-    assertFalse(bindingResult.hasErrors());
-  }
-
-  @ParameterizedTest
-  @EnumSource(value = ValidationType.class)
-  void validate_whenValidForm_whenDiscovery_thenNoValidationErrors(ValidationType validationType) {
-    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-    var form = getDiscoveryValidForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    mixedCaseOutputsFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, discoverySubmissionDetail));
+    discoveryMixedCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, validationType);
     assertFalse(bindingResult.hasErrors());
   }
 
   @Test
-  void validate_whenInvalidForm_whenProspect_thenValidationErrors() {
+  void validate_whenInvalidForm_thenValidationErrors() {
     var probabilityDistributionType = ProbabilityDistributionType.CUSTOM;
     var form = getFormWithInvalidDistributions();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    mixedCaseOutputsFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
-    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-
-    assertThat(extractedErrors)
-        .contains(
-            entry("oilInPlace." + probabilityDistributionType.getPath() + ".error",
-                Set.of("oilInPlace." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("oilRecoverableResources." + probabilityDistributionType.getPath() + ".error",
-                Set.of("oilRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error",
-                Set.of("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("gasInPlace." + probabilityDistributionType.getPath() + ".error",
-                Set.of("gasInPlace." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("gasRecoverableResources." + probabilityDistributionType.getPath() + ".error",
-                Set.of("gasRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("associatedCondensateRecoverableResources." + probabilityDistributionType.getPath() + ".error",
-                Set.of("associatedCondensateRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("riskedOilEquivalentRecoverableMean.decimalInputValue", Set.of("riskedOilEquivalentRecoverableMean.decimalInputValue.notNumeric"))
-        );
-  }
-
-  @Test
-  void validate_whenInvalidForm_whenDiscovery_thenValidationErrors() {
-    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-    var probabilityDistributionType = ProbabilityDistributionType.CUSTOM;
-    var form = getFormWithInvalidDistributions();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    mixedCaseOutputsFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, discoverySubmissionDetail));
+    discoveryMixedCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
@@ -127,11 +73,10 @@ class MixedCaseOutputsFormValidatorTest {
 
   @Test
   void validate_whenYesNoNotSelected_thenValidationErrors() {
-    var form = getProspectValidForm();
+    var form = getValidForm();
     form.setHasAssociatedGasRecoverableResources(null);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    mixedCaseOutputsFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+    discoveryMixedCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -146,8 +91,7 @@ class MixedCaseOutputsFormValidatorTest {
     var probabilityDistributionType = ProbabilityDistributionType.CUSTOM;
     var form = getFormWithEmptyDistributions();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    mixedCaseOutputsFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+    discoveryMixedCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -210,27 +154,15 @@ class MixedCaseOutputsFormValidatorTest {
     return form;
   }
 
-  private MixedCaseOutputsForm getProspectValidForm() {
-    return getValidForm(ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT);
-  }
-
-  private MixedCaseOutputsForm getDiscoveryValidForm() {
-    return getValidForm(ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
-  }
-
-  private MixedCaseOutputsForm getValidForm(ProbabilityDistributionFieldInstance probDistributionFieldInstanceForRecoverableResource) {
+  private MixedCaseOutputsForm getValidForm() {
     var form = new MixedCaseOutputsForm();
-    var probDistributionForm = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm();
-    var probDistributionFormForRecoverableResource = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
-        probDistributionFieldInstanceForRecoverableResource
-    );
-    form.setGasInPlace(probDistributionForm);
-    form.setAssociatedGasRecoverableResources(probDistributionFormForRecoverableResource);
-    form.setOilEquivalentRecoverableResources(probDistributionFormForRecoverableResource);
-    form.setOilRecoverableResources(probDistributionFormForRecoverableResource);
-    form.setOilInPlace(probDistributionForm);
-    form.setAssociatedCondensateRecoverableResources(probDistributionFormForRecoverableResource);
-    form.setGasRecoverableResources(probDistributionFormForRecoverableResource);
+    form.setGasInPlace(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY));
+    form.setAssociatedGasRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY));
+    form.setOilEquivalentRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY));
+    form.setOilRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY));
+    form.setOilInPlace(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY));
+    form.setAssociatedCondensateRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY));
+    form.setGasRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY));
     form.setRiskedOilEquivalentRecoverableMean(new DecimalInput("1"));
     form.setHasAssociatedGasRecoverableResources(true);
     return form;

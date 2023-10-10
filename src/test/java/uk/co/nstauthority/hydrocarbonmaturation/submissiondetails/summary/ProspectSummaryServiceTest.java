@@ -15,12 +15,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics.MixedCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.prospectmixedcaseoutputs.ProspectMixedCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
@@ -62,7 +62,7 @@ class ProspectSummaryServiceTest {
   private MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService;
 
   @Mock
-  private MixedCaseOutputsSummaryService mixedCaseOutputsSummaryService;
+  private ProspectMixedCaseOutputsSummaryService prospectMixedCaseOutputsSummaryService;
 
   @Mock
   private TrapPropertiesSummaryService trapPropertiesSummaryService;
@@ -167,7 +167,7 @@ class ProspectSummaryServiceTest {
   void getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail() {
     prospectSummaryService.getMixedCaseOutputsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
-    verify(mixedCaseOutputsSummaryService, times(1))
+    verify(prospectMixedCaseOutputsSummaryService, times(1))
         .getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 

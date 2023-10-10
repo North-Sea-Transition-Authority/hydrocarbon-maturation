@@ -23,8 +23,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.prospectmixedcaseoutputs.ProspectMixedCaseOutputsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 
@@ -47,7 +47,7 @@ class HydrocarbonCasePersistenceServiceTest {
   private GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService;
 
   @Mock
-  private MixedCaseOutputsPersistenceService mixedCaseOutputsPersistenceService;
+  private ProspectMixedCaseOutputsPersistenceService prospectMixedCaseOutputsPersistenceService;
 
   private HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
 
@@ -63,7 +63,7 @@ class HydrocarbonCasePersistenceServiceTest {
         reservoirSubmissionDetailPersistenceService,
         oilCaseOutputsPersistenceService,
         gasCaseOutputsPersistenceService,
-        mixedCaseOutputsPersistenceService);
+        prospectMixedCaseOutputsPersistenceService);
 
     UUID submissionDetailId = UUID.randomUUID();
     submissionDetail = new SubmissionDetail();
@@ -267,7 +267,7 @@ class HydrocarbonCasePersistenceServiceTest {
         reservoirSubmissionDetail
     );
 
-    verify(mixedCaseOutputsPersistenceService, times(1))
+    verify(prospectMixedCaseOutputsPersistenceService, times(1))
         .deleteMixedCaseOutputForReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(
@@ -380,7 +380,7 @@ class HydrocarbonCasePersistenceServiceTest {
         reservoirSubmissionDetail
     );
 
-    verifyNoInteractions(mixedCaseOutputsPersistenceService);
+    verifyNoInteractions(prospectMixedCaseOutputsPersistenceService);
 
     verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(
         List.of(

@@ -18,6 +18,7 @@ public class GeneralReservoirInformationSummarySectionService implements Summary
   public static final String RESERVOIR_INFORMATION = "Reservoir information";
   public static final String HYDROCARBONS_DISCOVERED = "Hydrocarbons discovered";
   public static final String DISCOVERY_RESERVOIRS = "Discovery reservoirs";
+  public static final int GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER = 10;
 
   private final GeneralReservoirInformationService generalReservoirInformationService;
 
@@ -30,7 +31,7 @@ public class GeneralReservoirInformationSummarySectionService implements Summary
   @Override
   public Optional<SummarySection> getSummarySection(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var summaryItems = List.of(getGeneralInformationSummary(reservoirSubmissionDetail));
-    return Optional.of(new SummarySection(10, summaryItems, ""));
+    return Optional.of(new SummarySection(GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER, summaryItems, ""));
   }
 
   private SummaryItem getGeneralInformationSummary(ReservoirSubmissionDetail reservoirSubmissionDetail) {
