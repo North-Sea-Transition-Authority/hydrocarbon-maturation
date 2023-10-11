@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -26,8 +28,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reser
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
-@RequestMapping("/submission-details/{submissionDetailId}/reservoirs")
+@RequestMapping("/submission-details/{submissionDetailId}/add-reservoirs")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
+@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_AND_FIELD)
 @IsFromResponsibleTeam
 public class ReservoirListController {
 
@@ -54,6 +57,10 @@ public class ReservoirListController {
   public ModelAndView getReservoirs(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                     ServiceUserDetail user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    if (reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail)) {
+      return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(
+          submissionDetail.getId(), null));
+    }
     var form = reservoirListFormService.getReservoirForm(submissionDetail);
     return getReservoirsModelAndView(submissionDetail, form);
   }

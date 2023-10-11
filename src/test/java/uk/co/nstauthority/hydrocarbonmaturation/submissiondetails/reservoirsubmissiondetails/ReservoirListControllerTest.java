@@ -20,6 +20,8 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -27,8 +29,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
@@ -44,27 +49,65 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
   @MockBean
   private ReservoirListValidator reservoirListValidator;
 
+  private SubmissionDetail submissionDetail;
+  private UUID submissionDetailId;
+
   @BeforeEach
   void setUp() {
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID)).thenReturn(submissionDetail);
+    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    submissionDetailId = submissionDetail.getId();
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(submissionDetailService.getSubmissionDetail(submissionDetailId)).thenReturn(Optional.of(submissionDetail));
     ReservoirListForm form = new ReservoirListForm();
     when(reservoirListFormService.getReservoirForm(submissionDetail)).thenReturn(form);
   }
 
   @SecurityTest
-  void getReservoirListForm_assertStatusOk() throws Exception {
-    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
-
+  void getReservoirListForm_whenDiscovery_assertStatusOk() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail)).thenReturn(false);
     mockMvc.perform(
-            get(ReverseRouter.route(on(ReservoirListController.class).getReservoirs(SUBMISSION_DETAIL_ID, null)))
+            get(ReverseRouter.route(on(ReservoirListController.class).getReservoirs(submissionDetailId, null)))
                 .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("/remi/submissiondetails/reservoir/reservoirList"));
   }
 
   @SecurityTest
+  void getReservoirListForm_whenField_assertStatusOk() throws Exception {
+    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetailId = submissionDetail.getId();
+    var field = new Field();
+    field.setResponsibleOrganisationId(1);
+    when(fieldPersistenceService.getFieldByResourceOrThrow(submissionDetail.getSubmission().getResource()))
+        .thenReturn(field);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(submissionDetailService.getSubmissionDetail(submissionDetailId)).thenReturn(Optional.of(submissionDetail));
+    setUpWhenUserIsResponsibleTeam_forField_passSecurity(USER, submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail)).thenReturn(false);
+    ReservoirListForm form = new ReservoirListForm();
+    when(reservoirListFormService.getReservoirForm(submissionDetail)).thenReturn(form);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(ReservoirListController.class).getReservoirs(submissionDetailId, null)))
+                .with(user(USER)))
+        .andExpect(status().isOk())
+        .andExpect(view().name("/remi/submissiondetails/reservoir/reservoirList"));
+  }
+
+  @SecurityTest
+  void getReservoirListForm_whenReservoirsExist_assertRedirectToReservoirTaskList() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail)).thenReturn(true);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(ReservoirListController.class).getReservoirs(submissionDetailId, null)))
+                .with(user(USER)))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId(), null))));
+  }
+
+  @SecurityTest
   void getReservoirListForm_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
 
     mockMvc.perform(
@@ -74,21 +117,32 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
   }
 
   @SecurityTest
+  void getReservoirListForm_andNotDiscoveryOrField_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(ReservoirListController.class).getReservoirs(submissionDetailId, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
   void getReservoirListForm_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {
-    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER, submissionDetail);
     mockMvc.perform(
             get(ReverseRouter.route(on(ReservoirListController.class)
-                .getReservoirs(SUBMISSION_DETAIL_ID, null)))
+                .getReservoirs(submissionDetailId, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
   @SecurityTest
   void saveReservoirListForm_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {
-    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
+    setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER, submissionDetail);
     mockMvc.perform(
             post(ReverseRouter.route(on(ReservoirListController.class).saveReservoirs(
-                SUBMISSION_DETAIL_ID, null, null, null)))
+                submissionDetailId, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isForbidden());
@@ -96,7 +150,7 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void saveReservoirListForm_whenInvalidForm_assertOk() throws Exception {
-    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(reservoirListValidator.isValid(any(ReservoirListForm.class),
         any(BindingResult.class),
         eq(submissionDetail),
@@ -104,7 +158,7 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
     ).thenReturn(false);
     mockMvc.perform(
             post(ReverseRouter.route(on(ReservoirListController.class)
-                .saveReservoirs(SUBMISSION_DETAIL_ID, null, null, null)))
+                .saveReservoirs(submissionDetailId, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isOk());
@@ -114,7 +168,7 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void saveReservoirListForm_whenValidForm_assertOk() throws Exception {
-    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(reservoirListValidator.isValid(
         any(ReservoirListForm.class),
         any(BindingResult.class),
@@ -123,7 +177,7 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
     )).thenReturn(true);
     mockMvc.perform(
             post(ReverseRouter.route(on(ReservoirListController.class)
-                .saveReservoirs(SUBMISSION_DETAIL_ID, null, null, null)))
+                .saveReservoirs(submissionDetailId, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
@@ -135,8 +189,8 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getReservoirListForm_assertModelProperties() throws Exception {
-    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
-
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail)).thenReturn(false);
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
             get(ReverseRouter.route(on(ReservoirListController.class).getReservoirs(submissionDetail.getId(), null)))
