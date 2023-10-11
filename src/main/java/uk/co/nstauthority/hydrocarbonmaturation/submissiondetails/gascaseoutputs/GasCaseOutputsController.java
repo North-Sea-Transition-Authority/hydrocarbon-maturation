@@ -48,7 +48,8 @@ public class GasCaseOutputsController {
   private final GasCaseOutputsFormValidator gasCaseOutputsFormValidator;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
-  public static final String PAGE_NAME = "Gas case outputs (resources)";
+  public static final String PROSPECT_PAGE_NAME = "Gas case outputs (resources)";
+  public static final String DISCOVERY_PAGE_NAME = "Gas case volumetrics";
 
   @Autowired
   public GasCaseOutputsController(SubmissionDetailService submissionDetailService,
@@ -109,6 +110,7 @@ public class GasCaseOutputsController {
     var resourceType = submissionDetail.getSubmission().getResource().getType();
     if (resourceType == ResourceType.PROSPECT) {
       modelAndView
+          .addObject("pageTitle", PROSPECT_PAGE_NAME)
           .addObject("gasInPlaceTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                   ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT))
@@ -122,12 +124,13 @@ public class GasCaseOutputsController {
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                   ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT));
 
-      TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
+      TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PROSPECT_PAGE_NAME, submissionDetail);
 
     } else if (resourceType == ResourceType.DISCOVERY) {
       var contingentUncertaintyCategoryPromptOverrides =
           ProbabilityOfExceedanceTypeUtil.getContingentUncertaintyCategoryPromptOverrides();
       modelAndView
+          .addObject("pageTitle", DISCOVERY_PAGE_NAME)
           .addObject("gasInPlaceTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                   ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY))
@@ -144,7 +147,9 @@ public class GasCaseOutputsController {
                   ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY,
                   contingentUncertaintyCategoryPromptOverrides));
 
-      TaskListBreadcrumbUtil.addReservoirTaskListBreadcrumbsToModelAndView(modelAndView, PAGE_NAME, reservoirSubmissionDetail);
+      TaskListBreadcrumbUtil.addReservoirTaskListBreadcrumbsToModelAndView(
+          modelAndView, DISCOVERY_PAGE_NAME, reservoirSubmissionDetail
+      );
     }
     return modelAndView;
   }

@@ -159,7 +159,7 @@ public class ReservoirTaskListService {
       if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
           && resourceType == ResourceType.DISCOVERY) {
         items.add(
-            new TaskListItem("Oil case outputs (resources)",
+            new TaskListItem("Oil case volumetrics",
                 TaskListLabel.notStartedOrComplete(
                     oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
                 ReverseRouter.route(on(OilCaseOutputsController.class).getOilCaseOutputs(
@@ -197,7 +197,7 @@ public class ReservoirTaskListService {
       if ((hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY)
           && resourceType == ResourceType.DISCOVERY) {
         items.add(
-            new TaskListItem("Gas case outputs (resources)",
+            new TaskListItem("Gas case volumetrics",
                 TaskListLabel.notStartedOrComplete(
                     gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
                 ReverseRouter.route(on(GasCaseOutputsController.class).getGasCaseOutputs(
@@ -222,7 +222,7 @@ public class ReservoirTaskListService {
       if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS
           && resourceType == ResourceType.DISCOVERY) {
         items.add(
-            new TaskListItem("Oil and gas case outputs (resources)",
+            new TaskListItem("Oil and gas case volumetrics",
                 TaskListLabel.notStartedOrComplete(
                     discoveryMixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
                 ReverseRouter.route(on(DiscoveryMixedCaseOutputsController.class).getMixedCaseOutputs(

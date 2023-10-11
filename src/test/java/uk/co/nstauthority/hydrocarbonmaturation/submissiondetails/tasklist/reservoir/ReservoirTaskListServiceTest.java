@@ -387,7 +387,7 @@ class ReservoirTaskListServiceTest {
                         reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
-                    "Oil case outputs (resources)",
+                    "Oil case volumetrics",
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(OilCaseOutputsController.class).getOilCaseOutputs(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
@@ -541,7 +541,7 @@ class ReservoirTaskListServiceTest {
                         reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
-                    "Gas case outputs (resources)",
+                    "Gas case volumetrics",
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(GasCaseOutputsController.class).getGasCaseOutputs(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
@@ -705,7 +705,7 @@ class ReservoirTaskListServiceTest {
                         reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
-                    "Oil and gas case outputs (resources)",
+                    "Oil and gas case volumetrics",
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(DiscoveryMixedCaseOutputsController.class).getMixedCaseOutputs(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),

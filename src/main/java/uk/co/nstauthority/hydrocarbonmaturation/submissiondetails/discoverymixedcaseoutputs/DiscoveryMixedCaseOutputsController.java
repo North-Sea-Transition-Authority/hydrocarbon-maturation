@@ -43,7 +43,7 @@ public class DiscoveryMixedCaseOutputsController {
   private final DiscoveryMixedCaseOutputsPersistenceService discoveryMixedCaseOutputsPersistenceService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
-  public static final String PAGE_NAME = "Oil and gas case outputs (resources)";
+  public static final String PAGE_NAME = "Oil and gas case volumetrics";
 
   public DiscoveryMixedCaseOutputsController(
       ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
