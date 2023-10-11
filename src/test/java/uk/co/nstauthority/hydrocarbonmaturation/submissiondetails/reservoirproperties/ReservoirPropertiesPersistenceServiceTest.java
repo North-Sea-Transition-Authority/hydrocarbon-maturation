@@ -1,15 +1,24 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
@@ -31,6 +40,9 @@ class ReservoirPropertiesPersistenceServiceTest {
   private ReservoirPropertiesRepository reservoirPropertiesRepository;
 
   @Mock
+  private BarrierBaffleDetailRepository barrierBaffleDetailRepository;
+
+  @Mock
   private static ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
   @Mock
@@ -42,7 +54,7 @@ class ReservoirPropertiesPersistenceServiceTest {
   @BeforeEach
   void setUp() {
     reservoirPropertiesPersistenceService = new ReservoirPropertiesPersistenceService(reservoirPropertiesRepository,
-        probabilityDistributionPersistenceService);
+        barrierBaffleDetailRepository, probabilityDistributionPersistenceService);
 
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
@@ -199,6 +211,144 @@ class ReservoirPropertiesPersistenceServiceTest {
   }
 
   @Test
+  void saveReservoirProperties_whenAnyField_withExistingReservoirProperty_verifyCreated_Entity() {
+
+    var form = getValidForm();
+    var fieldSubmissionDetail = SubmissionDetailTestUtils.createFieldSubmissionDetail(SubmissionType.CREATE_CSR);
+    var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
+    var reservoirPropertiesArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
+    var barrierBaffleDetailArgumentCaptor = ArgumentCaptor.forClass(BarrierBaffleDetail.class);
+    var existingReservoirProperty = new ReservoirProperty();
+    existingReservoirProperty.setId(UUID.randomUUID());
+    when(reservoirPropertiesRepository.findByReservoirSubmissionDetail(fieldReservoirSubmissionDetail))
+        .thenReturn(Optional.of(existingReservoirProperty));
+
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, fieldReservoirSubmissionDetail);
+
+    verifyFieldSubmissionTypesProbabilityTablesSaved(form, fieldReservoirSubmissionDetail);
+
+    verify(reservoirPropertiesRepository, times(1)).save(reservoirPropertiesArgumentCaptor.capture());
+
+    var savedReservoirProperty = reservoirPropertiesArgumentCaptor.getValue();
+
+    // clear saved barrier baffles
+    verify(barrierBaffleDetailRepository, times(1)).deleteAllByReservoirPropertyAndVerticalLateralType(savedReservoirProperty, VerticalLateralType.LATERAL);
+    verify(barrierBaffleDetailRepository, times(1)).deleteAllByReservoirPropertyAndVerticalLateralType(savedReservoirProperty, VerticalLateralType.VERTICAL);
+
+    var totalBarrierBaffles = form.getLateralBarriersBafflesDetail().size() + form.getVerticalBarriersBafflesDetail().size();
+    verify(barrierBaffleDetailRepository, times(totalBarrierBaffles))
+        .save(barrierBaffleDetailArgumentCaptor.capture());
+    verifyNoMoreInteractions(barrierBaffleDetailRepository);
+
+    var savedBarrierBaffleDetails = barrierBaffleDetailArgumentCaptor.getAllValues();
+    var expectedBarrierBaffles = Stream.of(form.getLateralBarriersBafflesDetail(), form.getVerticalBarriersBafflesDetail())
+        .flatMap(Collection::stream).toList();
+
+    assertThat(savedBarrierBaffleDetails).extracting(barrierBaffleDetail -> barrierBaffleDetail.getBarrierBaffle().getEnumName())
+            .containsAnyElementsOf(expectedBarrierBaffles);
+
+    assertThat(savedReservoirProperty)
+        .extracting(
+            ReservoirProperty::getReservoirSubmissionDetail,
+            ReservoirProperty::getReservoirFacies,
+            ReservoirProperty::getReservoirConnectivity,
+            ReservoirProperty::getGroupName,
+            ReservoirProperty::getLithology,
+            ReservoirProperty::getLithologyOther,
+            ReservoirProperty::getFracturePressure,
+            ReservoirProperty::getDepositionalSetting,
+            ReservoirProperty::getDepositionalEnvironment,
+            ReservoirProperty::getPlannedProducers,
+            ReservoirProperty::getPlannedInjectors,
+            ReservoirProperty::getLateralBarriersBaffles,
+            ReservoirProperty::getVerticalBarriersBaffles
+        )
+        .containsExactly(
+            fieldReservoirSubmissionDetail,
+            form.getReservoirFacies(),
+            form.getReservoirConnectivity(),
+            form.getGroupName(),
+            form.getLithology(),
+            form.getLithologyOther(),
+            form.getFracturePressure().asBigDecimal().get(),
+            form.getDepositionalSetting(),
+            form.getDepositionalEnvironment(),
+            form.getPlannedProducers().asBigDecimal().get(),
+            form.getPlannedInjectors().asBigDecimal().get(),
+            form.getIsLateralBarriersBaffles(),
+            form.getIsVerticalBarriersBaffles()
+        );
+  }
+
+  @Test
+  void saveReservoirProperties_whenAnyField_withNoExistingReservoirProperty_verifyCreated_Entity() {
+
+    var form = getValidForm();
+    var fieldSubmissionDetail = SubmissionDetailTestUtils.createFieldSubmissionDetail(SubmissionType.CREATE_CSR);
+    var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
+    var reservoirPropertiesArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
+    var barrierBaffleDetailArgumentCaptor = ArgumentCaptor.forClass(BarrierBaffleDetail.class);
+    when(reservoirPropertiesRepository.findByReservoirSubmissionDetail(fieldReservoirSubmissionDetail))
+        .thenReturn(Optional.empty());
+
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, fieldReservoirSubmissionDetail);
+
+    verifyFieldSubmissionTypesProbabilityTablesSaved(form, fieldReservoirSubmissionDetail);
+
+    verify(reservoirPropertiesRepository, times(1)).save(reservoirPropertiesArgumentCaptor.capture());
+
+    var savedReservoirProperty = reservoirPropertiesArgumentCaptor.getValue();
+
+    // clear saved barrier baffles
+    verify(barrierBaffleDetailRepository, never()).deleteAllByReservoirPropertyAndVerticalLateralType(savedReservoirProperty, VerticalLateralType.LATERAL);
+    verify(barrierBaffleDetailRepository, never()).deleteAllByReservoirPropertyAndVerticalLateralType(savedReservoirProperty, VerticalLateralType.VERTICAL);
+
+    var totalBarrierBaffles = form.getLateralBarriersBafflesDetail().size() + form.getVerticalBarriersBafflesDetail().size();
+    verify(barrierBaffleDetailRepository, times(totalBarrierBaffles))
+        .save(barrierBaffleDetailArgumentCaptor.capture());
+    verifyNoMoreInteractions(barrierBaffleDetailRepository);
+
+    var savedBarrierBaffleDetails = barrierBaffleDetailArgumentCaptor.getAllValues();
+    var expectedBarrierBaffles = Stream.of(form.getLateralBarriersBafflesDetail(), form.getVerticalBarriersBafflesDetail())
+        .flatMap(Collection::stream).toList();
+
+    assertThat(savedBarrierBaffleDetails).extracting(barrierBaffleDetail -> barrierBaffleDetail.getBarrierBaffle().getEnumName())
+        .containsAnyElementsOf(expectedBarrierBaffles);
+
+    assertThat(savedReservoirProperty)
+        .extracting(
+            ReservoirProperty::getReservoirSubmissionDetail,
+            ReservoirProperty::getReservoirFacies,
+            ReservoirProperty::getReservoirConnectivity,
+            ReservoirProperty::getGroupName,
+            ReservoirProperty::getLithology,
+            ReservoirProperty::getLithologyOther,
+            ReservoirProperty::getFracturePressure,
+            ReservoirProperty::getDepositionalSetting,
+            ReservoirProperty::getDepositionalEnvironment,
+            ReservoirProperty::getPlannedProducers,
+            ReservoirProperty::getPlannedInjectors,
+            ReservoirProperty::getLateralBarriersBaffles,
+            ReservoirProperty::getVerticalBarriersBaffles
+        )
+        .containsExactly(
+            fieldReservoirSubmissionDetail,
+            form.getReservoirFacies(),
+            form.getReservoirConnectivity(),
+            form.getGroupName(),
+            form.getLithology(),
+            form.getLithologyOther(),
+            form.getFracturePressure().asBigDecimal().get(),
+            form.getDepositionalSetting(),
+            form.getDepositionalEnvironment(),
+            form.getPlannedProducers().asBigDecimal().get(),
+            form.getPlannedInjectors().asBigDecimal().get(),
+            form.getIsLateralBarriersBaffles(),
+            form.getIsVerticalBarriersBaffles()
+        );
+  }
+
+  @Test
   void getTrapProperty_verifyMethodCall() {
     reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail);
     verify(reservoirPropertiesRepository, times(1)).findByReservoirSubmissionDetail(reservoirSubmissionDetail);
@@ -259,6 +409,36 @@ class ReservoirPropertiesPersistenceServiceTest {
         reservoirSubmissionDetail);
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY,
+        form.getGrossReservoirThickness(),
+        submissionDetail,
+        reservoirSubmissionDetail);
+  }
+
+  private void verifyFieldSubmissionTypesProbabilityTablesSaved(ReservoirPropertiesForm form, ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
+        ProbabilityDistributionFieldInstance.NET_TO_GROSS_FIELD,
+        form.getNetToGross(),
+        submissionDetail,
+        reservoirSubmissionDetail);
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
+        ProbabilityDistributionFieldInstance.NET_POROSITY_FIELD,
+        form.getNetPorosity(),
+        submissionDetail,
+        reservoirSubmissionDetail);
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_FIELD,
+        form.getPercentOfGrvOilBearing(),
+        submissionDetail,
+        reservoirSubmissionDetail);
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
+        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_FIELD,
+        form.getGrossRockVolume(),
+        submissionDetail,
+        reservoirSubmissionDetail);
+    verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
+        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_FIELD,
         form.getGrossReservoirThickness(),
         submissionDetail,
         reservoirSubmissionDetail);
@@ -329,8 +509,6 @@ class ReservoirPropertiesPersistenceServiceTest {
             formation
         );
   }
-
-
 
   @Test
   void saveReservoirProperties_whenGivenAForm_NoSubUnitProvided_verifyCreatedEntity() {
@@ -460,6 +638,15 @@ class ReservoirPropertiesPersistenceServiceTest {
         ProbabilityDistributionTestUtil.getValidProbabilityDistributionForm(ProbabilityDistributionType.LOGNORMAL));
     form.setDepthToHydrocarbonContact(
         ProbabilityDistributionTestUtil.getValidProbabilityDistributionForm(ProbabilityDistributionType.LOGNORMAL));
+    form.setFracturePressure(new DecimalInput("1"));
+    form.setDepositionalSetting(DepositionalSetting.TERRESTRIAL.name());
+    form.setDepositionalEnvironment(DepositionalEnvironment.AEOLIAN.name());
+    form.setPlannedProducers(new DecimalInput("1"));
+    form.setPlannedInjectors(new DecimalInput("1"));
+    form.setIsLateralBarriersBaffles(true);
+    form.setLateralBarriersBafflesDetail(Set.of(BarrierBaffle.TAR_MAT.name(), BarrierBaffle.CEMENTATION.name()));
+    form.setIsVerticalBarriersBaffles(true);
+    form.setVerticalBarriersBafflesDetail(Set.of(BarrierBaffle.LATERAL_FACIES_CHANGE.name()));
     form.setGrossReservoirThickness(
         ProbabilityDistributionTestUtil.getValidProbabilityDistributionForm(ProbabilityDistributionType.LOGNORMAL));
     form.setDepthToGasOilContact(

@@ -17,12 +17,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 class ReservoirPropertiesPersistenceService {
 
   private final ReservoirPropertiesRepository reservoirPropertiesRepository;
+  private final BarrierBaffleDetailRepository barrierBaffleDetailRepository;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
   @Autowired
   ReservoirPropertiesPersistenceService(ReservoirPropertiesRepository reservoirPropertiesRepository,
+                                        BarrierBaffleDetailRepository barrierBaffleDetailRepository,
                                         ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService) {
     this.reservoirPropertiesRepository = reservoirPropertiesRepository;
+    this.barrierBaffleDetailRepository = barrierBaffleDetailRepository;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
   }
 
@@ -42,7 +45,7 @@ class ReservoirPropertiesPersistenceService {
         form.getLithology() == ReservoirLithology.OTHER ? form.getLithologyOther() : null
     );
 
-    if (submissionDetail.isDryWellOrDiscoverySubmission()) {
+    if (submissionDetail.isDryWellOrDiscoverySubmission() || submissionDetail.isFieldSubmission()) {
       reservoirProperty.setReservoirConnectivity(form.getReservoirConnectivity());
       reservoirProperty.setReservoirFacies(form.getReservoirFacies());
     }
@@ -146,6 +149,15 @@ class ReservoirPropertiesPersistenceService {
       saveDiscoveryProbabilityDistributions(reservoirSubmissionDetail, form);
     } else if (submissionDetail.isFieldSubmission()) {
       saveFieldProbabilityDistributions(reservoirSubmissionDetail, form);
+
+      saveFracturePressure(form, reservoirProperty);
+      saveDepositionalSettingAndEnvironment(form, reservoirProperty);
+      savePlannedProducers(form, reservoirProperty);
+      savePlannedInjectors(form, reservoirProperty);
+
+      reservoirProperty.setLateralBarriersBaffles(form.getIsLateralBarriersBaffles());
+      reservoirProperty.setVerticalBarriersBaffles(form.getIsVerticalBarriersBaffles());
+      saveBarrierBafflesDetail(form, reservoirProperty);
     }
 
     reservoirPropertiesRepository.save(reservoirProperty);
@@ -216,6 +228,11 @@ class ReservoirPropertiesPersistenceService {
         reservoirSubmissionDetail);
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY,
+        form.getDepthToGasOilContact(),
+        submissionDetail,
+        reservoirSubmissionDetail);
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_FIELD,
         form.getDepthToGasOilContact(),
         submissionDetail,
         reservoirSubmissionDetail);
@@ -327,5 +344,67 @@ class ReservoirPropertiesPersistenceService {
     } else {
       saveFieldDepthToProbabilityDistributions(reservoirSubmissionDetail, form);
     }
+  }
+
+  private void saveFracturePressure(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {
+    reservoirProperty.setFracturePressure(form.getFracturePressure().createBigDecimalOrNull());
+  }
+
+  private void saveDepositionalSettingAndEnvironment(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {
+    reservoirProperty.setDepositionalSetting(form.getDepositionalSetting());
+
+
+    // save depositional environment if it has been set
+    if (form.getDepositionalEnvironment() != null) {
+      var depositionalSetting = EnumUtils.getEnumValue(DepositionalSetting.class, form.getDepositionalSetting());
+      var depositionalEnvironment = EnumUtils.getEnumValue(DepositionalEnvironment.class, form.getDepositionalEnvironment());
+      // remove environment if it doesn't correspond to the setting
+      if (!depositionalSetting.getDepositionalEnvironments().contains(depositionalEnvironment)) {
+        form.setDepositionalEnvironment(null);
+      }
+      reservoirProperty.setDepositionalEnvironment(form.getDepositionalEnvironment());
+    }
+  }
+
+  private void savePlannedProducers(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {
+    reservoirProperty.setPlannedProducers(form.getPlannedProducers().createBigDecimalOrNull());
+  }
+
+  private void savePlannedInjectors(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {
+    reservoirProperty.setPlannedInjectors(form.getPlannedInjectors().createBigDecimalOrNull());
+  }
+
+  private void saveBarrierBafflesDetail(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {
+    // clean db unless new reservoir property
+    if (reservoirProperty.getId() != null) {
+      clearLateralBarrierBaffles(reservoirProperty);
+      clearVerticalBarrierBaffles(reservoirProperty);
+    }
+
+    // save new details
+    if (form.getIsLateralBarriersBaffles() != null && form.getIsLateralBarriersBaffles()) {
+      for (var barrierBaffleName : form.getLateralBarriersBafflesDetail()) {
+        var barrierBaffle = BarrierBaffle.valueOf(barrierBaffleName);
+        barrierBaffleDetailRepository.save(
+            new BarrierBaffleDetail(reservoirProperty, barrierBaffle, VerticalLateralType.LATERAL));
+      }
+    }
+    if (form.getIsVerticalBarriersBaffles() != null && form.getIsVerticalBarriersBaffles()) {
+      for (var barrierBaffleName : form.getVerticalBarriersBafflesDetail()) {
+        var barrierBaffle = BarrierBaffle.valueOf(barrierBaffleName);
+        barrierBaffleDetailRepository.save(
+            new BarrierBaffleDetail(reservoirProperty, barrierBaffle, VerticalLateralType.VERTICAL));
+      }
+    }
+  }
+
+  private void clearLateralBarrierBaffles(ReservoirProperty reservoirProperty) {
+    barrierBaffleDetailRepository
+        .deleteAllByReservoirPropertyAndVerticalLateralType(reservoirProperty, VerticalLateralType.LATERAL);
+  }
+
+  private void clearVerticalBarrierBaffles(ReservoirProperty reservoirProperty) {
+    barrierBaffleDetailRepository
+        .deleteAllByReservoirPropertyAndVerticalLateralType(reservoirProperty, VerticalLateralType.VERTICAL);
   }
 }

@@ -15,6 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
@@ -137,6 +138,7 @@ public class ReservoirPropertiesController {
         )
         .addObject("preSelectedAgeStage", ageSeriesSearchService.getPreSelectedAgeSeries(form.getAgeStageOrSeries()))
         .addObject("discoverySubmission", submissionDetail.isDiscoverySubmission())
+        .addObject("fieldSubmission", submissionDetail.isFieldSubmission())
         .addObject("prospectSubmission", submissionDetail.isProspectSubmission())
         .addObject("dryHoleSubmission", submissionDetail.isDryWellSubmission())
         .addObject("conceptSelectReportSubmission", submissionDetail.isConceptSelectReportSubmission())
@@ -159,6 +161,12 @@ public class ReservoirPropertiesController {
     } else if (resourceType == ResourceType.DISCOVERY || resourceType == ResourceType.FIELD) {
       TaskListBreadcrumbUtil.addReservoirTaskListBreadcrumbsToModelAndView(modelAndView, PAGE_NAME, reservoirSubmissionDetail);
     }
+
+    if (resourceType == ResourceType.FIELD) {
+      addDepositionalSettings(modelAndView);
+      addBarrierBaffleChecklistOptions(modelAndView);
+    }
+
     return modelAndView;
   }
 
@@ -203,6 +211,15 @@ public class ReservoirPropertiesController {
             .addObject(GAS_CASE, false)
             .addObject(OIL_CASE, false)
             .addObject(MIXED_CASE, false));
+  }
+
+  private void addDepositionalSettings(ModelAndView modelAndView) {
+    modelAndView.addObject("depositionalSettings", DepositionalSetting.values());
+  }
+
+  private void addBarrierBaffleChecklistOptions(ModelAndView modelAndView) {
+    modelAndView.addObject("barrierBaffleChecklistOptions",
+        DisplayableEnumOptionUtil.getDisplayableOptionsWithNameAndDescription(BarrierBaffle.class));
   }
 
   private ModelAndView addDepthToTemplates(boolean gasCase,
@@ -302,6 +319,7 @@ public class ReservoirPropertiesController {
 
   private void addProbabilityTemplates(ModelAndView modelAndView, SubmissionDetail submissionDetail) {
     modelAndView
+        .addObject("averageNetPayThicknessError", ProbabilityDistributionTypeError.emptyError())
         .addObject("grossReservoirThicknessError", ProbabilityDistributionTypeError.emptyError())
         .addObject("grossRockVolumeError", ProbabilityDistributionTypeError.emptyError())
         .addObject("percentOfGrvOilBearingError", ProbabilityDistributionTypeError.emptyError())
@@ -480,6 +498,13 @@ public class ReservoirPropertiesController {
               form.getAverageNetPayThickness()
           ));
     } else if (submissionDetail.isDiscoverySubmission()) {
+      modelAndView.addObject("averageNetPayThicknessError",
+          probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+              bindingResult,
+              averageNetPayThicknessFormName,
+              form.getAverageNetPayThickness()
+          ));
+    } else if (submissionDetail.isFieldSubmission()) {
       modelAndView.addObject("averageNetPayThicknessError",
           probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
               bindingResult,

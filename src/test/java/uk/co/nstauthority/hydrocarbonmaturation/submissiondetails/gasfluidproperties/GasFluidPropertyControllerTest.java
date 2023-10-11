@@ -49,14 +49,13 @@ class GasFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
   private GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService;
 
   private BindingResult bindingResult;
-  private GasFluidPropertyForm gasFluidPropertyForm;
   private UUID submissionDetailId;
 
   @BeforeEach
   void setUp() {
     submissionDetailId = submissionDetail.getId();
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
-    gasFluidPropertyForm = new GasFluidPropertyForm();
+    GasFluidPropertyForm gasFluidPropertyForm = new GasFluidPropertyForm();
     bindingResult = new BeanPropertyBindingResult(gasFluidPropertyForm, "form");
   }
 

@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
+import java.util.Set;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
@@ -32,6 +34,16 @@ class ReservoirPropertiesForm implements SubmissionForm {
   private ProbabilityDistributionForm depthToMovedGasOilContact = createCustomProbabilityDistributionForm();
   private String reservoirFacies;
   private String reservoirConnectivity;
+
+  private DecimalInput fracturePressure = new DecimalInput();
+  private String depositionalSetting;
+  private String depositionalEnvironment;
+  private DecimalInput plannedProducers = new DecimalInput();
+  private DecimalInput plannedInjectors = new DecimalInput();
+  private Boolean isLateralBarriersBaffles;
+  private Set<String> lateralBarriersBafflesDetail = Set.of();
+  private Boolean isVerticalBarriersBaffles;
+  private Set<String> verticalBarriersBafflesDetail = Set.of();
 
   public String getFormationName() {
     return formationName;
@@ -247,6 +259,92 @@ class ReservoirPropertiesForm implements SubmissionForm {
   public ReservoirPropertiesForm setDepthToMovedGasOilContact(
       ProbabilityDistributionForm depthToMovedGasOilContact) {
     this.depthToMovedGasOilContact = depthToMovedGasOilContact;
+    return this;
+  }
+
+  public DecimalInput getFracturePressure() {
+    return fracturePressure;
+  }
+
+  public ReservoirPropertiesForm setFracturePressure(
+      DecimalInput fracturePressure) {
+    this.fracturePressure = fracturePressure;
+    return this;
+  }
+
+  public String getDepositionalSetting() {
+    return depositionalSetting;
+  }
+
+  public ReservoirPropertiesForm setDepositionalSetting(String depositionalSetting) {
+    this.depositionalSetting = depositionalSetting;
+    return this;
+  }
+
+  public String getDepositionalEnvironment() {
+    return depositionalEnvironment;
+  }
+
+  public ReservoirPropertiesForm setDepositionalEnvironment(String depositionalEnvironment) {
+    this.depositionalEnvironment = depositionalEnvironment;
+    return this;
+  }
+
+  public DecimalInput getPlannedProducers() {
+    return plannedProducers;
+  }
+
+  public ReservoirPropertiesForm setPlannedProducers(
+      DecimalInput plannedProducers) {
+    this.plannedProducers = plannedProducers;
+    return this;
+  }
+
+  public DecimalInput getPlannedInjectors() {
+    return plannedInjectors;
+  }
+
+  public ReservoirPropertiesForm setPlannedInjectors(
+      DecimalInput plannedInjectors) {
+    this.plannedInjectors = plannedInjectors;
+    return this;
+  }
+
+  public Boolean getIsLateralBarriersBaffles() {
+    return isLateralBarriersBaffles;
+  }
+
+  public ReservoirPropertiesForm setIsLateralBarriersBaffles(Boolean isLateralBarriersBaffles) {
+    this.isLateralBarriersBaffles = isLateralBarriersBaffles;
+    return this;
+  }
+
+  public Set<String> getLateralBarriersBafflesDetail() {
+    return lateralBarriersBafflesDetail;
+  }
+
+  public ReservoirPropertiesForm setLateralBarriersBafflesDetail(
+      Set<String> lateralBarriersBafflesDetail) {
+    this.lateralBarriersBafflesDetail = lateralBarriersBafflesDetail;
+    return this;
+  }
+
+  public Boolean getIsVerticalBarriersBaffles() {
+    return isVerticalBarriersBaffles;
+  }
+
+  public ReservoirPropertiesForm setIsVerticalBarriersBaffles(Boolean isVerticalBarriersBaffles) {
+    this.isVerticalBarriersBaffles = isVerticalBarriersBaffles;
+    return this;
+  }
+
+  public Set<String> getVerticalBarriersBafflesDetail() {
+    return verticalBarriersBafflesDetail;
+  }
+
+  public ReservoirPropertiesForm setVerticalBarriersBafflesDetail(
+      Set<String> verticalBarriersBafflesDetail) {
+    this.verticalBarriersBafflesDetail = verticalBarriersBafflesDetail;
     return this;
   }
 

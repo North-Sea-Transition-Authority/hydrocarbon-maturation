@@ -35,6 +35,19 @@ public class DisplayableEnumOptionUtil {
         ));
   }
 
+  public static Map<String, String> getDisplayableOptionsWithNameAndDescription(
+      Class<? extends Displayable> displayableOptionEnum
+  ) {
+    return Arrays.stream((Displayable[]) displayableOptionEnum.getEnumConstants())
+        .sorted(Comparator.comparingInt(Displayable::getDisplayOrder))
+        .collect(StreamUtil.toLinkedHashMap(
+            Displayable::getEnumName,
+            display -> !display.getDescription().isEmpty()
+                ? "%s (%s)".formatted(display.getDisplayName(), display.getDescription())
+                : display.getDisplayName()
+        ));
+  }
+
   public static String getDisplayableOptionOrDefault(Displayable displayable, String defaultText) {
     return displayable != null
         ? displayable.getDisplayName()

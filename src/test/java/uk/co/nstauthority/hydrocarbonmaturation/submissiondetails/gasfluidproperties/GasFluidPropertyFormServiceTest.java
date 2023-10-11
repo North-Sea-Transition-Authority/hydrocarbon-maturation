@@ -35,14 +35,12 @@ class GasFluidPropertyFormServiceTest {
   @InjectMocks
   private GasFluidPropertyFormService gasFluidPropertyFormService;
 
-  private UUID submissionDetailId;
   private SubmissionDetail submissionDetail;
 
   @BeforeEach
   void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
-    submissionDetailId = submissionDetail.getId();
   }
 
   @Test

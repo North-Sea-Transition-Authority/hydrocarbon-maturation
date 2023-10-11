@@ -1,9 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
+import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.EnumUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
@@ -14,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelld
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ReservoirSubmissionValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -177,7 +180,8 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
       );
     }
 
-    if (SubmissionDetailUtil.isDiscoverySubmission(submissionType)) {
+    if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE
+        || SubmissionDetailUtil.isDiscoverySubmission(submissionType)) {
       validatePartiallyDiscoveryDepthTo(errors, reservoirForm, hydrocarbonsDiscovered);
     } else if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
       if (submissionType == SubmissionType.CREATE_COP) {
@@ -201,13 +205,13 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
         "ageStageOrSeries.required",
         "Enter an age stage or series");
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "groupName", "groupName.required", "Enter a group name");
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lithology", "lithology.required", "Enter a lithology");
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lithology", "lithology.required", "Select a lithology");
     if (reservoirPropertiesForm.getLithology() == ReservoirLithology.OTHER) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lithologyOther", "lithologyOther.required",
           "Enter an other lithology");
     }
 
-    if (SubmissionDetailUtil.isDiscoverySubmission(submissionType)) {
+    if (SubmissionDetailUtil.isDiscoverySubmission(submissionType) || SubmissionDetailUtil.isFieldSubmission(submissionType)) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reservoirFacies",
           "reservoirFacies.required", "Enter the reservoir facies");
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reservoirConnectivity",
@@ -217,16 +221,6 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
     var reservoirForm = ((ReservoirPropertiesForm) form);
 
     var averageNetPayThicknessFormField = "averageNetPayThickness";
-    if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
-      ValidationUtils.rejectIfEmpty(errors, "averageNetPayThickness.probabilityDistributionType",
-          "averageNetPayThickness.probabilityDistributionType.required",
-          "Select the average net reservoir thickness distribution used");
-    } else {
-      ValidationUtils.rejectIfEmpty(errors, "averageNetPayThickness.probabilityDistributionType",
-          "averageNetPayThickness.probabilityDistributionType.required",
-          "Select the average net pay thickness distribution used");
-    }
-
     if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
       ProbabilityDistributionValidationUtil.validateCustomFull(
           reservoirForm.getAverageNetPayThickness(),
@@ -251,10 +245,6 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
       );
     }
 
-    ValidationUtils.rejectIfEmpty(errors, "grossReservoirThickness.probabilityDistributionType",
-        "grossReservoirThickness.probabilityDistributionType.required",
-        "Select the gross reservoir thickness distribution used");
-
     if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
       ProbabilityDistributionValidationUtil.validateCustomFull(
           reservoirForm.getGrossReservoirThickness(),
@@ -264,6 +254,9 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_FIELD
       );
     } else {
+      ValidationUtils.rejectIfEmpty(errors, "grossReservoirThickness.probabilityDistributionType",
+          "grossReservoirThickness.probabilityDistributionType.required",
+          "Select the gross reservoir thickness distribution used");
       ProbabilityDistributionValidationUtil.validateFull(
           reservoirForm.getGrossReservoirThickness(),
           errors,
@@ -374,7 +367,8 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
       );
     }
 
-    if (SubmissionDetailUtil.isDiscoverySubmission(submissionType)) {
+    if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE
+        || SubmissionDetailUtil.isDiscoverySubmission(submissionType)) {
       validateFullyDiscoveryDepthTo(errors, reservoirForm, hydrocarbonsDiscovered);
     } else if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
       if (submissionType == SubmissionType.CREATE_COP) {
@@ -383,6 +377,95 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
       } else {
         validateFullyFieldDepthTo(errors, reservoirForm, hydrocarbonsDiscovered);
       }
+    }
+
+    if (SubmissionDetailUtil.isDiscoverySubmission(submissionType)) {
+      validateFullyDiscoveryDepthTo(errors, reservoirForm, hydrocarbonsDiscovered);
+    } else if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
+      DecimalInputValidator.configureOptionalValidator(
+              errors,
+              "fracturePressure.decimalInputValue",
+              "The fracture pressure",
+              reservoirPropertiesForm.getFracturePressure())
+          .setMinValue(BigDecimal.ZERO)
+          .setMaxDecimalPlaces(0)
+          .validate();
+
+      DecimalInputValidator.configureOptionalValidator(
+              errors,
+              "plannedProducers.decimalInputValue",
+              "The planned producers",
+              reservoirPropertiesForm.getPlannedProducers())
+          .setMinValue(BigDecimal.ZERO)
+          .setMaxDecimalPlaces(0)
+          .validate();
+
+      DecimalInputValidator.configureOptionalValidator(
+              errors,
+              "plannedInjectors.decimalInputValue",
+              "The planned injectors",
+              reservoirPropertiesForm.getPlannedInjectors())
+          .setMinValue(BigDecimal.ZERO)
+          .setMaxDecimalPlaces(0)
+          .validate();
+
+
+      var depositionalSettingName = reservoirPropertiesForm.getDepositionalSetting();
+      if (depositionalSettingName == null) {
+        errors.rejectValue(
+            "depositionalSetting",
+            "depositionalSetting.required",
+            "Select a depositional setting");
+      } else {
+        var depositionalSetting = EnumUtils.getEnumValue(DepositionalSetting.class, depositionalSettingName);
+        if (depositionalSetting.hasDepositionalEnvironments()) {
+          var depositionalEnvironmentName = reservoirPropertiesForm.getDepositionalEnvironment();
+          if (depositionalEnvironmentName == null) {
+            ValidationUtils.rejectIfEmpty(
+                errors,
+                "depositionalEnvironment",
+                "depositionalEnvironment.required",
+                "Select a depositional environment"
+            );
+          } else {
+            // if they have selected an environment from another setting, they haven't selected an environment for the new setting
+            var depositionalEnvironment = EnumUtils.getEnumValue(DepositionalEnvironment.class, depositionalEnvironmentName);
+            if (!depositionalSetting.getDepositionalEnvironments().contains(depositionalEnvironment)) {
+              errors.rejectValue(
+                  "depositionalEnvironment",
+                  "depositionalEnvironment.required",
+                  "Select a depositional environment"
+              );
+            }
+          }
+        }
+      }
+
+      ValidationUtils.rejectIfEmpty(
+          errors,
+          "isLateralBarriersBaffles",
+          "isLateralBarriersBaffles.required",
+          "Select if there any lateral barriers or baffles"
+      );
+
+      if (reservoirPropertiesForm.getIsLateralBarriersBaffles() != null
+          && reservoirPropertiesForm.getIsLateralBarriersBaffles()) {
+        var lateralBarriersBafflesDetail = reservoirPropertiesForm.getLateralBarriersBafflesDetail();
+        if (lateralBarriersBafflesDetail.isEmpty()) {
+          errors.rejectValue(
+              "lateralBarriersBafflesDetail",
+              "lateralBarriersBafflesDetail.required",
+              "Select at least one lateral barrier or baffle"
+          );
+        }
+      }
+
+      ValidationUtils.rejectIfEmpty(
+          errors,
+          "isVerticalBarriersBaffles",
+          "isVerticalBarriersBaffles.required",
+          "Select if there any vertical barriers or baffles"
+      );
     }
   }
 

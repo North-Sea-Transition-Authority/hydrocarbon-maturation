@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
@@ -786,6 +787,76 @@ class ReservoirPropertiesFormValidatorTest {
         );
   }
 
+  @Test
+  void validate_whenInvalidExceedenceForm_whenAnyField_noSetting_thenValidationErrors() {
+    var validationType = ValidationType.FULL;
+    var form = getInvalidForm_fieldSubmission();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.GAS_ONLY);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_COP);
+    reservoirPropertiesFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("reservoirFacies", Set.of("reservoirFacies.required")),
+            entry("reservoirConnectivity", Set.of("reservoirConnectivity.required")),
+            entry("fracturePressure.decimalInputValue", Set.of("fracturePressure.decimalInputValue.notNumeric")),
+            entry("plannedProducers.decimalInputValue", Set.of("plannedProducers.decimalInputValue.notNumeric")),
+            entry("plannedInjectors.decimalInputValue", Set.of("plannedInjectors.decimalInputValue.notNumeric")),
+            entry("depositionalSetting", Set.of("depositionalSetting.required")),
+            entry("isLateralBarriersBaffles", Set.of("isLateralBarriersBaffles.required")),
+            entry("isVerticalBarriersBaffles", Set.of("isVerticalBarriersBaffles.required"))
+        )
+        .doesNotContainKey("depositionalEnvironment");
+
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains(
+            "The fracture pressure must be a number",
+            "The planned producers must be a number",
+            "The planned injectors must be a number",
+            "Select a depositional setting",
+            "Select if there any lateral barriers or baffles",
+            "Select if there any vertical barriers or baffles"
+        );
+  }
+
+  @Test
+  void validate_whenInvalidExceedenceForm_whenAnyField_settingNoEnvironment_thenValidationErrors() {
+    var validationType = ValidationType.FULL;
+    var form = getInvalidForm_fieldSubmission();
+    form.setDepositionalSetting(DepositionalSetting.TERRESTRIAL.name());
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.GAS_ONLY);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_COP);
+    reservoirPropertiesFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("depositionalEnvironment", Set.of("depositionalEnvironment.required"))
+        )
+        .doesNotContainKey("depositionalSetting");
+
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains(
+            "Select a depositional environment"
+        );
+  }
+
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void validate_whenInvalidExceedenceForm_whenDryHole_thenValidationErrors(
@@ -861,6 +932,16 @@ class ReservoirPropertiesFormValidatorTest {
     form.setDepthToOilWaterContact(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
     form.setDepthToGasWaterContact(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
     form.setDepthToGasOilContact(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
+    return form;
+  }
+
+  private ReservoirPropertiesForm getInvalidForm_fieldSubmission() {
+    var form = new ReservoirPropertiesForm();
+
+    form.setFracturePressure(new DecimalInput("a"));
+    form.setPlannedProducers(new DecimalInput("a"));
+    form.setPlannedInjectors(new DecimalInput("a"));
+
     return form;
   }
 

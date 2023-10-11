@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,9 @@ class ReservoirPropertiesFormServiceTest {
   @Mock
   private static GeneralReservoirInformationService generalReservoirInformationService;
 
+  @Mock
+  private static BarrierBaffleService barrierBaffleService;
+
   private static SubmissionDetail submissionDetail;
   private static ReservoirSubmissionDetail reservoirSubmissionDetail;
 
@@ -52,7 +56,7 @@ class ReservoirPropertiesFormServiceTest {
   void setUp() {
     reservoirPropertiesFormService = new ReservoirPropertiesFormService(reservoirPropertiesPersistenceService,
         probabilityDistributionFormService, hydrocarbonCasePersistenceService,
-        generalReservoirInformationService);
+        generalReservoirInformationService, barrierBaffleService);
 
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
@@ -62,7 +66,9 @@ class ReservoirPropertiesFormServiceTest {
   void reservoirPropertiesEntityToForm_newEntity_thenEmptyForm() {
     when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.empty());
 
-    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail))
+    var reservoirPropertiesForm = reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail);
+
+    assertThat(reservoirPropertiesForm)
         .extracting(
             ReservoirPropertiesForm::getFormationName,
             ReservoirPropertiesForm::getAgeStageOrSeries,
@@ -77,9 +83,19 @@ class ReservoirPropertiesFormServiceTest {
             form -> form.getNetPorosity().getProbabilityDistributionType(),
             form -> form.getNetToGross().getProbabilityDistributionType(),
             form -> form.getPercentOfGrvOilBearing().getProbabilityDistributionType(),
-            form -> form.getGrossRockVolume().getProbabilityDistributionType()
+            form -> form.getGrossRockVolume().getProbabilityDistributionType(),
+            form -> form.getFracturePressure().getDecimalInputValue(),
+            ReservoirPropertiesForm::getDepositionalSetting,
+            ReservoirPropertiesForm::getDepositionalEnvironment,
+            form -> form.getPlannedProducers().getDecimalInputValue(),
+            form -> form.getPlannedInjectors().getDecimalInputValue(),
+            ReservoirPropertiesForm::getIsLateralBarriersBaffles,
+            ReservoirPropertiesForm::getIsVerticalBarriersBaffles
         )
         .containsOnlyNulls();
+
+    assertThat(reservoirPropertiesForm.getLateralBarriersBafflesDetail()).isEmpty();
+    assertThat(reservoirPropertiesForm.getVerticalBarriersBafflesDetail()).isEmpty();
   }
 
   @ParameterizedTest
@@ -240,7 +256,7 @@ class ReservoirPropertiesFormServiceTest {
 
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA"})
-  void reservoirPropertiesEntityToForm_whenFieldNotCop_thenVerifyDiscoveryDistributionEntityToForm(
+  void reservoirPropertiesEntityToForm_whenFieldNotCop_thenVerifyFieldDistributionEntityToForm(
       SubmissionType submissionType) {
     var fieldSubmissionDetail = SubmissionDetailTestUtils.createFieldSubmissionDetail(submissionType);
     var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
@@ -314,7 +330,7 @@ class ReservoirPropertiesFormServiceTest {
   }
 
   @Test
-  void reservoirPropertiesEntityToForm_whenFieldCop_thenVerifyDiscoveryDistributionEntityToForm() {
+  void reservoirPropertiesEntityToForm_whenFieldCop_thenVerifyFieldDistributionEntityToForm() {
     var submissionType = SubmissionType.CREATE_COP;
 
     var fieldSubmissionDetail = SubmissionDetailTestUtils.createFieldSubmissionDetail(submissionType);
@@ -542,6 +558,13 @@ class ReservoirPropertiesFormServiceTest {
     reservoirProperty.setFormationName(Formation.ASGARD);
     reservoirProperty.setSubUnit(ReservoirSubUnit.T10);
     reservoirProperty.setAgeStage(AgeSeries.LOWER_DEVONIAN);
+    reservoirProperty.setFracturePressure(BigDecimal.ONE);
+    reservoirProperty.setDepositionalSetting(DepositionalSetting.TERRESTRIAL.name());
+    reservoirProperty.setDepositionalEnvironment(DepositionalEnvironment.AEOLIAN.name());
+    reservoirProperty.setPlannedProducers(BigDecimal.ONE);
+    reservoirProperty.setPlannedInjectors(BigDecimal.ONE);
+    reservoirProperty.setLateralBarriersBaffles(false);
+    reservoirProperty.setVerticalBarriersBaffles(false);
 
     return reservoirProperty;
   }

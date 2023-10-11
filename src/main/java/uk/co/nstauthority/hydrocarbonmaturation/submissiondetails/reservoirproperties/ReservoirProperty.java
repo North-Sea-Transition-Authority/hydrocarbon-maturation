@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -53,7 +54,22 @@ class ReservoirProperty implements ReservoirSubmissionDetailChildEntity {
   private String lithologyOther;
 
   private String reservoirFacies;
+
   private String reservoirConnectivity;
+
+  private BigDecimal fracturePressure;
+
+  private String depositionalSetting;
+
+  private String depositionalEnvironment;
+
+  private BigDecimal plannedProducers;
+
+  private BigDecimal plannedInjectors;
+
+  private Boolean isLateralBarriersBaffles;
+
+  private Boolean isVerticalBarriersBaffles;
 
   public UUID getId() {
     return id;
@@ -161,5 +177,68 @@ class ReservoirProperty implements ReservoirSubmissionDetailChildEntity {
 
   public void setReservoirConnectivity(String reservoirConnectivity) {
     this.reservoirConnectivity = reservoirConnectivity;
+  }
+
+  public BigDecimal getFracturePressure() {
+    return fracturePressure;
+  }
+
+  public ReservoirProperty setFracturePressure(BigDecimal fracturePressure) {
+    this.fracturePressure = fracturePressure;
+    return this;
+  }
+
+  public String getDepositionalSetting() {
+    return depositionalSetting;
+  }
+
+  public ReservoirProperty setDepositionalSetting(String depositionalSetting) {
+    this.depositionalSetting = depositionalSetting;
+    return this;
+  }
+
+  public String getDepositionalEnvironment() {
+    return depositionalEnvironment;
+  }
+
+  public ReservoirProperty setDepositionalEnvironment(String depositionalEnvironment) {
+    this.depositionalEnvironment = depositionalEnvironment;
+    return this;
+  }
+
+  public BigDecimal getPlannedProducers() {
+    return plannedProducers;
+  }
+
+  public ReservoirProperty setPlannedProducers(BigDecimal plannedProducers) {
+    this.plannedProducers = plannedProducers;
+    return this;
+  }
+
+  public BigDecimal getPlannedInjectors() {
+    return plannedInjectors;
+  }
+
+  public ReservoirProperty setPlannedInjectors(BigDecimal plannedInjectors) {
+    this.plannedInjectors = plannedInjectors;
+    return this;
+  }
+
+  public Boolean getLateralBarriersBaffles() {
+    return isLateralBarriersBaffles;
+  }
+
+  public ReservoirProperty setLateralBarriersBaffles(Boolean lateralBarriersBaffles) {
+    isLateralBarriersBaffles = lateralBarriersBaffles;
+    return this;
+  }
+
+  public Boolean getVerticalBarriersBaffles() {
+    return isVerticalBarriersBaffles;
+  }
+
+  public ReservoirProperty setVerticalBarriersBaffles(Boolean verticalBarriersBaffles) {
+    isVerticalBarriersBaffles = verticalBarriersBaffles;
+    return this;
   }
 }
