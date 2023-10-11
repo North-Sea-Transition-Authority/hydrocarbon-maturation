@@ -75,7 +75,7 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getReservoirListForm_whenField_assertStatusOk() throws Exception {
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     var submissionDetailId = submissionDetail.getId();
     var field = new Field();
     field.setResponsibleOrganisationId(1);
