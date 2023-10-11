@@ -31,7 +31,7 @@ class SubmissionSummaryServiceTest {
 
   @Test
   void getSubmissionSummaries_ForField() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     when(generalDetailSummaryService.getSummarySection(submissionDetail))
         .thenReturn(Optional.of(SubmissionSummaryTestUtil.getGeneralDetailsSummarySection(null)));
     var submissionSummaries = submissionSummaryService.getSummarySections(submissionDetail);

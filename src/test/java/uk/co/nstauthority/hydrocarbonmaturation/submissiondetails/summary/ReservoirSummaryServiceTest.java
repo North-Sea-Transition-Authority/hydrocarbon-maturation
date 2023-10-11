@@ -14,6 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.Reservoir;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationSummarySectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
@@ -27,12 +28,18 @@ class ReservoirSummaryServiceTest {
   @Mock
   private GeneralReservoirInformationSummarySectionService generalReservoirInformationSummarySectionService;
 
+  @Mock
+  private OilFluidPropertySummaryService oilFluidPropertySummaryService;
+
   private ReservoirSummaryService reservoirSummaryService;
 
   @BeforeEach
   void setUp() {
     reservoirSummaryService = new ReservoirSummaryService(
-        List.of(generalReservoirInformationSummarySectionService),
+        List.of(
+            generalReservoirInformationSummarySectionService,
+            oilFluidPropertySummaryService
+        ),
         reservoirSubmissionDetailPersistenceService
     );
   }

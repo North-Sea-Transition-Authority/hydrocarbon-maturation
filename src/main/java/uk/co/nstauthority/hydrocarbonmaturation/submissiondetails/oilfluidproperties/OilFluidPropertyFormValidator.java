@@ -4,20 +4,16 @@ import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PartialFullFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PercentageValidationUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ReservoirSubmissionValidator;
 
 @Service
-class OilFluidPropertyFormValidator extends PartialFullFormValidator {
+class OilFluidPropertyFormValidator implements ReservoirSubmissionValidator {
 
   @Override
-  public boolean supports(Class<?> clazz) {
-    return clazz.equals(OilFluidPropertyForm.class);
-  }
-
-  @Override
-  public void validatePartial(SubmissionForm form, Errors errors) {
+  public void validatePartial(SubmissionForm form, Errors errors, ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var oiLFluidPropertyForm = (OilFluidPropertyForm) form;
 
     DecimalInputValidator.configureOptionalValidator(
@@ -57,7 +53,7 @@ class OilFluidPropertyFormValidator extends PartialFullFormValidator {
   }
 
   @Override
-  public void validateFull(SubmissionForm form, Errors errors) {
+  public void validateFull(SubmissionForm form, Errors errors, ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var oiLFluidPropertyForm = (OilFluidPropertyForm) form;
 
     DecimalInputValidator.configureValidator(

@@ -60,7 +60,7 @@ class OperatorResourceAccessInterceptorRuleTest {
   @Test
   void hasRequiredTeamMembershipPermissions_whenIsIndustrySubmitterInResponsibleTeam_fieldSubmission_assertRulePass() {
     var user = ServiceUserDetailTestUtil.Builder().build();
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
 
     var field = new Field();

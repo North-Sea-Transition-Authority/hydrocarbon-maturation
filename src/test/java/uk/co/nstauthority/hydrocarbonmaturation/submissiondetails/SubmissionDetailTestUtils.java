@@ -36,8 +36,12 @@ public class SubmissionDetailTestUtils {
     return createDiscoverySubmissionDetail(SubmissionType.UPDATE_DISCOVERY);
   }
 
-  public static SubmissionDetail createNewFieldSubmissionDetail() {
+  public static SubmissionDetail createNewNonCopFieldSubmissionDetail() {
     return createFieldSubmissionDetail(SubmissionType.CREATE_CSR);
+  }
+
+  public static SubmissionDetail createNewCopFieldSubmissionDetail() {
+    return createFieldSubmissionDetail(SubmissionType.CREATE_COP);
   }
 
   public static SubmissionDetail createSubmissionDetail(SubmissionType submissionType,

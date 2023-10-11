@@ -28,6 +28,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetricparameters.OilCaseVolumetricParametersController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetricparameters.OilCaseVolumetricParametersSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertyController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesController;
@@ -50,6 +52,7 @@ public class ReservoirTaskListService {
   private final GasCaseVolumetricParametersSubmissionService gasCaseVolumetricParametersSubmissionService;
   private final GasCaseOutputsSubmissionService gasCaseOutputsSubmissionService;
   private final DrillStemTestSubmissionService drillStemTestSubmissionService;
+  private final OilFluidPropertySubmissionService oilFluidPropertySubmissionService;
   private final DiscoveryMixedCaseOutputsSubmissionService discoveryMixedCaseOutputsSubmissionService;
 
   @Autowired
@@ -63,6 +66,7 @@ public class ReservoirTaskListService {
       OilCaseVolumetricParametersSubmissionService oilCaseVolumetricParametersSubmissionService,
       GasCaseVolumetricParametersSubmissionService gasCaseVolumetricParametersSubmissionService,
       GasCaseOutputsSubmissionService gasCaseOutputsSubmissionService,
+      OilFluidPropertySubmissionService oilFluidPropertySubmissionService,
       DrillStemTestSubmissionService drillStemTestSubmissionService,
       DiscoveryMixedCaseOutputsSubmissionService discoveryMixedCaseOutputsSubmissionService) {
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
@@ -75,6 +79,7 @@ public class ReservoirTaskListService {
     this.gasCaseVolumetricParametersSubmissionService = gasCaseVolumetricParametersSubmissionService;
     this.gasCaseOutputsSubmissionService = gasCaseOutputsSubmissionService;
     this.drillStemTestSubmissionService = drillStemTestSubmissionService;
+    this.oilFluidPropertySubmissionService = oilFluidPropertySubmissionService;
     this.discoveryMixedCaseOutputsSubmissionService = discoveryMixedCaseOutputsSubmissionService;
   }
 
@@ -217,6 +222,19 @@ public class ReservoirTaskListService {
                     submissionDetail.getId(),
                     reservoirSubmissionDetail.getId())))
         );
+      }
+
+      if (
+          (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
+          || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS)
+          && (resourceType == ResourceType.FIELD
+          && !submissionDetail.isCessationOfProductionSubmission())
+      ) {
+        items.add(new TaskListItem("Oil properties",
+            TaskListLabel.notStartedOrComplete(
+                oilFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+            ReverseRouter.route(on(OilFluidPropertyController.class)
+                .getOilFluidProperties(submissionDetail.getId(), reservoirSubmissionDetail.getId()))));
       }
 
       if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS

@@ -9,12 +9,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSubmissionDetailChildEntity;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Entity
 @Table(name = "oil_fluid_properties")
-class OilFluidProperty implements SubmissionDetailChildEntity {
+class OilFluidProperty implements ReservoirSubmissionDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")
@@ -22,8 +22,8 @@ class OilFluidProperty implements SubmissionDetailChildEntity {
   private UUID id;
 
   @ManyToOne
-  @JoinColumn(name = "submission_detail_id")
-  private SubmissionDetail submissionDetail;
+  @JoinColumn(name = "reservoir_submission_detail_id")
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   private Integer oilGravity;
 
@@ -43,12 +43,12 @@ class OilFluidProperty implements SubmissionDetailChildEntity {
     this.id = id;
   }
 
-  public SubmissionDetail getSubmissionDetail() {
-    return submissionDetail;
+  public ReservoirSubmissionDetail getReservoirSubmissionDetail() {
+    return reservoirSubmissionDetail;
   }
 
-  public void setSubmissionDetail(SubmissionDetail submissionDetail) {
-    this.submissionDetail = submissionDetail;
+  public void setReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    this.reservoirSubmissionDetail = reservoirSubmissionDetail;
   }
 
   public Integer getOilGravity() {

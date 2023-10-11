@@ -80,7 +80,7 @@ class PermeabilityPersistenceServiceTest {
 
   @Test
   void savePermeabilityDetail_field_verifyMethodCall() {
-    var fieldSubmissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var fieldSubmissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
 
     when(permeabilityDetailRepository.findByReservoirSubmissionDetail(fieldReservoirSubmissionDetail))

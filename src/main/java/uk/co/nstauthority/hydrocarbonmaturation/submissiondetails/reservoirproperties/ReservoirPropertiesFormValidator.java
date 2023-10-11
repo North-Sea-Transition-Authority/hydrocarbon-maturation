@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.EnumUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
@@ -18,7 +17,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservo
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ReservoirSubmissionValidator;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
 class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
@@ -31,29 +29,15 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
   }
 
   @Override
-  public boolean isValid(SubmissionForm form,
-                         Errors errors,
-                         ReservoirSubmissionDetail reservoirSubmissionDetail,
-                         ValidationType validationType) {
-    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
-
+  public void validatePartial(SubmissionForm form,
+                       Errors errors,
+                       ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var hydrocarbonsDiscovered = generalReservoirInformationService
         .getReservoirHydrocarbons(reservoirSubmissionDetail).orElse(new ReservoirHydrocarbons())
         .getHydrocarbonsDiscovered();
 
-    switch (validationType) {
-      case FULL -> validateFull(form, errors, submissionDetail.getSubmissionType(), hydrocarbonsDiscovered);
-      case PARTIAL -> validatePartial(form, errors, submissionDetail.getSubmissionType(), hydrocarbonsDiscovered);
-      default -> throw new ActionNotAllowedException("Validation type must be either full or partial");
-    }
+    var submissionType = reservoirSubmissionDetail.getSubmissionDetail().getSubmissionType();
 
-    return !errors.hasErrors();
-  }
-
-  private void validatePartial(SubmissionForm form,
-                               Errors errors,
-                               SubmissionType submissionType,
-                               HydrocarbonsDiscovered hydrocarbonsDiscovered) {
     var reservoirForm = ((ReservoirPropertiesForm) form);
 
     var averageNetPayThicknessFormField = "averageNetPayThickness";
@@ -193,10 +177,13 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
     }
   }
 
-  private void validateFull(SubmissionForm form,
+  @Override
+  public void validateFull(SubmissionForm form,
                             Errors errors,
-                            SubmissionType submissionType,
-                            HydrocarbonsDiscovered hydrocarbonsDiscovered) {
+                            ReservoirSubmissionDetail reservoirSubmissionDetail) {
+
+    var submissionType = reservoirSubmissionDetail.getSubmissionDetail().getSubmissionType();
+
     ReservoirPropertiesForm reservoirPropertiesForm = (ReservoirPropertiesForm) form;
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "formationName", "formationName.required",
         "Enter a formation name");
@@ -285,6 +272,10 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           "Gross rock volume (GRV) distribution used"
       );
     }
+
+    var hydrocarbonsDiscovered = generalReservoirInformationService
+        .getReservoirHydrocarbons(reservoirSubmissionDetail).orElse(new ReservoirHydrocarbons())
+        .getHydrocarbonsDiscovered();
 
     if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS
         || submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {

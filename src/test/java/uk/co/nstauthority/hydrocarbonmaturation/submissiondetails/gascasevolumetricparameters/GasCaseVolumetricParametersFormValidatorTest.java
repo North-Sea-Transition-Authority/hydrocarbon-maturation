@@ -105,7 +105,7 @@ class GasCaseVolumetricParametersFormValidatorTest {
     form.setGasFormationVolumeFactor(constantDistributionForm);
     form.setGasHydrocarbonSaturation(customDistributionForm);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     gasCaseVolumetricParametersFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -164,7 +164,7 @@ class GasCaseVolumetricParametersFormValidatorTest {
     form.setGasFormationVolumeFactor(constantDistributionForm);
     form.setGasHydrocarbonSaturation(customDistributionForm);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     gasCaseVolumetricParametersFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);

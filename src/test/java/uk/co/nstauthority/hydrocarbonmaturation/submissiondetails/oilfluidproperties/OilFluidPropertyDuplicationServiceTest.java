@@ -16,10 +16,10 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class OilFluidPropertyDuplicationServiceTest {
@@ -28,54 +28,56 @@ class OilFluidPropertyDuplicationServiceTest {
   private OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService;
 
   @Mock
-  private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @InjectMocks
   private OilFluidPropertyDuplicationService oilFluidPropertyDuplicationService;
 
-  private SubmissionDetail newSubmissionDetail;
+  private ReservoirSubmissionDetail newSubmissionDetail;
 
   @BeforeEach
   void setUp() {
-    newSubmissionDetail = SubmissionDetailTestUtils.createNewDiscoveryUpdateSubmissionDetail();
+    newSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
   }
 
   @Test
   void duplicateSubmissionSection_OilFluidPropertyExists_DoesDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
+    var oldSubmissionDetail = mock(ReservoirSubmissionDetail.class);
 
     var oilFluidProperty = mock(OilFluidProperty.class);
     when(oilFluidPropertyPersistenceService.getOilFluidProperty(oldSubmissionDetail))
         .thenReturn(Optional.of(oilFluidProperty));
 
-    oilFluidPropertyDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    oilFluidPropertyDuplicationService.duplicateReservoirSection(oldSubmissionDetail, newSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, oilFluidProperty,
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(
+        newSubmissionDetail,
+        oilFluidProperty,
         OilFluidProperty.class);
   }
 
   @Test
   void duplicateSubmissionSection_OilFluidPropertyDoesNotExist_DoesNotDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
+    var oldSubmissionDetail = mock(ReservoirSubmissionDetail.class);
 
     when(oilFluidPropertyPersistenceService.getOilFluidProperty(oldSubmissionDetail))
         .thenReturn(Optional.empty());
 
-    oilFluidPropertyDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    oilFluidPropertyDuplicationService.duplicateReservoirSection(oldSubmissionDetail, newSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, never())
+    verify(reservoirDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(OilFluidProperty.class), eq(OilFluidProperty.class));
   }
 
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {"UPDATE_DISCOVERY"}, mode = EnumSource.Mode.EXCLUDE)
   void duplicateSubmissionSection_OilFluidPropertyDoesNotExist_DoesNotDuplicate(SubmissionType submissionType) {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    newSubmissionDetail.setSubmissionType(submissionType);
+    var oldSubmissionDetail = mock(ReservoirSubmissionDetail.class);
+    newSubmissionDetail.getSubmissionDetail().setSubmissionType(submissionType);
 
-    oilFluidPropertyDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    oilFluidPropertyDuplicationService.duplicateReservoirSection(oldSubmissionDetail, newSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, never())
+    verify(reservoirDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(OilFluidProperty.class), eq(OilFluidProperty.class));
   }
 }

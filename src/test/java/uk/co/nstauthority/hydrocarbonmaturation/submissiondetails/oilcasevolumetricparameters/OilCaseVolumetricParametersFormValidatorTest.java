@@ -104,7 +104,7 @@ class OilCaseVolumetricParametersFormValidatorTest {
     form.setOilFormationVolumeFactor(constantDistributionForm);
     form.setOilHydrocarbonSaturation(customDistributionForm);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     oilCaseVolumetricParametersFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -163,7 +163,7 @@ class OilCaseVolumetricParametersFormValidatorTest {
     form.setOilFormationVolumeFactor(constantDistributionForm);
     form.setOilHydrocarbonSaturation(customDistributionForm);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     oilCaseVolumetricParametersFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);

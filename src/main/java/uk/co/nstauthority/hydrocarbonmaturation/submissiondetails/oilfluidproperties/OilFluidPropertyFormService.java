@@ -2,37 +2,21 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidprope
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class OilFluidPropertyFormService implements SubmissionFormService {
+class OilFluidPropertyFormService {
 
   private final OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService;
-  private final OilFluidPropertyFormValidator oilFluidPropertyFormValidator;
 
   @Autowired
-  OilFluidPropertyFormService(OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService,
-                              OilFluidPropertyFormValidator oilFluidPropertyFormValidator) {
+  OilFluidPropertyFormService(OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService) {
     this.oilFluidPropertyPersistenceService = oilFluidPropertyPersistenceService;
-    this.oilFluidPropertyFormValidator = oilFluidPropertyFormValidator;
   }
 
-  @Override
-  public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
-                                ValidationType validationType, SubmissionDetail submissionDetail) {
-    oilFluidPropertyFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
-    return bindingResult;
-  }
-
-  OilFluidPropertyForm getOilFluidPropertyForm(SubmissionDetail submissionDetail) {
-    return oilFluidPropertyPersistenceService.getOilFluidProperty(submissionDetail)
+  OilFluidPropertyForm getOilFluidPropertyForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return oilFluidPropertyPersistenceService.getOilFluidProperty(reservoirSubmissionDetail)
         .map(this::oilFluidPropertyEntityToForm)
         .orElse(new OilFluidPropertyForm());
   }

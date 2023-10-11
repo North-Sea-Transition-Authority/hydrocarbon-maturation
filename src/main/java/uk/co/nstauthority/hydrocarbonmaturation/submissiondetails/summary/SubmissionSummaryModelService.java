@@ -142,8 +142,6 @@ public class SubmissionSummaryModelService {
             discoverySummaryService.getGasFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("generalFluidPropertiesSummaryView",
             discoverySummaryService.getGeneralFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .addObject("oilFluidPropertiesSummaryView",
-            discoverySummaryService.getOilFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("generalDetailsSummaryView",
             discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("opportunityDetailsSummaryView",

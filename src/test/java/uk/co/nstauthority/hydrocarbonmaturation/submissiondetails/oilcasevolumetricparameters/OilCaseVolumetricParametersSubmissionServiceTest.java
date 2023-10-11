@@ -62,7 +62,7 @@ class OilCaseVolumetricParametersSubmissionServiceTest {
 
   @Test
   void isSectionSubmittable_whenField_whenSubmittable_thenTrue() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new OilCaseVolumetricParametersForm();
 
@@ -76,7 +76,7 @@ class OilCaseVolumetricParametersSubmissionServiceTest {
 
   @Test
   void isSectionSubmittable_whenField_whenNotSubmittable_thenFalse() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new OilCaseVolumetricParametersForm();
 

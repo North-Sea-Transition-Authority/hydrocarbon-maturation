@@ -294,8 +294,7 @@ class SubmissionSummaryModelServiceTest {
   @Test
   void createDiscoverySubmissionSummaryModelAndView() {
     var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-    when(discoverySummaryService.getOilFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(oilFluidPropertySummaryView);
+
     when(discoverySummaryService.getGasFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(gasFluidPropertySummaryView);
     when(discoverySummaryService.getGeneralFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
@@ -325,7 +324,6 @@ class SubmissionSummaryModelServiceTest {
         .containsExactly(
             entry("gasFluidPropertiesSummaryView", gasFluidPropertySummaryView),
             entry("generalFluidPropertiesSummaryView", generalFluidPropertySummaryView),
-            entry("oilFluidPropertiesSummaryView", oilFluidPropertySummaryView),
             entry("generalDetailsSummaryView", generalDetailSummaryView),
             entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView),
             entry("outlineForMaximumCaseSummaryView", outlineForMaximumCaseSummaryView),
@@ -342,7 +340,7 @@ class SubmissionSummaryModelServiceTest {
 
   @Test
   void createFieldSubmissionSummaryModelAndView() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn("test");
     when(submissionSummaryService.getSummarySections(submissionDetail)).thenReturn(summarySections);
     when(fieldSummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail)).thenReturn(reservoirSummaries);

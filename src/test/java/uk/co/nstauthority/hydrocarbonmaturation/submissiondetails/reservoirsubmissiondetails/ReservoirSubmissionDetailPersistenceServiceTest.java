@@ -111,7 +111,7 @@ class ReservoirSubmissionDetailPersistenceServiceTest {
   }
 
   @Test
-  void getReservoirSubmissionDetailOrThrow() {
+  void getExtantReservoirSubmissionDetailOrThrow() {
     var id = UUID.randomUUID();
     var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
     reservoirSubmissionDetail.setId(id);
@@ -121,7 +121,7 @@ class ReservoirSubmissionDetailPersistenceServiceTest {
   }
 
   @Test
-  void getReservoirSubmissionDetailOrThrow_throws() {
+  void getExtantReservoirSubmissionDetailOrThrow_throws() {
     var id = UUID.randomUUID();
     when(reservoirSubmissionDetailRepository.findByIdAndStatus(id, ReservoirSubmissionDetailStatus.EXTANT)).thenReturn(Optional.empty());
     assertThatThrownBy(() -> reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(id))

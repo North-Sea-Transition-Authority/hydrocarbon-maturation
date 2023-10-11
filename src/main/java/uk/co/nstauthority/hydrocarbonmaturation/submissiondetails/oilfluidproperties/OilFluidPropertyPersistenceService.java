@@ -4,10 +4,10 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class OilFluidPropertyPersistenceService {
+public class OilFluidPropertyPersistenceService {
 
   private final OilFluidPropertyRepository oilFluidPropertyRepository;
 
@@ -17,9 +17,10 @@ class OilFluidPropertyPersistenceService {
   }
 
   @Transactional
-  public void saveOilFluidProperty(OilFluidPropertyForm oilFluidPropertyForm, SubmissionDetail submissionDetail) {
-    var oilFluidProperty = getOilFluidProperty(submissionDetail).orElse(new OilFluidProperty());
-    oilFluidProperty.setSubmissionDetail(submissionDetail);
+  public void saveOilFluidProperty(OilFluidPropertyForm oilFluidPropertyForm,
+                                   ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var oilFluidProperty = getOilFluidProperty(reservoirSubmissionDetail).orElse(new OilFluidProperty());
+    oilFluidProperty.setReservoirSubmissionDetail(reservoirSubmissionDetail);
     oilFluidProperty.setOilGravity(oilFluidPropertyForm.getOilGravity().createIntegerOrNull());
     oilFluidProperty.setOilSulphur(oilFluidPropertyForm.getOilSulphur().createIntegerOrNull());
     oilFluidProperty.setOilViscosity(oilFluidPropertyForm.getOilViscosity().createBigDecimalOrNull());
@@ -29,7 +30,11 @@ class OilFluidPropertyPersistenceService {
     oilFluidPropertyRepository.save(oilFluidProperty);
   }
 
-  Optional<OilFluidProperty> getOilFluidProperty(SubmissionDetail submissionDetail) {
-    return oilFluidPropertyRepository.findBySubmissionDetail(submissionDetail);
+  Optional<OilFluidProperty> getOilFluidProperty(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return oilFluidPropertyRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail);
+  }
+
+  public void clearAllOilFluidProperties(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    oilFluidPropertyRepository.deleteAllByReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 }

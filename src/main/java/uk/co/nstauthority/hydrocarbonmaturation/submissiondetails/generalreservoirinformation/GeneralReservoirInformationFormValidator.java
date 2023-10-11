@@ -8,7 +8,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ReservoirSubmissionValidator;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
 public class GeneralReservoirInformationFormValidator implements ReservoirSubmissionValidator {
@@ -21,15 +20,38 @@ public class GeneralReservoirInformationFormValidator implements ReservoirSubmis
   }
 
   @Override
-  public boolean isValid(SubmissionForm form,
-                         Errors errors,
-                         ReservoirSubmissionDetail reservoirSubmissionDetail,
-                         ValidationType validationType) {
+  public void validatePartial(SubmissionForm form, Errors errors, ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reservoirName", "reservoirName.required",
+        "Enter a reservoir name");
+
+    validateUniqueReservoirNames((GeneralReservoirInformationForm) form, errors, reservoirSubmissionDetail);
+  }
+
+
+  @Override
+  public void validateFull(SubmissionForm form, Errors errors, ReservoirSubmissionDetail reservoirSubmissionDetail) {
     GeneralReservoirInformationForm generalReservoirInformationForm = (GeneralReservoirInformationForm) form;
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reservoirName", "reservoirName.required",
         "Enter a reservoir name");
+
+    validateUniqueReservoirNames(generalReservoirInformationForm, errors, reservoirSubmissionDetail);
+
+    if (submissionDetail.isFieldSubmission()
+        && (CollectionUtils.isEmpty(generalReservoirInformationForm.getAssociatedDiscoveryReservoirs()))) {
+      errors.rejectValue("associatedDiscoveryReservoirSelect", "associatedDiscoveryReservoirSelect.notEmpty",
+          "You must select at least one associated discovery reservoir");
+    }
+
+    ValidationUtils.rejectIfEmpty(errors, "hydrocarbonsDiscovered",
+        "hydrocarbonsDiscovered.required", "Select the hydrocarbons discovered");
+  }
+
+  private void validateUniqueReservoirNames(GeneralReservoirInformationForm generalReservoirInformationForm,
+                                            Errors errors,
+                                            ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
     var reservoirNames = reservoirSubmissionDetailPersistenceService
         .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail)
@@ -44,18 +66,5 @@ public class GeneralReservoirInformationFormValidator implements ReservoirSubmis
           String.format("All reservoir names must be unique for this %s",
               submissionDetail.getSubmission().getResource().getType().getDisplayName().toLowerCase()));
     }
-
-    if (validationType == ValidationType.FULL) {
-      if (submissionDetail.isFieldSubmission()
-          && (CollectionUtils.isEmpty(generalReservoirInformationForm.getAssociatedDiscoveryReservoirs()))) {
-        errors.rejectValue("associatedDiscoveryReservoirSelect", "associatedDiscoveryReservoirSelect.notEmpty",
-            "You must select at least one associated discovery reservoir");
-      }
-
-      ValidationUtils.rejectIfEmpty(errors, "hydrocarbonsDiscovered",
-          "hydrocarbonsDiscovered.required", "Select the hydrocarbons discovered");
-    }
-
-    return !errors.hasErrors();
   }
 }

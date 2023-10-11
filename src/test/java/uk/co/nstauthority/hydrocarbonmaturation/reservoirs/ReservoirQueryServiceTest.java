@@ -44,7 +44,7 @@ class ReservoirQueryServiceTest {
 
   @Test
   void getReservoirByNameForSubmissionDetail_filters() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
     var fieldResource = submissionDetail.getSubmission().getResource();
