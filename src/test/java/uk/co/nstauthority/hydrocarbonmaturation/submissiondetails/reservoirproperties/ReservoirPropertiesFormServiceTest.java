@@ -18,6 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -66,6 +67,11 @@ class ReservoirPropertiesFormServiceTest {
   void reservoirPropertiesEntityToForm_newEntity_thenEmptyForm() {
     when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail)).thenReturn(Optional.empty());
 
+    var probabilityDistributionForm =
+        ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm();
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        eq(reservoirSubmissionDetail), any())).thenReturn(probabilityDistributionForm);
+
     var reservoirPropertiesForm = reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail);
 
     assertThat(reservoirPropertiesForm)
@@ -77,13 +83,6 @@ class ReservoirPropertiesFormServiceTest {
             ReservoirPropertiesForm::getLithologyOther,
             ReservoirPropertiesForm::getReservoirFacies,
             ReservoirPropertiesForm::getReservoirConnectivity,
-            form -> form.getAverageNetPayThickness().getProbabilityDistributionType(),
-            form -> form.getGrossReservoirThickness().getProbabilityDistributionType(),
-            form -> form.getDepthToHydrocarbonContact().getProbabilityDistributionType(),
-            form -> form.getNetPorosity().getProbabilityDistributionType(),
-            form -> form.getNetToGross().getProbabilityDistributionType(),
-            form -> form.getPercentOfGrvOilBearing().getProbabilityDistributionType(),
-            form -> form.getGrossRockVolume().getProbabilityDistributionType(),
             form -> form.getFracturePressure().getDecimalInputValue(),
             ReservoirPropertiesForm::getDepositionalSetting,
             ReservoirPropertiesForm::getDepositionalEnvironment,
@@ -93,6 +92,17 @@ class ReservoirPropertiesFormServiceTest {
             ReservoirPropertiesForm::getIsVerticalBarriersBaffles
         )
         .containsOnlyNulls();
+
+    assertThat(reservoirPropertiesForm)
+        .extracting(
+            form -> form.getAverageNetPayThickness().getProbabilityDistributionType(),
+            form -> form.getGrossReservoirThickness().getProbabilityDistributionType(),
+            form -> form.getDepthToHydrocarbonContact().getProbabilityDistributionType(),
+            form -> form.getNetPorosity().getProbabilityDistributionType(),
+            form -> form.getNetToGross().getProbabilityDistributionType(),
+            form -> form.getGrossRockVolume().getProbabilityDistributionType()
+        ).containsOnly(ProbabilityDistributionType.CUSTOM);
+
 
     assertThat(reservoirPropertiesForm.getLateralBarriersBafflesDetail()).isEmpty();
     assertThat(reservoirPropertiesForm.getVerticalBarriersBafflesDetail()).isEmpty();

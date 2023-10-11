@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprop
 import java.util.Set;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
@@ -23,15 +22,15 @@ class ReservoirPropertiesForm implements SubmissionForm {
   private ProbabilityDistributionForm netToGross = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm netPorosity = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm depthToHydrocarbonContact = new ProbabilityDistributionForm();
-  private ProbabilityDistributionForm depthToOilWaterContact = createCustomProbabilityDistributionForm();
-  private ProbabilityDistributionForm depthToGasWaterContact = createCustomProbabilityDistributionForm();
-  private ProbabilityDistributionForm depthToGasOilContact = createCustomProbabilityDistributionForm();
-  private ProbabilityDistributionForm originalDepthToOilWaterContact = createCustomProbabilityDistributionForm();
-  private ProbabilityDistributionForm originalDepthToGasWaterContact = createCustomProbabilityDistributionForm();
-  private ProbabilityDistributionForm originalDepthToGasOilContact = createCustomProbabilityDistributionForm();
-  private ProbabilityDistributionForm depthToMovedOilWaterContact = createCustomProbabilityDistributionForm();
-  private ProbabilityDistributionForm depthToMovedGasWaterContact = createCustomProbabilityDistributionForm();
-  private ProbabilityDistributionForm depthToMovedGasOilContact = createCustomProbabilityDistributionForm();
+  private ProbabilityDistributionForm depthToOilWaterContact = new ProbabilityDistributionForm();
+  private ProbabilityDistributionForm depthToGasWaterContact = new ProbabilityDistributionForm();
+  private ProbabilityDistributionForm depthToGasOilContact = new ProbabilityDistributionForm();
+  private ProbabilityDistributionForm originalDepthToOilWaterContact = new ProbabilityDistributionForm();
+  private ProbabilityDistributionForm originalDepthToGasWaterContact = new ProbabilityDistributionForm();
+  private ProbabilityDistributionForm originalDepthToGasOilContact = new ProbabilityDistributionForm();
+  private ProbabilityDistributionForm depthToMovedOilWaterContact = new ProbabilityDistributionForm();
+  private ProbabilityDistributionForm depthToMovedGasWaterContact = new ProbabilityDistributionForm();
+  private ProbabilityDistributionForm depthToMovedGasOilContact = new ProbabilityDistributionForm();
   private String reservoirFacies;
   private String reservoirConnectivity;
 
@@ -346,11 +345,5 @@ class ReservoirPropertiesForm implements SubmissionForm {
       Set<String> verticalBarriersBafflesDetail) {
     this.verticalBarriersBafflesDetail = verticalBarriersBafflesDetail;
     return this;
-  }
-
-  private ProbabilityDistributionForm createCustomProbabilityDistributionForm() {
-    var probabilityDistributionForm = new ProbabilityDistributionForm();
-    probabilityDistributionForm.setProbabilityDistributionType(ProbabilityDistributionType.CUSTOM);
-    return probabilityDistributionForm;
   }
 }
