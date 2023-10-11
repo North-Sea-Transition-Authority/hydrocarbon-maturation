@@ -11,17 +11,17 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestr
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetricparameters.GasCaseVolumetricParametersSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics.MixedCaseVolumetricsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetricparameters.MixedCaseVolumetricParametersSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetricparameters.OilCaseVolumetricParametersSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryService;
@@ -47,10 +47,10 @@ class DiscoverySummaryService {
   private final PermeabilitySummaryService permeabilitySummaryService;
   private final GeneralDetailSummaryService generalDetailSummaryService;
   private final ReservoirPropertiesSummaryService reservoirPropertiesSummaryService;
-  private final MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService;
-  private final OilCaseVolumetricsSummaryService oilCaseVolumetricsSummaryService;
+  private final MixedCaseVolumetricParametersSummaryService mixedCaseVolumetricParametersSummaryService;
+  private final OilCaseVolumetricParametersSummaryService oilCaseVolumetricParametersSummaryService;
   private final OilCaseOutputsSummaryService oilCaseOutputsSummaryService;
-  private final GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService;
+  private final GasCaseVolumetricParametersSummaryService gasCaseVolumetricParametersSummaryService;
   private final GasCaseOutputsSummaryService gasCaseOutputsSummaryService;
   private final DrillStemTestResultsSummaryService drillStemTestResultsSummaryService;
   private final DiscoveryWellDetailsSummaryService discoveryWellDetailsSummaryService;
@@ -68,10 +68,10 @@ class DiscoverySummaryService {
                           GeneralDetailSummaryService generalDetailSummaryService,
                           ReservoirPropertiesSummaryService reservoirPropertiesSummaryService,
                           DrillStemTestResultsSummaryService drillStemTestResultsSummaryService,
-                          MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService,
-                          OilCaseVolumetricsSummaryService oilCaseVolumetricsSummaryService,
+                          MixedCaseVolumetricParametersSummaryService mixedCaseVolumetricParametersSummaryService,
+                          OilCaseVolumetricParametersSummaryService oilCaseVolumetricParametersSummaryService,
                           OilCaseOutputsSummaryService oilCaseOutputsSummaryService,
-                          GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService,
+                          GasCaseVolumetricParametersSummaryService gasCaseVolumetricParametersSummaryService,
                           GasCaseOutputsSummaryService gasCaseOutputsSummaryService,
                           DiscoveryWellDetailsSummaryService discoveryWellDetailsSummaryService,
                           OutlineForMaximumCaseSummaryService outlineForMaximumCaseSummaryService,
@@ -86,10 +86,10 @@ class DiscoverySummaryService {
     this.generalDetailSummaryService = generalDetailSummaryService;
     this.reservoirPropertiesSummaryService = reservoirPropertiesSummaryService;
     this.drillStemTestResultsSummaryService = drillStemTestResultsSummaryService;
-    this.mixedCaseVolumetricsSummaryService = mixedCaseVolumetricsSummaryService;
-    this.oilCaseVolumetricsSummaryService = oilCaseVolumetricsSummaryService;
+    this.mixedCaseVolumetricParametersSummaryService = mixedCaseVolumetricParametersSummaryService;
+    this.oilCaseVolumetricParametersSummaryService = oilCaseVolumetricParametersSummaryService;
     this.oilCaseOutputsSummaryService = oilCaseOutputsSummaryService;
-    this.gasCaseVolumetricsSummaryService = gasCaseVolumetricsSummaryService;
+    this.gasCaseVolumetricParametersSummaryService = gasCaseVolumetricParametersSummaryService;
     this.gasCaseOutputsSummaryService = gasCaseOutputsSummaryService;
     this.discoveryWellDetailsSummaryService = discoveryWellDetailsSummaryService;
     this.outlineForMaximumCaseSummaryService = outlineForMaximumCaseSummaryService;
@@ -148,7 +148,7 @@ class DiscoverySummaryService {
 
   public ProbabilityDistributionsFormSummaryView getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    return oilCaseVolumetricsSummaryService.getOilCaseVolumetricsSummaryView(reservoirSubmissionDetail);
+    return oilCaseVolumetricParametersSummaryService.getOilCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 
   public GasCaseOutputsSummaryView getGasCaseOutputsSummaryViewFromReservoirSubmissionDetail(
@@ -158,12 +158,12 @@ class DiscoverySummaryService {
 
   public ProbabilityDistributionsFormSummaryView getGasCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    return gasCaseVolumetricsSummaryService.getGasCaseVolumetricsSummaryView(reservoirSubmissionDetail);
+    return gasCaseVolumetricParametersSummaryService.getGasCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 
   public ProbabilityDistributionsFormSummaryView getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    return mixedCaseVolumetricsSummaryService.getMixedCaseVolumetricsSummaryView(reservoirSubmissionDetail);
+    return mixedCaseVolumetricParametersSummaryService.getMixedCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 
   public TrapPropertiesSummaryView getTrapPropertiesSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {

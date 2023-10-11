@@ -13,13 +13,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestResultsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetricparameters.GasCaseVolumetricParametersSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics.MixedCaseVolumetricsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetricparameters.MixedCaseVolumetricParametersSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetricparameters.OilCaseVolumetricParametersSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryService;
@@ -58,19 +58,19 @@ class DiscoverySummaryServiceTest {
   private DrillStemTestResultsSummaryService drillStemTestResultsSummaryService;
 
   @Mock
-  private OilCaseVolumetricsSummaryService oilCaseVolumetricsSummaryService;
+  private OilCaseVolumetricParametersSummaryService oilCaseVolumetricParametersSummaryService;
 
   @Mock
   private OilCaseOutputsSummaryService oilCaseOutputsSummaryService;
 
   @Mock
-  private GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService;
+  private GasCaseVolumetricParametersSummaryService gasCaseVolumetricParametersSummaryService;
 
   @Mock
   private GasCaseOutputsSummaryService gasCaseOutputsSummaryService;
 
   @Mock
-  private MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService;
+  private MixedCaseVolumetricParametersSummaryService mixedCaseVolumetricParametersSummaryService;
 
   @Mock
   private DiscoveryWellDetailsSummaryService discoveryWellDetailsSummaryService;
@@ -169,7 +169,7 @@ class DiscoverySummaryServiceTest {
   void getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
     discoverySummaryService.getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
-    verify(oilCaseVolumetricsSummaryService, times(1))
+    verify(oilCaseVolumetricParametersSummaryService, times(1))
         .getOilCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 
@@ -185,7 +185,7 @@ class DiscoverySummaryServiceTest {
   void getGasCaseVolumetricsSummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
     discoverySummaryService.getGasCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
-    verify(gasCaseVolumetricsSummaryService, times(1))
+    verify(gasCaseVolumetricParametersSummaryService, times(1))
         .getGasCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 
@@ -201,7 +201,7 @@ class DiscoverySummaryServiceTest {
   void getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
     discoverySummaryService.getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
-    verify(mixedCaseVolumetricsSummaryService, times(1))
+    verify(mixedCaseVolumetricParametersSummaryService, times(1))
         .getMixedCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 

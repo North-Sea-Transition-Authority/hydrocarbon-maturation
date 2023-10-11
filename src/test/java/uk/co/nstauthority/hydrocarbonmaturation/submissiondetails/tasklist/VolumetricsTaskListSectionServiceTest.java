@@ -21,16 +21,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSubmissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetricparameters.GasCaseVolumetricParametersController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetricparameters.GasCaseVolumetricParametersSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics.MixedCaseVolumetricsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics.MixedCaseVolumetricsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetricparameters.MixedCaseVolumetricParametersController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetricparameters.MixedCaseVolumetricParametersSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSubmissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetricparameters.OilCaseVolumetricParametersController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetricparameters.OilCaseVolumetricParametersSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.prospectmixedcaseoutputs.ProspectMixedCaseOutputsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.prospectmixedcaseoutputs.ProspectMixedCaseOutputsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -44,13 +44,13 @@ class VolumetricsTaskListSectionServiceTest {
   private HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
 
   @Mock
-  private OilCaseVolumetricsSubmissionService oilCaseVolumetricsSubmissionService;
+  private OilCaseVolumetricParametersSubmissionService oilCaseVolumetricParametersSubmissionService;
 
   @Mock
   private OilCaseOutputsSubmissionService oilCaseOutputsSubmissionService;
 
   @Mock
-  private GasCaseVolumetricsSubmissionService gasCaseVolumetricsSubmissionService;
+  private GasCaseVolumetricParametersSubmissionService gasCaseVolumetricParametersSubmissionService;
 
   @Mock
   private GasCaseOutputsSubmissionService gasCaseOutputsSubmissionService;
@@ -59,7 +59,7 @@ class VolumetricsTaskListSectionServiceTest {
   private ProspectMixedCaseOutputsSubmissionService prospectMixedCaseOutputsSubmissionService;
 
   @Mock
-  private MixedCaseVolumetricsSubmissionService mixedCaseVolumetricsSubmissionService;
+  private MixedCaseVolumetricParametersSubmissionService mixedCaseVolumetricParametersSubmissionService;
 
   @Mock
   private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
@@ -88,11 +88,11 @@ class VolumetricsTaskListSectionServiceTest {
         .thenReturn(reservoirSubmissionDetail);
 
     when(gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
-    when(gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
-    when(oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(gasCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(oilCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(prospectMixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
-    when(mixedCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(mixedCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     var hydrocarbonCase = new HydrocarbonCaseDetail();
     when(hydrocarbonCasePersistenceService.getHydrocarbonCaseDetail(submissionDetail))
         .thenReturn(Optional.of(hydrocarbonCase));
@@ -107,7 +107,7 @@ class VolumetricsTaskListSectionServiceTest {
         .isEqualTo(List.of(
             new TaskListItem("Oil case volumetric parameters",
                 TaskListLabel.COMPLETE,
-                ReverseRouter.route(on(OilCaseVolumetricsController.class)
+                ReverseRouter.route(on(OilCaseVolumetricParametersController.class)
                     .getOilCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
             new TaskListItem(
                 "Oil case outputs (resources)",
@@ -116,7 +116,7 @@ class VolumetricsTaskListSectionServiceTest {
                     .getOilCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
             new TaskListItem("Gas case volumetric parameters",
                 TaskListLabel.COMPLETE,
-                ReverseRouter.route(on(GasCaseVolumetricsController.class)
+                ReverseRouter.route(on(GasCaseVolumetricParametersController.class)
                     .getGasCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
             new TaskListItem(
                 "Gas case outputs (resources)",
@@ -125,7 +125,7 @@ class VolumetricsTaskListSectionServiceTest {
                     .getGasCaseOutputs(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
             new TaskListItem("Mixed case volumetric parameters",
                 TaskListLabel.COMPLETE,
-                ReverseRouter.route(on(MixedCaseVolumetricsController.class)
+                ReverseRouter.route(on(MixedCaseVolumetricParametersController.class)
                     .getMixedCaseVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail .getId()))),
             new TaskListItem(
                 "Mixed case outputs (resources)",
@@ -163,11 +163,11 @@ class VolumetricsTaskListSectionServiceTest {
     when(hydrocarbonCasePersistenceService.isOilOnlyPresent(hydrocarbonCase)).thenReturn(true);
     when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCase)).thenReturn(true);
 
-    when(gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(gasCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
-    when(oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(oilCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
-    when(mixedCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(mixedCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(prospectMixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
 
     assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
@@ -185,7 +185,7 @@ class VolumetricsTaskListSectionServiceTest {
     when(hydrocarbonCasePersistenceService.isOilOnlyPresent(hydrocarbonCase)).thenReturn(false);
     when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCase)).thenReturn(false);
 
-    when(gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
+    when(gasCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
     assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
@@ -202,7 +202,7 @@ class VolumetricsTaskListSectionServiceTest {
     when(hydrocarbonCasePersistenceService.isOilOnlyPresent(hydrocarbonCase)).thenReturn(false);
     when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCase)).thenReturn(false);
 
-    when(gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(gasCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
     assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
@@ -220,7 +220,7 @@ class VolumetricsTaskListSectionServiceTest {
     when(hydrocarbonCasePersistenceService.isOilOnlyPresent(hydrocarbonCase)).thenReturn(true);
     when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCase)).thenReturn(false);
 
-    when(oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
+    when(oilCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
     assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
@@ -237,7 +237,7 @@ class VolumetricsTaskListSectionServiceTest {
     when(hydrocarbonCasePersistenceService.isOilOnlyPresent(hydrocarbonCase)).thenReturn(true);
     when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCase)).thenReturn(false);
 
-    when(oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(oilCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
     assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
@@ -255,7 +255,7 @@ class VolumetricsTaskListSectionServiceTest {
     when(hydrocarbonCasePersistenceService.isOilOnlyPresent(hydrocarbonCase)).thenReturn(true);
     when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCase)).thenReturn(false);
 
-    when(gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
+    when(gasCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
     assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
@@ -272,7 +272,7 @@ class VolumetricsTaskListSectionServiceTest {
     when(hydrocarbonCasePersistenceService.isOilOnlyPresent(hydrocarbonCase)).thenReturn(false);
     when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCase)).thenReturn(true);
 
-    when(mixedCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
+    when(mixedCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
     assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
@@ -289,7 +289,7 @@ class VolumetricsTaskListSectionServiceTest {
     when(hydrocarbonCasePersistenceService.isOilOnlyPresent(hydrocarbonCase)).thenReturn(false);
     when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCase)).thenReturn(true);
 
-    when(mixedCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(mixedCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(prospectMixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
     assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
@@ -307,7 +307,7 @@ class VolumetricsTaskListSectionServiceTest {
     when(hydrocarbonCasePersistenceService.isOilOnlyPresent(hydrocarbonCase)).thenReturn(false);
     when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCase)).thenReturn(true);
 
-    when(gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
+    when(gasCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
     assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
   }

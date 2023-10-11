@@ -12,12 +12,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetricparameters.GasCaseVolumetricParametersSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetrics.MixedCaseVolumetricsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolumetricparameters.MixedCaseVolumetricParametersSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetricparameters.OilCaseVolumetricParametersSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.prospectmixedcaseoutputs.ProspectMixedCaseOutputsSummaryService;
@@ -47,19 +47,19 @@ class ProspectSummaryServiceTest {
   private ReservoirPropertiesSummaryService reservoirPropertiesSummaryService;
 
   @Mock
-  private GasCaseVolumetricsSummaryService gasCaseVolumetricsSummaryService;
+  private GasCaseVolumetricParametersSummaryService gasCaseVolumetricParametersSummaryService;
 
   @Mock
   private GasCaseOutputsSummaryService gasCaseOutputsSummaryService;
 
   @Mock
-  private OilCaseVolumetricsSummaryService oilCaseVolumetricsSummaryService;
+  private OilCaseVolumetricParametersSummaryService oilCaseVolumetricParametersSummaryService;
 
   @Mock
   private OilCaseOutputsSummaryService oilCaseOutputsSummaryService;
 
   @Mock
-  private MixedCaseVolumetricsSummaryService mixedCaseVolumetricsSummaryService;
+  private MixedCaseVolumetricParametersSummaryService mixedCaseVolumetricParametersSummaryService;
 
   @Mock
   private ProspectMixedCaseOutputsSummaryService prospectMixedCaseOutputsSummaryService;
@@ -135,7 +135,7 @@ class ProspectSummaryServiceTest {
   void getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail() {
     prospectSummaryService.getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
-    verify(oilCaseVolumetricsSummaryService, times(1))
+    verify(oilCaseVolumetricParametersSummaryService, times(1))
         .getOilCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 
@@ -151,7 +151,7 @@ class ProspectSummaryServiceTest {
   void getGasCaseVolumetricsSummaryViewFromReservoirSubmisionDetail() {
     prospectSummaryService.getGasCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
-    verify(gasCaseVolumetricsSummaryService, times(1))
+    verify(gasCaseVolumetricParametersSummaryService, times(1))
         .getGasCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 
@@ -175,7 +175,7 @@ class ProspectSummaryServiceTest {
   void getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail() {
     prospectSummaryService.getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
-    verify(mixedCaseVolumetricsSummaryService, times(1))
+    verify(mixedCaseVolumetricParametersSummaryService, times(1))
         .getMixedCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
 

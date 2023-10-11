@@ -5,7 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetricparameters.GasCaseVolumetricParametersForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
@@ -20,12 +20,12 @@ public class FieldGasVolumetricsService {
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
   }
 
-  public GasCaseVolumetricsForm getGasVolumetricsForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+  public GasCaseVolumetricParametersForm getGasVolumetricsForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     return submissionDetailToForm(reservoirSubmissionDetail);
   }
 
-  private GasCaseVolumetricsForm submissionDetailToForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    var form = new GasCaseVolumetricsForm();
+  private GasCaseVolumetricParametersForm submissionDetailToForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var form = new GasCaseVolumetricParametersForm();
 
     form.setGasHydrocarbonSaturation(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         reservoirSubmissionDetail,
@@ -51,14 +51,14 @@ public class FieldGasVolumetricsService {
   }
 
   @Transactional
-  public void saveGasVolumetrics(GasCaseVolumetricsForm gasCaseVolumetricsForm,
+  public void saveGasVolumetrics(GasCaseVolumetricParametersForm gasCaseVolumetricParametersForm,
                                  ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
     var gasHydrocarbonSaturation = ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_FIELD;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         gasHydrocarbonSaturation,
-        gasCaseVolumetricsForm.getGasHydrocarbonSaturation(),
+        gasCaseVolumetricParametersForm.getGasHydrocarbonSaturation(),
         submissionDetail,
         reservoirSubmissionDetail
     );
@@ -66,7 +66,7 @@ public class FieldGasVolumetricsService {
     var formationVolumeFactor = ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_FIELD;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         formationVolumeFactor,
-        gasCaseVolumetricsForm.getGasFormationVolumeFactor(),
+        gasCaseVolumetricParametersForm.getGasFormationVolumeFactor(),
         submissionDetail,
         reservoirSubmissionDetail
     );
@@ -74,7 +74,7 @@ public class FieldGasVolumetricsService {
     var gasRecoveryFactor = ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR_FIELD;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         gasRecoveryFactor,
-        gasCaseVolumetricsForm.getGasRecoveryFactor(),
+        gasCaseVolumetricParametersForm.getGasRecoveryFactor(),
         submissionDetail,
         reservoirSubmissionDetail);
 
@@ -82,7 +82,7 @@ public class FieldGasVolumetricsService {
         ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD_CONSTANT;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         condensateGasRatioLifeOfField,
-        gasCaseVolumetricsForm.getCondensateGasRatioLifeOfField(),
+        gasCaseVolumetricParametersForm.getCondensateGasRatioLifeOfField(),
         submissionDetail,
         reservoirSubmissionDetail
     );

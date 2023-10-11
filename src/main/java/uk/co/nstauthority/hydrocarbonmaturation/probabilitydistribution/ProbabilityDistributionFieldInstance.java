@@ -240,7 +240,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Depth to moved gas-oil contact"
   ),
 
-  // Gas case volumetrics
+  // Gas case volumetric parameters
   GAS_HYDROCARBON_SATURATION_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.PERCENT,
@@ -302,7 +302,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Gas formation volume factor (Bg)"
   ),
 
-  // Oil case volumetrics
+  // Oil case volumetric parameters
   OIL_RECOVERY_FACTOR_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.PERCENT,
@@ -359,7 +359,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Associated gas-oil ratio life of field"
   ),
 
-  // Mixed case volumetrics
+  // Mixed case volumetric parameters
   MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.RB_STB,
@@ -431,7 +431,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Oil recovery factor"
   ),
 
-  // Oil case outputs
+  // Oil case outputs / volumetrics
   OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT(
       ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
@@ -466,6 +466,23 @@ public enum ProbabilityDistributionFieldInstance {
       ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"
+  ),
+
+  // Total Oil case volumetrics
+  TOTAL_OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY(
+      DiscoveryOutputsBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB,
+      "Oil in place"
+  ),
+  TOTAL_OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB,
+      "Oil recoverable resources"
+  ),
+  TOTAL_OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Associated gas recoverable resources"
   ),
 
   // Gas case outputs
@@ -544,6 +561,11 @@ public enum ProbabilityDistributionFieldInstance {
 
   // Common outputs for discoveries
   OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBOE,
+      "Oil equivalent recoverable resources"
+  ),
+  TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY(
       DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"

@@ -22,8 +22,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsForm;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsFormValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetricparameters.GasCaseVolumetricParametersForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetricparameters.GasCaseVolumetricParametersFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
@@ -41,7 +41,7 @@ public class FieldGasVolumetricsController {
   private final SubmissionDetailService submissionDetailService;
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
-  private final GasCaseVolumetricsFormValidator gasCaseVolumetricsFormValidator;
+  private final GasCaseVolumetricParametersFormValidator gasCaseVolumetricParametersFormValidator;
   private final FieldGasVolumetricsService fieldGasVolumetricsService;
 
   public static final String PAGE_NAME = "Gas volumetric parameters";
@@ -49,12 +49,12 @@ public class FieldGasVolumetricsController {
   public FieldGasVolumetricsController(SubmissionDetailService submissionDetailService,
                                        ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
                                        ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
-                                       GasCaseVolumetricsFormValidator gasCaseVolumetricsFormValidator,
+                                       GasCaseVolumetricParametersFormValidator gasCaseVolumetricParametersFormValidator,
                                        FieldGasVolumetricsService fieldGasVolumetricsService) {
     this.submissionDetailService = submissionDetailService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
-    this.gasCaseVolumetricsFormValidator = gasCaseVolumetricsFormValidator;
+    this.gasCaseVolumetricParametersFormValidator = gasCaseVolumetricParametersFormValidator;
     this.fieldGasVolumetricsService = fieldGasVolumetricsService;
   }
 
@@ -70,14 +70,14 @@ public class FieldGasVolumetricsController {
   @PostMapping
   public ModelAndView saveGasVolumetrics(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                          @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
-                                         @ModelAttribute("form") GasCaseVolumetricsForm form,
+                                         @ModelAttribute("form") GasCaseVolumetricParametersForm form,
                                          BindingResult bindingResult,
                                          ValidationType validationType,
                                          ServiceUserDetail user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
-    if (!gasCaseVolumetricsFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
+    if (!gasCaseVolumetricParametersFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
       return getGasVolumetricsModelAndViewWithErrors(bindingResult, form, reservoirSubmissionDetail);
     } else {
       fieldGasVolumetricsService.saveGasVolumetrics(form, reservoirSubmissionDetail);
@@ -85,7 +85,7 @@ public class FieldGasVolumetricsController {
     }
   }
 
-  private ModelAndView getGasVolumetricsModelAndView(GasCaseVolumetricsForm form,
+  private ModelAndView getGasVolumetricsModelAndView(GasCaseVolumetricParametersForm form,
                                                      ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/gasCaseVolumetrics")
         .addObject("form", form)
@@ -112,7 +112,7 @@ public class FieldGasVolumetricsController {
   }
 
   private ModelAndView getGasVolumetricsModelAndViewWithErrors(BindingResult bindingResult,
-                                                               GasCaseVolumetricsForm form,
+                                                               GasCaseVolumetricParametersForm form,
                                                                ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var modelAndView = getGasVolumetricsModelAndView(form, reservoirSubmissionDetail);
 

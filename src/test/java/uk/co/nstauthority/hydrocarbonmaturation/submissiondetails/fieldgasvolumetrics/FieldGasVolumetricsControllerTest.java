@@ -41,8 +41,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsForm;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrics.GasCaseVolumetricsFormValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetricparameters.GasCaseVolumetricParametersForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetricparameters.GasCaseVolumetricParametersFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -58,12 +58,12 @@ class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest
   private FieldGasVolumetricsService fieldGasVolumetricsService;
 
   @MockBean
-  private GasCaseVolumetricsFormValidator gasCaseVolumetricsFormValidator;
+  private GasCaseVolumetricParametersFormValidator gasCaseVolumetricParametersFormValidator;
 
   @Autowired
   private ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
 
-  private GasCaseVolumetricsForm form;
+  private GasCaseVolumetricParametersForm form;
   private SubmissionDetail submissionDetail;
   private UUID submissionDetailId;
   private ReservoirSubmissionDetail reservoirSubmissionDetail;
@@ -71,7 +71,7 @@ class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest
 
   @BeforeEach
   void setUp() {
-    form = new GasCaseVolumetricsForm();
+    form = new GasCaseVolumetricParametersForm();
     submissionDetail = SubmissionDetailTestUtils.createFieldSubmissionDetail(SubmissionType.CREATE_CSR);
     submissionDetailId = submissionDetail.getId();
 
@@ -91,7 +91,7 @@ class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest
   @SecurityTest
   void getGasVolumetrics_assertOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(fieldGasVolumetricsService.getGasVolumetricsForm(reservoirSubmissionDetail)).thenReturn(new GasCaseVolumetricsForm());
+    when(fieldGasVolumetricsService.getGasVolumetricsForm(reservoirSubmissionDetail)).thenReturn(new GasCaseVolumetricParametersForm());
     setUpWhenUserIsResponsibleTeam_forField_passSecurity(USER, submissionDetail);
 
     mockMvc.perform(
@@ -146,7 +146,7 @@ class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveGasVolumetrics_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(gasCaseVolumetricsFormValidator.isValid(any(SubmissionForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(true);
+    when(gasCaseVolumetricParametersFormValidator.isValid(any(SubmissionForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(true);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -158,14 +158,14 @@ class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null))));
 
-    verify(fieldGasVolumetricsService, times(1)).saveGasVolumetrics(any(GasCaseVolumetricsForm.class), eq(reservoirSubmissionDetail));
+    verify(fieldGasVolumetricsService, times(1)).saveGasVolumetrics(any(GasCaseVolumetricParametersForm.class), eq(reservoirSubmissionDetail));
   }
 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveGasVolumetrics_partialValidation_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
-    when(gasCaseVolumetricsFormValidator.isValid(any(SubmissionForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(false);
+    when(gasCaseVolumetricParametersFormValidator.isValid(any(SubmissionForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(false);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(FieldGasVolumetricsController.class)
@@ -175,7 +175,7 @@ class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(fieldGasVolumetricsService, never()).saveGasVolumetrics(any(GasCaseVolumetricsForm.class), any(ReservoirSubmissionDetail.class));
+    verify(fieldGasVolumetricsService, never()).saveGasVolumetrics(any(GasCaseVolumetricParametersForm.class), any(ReservoirSubmissionDetail.class));
   }
 
   @Test
