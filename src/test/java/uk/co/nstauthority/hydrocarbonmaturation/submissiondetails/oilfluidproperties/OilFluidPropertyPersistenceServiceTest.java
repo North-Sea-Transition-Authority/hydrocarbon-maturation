@@ -13,8 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class OilFluidPropertyPersistenceServiceTest {
@@ -25,11 +25,11 @@ class OilFluidPropertyPersistenceServiceTest {
   @InjectMocks
   private OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService;
 
-  private SubmissionDetail submissionDetail;
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
   }
 
   @Test
@@ -38,7 +38,7 @@ class OilFluidPropertyPersistenceServiceTest {
 
     var oilFluidPropertyArgumentCaptor = ArgumentCaptor.forClass(OilFluidProperty.class);
 
-    oilFluidPropertyPersistenceService.saveOilFluidProperty(form, submissionDetail);
+    oilFluidPropertyPersistenceService.saveOilFluidProperty(form, reservoirSubmissionDetail);
 
     verify(oilFluidPropertyRepository, times(1)).save(oilFluidPropertyArgumentCaptor.capture());
     var savedOilFluidProperty = (OilFluidProperty) oilFluidPropertyArgumentCaptor.getValue();
@@ -65,7 +65,7 @@ class OilFluidPropertyPersistenceServiceTest {
 
     var oilFluidPropertyArgumentCaptor = ArgumentCaptor.forClass(OilFluidProperty.class);
 
-    oilFluidPropertyPersistenceService.saveOilFluidProperty(form, submissionDetail);
+    oilFluidPropertyPersistenceService.saveOilFluidProperty(form, reservoirSubmissionDetail);
 
     verify(oilFluidPropertyRepository, times(1)).save(oilFluidPropertyArgumentCaptor.capture());
     var savedOilFluidProperty = (OilFluidProperty) oilFluidPropertyArgumentCaptor.getValue();

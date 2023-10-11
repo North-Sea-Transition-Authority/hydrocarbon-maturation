@@ -80,7 +80,7 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     submissionDetailId = submissionDetail.getId();
     summarySections = Collections.emptyList();
     resourceDetailSummaryView = ResourceDetailSummaryView.empty("Field");

@@ -108,7 +108,7 @@ class PermeabilityFormServiceTest {
 
   @Test
   void permeabilityDetailToForm_newEntity_field_thenEmptyForm() {
-    var fieldSubmissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var fieldSubmissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
 
     when(permeabilityPersistenceService.getPermeabilityDetail(fieldReservoirSubmissionDetail)).thenReturn(Optional.empty());
@@ -154,7 +154,7 @@ class PermeabilityFormServiceTest {
 
   @Test
   void permeabilityDetailToForm_filledEntity_field_thenFilledForm() {
-    var fieldSubmissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var fieldSubmissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
 
     var filledEntity = new PermeabilityDetail();

@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertyPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
@@ -39,6 +40,7 @@ public class GeneralReservoirInformationService {
   private final SubmissionDetailService submissionDetailService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
+  private final OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService;
 
   @Autowired
   public GeneralReservoirInformationService(ReservoirPersistenceService reservoirPersistenceService,
@@ -50,7 +52,8 @@ public class GeneralReservoirInformationService {
                                             ResourceLinkService resourceLinkService,
                                             SubmissionDetailService submissionDetailService,
                                             ResourceDetailsPersistenceService resourceDetailsPersistenceService,
-                                            ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService) {
+                                            ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
+                                            OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService) {
     this.reservoirPersistenceService = reservoirPersistenceService;
     this.reservoirLinkService = reservoirLinkService;
     this.reservoirHydrocarbonsRepository = reservoirHydrocarbonsRepository;
@@ -60,6 +63,7 @@ public class GeneralReservoirInformationService {
     this.submissionDetailService = submissionDetailService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
+    this.oilFluidPropertyPersistenceService = oilFluidPropertyPersistenceService;
   }
 
   @Transactional
@@ -170,12 +174,30 @@ public class GeneralReservoirInformationService {
     return reservoirHydrocarbons.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.GAS_ONLY;
   }
 
+  public boolean isGasOnly(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var reservoirHydrocarbons = getReservoirHydrocarbons(reservoirSubmissionDetail);
+    return reservoirHydrocarbons.filter(
+        hydrocarbons -> hydrocarbons.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.GAS_ONLY).isPresent();
+  }
+
   public boolean isOilOnly(ReservoirHydrocarbons reservoirHydrocarbons) {
     return reservoirHydrocarbons.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.OIL_ONLY;
   }
 
+  public boolean isOilOnly(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var reservoirHydrocarbons = getReservoirHydrocarbons(reservoirSubmissionDetail);
+    return reservoirHydrocarbons.filter(
+        hydrocarbons -> hydrocarbons.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.OIL_ONLY).isPresent();
+  }
+
   public boolean isMixed(ReservoirHydrocarbons reservoirHydrocarbons) {
     return reservoirHydrocarbons.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS;
+  }
+
+  public boolean isMixed(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var reservoirHydrocarbons = getReservoirHydrocarbons(reservoirSubmissionDetail);
+    return reservoirHydrocarbons.filter(
+        hydrocarbons -> hydrocarbons.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS).isPresent();
   }
 
   private void cleanHydrocarbonsDiscovered(ReservoirSubmissionDetail reservoirSubmissionDetail,
@@ -197,6 +219,8 @@ public class GeneralReservoirInformationService {
           ),
           reservoirSubmissionDetail
       );
+      oilFluidPropertyPersistenceService.clearAllOilFluidProperties(reservoirSubmissionDetail);
+
     } else if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY) {
       probabilityDistributionPersistenceService.deleteProbabilityDistributions(
           List.of(
@@ -224,6 +248,5 @@ public class GeneralReservoirInformationService {
         ),
         reservoirSubmissionDetail
     );
-
   }
 }

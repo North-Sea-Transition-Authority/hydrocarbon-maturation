@@ -12,6 +12,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 
 public class ReservoirSummaryTestUtil {
 
+  public static final int GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER = 10;
+  public static final int OIL_PROPERTIES_DISPLAY_ORDER = 90;
+
   public static final List<SummaryKeyValue> keyValues =
       List.of(new SummaryKeyValue("k1", "v1"), new SummaryKeyValue("k2", "v2"));
 

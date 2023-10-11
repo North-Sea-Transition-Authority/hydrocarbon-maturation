@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidprope
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -13,35 +12,21 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 class OilFluidPropertyFormValidatorTest {
 
   private OilFluidPropertyFormValidator oilFluidPropertyFormValidator;
 
-  private SubmissionDetail submissionDetail;
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
     oilFluidPropertyFormValidator = new OilFluidPropertyFormValidator();
-  }
-
-  @Test
-  void supports_whenOilFluidPropertyFormClass_thenTrue(){
-    var form = OilFluidPropertyForm.class;
-    assertTrue(oilFluidPropertyFormValidator.supports(form));
-  }
-
-  @Test
-  void supports_whenNotOilFluidPropertyFormClass_thenFalse(){
-    var nonSupportedClass = NonSupportedClass.class;
-    assertFalse(oilFluidPropertyFormValidator.supports(nonSupportedClass));
   }
 
   @ParameterizedTest
@@ -50,8 +35,7 @@ class OilFluidPropertyFormValidatorTest {
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    oilFluidPropertyFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
+    oilFluidPropertyFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType);
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -67,8 +51,8 @@ class OilFluidPropertyFormValidatorTest {
     form.setOilOtherWaxAppearanceTemperature(new DecimalInput("something"));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    oilFluidPropertyFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
+    oilFluidPropertyFormValidator
+        .isValid(form, bindingResult, reservoirSubmissionDetail, validationType);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -87,8 +71,8 @@ class OilFluidPropertyFormValidatorTest {
     var form = new OilFluidPropertyForm();
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    oilFluidPropertyFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+    oilFluidPropertyFormValidator
+        .isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 

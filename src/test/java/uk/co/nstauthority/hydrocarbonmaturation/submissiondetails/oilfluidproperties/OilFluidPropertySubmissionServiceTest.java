@@ -6,15 +6,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,35 +23,37 @@ class OilFluidPropertySubmissionServiceTest {
   @Mock
   private OilFluidPropertyFormService oilFluidPropertyFormService;
 
+  @Mock
+  private OilFluidPropertyFormValidator oilFluidPropertyFormValidator;
+
   @InjectMocks
   private OilFluidPropertySubmissionService oilFluidPropertySubmissionService;
 
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
+  private OilFluidPropertyForm oilFluidPropertyForm;
+
+  @BeforeEach
+  void setUp() {
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+    oilFluidPropertyForm = new OilFluidPropertyForm();
+  }
+
   @Test
   void isSectionSubmittable_whenSubmittable_thenTrue() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var form = new OilFluidPropertyForm();
-    var emptyBindingResult = ReverseRouter.emptyBindingResult();
+    when(oilFluidPropertyFormService.getOilFluidPropertyForm(reservoirSubmissionDetail)).thenReturn(
+        oilFluidPropertyForm);
+    when(oilFluidPropertyFormValidator.isValid(eq(oilFluidPropertyForm), any(BindingResult.class), eq(reservoirSubmissionDetail), eq(ValidationType.FULL)))
+        .thenReturn(true);
 
-    when(oilFluidPropertyFormService.getOilFluidPropertyForm(submissionDetail)).thenReturn(form);
-    when(oilFluidPropertyFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(emptyBindingResult);
-
-    assertTrue(oilFluidPropertySubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(oilFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 
   @Test
   void isSectionSubmittable_whenNotSubmittable_thenFalse() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var form = new OilFluidPropertyForm();
-    var bindingResultWithError = ReverseRouter.emptyBindingResult();
-    bindingResultWithError.addError(new FieldError("object", "field", "message"));
+    when(oilFluidPropertyFormService.getOilFluidPropertyForm(reservoirSubmissionDetail)).thenReturn(oilFluidPropertyForm);
+    when(oilFluidPropertyFormValidator.isValid(eq(oilFluidPropertyForm), any(BindingResult.class), eq(reservoirSubmissionDetail), eq(ValidationType.FULL)))
+        .thenReturn(false);
 
-    when(oilFluidPropertyFormService.getOilFluidPropertyForm(submissionDetail)).thenReturn(form);
-    when(oilFluidPropertyFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(bindingResultWithError);
-
-    assertFalse(oilFluidPropertySubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(oilFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 }

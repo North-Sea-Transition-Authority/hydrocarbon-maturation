@@ -2,28 +2,32 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidprope
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSectionDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class OilFluidPropertyDuplicationService implements SubmissionSectionDuplicationService {
+class OilFluidPropertyDuplicationService implements ReservoirSectionDuplicationService {
   private final OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService;
-  private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private final ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
+
 
   @Autowired
   OilFluidPropertyDuplicationService(OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService,
-                                     SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
+                                     ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
     this.oilFluidPropertyPersistenceService = oilFluidPropertyPersistenceService;
-    this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
+    this.reservoirDuplicationPersistenceService = reservoirDuplicationPersistenceService;
   }
 
   @Override
-  public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
-    if (newSubmissionDetail.isDiscoverySubmission()) {
+  public void duplicateReservoirSection(ReservoirSubmissionDetail oldSubmissionDetail,
+                                        ReservoirSubmissionDetail newSubmissionDetail) {
+    if (newSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()) {
       oilFluidPropertyPersistenceService.getOilFluidProperty(oldSubmissionDetail)
           .ifPresent(oilFluidProperty ->
-              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail,
+              reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(
+                  newSubmissionDetail,
                   oilFluidProperty,
                   OilFluidProperty.class));
     }

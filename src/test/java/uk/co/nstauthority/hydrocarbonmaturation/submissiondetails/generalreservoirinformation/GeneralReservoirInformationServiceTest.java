@@ -34,6 +34,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertyPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
@@ -69,6 +70,9 @@ class GeneralReservoirInformationServiceTest {
 
   @Mock
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
+
+  @Mock
+  private OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService;
 
   @Captor
   private ArgumentCaptor<ReservoirHydrocarbons> reservoirHydrocarbonsArgumentCaptor;
@@ -116,7 +120,7 @@ class GeneralReservoirInformationServiceTest {
     form.setAssociatedDiscoveryReservoirs(Set.of(firstReservoir.getId().toString(), secondReservoir.getId().toString()));
     form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
 
-    var fieldSubmissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var fieldSubmissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
 
     var reservoirHydrocarbons = new ReservoirHydrocarbons();
@@ -206,6 +210,8 @@ class GeneralReservoirInformationServiceTest {
         ),
         reservoirSubmissionDetail
     );
+
+    verify(oilFluidPropertyPersistenceService, times(1)).clearAllOilFluidProperties(reservoirSubmissionDetail);
   }
 
   @Test
@@ -275,7 +281,7 @@ class GeneralReservoirInformationServiceTest {
 
   @Test
   void getGeneralReservoirInformationForm_hydrocarbonsDiscovered_field() {
-    var fieldSubmissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var fieldSubmissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
 
     var firstReservoir = new Reservoir();
@@ -372,7 +378,7 @@ class GeneralReservoirInformationServiceTest {
 
   @Test
   void getResourceNamesFromSubmissionDetail() {
-    var fieldSubmissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var fieldSubmissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     var fieldResource = fieldSubmissionDetail.getSubmission().getResource();
     var field = new Field();
     field.setResource(fieldResource);

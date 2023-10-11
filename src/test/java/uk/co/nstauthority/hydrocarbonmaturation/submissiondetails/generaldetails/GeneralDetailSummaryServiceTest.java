@@ -257,7 +257,7 @@ class GeneralDetailSummaryServiceTest {
 
   @Test
   void getSummarySection_forField_offshore_notFullyInUkcs() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     generalDetail.setResourceLocatedInUkcs(false);
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.valueOf(99));
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
@@ -297,7 +297,7 @@ class GeneralDetailSummaryServiceTest {
 
   @Test
   void getSummarySection_forField_offshore_fullyInUkcs() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     generalDetail.setResourceLocatedInUkcs(true);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
@@ -335,7 +335,7 @@ class GeneralDetailSummaryServiceTest {
 
   @Test
   void getSummarySection_forField_onshore_notFullyInEngland() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     generalDetail.setResourceLocatedInEngland(false);
     generalDetail.setPercentageLocatedInEngland(BigDecimal.valueOf(99));
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
@@ -375,7 +375,7 @@ class GeneralDetailSummaryServiceTest {
 
   @Test
   void getSummarySection_forField_onshore_fullyInEngland() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     generalDetail.setResourceLocatedInEngland(true);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));

@@ -16,69 +16,75 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
-import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
-@RequestMapping("/submission-details/{submissionDetailId}/oil-fluid-properties")
+@RequestMapping("/submission-details/{submissionDetailId}/" +
+    "reservoir-submission-details/{reservoirSubmissionDetailId}/oil-fluid-properties")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
-@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_TYPES)
+@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_AND_FIELD)
 @IsFromResponsibleTeam
 public class OilFluidPropertyController {
 
-  private final ControllerHelperService controllerHelperService;
   private final OilFluidPropertyFormService oilFluidPropertyFormService;
   private final OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService;
-  private final SubmissionDetailService submissionDetailService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+  private final OilFluidPropertyFormValidator oilPropertiesValidator;
 
   public static final String PAGE_NAME = "Oil properties";
 
   @Autowired
-  public OilFluidPropertyController(ControllerHelperService controllerHelperService,
-                                    OilFluidPropertyFormService oilFluidPropertyFormService,
+  public OilFluidPropertyController(OilFluidPropertyFormService oilFluidPropertyFormService,
                                     OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService,
-                                    SubmissionDetailService submissionDetailService) {
-    this.controllerHelperService = controllerHelperService;
+                                    ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
+                                    OilFluidPropertyFormValidator oilPropertiesValidator) {
     this.oilFluidPropertyFormService = oilFluidPropertyFormService;
     this.oilFluidPropertyPersistenceService = oilFluidPropertyPersistenceService;
-    this.submissionDetailService = submissionDetailService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
+    this.oilPropertiesValidator = oilPropertiesValidator;
   }
 
   @GetMapping
-  public ModelAndView getOilFluidProperties(@PathVariable("submissionDetailId") UUID submissionDetailId) {
-    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+  public ModelAndView getOilFluidProperties(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                            @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+
     return getOilFluidPropertiesModelAndView(
-        oilFluidPropertyFormService.getOilFluidPropertyForm(submissionDetail), submissionDetail);
+        oilFluidPropertyFormService.getOilFluidPropertyForm(reservoirSubmissionDetail),
+        reservoirSubmissionDetail
+    );
   }
 
   @PostMapping
   public ModelAndView saveOilFluidProperties(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                             @PathVariable UUID reservoirSubmissionDetailId,
                                              @ModelAttribute("form") OilFluidPropertyForm form,
                                              BindingResult bindingResult, ValidationType validationType) {
-    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    bindingResult = oilFluidPropertyFormService.validate(form, bindingResult, validationType, submissionDetail);
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
 
-    return controllerHelperService.checkErrorsAndRedirect(
-        bindingResult,
-        getOilFluidPropertiesModelAndView(form, submissionDetail),
-        () -> {
-          oilFluidPropertyPersistenceService.saveOilFluidProperty(form, submissionDetail);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
-        }
-    );
+    if (!oilPropertiesValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType)) {
+      return getOilFluidPropertiesModelAndView(form, reservoirSubmissionDetail);
+    } else {
+      oilFluidPropertyPersistenceService.saveOilFluidProperty(form, reservoirSubmissionDetail);
+      return ReverseRouter.redirect(on(ReservoirTaskListController.class)
+          .getReservoirTaskList(submissionDetailId, null));
+    }
   }
 
-  private ModelAndView getOilFluidPropertiesModelAndView(OilFluidPropertyForm form, SubmissionDetail submissionDetail) {
+  private ModelAndView getOilFluidPropertiesModelAndView(OilFluidPropertyForm form,
+                                                         ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/oilFluidProperties")
         .addObject("form", form);
 
-    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
+    TaskListBreadcrumbUtil.addReservoirTaskListBreadcrumbsToModelAndView(modelAndView, PAGE_NAME, reservoirSubmissionDetail);
 
     return modelAndView;
   }

@@ -36,6 +36,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrics.OilCaseVolumetricsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertyController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesController;
@@ -81,6 +83,9 @@ class ReservoirTaskListServiceTest {
 
   @Mock
   private DrillStemTestSubmissionService drillStemTestSubmissionService;
+
+  @Mock
+  private OilFluidPropertySubmissionService oilFluidPropertySubmissionService;
 
   @Mock
   private DiscoveryMixedCaseOutputsSubmissionService discoveryMixedCaseOutputsSubmissionService;
@@ -295,7 +300,7 @@ class ReservoirTaskListServiceTest {
 
   @Test
   void getAllReservoirTaskLists_whenField_onlyReservoirInformation() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     var reservoir = new Reservoir();
     reservoir.setName(RESERVOIR_NAME_1);
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
@@ -344,6 +349,7 @@ class ReservoirTaskListServiceTest {
     when(oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(drillStemTestSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    //when(oilFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
 
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
@@ -408,8 +414,8 @@ class ReservoirTaskListServiceTest {
   }
 
   @Test
-  void getAllReservoirTaskLists_whenField_oilItems() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+  void getAllReservoirTaskLists_whenFieldNotCop_oilItems() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     var reservoir = new Reservoir();
     reservoir.setName(RESERVOIR_NAME_1);
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
@@ -424,6 +430,8 @@ class ReservoirTaskListServiceTest {
     when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirHydrocarbons));
     when(oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(oilFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
     assertThat(reservoirTaskListItems).extracting(
@@ -437,6 +445,81 @@ class ReservoirTaskListServiceTest {
                 reservoirSubmissionDetail.getSubmissionDetail().getId(),
                 reservoirSubmissionDetail.getId(),
                 null)),
+            List.of(
+                new TaskListItem(
+                    "Field reservoir",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(GeneralReservoirInformationController.class).getGeneralReservoirInformationPage(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Permeability",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem("Reservoir properties",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Oil volumetric parameters",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(FieldOilVolumetricsController.class).getOilVolumetrics(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem("Oil properties",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(OilFluidPropertyController.class).getOilFluidProperties(
+                        submissionDetail.getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Well test results",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(DrillStemTestController.class)
+                        .getDrillStemTestPage(
+                            submissionDetail.getId(),
+                            reservoirSubmissionDetail.getId(),
+                            null))
+                )
+            )
+        )
+    );
+  }
+
+  @Test
+  void getAllReservoirTaskLists_whenCopField_oilItems() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewCopFieldSubmissionDetail();
+    var reservoir = new Reservoir();
+    reservoir.setName(RESERVOIR_NAME_1);
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+        reservoir,
+        submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+    when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    //when(oilFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+
+    var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
+
+    assertThat(reservoirTaskListItems).extracting(
+        ReservoirTaskListItem::reservoirName,
+        ReservoirTaskListItem::taskListItems
+    ).containsExactly(
+        tuple(
+            RESERVOIR_NAME_1,
             List.of(
                 new TaskListItem(
                     "Field reservoir",
@@ -563,7 +646,7 @@ class ReservoirTaskListServiceTest {
 
   @Test
   void getAllReservoirTaskLists_whenField_gasItems() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     var reservoir = new Reservoir();
     reservoir.setName(RESERVOIR_NAME_1);
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
@@ -726,8 +809,8 @@ class ReservoirTaskListServiceTest {
   }
 
   @Test
-  void getAllReservoirTaskLists_whenField_mixedItems() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+  void getAllReservoirTaskLists_whenNonCopField_mixedItems() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     var reservoir = new Reservoir();
     reservoir.setName(RESERVOIR_NAME_1);
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
@@ -744,6 +827,8 @@ class ReservoirTaskListServiceTest {
         .thenReturn(Optional.of(reservoirHydrocarbons));
     when(oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(oilFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
     assertThat(reservoirTaskListItems).extracting(
@@ -757,6 +842,91 @@ class ReservoirTaskListServiceTest {
                 reservoirSubmissionDetail.getSubmissionDetail().getId(),
                 reservoirSubmissionDetail.getId(),
                 null)),
+            List.of(
+                new TaskListItem(
+                    "Field reservoir",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(
+                        on(GeneralReservoirInformationController.class).getGeneralReservoirInformationPage(
+                            reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                            reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Permeability",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(PermeabilityController.class).getPermeabilityPage(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem("Reservoir properties",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Oil volumetric parameters",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(FieldOilVolumetricsController.class).getOilVolumetrics(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Gas volumetric parameters",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(FieldGasVolumetricsController.class).getGasVolumetrics(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem("Oil properties",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(OilFluidPropertyController.class).getOilFluidProperties(
+                        submissionDetail.getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Well test results",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(DrillStemTestController.class)
+                        .getDrillStemTestPage(
+                            submissionDetail.getId(),
+                            reservoirSubmissionDetail.getId(),
+                            null))
+                )
+            )
+        )
+    );
+  }
+
+  @Test
+  void getAllReservoirTaskLists_whenCopField_mixedItems() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewCopFieldSubmissionDetail();
+    var reservoir = new Reservoir();
+    reservoir.setName(RESERVOIR_NAME_1);
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+        reservoir,
+        submissionDetail);
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
+        submissionDetail))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+    when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(oilCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(gasCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    //when(oilFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+
+    var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
+
+    assertThat(reservoirTaskListItems).extracting(
+        ReservoirTaskListItem::reservoirName,
+        ReservoirTaskListItem::taskListItems
+    ).containsExactly(
+        tuple(
+            RESERVOIR_NAME_1,
             List.of(
                 new TaskListItem(
                     "Field reservoir",

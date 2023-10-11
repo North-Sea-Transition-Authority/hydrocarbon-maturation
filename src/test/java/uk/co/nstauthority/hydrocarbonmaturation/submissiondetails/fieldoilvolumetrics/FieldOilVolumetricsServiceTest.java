@@ -33,7 +33,7 @@ class FieldOilVolumetricsServiceTest {
   @InjectMocks
   private FieldOilVolumetricsService fieldOilVolumetricsService;
 
-  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
   private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
 
   @Test

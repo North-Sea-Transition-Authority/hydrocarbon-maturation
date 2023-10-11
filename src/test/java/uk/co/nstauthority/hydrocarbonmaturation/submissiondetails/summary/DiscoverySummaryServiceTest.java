@@ -111,10 +111,10 @@ class DiscoverySummaryServiceTest {
 
   @Test
   void getOilFluidPropertySummaryViewFromSubmissionDetail_verifyMethodCall() {
-    discoverySummaryService.getOilFluidPropertySummaryViewFromSubmissionDetail(submissionDetail);
+    discoverySummaryService.getOilFluidPropertySummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(oilFluidPropertySummaryService, times(1))
-        .getOilFluidPropertySummaryFromSubmissionDetail(submissionDetail);
+        .getOilFluidPropertySummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   @Test
