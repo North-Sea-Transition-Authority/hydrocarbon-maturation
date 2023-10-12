@@ -224,29 +224,29 @@ public class ReservoirTaskListService {
         );
       }
 
+      if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS
+              && resourceType == ResourceType.DISCOVERY) {
+        items.add(
+                new TaskListItem("Oil and gas case volumetrics",
+                        TaskListLabel.notStartedOrComplete(
+                                discoveryMixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                        ReverseRouter.route(on(DiscoveryMixedCaseOutputsController.class).getMixedCaseOutputs(
+                                submissionDetail.getId(),
+                                reservoirSubmissionDetail.getId())))
+        );
+      }
+
       if (
           (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
           || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS)
-          && (resourceType == ResourceType.FIELD
-          && !submissionDetail.isCessationOfProductionSubmission())
+          && ((resourceType == ResourceType.FIELD && !submissionDetail.isCessationOfProductionSubmission())
+              || resourceType == ResourceType.DISCOVERY)
       ) {
         items.add(new TaskListItem("Oil properties",
             TaskListLabel.notStartedOrComplete(
                 oilFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
             ReverseRouter.route(on(OilFluidPropertyController.class)
                 .getOilFluidProperties(submissionDetail.getId(), reservoirSubmissionDetail.getId()))));
-      }
-
-      if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS
-          && resourceType == ResourceType.DISCOVERY) {
-        items.add(
-            new TaskListItem("Oil and gas case volumetrics",
-                TaskListLabel.notStartedOrComplete(
-                    discoveryMixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-                ReverseRouter.route(on(DiscoveryMixedCaseOutputsController.class).getMixedCaseOutputs(
-                    submissionDetail.getId(),
-                    reservoirSubmissionDetail.getId())))
-        );
       }
 
       items.add(

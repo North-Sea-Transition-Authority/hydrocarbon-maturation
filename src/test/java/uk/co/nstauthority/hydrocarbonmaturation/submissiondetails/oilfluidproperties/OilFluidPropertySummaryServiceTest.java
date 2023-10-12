@@ -109,8 +109,8 @@ class OilFluidPropertySummaryServiceTest {
   void getSummarySection_emptyOilProperty() {
     when(oilFluidPropertyPersistenceService.getOilFluidProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
-    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
-        .thenReturn(true);
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+        .thenReturn(false);
 
     var summarySection = oilFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail);
 
@@ -140,8 +140,8 @@ class OilFluidPropertySummaryServiceTest {
 
     when(oilFluidPropertyPersistenceService.getOilFluidProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(oilProperty));
-    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
-        .thenReturn(true);
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+        .thenReturn(false);
 
     var summarySection = oilFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail);
 
@@ -162,8 +162,8 @@ class OilFluidPropertySummaryServiceTest {
 
   @Test
   void getSummarySection_notOilField() {
-    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
-        .thenReturn(false);
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+        .thenReturn(true);
 
     assertThat(oilFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail))
         .isEqualTo(Optional.empty());

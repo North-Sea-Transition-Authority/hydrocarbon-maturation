@@ -92,8 +92,9 @@ public class DeleteSubmissionController {
   }
 
   private String getPageName(SubmissionDetail submissionDetail) {
-    return "Are you sure you want to delete this %s%s?".formatted(
-        submissionDetailService.getSubmissionTypeName(submissionDetail).toLowerCase(),
+    var submissionTypeName = submissionDetailService.getSubmissionTypeName(submissionDetail);
+    return String.format("Are you sure you want to delete this %s%s?",
+        submissionDetail.isFieldSubmission() ? submissionTypeName : submissionTypeName.toLowerCase(),
         BooleanUtils.isTrue(submissionDetail.isCorrection()) ? " correction" : ""
     );
   }

@@ -52,7 +52,7 @@ public class OilFluidPropertySummaryService implements SummarySectionService<Res
 
   @Override
   public Optional<SummarySection> getSummarySection(ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    if (!generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)) {
+    if (generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)) {
       return Optional.empty();
     }
     
