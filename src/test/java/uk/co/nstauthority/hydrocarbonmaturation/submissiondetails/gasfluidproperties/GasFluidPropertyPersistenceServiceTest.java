@@ -15,6 +15,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class GasFluidPropertyPersistenceServiceTest {
@@ -26,10 +28,12 @@ class GasFluidPropertyPersistenceServiceTest {
   private GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService;
 
   private SubmissionDetail submissionDetail;
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @BeforeEach
   void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
   }
 
   @Test
@@ -38,7 +42,7 @@ class GasFluidPropertyPersistenceServiceTest {
 
     var gasFluidPropertyArgumentCaptor = ArgumentCaptor.forClass(GasFluidProperty.class);
 
-    gasFluidPropertyPersistenceService.saveGasFluidProperty(form, submissionDetail);
+    gasFluidPropertyPersistenceService.saveGasFluidProperty(form, reservoirSubmissionDetail);
 
     verify(gasFluidPropertyRepository, times(1)).save(gasFluidPropertyArgumentCaptor.capture());
     var savedGasFluidProperty = (GasFluidProperty) gasFluidPropertyArgumentCaptor.getValue();
@@ -77,7 +81,7 @@ class GasFluidPropertyPersistenceServiceTest {
 
     var gasFluidPropertyArgumentCaptor = ArgumentCaptor.forClass(GasFluidProperty.class);
 
-    gasFluidPropertyPersistenceService.saveGasFluidProperty(form, submissionDetail);
+    gasFluidPropertyPersistenceService.saveGasFluidProperty(form, reservoirSubmissionDetail);
 
     verify(gasFluidPropertyRepository, times(1)).save(gasFluidPropertyArgumentCaptor.capture());
     var savedGasFluidProperty = (GasFluidProperty) gasFluidPropertyArgumentCaptor.getValue();

@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidprope
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -13,35 +12,21 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 class GasFluidPropertyFormValidatorTest {
 
   private GasFluidPropertyFormValidator gasFluidPropertyFormValidator;
 
-  private SubmissionDetail submissionDetail;
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
     gasFluidPropertyFormValidator = new GasFluidPropertyFormValidator();
-  }
-
-  @Test
-  void supports_whenGasFluidPropertyFormClass_thenTrue(){
-    var form = GasFluidPropertyForm.class;
-    assertTrue(gasFluidPropertyFormValidator.supports(form));
-  }
-
-  @Test
-  void supports_whenNotGasFluidPropertyFormClass_thenFalse(){
-    var nonSupportedClass = NonSupportedClass.class;
-    assertFalse(gasFluidPropertyFormValidator.supports(nonSupportedClass));
   }
 
   @ParameterizedTest
@@ -50,8 +35,7 @@ class GasFluidPropertyFormValidatorTest {
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    gasFluidPropertyFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
+    gasFluidPropertyFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType);
 
     assertFalse(bindingResult.hasErrors());
   }
@@ -73,8 +57,7 @@ class GasFluidPropertyFormValidatorTest {
 
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    gasFluidPropertyFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
+    gasFluidPropertyFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -97,8 +80,7 @@ class GasFluidPropertyFormValidatorTest {
     var form = new GasFluidPropertyForm();
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    gasFluidPropertyFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+    gasFluidPropertyFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -118,8 +100,7 @@ class GasFluidPropertyFormValidatorTest {
     form.setCondensatePresent(true);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    gasFluidPropertyFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+    gasFluidPropertyFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 

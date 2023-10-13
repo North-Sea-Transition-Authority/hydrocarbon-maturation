@@ -1,33 +1,22 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class GasFluidPropertyFormServiceTest {
 
-  @Mock
-  private GasFluidPropertyFormValidator gasFluidPropertyFormValidator;
 
   @Mock
   private GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService;
@@ -35,37 +24,18 @@ class GasFluidPropertyFormServiceTest {
   @InjectMocks
   private GasFluidPropertyFormService gasFluidPropertyFormService;
 
-  private SubmissionDetail submissionDetail;
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
-  }
-
-  @Test
-  void validate_verifyMethodCall() {
-    var form = new GasFluidPropertyForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
-
-    gasFluidPropertyFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
-
-    verify(gasFluidPropertyFormValidator, times(1))
-        .validate(eq(form), eq(bindingResult), captor.capture());
-
-    assertThat(captor.getValue())
-        .extracting(SubmissionFormValidatorHints::getSubmissionDetail,
-            SubmissionFormValidatorHints::getValidationType)
-        .containsExactly(submissionDetail, ValidationType.FULL);
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
   }
 
   @Test
   void gasFluidPropertyEntityToForm_newEntity_thenEmptyForm() {
-    when(gasFluidPropertyPersistenceService.getGasFluidProperty(submissionDetail)).thenReturn(Optional.empty());
+    when(gasFluidPropertyPersistenceService.getGasFluidProperty(reservoirSubmissionDetail)).thenReturn(Optional.empty());
 
-    assertThat(gasFluidPropertyFormService.getGasFluidPropertyForm(submissionDetail))
+    assertThat(gasFluidPropertyFormService.getGasFluidPropertyForm(reservoirSubmissionDetail))
         .extracting(
             theForm -> theForm.getGasCo2().asBigDecimal(),
             theForm -> theForm.getGasH2s().asBigDecimal(),
@@ -108,10 +78,10 @@ class GasFluidPropertyFormServiceTest {
     gasFluidProperty.setCondensateOtherInclWax(BigDecimal.TEN);
     gasFluidProperty.setCondensateGravity(BigDecimal.TEN);
 
-    when(gasFluidPropertyPersistenceService.getGasFluidProperty(submissionDetail))
+    when(gasFluidPropertyPersistenceService.getGasFluidProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(gasFluidProperty));
 
-    assertThat(gasFluidPropertyFormService.getGasFluidPropertyForm(submissionDetail))
+    assertThat(gasFluidPropertyFormService.getGasFluidPropertyForm(reservoirSubmissionDetail))
         .extracting(
             theForm -> theForm.getGasCo2().createBigDecimalOrNull(),
             theForm -> theForm.getGasH2s().createBigDecimalOrNull(),
@@ -143,10 +113,10 @@ class GasFluidPropertyFormServiceTest {
   void gasFluidPropertyEntityToForm_existingEmptyEntity_thenEmptyForm() {
     var gasFluidProperty = new GasFluidProperty();
 
-    when(gasFluidPropertyPersistenceService.getGasFluidProperty(submissionDetail))
+    when(gasFluidPropertyPersistenceService.getGasFluidProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(gasFluidProperty));
 
-    assertThat(gasFluidPropertyFormService.getGasFluidPropertyForm(submissionDetail))
+    assertThat(gasFluidPropertyFormService.getGasFluidPropertyForm(reservoirSubmissionDetail))
         .extracting(
             theForm -> theForm.getGasCo2().createBigDecimalOrNull(),
             theForm -> theForm.getGasH2s().createBigDecimalOrNull(),

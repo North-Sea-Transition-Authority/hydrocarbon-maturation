@@ -3,39 +3,21 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidprope
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class GasFluidPropertyFormService implements SubmissionFormService {
+class GasFluidPropertyFormService {
 
   private final GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService;
-  private final GasFluidPropertyFormValidator gasFluidPropertyFormValidator;
 
   @Autowired
-  GasFluidPropertyFormService(GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService,
-                              GasFluidPropertyFormValidator gasFluidPropertyFormValidator) {
+  GasFluidPropertyFormService(GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService) {
     this.gasFluidPropertyPersistenceService = gasFluidPropertyPersistenceService;
-    this.gasFluidPropertyFormValidator = gasFluidPropertyFormValidator;
   }
 
-  @Override
-  public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
-                                ValidationType validationType, SubmissionDetail submissionDetail) {
-    gasFluidPropertyFormValidator.validate(
-        form,
-        bindingResult,
-        new SubmissionFormValidatorHints(validationType, submissionDetail));
-    return bindingResult;
-  }
-
-  GasFluidPropertyForm getGasFluidPropertyForm(SubmissionDetail submissionDetail) {
-    return gasFluidPropertyPersistenceService.getGasFluidProperty(submissionDetail)
+  GasFluidPropertyForm getGasFluidPropertyForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return gasFluidPropertyPersistenceService.getGasFluidProperty(reservoirSubmissionDetail)
         .map(this::gasFluidPropertyEntityToForm)
         .orElse(new GasFluidPropertyForm());
   }

@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertyPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertyPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
@@ -41,6 +42,7 @@ public class GeneralReservoirInformationService {
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService;
+  private final GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService;
 
   @Autowired
   public GeneralReservoirInformationService(ReservoirPersistenceService reservoirPersistenceService,
@@ -53,7 +55,8 @@ public class GeneralReservoirInformationService {
                                             SubmissionDetailService submissionDetailService,
                                             ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                                             ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
-                                            OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService) {
+                                            OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService,
+                                            GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService) {
     this.reservoirPersistenceService = reservoirPersistenceService;
     this.reservoirLinkService = reservoirLinkService;
     this.reservoirHydrocarbonsRepository = reservoirHydrocarbonsRepository;
@@ -64,6 +67,7 @@ public class GeneralReservoirInformationService {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.oilFluidPropertyPersistenceService = oilFluidPropertyPersistenceService;
+    this.gasFluidPropertyPersistenceService = gasFluidPropertyPersistenceService;
   }
 
   @Transactional
@@ -238,6 +242,7 @@ public class GeneralReservoirInformationService {
           ),
           reservoirSubmissionDetail
       );
+      gasFluidPropertyPersistenceService.clearAllGasFluidProperties(reservoirSubmissionDetail);
     }
 
     // delete gas expansion factor as this is migration only data that should be removed on saving a new version of the submission

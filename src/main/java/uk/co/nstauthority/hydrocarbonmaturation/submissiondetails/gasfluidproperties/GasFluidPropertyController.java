@@ -17,68 +17,74 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
-import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
-@RequestMapping("/submission-details/{submissionDetailId}/gas-fluid-properties")
+@RequestMapping("/submission-details/{submissionDetailId}/" +
+    "reservoir-submission-details/{reservoirSubmissionDetailId}/gas-fluid-properties")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
-@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_TYPES)
+@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_AND_FIELD)
 @IsFromResponsibleTeam
 public class GasFluidPropertyController {
 
-  private final ControllerHelperService controllerHelperService;
   private final GasFluidPropertyFormService gasFluidPropertyFormService;
   private final GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService;
-  private final SubmissionDetailService submissionDetailService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+  private final GasFluidPropertyFormValidator gasFluidPropertyFormValidator;
 
   public static final String PAGE_NAME = "Gas properties";
 
   @Autowired
-  public GasFluidPropertyController(ControllerHelperService controllerHelperService,
-                                    GasFluidPropertyFormService gasFluidPropertyFormService,
+  public GasFluidPropertyController(GasFluidPropertyFormService gasFluidPropertyFormService,
                                     GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService,
-                                    SubmissionDetailService submissionDetailService) {
-    this.controllerHelperService = controllerHelperService;
+                                    ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
+                                    GasFluidPropertyFormValidator gasFluidPropertyFormValidator) {
     this.gasFluidPropertyFormService = gasFluidPropertyFormService;
     this.gasFluidPropertyPersistenceService = gasFluidPropertyPersistenceService;
-    this.submissionDetailService = submissionDetailService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
+    this.gasFluidPropertyFormValidator = gasFluidPropertyFormValidator;
   }
 
   @GetMapping
-  public ModelAndView getGasFluidProperties(@PathVariable("submissionDetailId") UUID submissionDetailId) {
-    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+  public ModelAndView getGasFluidProperties(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                            @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+
     return getGasFluidPropertiesModelAndView(
-        gasFluidPropertyFormService.getGasFluidPropertyForm(submissionDetail), submissionDetail);
+        gasFluidPropertyFormService.getGasFluidPropertyForm(reservoirSubmissionDetail),
+        reservoirSubmissionDetail
+    );
   }
 
   @PostMapping
   public ModelAndView saveGasFluidProperties(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                             @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
                                              @ModelAttribute("form") GasFluidPropertyForm form,
                                              BindingResult bindingResult, ValidationType validationType) {
-    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    bindingResult = gasFluidPropertyFormService.validate(form, bindingResult, validationType, submissionDetail);
-    return controllerHelperService.checkErrorsAndRedirect(
-        bindingResult,
-        getGasFluidPropertiesModelAndView(form, submissionDetail),
-        () -> {
-          gasFluidPropertyPersistenceService.saveGasFluidProperty(form, submissionDetail);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
-        }
-    );
+    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
+        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
+
+    if (!gasFluidPropertyFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType)) {
+      return getGasFluidPropertiesModelAndView(form, reservoirSubmissionDetail);
+    } else {
+      gasFluidPropertyPersistenceService.saveGasFluidProperty(form, reservoirSubmissionDetail);
+      return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null));
+    }
   }
 
-  private ModelAndView getGasFluidPropertiesModelAndView(GasFluidPropertyForm form, SubmissionDetail submissionDetail) {
+  private ModelAndView getGasFluidPropertiesModelAndView(GasFluidPropertyForm form,
+                                                         ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/gasFluidProperties")
         .addObject("form", form);
 
-    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
+    TaskListBreadcrumbUtil.addReservoirTaskListBreadcrumbsToModelAndView(modelAndView, PAGE_NAME, reservoirSubmissionDetail);
 
     return modelAndView;
   }

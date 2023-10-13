@@ -74,8 +74,6 @@
       <@discoverySubmissionSummary.discoverySubmissionSummary
         generalDetailsSummaryView=generalDetailsSummaryView
         permeabilitySummaryView=permeabilitySummaryView!""
-        oilFluidPropertiesSummaryView=oilFluidPropertiesSummaryView!""
-        gasFluidPropertiesSummaryView=gasFluidPropertiesSummaryView
         generalFluidPropertiesSummaryView=generalFluidPropertiesSummaryView
         reservoirPropertiesSummaryView=reservoirPropertiesSummaryView!""
         oilCaseOutputsSummaryView=oilCaseOutputsSummaryView!""

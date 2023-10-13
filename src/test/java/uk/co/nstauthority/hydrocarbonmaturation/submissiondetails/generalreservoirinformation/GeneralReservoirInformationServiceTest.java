@@ -34,6 +34,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertyPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertyPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
@@ -73,6 +74,9 @@ class GeneralReservoirInformationServiceTest {
 
   @Mock
   private OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService;
+
+  @Mock
+  private GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService;
 
   @Captor
   private ArgumentCaptor<ReservoirHydrocarbons> reservoirHydrocarbonsArgumentCaptor;
@@ -242,6 +246,8 @@ class GeneralReservoirInformationServiceTest {
         ),
         reservoirSubmissionDetail
     );
+
+    verify(gasFluidPropertyPersistenceService, times(1)).clearAllGasFluidProperties(reservoirSubmissionDetail);
   }
 
   @Test

@@ -104,10 +104,6 @@ class DiscoverySummaryService {
     return discoveryWellDetailsSummaryService.getDiscoveryWellDetailSummaryFromSubmissionDetail(submissionDetail);
   }
 
-  public GasFluidPropertySummaryView getGasFluidPropertySummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
-    return gasFluidPropertySummaryService.getGasFluidPropertySummaryFromSubmissionDetail(submissionDetail);
-  }
-
   public GeneralFluidPropertySummaryView getGeneralFluidPropertySummaryViewFromSubmissionDetail(
       SubmissionDetail submissionDetail) {
     return generalFluidPropertySummaryService.getGeneralFluidPropertySummaryFromSubmissionDetail(submissionDetail);
@@ -115,6 +111,11 @@ class DiscoverySummaryService {
 
   public SourceAndSealSummaryView getSourceAndSealSummaryViewFromSubmissionDetail(SubmissionDetail submissionDetail) {
     return sourceAndSealSummaryService.getSourceAndSealSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  public GasFluidPropertySummaryView getGasFluidPropertySummaryViewFromSubmissionDetail(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return gasFluidPropertySummaryService.getGasFluidPropertySummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   public OilFluidPropertySummaryView getOilFluidPropertySummaryViewFromReservoirSubmissionDetail(

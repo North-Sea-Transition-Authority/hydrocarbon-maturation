@@ -5,10 +5,10 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class GasFluidPropertyPersistenceService {
+public class GasFluidPropertyPersistenceService {
 
   private final GasFluidPropertyRepository gasFluidPropertyRepository;
 
@@ -18,9 +18,10 @@ class GasFluidPropertyPersistenceService {
   }
 
   @Transactional
-  public void saveGasFluidProperty(GasFluidPropertyForm gasFluidPropertyForm, SubmissionDetail submissionDetail) {
-    var gasFluidProperty = getGasFluidProperty(submissionDetail).orElse(new GasFluidProperty());
-    gasFluidProperty.setSubmissionDetail(submissionDetail);
+  public void saveGasFluidProperty(GasFluidPropertyForm gasFluidPropertyForm,
+                                   ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var gasFluidProperty = getGasFluidProperty(reservoirSubmissionDetail).orElse(new GasFluidProperty());
+    gasFluidProperty.setReservoirSubmissionDetail(reservoirSubmissionDetail);
     gasFluidProperty.setGasCo2(gasFluidPropertyForm.getGasCo2().createBigDecimalOrNull());
     gasFluidProperty.setGasH2s(gasFluidPropertyForm.getGasH2s().createBigDecimalOrNull());
     gasFluidProperty.setGasSpecificGravity(gasFluidPropertyForm.getGasSpecificGravity().createBigDecimalOrNull());
@@ -39,7 +40,11 @@ class GasFluidPropertyPersistenceService {
     gasFluidPropertyRepository.save(gasFluidProperty);
   }
 
-  Optional<GasFluidProperty> getGasFluidProperty(SubmissionDetail submissionDetail) {
-    return gasFluidPropertyRepository.findBySubmissionDetail(submissionDetail);
+  Optional<GasFluidProperty> getGasFluidProperty(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return gasFluidPropertyRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail);
+  }
+
+  public void clearAllGasFluidProperties(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    gasFluidPropertyRepository.deleteAllByReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 }

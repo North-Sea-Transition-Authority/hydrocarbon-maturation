@@ -94,7 +94,7 @@ class DiscoverySummaryServiceTest {
   private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
 
   @Test
-  void getDiscoveryWellDetailsSummaryViewFromSubmissionDetail_verifyMethodCall() {
+  void getDiscoveryWellDetailsSummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
     discoverySummaryService.getDiscoveryWellDetailsSummaryViewFromSubmissionDetail(submissionDetail);
 
     verify(discoveryWellDetailsSummaryService, times(1))
@@ -102,11 +102,11 @@ class DiscoverySummaryServiceTest {
   }
 
   @Test
-  void getGasFluidPropertySummaryViewFromSubmissionDetail_verifyMethodCall() {
-    discoverySummaryService.getGasFluidPropertySummaryViewFromSubmissionDetail(submissionDetail);
+  void getGasFluidPropertySummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getGasFluidPropertySummaryViewFromSubmissionDetail(reservoirSubmissionDetail);
 
     verify(gasFluidPropertySummaryService, times(1))
-        .getGasFluidPropertySummaryFromSubmissionDetail(submissionDetail);
+        .getGasFluidPropertySummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
   @Test

@@ -6,20 +6,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PartialFullFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PercentageValidationUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ReservoirSubmissionValidator;
 
 @Service
-class GasFluidPropertyFormValidator extends PartialFullFormValidator {
+class GasFluidPropertyFormValidator implements ReservoirSubmissionValidator {
 
   @Override
-  public boolean supports(Class<?> clazz) {
-    return clazz.equals(GasFluidPropertyForm.class);
-  }
-
-  @Override
-  public void validatePartial(SubmissionForm form, Errors errors) {
+  public void validatePartial(SubmissionForm form,
+                              Errors errors,
+                              ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var gasFluidPropertyForm = (GasFluidPropertyForm) form;
 
     DecimalInputValidator.configureOptionalValidator(
@@ -90,7 +88,9 @@ class GasFluidPropertyFormValidator extends PartialFullFormValidator {
   }
 
   @Override
-  public void validateFull(SubmissionForm form, Errors errors) {
+  public void validateFull(SubmissionForm form,
+                           Errors errors,
+                           ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var gasFluidPropertyForm = (GasFluidPropertyForm) form;
 
     DecimalInputValidator.configureValidator(

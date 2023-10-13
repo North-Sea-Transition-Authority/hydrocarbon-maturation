@@ -295,8 +295,6 @@ class SubmissionSummaryModelServiceTest {
   void createDiscoverySubmissionSummaryModelAndView() {
     var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
 
-    when(discoverySummaryService.getGasFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(gasFluidPropertySummaryView);
     when(discoverySummaryService.getGeneralFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalFluidPropertySummaryView);
     when(discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
@@ -322,7 +320,6 @@ class SubmissionSummaryModelServiceTest {
 
     assertThat(modelAndView.getModelMap())
         .containsExactly(
-            entry("gasFluidPropertiesSummaryView", gasFluidPropertySummaryView),
             entry("generalFluidPropertiesSummaryView", generalFluidPropertySummaryView),
             entry("generalDetailsSummaryView", generalDetailSummaryView),
             entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView),

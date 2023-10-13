@@ -18,7 +18,8 @@ public class TaskListBreadcrumbUtil {
     throw new IllegalUtilClassInstantiationException(this.getClass());
   }
 
-  public static ModelAndView addTaskListAndWorkAreaToModelAndView(ModelAndView modelAndView, String pageName,
+  public static ModelAndView addTaskListAndWorkAreaToModelAndView(ModelAndView modelAndView,
+                                                                  String pageName,
                                                                   SubmissionDetail submissionDetail) {
     var breadcrumbs = Breadcrumbs.builder(pageName)
         .addWorkAreaBreadcrumb()

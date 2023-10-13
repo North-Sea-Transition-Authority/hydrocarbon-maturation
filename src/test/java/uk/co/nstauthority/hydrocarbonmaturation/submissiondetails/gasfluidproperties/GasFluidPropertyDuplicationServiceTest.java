@@ -19,7 +19,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class GasFluidPropertyDuplicationServiceTest {
@@ -28,54 +31,57 @@ class GasFluidPropertyDuplicationServiceTest {
   private GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService;
 
   @Mock
-  private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @InjectMocks
   private GasFluidPropertyDuplicationService gasFluidPropertyDuplicationService;
 
-  private SubmissionDetail newSubmissionDetail;
+  private ReservoirSubmissionDetail newSubmissionDetail;
 
   @BeforeEach
   void setUp() {
-    newSubmissionDetail = SubmissionDetailTestUtils.createNewDiscoveryUpdateSubmissionDetail();
+    newSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
   }
 
   @Test
   void duplicateSubmissionSection_GasFluidPropertyExists_DoesDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
+    var oldSubmissionDetail = mock(ReservoirSubmissionDetail.class);
 
     var gasFluidProperty = mock(GasFluidProperty.class);
     when(gasFluidPropertyPersistenceService.getGasFluidProperty(oldSubmissionDetail))
         .thenReturn(Optional.of(gasFluidProperty));
 
-    gasFluidPropertyDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    gasFluidPropertyDuplicationService.duplicateReservoirSection(oldSubmissionDetail, newSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, gasFluidProperty,
-        GasFluidProperty.class);
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(
+        newSubmissionDetail,
+        gasFluidProperty,
+        GasFluidProperty.class
+    );
   }
 
   @Test
   void duplicateSubmissionSection_GasFluidPropertyDoesNotExist_DoesNotDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
+    var oldSubmissionDetail = mock(ReservoirSubmissionDetail.class);
 
     when(gasFluidPropertyPersistenceService.getGasFluidProperty(oldSubmissionDetail))
         .thenReturn(Optional.empty());
 
-    gasFluidPropertyDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    gasFluidPropertyDuplicationService.duplicateReservoirSection(oldSubmissionDetail, newSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, never())
+    verify(reservoirDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(GasFluidProperty.class), eq(GasFluidProperty.class));
   }
 
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {"UPDATE_DISCOVERY"}, mode = EnumSource.Mode.EXCLUDE)
   void duplicateSubmissionSection_GasFluidPropertyDoesNotExist_DoesNotDuplicate(SubmissionType submissionType) {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    newSubmissionDetail.setSubmissionType(submissionType);
+    var oldSubmissionDetail = mock(ReservoirSubmissionDetail.class);
+    newSubmissionDetail.getSubmissionDetail().setSubmissionType(submissionType);
 
-    gasFluidPropertyDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    gasFluidPropertyDuplicationService.duplicateReservoirSection(oldSubmissionDetail, newSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, never())
+    verify(reservoirDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(GasFluidProperty.class), eq(GasFluidProperty.class));
   }
 }

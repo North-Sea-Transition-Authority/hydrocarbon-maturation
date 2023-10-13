@@ -4,25 +4,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.SectionSubmissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirSectionSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-public class GasFluidPropertySubmissionService implements SectionSubmissionService {
+public class GasFluidPropertySubmissionService implements ReservoirSectionSubmissionService {
 
   private final GasFluidPropertyFormService gasFluidPropertyFormService;
 
+  private final GasFluidPropertyFormValidator gasFluidPropertyFormValidator;
+
   @Autowired
-  public GasFluidPropertySubmissionService(GasFluidPropertyFormService gasFluidPropertyFormService) {
+  public GasFluidPropertySubmissionService(GasFluidPropertyFormService gasFluidPropertyFormService,
+                                           GasFluidPropertyFormValidator gasFluidPropertyFormValidator) {
     this.gasFluidPropertyFormService = gasFluidPropertyFormService;
+    this.gasFluidPropertyFormValidator = gasFluidPropertyFormValidator;
   }
 
   @Override
-  public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
-    var form = gasFluidPropertyFormService.getGasFluidPropertyForm(submissionDetail);
+  public boolean isSectionSubmittable(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var form = gasFluidPropertyFormService.getGasFluidPropertyForm(reservoirSubmissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = gasFluidPropertyFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
-    return !bindingResult.hasErrors();
+    return gasFluidPropertyFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL);
   }
 }
