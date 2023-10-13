@@ -188,6 +188,7 @@
           suffix="psi"
           suffixScreenReaderPrompt="in psi"
           inputClass="govuk-input--width-5"
+          optionalLabel=true
           />
 
           <@fdsRadio.radioGroup path="form.depositionalSetting" labelText="Depositional setting" hiddenContent=true>
@@ -214,12 +215,14 @@
           path="form.plannedProducers.decimalInputValue"
           labelText="Planned producers"
           inputClass="govuk-input--width-5"
+          optionalLabel=true
           />
 
           <@fdsTextInput.textInput
           path="form.plannedInjectors.decimalInputValue"
           labelText="Planned injectors"
           inputClass="govuk-input--width-5"
+          optionalLabel=true
           />
 
           <@fdsRadio.radioGroup path="form.isLateralBarriersBaffles"
