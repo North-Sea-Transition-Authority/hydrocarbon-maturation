@@ -56,7 +56,7 @@ class ReservoirPropertiesFormService {
       form.setLithology(reservoirProperty.getLithology());
       form.setLithologyOther(reservoirProperty.getLithologyOther());
 
-      if (submissionDetail.isDryWellOrDiscoverySubmission()) {
+      if (submissionDetail.isDryWellOrDiscoverySubmission() || submissionDetail.isFieldSubmission()) {
         form.setReservoirConnectivity(reservoirProperty.getReservoirConnectivity());
         form.setReservoirFacies(reservoirProperty.getReservoirFacies());
       }

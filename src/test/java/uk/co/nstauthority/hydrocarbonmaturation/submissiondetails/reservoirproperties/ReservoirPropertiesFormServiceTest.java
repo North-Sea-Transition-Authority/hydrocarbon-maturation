@@ -203,6 +203,85 @@ class ReservoirPropertiesFormServiceTest {
   }
 
   @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
+  void reservoirPropertiesEntityToForm_whenFieldAny_thenPopulatedForm(SubmissionType submissionType) {
+    var reservoirProperty = getReservoirProperty(reservoirSubmissionDetail);
+    submissionDetail.setSubmissionType(submissionType);
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail))
+            .thenReturn(Optional.of(reservoirProperty));
+    var probabilityDistributionForm =
+            ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm();
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+            eq(reservoirSubmissionDetail), any())).thenReturn(probabilityDistributionForm);
+
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail))
+            .extracting(
+                    ReservoirPropertiesForm::getAgeStageOrSeries,
+                    ReservoirPropertiesForm::getGroupName,
+                    ReservoirPropertiesForm::getLithology,
+                    ReservoirPropertiesForm::getLithologyOther,
+                    ReservoirPropertiesForm::getReservoirFacies,
+                    ReservoirPropertiesForm::getReservoirConnectivity,
+                    form -> form.getNetToGross().getProbabilityDistributionType(),
+                    form -> form.getNetToGross().getNormal().getMin(),
+                    form -> form.getNetToGross().getNormal().getP99(),
+                    form -> form.getNetToGross().getNormal().getP90(),
+                    form -> form.getNetToGross().getNormal().getMode(),
+                    form -> form.getNetToGross().getNormal().getP50(),
+                    form -> form.getNetToGross().getNormal().getMean(),
+                    form -> form.getNetToGross().getNormal().getP10(),
+                    form -> form.getNetToGross().getNormal().getP1(),
+                    form -> form.getNetToGross().getNormal().getMax(),
+                    form -> form.getNetToGross().getNormal().getConstant(),
+                    form -> form.getNetToGross().getNormal().getComments(),
+                    form -> form.getAverageNetPayThickness().getProbabilityDistributionType(),
+                    form -> form.getAverageNetPayThickness().getNormal().getMin(),
+                    form -> form.getAverageNetPayThickness().getNormal().getP99(),
+                    form -> form.getAverageNetPayThickness().getNormal().getP90(),
+                    form -> form.getAverageNetPayThickness().getNormal().getMode(),
+                    form -> form.getAverageNetPayThickness().getNormal().getP50(),
+                    form -> form.getAverageNetPayThickness().getNormal().getMean(),
+                    form -> form.getAverageNetPayThickness().getNormal().getP10(),
+                    form -> form.getAverageNetPayThickness().getNormal().getP1(),
+                    form -> form.getAverageNetPayThickness().getNormal().getMax(),
+                    form -> form.getAverageNetPayThickness().getNormal().getConstant(),
+                    form -> form.getAverageNetPayThickness().getNormal().getComments()
+            )
+            .containsExactly(
+                    reservoirProperty.getAgeStage(),
+                    reservoirProperty.getGroupName(),
+                    reservoirProperty.getLithology(),
+                    reservoirProperty.getLithologyOther(),
+                    reservoirProperty.getReservoirFacies(),
+                    reservoirProperty.getReservoirConnectivity(),
+                    probabilityDistributionForm.getProbabilityDistributionType(),
+                    probabilityDistributionForm.getNormal().getMin(),
+                    probabilityDistributionForm.getNormal().getP99(),
+                    probabilityDistributionForm.getNormal().getP90(),
+                    probabilityDistributionForm.getNormal().getMode(),
+                    probabilityDistributionForm.getNormal().getP50(),
+                    probabilityDistributionForm.getNormal().getMean(),
+                    probabilityDistributionForm.getNormal().getP10(),
+                    probabilityDistributionForm.getNormal().getP1(),
+                    probabilityDistributionForm.getNormal().getMax(),
+                    probabilityDistributionForm.getNormal().getConstant(),
+                    probabilityDistributionForm.getNormal().getComments(),
+                    probabilityDistributionForm.getProbabilityDistributionType(),
+                    probabilityDistributionForm.getNormal().getMin(),
+                    probabilityDistributionForm.getNormal().getP99(),
+                    probabilityDistributionForm.getNormal().getP90(),
+                    probabilityDistributionForm.getNormal().getMode(),
+                    probabilityDistributionForm.getNormal().getP50(),
+                    probabilityDistributionForm.getNormal().getMean(),
+                    probabilityDistributionForm.getNormal().getP10(),
+                    probabilityDistributionForm.getNormal().getP1(),
+                    probabilityDistributionForm.getNormal().getMax(),
+                    probabilityDistributionForm.getNormal().getConstant(),
+                    probabilityDistributionForm.getNormal().getComments()
+            );
+  }
+
+  @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {"CREATE_DISCOVERY", "UPDATE_DISCOVERY"})
   void reservoirPropertiesEntityToForm_whenCreateOrUpdateDiscovery_thenVerifyDiscoveryDistributionEntityToForm(
       SubmissionType submissionType) {
