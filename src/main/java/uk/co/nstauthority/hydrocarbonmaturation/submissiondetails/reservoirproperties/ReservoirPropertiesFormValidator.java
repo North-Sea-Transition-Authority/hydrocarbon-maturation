@@ -185,13 +185,13 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
     var submissionType = reservoirSubmissionDetail.getSubmissionDetail().getSubmissionType();
 
     ReservoirPropertiesForm reservoirPropertiesForm = (ReservoirPropertiesForm) form;
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "formationName", "formationName.required",
-        "Enter a formation name");
     ValidationUtils.rejectIfEmptyOrWhitespace(errors,
         "ageStageOrSeries",
         "ageStageOrSeries.required",
         "Enter an age stage or series");
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "groupName", "groupName.required", "Enter a group name");
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "formationName", "formationName.required",
+            "Enter a formation name");
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lithology", "lithology.required", "Select a lithology");
     if (reservoirPropertiesForm.getLithology() == ReservoirLithology.OTHER) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lithologyOther", "lithologyOther.required",
