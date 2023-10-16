@@ -118,11 +118,11 @@ class DiscoverySummaryServiceTest {
   }
 
   @Test
-  void getGeneralFluidPropertySummaryViewFromSubmissionDetail_verifyMethodCall() {
-    discoverySummaryService.getGeneralFluidPropertySummaryViewFromSubmissionDetail(submissionDetail);
+  void getGeneralFluidPropertySummaryViewFromReservoirSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getGeneralFluidPropertySummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(generalFluidPropertySummaryService, times(1))
-        .getGeneralFluidPropertySummaryFromSubmissionDetail(submissionDetail);
+        .getGeneralFluidPropertySummaryFromSubmissionDetail(reservoirSubmissionDetail);
   }
 
   @Test

@@ -2,28 +2,30 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidp
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class GeneralFluidPropertyDuplicationService implements SubmissionSectionDuplicationService {
+class GeneralFluidPropertyDuplicationService implements ReservoirSectionDuplicationService {
   private final GeneralFluidPropertyPersistenceService generalFluidPropertyPersistenceService;
-  private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private final ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @Autowired
   GeneralFluidPropertyDuplicationService(GeneralFluidPropertyPersistenceService generalFluidPropertyPersistenceService,
-                                     SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
+                                     ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
     this.generalFluidPropertyPersistenceService = generalFluidPropertyPersistenceService;
-    this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
+    this.reservoirDuplicationPersistenceService = reservoirDuplicationPersistenceService;
   }
 
   @Override
-  public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
-    if (newSubmissionDetail.isDiscoverySubmission()) {
-      generalFluidPropertyPersistenceService.getGeneralFluidProperty(oldSubmissionDetail)
-          .ifPresent(generalFluidProperty ->
-              submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail,
+  public void duplicateReservoirSection(ReservoirSubmissionDetail oldReservoirSubmissionDetail,
+                                        ReservoirSubmissionDetail newReservoirSubmissionDetail) {
+    if (newReservoirSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()) {
+      generalFluidPropertyPersistenceService.getGeneralFluidProperty(oldReservoirSubmissionDetail)
+          .ifPresent(generalFluidProperty -> reservoirDuplicationPersistenceService
+              .duplicateChildAndReplaceParent(
+                  newReservoirSubmissionDetail,
                   generalFluidProperty,
                   GeneralFluidProperty.class));
     }

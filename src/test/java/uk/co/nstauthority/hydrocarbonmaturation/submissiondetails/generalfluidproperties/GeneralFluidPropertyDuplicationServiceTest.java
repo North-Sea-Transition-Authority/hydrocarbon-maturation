@@ -19,7 +19,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralFluidPropertyDuplicationServiceTest {
@@ -28,54 +30,55 @@ class GeneralFluidPropertyDuplicationServiceTest {
   private GeneralFluidPropertyPersistenceService generalFluidPropertyPersistenceService;
 
   @Mock
-  private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @InjectMocks
   private GeneralFluidPropertyDuplicationService generalFluidPropertyDuplicationService;
 
   private SubmissionDetail newSubmissionDetail;
+  private ReservoirSubmissionDetail newReservoirSubmissionDetail;
+  private ReservoirSubmissionDetail oldReservoirSubmissionDetail;
 
   @BeforeEach
   void setUp() {
     newSubmissionDetail = SubmissionDetailTestUtils.createNewDiscoveryUpdateSubmissionDetail();
+    newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(newSubmissionDetail);
+    oldReservoirSubmissionDetail = mock(ReservoirSubmissionDetail.class);
   }
 
   @Test
   void duplicateSubmissionSection_GeneralFluidPropertyExists_DoesDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
+    var oldReservoirSubmissionDetail = mock(ReservoirSubmissionDetail.class);
 
     var generalFluidProperty = mock(GeneralFluidProperty.class);
-    when(generalFluidPropertyPersistenceService.getGeneralFluidProperty(oldSubmissionDetail))
+    when(generalFluidPropertyPersistenceService.getGeneralFluidProperty(oldReservoirSubmissionDetail))
         .thenReturn(Optional.of(generalFluidProperty));
 
-    generalFluidPropertyDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    generalFluidPropertyDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, generalFluidProperty,
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(newReservoirSubmissionDetail, generalFluidProperty,
         GeneralFluidProperty.class);
   }
 
   @Test
   void duplicateSubmissionSection_GeneralFluidPropertyDoesNotExist_DoesNotDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-
-    when(generalFluidPropertyPersistenceService.getGeneralFluidProperty(oldSubmissionDetail))
+    when(generalFluidPropertyPersistenceService.getGeneralFluidProperty(oldReservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
-    generalFluidPropertyDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    generalFluidPropertyDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, never())
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(GeneralFluidProperty.class), eq(GeneralFluidProperty.class));
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(GeneralFluidProperty.class), eq(GeneralFluidProperty.class));
   }
 
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {"UPDATE_DISCOVERY"}, mode = EnumSource.Mode.EXCLUDE)
   void duplicateSubmissionSection_GeneralFluidPropertyDoesNotExist_DoesNotDuplicate(SubmissionType submissionType) {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
     newSubmissionDetail.setSubmissionType(submissionType);
 
-    generalFluidPropertyDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+    generalFluidPropertyDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService, never())
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(GeneralFluidProperty.class), eq(GeneralFluidProperty.class));
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(GeneralFluidProperty.class), eq(GeneralFluidProperty.class));
   }
 }

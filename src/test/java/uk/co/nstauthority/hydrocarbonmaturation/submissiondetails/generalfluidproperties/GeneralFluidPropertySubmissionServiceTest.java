@@ -6,15 +6,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,35 +23,37 @@ class GeneralFluidPropertySubmissionServiceTest {
   @Mock
   private GeneralFluidPropertyFormService generalFluidPropertyFormService;
 
+  @Mock
+  private GeneralFluidPropertyFormValidator generalFluidPropertyFormValidator;
+
   @InjectMocks
   private GeneralFluidPropertySubmissionService generalFluidPropertySubmissionService;
 
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
+
+  private GeneralFluidPropertyForm form;
+
+  @BeforeEach
+  void setUp() {
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+    form = new GeneralFluidPropertyForm();
+  }
+
   @Test
   void isSectionSubmittable_whenSubmittable_thenTrue() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var form = new GeneralFluidPropertyForm();
-    var emptyBindingResult = ReverseRouter.emptyBindingResult();
+    when(generalFluidPropertyFormService.getGeneralFluidPropertyForm(reservoirSubmissionDetail)).thenReturn(form);
+    when(generalFluidPropertyFormValidator.isValid(eq(form), any(BindingResult.class), eq(reservoirSubmissionDetail), eq(ValidationType.FULL)))
+        .thenReturn(true);
 
-    when(generalFluidPropertyFormService.getGeneralFluidPropertyForm(submissionDetail)).thenReturn(form);
-    when(generalFluidPropertyFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(emptyBindingResult);
-
-    assertTrue(generalFluidPropertySubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(generalFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 
   @Test
   void isSectionSubmittable_whenNotSubmittable_thenFalse() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var form = new GeneralFluidPropertyForm();
-    var bindingResultWithError = ReverseRouter.emptyBindingResult();
-    bindingResultWithError.addError(new FieldError("object", "field", "message"));
+    when(generalFluidPropertyFormService.getGeneralFluidPropertyForm(reservoirSubmissionDetail)).thenReturn(form);
+    when(generalFluidPropertyFormValidator.isValid(eq(form), any(BindingResult.class), eq(reservoirSubmissionDetail), eq(ValidationType.FULL)))
+        .thenReturn(false);
 
-    when(generalFluidPropertyFormService.getGeneralFluidPropertyForm(submissionDetail)).thenReturn(form);
-    when(generalFluidPropertyFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(bindingResultWithError);
-
-    assertFalse(generalFluidPropertySubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(generalFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 }

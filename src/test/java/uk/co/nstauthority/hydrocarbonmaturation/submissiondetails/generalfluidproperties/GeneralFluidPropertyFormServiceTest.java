@@ -1,79 +1,50 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralFluidPropertyFormServiceTest {
-
-  @Mock
-  private GeneralFluidPropertyFormValidator generalFluidPropertyFormValidator;
-
   @Mock
   private GeneralFluidPropertyPersistenceService generalFluidPropertyPersistenceService;
 
   @InjectMocks
   private GeneralFluidPropertyFormService generalFluidPropertyFormService;
 
-  private UUID submissionDetailId;
-  private SubmissionDetail submissionDetail;
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
-    submissionDetailId = submissionDetail.getId();
-  }
-
-  @Test
-  void validate_verifyMethodCall() {
-    var form = new GeneralFluidPropertyForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
-
-    generalFluidPropertyFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
-
-    verify(generalFluidPropertyFormValidator, times(1))
-        .validate(eq(form), eq(bindingResult), captor.capture());
-
-    assertThat(captor.getValue())
-        .extracting(SubmissionFormValidatorHints::getSubmissionDetail, SubmissionFormValidatorHints::getValidationType)
-        .containsExactly(submissionDetail, ValidationType.FULL);
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
   }
 
   @Test
   void generalFluidPropertyEntityToForm_newEntity_thenEmptyForm() {
-    when(generalFluidPropertyPersistenceService.getGeneralFluidProperty(submissionDetail)).thenReturn(Optional.empty());
+    when(generalFluidPropertyPersistenceService.getGeneralFluidProperty(reservoirSubmissionDetail)).thenReturn(Optional.empty());
 
-    assertThat(generalFluidPropertyFormService.getGeneralFluidPropertyForm(submissionDetail))
+    assertThat(generalFluidPropertyFormService.getGeneralFluidPropertyForm(reservoirSubmissionDetail))
         .extracting(
             theForm -> theForm.getDatumDepth().asBigDecimal(),
             theForm -> theForm.getTemperatureAtDatumDepth().asInteger(),
+            theForm -> theForm.getInitialTemperature().asInteger(),
             theForm -> theForm.getPressureAtDatumDepth().asInteger(),
+            theForm -> theForm.getInitialPressure().asInteger(),
             theForm -> theForm.getSaturationPressureAtDatumDepth().asInteger(),
             theForm -> theForm.getWaterSalinity().asInteger())
         .containsExactly(
+            Optional.empty(),
+            Optional.empty(),
             Optional.empty(),
             Optional.empty(),
             Optional.empty(),
@@ -90,23 +61,29 @@ class GeneralFluidPropertyFormServiceTest {
     generalFluidProperty.setPressureAtDatumDepth(2);
     generalFluidProperty.setDatumDepth(BigDecimal.ONE);
     generalFluidProperty.setSaturationPressureAtDatumDepth(4);
+    generalFluidProperty.setInitialTemperature(5);
+    generalFluidProperty.setInitialPressure(6);
 
-    when(generalFluidPropertyPersistenceService.getGeneralFluidProperty(submissionDetail))
+    when(generalFluidPropertyPersistenceService.getGeneralFluidProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(generalFluidProperty));
 
-    assertThat(generalFluidPropertyFormService.getGeneralFluidPropertyForm(submissionDetail))
+    assertThat(generalFluidPropertyFormService.getGeneralFluidPropertyForm(reservoirSubmissionDetail))
         .extracting(
             theForm -> theForm.getDatumDepth().createBigDecimalOrNull(),
             theForm -> theForm.getWaterSalinity().createIntegerOrNull(),
             theForm -> theForm.getSaturationPressureAtDatumDepth().createIntegerOrNull(),
             theForm -> theForm.getPressureAtDatumDepth().createIntegerOrNull(),
-            theForm -> theForm.getTemperatureAtDatumDepth().createIntegerOrNull())
-        .containsExactly(
+            theForm -> theForm.getInitialTemperature().createIntegerOrNull(),
+            theForm -> theForm.getTemperatureAtDatumDepth().createIntegerOrNull(),
+            theForm -> theForm.getInitialPressure().createIntegerOrNull()
+        ).containsExactly(
             BigDecimal.ONE,
             1,
             4,
             2,
-            3
+            5,
+            3,
+            6
         );
   }
 
@@ -114,16 +91,18 @@ class GeneralFluidPropertyFormServiceTest {
   void generalFluidPropertyEntityToForm_existingEmptyEntity_thenEmptyForm() {
     var generalFluidProperty = new GeneralFluidProperty();
 
-    when(generalFluidPropertyPersistenceService.getGeneralFluidProperty(submissionDetail))
+    when(generalFluidPropertyPersistenceService.getGeneralFluidProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(generalFluidProperty));
 
-    assertThat(generalFluidPropertyFormService.getGeneralFluidPropertyForm(submissionDetail))
+    assertThat(generalFluidPropertyFormService.getGeneralFluidPropertyForm(reservoirSubmissionDetail))
         .extracting(
             theForm -> theForm.getDatumDepth().createBigDecimalOrNull(),
             theForm -> theForm.getWaterSalinity().createIntegerOrNull(),
             theForm -> theForm.getSaturationPressureAtDatumDepth().createIntegerOrNull(),
             theForm -> theForm.getPressureAtDatumDepth().createIntegerOrNull(),
-            theForm -> theForm.getTemperatureAtDatumDepth().createIntegerOrNull())
+            theForm -> theForm.getInitialTemperature().createIntegerOrNull(),
+            theForm -> theForm.getTemperatureAtDatumDepth().createIntegerOrNull(),
+            theForm -> theForm.getInitialPressure().createIntegerOrNull())
         .containsOnlyNulls();
   }
 }

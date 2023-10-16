@@ -28,6 +28,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetricparameters.GasCaseVolumetricParametersController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetricparameters.GasCaseVolumetricParametersSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertyController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertyController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationController;
@@ -95,6 +97,9 @@ class ReservoirTaskListServiceTest {
   @Mock
   private DiscoveryMixedCaseOutputsSubmissionService discoveryMixedCaseOutputsSubmissionService;
 
+  @Mock
+  private GeneralFluidPropertySubmissionService generalFluidPropertySubmissionService;
+
   @InjectMocks
   private ReservoirTaskListService reservoirTaskListService;
 
@@ -117,6 +122,7 @@ class ReservoirTaskListServiceTest {
     when(permeabilitySubmissionService.isSectionSubmittable(any(ReservoirSubmissionDetail.class))).thenReturn(true);
     when(reservoirPropertiesSubmissionService.isSectionSubmittable(any(ReservoirSubmissionDetail.class))).thenReturn(false);
     when(drillStemTestSubmissionService.isSectionSubmittable(any(ReservoirSubmissionDetail.class))).thenReturn(true);
+    when(generalFluidPropertySubmissionService.isSectionSubmittable(any(ReservoirSubmissionDetail.class))).thenReturn(true);
 
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
@@ -151,7 +157,15 @@ class ReservoirTaskListServiceTest {
                     ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(
                         reservoirSubmissionDetail1.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail1.getId()))
-              ),
+                ),
+                new TaskListItem(
+                    "General properties",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(GeneralFluidPropertyController.class)
+                        .getGeneralFluidProperties(
+                            submissionDetail.getId(),
+                            reservoirSubmissionDetail1.getId()))
+                ),
                 new TaskListItem(
                     "Well test results",
                     TaskListLabel.COMPLETE,
@@ -191,6 +205,14 @@ class ReservoirTaskListServiceTest {
                         reservoirSubmissionDetail2.getId()))
                 ),
                 new TaskListItem(
+                    "General properties",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(GeneralFluidPropertyController.class)
+                        .getGeneralFluidProperties(
+                            submissionDetail.getId(),
+                            reservoirSubmissionDetail2.getId()))
+                ),
+                new TaskListItem(
                     "Well test results",
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(DrillStemTestController.class)
@@ -217,6 +239,7 @@ class ReservoirTaskListServiceTest {
     when(generalReservoirInformationSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(drillStemTestSubmissionService.isSectionSubmittable(any(ReservoirSubmissionDetail.class))).thenReturn(true);
+    when(generalFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
 
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(fieldSubmissionDetail);
 
@@ -251,6 +274,14 @@ class ReservoirTaskListServiceTest {
                     ReverseRouter.route(on(ReservoirPropertiesController.class).getReservoirProperties(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "General properties",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(GeneralFluidPropertyController.class)
+                        .getGeneralFluidProperties(
+                            reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                            reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
                     "Well test results",
@@ -355,6 +386,7 @@ class ReservoirTaskListServiceTest {
     when(oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(drillStemTestSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(oilFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(generalFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
 
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
@@ -411,6 +443,14 @@ class ReservoirTaskListServiceTest {
                         reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
+                        "General properties",
+                        TaskListLabel.COMPLETE,
+                        ReverseRouter.route(on(GeneralFluidPropertyController.class)
+                            .getGeneralFluidProperties(
+                                submissionDetail.getId(),
+                                reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
                     "Well test results",
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(DrillStemTestController.class)
@@ -442,6 +482,8 @@ class ReservoirTaskListServiceTest {
         .thenReturn(Optional.of(reservoirHydrocarbons));
     when(oilCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(oilFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(generalFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
     assertThat(reservoirTaskListItems).extracting(
@@ -490,6 +532,14 @@ class ReservoirTaskListServiceTest {
                         reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
+                        "General properties",
+                        TaskListLabel.COMPLETE,
+                        ReverseRouter.route(on(GeneralFluidPropertyController.class)
+                            .getGeneralFluidProperties(
+                                submissionDetail.getId(),
+                                reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
                     "Well test results",
                     TaskListLabel.NOT_COMPLETE,
                     ReverseRouter.route(on(DrillStemTestController.class)
@@ -520,6 +570,7 @@ class ReservoirTaskListServiceTest {
     when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirHydrocarbons));
     when(oilCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(generalFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
 
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
@@ -558,6 +609,14 @@ class ReservoirTaskListServiceTest {
                         reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
+                        "General properties",
+                        TaskListLabel.COMPLETE,
+                        ReverseRouter.route(on(GeneralFluidPropertyController.class)
+                            .getGeneralFluidProperties(
+                                submissionDetail.getId(),
+                                reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
                     "Well test results",
                     TaskListLabel.NOT_COMPLETE,
                     ReverseRouter.route(on(DrillStemTestController.class)
@@ -591,6 +650,7 @@ class ReservoirTaskListServiceTest {
     when(gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(drillStemTestSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(gasFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(generalFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
 
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
@@ -648,6 +708,14 @@ class ReservoirTaskListServiceTest {
                         reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
+                    "General properties",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(GeneralFluidPropertyController.class)
+                        .getGeneralFluidProperties(
+                            submissionDetail.getId(),
+                            reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
                     "Well test results",
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(DrillStemTestController.class)
@@ -679,6 +747,8 @@ class ReservoirTaskListServiceTest {
         .thenReturn(Optional.of(reservoirHydrocarbons));
     when(gasCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(gasFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(generalFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
     assertThat(reservoirTaskListItems).extracting(
@@ -728,6 +798,14 @@ class ReservoirTaskListServiceTest {
                             reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
+                    "General properties",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(GeneralFluidPropertyController.class)
+                        .getGeneralFluidProperties(
+                            submissionDetail.getId(),
+                            reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
                     "Well test results",
                     TaskListLabel.NOT_COMPLETE,
                     ReverseRouter.route(on(DrillStemTestController.class)
@@ -764,6 +842,7 @@ class ReservoirTaskListServiceTest {
     when(discoveryMixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(gasFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(oilFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(generalFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
 
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
@@ -835,6 +914,14 @@ class ReservoirTaskListServiceTest {
                         reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
+                    "General properties",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(GeneralFluidPropertyController.class)
+                        .getGeneralFluidProperties(
+                            submissionDetail.getId(),
+                            reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
                     "Well test results",
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(DrillStemTestController.class)
@@ -869,6 +956,8 @@ class ReservoirTaskListServiceTest {
     when(gasCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(gasFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(oilFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(generalFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
     assertThat(reservoirTaskListItems).extracting(
@@ -932,6 +1021,14 @@ class ReservoirTaskListServiceTest {
                         reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
+                        "General properties",
+                        TaskListLabel.COMPLETE,
+                        ReverseRouter.route(on(GeneralFluidPropertyController.class)
+                            .getGeneralFluidProperties(
+                                submissionDetail.getId(),
+                                reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
                     "Well test results",
                     TaskListLabel.NOT_COMPLETE,
                     ReverseRouter.route(on(DrillStemTestController.class)
@@ -963,6 +1060,7 @@ class ReservoirTaskListServiceTest {
         .thenReturn(Optional.of(reservoirHydrocarbons));
     when(oilCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(gasCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(generalFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
 
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
@@ -1007,6 +1105,14 @@ class ReservoirTaskListServiceTest {
                     ReverseRouter.route(on(FieldGasVolumetricsController.class).getGasVolumetrics(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                        "General properties",
+                        TaskListLabel.COMPLETE,
+                        ReverseRouter.route(on(GeneralFluidPropertyController.class)
+                            .getGeneralFluidProperties(
+                                submissionDetail.getId(),
+                                reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
                     "Well test results",

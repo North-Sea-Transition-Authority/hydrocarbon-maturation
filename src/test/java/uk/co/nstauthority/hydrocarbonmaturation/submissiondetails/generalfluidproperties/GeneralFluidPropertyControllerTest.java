@@ -35,6 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -48,9 +49,10 @@ class GeneralFluidPropertyControllerTest extends AbstractSubmissionControllerTes
   @MockBean
   private GeneralFluidPropertyPersistenceService generalFluidPropertyPersistenceService;
 
-  private BindingResult bindingResult;
+  @MockBean
+  private GeneralFluidPropertyFormValidator generalFluidPropertyFormValidator;
 
-  private GeneralFluidPropertyForm generalFluidPropertyForm;
+  private BindingResult bindingResult;
 
   private UUID submissionDetailId;
 
@@ -58,20 +60,21 @@ class GeneralFluidPropertyControllerTest extends AbstractSubmissionControllerTes
   void setUp() {
     submissionDetailId = submissionDetail.getId();
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
-    generalFluidPropertyForm = new GeneralFluidPropertyForm();
+
+    var generalFluidPropertyForm = new GeneralFluidPropertyForm();
     bindingResult = new BeanPropertyBindingResult(generalFluidPropertyForm, "form");
   }
 
   @SecurityTest
   void getGeneralFluidProperties_assertStatusOk() throws Exception {
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
-        .thenReturn(submissionDetail);
-    when(generalFluidPropertyFormService.getGeneralFluidPropertyForm(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
+        .thenReturn(reservoirSubmissionDetail);
+    when(generalFluidPropertyFormService.getGeneralFluidPropertyForm(reservoirSubmissionDetail))
         .thenReturn(new GeneralFluidPropertyForm());
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(GeneralFluidPropertyController.class).getGeneralFluidProperties(submissionDetailId)))
+            get(ReverseRouter.route(on(GeneralFluidPropertyController.class).getGeneralFluidProperties(submissionDetailId, reservoirSubmissionDetail.getId())))
                 .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/generalFluidProperties"));
@@ -81,7 +84,7 @@ class GeneralFluidPropertyControllerTest extends AbstractSubmissionControllerTes
   void getGeneralFluidProperties_andStatusIsNotDraft_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     mockMvc.perform(
-            get(ReverseRouter.route(on(GeneralFluidPropertyController.class).getGeneralFluidProperties(submissionDetailId)))
+            get(ReverseRouter.route(on(GeneralFluidPropertyController.class).getGeneralFluidProperties(submissionDetailId, reservoirSubmissionDetail.getId())))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -90,7 +93,7 @@ class GeneralFluidPropertyControllerTest extends AbstractSubmissionControllerTes
   void getGeneralFluidProperties_andTypeIsNotDiscovery_assertForbidden() throws Exception {
     submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_PROSPECT);
     mockMvc.perform(
-            get(ReverseRouter.route(on(GeneralFluidPropertyController.class).getGeneralFluidProperties(submissionDetailId)))
+            get(ReverseRouter.route(on(GeneralFluidPropertyController.class).getGeneralFluidProperties(submissionDetailId, reservoirSubmissionDetail.getId())))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -100,7 +103,7 @@ class GeneralFluidPropertyControllerTest extends AbstractSubmissionControllerTes
   void getGeneralFluidProperties_andNotResponsibleOrganisation_assertForbidden() throws Exception {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
-            get(ReverseRouter.route(on(GeneralFluidPropertyController.class).getGeneralFluidProperties(submissionDetailId)))
+            get(ReverseRouter.route(on(GeneralFluidPropertyController.class).getGeneralFluidProperties(submissionDetailId, reservoirSubmissionDetail.getId())))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -108,44 +111,46 @@ class GeneralFluidPropertyControllerTest extends AbstractSubmissionControllerTes
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void saveGeneralFluidProperties_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
-    when(generalFluidPropertyFormService.validate(any(), any(), any(), eq(submissionDetail)))
-        .thenReturn(bindingResult);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
-        .thenReturn(submissionDetail);
+    when(generalFluidPropertyFormValidator.isValid(any(GeneralFluidPropertyForm.class), any(BindingResult.class), eq(reservoirSubmissionDetail), eq(validationType)))
+        .thenReturn(true);
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
+        .thenReturn(reservoirSubmissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(GeneralFluidPropertyController.class)
-                .saveGeneralFluidProperties(submissionDetailId, null, null, null)))
+                .saveGeneralFluidProperties(submissionDetailId, reservoirSubmissionDetail.getId(), null, null, null)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class)
+            .getReservoirTaskList(submissionDetailId, null))));
 
     verify(generalFluidPropertyPersistenceService, times(1))
-        .saveGeneralFluidProperty(any(GeneralFluidPropertyForm.class), eq(submissionDetail));
-    verify(generalFluidPropertyFormService, times(1))
-        .validate(any(), any(), eq(validationType), eq(submissionDetail));
+        .saveGeneralFluidProperty(any(GeneralFluidPropertyForm.class), eq(reservoirSubmissionDetail));
+    verify(generalFluidPropertyFormValidator, times(1))
+        .isValid(any(GeneralFluidPropertyForm.class), any(BindingResult.class), eq(reservoirSubmissionDetail), eq(validationType));
   }
 
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void saveGeneralFluidProperties_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(generalFluidPropertyFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(generalFluidPropertyFormValidator.isValid(any(GeneralFluidPropertyForm.class), any(BindingResult.class), eq(reservoirSubmissionDetail), eq(validationType)))
+        .thenReturn(false);
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
+        .thenReturn(reservoirSubmissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(GeneralFluidPropertyController.class)
-                .saveGeneralFluidProperties(submissionDetailId, null, null, null)))
+                .saveGeneralFluidProperties(submissionDetailId, reservoirSubmissionDetail.getId(), null, null, null)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(generalFluidPropertyFormService, times(1))
-        .validate(any(), any(), eq(validationType), eq(submissionDetail));
+    verify(generalFluidPropertyFormValidator, times(1))
+        .isValid(any(GeneralFluidPropertyForm.class), any(BindingResult.class), eq(reservoirSubmissionDetail), eq(validationType));
     verify(generalFluidPropertyPersistenceService, never())
         .saveGeneralFluidProperty(any(), any());
   }
@@ -153,30 +158,29 @@ class GeneralFluidPropertyControllerTest extends AbstractSubmissionControllerTes
   @Test
   void getGeneralFluidPropertiesModelAndView_assertModelProperties() throws Exception {
     var form = new GeneralFluidPropertyForm();
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
-        .thenReturn(submissionDetail);
-    when(generalFluidPropertyFormService.getGeneralFluidPropertyForm(submissionDetail))
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
+        .thenReturn(reservoirSubmissionDetail);
+    when(generalFluidPropertyFormService.getGeneralFluidPropertyForm(reservoirSubmissionDetail))
         .thenReturn(form);
 
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
                 get(ReverseRouter.route(on(GeneralFluidPropertyController.class)
-                    .getGeneralFluidProperties(submissionDetailId)))
+                    .getGeneralFluidProperties(submissionDetailId, reservoirSubmissionDetail.getId())))
                     .with(user(USER))).andReturn().getModelAndView())
         .getModelMap();
 
     assertThat(modelMap.get("form").getClass()).isEqualTo(GeneralFluidPropertyForm.class);
+
+    assertThat(modelMap.get("isCop")).isEqualTo(reservoirSubmissionDetail.getSubmissionDetail().isCessationOfProductionSubmission());
 
     @SuppressWarnings(value="unchecked")
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
-
-    assertThat(modelMap)
-        .containsEntry("form", form);
   }
 }

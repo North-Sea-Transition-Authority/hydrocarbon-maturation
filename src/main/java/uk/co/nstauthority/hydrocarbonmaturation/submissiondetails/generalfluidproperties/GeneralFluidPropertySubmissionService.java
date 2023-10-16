@@ -4,26 +4,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.SectionSubmissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirSectionSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-public class GeneralFluidPropertySubmissionService implements SectionSubmissionService {
+public class GeneralFluidPropertySubmissionService implements ReservoirSectionSubmissionService {
 
   private final GeneralFluidPropertyFormService generalFluidPropertyFormService;
+  private final GeneralFluidPropertyFormValidator generalFluidPropertyFormValidator;
 
   @Autowired
-  public GeneralFluidPropertySubmissionService(GeneralFluidPropertyFormService generalFluidPropertyFormService) {
+  public GeneralFluidPropertySubmissionService(GeneralFluidPropertyFormService generalFluidPropertyFormService,
+                                               GeneralFluidPropertyFormValidator generalFluidPropertyFormValidator) {
     this.generalFluidPropertyFormService = generalFluidPropertyFormService;
+    this.generalFluidPropertyFormValidator = generalFluidPropertyFormValidator;
   }
 
   @Override
-  public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
-    var form = generalFluidPropertyFormService.getGeneralFluidPropertyForm(submissionDetail);
+  public boolean isSectionSubmittable(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var form = generalFluidPropertyFormService.getGeneralFluidPropertyForm(reservoirSubmissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = generalFluidPropertyFormService.validate(
-        form, bindingResult, ValidationType.FULL, submissionDetail);
-    return !bindingResult.hasErrors();
+    return generalFluidPropertyFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL);
   }
 }

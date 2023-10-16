@@ -28,12 +28,30 @@
       suffix="°C"
       nestingPath="form.temperatureAtDatumDepth"/>
 
+    <#if isCop>
+      <@fdsTextInput.textInput
+      path="form.initialTemperature.decimalInputValue"
+      labelText="Initial temperature"
+      inputClass="govuk-input--width-5"
+      suffix="°C"
+      nestingPath="form.initialTemperature"/>
+    </#if>
+
     <@fdsTextInput.textInput
       path="form.pressureAtDatumDepth.decimalInputValue"
       labelText="Pressure at datum depth"
       suffix="psia"
       inputClass="govuk-input--width-5"
       nestingPath="form.pressureAtDatumDepth"/>
+
+    <#if isCop>
+      <@fdsTextInput.textInput
+        path="form.initialPressure.decimalInputValue"
+        labelText="Initial pressure"
+        suffix="psia"
+        inputClass="govuk-input--width-5"
+        nestingPath="form.initialPressure"/>
+    </#if>
 
     <@fdsTextInput.textInput
       path="form.saturationPressureAtDatumDepth.decimalInputValue"

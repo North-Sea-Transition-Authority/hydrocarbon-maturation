@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidprope
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.GAS_PROPERTIES_DISPLAY_ORDER;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.assertSummarySection;
 
 import java.math.BigDecimal;
@@ -149,7 +148,7 @@ class GasFluidPropertySummaryServiceTest {
     var summarySection = gasFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail);
 
     assertThat(summarySection).isPresent();
-    assertSummarySection(summarySection.get(), GAS_PROPERTIES_DISPLAY_ORDER);
+    assertSummarySection(summarySection.get(), GasFluidPropertySummaryService.GAS_PROPERTIES_DISPLAY_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(
         GasFluidPropertySummaryService.GAS_SPECIFIC_GRAVITY, ""
     );
@@ -192,7 +191,7 @@ class GasFluidPropertySummaryServiceTest {
     var summarySection = gasFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail);
 
     assertThat(summarySection).isPresent();
-    assertSummarySection(summarySection.get(), GAS_PROPERTIES_DISPLAY_ORDER);
+    assertSummarySection(summarySection.get(), GasFluidPropertySummaryService.GAS_PROPERTIES_DISPLAY_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(
         GasFluidPropertySummaryService.GAS_SPECIFIC_GRAVITY, "1"
     );

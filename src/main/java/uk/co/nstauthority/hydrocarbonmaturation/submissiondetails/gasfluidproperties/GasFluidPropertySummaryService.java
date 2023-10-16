@@ -33,6 +33,8 @@ public class GasFluidPropertySummaryService implements SummarySectionService<Res
   public static final String CONDENSATE_OTHER_INCL_WAX = "Condensate other incl wax appearance temperature";
   public static final String ADVISE_OTHER_GASES_CONCENTRATION = "Advise of any other gases and their concentrations";
 
+  public static final int GAS_PROPERTIES_DISPLAY_ORDER = 30;
+
   private final GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService;
   private final GeneralReservoirInformationService generalReservoirInformationService;
 

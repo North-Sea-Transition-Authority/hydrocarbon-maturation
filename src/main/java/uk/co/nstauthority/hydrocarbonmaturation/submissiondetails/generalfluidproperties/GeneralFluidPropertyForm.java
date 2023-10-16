@@ -9,7 +9,11 @@ class GeneralFluidPropertyForm implements SubmissionForm {
 
   private DecimalInput temperatureAtDatumDepth = new DecimalInput();
 
+  private DecimalInput initialTemperature = new DecimalInput();
+
   private DecimalInput pressureAtDatumDepth = new DecimalInput();
+
+  private DecimalInput initialPressure = new DecimalInput();
 
   private DecimalInput saturationPressureAtDatumDepth = new DecimalInput();
 
@@ -32,12 +36,28 @@ class GeneralFluidPropertyForm implements SubmissionForm {
     this.temperatureAtDatumDepth = temperatureAtDatumDepth;
   }
 
+  public DecimalInput getInitialTemperature() {
+    return initialTemperature;
+  }
+
+  public void setInitialTemperature(DecimalInput initialTemperature) {
+    this.initialTemperature = initialTemperature;
+  }
+
   public DecimalInput getPressureAtDatumDepth() {
     return pressureAtDatumDepth;
   }
 
   public void setPressureAtDatumDepth(DecimalInput pressureAtDatumDepth) {
     this.pressureAtDatumDepth = pressureAtDatumDepth;
+  }
+
+  public DecimalInput getInitialPressure() {
+    return initialPressure;
+  }
+
+  public void setInitialPressure(DecimalInput initialPressure) {
+    this.initialPressure = initialPressure;
   }
 
   public DecimalInput getSaturationPressureAtDatumDepth() {

@@ -3,37 +3,21 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidp
 import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class GeneralFluidPropertyFormService implements SubmissionFormService {
+class GeneralFluidPropertyFormService {
 
   private final GeneralFluidPropertyPersistenceService generalFluidPropertyPersistenceService;
-  private final GeneralFluidPropertyFormValidator generalFluidPropertyFormValidator;
 
   @Autowired
-  GeneralFluidPropertyFormService(GeneralFluidPropertyPersistenceService generalFluidPropertyPersistenceService,
-                                  GeneralFluidPropertyFormValidator generalFluidPropertyFormValidator) {
+  GeneralFluidPropertyFormService(GeneralFluidPropertyPersistenceService generalFluidPropertyPersistenceService) {
     this.generalFluidPropertyPersistenceService = generalFluidPropertyPersistenceService;
-    this.generalFluidPropertyFormValidator = generalFluidPropertyFormValidator;
   }
 
-  @Override
-  public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
-                                ValidationType validationType, SubmissionDetail submissionDetail) {
-    generalFluidPropertyFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
-    return bindingResult;
-  }
-
-  GeneralFluidPropertyForm getGeneralFluidPropertyForm(SubmissionDetail submissionDetail) {
-    return generalFluidPropertyPersistenceService.getGeneralFluidProperty(submissionDetail)
+  GeneralFluidPropertyForm getGeneralFluidPropertyForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return generalFluidPropertyPersistenceService.getGeneralFluidProperty(reservoirSubmissionDetail)
         .map(this::generalFluidPropertyEntityToForm)
         .orElse(new GeneralFluidPropertyForm());
   }
@@ -48,6 +32,11 @@ class GeneralFluidPropertyFormService implements SubmissionFormService {
           BigDecimal.valueOf(generalFluidProperty.getPressureAtDatumDepth())));
     }
 
+    if (generalFluidProperty.getInitialPressure() != null) {
+      form.setInitialPressure(DecimalInput.createDecimalInput(
+          BigDecimal.valueOf(generalFluidProperty.getInitialPressure())));
+    }
+
     if (generalFluidProperty.getSaturationPressureAtDatumDepth() != null) {
       form.setSaturationPressureAtDatumDepth(DecimalInput.createDecimalInput(
           BigDecimal.valueOf(generalFluidProperty.getSaturationPressureAtDatumDepth())));
@@ -56,6 +45,11 @@ class GeneralFluidPropertyFormService implements SubmissionFormService {
     if (generalFluidProperty.getTemperatureAtDatumDepth() != null) {
       form.setTemperatureAtDatumDepth(DecimalInput.createDecimalInput(
           BigDecimal.valueOf(generalFluidProperty.getTemperatureAtDatumDepth())));
+    }
+
+    if (generalFluidProperty.getInitialTemperature() != null) {
+      form.setInitialTemperature(DecimalInput.createDecimalInput(
+          BigDecimal.valueOf(generalFluidProperty.getInitialTemperature())));
     }
 
     if (generalFluidProperty.getWaterSalinity() != null) {

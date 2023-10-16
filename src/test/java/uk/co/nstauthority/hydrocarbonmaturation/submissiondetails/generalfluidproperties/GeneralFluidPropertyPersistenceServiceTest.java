@@ -13,8 +13,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralFluidPropertyPersistenceServiceTest {
@@ -25,11 +25,11 @@ class GeneralFluidPropertyPersistenceServiceTest {
   @InjectMocks
   private GeneralFluidPropertyPersistenceService generalFluidPropertyPersistenceService;
 
-  private SubmissionDetail submissionDetail;
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @BeforeEach
   void setUp() {
-    submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
   }
 
   @Test
@@ -38,24 +38,28 @@ class GeneralFluidPropertyPersistenceServiceTest {
 
     var generalFluidPropertyArgumentCaptor = ArgumentCaptor.forClass(GeneralFluidProperty.class);
 
-    generalFluidPropertyPersistenceService.saveGeneralFluidProperty(form, submissionDetail);
+    generalFluidPropertyPersistenceService.saveGeneralFluidProperty(form, reservoirSubmissionDetail);
 
     verify(generalFluidPropertyRepository, times(1)).save(generalFluidPropertyArgumentCaptor.capture());
     var savedGeneralFluidProperty = (GeneralFluidProperty) generalFluidPropertyArgumentCaptor.getValue();
 
     assertThat(savedGeneralFluidProperty)
-        .extracting(
-            GeneralFluidProperty::getDatumDepth,
-            GeneralFluidProperty::getPressureAtDatumDepth,
-            GeneralFluidProperty::getSaturationPressureAtDatumDepth,
-            GeneralFluidProperty::getWaterSalinity,
-            GeneralFluidProperty::getTemperatureAtDatumDepth)
-        .containsExactly(
-            form.getDatumDepth().createBigDecimalOrNull(),
-            form.getPressureAtDatumDepth().createIntegerOrNull(),
-            form.getSaturationPressureAtDatumDepth().createIntegerOrNull(),
-            form.getWaterSalinity().createIntegerOrNull(),
-            form.getTemperatureAtDatumDepth().createIntegerOrNull()
+            .extracting(
+                GeneralFluidProperty::getDatumDepth,
+                GeneralFluidProperty::getPressureAtDatumDepth,
+                GeneralFluidProperty::getSaturationPressureAtDatumDepth,
+                GeneralFluidProperty::getWaterSalinity,
+                GeneralFluidProperty::getTemperatureAtDatumDepth,
+                GeneralFluidProperty::getInitialPressure,
+                GeneralFluidProperty::getInitialTemperature)
+            .containsExactly(
+                form.getDatumDepth().createBigDecimalOrNull(),
+                form.getPressureAtDatumDepth().createIntegerOrNull(),
+                form.getSaturationPressureAtDatumDepth().createIntegerOrNull(),
+                form.getWaterSalinity().createIntegerOrNull(),
+                form.getTemperatureAtDatumDepth().createIntegerOrNull(),
+                form.getInitialPressure().createIntegerOrNull(),
+                form.getInitialTemperature().createIntegerOrNull()
         );
   }
 
@@ -65,7 +69,7 @@ class GeneralFluidPropertyPersistenceServiceTest {
 
     var generalFluidPropertyArgumentCaptor = ArgumentCaptor.forClass(GeneralFluidProperty.class);
 
-    generalFluidPropertyPersistenceService.saveGeneralFluidProperty(form, submissionDetail);
+    generalFluidPropertyPersistenceService.saveGeneralFluidProperty(form, reservoirSubmissionDetail);
 
     verify(generalFluidPropertyRepository, times(1)).save(generalFluidPropertyArgumentCaptor.capture());
     var savedGeneralFluidProperty = (GeneralFluidProperty) generalFluidPropertyArgumentCaptor.getValue();
@@ -76,13 +80,17 @@ class GeneralFluidPropertyPersistenceServiceTest {
             GeneralFluidProperty::getPressureAtDatumDepth,
             GeneralFluidProperty::getSaturationPressureAtDatumDepth,
             GeneralFluidProperty::getWaterSalinity,
-            GeneralFluidProperty::getTemperatureAtDatumDepth)
+            GeneralFluidProperty::getTemperatureAtDatumDepth,
+            GeneralFluidProperty::getInitialPressure,
+            GeneralFluidProperty::getInitialTemperature)
         .containsExactly(
             form.getDatumDepth().createBigDecimalOrNull(),
             form.getPressureAtDatumDepth().createIntegerOrNull(),
             form.getSaturationPressureAtDatumDepth().createIntegerOrNull(),
             form.getWaterSalinity().createIntegerOrNull(),
-            form.getTemperatureAtDatumDepth().createIntegerOrNull()
+            form.getTemperatureAtDatumDepth().createIntegerOrNull(),
+            form.getInitialPressure().createIntegerOrNull(),
+            form.getInitialTemperature().createIntegerOrNull()
         );
   }
 
@@ -93,6 +101,8 @@ class GeneralFluidPropertyPersistenceServiceTest {
     form.setTemperatureAtDatumDepth(DecimalInput.createDecimalInput(BigDecimal.ONE));
     form.setWaterSalinity(DecimalInput.createDecimalInput(BigDecimal.ONE));
     form.setSaturationPressureAtDatumDepth(DecimalInput.createDecimalInput(BigDecimal.ONE));
+    form.setInitialPressure(DecimalInput.createDecimalInput(BigDecimal.ONE));
+    form.setInitialTemperature(DecimalInput.createDecimalInput(BigDecimal.ONE));
     return form;
   }
 }

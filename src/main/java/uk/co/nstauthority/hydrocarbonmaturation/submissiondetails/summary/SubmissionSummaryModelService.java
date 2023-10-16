@@ -138,8 +138,6 @@ public class SubmissionSummaryModelService {
                                                                    String viewName) {
     var modelAndView = new ModelAndView(viewName);
     modelAndView
-        .addObject("generalFluidPropertiesSummaryView",
-            discoverySummaryService.getGeneralFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("generalDetailsSummaryView",
             discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("opportunityDetailsSummaryView",

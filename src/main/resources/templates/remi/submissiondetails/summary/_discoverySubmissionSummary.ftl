@@ -26,7 +26,6 @@
 <#macro discoverySubmissionSummary
   generalDetailsSummaryView
   permeabilitySummaryView
-  generalFluidPropertiesSummaryView
   reservoirPropertiesSummaryView
   oilCaseVolumetricsSummaryView
   oilCaseOutputsSummaryView

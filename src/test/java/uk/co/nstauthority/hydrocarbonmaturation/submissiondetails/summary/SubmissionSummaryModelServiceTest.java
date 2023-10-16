@@ -29,12 +29,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailSummaryView;
@@ -91,8 +89,6 @@ class SubmissionSummaryModelServiceTest {
   private PermeabilityDetailSummaryView permeabilityDetailSummaryView;
   private DryWellDetailsSummaryView dryWellDetailsSummaryView;
   private GasFluidPropertySummaryView gasFluidPropertySummaryView;
-  private OilFluidPropertySummaryView oilFluidPropertySummaryView;
-  private GeneralFluidPropertySummaryView generalFluidPropertySummaryView;
   private ResourceDetailSummaryView resourceDetailSummaryView;
   private List<SummarySection> summarySections;
   private List<ReservoirSummary> reservoirSummaries;
@@ -139,8 +135,6 @@ class SubmissionSummaryModelServiceTest {
         new ArrayList<>());
 
     gasFluidPropertySummaryView =  GasFluidPropertySummaryView.empty();
-    oilFluidPropertySummaryView =  OilFluidPropertySummaryView.empty();
-    generalFluidPropertySummaryView = GeneralFluidPropertySummaryView.empty();
     resourceDetailSummaryView = new ResourceDetailSummaryView(
         "", "", false, "", "Offshore", "resourceType");
     summarySections = Collections.emptyList();
@@ -295,8 +289,6 @@ class SubmissionSummaryModelServiceTest {
   void createDiscoverySubmissionSummaryModelAndView() {
     var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
 
-    when(discoverySummaryService.getGeneralFluidPropertySummaryViewFromSubmissionDetail(submissionDetail))
-        .thenReturn(generalFluidPropertySummaryView);
     when(discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalDetailSummaryView);
     when(discoverySummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
@@ -320,7 +312,6 @@ class SubmissionSummaryModelServiceTest {
 
     assertThat(modelAndView.getModelMap())
         .containsExactly(
-            entry("generalFluidPropertiesSummaryView", generalFluidPropertySummaryView),
             entry("generalDetailsSummaryView", generalDetailSummaryView),
             entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView),
             entry("outlineForMaximumCaseSummaryView", outlineForMaximumCaseSummaryView),
