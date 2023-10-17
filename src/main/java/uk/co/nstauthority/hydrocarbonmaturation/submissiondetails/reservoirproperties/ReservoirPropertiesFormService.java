@@ -106,7 +106,7 @@ class ReservoirPropertiesFormService {
       ));
 
       if (generalReservoirInformationService.isOilOnly(hydrocarbonType)
-          || generalReservoirInformationService.isMixed(hydrocarbonType)) {
+          || generalReservoirInformationService.isCombinedOilAndGas(hydrocarbonType)) {
         form.setDepthToOilWaterContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
             reservoirSubmissionDetail,
             ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY
@@ -117,13 +117,13 @@ class ReservoirPropertiesFormService {
         ));
       }
       if (generalReservoirInformationService.isGasOnly(hydrocarbonType)
-          || generalReservoirInformationService.isMixed(hydrocarbonType)) {
+          || generalReservoirInformationService.isCombinedOilAndGas(hydrocarbonType)) {
         form.setDepthToGasWaterContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
             reservoirSubmissionDetail,
             ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY
         ));
       }
-      if (generalReservoirInformationService.isMixed(hydrocarbonType)) {
+      if (generalReservoirInformationService.isCombinedOilAndGas(hydrocarbonType)) {
         form.setDepthToGasOilContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
             reservoirSubmissionDetail,
             ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY
@@ -145,7 +145,7 @@ class ReservoirPropertiesFormService {
 
       if (submissionDetail.isCessationOfProductionSubmission()) {
         if (generalReservoirInformationService.isOilOnly(hydrocarbonType)
-            || generalReservoirInformationService.isMixed(hydrocarbonType)) {
+            || generalReservoirInformationService.isCombinedOilAndGas(hydrocarbonType)) {
           form.setOriginalDepthToOilWaterContact(
               probabilityDistributionFormService.probabilityDistributionEntityToForm(
                   reservoirSubmissionDetail,
@@ -157,7 +157,7 @@ class ReservoirPropertiesFormService {
           ));
         }
         if (generalReservoirInformationService.isGasOnly(hydrocarbonType)
-            || generalReservoirInformationService.isMixed(hydrocarbonType)) {
+            || generalReservoirInformationService.isCombinedOilAndGas(hydrocarbonType)) {
           form.setOriginalDepthToGasWaterContact(
               probabilityDistributionFormService.probabilityDistributionEntityToForm(
                   reservoirSubmissionDetail,
@@ -168,7 +168,7 @@ class ReservoirPropertiesFormService {
               ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_GAS_WATER_CONTACT_FIELD
           ));
         }
-        if (generalReservoirInformationService.isMixed(hydrocarbonType)) {
+        if (generalReservoirInformationService.isCombinedOilAndGas(hydrocarbonType)) {
           form.setOriginalDepthToGasOilContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
               reservoirSubmissionDetail,
               ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_GAS_OIL_CONTACT_FIELD
@@ -180,20 +180,20 @@ class ReservoirPropertiesFormService {
         }
       } else {
         if (generalReservoirInformationService.isOilOnly(hydrocarbonType)
-            || generalReservoirInformationService.isMixed(hydrocarbonType)) {
+            || generalReservoirInformationService.isCombinedOilAndGas(hydrocarbonType)) {
           form.setDepthToOilWaterContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
               reservoirSubmissionDetail,
               ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_FIELD
           ));
         }
         if (generalReservoirInformationService.isGasOnly(hydrocarbonType)
-            || generalReservoirInformationService.isMixed(hydrocarbonType)) {
+            || generalReservoirInformationService.isCombinedOilAndGas(hydrocarbonType)) {
           form.setDepthToGasWaterContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
               reservoirSubmissionDetail,
               ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_FIELD
           ));
         }
-        if (generalReservoirInformationService.isMixed(hydrocarbonType)) {
+        if (generalReservoirInformationService.isCombinedOilAndGas(hydrocarbonType)) {
           form.setDepthToGasOilContact(probabilityDistributionFormService.probabilityDistributionEntityToForm(
               reservoirSubmissionDetail,
               ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_FIELD

@@ -1,8 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverymixedcaseoutputs;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
-import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -36,16 +36,14 @@ public class DiscoveryMixedCaseOutputsFormValidator implements SubmissionValidat
         ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY
     );
 
-    if (hasAssociatedGasRecoverableResources(mixedCaseOutputsForm)) {
-      var associatedGasRecoverableResources = mixedCaseOutputsForm.getAssociatedGasRecoverableResources();
-      ProbabilityDistributionValidationUtil.validateCustomPartial(
-          associatedGasRecoverableResources,
-          errors,
-          "associatedGasRecoverableResources",
-          "Associated gas recoverable resources",
-          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
-      );
-    }
+    var associatedGasRecoverableResources = mixedCaseOutputsForm.getAssociatedGasRecoverableResources();
+    ProbabilityDistributionValidationUtil.validateCustomPartial(
+        associatedGasRecoverableResources,
+        errors,
+        "associatedGasRecoverableResources",
+        "Associated gas recoverable resources",
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
+    );
 
     var gasInPlace = mixedCaseOutputsForm.getGasInPlace();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
@@ -71,7 +69,7 @@ public class DiscoveryMixedCaseOutputsFormValidator implements SubmissionValidat
         errors,
         "associatedCondensateRecoverableResources",
         "Associated condensate recoverable resources",
-        ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
+        ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
     );
 
     var oilEquivalentRecoverableResources = mixedCaseOutputsForm.getOilEquivalentRecoverableResources();
@@ -106,23 +104,14 @@ public class DiscoveryMixedCaseOutputsFormValidator implements SubmissionValidat
         ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY
     );
 
-    ValidationUtils.rejectIfEmptyOrWhitespace(
+    var associatedGasRecoverableResources = mixedCaseOutputsForm.getAssociatedGasRecoverableResources();
+    ProbabilityDistributionValidationUtil.validateCustomFull(
+        associatedGasRecoverableResources,
         errors,
-        "hasAssociatedGasRecoverableResources",
-        "hasAssociatedGasRecoverableResources.required",
-        "Select whether you expect to find associated gas recoverable resources"
+        "associatedGasRecoverableResources",
+        "Associated gas recoverable resources",
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
     );
-
-    if (hasAssociatedGasRecoverableResources(mixedCaseOutputsForm)) {
-      var associatedGasRecoverableResources = mixedCaseOutputsForm.getAssociatedGasRecoverableResources();
-      ProbabilityDistributionValidationUtil.validateCustomFull(
-          associatedGasRecoverableResources,
-          errors,
-          "associatedGasRecoverableResources",
-          "Associated gas recoverable resources",
-          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
-      );
-    }
 
     var gasInPlace = mixedCaseOutputsForm.getGasInPlace();
     ProbabilityDistributionValidationUtil.validateCustomFull(
@@ -148,7 +137,7 @@ public class DiscoveryMixedCaseOutputsFormValidator implements SubmissionValidat
         errors,
         "associatedCondensateRecoverableResources",
         "Associated condensate recoverable resources",
-        ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
+        ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
     );
 
     var oilEquivalentRecoverableResources = mixedCaseOutputsForm.getOilEquivalentRecoverableResources();
@@ -167,7 +156,6 @@ public class DiscoveryMixedCaseOutputsFormValidator implements SubmissionValidat
   }
 
   private boolean hasAssociatedGasRecoverableResources(MixedCaseOutputsForm form) {
-    return form.getHasAssociatedGasRecoverableResources() != null
-        && form.getHasAssociatedGasRecoverableResources();
+    return BooleanUtils.isTrue(form.getHasAssociatedGasRecoverableResources());
   }
 }

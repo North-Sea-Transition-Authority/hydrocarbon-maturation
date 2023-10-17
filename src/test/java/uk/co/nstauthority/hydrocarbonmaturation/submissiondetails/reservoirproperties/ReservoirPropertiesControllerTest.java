@@ -641,7 +641,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .thenReturn(false);
     when(generalReservoirInformationService.isOilOnly(hydrocarbons))
         .thenReturn(false);
-    when(generalReservoirInformationService.isMixed(hydrocarbons))
+    when(generalReservoirInformationService.isCombinedOilAndGas(hydrocarbons))
         .thenReturn(true);
 
     var modelMap = Objects.requireNonNull(
@@ -740,7 +740,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .thenReturn(false);
     when(generalReservoirInformationService.isOilOnly(hydrocarbons))
         .thenReturn(true);
-    when(generalReservoirInformationService.isMixed(hydrocarbons))
+    when(generalReservoirInformationService.isCombinedOilAndGas(hydrocarbons))
         .thenReturn(false);
 
     var modelMap = Objects.requireNonNull(
@@ -828,7 +828,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .thenReturn(true);
     when(generalReservoirInformationService.isOilOnly(hydrocarbons))
         .thenReturn(false);
-    when(generalReservoirInformationService.isMixed(hydrocarbons))
+    when(generalReservoirInformationService.isCombinedOilAndGas(hydrocarbons))
         .thenReturn(false);
 
     var modelMap = Objects.requireNonNull(
@@ -918,7 +918,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .thenReturn(true);
     when(generalReservoirInformationService.isOilOnly(hydrocarbons))
         .thenReturn(false);
-    when(generalReservoirInformationService.isMixed(hydrocarbons))
+    when(generalReservoirInformationService.isCombinedOilAndGas(hydrocarbons))
         .thenReturn(false);
 
     var modelMap = Objects.requireNonNull(
@@ -1013,7 +1013,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .thenReturn(false);
     when(generalReservoirInformationService.isOilOnly(hydrocarbons))
         .thenReturn(false);
-    when(generalReservoirInformationService.isMixed(hydrocarbons))
+    when(generalReservoirInformationService.isCombinedOilAndGas(hydrocarbons))
         .thenReturn(true);
 
     var modelMap = Objects.requireNonNull(
@@ -1109,7 +1109,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .thenReturn(false);
     when(generalReservoirInformationService.isOilOnly(hydrocarbons))
         .thenReturn(false);
-    when(generalReservoirInformationService.isMixed(hydrocarbons))
+    when(generalReservoirInformationService.isCombinedOilAndGas(hydrocarbons))
         .thenReturn(true);
 
     var modelMap = Objects.requireNonNull(
@@ -1217,7 +1217,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .thenReturn(false);
     when(generalReservoirInformationService.isOilOnly(hydrocarbons))
         .thenReturn(true);
-    when(generalReservoirInformationService.isMixed(hydrocarbons))
+    when(generalReservoirInformationService.isCombinedOilAndGas(hydrocarbons))
         .thenReturn(false);
 
     var modelMap = Objects.requireNonNull(
@@ -1307,7 +1307,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .thenReturn(false);
     when(generalReservoirInformationService.isOilOnly(hydrocarbons))
         .thenReturn(true);
-    when(generalReservoirInformationService.isMixed(hydrocarbons))
+    when(generalReservoirInformationService.isCombinedOilAndGas(hydrocarbons))
         .thenReturn(false);
 
     var modelMap = Objects.requireNonNull(

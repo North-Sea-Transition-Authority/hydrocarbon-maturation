@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetrics;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetricparameters;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,14 +13,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.Rese
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class FieldGasVolumetricsDuplicationService implements ReservoirSectionDuplicationService {
+class FieldGasVolumetricParametersDuplicationService implements ReservoirSectionDuplicationService {
 
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @Autowired
-  FieldGasVolumetricsDuplicationService(ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
-                                        ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
+  FieldGasVolumetricParametersDuplicationService(
+      ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
+      ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.reservoirDuplicationPersistenceService = reservoirDuplicationPersistenceService;
   }

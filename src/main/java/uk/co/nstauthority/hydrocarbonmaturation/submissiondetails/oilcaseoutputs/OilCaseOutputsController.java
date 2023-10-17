@@ -101,6 +101,8 @@ public class OilCaseOutputsController {
                                                      ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/oilCaseOutputs")
         .addObject("form", form)
+        .addObject("resourceType",
+            reservoirSubmissionDetail.getSubmissionDetail().getSubmission().getResource().getType().toString())
         .addObject("oilInPlaceError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("associatedGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())

@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetrics;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetricparameters;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -32,30 +32,31 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/" +
-    "reservoir-submission-details/{reservoirSubmissionDetailId}/field-gas-case-volumetrics")
+    "reservoir-submission-details/{reservoirSubmissionDetailId}/field-gas-case-volumetric-parameters")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
 @HasSubmissionType(submissionTypes = SecuritySubmissionTypes.FIELD_SUBMISSIONS)
 @IsFromResponsibleTeam
-public class FieldGasVolumetricsController {
+public class FieldGasVolumetricParametersController {
 
   private final SubmissionDetailService submissionDetailService;
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
   private final GasCaseVolumetricParametersFormValidator gasCaseVolumetricParametersFormValidator;
-  private final FieldGasVolumetricsService fieldGasVolumetricsService;
+  private final FieldGasVolumetricParametersService fieldGasVolumetricParametersService;
 
   public static final String PAGE_NAME = "Gas volumetric parameters";
 
-  public FieldGasVolumetricsController(SubmissionDetailService submissionDetailService,
-                                       ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
-                                       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
-                                       GasCaseVolumetricParametersFormValidator gasCaseVolumetricParametersFormValidator,
-                                       FieldGasVolumetricsService fieldGasVolumetricsService) {
+  public FieldGasVolumetricParametersController(
+      SubmissionDetailService submissionDetailService,
+      ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
+      ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
+      GasCaseVolumetricParametersFormValidator gasCaseVolumetricParametersFormValidator,
+      FieldGasVolumetricParametersService fieldGasVolumetricParametersService) {
     this.submissionDetailService = submissionDetailService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.gasCaseVolumetricParametersFormValidator = gasCaseVolumetricParametersFormValidator;
-    this.fieldGasVolumetricsService = fieldGasVolumetricsService;
+    this.fieldGasVolumetricParametersService = fieldGasVolumetricParametersService;
   }
 
   @GetMapping
@@ -64,7 +65,7 @@ public class FieldGasVolumetricsController {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     return getGasVolumetricsModelAndView(
-        fieldGasVolumetricsService.getGasVolumetricsForm(reservoirSubmissionDetail), reservoirSubmissionDetail);
+        fieldGasVolumetricParametersService.getGasVolumetricsForm(reservoirSubmissionDetail), reservoirSubmissionDetail);
   }
 
   @PostMapping
@@ -80,7 +81,7 @@ public class FieldGasVolumetricsController {
     if (!gasCaseVolumetricParametersFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
       return getGasVolumetricsModelAndViewWithErrors(bindingResult, form, reservoirSubmissionDetail);
     } else {
-      fieldGasVolumetricsService.saveGasVolumetrics(form, reservoirSubmissionDetail);
+      fieldGasVolumetricParametersService.saveGasVolumetrics(form, reservoirSubmissionDetail);
       return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, user));
     }
   }

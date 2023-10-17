@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs;
 
 import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,16 +72,15 @@ public class OilCaseOutputsPersistenceService {
       associatedGasRecoverableResources =
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY;
     }
-    if (oilCaseOutputsForm.getHasAssociatedGasRecoverableResources() != null
-        && oilCaseOutputsForm.getHasAssociatedGasRecoverableResources()) {
+    if (BooleanUtils.isTrue(oilCaseOutputsForm.getHasAssociatedGasRecoverableResources())
+        || resourceType == ResourceType.DISCOVERY) {
       probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           associatedGasRecoverableResources,
           oilCaseOutputsForm.getAssociatedGasRecoverableResources(),
           submissionDetail,
           reservoirSubmissionDetail
       );
-    } else if (oilCaseOutputsForm.getHasAssociatedGasRecoverableResources() != null
-        && !oilCaseOutputsForm.getHasAssociatedGasRecoverableResources()) {
+    } else if (BooleanUtils.isFalse(oilCaseOutputsForm.getHasAssociatedGasRecoverableResources())) {
       probabilityDistributionPersistenceService.deleteProbabilityDistribution(
             associatedGasRecoverableResources,
             reservoirSubmissionDetail

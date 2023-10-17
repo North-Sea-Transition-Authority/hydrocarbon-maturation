@@ -194,11 +194,11 @@ public class GeneralReservoirInformationService {
         hydrocarbons -> hydrocarbons.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.OIL_ONLY).isPresent();
   }
 
-  public boolean isMixed(ReservoirHydrocarbons reservoirHydrocarbons) {
+  public boolean isCombinedOilAndGas(ReservoirHydrocarbons reservoirHydrocarbons) {
     return reservoirHydrocarbons.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS;
   }
 
-  public boolean isMixed(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+  public boolean isCombinedOilAndGas(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var reservoirHydrocarbons = getReservoirHydrocarbons(reservoirSubmissionDetail);
     return reservoirHydrocarbons.filter(
         hydrocarbons -> hydrocarbons.getHydrocarbonsDiscovered() == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS).isPresent();
@@ -238,7 +238,7 @@ public class GeneralReservoirInformationService {
               ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR_FIELD,
               ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY,
               ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
-              ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
+              ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
           ),
           reservoirSubmissionDetail
       );

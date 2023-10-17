@@ -14,7 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverymixed
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSubmissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetrics.FieldGasVolumetricsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetricparameters.FieldGasVolumetricParametersController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldoilvolumetricparameters.FieldOilVolumetricParametersController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSubmissionService;
@@ -226,7 +226,7 @@ public class ReservoirTaskListService {
             new TaskListItem("Gas volumetric parameters",
                 TaskListLabel.notStartedOrComplete(
                     gasCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-                ReverseRouter.route(on(FieldGasVolumetricsController.class).getGasVolumetrics(
+                ReverseRouter.route(on(FieldGasVolumetricParametersController.class).getGasVolumetrics(
                     submissionDetail.getId(),
                     reservoirSubmissionDetail.getId())))
         );

@@ -255,10 +255,8 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
             entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
             entry("reservoirSummaries", reservoirSummaries),
             entry("resourceDetailSummaryView", resourceDetailSummaryView),
-            entry("gasOnlyDiscovery", false),
-            entry("oilOnlyDiscovery", false),
-            entry("mixedDiscovery", false),
-            entry("accordionId", submissionDetailId)
+            entry("accordionId", submissionDetailId),
+            entry("totalsRequired", false)
         );
   }
 
@@ -284,9 +282,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
         .addObject("trapPropertiesSummaryView", trapPropertiesSummaryView)
         .addObject("reservoirSummaries", reservoirSummaries)
         .addObject("resourceDetailSummaryView", resourceDetailSummaryView)
-        .addObject("gasOnlyDiscovery", false)
-        .addObject("oilOnlyDiscovery", false)
-        .addObject("mixedDiscovery", false)
+        .addObject("totalsRequired", false)
         .addObject("submittable", true)
         .addObject("isSubmissionUpdate", false)
         .addObject("accordionId", submissionDetail.getId())

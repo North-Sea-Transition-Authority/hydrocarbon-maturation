@@ -29,7 +29,7 @@ public class DiscoveryOutputsBehaviour extends BaseBehaviour implements Probabil
 
   @Override
   public boolean isMeanRequired() {
-    return false;
+    return true;
   }
 
   @Override

@@ -15,7 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetrics.FieldGasVolumetricsService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetricparameters.FieldGasVolumetricParametersService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -29,7 +29,7 @@ class GasCaseVolumetricParametersSubmissionServiceTest {
   private GasCaseVolumetricParametersFormValidator gasCaseVolumetricParametersFormValidator;
 
   @Mock
-  private FieldGasVolumetricsService fieldGasVolumetricsService;
+  private FieldGasVolumetricParametersService fieldGasVolumetricParametersService;
 
   @InjectMocks
   private GasCaseVolumetricParametersSubmissionService gasCaseVolumetricParametersSubmissionService;
@@ -70,7 +70,7 @@ class GasCaseVolumetricParametersSubmissionServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new GasCaseVolumetricParametersForm();
 
-    when(fieldGasVolumetricsService.getGasVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
+    when(fieldGasVolumetricParametersService.getGasVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
     when(gasCaseVolumetricParametersFormValidator.isValid(
         eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
         .thenReturn(true);
@@ -84,7 +84,7 @@ class GasCaseVolumetricParametersSubmissionServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new GasCaseVolumetricParametersForm();
 
-    when(fieldGasVolumetricsService.getGasVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
+    when(fieldGasVolumetricParametersService.getGasVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
     when(gasCaseVolumetricParametersFormValidator.isValid(
         eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
         .thenReturn(false);

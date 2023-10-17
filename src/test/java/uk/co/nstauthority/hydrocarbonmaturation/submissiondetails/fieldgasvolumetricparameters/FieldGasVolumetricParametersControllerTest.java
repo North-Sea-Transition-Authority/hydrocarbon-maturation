@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetrics;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetricparameters;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,11 +51,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
-@ContextConfiguration(classes = FieldGasVolumetricsController.class)
-class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest {
+@ContextConfiguration(classes = FieldGasVolumetricParametersController.class)
+class FieldGasVolumetricParametersControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
-  private FieldGasVolumetricsService fieldGasVolumetricsService;
+  private FieldGasVolumetricParametersService fieldGasVolumetricParametersService;
 
   @MockBean
   private GasCaseVolumetricParametersFormValidator gasCaseVolumetricParametersFormValidator;
@@ -91,11 +91,11 @@ class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest
   @SecurityTest
   void getGasVolumetrics_assertOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(fieldGasVolumetricsService.getGasVolumetricsForm(reservoirSubmissionDetail)).thenReturn(new GasCaseVolumetricParametersForm());
+    when(fieldGasVolumetricParametersService.getGasVolumetricsForm(reservoirSubmissionDetail)).thenReturn(new GasCaseVolumetricParametersForm());
     setUpWhenUserIsResponsibleTeam_forField_passSecurity(USER, submissionDetail);
 
     mockMvc.perform(
-        get(ReverseRouter.route(on(FieldGasVolumetricsController.class)
+        get(ReverseRouter.route(on(FieldGasVolumetricParametersController.class)
             .getGasVolumetrics(submissionDetailId, reservoirSubmissionDetailId)))
             .with(user(USER)))
         .andExpect(status().isOk())
@@ -106,7 +106,7 @@ class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest
   void getGasVolumetrics_andStatusIsNotDraft_assertForbidden() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
     mockMvc.perform(
-            get(ReverseRouter.route(on(FieldGasVolumetricsController.class)
+            get(ReverseRouter.route(on(FieldGasVolumetricParametersController.class)
                 .getGasVolumetrics(submissionDetailId, reservoirSubmissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
@@ -116,7 +116,7 @@ class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest
   void getGasCaseVolumetrics_andTypeIsNotField_assertForbidden() throws Exception {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     mockMvc.perform(
-            get(ReverseRouter.route(on(FieldGasVolumetricsController.class)
+            get(ReverseRouter.route(on(FieldGasVolumetricParametersController.class)
                 .getGasVolumetrics(submissionDetailId, reservoirSubmissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
@@ -126,7 +126,7 @@ class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest
   void getGasVolumetrics_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
-            get(ReverseRouter.route(on(FieldGasVolumetricsController.class)
+            get(ReverseRouter.route(on(FieldGasVolumetricParametersController.class)
                 .getGasVolumetrics(submissionDetailId, reservoirSubmissionDetailId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
@@ -136,7 +136,7 @@ class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest
   void saveGasVolumetrics_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
-            post(ReverseRouter.route(on(FieldGasVolumetricsController.class).saveGasVolumetrics(
+            post(ReverseRouter.route(on(FieldGasVolumetricParametersController.class).saveGasVolumetrics(
                 submissionDetailId, reservoirSubmissionDetailId, null, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
@@ -150,7 +150,7 @@ class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(FieldGasVolumetricsController.class)
+        post(ReverseRouter.route(on(FieldGasVolumetricParametersController.class)
             .saveGasVolumetrics(submissionDetailId, reservoirSubmissionDetailId, null, null, null, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
@@ -158,7 +158,7 @@ class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null))));
 
-    verify(fieldGasVolumetricsService, times(1)).saveGasVolumetrics(any(GasCaseVolumetricParametersForm.class), eq(reservoirSubmissionDetail));
+    verify(fieldGasVolumetricParametersService, times(1)).saveGasVolumetrics(any(GasCaseVolumetricParametersForm.class), eq(reservoirSubmissionDetail));
   }
 
   @ParameterizedTest(name = "controller validation - {0}")
@@ -168,14 +168,14 @@ class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest
     when(gasCaseVolumetricParametersFormValidator.isValid(any(SubmissionForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(false);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(FieldGasVolumetricsController.class)
+        post(ReverseRouter.route(on(FieldGasVolumetricParametersController.class)
             .saveGasVolumetrics(submissionDetailId, reservoirSubmissionDetailId, null, null, null, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(fieldGasVolumetricsService, never()).saveGasVolumetrics(any(GasCaseVolumetricParametersForm.class), any(ReservoirSubmissionDetail.class));
+    verify(fieldGasVolumetricParametersService, never()).saveGasVolumetrics(any(GasCaseVolumetricParametersForm.class), any(ReservoirSubmissionDetail.class));
   }
 
   @Test
@@ -184,10 +184,10 @@ class FieldGasVolumetricsControllerTest extends AbstractSubmissionControllerTest
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
-    when(fieldGasVolumetricsService.getGasVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
+    when(fieldGasVolumetricParametersService.getGasVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(FieldGasVolumetricsController.class)
+            get(ReverseRouter.route(on(FieldGasVolumetricParametersController.class)
                 .getGasVolumetrics(submissionDetailId, reservoirSubmissionDetailId)))
                 .with(user(USER)))
         .andReturn()

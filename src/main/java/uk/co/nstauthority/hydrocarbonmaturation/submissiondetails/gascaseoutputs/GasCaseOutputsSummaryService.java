@@ -59,7 +59,7 @@ public class GasCaseOutputsSummaryService {
       if (gasCaseOutput.getHasAssociatedCondensateRecoverableResources() == null
           || gasCaseOutput.getHasAssociatedCondensateRecoverableResources()) {
         listOfInstances.add(
-            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
+            ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
       }
 
       listOfInstances.add(

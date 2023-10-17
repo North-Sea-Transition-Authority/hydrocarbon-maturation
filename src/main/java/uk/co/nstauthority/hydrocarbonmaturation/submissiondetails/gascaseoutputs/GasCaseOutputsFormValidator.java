@@ -82,7 +82,7 @@ class GasCaseOutputsFormValidator implements SubmissionValidator {
             errors,
             "associatedCondensateRecoverableResources",
             "Associated condensate recoverable resources",
-            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
+            ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
         );
       }
 
@@ -178,7 +178,7 @@ class GasCaseOutputsFormValidator implements SubmissionValidator {
             errors,
             "associatedCondensateRecoverableResources",
             "Associated condensate recoverable resources",
-            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
+            ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
         );
       }
 

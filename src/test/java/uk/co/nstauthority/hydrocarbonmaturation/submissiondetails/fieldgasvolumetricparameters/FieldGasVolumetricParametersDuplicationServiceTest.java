@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetrics;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetricparameters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,7 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
-class FieldGasVolumetricsDuplicationServiceTest {
+class FieldGasVolumetricParametersDuplicationServiceTest {
   @Mock
   private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
@@ -43,7 +43,7 @@ class FieldGasVolumetricsDuplicationServiceTest {
   private ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @InjectMocks
-  private FieldGasVolumetricsDuplicationService fieldGasVolumetricsDuplicationService;
+  private FieldGasVolumetricParametersDuplicationService fieldGasVolumetricParametersDuplicationService;
 
   @ParameterizedTest
   @MethodSource("allFieldSubmissionTypes")
@@ -60,7 +60,7 @@ class FieldGasVolumetricsDuplicationServiceTest {
     whenGetAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail)
         .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
 
-    fieldGasVolumetricsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+    fieldGasVolumetricParametersDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
     var argumentCaptor1 = ArgumentCaptor.forClass(ReservoirSubmissionDetail.class);
     verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(argumentCaptor1.capture(), eq(probabilityDistribution1),
@@ -85,7 +85,7 @@ class FieldGasVolumetricsDuplicationServiceTest {
     whenGetAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail)
         .thenReturn(Collections.emptyList());
 
-    fieldGasVolumetricsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+    fieldGasVolumetricParametersDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
     verify(reservoirDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
@@ -101,7 +101,7 @@ class FieldGasVolumetricsDuplicationServiceTest {
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
-    fieldGasVolumetricsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+    fieldGasVolumetricParametersDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
     verify(reservoirDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));

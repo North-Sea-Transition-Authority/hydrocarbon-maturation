@@ -3,7 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutput
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
-class GasCaseOutputsForm implements SubmissionForm {
+public class GasCaseOutputsForm implements SubmissionForm {
 
   private ProbabilityDistributionForm gasInPlace = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm gasRecoverableResources = new ProbabilityDistributionForm();

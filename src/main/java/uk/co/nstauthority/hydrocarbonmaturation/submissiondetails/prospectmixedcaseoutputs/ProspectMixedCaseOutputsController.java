@@ -90,6 +90,7 @@ public class ProspectMixedCaseOutputsController {
   private ModelAndView getMixedCaseOutputsModelAndView(MixedCaseOutputsForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/mixedCaseOutputs")
         .addObject("form", form)
+        .addObject("resourceType", submissionDetail.getSubmission().getResource().getType().toString())
         .addObject("pageTitle", PAGE_NAME)
         .addObject("oilInPlaceError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())

@@ -568,7 +568,7 @@ class ReservoirPropertiesSummaryServiceTest {
         .thenReturn(Optional.of(reservoirProperty));
     when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
         .thenReturn(false);
-    when(generalReservoirInformationService.isMixed(reservoirSubmissionDetail))
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail))
         .thenReturn(false);
     when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
         .thenReturn(true);
@@ -640,7 +640,7 @@ class ReservoirPropertiesSummaryServiceTest {
         .thenReturn(Optional.of(reservoirProperty));
     when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
         .thenReturn(false);
-    when(generalReservoirInformationService.isMixed(reservoirSubmissionDetail))
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail))
         .thenReturn(false);
     when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
         .thenReturn(true);
@@ -711,7 +711,7 @@ class ReservoirPropertiesSummaryServiceTest {
         .thenReturn(Optional.of(reservoirProperty));
     when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
         .thenReturn(true);
-    when(generalReservoirInformationService.isMixed(reservoirSubmissionDetail))
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail))
         .thenReturn(false);
     when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
         .thenReturn(false);
@@ -782,7 +782,7 @@ class ReservoirPropertiesSummaryServiceTest {
         .thenReturn(Optional.of(reservoirProperty));
     when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
         .thenReturn(false);
-    when(generalReservoirInformationService.isMixed(reservoirSubmissionDetail))
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail))
         .thenReturn(true);
     when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
         .thenReturn(false);

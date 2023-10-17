@@ -268,12 +268,12 @@ public enum ProbabilityDistributionFieldInstance {
   ),
   CONDENSATE_GAS_RATIO_LIFE_OF_FIELD(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
-      ProbabilityOfExceedanceUnits.STB_MCF,
+      ProbabilityOfExceedanceUnits.STB_MMCF,
       "Condensate-gas ratio life of field"
   ),
   CONDENSATE_GAS_RATIO_LIFE_OF_FIELD_CONSTANT(
       List.of(CONSTANT),
-      ProbabilityOfExceedanceUnits.STB_MCF,
+      ProbabilityOfExceedanceUnits.STB_MMCF,
       "Condensate-gas ratio life of field"
   ),
   GAS_RECOVERY_FACTOR(
@@ -412,7 +412,7 @@ public enum ProbabilityDistributionFieldInstance {
   ),
   MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT, NOT_CALCULATED),
-      ProbabilityOfExceedanceUnits.STB_MCF,
+      ProbabilityOfExceedanceUnits.STB_MMCF,
       "Condensate-gas ratio life of field"
   ),
   MIXED_GAS_RECOVERY_FACTOR(
@@ -511,15 +511,22 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.MMSTB,
       "Associated condensate recoverable resources"
   ),
-  GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY(
-      DiscoveryOutputsBehaviour.class,
-      ProbabilityOfExceedanceUnits.MMSTB,
-      "Associated condensate recoverable resources"
-  ),
   GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT(
       ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"
+  ),
+
+  // Total gas case volumetrics
+  TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY(
+      DiscoveryOutputsBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Gas in place"
+  ),
+  TOTAL_GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Gas recoverable resources"
   ),
 
   // Mixed case outputs
@@ -565,10 +572,20 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"
   ),
+  OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB,
+      "Associated condensate recoverable resources"
+  ),
   TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY(
       DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"
+  ),
+  TOTAL_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY(
+      DiscoveryOutputsBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMSTB,
+      "Associated condensate recoverable resources"
   ),
 
   // Field Permeability

@@ -76,7 +76,7 @@ class DiscoveryMixedCaseOutputsPersistenceServiceTest {
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
-            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
+            ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
             form.getAssociatedCondensateRecoverableResources(),
             submissionDetail,
             reservoirSubmissionDetail);
@@ -135,7 +135,7 @@ class DiscoveryMixedCaseOutputsPersistenceServiceTest {
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
-            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
+            ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
             form.getAssociatedCondensateRecoverableResources(),
             submissionDetail,
             reservoirSubmissionDetail);

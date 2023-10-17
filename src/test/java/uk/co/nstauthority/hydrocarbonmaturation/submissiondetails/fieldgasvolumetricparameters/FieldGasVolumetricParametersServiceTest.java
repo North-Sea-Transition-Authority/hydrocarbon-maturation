@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetrics;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetricparameters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
@@ -22,7 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
 @ExtendWith(MockitoExtension.class)
-class FieldGasVolumetricsServiceTest {
+class FieldGasVolumetricParametersServiceTest {
 
   @Mock
   private ProbabilityDistributionFormService probabilityDistributionFormService;
@@ -31,7 +31,7 @@ class FieldGasVolumetricsServiceTest {
   private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
   @InjectMocks
-  private FieldGasVolumetricsService fieldGasVolumetricsService;
+  private FieldGasVolumetricParametersService fieldGasVolumetricParametersService;
 
   private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
   private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
@@ -51,7 +51,7 @@ class FieldGasVolumetricsServiceTest {
         reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_FIELD))
         .thenReturn(new ProbabilityDistributionForm());
 
-    assertThat(fieldGasVolumetricsService.getGasVolumetricsForm(reservoirSubmissionDetail))
+    assertThat(fieldGasVolumetricParametersService.getGasVolumetricsForm(reservoirSubmissionDetail))
         .extracting(
             form -> form.getGasHydrocarbonSaturation().getProbabilityDistributionType(),
             form -> form.getGasRecoveryFactor().getProbabilityDistributionType(),
@@ -83,7 +83,7 @@ class FieldGasVolumetricsServiceTest {
         reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_FIELD))
         .thenReturn(probabilityDistributionForm);
 
-    assertThat(fieldGasVolumetricsService.getGasVolumetricsForm(reservoirSubmissionDetail))
+    assertThat(fieldGasVolumetricParametersService.getGasVolumetricsForm(reservoirSubmissionDetail))
         .extracting(
             form -> form.getGasFormationVolumeFactor().getProbabilityDistributionType(),
             form -> form.getGasFormationVolumeFactor().getConstant().getConstant(),
@@ -121,7 +121,7 @@ class FieldGasVolumetricsServiceTest {
     form.setGasRecoveryFactor(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
     form.setCondensateGasRatioLifeOfField(ProbabilityDistributionTestUtil.getValidConstantProbabilityDistributionForm());
 
-    fieldGasVolumetricsService.saveGasVolumetrics(form, reservoirSubmissionDetail);
+    fieldGasVolumetricParametersService.saveGasVolumetrics(form, reservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(

@@ -19,9 +19,15 @@
 <#import '../../summarylistcards/sourceAndSealSummaryCard.ftl' as sourceAndSealSummary>
 <#import '../../summarylistcards/trapPropertiesSummaryCard.ftl' as trapPropertiesSummary>
 <#import '../../summarylistcards/resourceDetailsSummaryCard.ftl' as resourceDetailSummary>
+<#import '../../summarylistcards/discoveryOilCaseVolumetricTotalsSummaryCard.ftl' as discoveryOilCaseVolumetricTotalsSummary>
+<#import '../../summarylistcards/discoveryGasCaseVolumetricTotalsSummaryCard.ftl' as discoveryGasCaseVolumetricTotalsSummary>
 <#import '../../summary/_reservoirSummary.ftl' as reservoirSummary>
 
 <#-- @ftlvariable name="accordionId" type="String" -->
+<#-- @ftlvariable name="totalsRequired" type="boolean" -->
+<#-- @ftlvariable name="isOilCaseOnly" type="boolean" -->
+<#-- @ftlvariable name="isGasCaseOnly" type="boolean" -->
+<#-- @ftlvariable name="isCombinedCase" type="boolean" -->
 
 <#macro discoverySubmissionSummary
   generalDetailsSummaryView
@@ -39,6 +45,8 @@
   sourceAndSealSummaryView
   trapPropertiesSummaryView
   resourceDetailSummaryView
+  oilCaseVolumetricTotalsSummaryView
+  gasCaseVolumetricTotalsSummaryView
   reservoirSummaries>
   <@fdsAccordion.accordion accordionId="summaryaccordian-${accordionId}">
     <@fdsAccordion.accordionSection sectionHeading="General details" summaryText="Resource details, general details" openSection=true>
@@ -51,6 +59,16 @@
       <@trapPropertiesSummary.trapPropertiesSummaryCard trapPropertiesValues=trapPropertiesSummaryView/>
       <@sourceAndSealSummary.sourceAndSealCard sourceAndSealValues=sourceAndSealSummaryView/>
     </@fdsAccordion.accordionSection>
+    <#if totalsRequired>
+        <@fdsAccordion.accordionSection sectionHeading="Total volumes for discovery">
+            <#if isOilCaseOnly>
+                <@discoveryOilCaseVolumetricTotalsSummary.oilCaseVolumetricTotalsSummaryCard oilCaseVolumetricTotals=oilCaseVolumetricTotalsSummaryView/>
+            </#if>
+            <#if isGasCaseOnly>
+                <@discoveryGasCaseVolumetricTotalsSummary.gasCaseVolumetricTotalsSummaryCard gasCaseVolumetricTotals=gasCaseVolumetricTotalsSummaryView/>
+            </#if>
+        </@fdsAccordion.accordionSection>
+    </#if>
     <@reservoirSummary.reservoirSummary reservoirSummaries/>
 <#--    <@fdsAccordion.accordionSection sectionHeading="Volumetrics" summaryText="Oil case, gas case, and mixed case volumetric parameters and outputs">-->
 <#--        <#if oilOnlyDiscovery>-->

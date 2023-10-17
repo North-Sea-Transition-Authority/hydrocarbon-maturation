@@ -13,7 +13,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 
 @Entity
 @Table(name = "gas_case_outputs")
-class GasCaseOutput implements ReservoirSubmissionDetailChildEntity {
+public class GasCaseOutput implements ReservoirSubmissionDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")

@@ -33,19 +33,27 @@
       template=oilRecoverableResourcesTemplate
       error=oilRecoverableResourcesError/>
 
-    <@fdsRadio.radioGroup
-      path="form.hasAssociatedGasRecoverableResources"
-      labelText="Do you expect to find associated gas recoverable resources?"
-      hiddenContent=true>
-      <@fdsRadio.radioYes path="form.hasAssociatedGasRecoverableResources">
+    <#if resourceType == 'PROSPECT'>
+        <@fdsRadio.radioGroup
+        path="form.hasAssociatedGasRecoverableResources"
+        labelText="Do you expect to find associated gas recoverable resources?"
+        hiddenContent=true>
+            <@fdsRadio.radioYes path="form.hasAssociatedGasRecoverableResources">
+                <@probabilityDistribution.probabilityDistributionSingularTemplate
+                probabilityDistributionPath="form.associatedGasRecoverableResources"
+                labelText="Associated gas recoverable resources"
+                template=associatedGasRecoverableResourcesTemplate
+                error=associatedGasRecoverableResourcesError/>
+            </@fdsRadio.radioYes>
+            <@fdsRadio.radioNo path="form.hasAssociatedGasRecoverableResources"/>
+        </@fdsRadio.radioGroup>
+    <#else>
         <@probabilityDistribution.probabilityDistributionSingularTemplate
-          probabilityDistributionPath="form.associatedGasRecoverableResources"
-          labelText="Associated gas recoverable resources"
-          template=associatedGasRecoverableResourcesTemplate
-          error=associatedGasRecoverableResourcesError/>
-      </@fdsRadio.radioYes>
-      <@fdsRadio.radioNo path="form.hasAssociatedGasRecoverableResources"/>
-    </@fdsRadio.radioGroup>
+        probabilityDistributionPath="form.associatedGasRecoverableResources"
+        labelText="Associated gas recoverable resources"
+        template=associatedGasRecoverableResourcesTemplate
+        error=associatedGasRecoverableResourcesError/>
+    </#if>
 
     <@probabilityDistribution.probabilityDistributionSingularTemplate
       probabilityDistributionPath="form.oilEquivalentRecoverableResources"

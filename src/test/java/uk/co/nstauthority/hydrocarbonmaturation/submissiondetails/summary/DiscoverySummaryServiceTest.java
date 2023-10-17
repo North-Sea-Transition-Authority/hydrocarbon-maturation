@@ -10,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestResultsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryService;
@@ -86,6 +88,12 @@ class DiscoverySummaryServiceTest {
 
   @Mock
   private ReservoirSummaryService reservoirSummaryService;
+
+  @Mock
+  private DiscoveryOilCaseVolumetricTotalsSummaryService discoveryOilCaseVolumetricTotalsSummaryService;
+
+  @Mock
+  private DiscoveryGasCaseVolumetricTotalsSummaryService discoveryGasCaseVolumetricTotalsSummaryService;
 
   @InjectMocks
   private DiscoverySummaryService discoverySummaryService;
@@ -235,5 +243,19 @@ class DiscoverySummaryServiceTest {
 
     verify(reservoirSummaryService, times(1))
         .getReservoirSummaries(submissionDetail);
+  }
+
+  @Test
+  void getOilCaseVolumetricTotalsFromSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getOilCaseVolumetricTotalsFromSubmissionDetail(submissionDetail);
+    verify(discoveryOilCaseVolumetricTotalsSummaryService, times(1))
+        .createSummaryView(submissionDetail);
+  }
+
+  @Test
+  void getGasCaseVolumetricTotalsFromSubmissionDetail_verifyMethodCall() {
+    discoverySummaryService.getGasCaseVolumetricTotalsFromSubmissionDetail(submissionDetail);
+    verify(discoveryGasCaseVolumetricTotalsSummaryService, times(1))
+        .getGasCaseVolumetricTotalsSummaryFromSubmissionDetail(submissionDetail);
   }
 }

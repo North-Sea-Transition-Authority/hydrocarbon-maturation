@@ -195,7 +195,7 @@ class GasCaseOutputsFormValidatorTest {
   }
 
   private GasCaseOutputsForm getDiscoveryValidForm() {
-    return getValidForm(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
+    return getValidForm(ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
   }
 
   private GasCaseOutputsForm getValidForm(ProbabilityDistributionFieldInstance probDistributionFieldInstanceForRecoverableResource) {

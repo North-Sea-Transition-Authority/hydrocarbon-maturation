@@ -39,7 +39,7 @@ class ProbabilityDistributionTemplateServiceTest {
         .containsExactly(
             tuple(ProbabilityOfExceedanceType.P90, "P90", true),
             tuple(ProbabilityOfExceedanceType.P50, "P50", true),
-            tuple(ProbabilityOfExceedanceType.MEAN, "Mean", false),
+            tuple(ProbabilityOfExceedanceType.MEAN, "Mean", true),
             tuple(ProbabilityOfExceedanceType.P10, "P10", true)
         );
   }
@@ -66,7 +66,7 @@ class ProbabilityDistributionTemplateServiceTest {
         .containsExactly(
             tuple(ProbabilityOfExceedanceType.P90, "P90 or 1C", true),
             tuple(ProbabilityOfExceedanceType.P50, "P50 or 2C", true),
-            tuple(ProbabilityOfExceedanceType.MEAN, "Mean", false),
+            tuple(ProbabilityOfExceedanceType.MEAN, "Mean", true),
             tuple(ProbabilityOfExceedanceType.P10, "P10 or 3C", true)
         );
   }

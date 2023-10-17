@@ -299,7 +299,7 @@ class ReservoirPropertiesFormServiceTest {
     var reservoirHydrocarbons = new ReservoirHydrocarbons();
     when(generalReservoirInformationService.getReservoirHydrocarbons(discoveryReservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirHydrocarbons));
-    when(generalReservoirInformationService.isMixed(reservoirHydrocarbons))
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons))
         .thenReturn(true);
 
     var probabilityDistributionForm =
@@ -361,7 +361,7 @@ class ReservoirPropertiesFormServiceTest {
     var reservoirHydrocarbons = new ReservoirHydrocarbons();
     when(generalReservoirInformationService.getReservoirHydrocarbons(fieldReservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirHydrocarbons));
-    when(generalReservoirInformationService.isMixed(reservoirHydrocarbons))
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons))
         .thenReturn(true);
 
     var probabilityDistributionForm =
@@ -436,7 +436,7 @@ class ReservoirPropertiesFormServiceTest {
     var reservoirHydrocarbons = new ReservoirHydrocarbons();
     when(generalReservoirInformationService.getReservoirHydrocarbons(fieldReservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirHydrocarbons));
-    when(generalReservoirInformationService.isMixed(reservoirHydrocarbons))
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons))
         .thenReturn(true);
 
     var probabilityDistributionForm =

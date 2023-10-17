@@ -118,8 +118,7 @@ public class ProspectMixedCaseOutputsPersistenceService {
   }
 
   private boolean hasAssociatedGasRecoverableResources(MixedCaseOutputsForm form) {
-    return form.getHasAssociatedGasRecoverableResources() != null
-        && form.getHasAssociatedGasRecoverableResources();
+    return BooleanUtils.isTrue(form.getHasAssociatedGasRecoverableResources());
   }
 
   @Transactional

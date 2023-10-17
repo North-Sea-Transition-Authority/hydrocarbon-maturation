@@ -194,14 +194,14 @@ public class ReservoirPropertiesSummaryService implements SummarySectionService<
     listOfInstances.add(ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY);
     if (generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)
-        || generalReservoirInformationService.isMixed(reservoirSubmissionDetail)) {
+        || generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail)) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY);
     }
     if (generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)
-        || generalReservoirInformationService.isMixed(reservoirSubmissionDetail)) {
+        || generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail)) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY);
     }
-    if (generalReservoirInformationService.isMixed(reservoirSubmissionDetail)) {
+    if (generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail)) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY);
     }
 

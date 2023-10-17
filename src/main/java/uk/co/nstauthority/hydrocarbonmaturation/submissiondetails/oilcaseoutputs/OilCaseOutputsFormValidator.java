@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -76,16 +77,14 @@ public class OilCaseOutputsFormValidator implements SubmissionValidator {
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY
       );
 
-      if (hasAssociatedGasRecoverableResources(oilCaseOutputsForm)) {
-        var associatedGasRecoverableResources = oilCaseOutputsForm.getAssociatedGasRecoverableResources();
-        ProbabilityDistributionValidationUtil.validateCustomPartial(
-            associatedGasRecoverableResources,
-            errors,
-            "associatedGasRecoverableResources",
-            "Associated gas recoverable resources",
-            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
-        );
-      }
+      var associatedGasRecoverableResources = oilCaseOutputsForm.getAssociatedGasRecoverableResources();
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          associatedGasRecoverableResources,
+          errors,
+          "associatedGasRecoverableResources",
+          "Associated gas recoverable resources",
+          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
+      );
 
       var oilEquivalentRecoverableResources = oilCaseOutputsForm.getOilEquivalentRecoverableResources();
       ProbabilityDistributionValidationUtil.validateCustomPartial(
@@ -166,22 +165,14 @@ public class OilCaseOutputsFormValidator implements SubmissionValidator {
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY
       );
 
-      ValidationUtils.rejectIfEmptyOrWhitespace(
+      var associatedGasRecoverableResources = oilCaseOutputsForm.getAssociatedGasRecoverableResources();
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          associatedGasRecoverableResources,
           errors,
-          "hasAssociatedGasRecoverableResources",
-          "hasAssociatedGasRecoverableResources.required",
-          "Select whether you expect to find associated gas recoverable resources");
-
-      if (hasAssociatedGasRecoverableResources(oilCaseOutputsForm)) {
-        var associatedGasRecoverableResources = oilCaseOutputsForm.getAssociatedGasRecoverableResources();
-        ProbabilityDistributionValidationUtil.validateCustomFull(
-            associatedGasRecoverableResources,
-            errors,
-            "associatedGasRecoverableResources",
-            "Associated gas recoverable resources",
-            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
-        );
-      }
+          "associatedGasRecoverableResources",
+          "Associated gas recoverable resources",
+          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
+      );
 
       var oilEquivalentRecoverableResources = oilCaseOutputsForm.getOilEquivalentRecoverableResources();
       ProbabilityDistributionValidationUtil.validateCustomFull(
@@ -200,7 +191,6 @@ public class OilCaseOutputsFormValidator implements SubmissionValidator {
   }
 
   private boolean hasAssociatedGasRecoverableResources(OilCaseOutputsForm oilCaseOutputsForm) {
-    return oilCaseOutputsForm.getHasAssociatedGasRecoverableResources() != null
-        && oilCaseOutputsForm.getHasAssociatedGasRecoverableResources();
+    return BooleanUtils.isTrue(oilCaseOutputsForm.getHasAssociatedGasRecoverableResources());
   }
 }

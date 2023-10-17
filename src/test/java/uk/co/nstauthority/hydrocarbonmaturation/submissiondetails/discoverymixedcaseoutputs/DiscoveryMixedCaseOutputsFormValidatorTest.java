@@ -72,21 +72,6 @@ class DiscoveryMixedCaseOutputsFormValidatorTest {
   }
 
   @Test
-  void validate_whenYesNoNotSelected_thenValidationErrors() {
-    var form = getValidForm();
-    form.setHasAssociatedGasRecoverableResources(null);
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    discoveryMixedCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
-
-    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
-
-    assertThat(extractedErrors)
-        .contains(
-            entry("hasAssociatedGasRecoverableResources", Set.of("hasAssociatedGasRecoverableResources.required"))
-        );
-  }
-
-  @Test
   void validate_whenEmptyExceedanceForm_thenValidationErrors() {
     var probabilityDistributionType = ProbabilityDistributionType.CUSTOM;
     var form = getFormWithEmptyDistributions();
@@ -128,7 +113,6 @@ class DiscoveryMixedCaseOutputsFormValidatorTest {
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionForm);
     form.setGasRecoverableResources(probabilityDistributionForm);
     form.setRiskedOilEquivalentRecoverableMean(new DecimalInput("abc"));
-    form.setHasAssociatedGasRecoverableResources(true);
 
     return form;
   }
@@ -149,7 +133,6 @@ class DiscoveryMixedCaseOutputsFormValidatorTest {
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionForm);
     form.setGasRecoverableResources(probabilityDistributionForm);
     form.setRiskedOilEquivalentRecoverableMean(new DecimalInput("abc"));
-    form.setHasAssociatedGasRecoverableResources(false);
 
     return form;
   }
@@ -157,14 +140,13 @@ class DiscoveryMixedCaseOutputsFormValidatorTest {
   private MixedCaseOutputsForm getValidForm() {
     var form = new MixedCaseOutputsForm();
     form.setGasInPlace(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY));
-    form.setAssociatedGasRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY));
+    form.setAssociatedGasRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY));
     form.setOilEquivalentRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY));
     form.setOilRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY));
     form.setOilInPlace(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY));
-    form.setAssociatedCondensateRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY));
+    form.setAssociatedCondensateRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY));
     form.setGasRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY));
     form.setRiskedOilEquivalentRecoverableMean(new DecimalInput("1"));
-    form.setHasAssociatedGasRecoverableResources(true);
     return form;
   }
 

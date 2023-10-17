@@ -189,7 +189,7 @@ public class ReservoirPropertiesController {
         .map(reservoirHydrocarbons -> {
           var gasCase = generalReservoirInformationService.isGasOnly(reservoirHydrocarbons);
           var oilCase = generalReservoirInformationService.isOilOnly(reservoirHydrocarbons);
-          var mixedCase = generalReservoirInformationService.isMixed(reservoirHydrocarbons);
+          var mixedCase = generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons);
           modelAndView
               .addObject(GAS_CASE, gasCase)
               .addObject(OIL_CASE, oilCase)

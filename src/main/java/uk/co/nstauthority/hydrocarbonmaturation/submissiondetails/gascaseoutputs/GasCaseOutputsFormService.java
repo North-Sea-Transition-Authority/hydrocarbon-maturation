@@ -69,7 +69,7 @@ class GasCaseOutputsFormService {
       form.setAssociatedCondensateRecoverableResources(
           probabilityDistributionFormService.probabilityDistributionEntityToForm(
               reservoirSubmissionDetail,
-              ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
+              ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
           ));
 
       form.setOilEquivalentRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(

@@ -39,17 +39,25 @@
       template=oilRecoverableResourcesTemplate
       error=oilRecoverableResourcesError/>
 
-    <@fdsRadio.radioGroup hiddenContent=true path="form.hasAssociatedGasRecoverableResources"
+    <#if resourceType == 'PROSPECT'>
+      <@fdsRadio.radioGroup hiddenContent=true path="form.hasAssociatedGasRecoverableResources"
       labelText="Do you expect to find associated gas recoverable resources?">
-      <@fdsRadio.radioYes path="form.hasAssociatedGasRecoverableResources">
-        <@probabilityDistribution.probabilityDistributionSingularTemplate
+          <@fdsRadio.radioYes path="form.hasAssociatedGasRecoverableResources">
+              <@probabilityDistribution.probabilityDistributionSingularTemplate
+              probabilityDistributionPath="form.associatedGasRecoverableResources"
+              labelText="Associated gas recoverable resources"
+              template=associatedGasRecoverableResourcesTemplate
+              error=associatedGasRecoverableResourcesError/>
+          </@fdsRadio.radioYes>
+          <@fdsRadio.radioNo path="form.hasAssociatedGasRecoverableResources"/>
+      </@fdsRadio.radioGroup>
+      <#else>
+          <@probabilityDistribution.probabilityDistributionSingularTemplate
           probabilityDistributionPath="form.associatedGasRecoverableResources"
           labelText="Associated gas recoverable resources"
           template=associatedGasRecoverableResourcesTemplate
           error=associatedGasRecoverableResourcesError/>
-      </@fdsRadio.radioYes>
-      <@fdsRadio.radioNo path="form.hasAssociatedGasRecoverableResources"/>
-    </@fdsRadio.radioGroup>
+      </#if>
 
     <@probabilityDistribution.probabilityDistributionSingularTemplate
       probabilityDistributionPath="form.gasInPlace"

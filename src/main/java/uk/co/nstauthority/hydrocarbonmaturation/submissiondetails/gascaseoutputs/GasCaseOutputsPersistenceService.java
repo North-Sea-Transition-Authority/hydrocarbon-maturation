@@ -59,7 +59,7 @@ public class GasCaseOutputsPersistenceService {
         ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT;
     if (resourceType == ResourceType.DISCOVERY) {
       associatedCondensateRecoverableResources =
-          ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY;
+          ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY;
     }
     if (gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources() != null
         && gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources()) {

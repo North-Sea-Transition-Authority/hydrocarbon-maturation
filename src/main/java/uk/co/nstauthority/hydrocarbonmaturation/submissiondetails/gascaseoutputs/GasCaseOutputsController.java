@@ -140,7 +140,7 @@ public class GasCaseOutputsController {
                   contingentUncertaintyCategoryPromptOverrides))
           .addObject("associatedCondensateRecoverableResourcesTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                  ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
+                  ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
                   contingentUncertaintyCategoryPromptOverrides))
           .addObject("oilEquivalentRecoverableResourcesTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(

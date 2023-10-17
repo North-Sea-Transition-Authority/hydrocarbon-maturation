@@ -8,6 +8,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionReso
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 
 @Service
 public class SubmissionSummaryModelService {
@@ -20,6 +21,7 @@ public class SubmissionSummaryModelService {
   private final SubmissionResourceService submissionResourceService;
   private final SubmissionSummaryService submissionSummaryService;
   private final FieldSummaryService fieldSummaryService;
+  private final TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
 
   @Autowired
   SubmissionSummaryModelService(ProspectSummaryService prospectSummaryService,
@@ -30,7 +32,8 @@ public class SubmissionSummaryModelService {
                                 ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
                                 SubmissionResourceService submissionResourceService,
                                 SubmissionSummaryService submissionSummaryService,
-                                FieldSummaryService fieldSummaryService) {
+                                FieldSummaryService fieldSummaryService,
+                                TotalVolumesTaskListSectionService totalVolumesTaskListSectionService) {
     this.prospectSummaryService = prospectSummaryService;
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
     this.discoverySummaryService = discoverySummaryService;
@@ -40,6 +43,7 @@ public class SubmissionSummaryModelService {
     this.submissionResourceService = submissionResourceService;
     this.submissionSummaryService = submissionSummaryService;
     this.fieldSummaryService = fieldSummaryService;
+    this.totalVolumesTaskListSectionService = totalVolumesTaskListSectionService;
   }
 
   public ModelAndView createSummaryForSubmissionTypeToModelAndView(SubmissionDetail submissionDetail, String viewName) {
@@ -153,6 +157,7 @@ public class SubmissionSummaryModelService {
         .addObject("reservoirSummaries",
             discoverySummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail));
 
+    addTotalVolumes(submissionDetail, modelAndView);
     addCommonAttributes(submissionDetail, modelAndView);
     return modelAndView;
   }
@@ -180,6 +185,38 @@ public class SubmissionSummaryModelService {
     if (!submissionDetail.isFieldSubmission()) {
       var resourceDetailSummaryView = prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail);
       modelAndView.addObject("resourceDetailSummaryView", resourceDetailSummaryView);
+    }
+  }
+
+  private void addTotalVolumes(SubmissionDetail submissionDetail, ModelAndView modelAndView) {
+    if (totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail)) {
+      modelAndView.addObject("totalsRequired", true);
+      var reservoirSubmissionDetails =
+          reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
+
+      var isOilCaseOnly = totalVolumesTaskListSectionService.isOilCaseOnly(reservoirSubmissionDetails);
+      var isGasCaseOnly = totalVolumesTaskListSectionService.isGasCaseOnly(reservoirSubmissionDetails);
+      var isCombinedCase = totalVolumesTaskListSectionService.isCombinedCase(reservoirSubmissionDetails);
+
+      modelAndView
+          .addObject("isOilCaseOnly", isOilCaseOnly)
+          .addObject("isGasCaseOnly", isGasCaseOnly)
+          .addObject("isCombinedCase", isCombinedCase);
+
+      if (isOilCaseOnly) {
+        modelAndView.addObject("oilCaseVolumetricTotalsSummaryView",
+                discoverySummaryService.getOilCaseVolumetricTotalsFromSubmissionDetail(submissionDetail));
+      }
+      if (isGasCaseOnly) {
+        modelAndView.addObject("gasCaseVolumetricTotalsSummaryView",
+                discoverySummaryService.getGasCaseVolumetricTotalsFromSubmissionDetail(submissionDetail));
+      }
+      if (isCombinedCase) {
+        //TODO HM-668 add combined case totals
+        modelAndView.addObject("combinedCaseVolumetricTotalsSummaryView", null);
+      }
+    } else {
+      modelAndView.addObject("totalsRequired", false);
     }
   }
 }

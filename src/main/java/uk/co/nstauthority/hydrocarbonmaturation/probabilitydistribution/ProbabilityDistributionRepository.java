@@ -32,6 +32,10 @@ interface ProbabilityDistributionRepository
       ReservoirSubmissionDetail reservoirSubmissionDetail,
       ProbabilityDistributionFieldInstance instance);
 
+  void deleteBySubmissionDetailAndInstanceIn(
+      SubmissionDetail submissionDetail,
+      List<ProbabilityDistributionFieldInstance> instance);
+
   void deleteByReservoirSubmissionDetailAndInstanceIn(
       ReservoirSubmissionDetail reservoirSubmissionDetail,
       List<ProbabilityDistributionFieldInstance> instance);

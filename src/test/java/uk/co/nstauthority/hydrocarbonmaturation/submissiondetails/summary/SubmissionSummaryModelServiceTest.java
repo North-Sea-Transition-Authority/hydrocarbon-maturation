@@ -24,6 +24,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryView;
@@ -39,10 +41,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.P
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdate;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 
@@ -69,6 +73,8 @@ class SubmissionSummaryModelServiceTest {
   private FieldSummaryService fieldSummaryService;
   @Mock
   private SubmissionResourceService submissionResourceService;
+  @Mock
+  private TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
 
   @InjectMocks
   private SubmissionSummaryModelService submissionSummaryModelService;
@@ -94,6 +100,8 @@ class SubmissionSummaryModelServiceTest {
   private List<ReservoirSummary> reservoirSummaries;
   private OutlineForMaximumCaseSummaryView outlineForMaximumCaseSummaryView;
   private DiscoveryWellDetailsSummaryView discoveryWellDetailsSummaryView;
+  private DiscoveryOilCaseVolumetricTotalsSummaryView discoveryOilCaseVolumetricTotalsSummaryView;
+  private DiscoveryGasCaseVolumetricTotalsSummaryView discoveryGasCaseVolumetricTotalsSummaryView;
 
   @BeforeEach
   void setUp() {
@@ -141,6 +149,8 @@ class SubmissionSummaryModelServiceTest {
     reservoirSummaries = Collections.emptyList();
     outlineForMaximumCaseSummaryView = OutlineForMaximumCaseSummaryView.empty();
     discoveryWellDetailsSummaryView = DiscoveryWellDetailsSummaryView.empty();
+    discoveryOilCaseVolumetricTotalsSummaryView = DiscoveryOilCaseVolumetricTotalsSummaryView.empty();
+    discoveryGasCaseVolumetricTotalsSummaryView = DiscoveryGasCaseVolumetricTotalsSummaryView.empty();
   }
 
   @ParameterizedTest
@@ -307,6 +317,7 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(sourceAndSealSummaryView);
 
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn("test");
+    when(totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail)).thenReturn(false);
     var modelAndView =
         submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(submissionDetail, "view-name");
 
@@ -319,6 +330,65 @@ class SubmissionSummaryModelServiceTest {
             entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
             entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
             entry("reservoirSummaries", reservoirSummaries),
+            entry("totalsRequired", false),
+            entry("accordionId", submissionDetail.getId()),
+            entry("isSubmissionUpdate", false),
+            entry("resourceName", "test"),
+            entry("resourceDetailSummaryView", resourceDetailSummaryView)
+        );
+  }
+
+  @Test
+  void createDiscoverySubmissionSummaryModelAndView_whenTotalsAreRequired() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+
+    when(discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(generalDetailSummaryView);
+    when(discoverySummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(trapPropertiesSummaryView);
+    when(discoverySummaryService.getOpportunityDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(opportunityDetailsSummaryView);
+    when(prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(resourceDetailSummaryView);
+    when(discoverySummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSummaries);
+    when(discoverySummaryService.getOutlineForMaximumCaseSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(outlineForMaximumCaseSummaryView);
+    when(discoverySummaryService.getDiscoveryWellDetailsSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(discoveryWellDetailsSummaryView);
+    when(discoverySummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(sourceAndSealSummaryView);
+
+    when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn("test");
+
+    when(totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail)).thenReturn(true);
+    var reservoirSubmissionDetails = List.of(ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail));
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetails);
+    when(totalVolumesTaskListSectionService.isOilCaseOnly(reservoirSubmissionDetails)).thenReturn(true);
+    when(totalVolumesTaskListSectionService.isGasCaseOnly(reservoirSubmissionDetails)).thenReturn(true);
+    when(totalVolumesTaskListSectionService.isCombinedCase(reservoirSubmissionDetails)).thenReturn(true);
+    when(discoverySummaryService.getOilCaseVolumetricTotalsFromSubmissionDetail(submissionDetail)).thenReturn(discoveryOilCaseVolumetricTotalsSummaryView);
+    when(discoverySummaryService.getGasCaseVolumetricTotalsFromSubmissionDetail(submissionDetail)).thenReturn(discoveryGasCaseVolumetricTotalsSummaryView);
+    var modelAndView =
+        submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(submissionDetail, "view-name");
+
+    assertThat(modelAndView.getModelMap())
+        .containsExactly(
+            entry("generalDetailsSummaryView", generalDetailSummaryView),
+            entry("opportunityDetailsSummaryView", opportunityDetailsSummaryView),
+            entry("outlineForMaximumCaseSummaryView", outlineForMaximumCaseSummaryView),
+            entry("discoveryWellDetailsSummaryView", discoveryWellDetailsSummaryView),
+            entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
+            entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
+            entry("reservoirSummaries", reservoirSummaries),
+            entry("totalsRequired", true),
+            entry("isOilCaseOnly", true),
+            entry("isGasCaseOnly", true),
+            entry("isCombinedCase", true),
+            entry("oilCaseVolumetricTotalsSummaryView", discoveryOilCaseVolumetricTotalsSummaryView),
+            entry("gasCaseVolumetricTotalsSummaryView", discoveryGasCaseVolumetricTotalsSummaryView),
+            entry("combinedCaseVolumetricTotalsSummaryView", null),
             entry("accordionId", submissionDetail.getId()),
             entry("isSubmissionUpdate", false),
             entry("resourceName", "test"),

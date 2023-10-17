@@ -5,6 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestResultsSummaryService;
@@ -59,6 +63,8 @@ class DiscoverySummaryService {
   private final TrapPropertiesSummaryService trapPropertiesSummaryService;
   private final SourceAndSealSummaryService sourceAndSealSummaryService;
   private final ReservoirSummaryService reservoirSummaryService;
+  private final DiscoveryOilCaseVolumetricTotalsSummaryService discoveryOilCaseVolumetricTotalsSummaryService;
+  private final DiscoveryGasCaseVolumetricTotalsSummaryService discoveryGasCaseVolumetricTotalsSummaryService;
 
   @Autowired
   DiscoverySummaryService(GasFluidPropertySummaryService gasFluidPropertySummaryService,
@@ -78,7 +84,9 @@ class DiscoverySummaryService {
                           OpportunityDetailsSummaryService opportunityDetailsSummaryService,
                           TrapPropertiesSummaryService trapPropertiesSummaryService,
                           SourceAndSealSummaryService sourceAndSealSummaryService,
-                          ReservoirSummaryService reservoirSummaryService) {
+                          ReservoirSummaryService reservoirSummaryService,
+                          DiscoveryOilCaseVolumetricTotalsSummaryService discoveryOilCaseVolumetricTotalsSummaryService,
+                          DiscoveryGasCaseVolumetricTotalsSummaryService discoveryGasCaseVolumetricTotalsSummaryService) {
     this.gasFluidPropertySummaryService = gasFluidPropertySummaryService;
     this.oilFluidPropertySummaryService = oilFluidPropertySummaryService;
     this.generalFluidPropertySummaryService = generalFluidPropertySummaryService;
@@ -97,6 +105,8 @@ class DiscoverySummaryService {
     this.trapPropertiesSummaryService = trapPropertiesSummaryService;
     this.sourceAndSealSummaryService = sourceAndSealSummaryService;
     this.reservoirSummaryService = reservoirSummaryService;
+    this.discoveryOilCaseVolumetricTotalsSummaryService = discoveryOilCaseVolumetricTotalsSummaryService;
+    this.discoveryGasCaseVolumetricTotalsSummaryService = discoveryGasCaseVolumetricTotalsSummaryService;
   }
 
   public DiscoveryWellDetailsSummaryView getDiscoveryWellDetailsSummaryViewFromSubmissionDetail(
@@ -184,5 +194,17 @@ class DiscoverySummaryService {
 
   public List<ReservoirSummary> getReservoirSummariesFromSubmissionDetail(SubmissionDetail submissionDetail) {
     return reservoirSummaryService.getReservoirSummaries(submissionDetail);
+  }
+
+  public DiscoveryOilCaseVolumetricTotalsSummaryView getOilCaseVolumetricTotalsFromSubmissionDetail(
+      SubmissionDetail submissionDetail
+  ) {
+    return discoveryOilCaseVolumetricTotalsSummaryService.createSummaryView(submissionDetail);
+  }
+
+  public DiscoveryGasCaseVolumetricTotalsSummaryView getGasCaseVolumetricTotalsFromSubmissionDetail(
+      SubmissionDetail submissionDetail
+  ) {
+    return discoveryGasCaseVolumetricTotalsSummaryService.getGasCaseVolumetricTotalsSummaryFromSubmissionDetail(submissionDetail);
   }
 }

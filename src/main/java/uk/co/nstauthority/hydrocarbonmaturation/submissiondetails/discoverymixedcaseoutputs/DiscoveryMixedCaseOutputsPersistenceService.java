@@ -94,7 +94,7 @@ public class DiscoveryMixedCaseOutputsPersistenceService {
     );
 
     var associatedCondensateRecoverableResources =
-          ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY;
+          ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         associatedCondensateRecoverableResources,
         mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
@@ -116,8 +116,7 @@ public class DiscoveryMixedCaseOutputsPersistenceService {
   }
 
   private boolean hasAssociatedGasRecoverableResources(MixedCaseOutputsForm form) {
-    return form.getHasAssociatedGasRecoverableResources() != null
-        && form.getHasAssociatedGasRecoverableResources();
+    return BooleanUtils.isTrue(form.getHasAssociatedGasRecoverableResources());
   }
 
   @Transactional

@@ -7,16 +7,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
 public class ProbabilityDistributionPersistenceService {
 
   private final ProbabilityDistributionRepository probabilityDistributionRepository;
+  private final ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @Autowired
-  public ProbabilityDistributionPersistenceService(ProbabilityDistributionRepository probabilityDistributionRepository) {
+  public ProbabilityDistributionPersistenceService(
+      ProbabilityDistributionRepository probabilityDistributionRepository,
+      ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
     this.probabilityDistributionRepository = probabilityDistributionRepository;
+    this.reservoirDuplicationPersistenceService = reservoirDuplicationPersistenceService;
   }
 
   @Transactional
@@ -107,6 +112,29 @@ public class ProbabilityDistributionPersistenceService {
   }
 
   @Transactional
+  public void copyProbabilityDistribution(
+      ProbabilityDistributionFieldInstance fromInstance,
+      ReservoirSubmissionDetail fromReservoirSubmissionDetail,
+      ProbabilityDistributionFieldInstance toInstance,
+      SubmissionDetail toSubmissionDetail) {
+
+    var fromProbabilityDistributionOptional = getProbabilityDistribution(fromReservoirSubmissionDetail, fromInstance);
+
+    if (fromProbabilityDistributionOptional.isPresent()) {
+      var fromProbabilityDistribution = fromProbabilityDistributionOptional.get();
+      var newProbabilityDistribution = reservoirDuplicationPersistenceService
+          .duplicateChildAndReplaceParent(null, fromProbabilityDistribution, ProbabilityDistribution.class);
+      newProbabilityDistribution.setSubmissionDetail(toSubmissionDetail);
+      newProbabilityDistribution.setInstance(toInstance);
+      newProbabilityDistribution.setComments(
+          String.format("Copied from reservoir: %s", fromReservoirSubmissionDetail.getReservoir().getName())
+      );
+    }
+
+
+  }
+
+  @Transactional
   public void deleteProbabilityDistribution(ProbabilityDistributionFieldInstance probabilityDistributionFieldInstance,
                                             SubmissionDetail submissionDetail) {
     probabilityDistributionRepository.deleteBySubmissionDetailAndInstance(submissionDetail, probabilityDistributionFieldInstance);
@@ -117,6 +145,12 @@ public class ProbabilityDistributionPersistenceService {
                                             ReservoirSubmissionDetail reservoirSubmissionDetail) {
     probabilityDistributionRepository
         .deleteByReservoirSubmissionDetailAndInstance(reservoirSubmissionDetail, probabilityDistributionFieldInstance);
+  }
+
+  @Transactional
+  public void deleteProbabilityDistributions(List<ProbabilityDistributionFieldInstance> instances,
+                                             SubmissionDetail submissionDetail) {
+    probabilityDistributionRepository.deleteBySubmissionDetailAndInstanceIn(submissionDetail, instances);
   }
 
   @Transactional

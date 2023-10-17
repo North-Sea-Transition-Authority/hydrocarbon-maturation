@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetrics;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetricparameters;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,13 +9,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumet
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-public class FieldGasVolumetricsService {
+public class FieldGasVolumetricParametersService {
 
   private final ProbabilityDistributionFormService probabilityDistributionFormService;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
-  public FieldGasVolumetricsService(ProbabilityDistributionFormService probabilityDistributionFormService,
-                                    ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService) {
+  public FieldGasVolumetricParametersService(
+      ProbabilityDistributionFormService probabilityDistributionFormService,
+      ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService) {
     this.probabilityDistributionFormService = probabilityDistributionFormService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
   }

@@ -37,13 +37,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_TYPES)
 @IsFromResponsibleTeam
 public class DiscoveryMixedCaseOutputsController {
+
+  public static final String PAGE_NAME = "Oil and gas case volumetrics";
+
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
   private final DiscoveryMixedCaseOutputsFormService discoveryMixedCaseOutputsFormService;
   private final DiscoveryMixedCaseOutputsFormValidator discoveryMixedCaseOutputsFormValidator;
   private final DiscoveryMixedCaseOutputsPersistenceService discoveryMixedCaseOutputsPersistenceService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
-
-  public static final String PAGE_NAME = "Oil and gas case volumetrics";
 
   public DiscoveryMixedCaseOutputsController(
       ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
@@ -89,6 +90,8 @@ public class DiscoveryMixedCaseOutputsController {
                                                        ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/mixedCaseOutputs")
         .addObject("form", form)
+        .addObject("resourceType",
+            reservoirSubmissionDetail.getSubmissionDetail().getSubmission().getResource().getType().toString())
         .addObject("pageTitle", PAGE_NAME)
         .addObject("oilInPlaceError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
@@ -125,7 +128,7 @@ public class DiscoveryMixedCaseOutputsController {
                 contingentUncertaintyCategoryPromptOverrides))
         .addObject("associatedCondensateRecoverableResourcesTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
+                ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
                 contingentUncertaintyCategoryPromptOverrides));
 
     TaskListBreadcrumbUtil.addReservoirTaskListBreadcrumbsToModelAndView(modelAndView, PAGE_NAME, reservoirSubmissionDetail);
