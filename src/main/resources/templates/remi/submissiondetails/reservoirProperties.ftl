@@ -163,21 +163,21 @@
       <#if oilCase || mixedCase>
         <@probabilityDistribution.probabilityDistributionSingularTemplate
           probabilityDistributionPath="form.depthToOilWaterContact"
-          labelText="Depth to oil water contact"
+          labelText="Depth to oil-water contact"
           template=depthToOilWaterContactTemplate
           error=depthToOilWaterContactError/>
       </#if>
       <#if gasCase || mixedCase>
         <@probabilityDistribution.probabilityDistributionSingularTemplate
           probabilityDistributionPath="form.depthToGasWaterContact"
-          labelText="Depth to gas water contact"
+          labelText="Depth to gas-water contact"
           template=depthToGasWaterContactTemplate
           error=depthToGasWaterContactError/>
       </#if>
       <#if mixedCase>
         <@probabilityDistribution.probabilityDistributionSingularTemplate
           probabilityDistributionPath="form.depthToGasOilContact"
-          labelText="Depth to gas oil contact"
+          labelText="Depth to gas-oil contact"
           template=depthToGasOilContactTemplate
           error=depthToGasOilContactError/>
       </#if>
@@ -255,39 +255,39 @@
         <#if oilCase || mixedCase>
             <@probabilityDistribution.probabilityDistributionSingularTemplate
             probabilityDistributionPath="form.originalDepthToOilWaterContact"
-            labelText="Original depth to oil water contact"
+            labelText="Original depth to oil-water contact"
             template=originalDepthToOilWaterContactTemplate
             error=originalDepthToOilWaterContactError/>
 
             <@probabilityDistribution.probabilityDistributionSingularTemplate
             probabilityDistributionPath="form.depthToMovedOilWaterContact"
-            labelText="Depth to moved oil water contact"
+            labelText="Depth to moved oil-water contact"
             template=depthToMovedOilWaterContactTemplate
             error=depthToMovedOilWaterContactError/>
         </#if>
         <#if gasCase || mixedCase>
             <@probabilityDistribution.probabilityDistributionSingularTemplate
             probabilityDistributionPath="form.originalDepthToGasWaterContact"
-            labelText="Original depth to gas water contact"
+            labelText="Original depth to gas-water contact"
             template=originalDepthToGasWaterContactTemplate
             error=originalDepthToGasWaterContactError/>
 
             <@probabilityDistribution.probabilityDistributionSingularTemplate
             probabilityDistributionPath="form.depthToMovedGasWaterContact"
-            labelText="Depth to moved gas water contact"
+            labelText="Depth to moved gas-water contact"
             template=depthToMovedGasWaterContactTemplate
             error=depthToMovedGasWaterContactError/>
         </#if>
         <#if mixedCase>
             <@probabilityDistribution.probabilityDistributionSingularTemplate
             probabilityDistributionPath="form.originalDepthToGasOilContact"
-            labelText="Original depth to gas oil contact"
+            labelText="Original depth to gas-oil contact"
             template=originalDepthToGasOilContactTemplate
             error=originalDepthToGasOilContactError/>
 
             <@probabilityDistribution.probabilityDistributionSingularTemplate
             probabilityDistributionPath="form.depthToMovedGasOilContact"
-            labelText="Depth to moved gas oil contact"
+            labelText="Depth to moved gas-oil contact"
             template=depthToMovedGasOilContactTemplate
             error=depthToMovedGasOilContactError/>
         </#if>

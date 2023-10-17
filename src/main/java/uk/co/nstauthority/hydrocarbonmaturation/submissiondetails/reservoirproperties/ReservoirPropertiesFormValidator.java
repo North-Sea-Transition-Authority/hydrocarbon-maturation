@@ -469,7 +469,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToOilWaterContact(),
           errors,
           "depthToOilWaterContact",
-          "Depth to oil water contact",
+          "Depth to oil-water contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_FIELD
       );
     }
@@ -479,7 +479,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToGasWaterContact(),
           errors,
           "depthToGasWaterContact",
-          "Depth to gas water contact",
+          "Depth to gas-water contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_FIELD
       );
     }
@@ -488,7 +488,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToGasOilContact(),
           errors,
           "depthToGasOilContact",
-          "Depth to gas oil contact",
+          "Depth to gas-oil contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_FIELD
       );
     }
@@ -503,7 +503,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToOilWaterContact(),
           errors,
           "depthToOilWaterContact",
-          "Depth to oil water contact",
+          "Depth to oil-water contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY
       );
     }
@@ -513,7 +513,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToGasWaterContact(),
           errors,
           "depthToGasWaterContact",
-          "Depth to gas water contact",
+          "Depth to gas-water contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY
       );
     }
@@ -522,7 +522,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToGasOilContact(),
           errors,
           "depthToGasOilContact",
-          "Depth to gas oil contact",
+          "Depth to gas-oil contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY
       );
     }
@@ -537,7 +537,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToOilWaterContact(),
           errors,
           "depthToOilWaterContact",
-          "Depth to oil water contact",
+          "Depth to oil-water contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_FIELD
       );
     }
@@ -547,7 +547,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToGasWaterContact(),
           errors,
           "depthToGasWaterContact",
-          "Depth to gas water contact",
+          "Depth to gas-water contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_FIELD
       );
     }
@@ -556,7 +556,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToGasOilContact(),
           errors,
           "depthToGasOilContact",
-          "Depth to gas oil contact",
+          "Depth to gas-oil contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_FIELD
       );
     }
@@ -571,7 +571,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToOilWaterContact(),
           errors,
           "depthToOilWaterContact",
-          "Depth to oil water contact",
+          "Depth to oil-water contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY
       );
     }
@@ -581,7 +581,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToGasWaterContact(),
           errors,
           "depthToGasWaterContact",
-          "Depth to gas water contact",
+          "Depth to gas-water contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY
       );
     }
@@ -590,7 +590,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToGasOilContact(),
           errors,
           "depthToGasOilContact",
-          "Depth to gas oil contact",
+          "Depth to gas-oil contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY
       );
     }
@@ -605,7 +605,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getOriginalDepthToOilWaterContact(),
           errors,
           "originalDepthToOilWaterContact",
-          "Original depth to oil water contact",
+          "Original depth to oil-water contact",
           ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_OIL_WATER_CONTACT_FIELD
       );
     }
@@ -615,7 +615,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getOriginalDepthToGasWaterContact(),
           errors,
           "originalDepthToGasWaterContact",
-          "Original depth to gas water contact",
+          "Original depth to gas-water contact",
           ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_GAS_WATER_CONTACT_FIELD
       );
     }
@@ -624,7 +624,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getOriginalDepthToGasOilContact(),
           errors,
           "originalDepthToGasOilContact",
-          "Original depth to gas oil contact",
+          "Original depth to gas-oil contact",
           ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_GAS_OIL_CONTACT_FIELD
       );
     }
@@ -639,7 +639,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getOriginalDepthToOilWaterContact(),
           errors,
           "originalDepthToOilWaterContact",
-          "Original depth to oil water contact",
+          "Original depth to oil-water contact",
           ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_OIL_WATER_CONTACT_FIELD
       );
     }
@@ -649,7 +649,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getOriginalDepthToGasWaterContact(),
           errors,
           "originalDepthToGasWaterContact",
-          "Original depth to gas water contact",
+          "Original depth to gas-water contact",
           ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_GAS_WATER_CONTACT_FIELD
       );
     }
@@ -658,7 +658,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getOriginalDepthToGasOilContact(),
           errors,
           "originalDepthToGasOilContact",
-          "Original depth to gas oil contact",
+          "Original depth to gas-oil contact",
           ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_GAS_OIL_CONTACT_FIELD
       );
     }
@@ -673,7 +673,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToMovedOilWaterContact(),
           errors,
           "depthToMovedOilWaterContact",
-          "Depth to moved oil water contact",
+          "Depth to moved oil-water contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_OIL_WATER_CONTACT_FIELD
       );
     }
@@ -683,7 +683,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToMovedGasWaterContact(),
           errors,
           "depthToMovedGasWaterContact",
-          "Depth to moved gas water contact",
+          "Depth to moved gas-water contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_GAS_WATER_CONTACT_FIELD
       );
     }
@@ -692,7 +692,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToMovedGasOilContact(),
           errors,
           "depthToMovedGasOilContact",
-          "Depth to moved gas oil contact",
+          "Depth to moved gas-oil contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_GAS_OIL_CONTACT_FIELD
       );
     }
@@ -707,7 +707,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToMovedOilWaterContact(),
           errors,
           "depthToMovedOilWaterContact",
-          "Depth to moved oil water contact",
+          "Depth to moved oil-water contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_OIL_WATER_CONTACT_FIELD
       );
     }
@@ -717,7 +717,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToMovedGasWaterContact(),
           errors,
           "depthToMovedGasWaterContact",
-          "Depth to moved gas water contact",
+          "Depth to moved gas-water contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_GAS_WATER_CONTACT_FIELD
       );
     }
@@ -726,7 +726,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToMovedGasOilContact(),
           errors,
           "depthToMovedGasOilContact",
-          "Depth to moved gas oil contact",
+          "Depth to moved gas-oil contact",
           ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_GAS_OIL_CONTACT_FIELD
       );
     }

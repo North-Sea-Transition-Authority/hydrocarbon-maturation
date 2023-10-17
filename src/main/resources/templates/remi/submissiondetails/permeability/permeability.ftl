@@ -9,9 +9,9 @@
 <#-- @ftlvariable name="verticalPermeabilityError" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError" -->
 
 <#macro permeabilityValuesForm form methodUsed source isFieldSubmission>
-  <@fdsTextInput.textInput suffix="md" inputClass="govuk-input--width-4" nestingPath="form.permeabilityValuesForm.permeabilityMin.decimalInputValue" path="form.permeabilityValuesForm.permeabilityMin.decimalInputValue" labelText="Permeability (md) min"/>
-  <@fdsTextInput.textInput suffix="md" inputClass="govuk-input--width-4" nestingPath="form.permeabilityValuesForm.permeabilityMax.decimalInputValue" path="form.permeabilityValuesForm.permeabilityMax.decimalInputValue" labelText="Permeability (md) max"/>
-  <@fdsTextInput.textInput suffix="md" inputClass="govuk-input--width-4" nestingPath="form.permeabilityValuesForm.permeabilityAverage.decimalInputValue" path="form.permeabilityValuesForm.permeabilityAverage.decimalInputValue" labelText="Permeability (md) average"/>
+  <@fdsTextInput.textInput suffix="mD" inputClass="govuk-input--width-4" nestingPath="form.permeabilityValuesForm.permeabilityMin.decimalInputValue" path="form.permeabilityValuesForm.permeabilityMin.decimalInputValue" labelText="Permeability (md) min"/>
+  <@fdsTextInput.textInput suffix="mD" inputClass="govuk-input--width-4" nestingPath="form.permeabilityValuesForm.permeabilityMax.decimalInputValue" path="form.permeabilityValuesForm.permeabilityMax.decimalInputValue" labelText="Permeability (md) max"/>
+  <@fdsTextInput.textInput suffix="mD" inputClass="govuk-input--width-4" nestingPath="form.permeabilityValuesForm.permeabilityAverage.decimalInputValue" path="form.permeabilityValuesForm.permeabilityAverage.decimalInputValue" labelText="Permeability (md) average"/>
   <@fdsRadio.radioGroup path="form.permeabilityValuesForm.averageMethodUsed" nestingPath="form.permeabilityValuesForm.averageMethodUsed" labelText="Permeability (md) average method used">
     <#assign firstItem=true/>
     <#list methodUsed as key, value>

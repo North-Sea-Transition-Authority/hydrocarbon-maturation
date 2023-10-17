@@ -33,7 +33,7 @@ public class GasFluidPropertySummaryService implements SummarySectionService<Res
   public static final String CONDENSATE_OTHER_INCL_WAX = "Condensate other incl wax appearance temperature";
   public static final String ADVISE_OTHER_GASES_CONCENTRATION = "Advise of any other gases and their concentrations";
 
-  public static final int GAS_PROPERTIES_DISPLAY_ORDER = 30;
+  public static final int GAS_FLUID_PROPERTIES_DISPLAY_ORDER = 80;
 
   private final GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService;
   private final GeneralReservoirInformationService generalReservoirInformationService;
@@ -76,7 +76,7 @@ public class GasFluidPropertySummaryService implements SummarySectionService<Res
     }
 
     var summaryItems = List.of(getOilFluidPropertySummary(reservoirSubmissionDetail));
-    return Optional.of(new SummarySection(30, summaryItems, ""));
+    return Optional.of(new SummarySection(GAS_FLUID_PROPERTIES_DISPLAY_ORDER, summaryItems, ""));
   }
 
   private SummaryItem getOilFluidPropertySummary(ReservoirSubmissionDetail reservoirSubmissionDetail) {

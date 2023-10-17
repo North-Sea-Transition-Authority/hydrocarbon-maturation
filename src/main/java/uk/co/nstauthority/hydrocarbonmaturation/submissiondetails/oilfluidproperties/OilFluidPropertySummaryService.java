@@ -23,7 +23,9 @@ public class OilFluidPropertySummaryService implements SummarySectionService<Res
   public static final String OIL_SULPHUR = "Oil sulphur";
   public static final String OIL_WAX = "Oil wax";
   public static final String OIL_OTHER = "Oil other incl wax appearance temperature";
-  
+
+  public static final int OIL_FLUID_PROPERTIES_DISPLAY_ORDER = 70;
+
   private final OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService;
   private final GeneralReservoirInformationService generalReservoirInformationService;
 
@@ -57,7 +59,7 @@ public class OilFluidPropertySummaryService implements SummarySectionService<Res
     }
     
     var summaryItems = List.of(getOilFluidPropertySummary(reservoirSubmissionDetail));
-    return Optional.of(new SummarySection(90, summaryItems, ""));
+    return Optional.of(new SummarySection(OIL_FLUID_PROPERTIES_DISPLAY_ORDER, summaryItems, ""));
   }
 
   private SummaryItem getOilFluidPropertySummary(ReservoirSubmissionDetail reservoirSubmissionDetail) {

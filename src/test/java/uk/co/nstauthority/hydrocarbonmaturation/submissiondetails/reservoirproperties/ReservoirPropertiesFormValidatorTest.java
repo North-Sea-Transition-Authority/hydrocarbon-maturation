@@ -245,9 +245,9 @@ class ReservoirPropertiesFormValidatorTest {
             "Gross reservoir thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
             "Net to gross distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
             "Net porosity distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Depth to oil water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Depth to gas water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Depth to gas oil contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Depth to oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Depth to gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Depth to gas-oil contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
         );
   }
 
@@ -396,9 +396,9 @@ class ReservoirPropertiesFormValidatorTest {
             "Gross reservoir thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
             "Net to gross distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
             "Net porosity distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Depth to oil water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Depth to gas water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Depth to gas oil contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Depth to oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Depth to gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Depth to gas-oil contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
         );
   }
 
@@ -537,7 +537,7 @@ class ReservoirPropertiesFormValidatorTest {
             "Gross reservoir thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
             "Net to gross distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
             "Net porosity distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Depth to gas water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Depth to gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
         );
   }
 
@@ -581,7 +581,7 @@ class ReservoirPropertiesFormValidatorTest {
             "Gross reservoir thickness distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
             "Net to gross distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
             "Net porosity distribution used - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Depth to oil water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Depth to oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
         );
   }
 
@@ -609,7 +609,7 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Depth to oil water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Depth to oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
         );
   }
 
@@ -640,8 +640,8 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Depth to moved oil water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Original depth to oil water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Depth to moved oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Original depth to oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
         );
   }
 
@@ -675,9 +675,9 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Depth to oil water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Depth to gas water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Depth to gas oil contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Depth to oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Depth to gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Depth to gas-oil contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
         );
   }
 
@@ -716,12 +716,12 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Depth to moved oil water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Depth to moved gas water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Depth to moved gas oil contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Original depth to oil water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Original depth to gas water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Original depth to gas oil contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Depth to moved oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Depth to moved gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Depth to moved gas-oil contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Original depth to oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Original depth to gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Original depth to gas-oil contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
         );
   }
 
@@ -750,7 +750,7 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Depth to gas water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Depth to gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
         );
   }
 
@@ -782,8 +782,8 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Depth to moved gas water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Original depth to gas water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Depth to moved gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
+            "Original depth to gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
         );
   }
 

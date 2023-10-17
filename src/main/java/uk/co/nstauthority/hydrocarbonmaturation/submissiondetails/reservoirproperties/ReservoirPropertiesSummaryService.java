@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprop
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,9 +17,42 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservo
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 
 @Service
-public class ReservoirPropertiesSummaryService {
+public class ReservoirPropertiesSummaryService implements SummarySectionService<ReservoirSubmissionDetail> {
+  public static final String RESERVOIR_PROPERTIES = "Reservoir properties";
+  public static final String FORMATION_NAME = "Formation name";
+  public static final String SUB_UNIT = "Sub unit";
+  public static final String AGE_STAGE_OR_SERIES = "Age, stage, or series";
+  public static final String GROUP_NAME = "Group name";
+  public static final String LITHOLOGY = "Reservoir lithology";
+  public static final String LITHOLOGY_OTHER = "Other lithology";
+  public static final String AVERAGE_NET_PAY_THICKNESS = "Average net pay thickness";
+  public static final String GROSS_RESERVOIR_THICKNESS = "Gross reservoir thickness";
+  public static final String GROSS_ROCK_VOLUME = "Gross rock volume";
+  public static final String PERCENT_OF_GRV_OIL_BEARING = "Percent of GRV oil-bearing";
+  public static final String NET_TO_GROSS = "Net to gross";
+  public static final String NET_POROSITY = "Net porosity";
+  public static final String DEPTH_TO_HYDROCARBON_CONTACT = "Depth to hydrocarbon contact";
+  public static final String DEPTH_TO_OIL_WATER_CONTACT = "Depth to oil-water contact";
+  public static final String DEPTH_TO_GAS_WATER_CONTACT = "Depth to gas-water contact";
+  public static final String DEPTH_TO_GAS_OIL_CONTACT = "Depth to gas-oil contact";
+  public static final String ORIGINAL_DEPTH_TO_OIL_WATER_CONTACT = "Original depth to oil-water contact";
+  public static final String ORIGINAL_DEPTH_TO_GAS_WATER_CONTACT = "Original depth to gas-water contact";
+  public static final String ORIGINAL_DEPTH_TO_GAS_OIL_CONTACT = "Original depth to gas-oil contact";
+  public static final String DEPTH_TO_MOVED_OIL_WATER_CONTACT = "Depth to moved oil-water contact";
+  public static final String DEPTH_TO_MOVED_GAS_WATER_CONTACT = "Depth to moved gas-water contact";
+  public static final String DEPTH_TO_MOVED_GAS_OIL_CONTACT = "Depth to moved gas-oil contact";
+  public static final String RESERVOIR_FACIES = "Reservoir facies";
+  public static final String RESERVOIR_CONNECTIVITY = "Reservoir connectivity";
+
+
+  public static final int RESERVOIR_PROPERTIES_DISPLAY_ORDER = 30;
 
   private final ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
@@ -97,6 +131,87 @@ public class ReservoirPropertiesSummaryService {
         listOfSummaryViews,
         listOfDepthToContactDistributions
     );
+  }
+
+  @Override
+  public Optional<SummarySection> getSummarySection(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var summaryItems = List.of(
+        getReservoirPropertiesSummary(reservoirSubmissionDetail),
+        getProbabilityDistributionsSummary(reservoirSubmissionDetail)
+    );
+    return Optional.of(new SummarySection(RESERVOIR_PROPERTIES_DISPLAY_ORDER, summaryItems, ""));
+  }
+
+  private SummaryItem getReservoirPropertiesSummary(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var summaryDataView = new SummaryDataView(new ArrayList<>());
+    reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail).ifPresentOrElse(
+        reservoirProperty -> {
+          summaryDataView.addKeyValue(FORMATION_NAME,
+              reservoirProperty.getFormationName().getDisplayName());
+          summaryDataView.addKeyValue(SUB_UNIT,
+              reservoirProperty.getSubUnit().getDisplayName());
+          summaryDataView.addKeyValue(AGE_STAGE_OR_SERIES,
+              reservoirProperty.getAgeStage().getDisplayName());
+          summaryDataView.addKeyValue(GROUP_NAME,
+              reservoirProperty.getGroupName().getDisplayName());
+
+          var lithology = reservoirProperty.getLithology();
+          if (ReservoirLithology.OTHER.equals(lithology)) {
+            summaryDataView.addKeyValue(LITHOLOGY,
+                reservoirProperty.getLithologyOther());
+          } else {
+            summaryDataView.addKeyValue(LITHOLOGY,
+                reservoirProperty.getLithology().getDisplayName());
+          }
+
+          summaryDataView.addKeyValue(RESERVOIR_FACIES,
+              reservoirProperty.getReservoirFacies());
+          summaryDataView.addKeyValue(RESERVOIR_CONNECTIVITY,
+              reservoirProperty.getReservoirConnectivity());
+        }, () -> {
+          summaryDataView.addKeyValue(FORMATION_NAME, "");
+          summaryDataView.addKeyValue(SUB_UNIT, "");
+          summaryDataView.addKeyValue(AGE_STAGE_OR_SERIES, "");
+          summaryDataView.addKeyValue(GROUP_NAME, "");
+          summaryDataView.addKeyValue(LITHOLOGY, "");
+          summaryDataView.addKeyValue(RESERVOIR_FACIES, "");
+          summaryDataView.addKeyValue(RESERVOIR_CONNECTIVITY, "");
+        });
+
+    var summaryCard1 = SummaryCard.simpleSummaryCard(
+        summaryDataView
+    );
+
+    return SummaryItem.withCards(RESERVOIR_PROPERTIES, List.of(summaryCard1));
+  }
+
+  private SummaryItem getProbabilityDistributionsSummary(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+
+    var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
+    listOfInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY);
+    if (generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)
+        || generalReservoirInformationService.isMixed(reservoirSubmissionDetail)) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY);
+    }
+    if (generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)
+        || generalReservoirInformationService.isMixed(reservoirSubmissionDetail)) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY);
+    }
+    if (generalReservoirInformationService.isMixed(reservoirSubmissionDetail)) {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY);
+    }
+
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+    var listOfSummaryViews =
+        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+            listOfInstances, submissionDetail, reservoirSubmissionDetail
+        );
+
+    return SummaryItem.withCard(RESERVOIR_PROPERTIES, SummaryCard.probabilitySummaryCard(listOfSummaryViews));
   }
 
   private String getFormationDisplay(ReservoirProperty reservoirProperty) {

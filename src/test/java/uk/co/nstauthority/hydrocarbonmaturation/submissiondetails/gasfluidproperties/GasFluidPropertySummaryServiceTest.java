@@ -148,7 +148,6 @@ class GasFluidPropertySummaryServiceTest {
     var summarySection = gasFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail);
 
     assertThat(summarySection).isPresent();
-    assertSummarySection(summarySection.get(), GasFluidPropertySummaryService.GAS_PROPERTIES_DISPLAY_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(
         GasFluidPropertySummaryService.GAS_SPECIFIC_GRAVITY, ""
     );
@@ -191,7 +190,7 @@ class GasFluidPropertySummaryServiceTest {
     var summarySection = gasFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail);
 
     assertThat(summarySection).isPresent();
-    assertSummarySection(summarySection.get(), GasFluidPropertySummaryService.GAS_PROPERTIES_DISPLAY_ORDER);
+    assertSummarySection(summarySection.get(), GasFluidPropertySummaryService.GAS_FLUID_PROPERTIES_DISPLAY_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(
         GasFluidPropertySummaryService.GAS_SPECIFIC_GRAVITY, "1"
     );

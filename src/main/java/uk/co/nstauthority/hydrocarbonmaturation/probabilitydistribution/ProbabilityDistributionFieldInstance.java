@@ -151,12 +151,12 @@ public enum ProbabilityDistributionFieldInstance {
   DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY(
       MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
-      "Depth to oil water contact"
+      "Depth to oil-water contact"
   ),
   DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY(
       MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
-      "Depth to gas water contact"
+      "Depth to gas-water contact"
   ),
   DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY(
       MinimumMostLikelyMaxBehaviour.class,
@@ -166,12 +166,12 @@ public enum ProbabilityDistributionFieldInstance {
   ORIGINAL_DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY(
       MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
-      "Original depth to oil water contact"
+      "Original depth to oil-water contact"
   ),
   ORIGINAL_DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY(
       MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
-      "Original depth to gas water contact"
+      "Original depth to gas-water contact"
   ),
   ORIGINAL_DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY(
       MinimumMostLikelyMaxBehaviour.class,
@@ -181,12 +181,12 @@ public enum ProbabilityDistributionFieldInstance {
   DEPTH_TO_MOVED_OIL_WATER_CONTACT_DISCOVERY(
       MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
-      "Depth to moved oil water contact"
+      "Depth to moved oil-water contact"
   ),
   DEPTH_TO_MOVED_GAS_WATER_CONTACT_DISCOVERY(
       MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
-      "Depth to moved gas water contact"
+      "Depth to moved gas-water contact"
   ),
   DEPTH_TO_MOVED_GAS_OIL_CONTACT_DISCOVERY(
       MinimumMostLikelyMaxBehaviour.class,
@@ -197,12 +197,12 @@ public enum ProbabilityDistributionFieldInstance {
   DEPTH_TO_OIL_WATER_CONTACT_FIELD(
       MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
-      "Depth to oil water contact"
+      "Depth to oil-water contact"
   ),
   DEPTH_TO_GAS_WATER_CONTACT_FIELD(
       MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
-      "Depth to gas water contact"
+      "Depth to gas-water contact"
   ),
   DEPTH_TO_GAS_OIL_CONTACT_FIELD(
       MinimumMostLikelyMaxBehaviour.class,
@@ -212,12 +212,12 @@ public enum ProbabilityDistributionFieldInstance {
   ORIGINAL_DEPTH_TO_OIL_WATER_CONTACT_FIELD(
       MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
-      "Original depth to oil water contact"
+      "Original depth to oil-water contact"
   ),
   ORIGINAL_DEPTH_TO_GAS_WATER_CONTACT_FIELD(
       MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
-      "Original depth to gas water contact"
+      "Original depth to gas-water contact"
   ),
   ORIGINAL_DEPTH_TO_GAS_OIL_CONTACT_FIELD(
       MinimumMostLikelyMaxBehaviour.class,
@@ -227,12 +227,12 @@ public enum ProbabilityDistributionFieldInstance {
   DEPTH_TO_MOVED_OIL_WATER_CONTACT_FIELD(
       MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
-      "Depth to moved oil water contact"
+      "Depth to moved oil-water contact"
   ),
   DEPTH_TO_MOVED_GAS_WATER_CONTACT_FIELD(
       MinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
-      "Depth to moved gas water contact"
+      "Depth to moved gas-water contact"
   ),
   DEPTH_TO_MOVED_GAS_OIL_CONTACT_FIELD(
       MinimumMostLikelyMaxBehaviour.class,

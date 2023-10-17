@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidprope
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.OIL_PROPERTIES_DISPLAY_ORDER;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.assertSummarySection;
 
 import java.math.BigDecimal;
@@ -115,7 +114,7 @@ class OilFluidPropertySummaryServiceTest {
     var summarySection = oilFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail);
 
     assertThat(summarySection).isPresent();
-    assertSummarySection(summarySection.get(), OIL_PROPERTIES_DISPLAY_ORDER);
+    assertSummarySection(summarySection.get(), OilFluidPropertySummaryService.OIL_FLUID_PROPERTIES_DISPLAY_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(
         OilFluidPropertySummaryService.OIL_GRAVITY, ""
     );
@@ -146,7 +145,7 @@ class OilFluidPropertySummaryServiceTest {
     var summarySection = oilFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail);
 
     assertThat(summarySection).isPresent();
-    assertSummarySection(summarySection.get(), OIL_PROPERTIES_DISPLAY_ORDER);
+    assertSummarySection(summarySection.get(), OilFluidPropertySummaryService.OIL_FLUID_PROPERTIES_DISPLAY_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(
         OilFluidPropertySummaryService.OIL_GRAVITY, "1 °API"
     );
