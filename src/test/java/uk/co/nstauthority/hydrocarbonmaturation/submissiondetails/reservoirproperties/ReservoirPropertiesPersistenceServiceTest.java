@@ -19,6 +19,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.EnumUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
@@ -247,6 +248,9 @@ class ReservoirPropertiesPersistenceServiceTest {
     assertThat(savedBarrierBaffleDetails).extracting(barrierBaffleDetail -> barrierBaffleDetail.getBarrierBaffle().getEnumName())
             .containsAnyElementsOf(expectedBarrierBaffles);
 
+    var depositionalSetting = EnumUtils.getEnumValue(DepositionalSetting.class, form.getDepositionalSetting());
+    var expectedDepositionalEnvironment = form.getDepositionalEnvironmentMap().get(depositionalSetting);
+
     assertThat(savedReservoirProperty)
         .extracting(
             ReservoirProperty::getReservoirSubmissionDetail,
@@ -272,7 +276,7 @@ class ReservoirPropertiesPersistenceServiceTest {
             form.getLithologyOther(),
             form.getFracturePressure().asBigDecimal().get(),
             form.getDepositionalSetting(),
-            form.getDepositionalEnvironment(),
+            expectedDepositionalEnvironment,
             form.getPlannedProducers().asBigDecimal().get(),
             form.getPlannedInjectors().asBigDecimal().get(),
             form.getIsLateralBarriersBaffles(),
@@ -315,6 +319,8 @@ class ReservoirPropertiesPersistenceServiceTest {
     assertThat(savedBarrierBaffleDetails).extracting(barrierBaffleDetail -> barrierBaffleDetail.getBarrierBaffle().getEnumName())
         .containsAnyElementsOf(expectedBarrierBaffles);
 
+    var depositionalSetting = EnumUtils.getEnumValue(DepositionalSetting.class, form.getDepositionalSetting());
+    var expectedDepositionalEnvironment = form.getDepositionalEnvironmentMap().get(depositionalSetting);
     assertThat(savedReservoirProperty)
         .extracting(
             ReservoirProperty::getReservoirSubmissionDetail,
@@ -340,7 +346,7 @@ class ReservoirPropertiesPersistenceServiceTest {
             form.getLithologyOther(),
             form.getFracturePressure().asBigDecimal().get(),
             form.getDepositionalSetting(),
-            form.getDepositionalEnvironment(),
+            expectedDepositionalEnvironment,
             form.getPlannedProducers().asBigDecimal().get(),
             form.getPlannedInjectors().asBigDecimal().get(),
             form.getIsLateralBarriersBaffles(),
@@ -640,7 +646,8 @@ class ReservoirPropertiesPersistenceServiceTest {
         ProbabilityDistributionTestUtil.getValidProbabilityDistributionForm(ProbabilityDistributionType.LOGNORMAL));
     form.setFracturePressure(new DecimalInput("1"));
     form.setDepositionalSetting(DepositionalSetting.TERRESTRIAL.name());
-    form.setDepositionalEnvironment(DepositionalEnvironment.AEOLIAN.name());
+    form.getDepositionalEnvironmentMap()
+        .put(DepositionalSetting.TERRESTRIAL, DepositionalEnvironment.AEOLIAN.getDisplayName());
     form.setPlannedProducers(new DecimalInput("1"));
     form.setPlannedInjectors(new DecimalInput("1"));
     form.setIsLateralBarriersBaffles(true);

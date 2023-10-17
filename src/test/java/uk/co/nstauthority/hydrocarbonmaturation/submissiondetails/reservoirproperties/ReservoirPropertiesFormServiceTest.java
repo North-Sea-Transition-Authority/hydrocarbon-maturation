@@ -85,12 +85,17 @@ class ReservoirPropertiesFormServiceTest {
             ReservoirPropertiesForm::getReservoirConnectivity,
             form -> form.getFracturePressure().getDecimalInputValue(),
             ReservoirPropertiesForm::getDepositionalSetting,
-            ReservoirPropertiesForm::getDepositionalEnvironment,
             form -> form.getPlannedProducers().getDecimalInputValue(),
             form -> form.getPlannedInjectors().getDecimalInputValue(),
             ReservoirPropertiesForm::getIsLateralBarriersBaffles,
             ReservoirPropertiesForm::getIsVerticalBarriersBaffles
         )
+        .containsOnlyNulls();
+
+    // check map is setting to strings which are null to start with
+    assertThat(reservoirPropertiesForm.getDepositionalEnvironmentMap().keySet())
+        .containsExactlyInAnyOrder(DepositionalSetting.values());
+    assertThat(reservoirPropertiesForm.getDepositionalEnvironmentMap().values())
         .containsOnlyNulls();
 
     assertThat(reservoirPropertiesForm)

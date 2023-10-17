@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.EnumUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
@@ -64,13 +65,15 @@ class ReservoirPropertiesFormService {
       if (resourceType == ResourceType.FIELD) {
         form.setFracturePressure(DecimalInput.createDecimalInput(reservoirProperty.getFracturePressure()));
         form.setDepositionalSetting(reservoirProperty.getDepositionalSetting());
-        form.setDepositionalEnvironment(reservoirProperty.getDepositionalEnvironment());
         form.setPlannedProducers(DecimalInput.createDecimalInput(reservoirProperty.getPlannedProducers()));
         form.setPlannedInjectors(DecimalInput.createDecimalInput(reservoirProperty.getPlannedInjectors()));
         form.setIsLateralBarriersBaffles(reservoirProperty.getLateralBarriersBaffles());
         form.setIsVerticalBarriersBaffles(reservoirProperty.getVerticalBarriersBaffles());
         setLateralBarrierBaffles(reservoirProperty, form);
         setVerticalBarrierBaffles(reservoirProperty, form);
+
+        var depositionalSetting = EnumUtils.getEnumValue(DepositionalSetting.class, reservoirProperty.getDepositionalSetting());
+        form.getDepositionalEnvironmentMap().put(depositionalSetting, reservoirProperty.getDepositionalEnvironment());
       }
     }
 

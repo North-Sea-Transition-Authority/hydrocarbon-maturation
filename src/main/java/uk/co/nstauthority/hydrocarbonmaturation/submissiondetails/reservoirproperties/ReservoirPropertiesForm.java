@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Set;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
@@ -36,13 +38,29 @@ class ReservoirPropertiesForm implements SubmissionForm {
 
   private DecimalInput fracturePressure = new DecimalInput();
   private String depositionalSetting;
-  private String depositionalEnvironment;
+  private Map<DepositionalSetting, String> depositionalEnvironmentMap = emptyDepositionalEnvironmentMap();
   private DecimalInput plannedProducers = new DecimalInput();
   private DecimalInput plannedInjectors = new DecimalInput();
   private Boolean isLateralBarriersBaffles;
   private Set<String> lateralBarriersBafflesDetail = Set.of();
   private Boolean isVerticalBarriersBaffles;
   private Set<String> verticalBarriersBafflesDetail = Set.of();
+
+  private EnumMap<DepositionalSetting, String> emptyDepositionalEnvironmentMap() {
+    var map = new EnumMap<DepositionalSetting, String>(DepositionalSetting.class);
+    for (var setting : DepositionalSetting.values()) {
+      map.put(setting, null);
+    }
+    return map;
+  }
+
+  public Map<DepositionalSetting, String> getDepositionalEnvironmentMap() {
+    return depositionalEnvironmentMap;
+  }
+
+  public void setDepositionalEnvironmentMap(Map<DepositionalSetting, String> depositionalEnvironmentMap) {
+    this.depositionalEnvironmentMap = depositionalEnvironmentMap;
+  }
 
   public String getFormationName() {
     return formationName;
@@ -277,15 +295,6 @@ class ReservoirPropertiesForm implements SubmissionForm {
 
   public ReservoirPropertiesForm setDepositionalSetting(String depositionalSetting) {
     this.depositionalSetting = depositionalSetting;
-    return this;
-  }
-
-  public String getDepositionalEnvironment() {
-    return depositionalEnvironment;
-  }
-
-  public ReservoirPropertiesForm setDepositionalEnvironment(String depositionalEnvironment) {
-    this.depositionalEnvironment = depositionalEnvironment;
     return this;
   }
 

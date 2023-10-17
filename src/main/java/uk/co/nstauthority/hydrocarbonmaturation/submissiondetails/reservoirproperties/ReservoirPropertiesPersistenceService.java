@@ -353,17 +353,10 @@ class ReservoirPropertiesPersistenceService {
   private void saveDepositionalSettingAndEnvironment(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {
     reservoirProperty.setDepositionalSetting(form.getDepositionalSetting());
 
+    var depositionalSetting = EnumUtils.getEnumValue(DepositionalSetting.class, form.getDepositionalSetting());
 
-    // save depositional environment if it has been set
-    if (form.getDepositionalEnvironment() != null) {
-      var depositionalSetting = EnumUtils.getEnumValue(DepositionalSetting.class, form.getDepositionalSetting());
-      var depositionalEnvironment = EnumUtils.getEnumValue(DepositionalEnvironment.class, form.getDepositionalEnvironment());
-      // remove environment if it doesn't correspond to the setting
-      if (!depositionalSetting.getDepositionalEnvironments().contains(depositionalEnvironment)) {
-        form.setDepositionalEnvironment(null);
-      }
-      reservoirProperty.setDepositionalEnvironment(form.getDepositionalEnvironment());
-    }
+    var depositionalEnvironment = form.getDepositionalEnvironmentMap().get(depositionalSetting);
+    reservoirProperty.setDepositionalEnvironment(depositionalEnvironment);
   }
 
   private void savePlannedProducers(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {

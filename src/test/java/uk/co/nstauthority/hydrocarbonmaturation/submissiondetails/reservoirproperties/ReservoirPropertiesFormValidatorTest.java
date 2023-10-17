@@ -830,8 +830,10 @@ class ReservoirPropertiesFormValidatorTest {
   @Test
   void validate_whenInvalidExceedenceForm_whenAnyField_settingNoEnvironment_thenValidationErrors() {
     var validationType = ValidationType.FULL;
+    var depositionalSetting = DepositionalSetting.TERRESTRIAL;
+
     var form = getInvalidForm_fieldSubmission();
-    form.setDepositionalSetting(DepositionalSetting.TERRESTRIAL.name());
+    form.setDepositionalSetting(depositionalSetting.name());
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
@@ -846,7 +848,7 @@ class ReservoirPropertiesFormValidatorTest {
 
     assertThat(extractedErrors)
         .contains(
-            entry("depositionalEnvironment", Set.of("depositionalEnvironment.required"))
+            entry("depositionalEnvironmentMap[" + depositionalSetting + "]", Set.of("depositionalEnvironment.required"))
         )
         .doesNotContainKey("depositionalSetting");
 
@@ -854,6 +856,39 @@ class ReservoirPropertiesFormValidatorTest {
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
             "Select a depositional environment"
+        );
+  }
+
+  @Test
+  void validate_whenInvalidExceedenceForm_whenAnyField_yesBarrierBafflesButNoneChecked_thenValidationErrors() {
+    var validationType = ValidationType.FULL;
+
+    var form = getInvalidForm_fieldSubmission();
+    form.setIsLateralBarriersBaffles(true);
+    form.setIsVerticalBarriersBaffles(true);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.GAS_ONLY);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_COP);
+    reservoirPropertiesFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("lateralBarriersBafflesDetail", Set.of("lateralBarriersBafflesDetail.required")),
+            entry("verticalBarriersBafflesDetail", Set.of("verticalBarriersBafflesDetail.required"))
+        );
+
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains(
+            "Select at least one lateral barrier or baffle",
+            "Select at least one vertical barrier or baffle"
         );
   }
 

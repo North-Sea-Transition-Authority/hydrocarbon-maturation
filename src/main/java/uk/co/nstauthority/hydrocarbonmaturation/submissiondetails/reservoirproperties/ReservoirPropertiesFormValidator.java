@@ -409,25 +409,16 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
             "Select a depositional setting");
       } else {
         var depositionalSetting = EnumUtils.getEnumValue(DepositionalSetting.class, depositionalSettingName);
+
         if (depositionalSetting.hasDepositionalEnvironments()) {
-          var depositionalEnvironmentName = reservoirPropertiesForm.getDepositionalEnvironment();
+          var depositionalEnvironmentName = reservoirPropertiesForm.getDepositionalEnvironmentMap().get(depositionalSetting);
           if (depositionalEnvironmentName == null) {
             ValidationUtils.rejectIfEmpty(
                 errors,
-                "depositionalEnvironment",
+                "depositionalEnvironmentMap[" + depositionalSetting + "]",
                 "depositionalEnvironment.required",
                 "Select a depositional environment"
             );
-          } else {
-            // if they have selected an environment from another setting, they haven't selected an environment for the new setting
-            var depositionalEnvironment = EnumUtils.getEnumValue(DepositionalEnvironment.class, depositionalEnvironmentName);
-            if (!depositionalSetting.getDepositionalEnvironments().contains(depositionalEnvironment)) {
-              errors.rejectValue(
-                  "depositionalEnvironment",
-                  "depositionalEnvironment.required",
-                  "Select a depositional environment"
-              );
-            }
           }
         }
       }
@@ -457,6 +448,18 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           "isVerticalBarriersBaffles.required",
           "Select if there any vertical barriers or baffles"
       );
+
+      if (reservoirPropertiesForm.getIsVerticalBarriersBaffles() != null
+          && reservoirPropertiesForm.getIsVerticalBarriersBaffles()) {
+        var verticalBarriersBafflesDetail = reservoirPropertiesForm.getVerticalBarriersBafflesDetail();
+        if (verticalBarriersBafflesDetail.isEmpty()) {
+          errors.rejectValue(
+              "verticalBarriersBafflesDetail",
+              "verticalBarriersBafflesDetail.required",
+              "Select at least one vertical barrier or baffle"
+          );
+        }
+      }
     }
   }
 

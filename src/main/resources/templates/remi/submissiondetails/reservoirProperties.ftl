@@ -196,11 +196,11 @@
               <#list depositionalSettings as depositionalSetting>
                   <@fdsRadio.radioItem path="form.depositionalSetting" itemMap={depositionalSetting.name() : depositionalSetting.displayName} itemHintText=depositionalSetting.info isFirstItem=firstSetting>
                       <#if depositionalSetting.depositionalEnvironments?has_content>
-                          <@fdsRadio.radioGroup path="form.depositionalEnvironment" labelText="" nestingPath="form.depositionalSetting" hiddenContent=true>
+                          <@fdsRadio.radioGroup path="form.depositionalEnvironmentMap[${depositionalSetting}]" labelText="" nestingPath="form.depositionalSetting" hiddenContent=true>
                               <#assign firstEnvironment=true/>
                               <#list depositionalSetting.depositionalEnvironments as depositionalEnvironment>
                                   <#if depositionalEnvironment?has_content>
-                                      <@fdsRadio.radioItem path="form.depositionalEnvironment" itemMap={depositionalEnvironment.name() : depositionalEnvironment.displayName} itemHintText=depositionalEnvironment.info isFirstItem=firstEnvironment/>
+                                      <@fdsRadio.radioItem path="form.depositionalEnvironmentMap[${depositionalSetting}]" itemMap={depositionalEnvironment.name() : depositionalEnvironment.displayName} itemHintText=depositionalEnvironment.info isFirstItem=firstEnvironment/>
                                       <#assign firstEnvironment=false/>
                                   </#if>
                               </#list>
