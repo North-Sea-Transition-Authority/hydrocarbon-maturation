@@ -39,8 +39,6 @@ class ReservoirPropertiesForm implements SubmissionForm {
   private DecimalInput fracturePressure = new DecimalInput();
   private String depositionalSetting;
   private Map<DepositionalSetting, String> depositionalEnvironmentMap = emptyDepositionalEnvironmentMap();
-  private DecimalInput plannedProducers = new DecimalInput();
-  private DecimalInput plannedInjectors = new DecimalInput();
   private Boolean isLateralBarriersBaffles;
   private Set<String> lateralBarriersBafflesDetail = Set.of();
   private Boolean isVerticalBarriersBaffles;
@@ -295,26 +293,6 @@ class ReservoirPropertiesForm implements SubmissionForm {
 
   public ReservoirPropertiesForm setDepositionalSetting(String depositionalSetting) {
     this.depositionalSetting = depositionalSetting;
-    return this;
-  }
-
-  public DecimalInput getPlannedProducers() {
-    return plannedProducers;
-  }
-
-  public ReservoirPropertiesForm setPlannedProducers(
-      DecimalInput plannedProducers) {
-    this.plannedProducers = plannedProducers;
-    return this;
-  }
-
-  public DecimalInput getPlannedInjectors() {
-    return plannedInjectors;
-  }
-
-  public ReservoirPropertiesForm setPlannedInjectors(
-      DecimalInput plannedInjectors) {
-    this.plannedInjectors = plannedInjectors;
     return this;
   }
 

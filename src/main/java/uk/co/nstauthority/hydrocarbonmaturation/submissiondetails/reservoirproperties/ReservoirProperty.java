@@ -63,10 +63,6 @@ class ReservoirProperty implements ReservoirSubmissionDetailChildEntity {
 
   private String depositionalEnvironment;
 
-  private BigDecimal plannedProducers;
-
-  private BigDecimal plannedInjectors;
-
   private Boolean isLateralBarriersBaffles;
 
   private Boolean isVerticalBarriersBaffles;
@@ -203,24 +199,6 @@ class ReservoirProperty implements ReservoirSubmissionDetailChildEntity {
 
   public ReservoirProperty setDepositionalEnvironment(String depositionalEnvironment) {
     this.depositionalEnvironment = depositionalEnvironment;
-    return this;
-  }
-
-  public BigDecimal getPlannedProducers() {
-    return plannedProducers;
-  }
-
-  public ReservoirProperty setPlannedProducers(BigDecimal plannedProducers) {
-    this.plannedProducers = plannedProducers;
-    return this;
-  }
-
-  public BigDecimal getPlannedInjectors() {
-    return plannedInjectors;
-  }
-
-  public ReservoirProperty setPlannedInjectors(BigDecimal plannedInjectors) {
-    this.plannedInjectors = plannedInjectors;
     return this;
   }
 

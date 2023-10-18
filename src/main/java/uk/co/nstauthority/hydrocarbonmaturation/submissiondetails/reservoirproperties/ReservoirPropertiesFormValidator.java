@@ -382,24 +382,6 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           .setMaxDecimalPlaces(0)
           .validate();
 
-      DecimalInputValidator.configureOptionalValidator(
-              errors,
-              "plannedProducers.decimalInputValue",
-              "The planned producers",
-              reservoirPropertiesForm.getPlannedProducers())
-          .setMinValue(BigDecimal.ZERO)
-          .setMaxDecimalPlaces(0)
-          .validate();
-
-      DecimalInputValidator.configureOptionalValidator(
-              errors,
-              "plannedInjectors.decimalInputValue",
-              "The planned injectors",
-              reservoirPropertiesForm.getPlannedInjectors())
-          .setMinValue(BigDecimal.ZERO)
-          .setMaxDecimalPlaces(0)
-          .validate();
-
 
       var depositionalSettingName = reservoirPropertiesForm.getDepositionalSetting();
       if (depositionalSettingName == null) {

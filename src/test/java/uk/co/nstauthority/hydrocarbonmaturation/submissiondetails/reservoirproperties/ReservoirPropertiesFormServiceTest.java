@@ -85,8 +85,6 @@ class ReservoirPropertiesFormServiceTest {
             ReservoirPropertiesForm::getReservoirConnectivity,
             form -> form.getFracturePressure().getDecimalInputValue(),
             ReservoirPropertiesForm::getDepositionalSetting,
-            form -> form.getPlannedProducers().getDecimalInputValue(),
-            form -> form.getPlannedInjectors().getDecimalInputValue(),
             ReservoirPropertiesForm::getIsLateralBarriersBaffles,
             ReservoirPropertiesForm::getIsVerticalBarriersBaffles
         )
@@ -655,8 +653,6 @@ class ReservoirPropertiesFormServiceTest {
     reservoirProperty.setFracturePressure(BigDecimal.ONE);
     reservoirProperty.setDepositionalSetting(DepositionalSetting.TERRESTRIAL.name());
     reservoirProperty.setDepositionalEnvironment(DepositionalEnvironment.AEOLIAN.name());
-    reservoirProperty.setPlannedProducers(BigDecimal.ONE);
-    reservoirProperty.setPlannedInjectors(BigDecimal.ONE);
     reservoirProperty.setLateralBarriersBaffles(false);
     reservoirProperty.setVerticalBarriersBaffles(false);
 

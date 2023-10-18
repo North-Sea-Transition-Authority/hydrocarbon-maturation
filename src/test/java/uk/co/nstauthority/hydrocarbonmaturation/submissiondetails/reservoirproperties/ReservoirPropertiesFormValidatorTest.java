@@ -807,8 +807,6 @@ class ReservoirPropertiesFormValidatorTest {
             entry("reservoirFacies", Set.of("reservoirFacies.required")),
             entry("reservoirConnectivity", Set.of("reservoirConnectivity.required")),
             entry("fracturePressure.decimalInputValue", Set.of("fracturePressure.decimalInputValue.notNumeric")),
-            entry("plannedProducers.decimalInputValue", Set.of("plannedProducers.decimalInputValue.notNumeric")),
-            entry("plannedInjectors.decimalInputValue", Set.of("plannedInjectors.decimalInputValue.notNumeric")),
             entry("depositionalSetting", Set.of("depositionalSetting.required")),
             entry("isLateralBarriersBaffles", Set.of("isLateralBarriersBaffles.required")),
             entry("isVerticalBarriersBaffles", Set.of("isVerticalBarriersBaffles.required"))
@@ -819,8 +817,6 @@ class ReservoirPropertiesFormValidatorTest {
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
             "The fracture pressure must be a number",
-            "The planned producers must be a number",
-            "The planned injectors must be a number",
             "Select a depositional setting",
             "Select if there any lateral barriers or baffles",
             "Select if there any vertical barriers or baffles"
@@ -972,11 +968,7 @@ class ReservoirPropertiesFormValidatorTest {
 
   private ReservoirPropertiesForm getInvalidForm_fieldSubmission() {
     var form = new ReservoirPropertiesForm();
-
     form.setFracturePressure(new DecimalInput("a"));
-    form.setPlannedProducers(new DecimalInput("a"));
-    form.setPlannedInjectors(new DecimalInput("a"));
-
     return form;
   }
 

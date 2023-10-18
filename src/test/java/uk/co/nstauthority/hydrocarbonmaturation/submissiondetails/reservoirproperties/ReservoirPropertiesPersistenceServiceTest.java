@@ -262,8 +262,6 @@ class ReservoirPropertiesPersistenceServiceTest {
             ReservoirProperty::getFracturePressure,
             ReservoirProperty::getDepositionalSetting,
             ReservoirProperty::getDepositionalEnvironment,
-            ReservoirProperty::getPlannedProducers,
-            ReservoirProperty::getPlannedInjectors,
             ReservoirProperty::getLateralBarriersBaffles,
             ReservoirProperty::getVerticalBarriersBaffles
         )
@@ -277,8 +275,6 @@ class ReservoirPropertiesPersistenceServiceTest {
             form.getFracturePressure().asBigDecimal().get(),
             form.getDepositionalSetting(),
             expectedDepositionalEnvironment,
-            form.getPlannedProducers().asBigDecimal().get(),
-            form.getPlannedInjectors().asBigDecimal().get(),
             form.getIsLateralBarriersBaffles(),
             form.getIsVerticalBarriersBaffles()
         );
@@ -332,8 +328,6 @@ class ReservoirPropertiesPersistenceServiceTest {
             ReservoirProperty::getFracturePressure,
             ReservoirProperty::getDepositionalSetting,
             ReservoirProperty::getDepositionalEnvironment,
-            ReservoirProperty::getPlannedProducers,
-            ReservoirProperty::getPlannedInjectors,
             ReservoirProperty::getLateralBarriersBaffles,
             ReservoirProperty::getVerticalBarriersBaffles
         )
@@ -347,8 +341,6 @@ class ReservoirPropertiesPersistenceServiceTest {
             form.getFracturePressure().asBigDecimal().get(),
             form.getDepositionalSetting(),
             expectedDepositionalEnvironment,
-            form.getPlannedProducers().asBigDecimal().get(),
-            form.getPlannedInjectors().asBigDecimal().get(),
             form.getIsLateralBarriersBaffles(),
             form.getIsVerticalBarriersBaffles()
         );
@@ -648,8 +640,6 @@ class ReservoirPropertiesPersistenceServiceTest {
     form.setDepositionalSetting(DepositionalSetting.TERRESTRIAL.name());
     form.getDepositionalEnvironmentMap()
         .put(DepositionalSetting.TERRESTRIAL, DepositionalEnvironment.AEOLIAN.getDisplayName());
-    form.setPlannedProducers(new DecimalInput("1"));
-    form.setPlannedInjectors(new DecimalInput("1"));
     form.setIsLateralBarriersBaffles(true);
     form.setLateralBarriersBafflesDetail(Set.of(BarrierBaffle.TAR_MAT.name(), BarrierBaffle.CEMENTATION.name()));
     form.setIsVerticalBarriersBaffles(true);

@@ -65,8 +65,6 @@ class ReservoirPropertiesFormService {
       if (resourceType == ResourceType.FIELD) {
         form.setFracturePressure(DecimalInput.createDecimalInput(reservoirProperty.getFracturePressure()));
         form.setDepositionalSetting(reservoirProperty.getDepositionalSetting());
-        form.setPlannedProducers(DecimalInput.createDecimalInput(reservoirProperty.getPlannedProducers()));
-        form.setPlannedInjectors(DecimalInput.createDecimalInput(reservoirProperty.getPlannedInjectors()));
         form.setIsLateralBarriersBaffles(reservoirProperty.getLateralBarriersBaffles());
         form.setIsVerticalBarriersBaffles(reservoirProperty.getVerticalBarriersBaffles());
         setLateralBarrierBaffles(reservoirProperty, form);

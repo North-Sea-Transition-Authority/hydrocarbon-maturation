@@ -152,8 +152,6 @@ class ReservoirPropertiesPersistenceService {
 
       saveFracturePressure(form, reservoirProperty);
       saveDepositionalSettingAndEnvironment(form, reservoirProperty);
-      savePlannedProducers(form, reservoirProperty);
-      savePlannedInjectors(form, reservoirProperty);
 
       reservoirProperty.setLateralBarriersBaffles(form.getIsLateralBarriersBaffles());
       reservoirProperty.setVerticalBarriersBaffles(form.getIsVerticalBarriersBaffles());
@@ -357,14 +355,6 @@ class ReservoirPropertiesPersistenceService {
 
     var depositionalEnvironment = form.getDepositionalEnvironmentMap().get(depositionalSetting);
     reservoirProperty.setDepositionalEnvironment(depositionalEnvironment);
-  }
-
-  private void savePlannedProducers(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {
-    reservoirProperty.setPlannedProducers(form.getPlannedProducers().createBigDecimalOrNull());
-  }
-
-  private void savePlannedInjectors(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {
-    reservoirProperty.setPlannedInjectors(form.getPlannedInjectors().createBigDecimalOrNull());
   }
 
   private void saveBarrierBafflesDetail(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {
