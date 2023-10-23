@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverymixe
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -72,7 +71,7 @@ class DiscoveryMixedCaseOutputsFormServiceTest {
             form -> form.getOilRecoverableResources().getProbabilityDistributionType(),
             form -> form.getGasInPlace().getProbabilityDistributionType(),
             form -> form.getGasRecoverableResources().getProbabilityDistributionType(),
-            form -> form.getRiskedOilEquivalentRecoverableMean().asBigDecimal(),
+            form -> form.getRiskedOilEquivalentRecoverableMean().getProbabilityDistributionType(),
             MixedCaseOutputsForm::getHasAssociatedGasRecoverableResources)
         .containsExactly(
             null,
@@ -82,7 +81,7 @@ class DiscoveryMixedCaseOutputsFormServiceTest {
             null,
             null,
             null,
-            Optional.empty(),
+            null,
             null
         );
   }
@@ -118,7 +117,6 @@ class DiscoveryMixedCaseOutputsFormServiceTest {
         .thenReturn(probabilityDistributionForm);
 
     MixedCaseOutput mixedCaseOutput = new MixedCaseOutput();
-    mixedCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ONE);
     mixedCaseOutput.setHasAssociatedGasRecoverableResources(true);
     when(discoveryMixedCaseOutputsPersistenceService.getMixedCaseOutput(discoveryReservoirSubmissionDetail))
         .thenReturn(Optional.of(mixedCaseOutput));
@@ -146,7 +144,6 @@ class DiscoveryMixedCaseOutputsFormServiceTest {
             form -> form.getGasRecoverableResources().getProbabilityDistributionType(),
             form -> form.getGasRecoverableResources().getCustom().getConstant(),
             form -> form.getGasRecoverableResources().getCustom().getComments(),
-            form -> form.getRiskedOilEquivalentRecoverableMean().asBigDecimal().get(),
             MixedCaseOutputsForm::getHasAssociatedGasRecoverableResources)
         .containsExactly(
             probabilityDistributionForm.getProbabilityDistributionType(),
@@ -170,7 +167,6 @@ class DiscoveryMixedCaseOutputsFormServiceTest {
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getCustom().getConstant(),
             probabilityDistributionForm.getCustom().getComments(),
-            BigDecimal.ONE,
             true
         );
   }

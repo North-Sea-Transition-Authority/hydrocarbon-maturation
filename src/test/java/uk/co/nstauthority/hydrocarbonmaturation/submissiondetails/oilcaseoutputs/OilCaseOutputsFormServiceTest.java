@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutput
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,6 +47,9 @@ class OilCaseOutputsFormServiceTest {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT))
+        .thenReturn(new ProbabilityDistributionForm());
     when(oilCaseOutputsPersistenceService.getOilCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(new OilCaseOutput()));
 
@@ -57,13 +59,13 @@ class OilCaseOutputsFormServiceTest {
             form -> form.getOilRecoverableResources().getProbabilityDistributionType(),
             form -> form.getAssociatedGasRecoverableResources().getProbabilityDistributionType(),
             form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
-            oilCaseOutputsForm -> oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean().asBigDecimal()
+            form -> form.getRiskedOilEquivalentRecoverableMean().getProbabilityDistributionType()
         ).containsExactly(
             null,
             null,
             null,
             null,
-            Optional.empty()
+            null
         );
   }
 
@@ -84,9 +86,11 @@ class OilCaseOutputsFormServiceTest {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT))
+        .thenReturn(probabilityDistributionForm);
 
     OilCaseOutput oilCaseOutput = new OilCaseOutput();
-    oilCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ONE);
     when(oilCaseOutputsPersistenceService.getOilCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(oilCaseOutput));
 
@@ -104,7 +108,9 @@ class OilCaseOutputsFormServiceTest {
             form -> form.getAssociatedGasRecoverableResources().getProbabilityDistributionType(),
             form -> form.getAssociatedGasRecoverableResources().getCustom().getConstant(),
             form -> form.getAssociatedGasRecoverableResources().getCustom().getComments(),
-            oilCaseOutputsForm -> oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean().asBigDecimal().get()
+            form -> form.getRiskedOilEquivalentRecoverableMean().getProbabilityDistributionType(),
+            form -> form.getRiskedOilEquivalentRecoverableMean().getCustom().getMean(),
+            form -> form.getRiskedOilEquivalentRecoverableMean().getCustom().getComments()
         )
         .containsExactly(
             probabilityDistributionForm.getProbabilityDistributionType(),
@@ -119,7 +125,9 @@ class OilCaseOutputsFormServiceTest {
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getCustom().getConstant(),
             probabilityDistributionForm.getCustom().getComments(),
-            BigDecimal.ONE
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getCustom().getMean(),
+            probabilityDistributionForm.getCustom().getComments()
         );
   }
 
@@ -145,7 +153,6 @@ class OilCaseOutputsFormServiceTest {
         .thenReturn(probabilityDistributionForm);
 
     OilCaseOutput oilCaseOutput = new OilCaseOutput();
-    oilCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ONE);
     when(oilCaseOutputsPersistenceService.getOilCaseOutput(discoveryReservoirSubmissionDetail))
         .thenReturn(Optional.of(oilCaseOutput));
 
@@ -162,8 +169,7 @@ class OilCaseOutputsFormServiceTest {
             form -> form.getOilInPlace().getCustom().getComments(),
             form -> form.getAssociatedGasRecoverableResources().getProbabilityDistributionType(),
             form -> form.getAssociatedGasRecoverableResources().getCustom().getConstant(),
-            form -> form.getAssociatedGasRecoverableResources().getCustom().getComments(),
-            oilCaseOutputsForm -> oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean().asBigDecimal().get()
+            form -> form.getAssociatedGasRecoverableResources().getCustom().getComments()
         )
         .containsExactly(
             probabilityDistributionForm.getProbabilityDistributionType(),
@@ -177,8 +183,7 @@ class OilCaseOutputsFormServiceTest {
             probabilityDistributionForm.getCustom().getComments(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getCustom().getConstant(),
-            probabilityDistributionForm.getCustom().getComments(),
-            BigDecimal.ONE
+            probabilityDistributionForm.getCustom().getComments()
         );
   }
 }

@@ -212,13 +212,16 @@ class ProspectMixedCaseOutputsControllerTest extends AbstractSubmissionControlle
                 ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT)),
             entry("oilEquivalentRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT)),
+            entry("riskedOilEquivalentRecoverableMeanTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_CASE_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT)),
             entry("oilInPlaceError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
             entry("associatedGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasInPlaceError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
             entry("associatedCondensateRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
-            entry("oilEquivalentRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
+            entry("oilEquivalentRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("riskedOilEquivalentRecoverableMeanError", ProbabilityDistributionTypeError.emptyError())
         );
   }
 }

@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
@@ -29,10 +28,11 @@ public class DiscoveryOilCaseVolumetricTotalsSummaryService {
     listOfInstances.add(
           ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
 
-    var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
-    listOfInstances.forEach(instance -> listOfSummaryViews.add(
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            instance, submissionDetail)));
+    var listOfSummaryViews =
+        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+            listOfInstances,
+            submissionDetail,
+            null);
     return new DiscoveryOilCaseVolumetricTotalsSummaryView(listOfSummaryViews);
   }
 }

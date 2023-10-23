@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.prospectmixed
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,6 +58,9 @@ class ProspectMixedCaseOutputsFormServiceTest {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT))
+        .thenReturn(new ProbabilityDistributionForm());
 
     when(prospectMixedCaseOutputsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(new MixedCaseOutput()));
@@ -72,7 +74,7 @@ class ProspectMixedCaseOutputsFormServiceTest {
             form -> form.getOilRecoverableResources().getProbabilityDistributionType(),
             form -> form.getGasInPlace().getProbabilityDistributionType(),
             form -> form.getGasRecoverableResources().getProbabilityDistributionType(),
-            form -> form.getRiskedOilEquivalentRecoverableMean().asBigDecimal(),
+            form -> form.getRiskedOilEquivalentRecoverableMean().getProbabilityDistributionType(),
             MixedCaseOutputsForm::getHasAssociatedGasRecoverableResources)
         .containsExactly(
             null,
@@ -82,7 +84,7 @@ class ProspectMixedCaseOutputsFormServiceTest {
             null,
             null,
             null,
-            Optional.empty(),
+            null,
             null
         );
   }
@@ -113,9 +115,11 @@ class ProspectMixedCaseOutputsFormServiceTest {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT))
         .thenReturn(probabilityDistributionForm);
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.MIXED_CASE_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT))
+        .thenReturn(probabilityDistributionForm);
 
     MixedCaseOutput mixedCaseOutput = new MixedCaseOutput();
-    mixedCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ONE);
     mixedCaseOutput.setHasAssociatedGasRecoverableResources(true);
     when(prospectMixedCaseOutputsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(mixedCaseOutput));
@@ -143,7 +147,9 @@ class ProspectMixedCaseOutputsFormServiceTest {
             form -> form.getGasRecoverableResources().getProbabilityDistributionType(),
             form -> form.getGasRecoverableResources().getCustom().getConstant(),
             form -> form.getGasRecoverableResources().getCustom().getComments(),
-            form -> form.getRiskedOilEquivalentRecoverableMean().asBigDecimal().get(),
+            form -> form.getRiskedOilEquivalentRecoverableMean().getProbabilityDistributionType(),
+            form -> form.getRiskedOilEquivalentRecoverableMean().getCustom().getMean(),
+            form -> form.getRiskedOilEquivalentRecoverableMean().getCustom().getComments(),
             MixedCaseOutputsForm::getHasAssociatedGasRecoverableResources)
         .containsExactly(
             probabilityDistributionForm.getProbabilityDistributionType(),
@@ -167,7 +173,9 @@ class ProspectMixedCaseOutputsFormServiceTest {
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getCustom().getConstant(),
             probabilityDistributionForm.getCustom().getComments(),
-            BigDecimal.ONE,
+            probabilityDistributionForm.getProbabilityDistributionType(),
+            probabilityDistributionForm.getCustom().getMean(),
+            probabilityDistributionForm.getCustom().getComments(),
             true
         );
   }

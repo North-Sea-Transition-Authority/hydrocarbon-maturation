@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverygascasevolumetrictotals;
 
 import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -99,15 +100,13 @@ public class DiscoveryGasCaseVolumetricTotalsService {
 
     var associatedCondensateRecoverableResources =
           ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY;
-    if (gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources() != null
-        && gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources()) {
+    if (BooleanUtils.isTrue(gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources())) {
       probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           associatedCondensateRecoverableResources,
           gasCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
           submissionDetail
       );
-    } else if (gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources() != null
-        && !gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources()) {
+    } else if (BooleanUtils.isFalse(gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources())) {
       probabilityDistributionPersistenceService.deleteProbabilityDistribution(
           associatedCondensateRecoverableResources,
           submissionDetail

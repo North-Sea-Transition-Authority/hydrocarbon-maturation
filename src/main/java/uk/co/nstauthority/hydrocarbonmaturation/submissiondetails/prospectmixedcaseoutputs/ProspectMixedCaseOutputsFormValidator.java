@@ -8,7 +8,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsForm;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
 
 @Service
@@ -81,6 +80,15 @@ class ProspectMixedCaseOutputsFormValidator implements SubmissionValidator {
         "oilEquivalentRecoverableResources",
         "Oil equivalent recoverable resources",
         ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
+    );
+
+    var riskedOilEquivalentRecoverableMean = mixedCaseOutputsForm.getRiskedOilEquivalentRecoverableMean();
+    ProbabilityDistributionValidationUtil.validateCustomPartial(
+        riskedOilEquivalentRecoverableMean,
+        errors,
+        "riskedOilEquivalentRecoverableMean",
+        "Risked oil equivalent recoverable",
+        ProbabilityDistributionFieldInstance.MIXED_CASE_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT
     );
   }
 
@@ -160,10 +168,14 @@ class ProspectMixedCaseOutputsFormValidator implements SubmissionValidator {
         ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
     );
 
-    DecimalInputValidator.configureValidator(errors, "riskedOilEquivalentRecoverableMean.decimalInputValue",
-            "The risked oil equivalent recoverable mean", mixedCaseOutputsForm.getRiskedOilEquivalentRecoverableMean())
-        .setMaxDecimalPlaces(0)
-        .validate();
+    var riskedOilEquivalentRecoverableMean = mixedCaseOutputsForm.getRiskedOilEquivalentRecoverableMean();
+    ProbabilityDistributionValidationUtil.validateCustomFull(
+        riskedOilEquivalentRecoverableMean,
+        errors,
+        "riskedOilEquivalentRecoverableMean",
+        "Risked oil equivalent recoverable",
+        ProbabilityDistributionFieldInstance.MIXED_CASE_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT
+    );
   }
 
   private boolean hasAssociatedGasRecoverableResources(MixedCaseOutputsForm form) {

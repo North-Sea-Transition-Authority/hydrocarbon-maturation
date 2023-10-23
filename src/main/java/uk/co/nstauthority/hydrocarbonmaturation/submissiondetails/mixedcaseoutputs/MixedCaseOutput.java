@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,8 +27,6 @@ public class MixedCaseOutput implements ReservoirSubmissionDetailChildEntity {
 
   private Boolean hasAssociatedGasRecoverableResources;
 
-  private BigDecimal riskedOilEquivalentRecoverableMean;
-
   public Boolean getHasAssociatedGasRecoverableResources() {
     return hasAssociatedGasRecoverableResources;
   }
@@ -52,13 +49,5 @@ public class MixedCaseOutput implements ReservoirSubmissionDetailChildEntity {
 
   public void setReservoirSubmissionDetail(ReservoirSubmissionDetail submissionDetail) {
     this.reservoirSubmissionDetail = submissionDetail;
-  }
-
-  public BigDecimal getRiskedOilEquivalentRecoverableMean() {
-    return riskedOilEquivalentRecoverableMean;
-  }
-
-  public void setRiskedOilEquivalentRecoverableMean(BigDecimal riskedOilEquivalentRecoverableMean) {
-    this.riskedOilEquivalentRecoverableMean = riskedOilEquivalentRecoverableMean;
   }
 }

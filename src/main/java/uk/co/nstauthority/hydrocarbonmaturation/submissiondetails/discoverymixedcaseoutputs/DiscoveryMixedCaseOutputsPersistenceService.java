@@ -33,10 +33,8 @@ public class DiscoveryMixedCaseOutputsPersistenceService {
     var mixedCaseOutput = getMixedCaseOutput(reservoirSubmissionDetail).orElseGet(MixedCaseOutput::new);
 
     mixedCaseOutput.setReservoirSubmissionDetail(reservoirSubmissionDetail);
-    var mean = mixedCaseOutputsForm.getRiskedOilEquivalentRecoverableMean().createBigDecimalOrNull();
     var hasAssociatedGasRecoverableResources = mixedCaseOutputsForm.getHasAssociatedGasRecoverableResources();
     mixedCaseOutput.setHasAssociatedGasRecoverableResources(hasAssociatedGasRecoverableResources);
-    mixedCaseOutput.setRiskedOilEquivalentRecoverableMean(mean);
 
     mixedCaseOutputsRepository.save(mixedCaseOutput);
   }

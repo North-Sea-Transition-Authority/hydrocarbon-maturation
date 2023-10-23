@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,8 +24,6 @@ public class OilCaseOutput implements ReservoirSubmissionDetailChildEntity {
   @JoinColumn(name = "reservoir_submission_detail_id")
   private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
-  private BigDecimal riskedOilEquivalentRecoverableMean;
-
   private Boolean hasAssociatedGasRecoverableResources;
 
   public UUID getId() {
@@ -43,14 +40,6 @@ public class OilCaseOutput implements ReservoirSubmissionDetailChildEntity {
 
   public void setReservoirSubmissionDetail(ReservoirSubmissionDetail submissionDetail) {
     this.reservoirSubmissionDetail = submissionDetail;
-  }
-
-  public BigDecimal getRiskedOilEquivalentRecoverableMean() {
-    return riskedOilEquivalentRecoverableMean;
-  }
-
-  public void setRiskedOilEquivalentRecoverableMean(BigDecimal riskedOilEquivalentRecoverableMean) {
-    this.riskedOilEquivalentRecoverableMean = riskedOilEquivalentRecoverableMean;
   }
 
   public Boolean getHasAssociatedGasRecoverableResources() {

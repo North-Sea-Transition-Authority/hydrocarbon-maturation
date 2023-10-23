@@ -33,10 +33,8 @@ public class ProspectMixedCaseOutputsPersistenceService {
     var mixedCaseOutput = getMixedCaseOutput(reservoirSubmissionDetail).orElseGet(MixedCaseOutput::new);
 
     mixedCaseOutput.setReservoirSubmissionDetail(reservoirSubmissionDetail);
-    var mean = mixedCaseOutputsForm.getRiskedOilEquivalentRecoverableMean().createBigDecimalOrNull();
     var hasAssociatedGasRecoverableResources = mixedCaseOutputsForm.getHasAssociatedGasRecoverableResources();
     mixedCaseOutput.setHasAssociatedGasRecoverableResources(hasAssociatedGasRecoverableResources);
-    mixedCaseOutput.setRiskedOilEquivalentRecoverableMean(mean);
 
     mixedCaseOutputsRepository.save(mixedCaseOutput);
   }
@@ -108,6 +106,15 @@ public class ProspectMixedCaseOutputsPersistenceService {
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         oilRecoverableResources,
         mixedCaseOutputsForm.getOilRecoverableResources(),
+        submissionDetail,
+        reservoirSubmissionDetail
+    );
+
+    var riskedOilEquivalentRecoverableMean =
+        ProbabilityDistributionFieldInstance.MIXED_CASE_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT;
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+        riskedOilEquivalentRecoverableMean,
+        mixedCaseOutputsForm.getRiskedOilEquivalentRecoverableMean(),
         submissionDetail,
         reservoirSubmissionDetail
     );

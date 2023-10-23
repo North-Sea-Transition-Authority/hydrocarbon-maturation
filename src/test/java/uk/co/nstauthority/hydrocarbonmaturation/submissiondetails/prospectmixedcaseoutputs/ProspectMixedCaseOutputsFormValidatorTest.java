@@ -12,7 +12,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
@@ -67,7 +66,8 @@ class ProspectMixedCaseOutputsFormValidatorTest {
                 Set.of("gasRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("associatedCondensateRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("riskedOilEquivalentRecoverableMean.decimalInputValue", Set.of("riskedOilEquivalentRecoverableMean.decimalInputValue.notNumeric"))
+            entry("riskedOilEquivalentRecoverableMean." + probabilityDistributionType.getPath() + ".error",
+                Set.of("riskedOilEquivalentRecoverableMean." + probabilityDistributionType.getPath() + ".error.error"))
         );
   }
 
@@ -109,7 +109,8 @@ class ProspectMixedCaseOutputsFormValidatorTest {
                 Set.of("gasRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("associatedCondensateRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("riskedOilEquivalentRecoverableMean.decimalInputValue", Set.of("riskedOilEquivalentRecoverableMean.decimalInputValue.notNumeric"))
+            entry("riskedOilEquivalentRecoverableMean." + probabilityDistributionType.getPath() + ".error",
+                Set.of("riskedOilEquivalentRecoverableMean." + probabilityDistributionType.getPath() + ".error.error"))
         );
   }
 
@@ -127,7 +128,7 @@ class ProspectMixedCaseOutputsFormValidatorTest {
     form.setOilInPlace(probabilityDistributionForm);
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionForm);
     form.setGasRecoverableResources(probabilityDistributionForm);
-    form.setRiskedOilEquivalentRecoverableMean(new DecimalInput("abc"));
+    form.setRiskedOilEquivalentRecoverableMean(probabilityDistributionForm);
     form.setHasAssociatedGasRecoverableResources(true);
 
     return form;
@@ -148,7 +149,7 @@ class ProspectMixedCaseOutputsFormValidatorTest {
     form.setOilInPlace(probabilityDistributionForm);
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionForm);
     form.setGasRecoverableResources(probabilityDistributionForm);
-    form.setRiskedOilEquivalentRecoverableMean(new DecimalInput("abc"));
+    form.setRiskedOilEquivalentRecoverableMean(probabilityDistributionForm);
     form.setHasAssociatedGasRecoverableResources(false);
 
     return form;
@@ -163,7 +164,7 @@ class ProspectMixedCaseOutputsFormValidatorTest {
     form.setOilInPlace(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT));
     form.setAssociatedCondensateRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT));
     form.setGasRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT));
-    form.setRiskedOilEquivalentRecoverableMean(new DecimalInput("1"));
+    form.setRiskedOilEquivalentRecoverableMean(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.MIXED_CASE_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT));
     form.setHasAssociatedGasRecoverableResources(true);
     return form;
   }

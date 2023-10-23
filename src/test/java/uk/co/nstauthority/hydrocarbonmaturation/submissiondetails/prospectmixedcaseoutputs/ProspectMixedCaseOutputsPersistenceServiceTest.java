@@ -5,13 +5,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
@@ -55,7 +53,7 @@ class ProspectMixedCaseOutputsPersistenceServiceTest {
     form.setOilRecoverableResources(probDistribution);
     form.setOilEquivalentRecoverableResources(probDistribution);
     form.setAssociatedCondensateRecoverableResources(probDistribution);
-    form.setRiskedOilEquivalentRecoverableMean(DecimalInput.createDecimalInput(BigDecimal.ONE));
+    form.setRiskedOilEquivalentRecoverableMean(probDistribution);
     form.setHasAssociatedGasRecoverableResources(true);
 
     prospectMixedCaseOutputsPersistenceService.saveMixedCaseOutputs(form, reservoirSubmissionDetail);
@@ -109,13 +107,19 @@ class ProspectMixedCaseOutputsPersistenceServiceTest {
             submissionDetail,
             reservoirSubmissionDetail);
 
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.MIXED_CASE_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT,
+            form.getRiskedOilEquivalentRecoverableMean(),
+            submissionDetail,
+            reservoirSubmissionDetail);
+
     verify(mixedCaseOutputsRepository, times(1)).save(any(MixedCaseOutput.class));
   }
 
   @Test
   void saveMixedCaseOutputs_whenEmptyForm_verifyCreatedEntity() {
     var form = new MixedCaseOutputsForm();
-    form.setRiskedOilEquivalentRecoverableMean(new DecimalInput());
 
     prospectMixedCaseOutputsPersistenceService.saveMixedCaseOutputs(form, reservoirSubmissionDetail);
 
@@ -165,6 +169,13 @@ class ProspectMixedCaseOutputsPersistenceServiceTest {
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT,
             form.getOilRecoverableResources(),
+            submissionDetail,
+            reservoirSubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.MIXED_CASE_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT,
+            form.getRiskedOilEquivalentRecoverableMean(),
             submissionDetail,
             reservoirSubmissionDetail);
 

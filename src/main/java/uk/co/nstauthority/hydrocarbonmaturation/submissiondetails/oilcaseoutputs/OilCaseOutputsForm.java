@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs;
 
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
@@ -10,8 +9,8 @@ public class OilCaseOutputsForm implements SubmissionForm {
   private ProbabilityDistributionForm oilRecoverableResources = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm associatedGasRecoverableResources = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm oilEquivalentRecoverableResources = new ProbabilityDistributionForm();
+  private ProbabilityDistributionForm riskedOilEquivalentRecoverableMean = new ProbabilityDistributionForm();
   private Boolean hasAssociatedGasRecoverableResources;
-  private DecimalInput riskedOilEquivalentRecoverableMean = new DecimalInput();
 
   public Boolean getHasAssociatedGasRecoverableResources() {
     return hasAssociatedGasRecoverableResources;
@@ -56,11 +55,11 @@ public class OilCaseOutputsForm implements SubmissionForm {
     this.oilEquivalentRecoverableResources = oilEquivalentRecoverableResources;
   }
 
-  public DecimalInput getRiskedOilEquivalentRecoverableMean() {
+  public ProbabilityDistributionForm getRiskedOilEquivalentRecoverableMean() {
     return riskedOilEquivalentRecoverableMean;
   }
 
-  public void setRiskedOilEquivalentRecoverableMean(DecimalInput riskedOilEquivalentRecoverableMean) {
+  public void setRiskedOilEquivalentRecoverableMean(ProbabilityDistributionForm riskedOilEquivalentRecoverableMean) {
     this.riskedOilEquivalentRecoverableMean = riskedOilEquivalentRecoverableMean;
   }
 }

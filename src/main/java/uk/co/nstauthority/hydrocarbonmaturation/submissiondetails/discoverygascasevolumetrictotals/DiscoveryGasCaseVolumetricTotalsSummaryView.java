@@ -13,6 +13,8 @@ public record DiscoveryGasCaseVolumetricTotalsSummaryView(
             ProbabilityDistributionSummaryView.empty("Gas in place"),
             ProbabilityDistributionSummaryView.empty("Gas recoverable resources"),
             ProbabilityDistributionSummaryView.empty("Associated condensate recoverable resources"),
-            ProbabilityDistributionSummaryView.empty("Oil equivalent recoverable resources")));
+            ProbabilityDistributionSummaryView.empty("Oil equivalent recoverable resources")
+        )
+    );
   }
 }

@@ -5,13 +5,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
@@ -47,7 +45,7 @@ class OilCaseOutputsPersistenceServiceTest {
     form.setOilRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
     form.setAssociatedGasRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
     form.setOilEquivalentRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
-    form.setRiskedOilEquivalentRecoverableMean(DecimalInput.createDecimalInput(BigDecimal.ONE));
+    form.setRiskedOilEquivalentRecoverableMean(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
     form.setHasAssociatedGasRecoverableResources(true);
 
     oilCaseOutputsPersistenceService.saveOilCaseOutputs(form, reservoirSubmissionDetail);
@@ -80,6 +78,13 @@ class OilCaseOutputsPersistenceServiceTest {
             submissionDetail,
             reservoirSubmissionDetail);
 
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT,
+            form.getRiskedOilEquivalentRecoverableMean(),
+            submissionDetail,
+            reservoirSubmissionDetail);
+
     verify(oilCaseOutputsRepository, times(1)).save(any(OilCaseOutput.class));
   }
 
@@ -93,7 +98,6 @@ class OilCaseOutputsPersistenceServiceTest {
     form.setOilRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
     form.setAssociatedGasRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
     form.setOilEquivalentRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
-    form.setRiskedOilEquivalentRecoverableMean(DecimalInput.createDecimalInput(BigDecimal.ONE));
     form.setHasAssociatedGasRecoverableResources(true);
 
     oilCaseOutputsPersistenceService.saveOilCaseOutputs(form, discoveryReservoirSubmissionDetail);
@@ -136,7 +140,7 @@ class OilCaseOutputsPersistenceServiceTest {
     form.setOilRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
     form.setAssociatedGasRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
     form.setOilEquivalentRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
-    form.setRiskedOilEquivalentRecoverableMean(DecimalInput.createDecimalInput(BigDecimal.ONE));
+    form.setRiskedOilEquivalentRecoverableMean(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
     form.setHasAssociatedGasRecoverableResources(false);
 
     oilCaseOutputsPersistenceService.saveOilCaseOutputs(form, reservoirSubmissionDetail);
@@ -164,6 +168,13 @@ class OilCaseOutputsPersistenceServiceTest {
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT,
             form.getOilEquivalentRecoverableResources(),
+            submissionDetail,
+            reservoirSubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT,
+            form.getRiskedOilEquivalentRecoverableMean(),
             submissionDetail,
             reservoirSubmissionDetail);
 
@@ -199,6 +210,13 @@ class OilCaseOutputsPersistenceServiceTest {
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT,
             form.getOilEquivalentRecoverableResources(),
+            submissionDetail,
+            reservoirSubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT,
+            form.getRiskedOilEquivalentRecoverableMean(),
             submissionDetail,
             reservoirSubmissionDetail);
 

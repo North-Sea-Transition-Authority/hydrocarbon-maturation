@@ -8,9 +8,6 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Do you expect to find associated gas recoverable resources?">
       ${oilCaseOutputsValues.hasAssociatedGasRecoverableResources()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Risked oil equivalent recoverable mean">
-      ${oilCaseOutputsValues.riskedOilEquivalentRecoverableMean()}
-    </@fdsSummaryList.summaryListRowNoAction>
   </@fdsSummaryList.summaryListCard>
 
     <@fdsSummaryList.summaryListCard headingText="Oil case outputs" summaryListId="oilcaseoutputs">

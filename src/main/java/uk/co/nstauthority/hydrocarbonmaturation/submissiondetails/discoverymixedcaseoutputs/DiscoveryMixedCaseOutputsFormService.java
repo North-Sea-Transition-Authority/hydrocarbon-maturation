@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverymixe
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutput;
@@ -33,11 +32,7 @@ public class DiscoveryMixedCaseOutputsFormService {
     var hasAssociatedGasRecoverableResources = mixedCaseOutputs
         .map(MixedCaseOutput::getHasAssociatedGasRecoverableResources)
         .orElse(null);
-    var riskedMixedEquivalentRecoverableMean = mixedCaseOutputs
-        .map(MixedCaseOutput::getRiskedOilEquivalentRecoverableMean)
-        .orElse(null);
 
-    form.setRiskedOilEquivalentRecoverableMean(DecimalInput.createDecimalInput(riskedMixedEquivalentRecoverableMean));
     form.setHasAssociatedGasRecoverableResources(hasAssociatedGasRecoverableResources);
 
     form.setOilInPlace(probabilityDistributionFormService.probabilityDistributionEntityToForm(

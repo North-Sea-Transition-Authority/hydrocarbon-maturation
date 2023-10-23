@@ -123,7 +123,7 @@
       <#else>
         <th scope="col" class="govuk-table__header">P50</th>
       </#if>
-      <th scope="col" class="govuk-table__header">Mean / constant</th>
+      <th scope="col" class="govuk-table__header">Mean / <br/>constant</th>
       <#if withContingentUncertaintyCategories>
         <th scope="col" class="govuk-table__header">P10 or 3C</th>
       <#else>

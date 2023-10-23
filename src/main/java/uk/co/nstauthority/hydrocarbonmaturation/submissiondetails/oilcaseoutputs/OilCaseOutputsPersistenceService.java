@@ -30,8 +30,6 @@ public class OilCaseOutputsPersistenceService {
     var oilCaseOutput = getOilCaseOutput(reservoirSubmissionDetail).orElseGet(OilCaseOutput::new);
 
     oilCaseOutput.setReservoirSubmissionDetail(reservoirSubmissionDetail);
-    var mean = oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean().createBigDecimalOrNull();
-    oilCaseOutput.setRiskedOilEquivalentRecoverableMean(mean);
     var hasAssociatedGasRecoverableResources = oilCaseOutputsForm.getHasAssociatedGasRecoverableResources();
     oilCaseOutput.setHasAssociatedGasRecoverableResources(hasAssociatedGasRecoverableResources);
 
@@ -65,6 +63,17 @@ public class OilCaseOutputsPersistenceService {
         submissionDetail,
         reservoirSubmissionDetail
     );
+
+    if (resourceType == ResourceType.PROSPECT) {
+      var riskedOilEquivalentRecoverableMean =
+          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT;
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+          riskedOilEquivalentRecoverableMean,
+          oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean(),
+          submissionDetail,
+          reservoirSubmissionDetail
+      );
+    }
 
     var associatedGasRecoverableResources =
         ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT;

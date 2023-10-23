@@ -33,8 +33,6 @@ public class ProspectMixedCaseOutputsSummaryService {
   }
 
   private MixedCaseOutputsSummaryView createSummaryViewFromMixedCaseOutput(MixedCaseOutput mixedCaseOutput) {
-    var reservoirSubmissionDetail = mixedCaseOutput.getReservoirSubmissionDetail();
-    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
     var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
     listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT);
@@ -49,7 +47,10 @@ public class ProspectMixedCaseOutputsSummaryService {
     listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT);
     listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT);
     listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT);
 
+    var reservoirSubmissionDetail = mixedCaseOutput.getReservoirSubmissionDetail();
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
     listOfInstances.forEach(instance -> listOfSummaryViews.add(
         probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
@@ -57,13 +58,9 @@ public class ProspectMixedCaseOutputsSummaryService {
 
     var hasAssociatedGasRecoverableResources = BooleanUtil.yesNoFromBoolean(
         mixedCaseOutput.getHasAssociatedGasRecoverableResources(), "");
-    var riskedOilEquivalentRecoverableMean = mixedCaseOutput.getRiskedOilEquivalentRecoverableMean() != null
-        ? mixedCaseOutput.getRiskedOilEquivalentRecoverableMean().toString()
-        : "";
 
     return new MixedCaseOutputsSummaryView(
         hasAssociatedGasRecoverableResources,
-        riskedOilEquivalentRecoverableMean,
         listOfSummaryViews
     );
   }

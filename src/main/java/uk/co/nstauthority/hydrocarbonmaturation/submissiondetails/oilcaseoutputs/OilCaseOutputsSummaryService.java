@@ -36,14 +36,10 @@ public class OilCaseOutputsSummaryService {
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var hasAssociatedGasRecoverableResources = BooleanUtil.yesNoFromBoolean(
         oilCaseOutput.getHasAssociatedGasRecoverableResources(), "");
-    var riskedOilEquivalentRecoverableMean = oilCaseOutput.getRiskedOilEquivalentRecoverableMean() != null
-        ? oilCaseOutput.getRiskedOilEquivalentRecoverableMean().toString()
-        : "";
 
     var resourceType = submissionDetail.getSubmission().getResource().getType();
     if (resourceType == ResourceType.PROSPECT) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT);
-
       listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT);
 
       if (oilCaseOutput.getHasAssociatedGasRecoverableResources() == null
@@ -54,6 +50,10 @@ public class OilCaseOutputsSummaryService {
 
       listOfInstances.add(
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT);
+      listOfInstances.add(
+          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT
+      );
+
     } else if (resourceType == ResourceType.DISCOVERY) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY);
 
@@ -73,7 +73,6 @@ public class OilCaseOutputsSummaryService {
     listOfInstances.forEach(instance -> listOfSummaryViews.add(
         probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             instance, submissionDetail, reservoirSubmissionDetail)));
-    return new OilCaseOutputsSummaryView(hasAssociatedGasRecoverableResources, riskedOilEquivalentRecoverableMean,
-        listOfSummaryViews);
+    return new OilCaseOutputsSummaryView(hasAssociatedGasRecoverableResources, listOfSummaryViews);
   }
 }

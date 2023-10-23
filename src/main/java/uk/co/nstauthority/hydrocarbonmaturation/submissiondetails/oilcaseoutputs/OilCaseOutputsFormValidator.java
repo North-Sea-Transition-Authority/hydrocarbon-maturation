@@ -9,7 +9,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
 
 @Service
@@ -58,6 +57,16 @@ public class OilCaseOutputsFormValidator implements SubmissionValidator {
           "Oil equivalent recoverable resources",
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
       );
+
+      var riskedOilEquivalentRecoverableMean = oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean();
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          riskedOilEquivalentRecoverableMean,
+          errors,
+          "riskedOilEquivalentRecoverableMean",
+          "Risked oil equivalent recoverable",
+          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT
+      );
+
     } else if (resourceType == ResourceType.DISCOVERY) {
       var oilInPlace = oilCaseOutputsForm.getOilInPlace();
       ProbabilityDistributionValidationUtil.validateCustomPartial(
@@ -146,6 +155,16 @@ public class OilCaseOutputsFormValidator implements SubmissionValidator {
           "Oil equivalent recoverable resources",
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
       );
+
+      var riskedOilEquivalentRecoverableMean = oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean();
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          riskedOilEquivalentRecoverableMean,
+          errors,
+          "riskedOilEquivalentRecoverableMean",
+          "Risked oil equivalent recoverable",
+          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT
+      );
+
     } else if (resourceType == ResourceType.DISCOVERY) {
       var oilInPlace = oilCaseOutputsForm.getOilInPlace();
       ProbabilityDistributionValidationUtil.validateCustomFull(
@@ -183,11 +202,6 @@ public class OilCaseOutputsFormValidator implements SubmissionValidator {
           ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
       );
     }
-
-    DecimalInputValidator.configureValidator(errors, "riskedOilEquivalentRecoverableMean.decimalInputValue",
-        "The risked oil equivalent recoverable mean", oilCaseOutputsForm.getRiskedOilEquivalentRecoverableMean())
-        .setMaxDecimalPlaces(0)
-        .validate();
   }
 
   private boolean hasAssociatedGasRecoverableResources(OilCaseOutputsForm oilCaseOutputsForm) {

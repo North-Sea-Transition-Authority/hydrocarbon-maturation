@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.math.BigDecimal;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import org.junit.jupiter.api.Test;
@@ -43,15 +42,7 @@ class ReservoirDuplicationPersistenceServiceTest {
 
     assertThat(newOilCaseOutput.getId()).isNotEqualTo(oldOilCaseOutput.getId());
     assertThat(newOilCaseOutput.getReservoirSubmissionDetail().getId()).isEqualTo(newReservoirSubmissionDetail.getId());
-    assertThat(newOilCaseOutput)
-        .extracting(
-            OilCaseOutput::getRiskedOilEquivalentRecoverableMean,
-            OilCaseOutput::getHasAssociatedGasRecoverableResources
-        )
-        .containsExactly(
-            oldOilCaseOutput.getRiskedOilEquivalentRecoverableMean(),
-            oldOilCaseOutput.getHasAssociatedGasRecoverableResources()
-        );
+    assertThat(newOilCaseOutput.getHasAssociatedGasRecoverableResources()).isEqualTo(oldOilCaseOutput.getHasAssociatedGasRecoverableResources());
   }
 
   @Test
@@ -79,7 +70,6 @@ class ReservoirDuplicationPersistenceServiceTest {
   private OilCaseOutput createOilCaseOutput(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var oilCaseOutput = new OilCaseOutput();
     oilCaseOutput.setReservoirSubmissionDetail(reservoirSubmissionDetail);
-    oilCaseOutput.setRiskedOilEquivalentRecoverableMean(new BigDecimal(42));
     oilCaseOutput.setHasAssociatedGasRecoverableResources(false);
     entityManager.persist(oilCaseOutput);
     entityManager.flush();

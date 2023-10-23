@@ -8,7 +8,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsForm;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
 
 @Service
@@ -148,11 +147,6 @@ public class DiscoveryMixedCaseOutputsFormValidator implements SubmissionValidat
         "Oil equivalent recoverable resources",
         ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
     );
-
-    DecimalInputValidator.configureValidator(errors, "riskedOilEquivalentRecoverableMean.decimalInputValue",
-      "The risked oil equivalent recoverable mean", mixedCaseOutputsForm.getRiskedOilEquivalentRecoverableMean())
-      .setMaxDecimalPlaces(0)
-        .validate();
   }
 
   private boolean hasAssociatedGasRecoverableResources(MixedCaseOutputsForm form) {

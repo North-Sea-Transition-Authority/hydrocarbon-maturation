@@ -124,7 +124,11 @@ public class OilCaseOutputsController {
                   ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT))
           .addObject("oilEquivalentRecoverableResourcesTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                  ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT));
+                  ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT))
+          .addObject("riskedOilEquivalentRecoverableMeanError", ProbabilityDistributionTypeError.emptyError())
+          .addObject("riskedOilEquivalentRecoverableMeanTemplate",
+              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                  ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT));
 
       TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PROSPECT_PAGE_NAME, submissionDetail);
 
@@ -162,27 +166,38 @@ public class OilCaseOutputsController {
                                                            ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var modelAndView = getOilCaseOutputsModelAndView(form, reservoirSubmissionDetail);
 
-    return modelAndView
+    modelAndView
         .addObject("form", form)
         .addObject("oilInPlaceError",
-            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
-                bindingResult,
-                "oilInPlace",
-                form.getOilInPlace()))
+          probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+              bindingResult,
+              "oilInPlace",
+              form.getOilInPlace()))
         .addObject("oilRecoverableResourcesError",
-            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
-                bindingResult,
-                "oilRecoverableResources",
-                form.getOilRecoverableResources()))
+          probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+              bindingResult,
+              "oilRecoverableResources",
+              form.getOilRecoverableResources()))
         .addObject("associatedGasRecoverableResourcesError",
-            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
-                bindingResult,
-                "associatedGasRecoverableResources",
-                form.getAssociatedGasRecoverableResources()))
+          probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+              bindingResult,
+              "associatedGasRecoverableResources",
+              form.getAssociatedGasRecoverableResources()))
         .addObject("oilEquivalentRecoverableResourcesError",
-            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
-                bindingResult,
-                "oilEquivalentRecoverableResources",
-                form.getOilEquivalentRecoverableResources()));
+          probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+              bindingResult,
+              "oilEquivalentRecoverableResources",
+              form.getOilEquivalentRecoverableResources()));
+
+    if (reservoirSubmissionDetail.getSubmissionDetail().isProspectSubmission()) {
+      modelAndView.addObject("riskedOilEquivalentRecoverableMeanError",
+          probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+              bindingResult,
+              "riskedOilEquivalentRecoverableMean",
+              form.getRiskedOilEquivalentRecoverableMean())
+      );
+    }
+
+    return modelAndView;
   }
 }

@@ -196,10 +196,13 @@ class OilCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
                 ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT)),
             entry("oilRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT)),
+            entry("riskedOilEquivalentRecoverableMeanTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT)),
             entry("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
             entry("associatedGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilInPlaceError", ProbabilityDistributionTypeError.emptyError()),
-            entry("oilEquivalentRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
+            entry("oilEquivalentRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("riskedOilEquivalentRecoverableMeanError", ProbabilityDistributionTypeError.emptyError())
         );
   }
 

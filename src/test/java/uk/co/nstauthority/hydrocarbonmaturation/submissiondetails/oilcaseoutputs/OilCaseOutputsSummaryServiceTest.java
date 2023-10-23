@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,18 +52,16 @@ class OilCaseOutputsSummaryServiceTest {
         .thenReturn(emptySummary);
 
     oilCaseOutput.setHasAssociatedGasRecoverableResources(true);
-    oilCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ONE);
 
     var view = oilCaseOutputsSummaryService.getOilCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
     assertThat(view)
         .extracting(
             OilCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
-            OilCaseOutputsSummaryView::riskedOilEquivalentRecoverableMean,
             OilCaseOutputsSummaryView::probabilityDistributionSummaryViews)
         .containsExactly(
             "Yes",
-            oilCaseOutput.getRiskedOilEquivalentRecoverableMean().toString(),
             List.of(
+                emptySummary,
                 emptySummary,
                 emptySummary,
                 emptySummary,
@@ -105,20 +102,24 @@ class OilCaseOutputsSummaryServiceTest {
             submissionDetail,
             reservoirSubmissionDetail))
         .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT,
+            submissionDetail,
+            reservoirSubmissionDetail))
+        .thenReturn(testSummary);
 
     oilCaseOutput.setHasAssociatedGasRecoverableResources(true);
-    oilCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ONE);
 
     var view = oilCaseOutputsSummaryService.getOilCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
     assertThat(view)
         .extracting(
             OilCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
-            OilCaseOutputsSummaryView::riskedOilEquivalentRecoverableMean,
             OilCaseOutputsSummaryView::probabilityDistributionSummaryViews)
         .containsExactly(
             "Yes",
-            oilCaseOutput.getRiskedOilEquivalentRecoverableMean().toString(),
             List.of(
+                testSummary,
                 testSummary,
                 testSummary,
                 testSummary,
@@ -164,22 +165,20 @@ class OilCaseOutputsSummaryServiceTest {
         .thenReturn(testSummary);
 
     oilCaseOutput.setHasAssociatedGasRecoverableResources(true);
-    oilCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ONE);
 
     var view = oilCaseOutputsSummaryService.getOilCaseOutputsSummaryFromReservoirSubmissionDetail(discoveryReservoirSubmissionDetail);
     assertThat(view)
         .extracting(
             OilCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
-            OilCaseOutputsSummaryView::riskedOilEquivalentRecoverableMean,
             OilCaseOutputsSummaryView::probabilityDistributionSummaryViews)
         .containsExactly(
             "Yes",
-            oilCaseOutput.getRiskedOilEquivalentRecoverableMean().toString(),
             List.of(
                 testSummary,
                 testSummary,
                 testSummary,
-                testSummary)
+                testSummary
+            )
         );
   }
 
@@ -192,15 +191,14 @@ class OilCaseOutputsSummaryServiceTest {
     assertThat(view)
         .extracting(
             OilCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
-            OilCaseOutputsSummaryView::riskedOilEquivalentRecoverableMean,
             OilCaseOutputsSummaryView::probabilityDistributionSummaryViews)
         .containsExactly(
-            "",
             "",
             List.of(ProbabilityDistributionSummaryView.empty("Oil in place"),
                 ProbabilityDistributionSummaryView.empty("Oil recoverable resources"),
                 ProbabilityDistributionSummaryView.empty("Associated-gas recoverable resources"),
-                ProbabilityDistributionSummaryView.empty("Oil equivalent recoverable resources"))
+                ProbabilityDistributionSummaryView.empty("Oil equivalent recoverable resources"),
+                ProbabilityDistributionSummaryView.empty("Risked oil equivalent recoverable"))
         );
   }
 }

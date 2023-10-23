@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,18 +55,16 @@ class ProspectMixedCaseOutputsSummaryServiceTest {
         .thenReturn(emptySummary);
 
     mixedCaseOutput.setHasAssociatedGasRecoverableResources(true);
-    mixedCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ONE);
 
     var view = prospectMixedCaseOutputsSummaryService.getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
     assertThat(view)
         .extracting(
             MixedCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
-            MixedCaseOutputsSummaryView::riskedOilEquivalentRecoverableMean,
             MixedCaseOutputsSummaryView::probabilityDistributionSummaryViews)
         .containsExactly(
             "Yes",
-            "1",
             List.of(
+                emptySummary,
                 emptySummary,
                 emptySummary,
                 emptySummary,
@@ -129,20 +126,24 @@ class ProspectMixedCaseOutputsSummaryServiceTest {
             submissionDetail,
             reservoirSubmissionDetail))
         .thenReturn(testSummary);
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+            ProbabilityDistributionFieldInstance.MIXED_CASE_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT,
+            submissionDetail,
+            reservoirSubmissionDetail))
+        .thenReturn(testSummary);
 
     mixedCaseOutput.setHasAssociatedGasRecoverableResources(true);
-    mixedCaseOutput.setRiskedOilEquivalentRecoverableMean(BigDecimal.ZERO);
 
     var view = prospectMixedCaseOutputsSummaryService.getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
     assertThat(view)
         .extracting(
             MixedCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
-            MixedCaseOutputsSummaryView::riskedOilEquivalentRecoverableMean,
             MixedCaseOutputsSummaryView::probabilityDistributionSummaryViews)
         .containsExactly(
             "Yes",
-            "0",
             List.of(
+                testSummary,
                 testSummary,
                 testSummary,
                 testSummary,
@@ -162,16 +163,15 @@ class ProspectMixedCaseOutputsSummaryServiceTest {
     assertThat(view)
         .extracting(
             MixedCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
-            MixedCaseOutputsSummaryView::riskedOilEquivalentRecoverableMean,
             MixedCaseOutputsSummaryView::probabilityDistributionSummaryViews)
         .containsExactly(
-            "",
             "",
             List.of(
                 ProbabilityDistributionSummaryView.empty("Oil in place"),
                 ProbabilityDistributionSummaryView.empty("Oil recoverable resources"),
                 ProbabilityDistributionSummaryView.empty("Associated gas recoverable resources"),
                 ProbabilityDistributionSummaryView.empty("Oil equivalent recoverable resources"),
+                ProbabilityDistributionSummaryView.empty("Risked oil equivalent recoverable"),
                 ProbabilityDistributionSummaryView.empty("Gas in place"),
                 ProbabilityDistributionSummaryView.empty("Gas recoverable resources"),
                 ProbabilityDistributionSummaryView.empty("Associated condensate recoverable resources"),

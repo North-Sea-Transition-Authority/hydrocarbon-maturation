@@ -32,7 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/" +
-    "reservoir-submission-details/{reservoirSubmissionDetailId}/discovery-mixed-case-outputs")
+    "reservoir-submission-details/{reservoirSubmissionDetailId}/discovery-mixed-case-volumetrics")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
 @HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_TYPES)
 @IsFromResponsibleTeam

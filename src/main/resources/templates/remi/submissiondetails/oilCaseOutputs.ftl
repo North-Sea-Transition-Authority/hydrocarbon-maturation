@@ -61,7 +61,13 @@
       template=oilEquivalentRecoverableResourcesTemplate
       error=oilEquivalentRecoverableResourcesError/>
 
-    <@fdsTextInput.textInput path="form.riskedOilEquivalentRecoverableMean.decimalInputValue" labelText="Risked oil equivalent recoverable mean" inputClass="govuk-input--width-3"/>
+    <#if resourceType == 'PROSPECT'>
+        <@probabilityDistribution.probabilityDistributionSingularTemplate
+        probabilityDistributionPath="form.riskedOilEquivalentRecoverableMean"
+        labelText="Risked oil equivalent recoverable"
+        template=riskedOilEquivalentRecoverableMeanTemplate
+        error=riskedOilEquivalentRecoverableMeanError/>
+    </#if>
 
     <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
   </@fdsForm.htmlForm>

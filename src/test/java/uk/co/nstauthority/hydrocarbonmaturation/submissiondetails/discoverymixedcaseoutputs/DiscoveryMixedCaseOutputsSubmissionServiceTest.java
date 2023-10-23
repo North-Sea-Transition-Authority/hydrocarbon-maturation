@@ -37,8 +37,6 @@ class DiscoveryMixedCaseOutputsSubmissionServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new MixedCaseOutputsForm();
 
-    var emptyBindingResult = ReverseRouter.emptyBindingResult();
-
     when(discoveryMixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(form);
     when(discoveryMixedCaseOutputsFormValidator.isValid(
         any(MixedCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(ValidationType.FULL))

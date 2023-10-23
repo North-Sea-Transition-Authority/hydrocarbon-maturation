@@ -98,7 +98,8 @@ public class ProspectMixedCaseOutputsController {
         .addObject("oilEquivalentRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasInPlaceError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("associatedCondensateRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError());
+        .addObject("associatedCondensateRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("riskedOilEquivalentRecoverableMeanError", ProbabilityDistributionTypeError.emptyError());
 
     modelAndView
         .addObject("oilInPlaceTemplate",
@@ -121,7 +122,10 @@ public class ProspectMixedCaseOutputsController {
                 ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT))
         .addObject("associatedCondensateRecoverableResourcesTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT));
+                ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT))
+        .addObject("riskedOilEquivalentRecoverableMeanTemplate",
+            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                ProbabilityDistributionFieldInstance.MIXED_CASE_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
@@ -165,6 +169,11 @@ public class ProspectMixedCaseOutputsController {
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,
                 "associatedCondensateRecoverableResources",
-                form.getAssociatedCondensateRecoverableResources()));
+                form.getAssociatedCondensateRecoverableResources()))
+        .addObject("riskedOilEquivalentRecoverableMeanError",
+            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
+                bindingResult,
+                "riskedOilEquivalentRecoverableMean",
+                form.getRiskedOilEquivalentRecoverableMean()));
   }
 }

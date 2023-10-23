@@ -12,7 +12,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
@@ -66,8 +65,7 @@ class DiscoveryMixedCaseOutputsFormValidatorTest {
             entry("gasRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("gasRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableResources." + probabilityDistributionType.getPath() + ".error",
-                Set.of("associatedCondensateRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("riskedOilEquivalentRecoverableMean.decimalInputValue", Set.of("riskedOilEquivalentRecoverableMean.decimalInputValue.notNumeric"))
+                Set.of("associatedCondensateRecoverableResources." + probabilityDistributionType.getPath() + ".error.error"))
         );
   }
 
@@ -93,8 +91,7 @@ class DiscoveryMixedCaseOutputsFormValidatorTest {
             entry("gasRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("gasRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableResources." + probabilityDistributionType.getPath() + ".error",
-                Set.of("associatedCondensateRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("riskedOilEquivalentRecoverableMean.decimalInputValue", Set.of("riskedOilEquivalentRecoverableMean.decimalInputValue.notNumeric"))
+                Set.of("associatedCondensateRecoverableResources." + probabilityDistributionType.getPath() + ".error.error"))
         );
   }
 
@@ -112,7 +109,6 @@ class DiscoveryMixedCaseOutputsFormValidatorTest {
     form.setOilInPlace(probabilityDistributionForm);
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionForm);
     form.setGasRecoverableResources(probabilityDistributionForm);
-    form.setRiskedOilEquivalentRecoverableMean(new DecimalInput("abc"));
 
     return form;
   }
@@ -132,7 +128,6 @@ class DiscoveryMixedCaseOutputsFormValidatorTest {
     form.setOilInPlace(probabilityDistributionForm);
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionForm);
     form.setGasRecoverableResources(probabilityDistributionForm);
-    form.setRiskedOilEquivalentRecoverableMean(new DecimalInput("abc"));
 
     return form;
   }
@@ -146,7 +141,6 @@ class DiscoveryMixedCaseOutputsFormValidatorTest {
     form.setOilInPlace(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY));
     form.setAssociatedCondensateRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY));
     form.setGasRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY));
-    form.setRiskedOilEquivalentRecoverableMean(new DecimalInput("1"));
     return form;
   }
 

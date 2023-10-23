@@ -1,11 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverygascasevolumetrictotals;
 
 import java.util.ArrayList;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotal;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
@@ -43,16 +43,17 @@ public class DiscoveryGasCaseVolumetricTotalsSummaryService {
     listOfInstances.add(
         ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
 
-    if (gasCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources() == null
-        || gasCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources()) {
+    if (BooleanUtils.isTrue(gasCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources())) {
       listOfInstances.add(
           ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
     }
 
-    var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
-    listOfInstances.forEach(instance -> listOfSummaryViews.add(
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            instance, submissionDetail)));
+    var listOfSummaryViews =
+        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+            listOfInstances,
+            submissionDetail,
+            null
+        );
     return new DiscoveryGasCaseVolumetricTotalsSummaryView(hasAssociatedGasRecoverableResources, listOfSummaryViews);
   }
 }

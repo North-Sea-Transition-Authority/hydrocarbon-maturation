@@ -1,0 +1,5 @@
+ALTER TABLE oil_case_outputs
+DROP COLUMN risked_oil_equivalent_recoverable_mean;
+
+ALTER TABLE mixed_case_outputs
+DROP COLUMN risked_oil_equivalent_recoverable_mean;

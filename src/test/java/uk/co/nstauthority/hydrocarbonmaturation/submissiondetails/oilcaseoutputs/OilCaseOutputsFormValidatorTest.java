@@ -13,7 +13,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
@@ -72,7 +71,9 @@ class OilCaseOutputsFormValidatorTest {
             entry("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error"))
+                Set.of("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("riskedOilEquivalentRecoverableMean." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("riskedOilEquivalentRecoverableMean." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error"))
         );
   }
 
@@ -135,7 +136,9 @@ class OilCaseOutputsFormValidatorTest {
             entry("associatedGasRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("associatedGasRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error",
-                Set.of("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error.error"))
+                Set.of("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("riskedOilEquivalentRecoverableMean." + probabilityDistributionType.getPath() + ".error",
+                Set.of("riskedOilEquivalentRecoverableMean." + probabilityDistributionType.getPath() + ".error.error"))
         );
   }
 
@@ -161,20 +164,8 @@ class OilCaseOutputsFormValidatorTest {
                 Set.of("associatedGasRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
-            entry("riskedOilEquivalentRecoverableMean.decimalInputValue", Set.of("riskedOilEquivalentRecoverableMean.decimalInputValue.notNumeric"))
-        );
-  }
-
-  @Test
-  void validate_whenInValidForm_noRiskedOilEquivalentRecoverableMean_thenValidationErrors() {
-    var form = getProspectValidForm();
-    form.setRiskedOilEquivalentRecoverableMean(new DecimalInput(""));
-
-    var extractedErrors = ValidatorTestingUtil.extractErrors(validateOilCaseOutputsForm_fullValidation(form));
-
-    assertThat(extractedErrors)
-        .containsExactly(
-            entry("riskedOilEquivalentRecoverableMean.decimalInputValue", Set.of("riskedOilEquivalentRecoverableMean.decimalInputValue.required"))
+            entry("riskedOilEquivalentRecoverableMean." + probabilityDistributionType.getPath() + ".error",
+                Set.of("riskedOilEquivalentRecoverableMean." + probabilityDistributionType.getPath() + ".error.error"))
         );
   }
 
@@ -199,8 +190,8 @@ class OilCaseOutputsFormValidatorTest {
     form.setAssociatedGasRecoverableResources(probabilityDistributionForm);
     form.setOilEquivalentRecoverableResources(probabilityDistributionForm);
     form.setOilInPlace(probabilityDistributionForm);
+    form.setRiskedOilEquivalentRecoverableMean(probabilityDistributionForm);
     form.setHasAssociatedGasRecoverableResources(true);
-    form.setRiskedOilEquivalentRecoverableMean(new DecimalInput("abc"));
 
     return form;
   }
@@ -215,8 +206,8 @@ class OilCaseOutputsFormValidatorTest {
     form.setAssociatedGasRecoverableResources(probabilityDistributionForm);
     form.setOilEquivalentRecoverableResources(probabilityDistributionForm);
     form.setOilInPlace(probabilityDistributionForm);
+    form.setRiskedOilEquivalentRecoverableMean(probabilityDistributionForm);
     form.setHasAssociatedGasRecoverableResources(true);
-    form.setRiskedOilEquivalentRecoverableMean(new DecimalInput(""));
     return form;
   }
 
@@ -239,7 +230,7 @@ class OilCaseOutputsFormValidatorTest {
     form.setAssociatedGasRecoverableResources(probDistributionFormForRecoverableResource);
     form.setOilEquivalentRecoverableResources(probDistributionFormForRecoverableResource);
     form.setOilRecoverableResources(probDistributionFormForRecoverableResource);
-    form.setRiskedOilEquivalentRecoverableMean(new DecimalInput("1"));
+    form.setRiskedOilEquivalentRecoverableMean(probDistributionFormForRecoverableResource);
     form.setHasAssociatedGasRecoverableResources(true);
     return form;
   }

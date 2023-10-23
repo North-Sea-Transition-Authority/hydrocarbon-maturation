@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs;
 
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
@@ -13,7 +12,7 @@ public class MixedCaseOutputsForm implements SubmissionForm {
   private ProbabilityDistributionForm gasRecoverableResources = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm associatedCondensateRecoverableResources = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm oilEquivalentRecoverableResources = new ProbabilityDistributionForm();
-  private DecimalInput riskedOilEquivalentRecoverableMean;
+  private ProbabilityDistributionForm riskedOilEquivalentRecoverableMean = new ProbabilityDistributionForm();
   private Boolean hasAssociatedGasRecoverableResources;
 
   public Boolean getHasAssociatedGasRecoverableResources() {
@@ -87,12 +86,12 @@ public class MixedCaseOutputsForm implements SubmissionForm {
     this.oilEquivalentRecoverableResources = oilEquivalentRecoverableResources;
   }
 
-  public DecimalInput getRiskedOilEquivalentRecoverableMean() {
+  public ProbabilityDistributionForm getRiskedOilEquivalentRecoverableMean() {
     return riskedOilEquivalentRecoverableMean;
   }
 
   public void setRiskedOilEquivalentRecoverableMean(
-      DecimalInput riskedOilEquivalentRecoverableMean) {
+      ProbabilityDistributionForm riskedOilEquivalentRecoverableMean) {
     this.riskedOilEquivalentRecoverableMean = riskedOilEquivalentRecoverableMean;
   }
 }

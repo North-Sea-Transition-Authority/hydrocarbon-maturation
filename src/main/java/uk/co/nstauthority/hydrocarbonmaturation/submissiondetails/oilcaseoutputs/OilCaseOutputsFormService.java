@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutput
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
@@ -51,6 +50,11 @@ public class OilCaseOutputsFormService {
           reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
       ));
+
+      form.setRiskedOilEquivalentRecoverableMean(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          reservoirSubmissionDetail,
+          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT
+      ));
     } else if (resourceType == ResourceType.DISCOVERY) {
       form.setOilInPlace(probabilityDistributionFormService.probabilityDistributionEntityToForm(
           reservoirSubmissionDetail,
@@ -75,14 +79,9 @@ public class OilCaseOutputsFormService {
 
     var oilCaseOutput = oilCaseOutputsPersistenceService.getOilCaseOutput(reservoirSubmissionDetail);
 
-    var riskedOilEquivalentRecoverableMean = oilCaseOutput
-        .map(OilCaseOutput::getRiskedOilEquivalentRecoverableMean)
-        .orElse(null);
     var hasAssociatedGasRecoverableResources = oilCaseOutput
         .map(OilCaseOutput::getHasAssociatedGasRecoverableResources)
         .orElse(null);
-
-    form.setRiskedOilEquivalentRecoverableMean(DecimalInput.createDecimalInput(riskedOilEquivalentRecoverableMean));
     form.setHasAssociatedGasRecoverableResources(hasAssociatedGasRecoverableResources);
     return form;
   }

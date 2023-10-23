@@ -5,13 +5,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
@@ -55,7 +53,6 @@ class DiscoveryMixedCaseOutputsPersistenceServiceTest {
     form.setOilRecoverableResources(probDistribution);
     form.setOilEquivalentRecoverableResources(probDistribution);
     form.setAssociatedCondensateRecoverableResources(probDistribution);
-    form.setRiskedOilEquivalentRecoverableMean(DecimalInput.createDecimalInput(BigDecimal.ONE));
     form.setHasAssociatedGasRecoverableResources(true);
 
     discoveryMixedCaseOutputsPersistenceService.saveMixedCaseOutputs(form, reservoirSubmissionDetail);
@@ -115,7 +112,6 @@ class DiscoveryMixedCaseOutputsPersistenceServiceTest {
   @Test
   void saveMixedCaseOutputs_whenEmptyForm_verifyCreatedEntity() {
     var form = new MixedCaseOutputsForm();
-    form.setRiskedOilEquivalentRecoverableMean(new DecimalInput());
 
     discoveryMixedCaseOutputsPersistenceService.saveMixedCaseOutputs(form, reservoirSubmissionDetail);
 
