@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverymixedcaseoutputs.DiscoveryMixedCaseOutputsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverymixedcaseoutputs.DiscoveryMixedCaseOutputsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverymixedcasevolumetrics.DiscoveryMixedCaseVolumetricsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverymixedcasevolumetrics.DiscoveryMixedCaseVolumetricsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSubmissionService;
@@ -58,7 +58,7 @@ public class ReservoirTaskListService {
   private final DrillStemTestSubmissionService drillStemTestSubmissionService;
   private final OilFluidPropertySubmissionService oilFluidPropertySubmissionService;
   private final GasFluidPropertySubmissionService gasFluidPropertySubmissionService;
-  private final DiscoveryMixedCaseOutputsSubmissionService discoveryMixedCaseOutputsSubmissionService;
+  private final DiscoveryMixedCaseVolumetricsSubmissionService discoveryMixedCaseVolumetricsSubmissionService;
   private final GeneralFluidPropertySubmissionService generalFluidPropertySubmissionService;
 
   @Autowired
@@ -73,7 +73,7 @@ public class ReservoirTaskListService {
       GasCaseVolumetricParametersSubmissionService gasCaseVolumetricParametersSubmissionService,
       GasCaseOutputsSubmissionService gasCaseOutputsSubmissionService,
       DrillStemTestSubmissionService drillStemTestSubmissionService,
-      DiscoveryMixedCaseOutputsSubmissionService discoveryMixedCaseOutputsSubmissionService,
+      DiscoveryMixedCaseVolumetricsSubmissionService discoveryMixedCaseVolumetricsSubmissionService,
       OilFluidPropertySubmissionService oilFluidPropertySubmissionService,
       GasFluidPropertySubmissionService gasFluidPropertySubmissionService,
       GeneralFluidPropertySubmissionService generalFluidPropertySubmissionService) {
@@ -87,7 +87,7 @@ public class ReservoirTaskListService {
     this.gasCaseVolumetricParametersSubmissionService = gasCaseVolumetricParametersSubmissionService;
     this.gasCaseOutputsSubmissionService = gasCaseOutputsSubmissionService;
     this.drillStemTestSubmissionService = drillStemTestSubmissionService;
-    this.discoveryMixedCaseOutputsSubmissionService = discoveryMixedCaseOutputsSubmissionService;
+    this.discoveryMixedCaseVolumetricsSubmissionService = discoveryMixedCaseVolumetricsSubmissionService;
     this.oilFluidPropertySubmissionService = oilFluidPropertySubmissionService;
     this.gasFluidPropertySubmissionService = gasFluidPropertySubmissionService;
     this.generalFluidPropertySubmissionService = generalFluidPropertySubmissionService;
@@ -237,8 +237,8 @@ public class ReservoirTaskListService {
         items.add(
                 new TaskListItem("Oil and gas case volumetrics",
                         TaskListLabel.notStartedOrComplete(
-                                discoveryMixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-                        ReverseRouter.route(on(DiscoveryMixedCaseOutputsController.class).getMixedCaseOutputs(
+                                discoveryMixedCaseVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                        ReverseRouter.route(on(DiscoveryMixedCaseVolumetricsController.class).getMixedCaseOutputs(
                                 submissionDetail.getId(),
                                 reservoirSubmissionDetail.getId())))
         );

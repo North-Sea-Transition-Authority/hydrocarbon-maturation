@@ -39,8 +39,8 @@
 <#-- @ftlvariable name="submissionUpdateReason" type="String" -->
 <#-- @ftlvariable name="resourceName" type="String" -->
 <#-- @ftlvariable name="reservoirSummaries" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummary>" -->
-<#-- @ftlvariable name="oilCaseVolumetricTotalsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSummaryView" -->
-<#-- @ftlvariable name="gasCaseVolumetricTotalsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSummaryView" -->
+<#-- @ftlvariable name="oilCaseVolumetricTotalsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSummaryView" -->
+<#-- @ftlvariable name="gasCaseVolumetricTotalsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSummaryView" -->
 
 <#if !submittable>
   <#assign notificationBanner>
