@@ -349,11 +349,11 @@ class ReservoirPropertiesPersistenceService {
   }
 
   private void saveDepositionalSettingAndEnvironment(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {
-    reservoirProperty.setDepositionalSetting(form.getDepositionalSetting());
-
     var depositionalSetting = EnumUtils.getEnumValue(DepositionalSetting.class, form.getDepositionalSetting());
+    reservoirProperty.setDepositionalSetting(depositionalSetting);
 
-    var depositionalEnvironment = form.getDepositionalEnvironmentMap().get(depositionalSetting);
+    var depositionalEnvironmentFromSetting = form.getDepositionalEnvironmentMap().get(depositionalSetting);
+    var depositionalEnvironment = EnumUtils.getEnumValue(DepositionalEnvironment.class, depositionalEnvironmentFromSetting);
     reservoirProperty.setDepositionalEnvironment(depositionalEnvironment);
   }
 

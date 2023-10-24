@@ -249,7 +249,8 @@ class ReservoirPropertiesPersistenceServiceTest {
             .containsAnyElementsOf(expectedBarrierBaffles);
 
     var depositionalSetting = EnumUtils.getEnumValue(DepositionalSetting.class, form.getDepositionalSetting());
-    var expectedDepositionalEnvironment = form.getDepositionalEnvironmentMap().get(depositionalSetting);
+    var depositionalEnvironment = form.getDepositionalEnvironmentMap().get(depositionalSetting);
+    var expectedDepositionalEnvironment = EnumUtils.getEnumValue(DepositionalEnvironment.class, depositionalEnvironment);
 
     assertThat(savedReservoirProperty)
         .extracting(
@@ -273,7 +274,7 @@ class ReservoirPropertiesPersistenceServiceTest {
             form.getLithology(),
             form.getLithologyOther(),
             form.getFracturePressure().asBigDecimal().get(),
-            form.getDepositionalSetting(),
+            depositionalSetting,
             expectedDepositionalEnvironment,
             form.getIsLateralBarriersBaffles(),
             form.getIsVerticalBarriersBaffles()
@@ -316,7 +317,9 @@ class ReservoirPropertiesPersistenceServiceTest {
         .containsAnyElementsOf(expectedBarrierBaffles);
 
     var depositionalSetting = EnumUtils.getEnumValue(DepositionalSetting.class, form.getDepositionalSetting());
-    var expectedDepositionalEnvironment = form.getDepositionalEnvironmentMap().get(depositionalSetting);
+    var depositionalEnvironment = form.getDepositionalEnvironmentMap().get(depositionalSetting);
+    var expectedDepositionalEnvironment = EnumUtils.getEnumValue(DepositionalEnvironment.class, depositionalEnvironment);
+
     assertThat(savedReservoirProperty)
         .extracting(
             ReservoirProperty::getReservoirSubmissionDetail,
@@ -339,7 +342,7 @@ class ReservoirPropertiesPersistenceServiceTest {
             form.getLithology(),
             form.getLithologyOther(),
             form.getFracturePressure().asBigDecimal().get(),
-            form.getDepositionalSetting(),
+            depositionalSetting,
             expectedDepositionalEnvironment,
             form.getIsLateralBarriersBaffles(),
             form.getIsVerticalBarriersBaffles()
@@ -639,7 +642,7 @@ class ReservoirPropertiesPersistenceServiceTest {
     form.setFracturePressure(new DecimalInput("1"));
     form.setDepositionalSetting(DepositionalSetting.TERRESTRIAL.name());
     form.getDepositionalEnvironmentMap()
-        .put(DepositionalSetting.TERRESTRIAL, DepositionalEnvironment.AEOLIAN.getDisplayName());
+        .put(DepositionalSetting.TERRESTRIAL, DepositionalEnvironment.AEOLIAN.name());
     form.setIsLateralBarriersBaffles(true);
     form.setLateralBarriersBafflesDetail(Set.of(BarrierBaffle.TAR_MAT.name(), BarrierBaffle.CEMENTATION.name()));
     form.setIsVerticalBarriersBaffles(true);

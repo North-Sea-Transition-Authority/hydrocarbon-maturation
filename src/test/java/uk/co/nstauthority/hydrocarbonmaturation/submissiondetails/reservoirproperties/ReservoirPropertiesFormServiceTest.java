@@ -651,8 +651,8 @@ class ReservoirPropertiesFormServiceTest {
     reservoirProperty.setSubUnit(ReservoirSubUnit.T10);
     reservoirProperty.setAgeStage(AgeSeries.LOWER_DEVONIAN);
     reservoirProperty.setFracturePressure(BigDecimal.ONE);
-    reservoirProperty.setDepositionalSetting(DepositionalSetting.TERRESTRIAL.name());
-    reservoirProperty.setDepositionalEnvironment(DepositionalEnvironment.AEOLIAN.name());
+    reservoirProperty.setDepositionalSetting(DepositionalSetting.TERRESTRIAL);
+    reservoirProperty.setDepositionalEnvironment(DepositionalEnvironment.AEOLIAN);
     reservoirProperty.setLateralBarriersBaffles(false);
     reservoirProperty.setVerticalBarriersBaffles(false);
 

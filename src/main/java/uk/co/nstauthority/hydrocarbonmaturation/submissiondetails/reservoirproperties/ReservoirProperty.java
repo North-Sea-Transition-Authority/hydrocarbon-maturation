@@ -59,9 +59,11 @@ class ReservoirProperty implements ReservoirSubmissionDetailChildEntity {
 
   private BigDecimal fracturePressure;
 
-  private String depositionalSetting;
+  @Enumerated(EnumType.STRING)
+  private DepositionalSetting depositionalSetting;
 
-  private String depositionalEnvironment;
+  @Enumerated(EnumType.STRING)
+  private DepositionalEnvironment depositionalEnvironment;
 
   private Boolean isLateralBarriersBaffles;
 
@@ -184,20 +186,20 @@ class ReservoirProperty implements ReservoirSubmissionDetailChildEntity {
     return this;
   }
 
-  public String getDepositionalSetting() {
+  public DepositionalSetting getDepositionalSetting() {
     return depositionalSetting;
   }
 
-  public ReservoirProperty setDepositionalSetting(String depositionalSetting) {
+  public ReservoirProperty setDepositionalSetting(DepositionalSetting depositionalSetting) {
     this.depositionalSetting = depositionalSetting;
     return this;
   }
 
-  public String getDepositionalEnvironment() {
+  public DepositionalEnvironment getDepositionalEnvironment() {
     return depositionalEnvironment;
   }
 
-  public ReservoirProperty setDepositionalEnvironment(String depositionalEnvironment) {
+  public ReservoirProperty setDepositionalEnvironment(DepositionalEnvironment depositionalEnvironment) {
     this.depositionalEnvironment = depositionalEnvironment;
     return this;
   }
