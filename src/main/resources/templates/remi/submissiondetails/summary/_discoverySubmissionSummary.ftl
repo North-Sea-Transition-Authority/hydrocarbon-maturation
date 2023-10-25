@@ -59,6 +59,9 @@
       <@trapPropertiesSummary.trapPropertiesSummaryCard trapPropertiesValues=trapPropertiesSummaryView/>
       <@sourceAndSealSummary.sourceAndSealCard sourceAndSealValues=sourceAndSealSummaryView/>
     </@fdsAccordion.accordionSection>
+    <@fdsAccordion.accordionSection sectionHeading="Discovery well details" summaryText="Discovery well details">
+      <@discoveryWellDetailSummary.discoveryWellDetailCard discoveryWellDetailsSummaryView/>
+    </@fdsAccordion.accordionSection>
     <#if totalsRequired>
         <@fdsAccordion.accordionSection sectionHeading="Total volumes for discovery">
             <#if isOilCaseOnly>

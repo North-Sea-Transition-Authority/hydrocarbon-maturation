@@ -59,7 +59,7 @@ public class TrapPropertiesSummaryService {
         ? trapProperty.getLatitudeMinutes().toString() + "'"
         : "";
     var latitudeSeconds = trapProperty.getLatitudeSeconds() != null
-        ? trapProperty.getLatitudeSeconds().toString() + "''"
+        ? trapProperty.getLatitudeSeconds().toString() + "\""
         : "";
     var longitudeDegrees = trapProperty.getLongitudeDegrees() != null
         ? trapProperty.getLongitudeDegrees().toString() + "°"
@@ -68,7 +68,7 @@ public class TrapPropertiesSummaryService {
         ? trapProperty.getLongitudeMinutes().toString() + "'"
         : "";
     var longitudeSeconds = trapProperty.getLongitudeSeconds() != null
-        ? trapProperty.getLongitudeSeconds().toString() + "''"
+        ? trapProperty.getLongitudeSeconds().toString() + "\""
         : "";
 
     var longitudeHemisphere = trapProperty.getLongitudeHemisphere() != null

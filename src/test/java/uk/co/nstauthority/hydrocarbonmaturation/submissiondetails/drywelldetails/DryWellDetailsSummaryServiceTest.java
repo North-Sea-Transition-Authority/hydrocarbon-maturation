@@ -163,11 +163,11 @@ class DryWellDetailsSummaryServiceTest {
         .containsExactly(
             "wellname",
             BigDecimal.ONE + "°",
-            BigDecimal.ONE + "''",
             BigDecimal.ONE + "'",
+            BigDecimal.ONE + "\"",
             BigDecimal.ONE + "°",
-            BigDecimal.ONE + "''",
             BigDecimal.ONE + "'",
+            BigDecimal.ONE + "\"",
             Hemisphere.EAST.getDisplayName(),
             ReservoirDatum.ED50.getDisplayName(),
             "depth",
