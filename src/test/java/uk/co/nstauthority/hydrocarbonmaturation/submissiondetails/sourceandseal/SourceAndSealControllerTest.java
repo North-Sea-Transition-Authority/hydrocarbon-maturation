@@ -89,7 +89,7 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getSourceAndSealDetails_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetailId)))
                 .with(user(USER)))

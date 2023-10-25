@@ -58,12 +58,12 @@ public class SubmissionDetailVersionInterceptorRule implements SubmissionInterce
   private boolean isLatestExtantSubmissionDetailOnSubmission(SubmissionDetail submissionDetail) {
     //ensures the submission detail is the latest accessible version on the submission for its status
     return switch (submissionDetail.getStatus()) {
-      case APPROVED, SUBMITTED -> submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
+      case ACCEPTED, SUBMITTED -> submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
           submissionDetail,
-          Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED));
+          Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED));
       case DRAFT -> submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
           submissionDetail,
-          Set.of(SubmissionDetailStatus.DRAFT, SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)
+          Set.of(SubmissionDetailStatus.DRAFT, SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)
       );
       case DELETED -> false;
     };

@@ -113,7 +113,7 @@ public class SubmissionEmailService {
               RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(submissionDetail));
           sendEmailToRecipient(emailProperties, recipient);
         },
-        () -> LOGGER.warn("Could not find recipient with WUA_ID %s for submission approval email"
+        () -> LOGGER.warn("Could not find recipient with WUA_ID %s for submission acceptance email"
             .formatted(submissionDetail.getSubmittedByWuaId()))
     );
   }

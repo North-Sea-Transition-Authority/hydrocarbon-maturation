@@ -89,20 +89,20 @@ class CorrectionFormValidatorTest {
     var submissionDetailHistory = createProspectSubmissionDetailHistory();
     var approvedSubmissions = createApprovedSubmissionHistory(submissionDetailHistory);
     var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.APPROVAL_DATE_CHANGE);
+    form.setCorrectionType(CorrectionType.ACCEPTED_DATE_CHANGE);
     var selectedSubmissionDetail = submissionDetailHistory.stream()
         .filter(s -> s.getSubmissionType().equals(SubmissionType.CREATE_PROSPECT))
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
     form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
-        selectedSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
+        selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
     form.setApprovalDateChangeMonth(String.valueOf(
-        selectedSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setApprovalDateChangeYear(String.valueOf(
-            selectedSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear()
+            selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()
     ));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
@@ -117,7 +117,7 @@ class CorrectionFormValidatorTest {
     var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
     var submissionDetailHistory = createProspectSubmissionDetailHistory();
     var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.APPROVAL_DATE_CHANGE);
+    form.setCorrectionType(CorrectionType.ACCEPTED_DATE_CHANGE);
     var selectedSubmissionDetail = submissionDetailHistory.get(0);
     form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.getId().toString());
     form.setApprovalDateChangeDay("1");
@@ -134,7 +134,7 @@ class CorrectionFormValidatorTest {
     );
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
-        .contains("New approved date of the submission must be today or in the past");
+        .contains("New accepted date of the submission must be today or in the past");
   }
 
   @Test
@@ -143,17 +143,17 @@ class CorrectionFormValidatorTest {
     var submissionDetailHistory = createProspectSubmissionDetailHistory();
     var approvedSubmissions = createApprovedSubmissionHistory(submissionDetailHistory);
     var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.APPROVAL_DATE_CHANGE);
+    form.setCorrectionType(CorrectionType.ACCEPTED_DATE_CHANGE);
     var selectedSubmissionDetail = submissionDetailHistory.get(0);
     form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
-        selectedSubmissionDetail.getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
     ));
     form.setApprovalDateChangeMonth(String.valueOf(
-        selectedSubmissionDetail.getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setApprovalDateChangeYear(String.valueOf(
-        selectedSubmissionDetail.getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail);
     when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
@@ -166,7 +166,7 @@ class CorrectionFormValidatorTest {
     );
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
-        .contains("New approved date cannot be the same as another approved date");
+        .contains("New accepted date cannot be the same as another accepted date");
   }
 
   @Test
@@ -175,7 +175,7 @@ class CorrectionFormValidatorTest {
     var submissionDetailHistory = createProspectSubmissionDetailHistory();
     var approvedSubmissions = createApprovedSubmissionHistory(submissionDetailHistory);
     var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.APPROVAL_DATE_CHANGE);
+    form.setCorrectionType(CorrectionType.ACCEPTED_DATE_CHANGE);
     var selectedSubmissionDetail = submissionDetailHistory.stream()
         .filter(s -> s.getSubmissionType().equals(SubmissionType.PROSPECT_UPDATE))
         .findFirst();
@@ -186,13 +186,13 @@ class CorrectionFormValidatorTest {
     assertThat(creationSubmissionDetail).isPresent();
     form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
-        creationSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
+        creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
     ));
     form.setApprovalDateChangeMonth(String.valueOf(
-        creationSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setApprovalDateChangeYear(String.valueOf(
-        creationSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
+        creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
     when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
@@ -205,9 +205,9 @@ class CorrectionFormValidatorTest {
     );
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
-        .contains(String.format("New approved date of the submission must be after the creation date of the prospect - %s",
+        .contains(String.format("New accepted date of the submission must be after the creation date of the prospect - %s",
             DateUtil.formatDate(LocalDate.ofInstant(
-                creationSubmissionDetail.get().getApprovedTimestamp(),
+                creationSubmissionDetail.get().getAcceptedTimestamp(),
                 ZoneId.systemDefault()
             ))));
   }
@@ -218,7 +218,7 @@ class CorrectionFormValidatorTest {
     var submissionDetailHistory = createProspectSubmissionDetailHistory();
     var approvedSubmissions = createApprovedSubmissionHistory(submissionDetailHistory);
     var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.APPROVAL_DATE_CHANGE);
+    form.setCorrectionType(CorrectionType.ACCEPTED_DATE_CHANGE);
     var selectedSubmissionDetail = submissionDetailHistory.stream()
         .filter(s -> s.getSubmissionType().equals(SubmissionType.CREATE_PROSPECT))
         .findFirst();
@@ -229,13 +229,13 @@ class CorrectionFormValidatorTest {
     assertThat(dryHoleSubmissionDetail).isPresent();
     form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
-        dryHoleSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
+        dryHoleSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
     form.setApprovalDateChangeMonth(String.valueOf(
-        dryHoleSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        dryHoleSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setApprovalDateChangeYear(String.valueOf(
-        dryHoleSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
+        dryHoleSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
     when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
@@ -248,9 +248,9 @@ class CorrectionFormValidatorTest {
     );
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
-        .contains(String.format("New approved date of the submission must be before the dry well date of the resource - %s",
+        .contains(String.format("New accepted date of the submission must be before the dry well date of the resource - %s",
             DateUtil.formatDate(LocalDate.ofInstant(
-                dryHoleSubmissionDetail.get().getApprovedTimestamp(),
+                dryHoleSubmissionDetail.get().getAcceptedTimestamp(),
                 ZoneId.systemDefault()
             ))));
   }
@@ -261,7 +261,7 @@ class CorrectionFormValidatorTest {
     var submissionDetailHistory = createProspectSubmissionDetailHistory();
     var approvedSubmissions = createApprovedSubmissionHistory(submissionDetailHistory);
     var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.APPROVAL_DATE_CHANGE);
+    form.setCorrectionType(CorrectionType.ACCEPTED_DATE_CHANGE);
     var selectedSubmissionDetail = submissionDetailHistory.stream()
         .filter(s -> s.getSubmissionType().equals(SubmissionType.CREATE_PROSPECT))
         .findFirst();
@@ -272,13 +272,13 @@ class CorrectionFormValidatorTest {
     assertThat(relinquishmentSubmissionDetail).isPresent();
     form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
-        relinquishmentSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
+        relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
     form.setApprovalDateChangeMonth(String.valueOf(
-        relinquishmentSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setApprovalDateChangeYear(String.valueOf(
-        relinquishmentSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
+        relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
     when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
@@ -291,9 +291,9 @@ class CorrectionFormValidatorTest {
     );
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
-        .contains(String.format("New approved date of the submission must be before the relinquishment date of the prospect - %s",
+        .contains(String.format("New accepted date of the submission must be before the relinquishment date of the prospect - %s",
             DateUtil.formatDate(LocalDate.ofInstant(
-                relinquishmentSubmissionDetail.get().getApprovedTimestamp(),
+                relinquishmentSubmissionDetail.get().getAcceptedTimestamp(),
                 ZoneId.systemDefault()
             ))));
   }
@@ -304,7 +304,7 @@ class CorrectionFormValidatorTest {
     var submissionDetailHistory = createProspectSubmissionDetailHistory();
     var approvedSubmissions = createApprovedSubmissionHistory(submissionDetailHistory);
     var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.APPROVAL_DATE_CHANGE);
+    form.setCorrectionType(CorrectionType.ACCEPTED_DATE_CHANGE);
     var selectedSubmissionDetail = submissionDetailHistory.stream()
         .filter(s -> s.getSubmissionType().equals(SubmissionType.CREATE_PROSPECT))
         .findFirst();
@@ -315,13 +315,13 @@ class CorrectionFormValidatorTest {
     assertThat(discoverySubmissionDetail).isPresent();
     form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
-        discoverySubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
+        discoverySubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
     form.setApprovalDateChangeMonth(String.valueOf(
-        discoverySubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        discoverySubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setApprovalDateChangeYear(String.valueOf(
-        discoverySubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
+        discoverySubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
     when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
@@ -334,9 +334,9 @@ class CorrectionFormValidatorTest {
     );
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
-        .contains(String.format("New approved date of the submission must be before the initial discovery date of the resource - %s",
+        .contains(String.format("New accepted date of the submission must be before the initial discovery date of the resource - %s",
             DateUtil.formatDate(LocalDate.ofInstant(
-                discoverySubmissionDetail.get().getApprovedTimestamp(),
+                discoverySubmissionDetail.get().getAcceptedTimestamp(),
                 ZoneId.systemDefault()
             ))));
   }
@@ -347,20 +347,20 @@ class CorrectionFormValidatorTest {
     var submissionDetailHistory = createDiscoverySubmissionDetailHistory();
     var approvedSubmissions = createApprovedSubmissionHistory(submissionDetailHistory);
     var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.APPROVAL_DATE_CHANGE);
+    form.setCorrectionType(CorrectionType.ACCEPTED_DATE_CHANGE);
     var selectedSubmissionDetail = submissionDetailHistory.stream()
         .filter(s -> s.getSubmissionType().equals(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT))
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
     form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
-        selectedSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
+        selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
     form.setApprovalDateChangeMonth(String.valueOf(
-        selectedSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setApprovalDateChangeYear(String.valueOf(
-        selectedSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear()
+        selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()
     ));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
@@ -376,7 +376,7 @@ class CorrectionFormValidatorTest {
     var submissionDetailHistory = createDiscoverySubmissionDetailHistory();
     var approvedSubmissions = createApprovedSubmissionHistory(submissionDetailHistory);
     var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.APPROVAL_DATE_CHANGE);
+    form.setCorrectionType(CorrectionType.ACCEPTED_DATE_CHANGE);
     var selectedSubmissionDetail = submissionDetailHistory.stream()
         .filter(s -> s.getSubmissionType().equals(SubmissionType.UPDATE_DISCOVERY))
         .findFirst();
@@ -387,13 +387,13 @@ class CorrectionFormValidatorTest {
     assertThat(creationSubmissionDetail).isPresent();
     form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
-        creationSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
+        creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
     ));
     form.setApprovalDateChangeMonth(String.valueOf(
-        creationSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setApprovalDateChangeYear(String.valueOf(
-        creationSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
+        creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
     when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
@@ -406,9 +406,9 @@ class CorrectionFormValidatorTest {
     );
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
-        .contains(String.format("New approved date of the submission must be after the creation date of the discovery - %s",
+        .contains(String.format("New accepted date of the submission must be after the creation date of the discovery - %s",
             DateUtil.formatDate(LocalDate.ofInstant(
-                creationSubmissionDetail.get().getApprovedTimestamp(),
+                creationSubmissionDetail.get().getAcceptedTimestamp(),
                 ZoneId.systemDefault()
             ))));
   }
@@ -419,7 +419,7 @@ class CorrectionFormValidatorTest {
     var submissionDetailHistory = createDiscoverySubmissionDetailHistory();
     var approvedSubmissions = createApprovedSubmissionHistory(submissionDetailHistory);
     var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.APPROVAL_DATE_CHANGE);
+    form.setCorrectionType(CorrectionType.ACCEPTED_DATE_CHANGE);
     var selectedSubmissionDetail = submissionDetailHistory.stream()
         .filter(s -> s.getSubmissionType().equals(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT))
         .findFirst();
@@ -430,13 +430,13 @@ class CorrectionFormValidatorTest {
     assertThat(relinquishmentSubmissionDetail).isPresent();
     form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
-        relinquishmentSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
+        relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
     form.setApprovalDateChangeMonth(String.valueOf(
-        relinquishmentSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setApprovalDateChangeYear(String.valueOf(
-        relinquishmentSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
+        relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
     when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
@@ -449,9 +449,9 @@ class CorrectionFormValidatorTest {
     );
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
-        .contains(String.format("New approved date of the submission must be before the relinquishment date of the discovery - %s",
+        .contains(String.format("New accepted date of the submission must be before the relinquishment date of the discovery - %s",
             DateUtil.formatDate(LocalDate.ofInstant(
-                relinquishmentSubmissionDetail.get().getApprovedTimestamp(),
+                relinquishmentSubmissionDetail.get().getAcceptedTimestamp(),
                 ZoneId.systemDefault()
             ))));
   }
@@ -462,7 +462,7 @@ class CorrectionFormValidatorTest {
     var submissionDetailHistory = createDiscoverySubmissionDetailHistory();
     var approvedSubmissions = createApprovedSubmissionHistory(submissionDetailHistory);
     var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.APPROVAL_DATE_CHANGE);
+    form.setCorrectionType(CorrectionType.ACCEPTED_DATE_CHANGE);
     var selectedSubmissionDetail = submissionDetailHistory.stream()
         .filter(s -> s.getSubmissionType().equals(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT))
         .findFirst();
@@ -473,13 +473,13 @@ class CorrectionFormValidatorTest {
     assertThat(prospectSubmissionDetail).isPresent();
     form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
-        prospectSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
+        prospectSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
     ));
     form.setApprovalDateChangeMonth(String.valueOf(
-        prospectSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        prospectSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setApprovalDateChangeYear(String.valueOf(
-        prospectSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
+        prospectSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
     when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
@@ -492,9 +492,9 @@ class CorrectionFormValidatorTest {
     );
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
-        .contains(String.format("New approved date of the submission must be after the latest prospect submission date of the resource - %s",
+        .contains(String.format("New accepted date of the submission must be after the latest prospect submission date of the resource - %s",
             DateUtil.formatDate(LocalDate.ofInstant(
-                prospectSubmissionDetail.get().getApprovedTimestamp(),
+                prospectSubmissionDetail.get().getAcceptedTimestamp(),
                 ZoneId.systemDefault()
             ))));
   }
@@ -512,13 +512,13 @@ class CorrectionFormValidatorTest {
     assertThat(selectedSubmissionDetail).isPresent();
     form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
-        selectedSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
+        selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
     form.setMissingUpdateMonth(String.valueOf(
-        selectedSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setMissingUpdateYear(String.valueOf(
-        selectedSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear()
+        selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()
     ));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
@@ -563,13 +563,13 @@ class CorrectionFormValidatorTest {
     var selectedSubmissionDetail = submissionDetailHistory.get(1);
     form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.getId().toString());
     form.setMissingUpdateDay(String.valueOf(
-        selectedSubmissionDetail.getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
     ));
     form.setMissingUpdateMonth(String.valueOf(
-        selectedSubmissionDetail.getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setMissingUpdateYear(String.valueOf(
-        selectedSubmissionDetail.getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail);
     when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
@@ -582,7 +582,7 @@ class CorrectionFormValidatorTest {
     );
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
-        .contains("Missing update date cannot be the same as another approved date");
+        .contains("Missing update date cannot be the same as another accepted date");
   }
 
   @Test
@@ -602,13 +602,13 @@ class CorrectionFormValidatorTest {
     assertThat(creationSubmissionDetail).isPresent();
     form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
-        creationSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
+        creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
     ));
     form.setMissingUpdateMonth(String.valueOf(
-        creationSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setMissingUpdateYear(String.valueOf(
-        creationSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
+        creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
     when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
@@ -623,7 +623,7 @@ class CorrectionFormValidatorTest {
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(String.format("Missing update date of the submission must be after the creation date of the prospect - %s",
             DateUtil.formatDate(LocalDate.ofInstant(
-                creationSubmissionDetail.get().getApprovedTimestamp(),
+                creationSubmissionDetail.get().getAcceptedTimestamp(),
                 ZoneId.systemDefault()
             ))));
   }
@@ -645,13 +645,13 @@ class CorrectionFormValidatorTest {
     assertThat(dryHoleSubmissionDetail).isPresent();
     form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
-        dryHoleSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
+        dryHoleSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
     form.setMissingUpdateMonth(String.valueOf(
-        dryHoleSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        dryHoleSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setMissingUpdateYear(String.valueOf(
-        dryHoleSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
+        dryHoleSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
     when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
@@ -666,7 +666,7 @@ class CorrectionFormValidatorTest {
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(String.format("Missing update date of the submission must be before the dry well date of the resource - %s",
             DateUtil.formatDate(LocalDate.ofInstant(
-                dryHoleSubmissionDetail.get().getApprovedTimestamp(),
+                dryHoleSubmissionDetail.get().getAcceptedTimestamp(),
                 ZoneId.systemDefault()
             ))));
   }
@@ -688,13 +688,13 @@ class CorrectionFormValidatorTest {
     assertThat(relinquishmentSubmissionDetail).isPresent();
     form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
-        relinquishmentSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
+        relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
     form.setMissingUpdateMonth(String.valueOf(
-        relinquishmentSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setMissingUpdateYear(String.valueOf(
-        relinquishmentSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
+        relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
     when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
@@ -709,7 +709,7 @@ class CorrectionFormValidatorTest {
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(String.format("Missing update date of the submission must be before the relinquishment date of the prospect - %s",
             DateUtil.formatDate(LocalDate.ofInstant(
-                relinquishmentSubmissionDetail.get().getApprovedTimestamp(),
+                relinquishmentSubmissionDetail.get().getAcceptedTimestamp(),
                 ZoneId.systemDefault()
             ))));
   }
@@ -731,13 +731,13 @@ class CorrectionFormValidatorTest {
     assertThat(discoverySubmissionDetail).isPresent();
     form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
-        discoverySubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
+        discoverySubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
     form.setMissingUpdateMonth(String.valueOf(
-        discoverySubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        discoverySubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setMissingUpdateYear(String.valueOf(
-        discoverySubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
+        discoverySubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
     when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
@@ -752,7 +752,7 @@ class CorrectionFormValidatorTest {
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(String.format("Missing update date of the submission must be before the initial discovery date of the resource - %s",
             DateUtil.formatDate(LocalDate.ofInstant(
-                discoverySubmissionDetail.get().getApprovedTimestamp(),
+                discoverySubmissionDetail.get().getAcceptedTimestamp(),
                 ZoneId.systemDefault()
             ))));
   }
@@ -770,13 +770,13 @@ class CorrectionFormValidatorTest {
     assertThat(selectedSubmissionDetail).isPresent();
     form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
-        selectedSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
+        selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
     form.setMissingUpdateMonth(String.valueOf(
-        selectedSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setMissingUpdateYear(String.valueOf(
-        selectedSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear()
+        selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()
     ));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
@@ -803,13 +803,13 @@ class CorrectionFormValidatorTest {
     assertThat(creationSubmissionDetail).isPresent();
     form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
-        creationSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
+        creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
     ));
     form.setMissingUpdateMonth(String.valueOf(
-        creationSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setMissingUpdateYear(String.valueOf(
-        creationSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
+        creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
     when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
@@ -824,7 +824,7 @@ class CorrectionFormValidatorTest {
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(String.format("Missing update date of the submission must be after the creation date of the discovery - %s",
             DateUtil.formatDate(LocalDate.ofInstant(
-                creationSubmissionDetail.get().getApprovedTimestamp(),
+                creationSubmissionDetail.get().getAcceptedTimestamp(),
                 ZoneId.systemDefault()
             ))));
   }
@@ -846,13 +846,13 @@ class CorrectionFormValidatorTest {
     assertThat(relinquishmentSubmissionDetail).isPresent();
     form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
-        relinquishmentSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
+        relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
     form.setMissingUpdateMonth(String.valueOf(
-        relinquishmentSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setMissingUpdateYear(String.valueOf(
-        relinquishmentSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
+        relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
     when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
@@ -867,7 +867,7 @@ class CorrectionFormValidatorTest {
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(String.format("Missing update date of the submission must be before the relinquishment date of the discovery - %s",
             DateUtil.formatDate(LocalDate.ofInstant(
-                relinquishmentSubmissionDetail.get().getApprovedTimestamp(),
+                relinquishmentSubmissionDetail.get().getAcceptedTimestamp(),
                 ZoneId.systemDefault()
             ))));
   }
@@ -889,13 +889,13 @@ class CorrectionFormValidatorTest {
     assertThat(prospectSubmissionDetail).isPresent();
     form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
-        prospectSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
+        prospectSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
     ));
     form.setMissingUpdateMonth(String.valueOf(
-        prospectSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+        prospectSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
     ));
     form.setMissingUpdateYear(String.valueOf(
-        prospectSubmissionDetail.get().getApprovedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
+        prospectSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
     var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
     when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
@@ -910,30 +910,30 @@ class CorrectionFormValidatorTest {
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(String.format("Missing update date of the submission must be after the latest prospect submission date of the resource - %s",
             DateUtil.formatDate(LocalDate.ofInstant(
-                prospectSubmissionDetail.get().getApprovedTimestamp(),
+                prospectSubmissionDetail.get().getAcceptedTimestamp(),
                 ZoneId.systemDefault()
             ))));
   }
 
   private List<SubmissionDetail> createProspectSubmissionDetailHistory() {
     var submissionDetail1 = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
-    submissionDetail1.setApprovedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 1, 1, 0, 0)
+    submissionDetail1.setAcceptedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 1, 1, 0, 0)
         .atZone(ZoneId.systemDefault())
         .toInstant());
     var submissionDetail2 = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.PROSPECT_UPDATE);
-    submissionDetail2.setApprovedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 2, 1, 0, 0)
+    submissionDetail2.setAcceptedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 2, 1, 0, 0)
         .atZone(ZoneId.systemDefault())
         .toInstant());
     var submissionDetail3 = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.POST_DRILL_DRY_HOLE);
-    submissionDetail3.setApprovedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 3, 1, 0, 0)
+    submissionDetail3.setAcceptedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 3, 1, 0, 0)
         .atZone(ZoneId.systemDefault())
         .toInstant());
     var submissionDetail4 = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.RELINQUISHMENT_PROSPECT);
-    submissionDetail4.setApprovedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 4, 1, 0, 0)
+    submissionDetail4.setAcceptedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 4, 1, 0, 0)
         .atZone(ZoneId.systemDefault())
         .toInstant());
     var submissionDetail5 = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
-    submissionDetail5.setApprovedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 5, 1, 0, 0)
+    submissionDetail5.setAcceptedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 5, 1, 0, 0)
         .atZone(ZoneId.systemDefault())
         .toInstant());
     return List.of(submissionDetail1, submissionDetail2, submissionDetail3, submissionDetail4, submissionDetail5);
@@ -941,19 +941,19 @@ class CorrectionFormValidatorTest {
 
   private List<SubmissionDetail> createDiscoverySubmissionDetailHistory() {
     var submissionDetail1 = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
-    submissionDetail1.setApprovedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 1, 1, 0, 0)
+    submissionDetail1.setAcceptedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 1, 1, 0, 0)
         .atZone(ZoneId.systemDefault())
         .toInstant());
     var submissionDetail2 = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
-    submissionDetail2.setApprovedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 2, 1, 0, 0)
+    submissionDetail2.setAcceptedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 2, 1, 0, 0)
         .atZone(ZoneId.systemDefault())
         .toInstant());
     var submissionDetail3 = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.UPDATE_DISCOVERY);
-    submissionDetail3.setApprovedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 3, 1, 0, 0)
+    submissionDetail3.setAcceptedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 3, 1, 0, 0)
         .atZone(ZoneId.systemDefault())
         .toInstant());
     var submissionDetail4 = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.RELINQUISHMENT_DISCOVERY);
-    submissionDetail4.setApprovedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 4, 1, 0, 0)
+    submissionDetail4.setAcceptedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 4, 1, 0, 0)
         .atZone(ZoneId.systemDefault())
         .toInstant());
     return List.of(submissionDetail1, submissionDetail2, submissionDetail3, submissionDetail4);
@@ -963,8 +963,8 @@ class CorrectionFormValidatorTest {
     var submissionHistoryList = new ArrayList<SubmissionQuerySearchRecord>();
     submissionDetails.forEach(submissionDetail -> {
       var submissionHistory = new SubmissionQuerySearchRecord(
-        SubmissionDetailStatus.APPROVED,
-        Timestamp.from(submissionDetail.getApprovedTimestamp()),
+        SubmissionDetailStatus.ACCEPTED,
+        Timestamp.from(submissionDetail.getAcceptedTimestamp()),
         submissionDetail.getId(),
         submissionDetail.getSubmissionType()
       );

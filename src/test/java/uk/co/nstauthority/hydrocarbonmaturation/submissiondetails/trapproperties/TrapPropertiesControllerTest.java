@@ -99,7 +99,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getTrapProperties_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetailId)))
                 .with(user(USER)))
@@ -187,7 +187,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
     var discoverySubmissionDetailId = UUID.randomUUID();
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY,
         discoverySubmissionDetailId);
-    discoverySubmissionDetail.setApprovedTimestamp(Instant.now());
+    discoverySubmissionDetail.setAcceptedTimestamp(Instant.now());
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);

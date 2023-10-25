@@ -84,7 +84,7 @@ class OilCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getOilCaseOutputs_assertOk() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
         get(ReverseRouter.route(on(OilCaseOutputsController.class)
             .getOilCaseOutputs(submissionDetailId, reservoirSubmissionDetailId)))

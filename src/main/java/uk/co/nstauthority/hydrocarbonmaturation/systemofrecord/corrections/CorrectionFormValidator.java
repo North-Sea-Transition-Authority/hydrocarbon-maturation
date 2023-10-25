@@ -23,7 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DateValidationUti
 class CorrectionFormValidator {
 
   private static final String APPROVAL_DATA_CHANGE_FIELD_PREFIX = "approvalDateChange";
-  private static final String APPROVAL_DATA_CHANGE_DISPLAY_PREFIX = "new approved date of the submission";
+  private static final String APPROVAL_DATA_CHANGE_DISPLAY_PREFIX = "new accepted date of the submission";
   private static final String MISSING_UPDATE_FIELD_PREFIX = "missingUpdate";
   private static final String MISSING_UPDATE_DISPLAY_PREFIX = "missing update date of the submission";
 
@@ -46,7 +46,7 @@ class CorrectionFormValidator {
       validateSubmissionCorrection(errors);
     }
 
-    if (form.getCorrectionType() == CorrectionType.APPROVAL_DATE_CHANGE) {
+    if (form.getCorrectionType() == CorrectionType.ACCEPTED_DATE_CHANGE) {
       validateApprovalDateChange(form, resource, errors);
     }
 
@@ -70,7 +70,7 @@ class CorrectionFormValidator {
         errors,
         "submissionIdForChangingApprovedDate",
         "submissionIdForChangingApprovedDate.required",
-        "Select the submission you want to change the approved date for");
+        "Select the submission you want to change the accepted date for");
 
     if (form.getSubmissionIdForChangingApprovedDate() != null) {
       var formSubmissionDetail = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
@@ -94,12 +94,12 @@ class CorrectionFormValidator {
             form.getApprovalDateChangeMonth(),
             form.getApprovalDateChangeYear(),
             APPROVAL_DATA_CHANGE_FIELD_PREFIX,
-            "New approved date cannot be the same as another approved date",
+            "New accepted date cannot be the same as another accepted date",
             errors
         );
 
         if (selectedSubmissionDetail.getSubmission().getResource().getType() == ResourceType.PROSPECT) {
-          // if it is a prospect submission, and not the create submission, check it is after the create approved date
+          // if it is a prospect submission, and not the create submission, check it is after the create accepted date
           if (selectedSubmissionDetail.getSubmissionType() != SubmissionType.CREATE_PROSPECT) {
             checkApprovalAfterDateForSubmissionTypes(
                 approvedSubmissions,
@@ -233,7 +233,7 @@ class CorrectionFormValidator {
             form.getMissingUpdateMonth(),
             form.getMissingUpdateYear(),
             MISSING_UPDATE_FIELD_PREFIX,
-            "Missing update date cannot be the same as another approved date",
+            "Missing update date cannot be the same as another accepted date",
             errors
         );
 
@@ -341,7 +341,7 @@ class CorrectionFormValidator {
                                   String errorMessage,
                                   Errors errors) {
     var approvedDates = approvedSubmissions.stream()
-        .map(a -> a.approvedTimestamp().toLocalDateTime().toLocalDate())
+        .map(a -> a.acceptedTimestamp().toLocalDateTime().toLocalDate())
         .toList();
     var newApprovedDate = LocalDate.of(
         Integer.parseInt(year),
@@ -422,13 +422,13 @@ class CorrectionFormValidator {
 
   private Optional<LocalDate> getApprovedLocalDateForSubmissionTypes(List<SubmissionQuerySearchRecord> approvedSubmissions,
                                                                      List<SubmissionType> submissionTypes) {
-    var approvedTimestamp = approvedSubmissions.stream()
+    var acceptedTimestamp = approvedSubmissions.stream()
         .filter(a -> submissionTypes.contains(a.submissionType()))
-        .map(SubmissionQuerySearchRecord::approvedTimestamp)
+        .map(SubmissionQuerySearchRecord::acceptedTimestamp)
         .findFirst();
 
-    if (approvedTimestamp.isPresent()) {
-      var approvedInstant = approvedTimestamp.get().toInstant();
+    if (acceptedTimestamp.isPresent()) {
+      var approvedInstant = acceptedTimestamp.get().toInstant();
       var approvedLocalDate = LocalDate.ofInstant(
           approvedInstant,
           ZoneId.systemDefault()
@@ -450,8 +450,8 @@ class CorrectionFormValidator {
             || a.submissionType() == SubmissionType.PROSPECT_UPDATE
             || a.submissionType() == SubmissionType.RELINQUISHMENT_PROSPECT
         )
-        .sorted(Comparator.comparing(SubmissionQuerySearchRecord::approvedTimestamp).reversed())
-        .map(SubmissionQuerySearchRecord::approvedTimestamp)
+        .sorted(Comparator.comparing(SubmissionQuerySearchRecord::acceptedTimestamp).reversed())
+        .map(SubmissionQuerySearchRecord::acceptedTimestamp)
         .findFirst();
 
     if (latestProspectTimestamp.isPresent()) {

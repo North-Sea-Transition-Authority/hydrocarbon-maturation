@@ -80,7 +80,7 @@ class DeleteReservoirControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getDeleteReservoirPage_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     mockMvc.perform(get(ReverseRouter.route(on(DeleteReservoirController.class).getDeleteReservoirPage(
             submissionDetail.getId(),

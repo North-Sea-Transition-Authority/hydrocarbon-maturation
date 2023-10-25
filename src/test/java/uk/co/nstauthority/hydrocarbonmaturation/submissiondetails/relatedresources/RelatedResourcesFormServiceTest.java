@@ -212,7 +212,7 @@ class RelatedResourcesFormServiceTest {
         .thenReturn(Optional.empty());
     assertThatThrownBy(() -> relatedResourcesFormService.getPreSelectedSubmissionDetail(relatedResourceForm))
         .isExactlyInstanceOf(IllegalStateException.class)
-        .hasMessage("Could not get resource name for the latest approved submission of resource with ID %s"
+        .hasMessage("Could not get resource name for the latest accepted submission of resource with ID %s"
             .formatted(resource.getId().toString()));
   }
 

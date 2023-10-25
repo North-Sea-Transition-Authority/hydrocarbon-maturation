@@ -97,7 +97,7 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @EnumSource(names = {"DELETED", "APPROVED"})
+  @EnumSource(names = {"DELETED", "ACCEPTED"})
   void getSubmissions_whenExplorationTeamRole_whenOneNotViewableAndOneDraft_assertOnlyDraftSubmissionReturned(
       SubmissionDetailStatus nonViewableStatus) {
     Set<TeamRole> userRoles = Set.of(RegulatorTeamRole.EXPLORATION);

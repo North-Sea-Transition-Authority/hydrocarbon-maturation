@@ -95,7 +95,7 @@ class DrillStemTestResultControllerTest extends AbstractSubmissionControllerTest
 
   @SecurityTest
   void getDrillStemTestResultPage_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(DrillStemTestResultController.class)
                 .getDrillStemTestResultPage(submissionDetailId, reservoirSubmissionDetailId, drillStemTestId)))

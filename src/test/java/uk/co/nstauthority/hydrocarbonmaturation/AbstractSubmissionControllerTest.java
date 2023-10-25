@@ -117,7 +117,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
     doCallRealMethod().when(userDetailService).getUserDetail();
     submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT,
         SUBMISSION_DETAIL_ID);
-    submissionDetail.setApprovedTimestamp(Instant.now());
+    submissionDetail.setAcceptedTimestamp(Instant.now());
     when(submissionDetailService.getSubmissionDetail(SUBMISSION_DETAIL_ID)).thenReturn(Optional.of(submissionDetail));
     when(submissionDetailService.getSubmissionDetailForIdOrError(UUID.fromString(submissionDetail.getId().toString())))
         .thenReturn(submissionDetail);
@@ -251,17 +251,17 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
   protected void setUpWhenIsLatestExtantSubmissionVersion_passSecurity(SubmissionDetail submissionDetail) {
     if (submissionDetail.getVersionNumber() > 1 || submissionDetail.getStatus() != SubmissionDetailStatus.DRAFT) {
       switch (submissionDetail.getStatus()) {
-        case APPROVED -> when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
+        case ACCEPTED -> when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
             submissionDetail,
-            Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)))
+            Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)))
             .thenReturn(true);
         case DRAFT -> when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
             submissionDetail,
-            Set.of(SubmissionDetailStatus.DRAFT, SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)))
+            Set.of(SubmissionDetailStatus.DRAFT, SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)))
             .thenReturn(true);
         case SUBMITTED -> when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
             submissionDetail,
-            Set.of(SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.APPROVED))).thenReturn(true);
+            Set.of(SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.ACCEPTED))).thenReturn(true);
         default -> {
         }
       }

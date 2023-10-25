@@ -118,7 +118,7 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
 
   @SecurityTest
   void showSubmissionSummary_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(
                 on(FieldSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
@@ -185,7 +185,7 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
 
   @SecurityTest
   void processSubmission_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
 
     mockMvc.perform(
             post(ReverseRouter.route(

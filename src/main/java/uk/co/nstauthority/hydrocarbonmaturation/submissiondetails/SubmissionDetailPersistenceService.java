@@ -89,9 +89,9 @@ public class SubmissionDetailPersistenceService {
 
   @Transactional
   void approveSubmission(SubmissionDetail submissionDetail) {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
-    submissionDetail.setApprovedTimestamp(clock.instant());
-    submissionDetail.setApprovedByWuaId(userDetailService.getUserWuaId());
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
+    submissionDetail.setAcceptedTimestamp(clock.instant());
+    submissionDetail.setAcceptedByWuaId(userDetailService.getUserWuaId());
 
     resourceDetailsPersistenceService.updateOrganisationName(submissionDetail);
     submissionDetailRepository.save(submissionDetail);

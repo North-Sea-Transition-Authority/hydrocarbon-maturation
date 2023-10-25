@@ -31,11 +31,11 @@ public class SubmissionHistorySelectorUtil {
   }
 
   private static String getApprovedDateDisplay(SubmissionQuerySearchRecord submissionQuerySearchRecord) {
-    if (submissionQuerySearchRecord.status() == SubmissionDetailStatus.APPROVED) {
-      return "Approved: %s".formatted(DateUtil.formatLongDate(LocalDate.from(
-          submissionQuerySearchRecord.approvedTimestamp().toLocalDateTime())));
+    if (submissionQuerySearchRecord.status() == SubmissionDetailStatus.ACCEPTED) {
+      return "Accepted: %s".formatted(DateUtil.formatLongDate(LocalDate.from(
+          submissionQuerySearchRecord.acceptedTimestamp().toLocalDateTime())));
     } else {
-      return "Pending approval";
+      return "Pending acceptance";
     }
   }
 }

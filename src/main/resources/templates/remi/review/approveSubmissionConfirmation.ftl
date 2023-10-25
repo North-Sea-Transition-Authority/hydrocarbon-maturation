@@ -21,7 +21,7 @@
 
   <@fdsForm.htmlForm actionUrl="${springUrl(actionUrl)}">
     <@fdsAction.submitButtons
-      primaryButtonText="Approve submission"
+      primaryButtonText="Accept submission"
       secondaryLinkText="Cancel"
       linkSecondaryAction=true
       linkSecondaryActionUrl="${springUrl(cancelUrl)}"

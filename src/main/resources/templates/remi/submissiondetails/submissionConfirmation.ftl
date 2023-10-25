@@ -19,14 +19,14 @@ pageSize=PageSize.TWO_THIRDS_COLUMN>
 
   <#if hasBeenAutoApproved>
     <p class="govuk-body">
-      The submission has been automatically approved. The information provided is now available in the system of record.
+      The submission has been automatically accepted. The information provided is now available in the system of record.
     </p>
   <#else>
     <p class="govuk-body">
       We've sent your submission to the ${customerBranding.name()} (${customerBranding.mnemonic()}).
     </p>
     <p class="govuk-body">
-      They will contact you either to confirm if approved, or to ask for more information.
+      They will contact you either to confirm if accepted, or to ask for more information.
     </p>
   </#if>
 

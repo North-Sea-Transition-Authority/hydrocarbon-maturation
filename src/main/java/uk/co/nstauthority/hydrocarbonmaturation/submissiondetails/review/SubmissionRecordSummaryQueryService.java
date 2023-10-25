@@ -52,12 +52,12 @@ class SubmissionRecordSummaryQueryService {
                 select(SD_2.SUBMISSION_ID)
                     .from(SUBMISSIONS_2.join(SD_2)
                         .on(SUBMISSIONS_2.ID.eq(SD_2.SUBMISSION_ID)
-                            //gets latest approved or submitted submission detail for a submission
+                            //gets latest accepted or submitted submission detail for a submission
                             .and(SD_2.STATUS.in(
                                 SubmissionDetailStatus.SUBMITTED.name(),
-                                SubmissionDetailStatus.APPROVED.name()))))
+                                SubmissionDetailStatus.ACCEPTED.name()))))
                     .where(SD_2.SUBMISSION_ID.eq(SUBMISSIONS.ID))
-                    .orderBy(SD_2.APPROVED_TIMESTAMP.desc().nullsLast(), SD_2.VERSION_NUMBER.desc())
+                    .orderBy(SD_2.ACCEPTED_TIMESTAMP.desc().nullsLast(), SD_2.VERSION_NUMBER.desc())
                     .limit(1)))
             .leftJoin(REGULATOR_MANAGED_INFORMATION).on(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID.eq(RESOURCES.ID))
             .join(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
@@ -67,7 +67,7 @@ class SubmissionRecordSummaryQueryService {
         .where(RESOURCES.ID.eq(resourceId)
             .and(SUBMISSION_DETAILS.STATUS.in(
                 SubmissionDetailStatus.SUBMITTED.name(),
-                SubmissionDetailStatus.APPROVED.name()))
+                SubmissionDetailStatus.ACCEPTED.name()))
             .and(SUBMISSIONS.WITHDRAWN.isNull()))
         .groupBy(List.of(
             RESOURCES.ID,

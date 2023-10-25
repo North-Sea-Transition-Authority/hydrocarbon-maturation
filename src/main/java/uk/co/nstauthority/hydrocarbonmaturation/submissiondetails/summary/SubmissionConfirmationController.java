@@ -21,7 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/confirmation")
-@HasSubmissionStatus(statuses = {SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.APPROVED})
+@HasSubmissionStatus(statuses = {SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.ACCEPTED})
 @IsFromResponsibleTeam
 public class SubmissionConfirmationController {
 
@@ -46,7 +46,7 @@ public class SubmissionConfirmationController {
   private ModelAndView getSubmissionConfirmationModelAndView(String prospectName, SubmissionDetail submissionDetail) {
     return new ModelAndView("remi/submissiondetails/submissionConfirmation")
         .addObject("hasBeenAutoApproved",
-            submissionDetail.getStatus() == SubmissionDetailStatus.APPROVED)
+            submissionDetail.getStatus() == SubmissionDetailStatus.ACCEPTED)
         .addObject("assetName", prospectName)
         .addObject("typeOfUpdate", submissionDetail.getSubmissionType().getDisplayName())
         .addObject("feedbackUrl", ReverseRouter.route(on(SubmissionFeedbackController.class)

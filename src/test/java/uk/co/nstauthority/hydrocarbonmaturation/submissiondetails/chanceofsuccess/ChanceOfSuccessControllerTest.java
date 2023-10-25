@@ -93,7 +93,7 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getChanceOfSuccess_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetailId)))
                 .with(user(USER)))

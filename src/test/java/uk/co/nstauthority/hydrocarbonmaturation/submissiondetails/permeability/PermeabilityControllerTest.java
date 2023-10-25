@@ -92,7 +92,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getPermeabilityPage_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(get(ReverseRouter.route(on(PermeabilityController.class)
             .getPermeabilityPage(submissionDetailId, reservoirSubmissionDetailId)))
             .with(user(USER)))

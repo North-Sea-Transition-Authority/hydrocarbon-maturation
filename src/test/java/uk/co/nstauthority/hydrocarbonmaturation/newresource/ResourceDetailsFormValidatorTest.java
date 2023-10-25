@@ -121,7 +121,7 @@ class ResourceDetailsFormValidatorTest {
             entry("resourceName", Set.of("Enter the prospect name")),
             entry("responsibleOrganisationId",
                 Set.of("You cannot remove the responsible organisation" +
-                    " from a resource that has a responsible organisation on an earlier approved submission"))
+                    " from a resource that has a responsible organisation on an earlier accepted submission"))
         );
   }
 

@@ -75,7 +75,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void showDeleteConfirmationPage_andStatusIsNotDraft_assertForbidden() throws Exception {
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
             SUBMISSION_DETAIL_ID)))

@@ -7,7 +7,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUt
 enum CorrectionType implements Displayable {
   HISTORIC_UPDATE("Add a missing historical update to the resource", 10),
   SUBMISSION_CORRECTION("Correct the information provided on a submission", 20),
-  APPROVAL_DATE_CHANGE("Change the approved date for a submission", 30),
+  ACCEPTED_DATE_CHANGE("Change the accepted date for a submission", 30),
   REMOVE_SUBMISSION("Remove an incorrect submission", 40);
 
 

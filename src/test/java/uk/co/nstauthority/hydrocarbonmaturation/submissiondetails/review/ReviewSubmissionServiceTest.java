@@ -162,7 +162,7 @@ class ReviewSubmissionServiceTest {
     void AndSubmissionStatusIs_assertCorrect(SubmissionDetailStatus status) {
       submissionDetail.setStatus(status);
 
-      if (status == SubmissionDetailStatus.SUBMITTED || status == SubmissionDetailStatus.APPROVED) {
+      if (status == SubmissionDetailStatus.SUBMITTED || status == SubmissionDetailStatus.ACCEPTED) {
         when(responsibleTeamService.isInResponsibleTeam(USER_DETAIL, SUBMISSION_RECORD.responsibleTeamType()))
             .thenReturn(true);
         var result = reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD, USER_DETAIL, submissionDetail);
@@ -352,7 +352,7 @@ class ReviewSubmissionServiceTest {
           submissionDetail.getSubmission().getResource(), submissionDetail.getSubmission().getResource()))
           .thenReturn(true);
       when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
-          submissionDetail, Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)))
+          submissionDetail, Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)))
           .thenReturn(true);
 
       var result = reviewSubmissionService.canViewSelectedSubmissionDetail(
@@ -363,12 +363,12 @@ class ReviewSubmissionServiceTest {
 
     @Test
     void whenIsSameResourceAndValidStatusAndNotLatest_assertFalse() {
-      submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+      submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
       when(resourceLinkService.isResourceLinkedOrSameResource(
           submissionDetail.getSubmission().getResource(), submissionDetail.getSubmission().getResource()))
           .thenReturn(true);
       when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
-          submissionDetail, Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)))
+          submissionDetail, Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)))
           .thenReturn(false);
 
       var result = reviewSubmissionService.canViewSelectedSubmissionDetail(
@@ -401,7 +401,7 @@ class ReviewSubmissionServiceTest {
 
     @Test
     void whenIsNotSameResourceOrLinked_assertFalse() {
-      submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+      submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
       when(resourceLinkService.isResourceLinkedOrSameResource(
           submissionDetail.getSubmission().getResource(), submissionDetail.getSubmission().getResource()))
           .thenReturn(false);
@@ -416,7 +416,7 @@ class ReviewSubmissionServiceTest {
   @Nested
   class WhenCheckingIfCanUpdateSubmission {
     private static final Integer ORGANISATION_UNIT_ID = 1;
-    private static final Integer LATEST_APPROVED_ORG_UNIT_ID = 5;
+    private static final Integer LATEST_ACCEPTED_ORG_UNIT_ID = 5;
 
     private final ServiceUserDetail USER_DETAIL = ServiceUserDetailTestUtil.Builder().build();
 
@@ -466,12 +466,12 @@ class ReviewSubmissionServiceTest {
       var submissionRecord = SubmissionIntegrationTestUtils.emptySubmissionRecordSummaryView(
           UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
       var resourceDetail = new ResourceDetail();
-      resourceDetail.setOrganisationId(LATEST_APPROVED_ORG_UNIT_ID);
+      resourceDetail.setOrganisationId(LATEST_ACCEPTED_ORG_UNIT_ID);
       when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
           .thenReturn(Optional.of(latestApprovedSubmissionDetail));
       when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmissionDetail))
           .thenReturn(Optional.of(resourceDetail));
-      when(industryTeamMemberService.isSubmitterOfOrganisationUnit(USER_DETAIL, LATEST_APPROVED_ORG_UNIT_ID))
+      when(industryTeamMemberService.isSubmitterOfOrganisationUnit(USER_DETAIL, LATEST_ACCEPTED_ORG_UNIT_ID))
           .thenReturn(false);
 
       var result = reviewSubmissionService.canUpdateSubmission(submissionRecord, USER_DETAIL, submissionDetail);
@@ -484,12 +484,12 @@ class ReviewSubmissionServiceTest {
       var submissionRecord = SubmissionIntegrationTestUtils.emptySubmissionRecordSummaryView(
           UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
       var resourceDetail = new ResourceDetail();
-      resourceDetail.setOrganisationId(LATEST_APPROVED_ORG_UNIT_ID);
+      resourceDetail.setOrganisationId(LATEST_ACCEPTED_ORG_UNIT_ID);
       when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
           .thenReturn(Optional.of(latestApprovedSubmissionDetail));
       when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmissionDetail))
           .thenReturn(Optional.of(resourceDetail));
-      when(industryTeamMemberService.isSubmitterOfOrganisationUnit(USER_DETAIL, LATEST_APPROVED_ORG_UNIT_ID))
+      when(industryTeamMemberService.isSubmitterOfOrganisationUnit(USER_DETAIL, LATEST_ACCEPTED_ORG_UNIT_ID))
           .thenReturn(true);
 
       var result = reviewSubmissionService.canUpdateSubmission(submissionRecord, USER_DETAIL, submissionDetail);

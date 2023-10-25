@@ -87,7 +87,7 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
   @SecurityTest
   void getOutlineForMaximumCasePage_andStatusIsNotDraft_assertForbidden() throws Exception {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).getOutlineForMaximumCaseUpload(submissionDetailId, form)))
                 .with(user(USER)))

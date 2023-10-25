@@ -108,7 +108,7 @@ public class ReviewSubmissionController {
 
     var latestSubmission = submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource)
         .orElseThrow(() ->
-            new RemiEntityNotFoundException("Could not find latest submitted or approved submission for resource %s"
+            new RemiEntityNotFoundException("Could not find latest submitted or accepted submission for resource %s"
                 .formatted(resourceId)));
 
     var submissionRecord = reviewSubmissionService.getSubmissionRecordOrThrow(resourceId);

@@ -39,7 +39,7 @@ backLinkUrl=springUrl(cancelUrl)>
                     <#if key == "APPROVAL_DATE_CHANGE">
                         <@fdsSelect.select
                             path = "form.submissionIdForChangingApprovedDate"
-                            labelText = "On which submission do you want to change the approved date?"
+                            labelText = "On which submission do you want to change the accepted date?"
                             options = submissionsOnResource
                             nestingPath="form.correctionType"/>
                         <@fdsDateInput.dateInput
@@ -47,7 +47,7 @@ backLinkUrl=springUrl(cancelUrl)>
                             dayPath="form.approvalDateChangeDay"
                             monthPath="form.approvalDateChangeMonth"
                             yearPath="form.approvalDateChangeYear"
-                            labelText="What is the new approved date of the submission?"
+                            labelText="What is the new accepted date of the submission?"
                             hintText="For example, 31 1 2023"
                             nestingPath="form.correctionType"/>
                     </#if>

@@ -110,7 +110,7 @@ class SubmissionApprovalServiceTest {
 
       var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
       verify(submissionDetailPersistenceService).saveSubmissionDetail(submissionDetailArgumentCaptor.capture());
-      assertEquals(SubmissionDetailStatus.APPROVED, submissionDetailArgumentCaptor.getValue().getStatus());
+      assertEquals(SubmissionDetailStatus.ACCEPTED, submissionDetailArgumentCaptor.getValue().getStatus());
       verifyNoInteractions(submissionUpdateService);
       verifyNoInteractions(submissionEmailService);
     }
@@ -176,7 +176,7 @@ class SubmissionApprovalServiceTest {
       when(userDetailService.getUserWuaId()).thenReturn(1);
       assertThatThrownBy(() -> submissionApprovalService.approveSubmissionOrThrow(submissionDetail))
           .isExactlyInstanceOf(ActionNotAllowedException.class)
-          .hasMessage("Submission cannot be approved by user with ID %s"
+          .hasMessage("Submission cannot be accepted by user with ID %s"
               .formatted(USER.wuaId()));
       verifyNoInteractions(submissionDetailPersistenceService);
       verifyNoInteractions(submissionEmailService);

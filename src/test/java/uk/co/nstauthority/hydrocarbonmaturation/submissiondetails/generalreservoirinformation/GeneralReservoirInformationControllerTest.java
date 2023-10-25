@@ -87,7 +87,7 @@ class GeneralReservoirInformationControllerTest extends AbstractSubmissionContro
 
   @SecurityTest
   void getGeneralReservoirInformationPage_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(get(ReverseRouter.route(on(GeneralReservoirInformationController.class)
             .getGeneralReservoirInformationPage(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
             .with(user(USER)))

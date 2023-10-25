@@ -181,7 +181,7 @@ class ResourceGroupSummaryServiceTest {
     assertThatThrownBy(() -> resourceGroupSummaryService
         .getResourceGroupLinkSummaryFromResource(resource))
         .isExactlyInstanceOf(RemiEntityNotFoundException.class)
-        .hasMessage("Could not find latest approved submission for resource %s".formatted(resource.getId()));
+        .hasMessage("Could not find latest accepted submission for resource %s".formatted(resource.getId()));
   }
 
   @Test

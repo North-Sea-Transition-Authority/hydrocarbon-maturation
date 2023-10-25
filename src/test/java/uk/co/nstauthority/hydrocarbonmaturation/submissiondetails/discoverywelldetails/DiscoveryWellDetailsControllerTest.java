@@ -74,7 +74,7 @@ class DiscoveryWellDetailsControllerTest extends AbstractSubmissionControllerTes
 
   @SecurityTest
   void getDiscoveryWellDetails_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(DiscoveryWellDetailsController.class).getDiscoveryWellDetails(submissionDetailId, null)))
                 .with(user(USER)))

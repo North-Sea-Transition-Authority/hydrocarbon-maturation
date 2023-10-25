@@ -268,8 +268,8 @@ class CorrectionServiceTest {
         SubmissionDetail::getVersionNumber,
         SubmissionDetail::getSubmittedByWuaId,
         SubmissionDetail::getSubmittedTimestamp,
-        SubmissionDetail::getApprovedByWuaId,
-        SubmissionDetail::getApprovedTimestamp,
+        SubmissionDetail::getAcceptedByWuaId,
+        SubmissionDetail::getAcceptedTimestamp,
         SubmissionDetail::isCorrection,
         SubmissionDetail::getCorrectionByWuaId,
         SubmissionDetail::getSubmitterType
@@ -295,7 +295,7 @@ class CorrectionServiceTest {
   void startCorrectionForType_approvalDateChange() {
     var selectedSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
     var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.APPROVAL_DATE_CHANGE);
+    form.setCorrectionType(CorrectionType.ACCEPTED_DATE_CHANGE);
     form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.getId().toString());
     form.setApprovalDateChangeDay("1");
     form.setApprovalDateChangeMonth("1");
@@ -324,13 +324,13 @@ class CorrectionServiceTest {
         SubmissionDetail::getStatus,
         SubmissionDetail::getSubmittedByWuaId,
         SubmissionDetail::getSubmittedTimestamp,
-        SubmissionDetail::getApprovedByWuaId,
-        SubmissionDetail::getApprovedTimestamp,
+        SubmissionDetail::getAcceptedByWuaId,
+        SubmissionDetail::getAcceptedTimestamp,
         SubmissionDetail::isCorrection,
         SubmissionDetail::getCorrectionByWuaId,
         SubmissionDetail::getSubmitterType
     ).containsExactly(
-        SubmissionDetailStatus.APPROVED,
+        SubmissionDetailStatus.ACCEPTED,
         wuaId,
         approvedDate,
         wuaId,

@@ -102,7 +102,7 @@ public class ResourceGroupSummaryService {
               SubmissionType.RELINQUISHMENT_DISCOVERY)
           )
           .orElseThrow(() ->
-              new RemiEntityNotFoundException("Could not find latest approved submission for resource %s"
+              new RemiEntityNotFoundException("Could not find latest accepted submission for resource %s"
                   .formatted(resource.getId())));
     } else {
       return submissionDetailService.getLatestApprovedSubmissionDetailForResourceAndSubmissionTypes(
@@ -113,7 +113,7 @@ public class ResourceGroupSummaryService {
               SubmissionType.RELINQUISHMENT_PROSPECT)
           )
           .orElseThrow(() ->
-              new RemiEntityNotFoundException("Could not find latest approved submission for resource %s"
+              new RemiEntityNotFoundException("Could not find latest accepted submission for resource %s"
                   .formatted(resource.getId())));
     }
   }

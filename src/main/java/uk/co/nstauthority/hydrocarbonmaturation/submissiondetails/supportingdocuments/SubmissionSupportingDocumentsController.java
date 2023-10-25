@@ -55,7 +55,7 @@ public class SubmissionSupportingDocumentsController {
   @ResponseBody
   @HasSubmissionStatus(statuses = {
       SubmissionDetailStatus.DRAFT,
-      SubmissionDetailStatus.APPROVED,
+      SubmissionDetailStatus.ACCEPTED,
       SubmissionDetailStatus.SUBMITTED}
   )
   public ResponseEntity<InputStreamResource> download(@PathVariable("submissionDetailId") UUID submissionDetailId,

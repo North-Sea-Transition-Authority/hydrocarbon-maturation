@@ -85,7 +85,7 @@ class GasFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getGasFluidProperties_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(

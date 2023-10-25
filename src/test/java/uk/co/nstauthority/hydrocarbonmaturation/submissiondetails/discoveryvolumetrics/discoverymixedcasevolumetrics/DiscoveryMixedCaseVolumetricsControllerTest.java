@@ -105,7 +105,7 @@ class DiscoveryMixedCaseVolumetricsControllerTest extends AbstractSubmissionCont
   @SecurityTest
   void getMixedCaseOutputs_andStatusIsNotDraft_assertForbidden() throws Exception {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(DiscoveryMixedCaseVolumetricsController.class)
                 .getMixedCaseOutputs(submissionDetailId, reservoirSubmissionDetailId)))

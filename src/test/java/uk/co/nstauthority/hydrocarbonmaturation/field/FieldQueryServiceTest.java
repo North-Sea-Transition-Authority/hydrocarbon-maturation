@@ -79,7 +79,7 @@ class FieldQueryServiceTest {
       field1.setResource(resource1);
       field1.setCorrectedLegalFieldName("legalFieldName");
       var submissionDetail1 = new SubmissionDetail();
-      submissionDetail1.setStatus(SubmissionDetailStatus.APPROVED);
+      submissionDetail1.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var resource2 = new Resource();
       var field2 = new Field();
@@ -117,7 +117,7 @@ class FieldQueryServiceTest {
       field1.setResource(resource1);
       field1.setCorrectedLegalFieldName("legalFieldName1");
       var submissionDetail1 = new SubmissionDetail();
-      submissionDetail1.setStatus(SubmissionDetailStatus.APPROVED);
+      submissionDetail1.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var resource2 = new Resource();
       var field2 = new Field();
@@ -135,7 +135,7 @@ class FieldQueryServiceTest {
       field3.setResource(resource3);
       field3.setCorrectedLegalFieldName("legalFieldName3");
       var submissionDetail3 = new SubmissionDetail();
-      submissionDetail3.setStatus(SubmissionDetailStatus.APPROVED);
+      submissionDetail3.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var resource4 = new Resource();
       var field4 = new Field();
@@ -173,7 +173,7 @@ class FieldQueryServiceTest {
       field1.setResource(resource1);
       field1.setCorrectedLegalFieldName("legalFieldName1");
       var submissionDetail1 = new SubmissionDetail();
-      submissionDetail1.setStatus(SubmissionDetailStatus.APPROVED);
+      submissionDetail1.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var resource2 = new Resource();
       var field2 = new Field();
@@ -191,7 +191,7 @@ class FieldQueryServiceTest {
       field3.setResource(resource3);
       field3.setCorrectedLegalFieldName("legalFieldName3");
       var submissionDetail3 = new SubmissionDetail();
-      submissionDetail3.setStatus(SubmissionDetailStatus.APPROVED);
+      submissionDetail3.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var resource4 = new Resource();
       var field4 = new Field();
@@ -249,7 +249,7 @@ class FieldQueryServiceTest {
       field1.setResource(resource1);
       field1.setCorrectedLegalFieldName("legalFieldName1");
       var submissionDetail1 = new SubmissionDetail();
-      submissionDetail1.setStatus(SubmissionDetailStatus.APPROVED);
+      submissionDetail1.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var resource2 = new Resource();
       var field2 = new Field();
@@ -267,7 +267,7 @@ class FieldQueryServiceTest {
       field3.setResource(resource3);
       field3.setCorrectedLegalFieldName("legalFieldName3");
       var submissionDetail3 = new SubmissionDetail();
-      submissionDetail3.setStatus(SubmissionDetailStatus.APPROVED);
+      submissionDetail3.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var resource4 = new Resource();
       var field4 = new Field();

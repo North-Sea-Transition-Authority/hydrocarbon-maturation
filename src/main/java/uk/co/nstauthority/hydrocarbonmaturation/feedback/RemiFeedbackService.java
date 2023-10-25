@@ -74,7 +74,7 @@ class RemiFeedbackService {
       case DRAFT -> RemiAbsoluteUrlUtil.getTasklistPageUrl(submissionDetail);
       case DELETED -> RemiAbsoluteUrlUtil.getWorkAreaUrl();
       case SUBMITTED -> RemiAbsoluteUrlUtil.getReviewSubmissionPageUrl(submissionDetail);
-      case APPROVED -> RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(submissionDetail);
+      case ACCEPTED -> RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(submissionDetail);
     };
   }
 

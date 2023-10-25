@@ -49,13 +49,13 @@ class SubmissionDetailServiceTest {
   @Test
   void getLatestApprovedDiscoverySubmissionDetailForResource_assertReturn() {
     var resource = new Resource();
-    when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(
+    when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(
         submissionList,
         List.of(
             SubmissionType.CREATE_DISCOVERY,
             SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
             SubmissionType.UPDATE_DISCOVERY),
-        SubmissionDetailStatus.APPROVED))
+        SubmissionDetailStatus.ACCEPTED))
         .thenReturn(Optional.of(submissionDetail));
     when(submissionPersistenceService.getSubmissionsByResource(resource))
         .thenReturn(submissionList);
@@ -71,9 +71,9 @@ class SubmissionDetailServiceTest {
     when(submissionPersistenceService.getSubmissionsByResource(resource))
         .thenReturn(submissionList);
     when(submissionDetailRepository
-        .findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(submissionList,
+        .findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(submissionList,
             List.of(SubmissionType.PROSPECT_UPDATE, SubmissionType.CREATE_PROSPECT),
-            SubmissionDetailStatus.APPROVED))
+            SubmissionDetailStatus.ACCEPTED))
         .thenReturn(Optional.of(submissionDetail));
 
     var result = submissionDetailService.getLatestApprovedProspectSubmissionForResource(resource);
@@ -89,7 +89,7 @@ class SubmissionDetailServiceTest {
         .thenReturn(submissionList);
     when(submissionDetailRepository.findFirstBySubmissionInAndStatusInOrderByVersionNumberDesc(
         submissionList,
-        List.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)
+        List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)
     )).thenReturn(Optional.of(submissionDetail));
 
     assertThat(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
@@ -103,7 +103,7 @@ class SubmissionDetailServiceTest {
     when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
         submissionList,
         List.of(SubmissionType.RELINQUISHMENT_DISCOVERY, SubmissionType.RELINQUISHMENT_PROSPECT),
-        List.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)))
+        List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)))
         .thenReturn(Optional.of(mock(SubmissionDetail.class)));
     var result = submissionDetailService
         .isLatestSubmissionForResourceRelinquishment(submissionDetail.getSubmission().getResource());
@@ -117,7 +117,7 @@ class SubmissionDetailServiceTest {
     when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
         submissionList,
         List.of(SubmissionType.RELINQUISHMENT_DISCOVERY, SubmissionType.RELINQUISHMENT_PROSPECT),
-        List.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)))
+        List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)))
         .thenReturn(Optional.empty());
     var result = submissionDetailService
         .isLatestSubmissionForResourceRelinquishment(submissionDetail.getSubmission().getResource());
@@ -128,9 +128,9 @@ class SubmissionDetailServiceTest {
   void getLatestApprovedSubmissionDetailForResource_assertEmpty() {
     when(submissionPersistenceService.getSubmissionsByResource(submissionDetail.getSubmission().getResource()))
         .thenReturn(submissionList);
-    when(submissionDetailRepository.findFirstBySubmissionInAndStatusOrderByApprovedTimestampDesc(
+    when(submissionDetailRepository.findFirstBySubmissionInAndStatusOrderByAcceptedTimestampDesc(
         submissionList,
-        SubmissionDetailStatus.APPROVED
+        SubmissionDetailStatus.ACCEPTED
     )).thenReturn(Optional.empty());
 
     assertThat(submissionDetailService.getLatestApprovedSubmissionDetailForResource(
@@ -142,9 +142,9 @@ class SubmissionDetailServiceTest {
   void getLatestApprovedSubmissionDetailForResource_assertReturn() {
     when(submissionPersistenceService.getSubmissionsByResource(submissionDetail.getSubmission().getResource()))
         .thenReturn(submissionList);
-    when(submissionDetailRepository.findFirstBySubmissionInAndStatusOrderByApprovedTimestampDesc(
+    when(submissionDetailRepository.findFirstBySubmissionInAndStatusOrderByAcceptedTimestampDesc(
         submissionList,
-        SubmissionDetailStatus.APPROVED
+        SubmissionDetailStatus.ACCEPTED
     )).thenReturn(Optional.of(submissionDetail));
 
     assertThat(submissionDetailService.getLatestApprovedSubmissionDetailForResource(
@@ -157,10 +157,10 @@ class SubmissionDetailServiceTest {
     var submissionTypes = List.of(SubmissionType.CREATE_DISCOVERY, SubmissionType.RELINQUISHMENT_DISCOVERY);
     when(submissionPersistenceService.getSubmissionsByResource(submissionDetail.getSubmission().getResource()))
         .thenReturn(submissionList);
-    when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(
+    when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(
         submissionList,
         submissionTypes,
-        SubmissionDetailStatus.APPROVED
+        SubmissionDetailStatus.ACCEPTED
     )).thenReturn(Optional.empty());
 
     assertThat(submissionDetailService.getLatestApprovedSubmissionDetailForResourceAndSubmissionTypes(
@@ -173,10 +173,10 @@ class SubmissionDetailServiceTest {
     var submissionTypes = List.of(SubmissionType.CREATE_DISCOVERY, SubmissionType.RELINQUISHMENT_DISCOVERY);
     when(submissionPersistenceService.getSubmissionsByResource(submissionDetail.getSubmission().getResource()))
         .thenReturn(submissionList);
-    when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(
+    when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(
         submissionList,
         submissionTypes,
-        SubmissionDetailStatus.APPROVED
+        SubmissionDetailStatus.ACCEPTED
     )).thenReturn(Optional.of(submissionDetail));
 
     assertThat(submissionDetailService.getLatestApprovedSubmissionDetailForResourceAndSubmissionTypes(
@@ -269,13 +269,13 @@ class SubmissionDetailServiceTest {
     when(submissionPersistenceService.getSubmissionsByResource(resource))
         .thenReturn(listOfSubmissions);
     when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(submissionDetail1.getSubmission(),
-        Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
+        Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
         .thenReturn(Optional.of(submissionDetail1));
     when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(submissionDetail2.getSubmission(),
-        Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
+        Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
         .thenReturn(Optional.of(submissionDetail2));
     when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(submissionDetailNotExtant.getSubmission(),
-        Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
+        Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
         .thenReturn(Optional.empty());
 
     var result = submissionDetailService.getExtantSubmissionDetailsForResource(resource);
@@ -296,7 +296,7 @@ class SubmissionDetailServiceTest {
     when(submissionPersistenceService.getSubmissionsByResource(resource))
         .thenReturn(listOfSubmissions);
     when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(submission,
-        Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
+        Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
         .thenReturn(Optional.of(latestExtantSubmissionDetail));
 
     var result = submissionDetailService.getExtantSubmissionDetailsForResource(resource);

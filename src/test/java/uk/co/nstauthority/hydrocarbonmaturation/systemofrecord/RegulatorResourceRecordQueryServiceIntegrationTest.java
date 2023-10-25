@@ -852,7 +852,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         SubmissionType.PROSPECT_UPDATE);
 
     //ensures the test is deterministic, latest submission is always later than first submission
-    latestSubmission.setApprovedTimestamp(Instant.now().plus(500000, ChronoUnit.MILLIS));
+    latestSubmission.setAcceptedTimestamp(Instant.now().plus(500000, ChronoUnit.MILLIS));
     entityManager.persist(latestSubmission);
     entityManager.flush();
 
@@ -1105,7 +1105,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var submissionDetailApprovedUpdate =
         buildSubmissionDetail(prospect, SubmissionType.CREATE_PROSPECT);
     submissionDetailApprovedUpdate.setVersionNumber(3);
-    submissionDetailApprovedUpdate.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetailApprovedUpdate.setStatus(SubmissionDetailStatus.ACCEPTED);
     submissionDetailApprovedUpdate.setSubmission(submission);
     entityManager.persist(submissionDetailApprovedUpdate);
     entityManager.flush();

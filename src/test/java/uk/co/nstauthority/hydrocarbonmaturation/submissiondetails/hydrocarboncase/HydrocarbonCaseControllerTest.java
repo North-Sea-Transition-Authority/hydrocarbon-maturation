@@ -75,7 +75,7 @@ class HydrocarbonCaseControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getHydrocarbonCase_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(HydrocarbonCaseController.class).getHydrocarbonCase(submissionDetailId)))
                 .with(user(USER)))

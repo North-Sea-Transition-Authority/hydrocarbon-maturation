@@ -5,7 +5,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 public enum SubmissionDetailStatus implements Displayable {
 
   DRAFT("Draft", 10),
-  APPROVED("Approved", 20),
+  ACCEPTED("Accepted", 20),
   SUBMITTED("Submitted", 30),
   DELETED("Deleted", 40);
 

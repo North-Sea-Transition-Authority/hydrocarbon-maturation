@@ -85,7 +85,7 @@ public class RegulatorManagedInformationController {
     if (submissionDetail.isEmpty()) {
       //if there is no approved or submitted submission for the resource regulator cannot set regulator managed information
       throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN, "Did not find an approved or submitted submission for resource %s "
+          HttpStatus.FORBIDDEN, "Did not find an accepted or submitted submission for resource %s "
           .formatted(resource.getId().toString()));
     }
 
@@ -117,7 +117,7 @@ public class RegulatorManagedInformationController {
     if (submissionDetail.isEmpty()) {
       //if there is no approved or submitted submission for the resource regulator cannot set regulator managed information
       throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN, "Did not find an approved or submitted submission for resource %s "
+          HttpStatus.FORBIDDEN, "Did not find an accepted or submitted submission for resource %s "
           .formatted(resource.getId().toString()));
     }
     var isResponsibleTeamBeingUpdated = regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource);
@@ -201,7 +201,7 @@ public class RegulatorManagedInformationController {
       var submissionOnResource = submissionDetailService
           .getLatestApprovedSubmissionDetailForResource(resource)
           .orElseThrow(() ->
-              new RemiEntityNotFoundException("Could not find find an approved submission for resource %s"
+              new RemiEntityNotFoundException("Could not find find an accepted submission for resource %s"
                   .formatted(resource.getId())));
       cancelUrl = ReverseRouter.route(on(ViewResourceRecordController.class)
           .showResourceRecord(resource.getId()));

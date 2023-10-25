@@ -108,7 +108,7 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void getReservoirListForm_andStatusIsNotDraft_assertForbidden() throws Exception {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(ReservoirListController.class).getReservoirs(SUBMISSION_DETAIL_ID, null)))

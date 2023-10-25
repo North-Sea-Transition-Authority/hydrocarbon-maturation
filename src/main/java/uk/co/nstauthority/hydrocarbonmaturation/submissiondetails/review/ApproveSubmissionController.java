@@ -32,7 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecor
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @Controller
-@RequestMapping("/review/{submissionDetailId}/approve-submission")
+@RequestMapping("/review/{submissionDetailId}/accept-submission")
 @HasSubmissionStatus(statuses = {SubmissionDetailStatus.SUBMITTED})
 @HasPermission(permissions = {
     RolePermission.EXPLORATION,
@@ -67,7 +67,7 @@ public class ApproveSubmissionController {
 
     if (!submissionApprovalService.canApproveSubmission(submissionDetail)) {
       throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN, "Submission cannot be approved by user with ID %s "
+          HttpStatus.FORBIDDEN, "Submission cannot be accepted by user with ID %s "
           .formatted(userDetailService.getUserWuaId()));
     }
 
@@ -87,16 +87,16 @@ public class ApproveSubmissionController {
   }
 
   private String getPageName(SubmissionDetail submissionDetail) {
-    return "Are you sure you want to approve this %s?"
+    return "Are you sure you want to accept this %s?"
         .formatted(submissionDetailService.getSubmissionTypeName(submissionDetail).toLowerCase());
   }
 
   private void approvedSubmissionNotificationBanner(SubmissionDetail submissionDetail,
                                                     RedirectAttributes redirectAttributes) {
     var banner = NotificationBanner.builder()
-        .withTitle("%s submission approved".formatted(submissionDetailService.getSubmissionTypeName(submissionDetail)))
+        .withTitle("%s submission accepted".formatted(submissionDetailService.getSubmissionTypeName(submissionDetail)))
         .withBannerType(NotificationBannerType.SUCCESS)
-        .withContent("%s - %s has been approved and applied to the system of record."
+        .withContent("%s - %s has been accepted and applied to the system of record."
             .formatted(submissionDetail.getSubmission().getResource().getType().getDisplayName(),
                 submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail)))
         .build();

@@ -40,8 +40,8 @@ public class SubmissionIntegrationTestUtils {
   public static SubmissionQuerySearchRecord getSubmissionQuerySearchRecord(SubmissionDetail submissionDetail) {
     return new SubmissionQuerySearchRecord(
         submissionDetail.getStatus(),
-        submissionDetail.getApprovedTimestamp() != null
-            ? Timestamp.from(submissionDetail.getApprovedTimestamp())
+        submissionDetail.getAcceptedTimestamp() != null
+            ? Timestamp.from(submissionDetail.getAcceptedTimestamp())
             : null,
         submissionDetail.getId(),
         submissionDetail.getSubmissionType()
@@ -157,12 +157,12 @@ public class SubmissionIntegrationTestUtils {
     var submissionDetail = new SubmissionDetail();
     submissionDetail.setId(null);
     submissionDetail.setSubmissionType(submissionType);
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     submissionDetail.setVersionNumber(1);
     submissionDetail.setCreatedTimestamp(Instant.now().minusSeconds(100));
     submissionDetail.setCreatedByWuaId(1);
     submissionDetail.setSubmittedTimestamp(Instant.now().minusSeconds(50));
-    submissionDetail.setApprovedTimestamp(Instant.now());
+    submissionDetail.setAcceptedTimestamp(Instant.now());
     submissionDetail.setSubmission(submission);
     entityManager.persist(submissionDetail);
     entityManager.flush();

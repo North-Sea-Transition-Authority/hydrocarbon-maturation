@@ -40,7 +40,7 @@ class SubmissionConfirmationControllerTest extends AbstractSubmissionControllerT
 
   @SecurityTest
   void showSubmissionConfirmation_andSubmissionAutoApproved_assertStatusOk() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
@@ -106,7 +106,7 @@ class SubmissionConfirmationControllerTest extends AbstractSubmissionControllerT
 
   @Test
   void getSubmissionConfirmationModelAndView_whenHasBeenAutoApproved_assertModelProperties() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
 

@@ -94,7 +94,7 @@ class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionCont
 
   @SecurityTest
   void getMixedCaseVolumetrics_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(MixedCaseVolumetricParametersController.class)
                 .getMixedCaseVolumetrics(submissionDetailId, reservoirSubmissionDetailId)))
@@ -236,7 +236,7 @@ class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionCont
     var discoverySubmissionDetailId = UUID.randomUUID();
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY,
         discoverySubmissionDetailId);
-    discoverySubmissionDetail.setApprovedTimestamp(Instant.now());
+    discoverySubmissionDetail.setAcceptedTimestamp(Instant.now());
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
 

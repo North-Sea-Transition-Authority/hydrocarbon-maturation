@@ -99,7 +99,7 @@ class GasCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getGasCaseOutputs_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(GasCaseOutputsController.class).getGasCaseOutputs(
                 submissionDetailId, reservoirSubmissionDetailId)))

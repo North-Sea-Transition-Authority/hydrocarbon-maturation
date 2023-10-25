@@ -74,7 +74,7 @@ public class ResourceDetailsFormValidator extends PartialFullFormValidator {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "responsibleOrganisationId",
           "responsibleOrganisationId.required",
           "You cannot remove the responsible organisation from a resource that has " +
-              "a responsible organisation on an earlier approved submission");
+              "a responsible organisation on an earlier accepted submission");
       missingOrganisationErrorPresent = true;
     }
   }

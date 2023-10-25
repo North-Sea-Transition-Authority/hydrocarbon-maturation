@@ -17,10 +17,10 @@ public interface SubmissionDetailRepository extends CrudRepository<SubmissionDet
   Optional<SubmissionDetail> findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
       List<Submission> submissions, List<SubmissionType> submissionTypes, List<SubmissionDetailStatus> statuses);
 
-  Optional<SubmissionDetail> findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(
+  Optional<SubmissionDetail> findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(
       List<Submission> submissions, List<SubmissionType> submissionTypes, SubmissionDetailStatus status);
 
-  Optional<SubmissionDetail> findFirstBySubmissionInAndStatusOrderByApprovedTimestampDesc(
+  Optional<SubmissionDetail> findFirstBySubmissionInAndStatusOrderByAcceptedTimestampDesc(
       List<Submission> submissions, SubmissionDetailStatus status);
 
   Optional<SubmissionDetail> findFirstBySubmissionInAndStatusInOrderByVersionNumberDesc(

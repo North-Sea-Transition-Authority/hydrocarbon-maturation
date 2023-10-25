@@ -120,7 +120,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   @SuppressWarnings("unchecked")
   void showSubmissionSummary_assertModelProperties() throws Exception {
     when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, USER)).thenReturn(true);
-    submissionDetail.setApprovedTimestamp(Instant.now());
+    submissionDetail.setAcceptedTimestamp(Instant.now());
     var otherSubmissionOnResource = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.PROSPECT_UPDATE, resource);
     when(submissionDetailService.getSubmissionDetailForIdOrError(otherSubmissionOnResource.getId()))
         .thenReturn(otherSubmissionOnResource);
@@ -161,7 +161,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   @SuppressWarnings("unchecked")
   void showResourceRecordModelAndView_whenIsNotRegulator_assertModelProperties() throws Exception {
     when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, USER)).thenReturn(true);
-    submissionDetail.setApprovedTimestamp(Instant.now());
+    submissionDetail.setAcceptedTimestamp(Instant.now());
 
     when(responsibleTeamService.isInResponsibleTeam(USER, resourceRecordSummaryView.responsibleTeam()))
         .thenReturn(false);

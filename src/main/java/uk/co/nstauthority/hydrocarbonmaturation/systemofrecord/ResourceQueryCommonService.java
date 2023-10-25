@@ -62,10 +62,10 @@ class ResourceQueryCommonService {
                   .from(SUBMISSIONS.join(SD_2)
                       //gets latest approved submission detail for a submission on a resource
                       .on(SD_2.SUBMISSION_ID.eq(SUBMISSIONS.ID)
-                          .and(SD_2.STATUS.eq(SubmissionDetailStatus.APPROVED.name()))))
+                          .and(SD_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))))
                   .where(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID)
                       .and(SUBMISSIONS.WITHDRAWN.isNull()))
-                  .orderBy(SD_2.APPROVED_TIMESTAMP.desc().nullsLast())
+                  .orderBy(SD_2.ACCEPTED_TIMESTAMP.desc().nullsLast())
                   .limit(1)))
           .join(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
           .leftJoin(RESOURCE_GROUP_LINKS).on(RESOURCE_GROUP_LINKS.RESOURCE_ID.eq(RESOURCES.ID))
@@ -85,7 +85,7 @@ class ResourceQueryCommonService {
             RESOURCE_DETAILS.ID
         )
         .having(aggregateConditionList)
-        .orderBy(SUBMISSION_DETAILS.APPROVED_TIMESTAMP.desc().nullsLast(),
+        .orderBy(SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP.desc().nullsLast(),
             SUBMISSION_DETAILS.CREATED_TIMESTAMP.desc(),
             RESOURCE_DETAILS.RESOURCE_NAME)
         .limit(ResourceQueryCommonService.MAX_RESULTS)
@@ -170,7 +170,7 @@ class ResourceQueryCommonService {
                 .from(SD_3
                     .join(SUBMISSIONS_2).on(SUBMISSIONS_2.ID.eq(SD_3.SUBMISSION_ID))
                   .join(GD_3).on(GD_3.SUBMISSION_DETAIL_ID.eq(SD_3.ID)
-                    .and(SD_3.STATUS.eq(SubmissionDetailStatus.APPROVED.name()))))
+                    .and(SD_3.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))))
                 .where(GD_3.LICENCE_APPLICATION_REFERENCE
                     .likeIgnoreCase("%" + form.getLicenceRound() + "%")
                     .and(SUBMISSIONS_2.RESOURCE_ID.eq(RESOURCES.ID))));

@@ -33,11 +33,11 @@ public class SubmissionDetail {
 
   private Integer submittedByWuaId;
 
-  private Integer approvedByWuaId;
+  private Integer acceptedByWuaId;
 
   private Instant submittedTimestamp;
 
-  private Instant approvedTimestamp;
+  private Instant acceptedTimestamp;
 
   @Enumerated(EnumType.STRING)
   private SubmissionDetailStatus status;
@@ -114,12 +114,12 @@ public class SubmissionDetail {
     this.submittedByWuaId = submittedByWuaId;
   }
 
-  public Integer getApprovedByWuaId() {
-    return approvedByWuaId;
+  public Integer getAcceptedByWuaId() {
+    return acceptedByWuaId;
   }
 
-  public void setApprovedByWuaId(Integer approvedByWuaId) {
-    this.approvedByWuaId = approvedByWuaId;
+  public void setAcceptedByWuaId(Integer acceptedByWuaId) {
+    this.acceptedByWuaId = acceptedByWuaId;
   }
 
   public Instant getSubmittedTimestamp() {
@@ -130,12 +130,12 @@ public class SubmissionDetail {
     this.submittedTimestamp = submittedTimestamp;
   }
 
-  public Instant getApprovedTimestamp() {
-    return approvedTimestamp;
+  public Instant getAcceptedTimestamp() {
+    return acceptedTimestamp;
   }
 
-  public void setApprovedTimestamp(Instant approvedTimestamp) {
-    this.approvedTimestamp = approvedTimestamp;
+  public void setAcceptedTimestamp(Instant acceptedTimestamp) {
+    this.acceptedTimestamp = acceptedTimestamp;
   }
 
   public SubmitterType getSubmitterType() {
@@ -205,7 +205,7 @@ public class SubmissionDetail {
 
   public boolean isApprovedOrSubmittedSubmission() {
     return status == SubmissionDetailStatus.SUBMITTED
-        || status == SubmissionDetailStatus.APPROVED;
+        || status == SubmissionDetailStatus.ACCEPTED;
   }
 
   public boolean isDraftOrSubmittedSubmission() {
@@ -215,7 +215,7 @@ public class SubmissionDetail {
 
   public boolean isDraftOrApprovedSubmission() {
     return status == SubmissionDetailStatus.DRAFT
-        || status == SubmissionDetailStatus.APPROVED;
+        || status == SubmissionDetailStatus.ACCEPTED;
   }
 
   public boolean isProspectRelinquishment() {

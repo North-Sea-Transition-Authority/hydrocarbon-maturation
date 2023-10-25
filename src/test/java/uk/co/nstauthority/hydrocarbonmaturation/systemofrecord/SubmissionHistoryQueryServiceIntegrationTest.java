@@ -42,7 +42,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
       var submittedSubmission = createSubmissionDetail(prospectResource, SubmissionType.PROSPECT_UPDATE);
       submittedSubmission.setSubmittedTimestamp(approvedSubmission.getSubmittedTimestamp().minusSeconds(1000));
       submittedSubmission.setStatus(SubmissionDetailStatus.SUBMITTED);
-      submittedSubmission.setApprovedTimestamp(null);
+      submittedSubmission.setAcceptedTimestamp(null);
       entityManager.persist(approvedSubmission);
       entityManager.flush();
       entityManager.persist(submittedSubmission);
@@ -59,7 +59,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
               SubmissionQuerySearchRecord::submissionType)
           .containsExactly(
           tuple(
-              SubmissionDetailStatus.APPROVED,
+              SubmissionDetailStatus.ACCEPTED,
               approvedSubmission.getId(),
               approvedSubmission.getSubmissionType()),
           tuple(
@@ -74,7 +74,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = SubmissionDetailStatus.class, names = {"SUBMITTED", "APPROVED"}, mode = EnumSource.Mode.EXCLUDE)
+    @EnumSource(value = SubmissionDetailStatus.class, names = {"SUBMITTED", "ACCEPTED"}, mode = EnumSource.Mode.EXCLUDE)
     void WhenSubmissionWithNotSubmittedOrApprovedOnResource_assertNoneReturned(SubmissionDetailStatus status) {
       var prospectResource = createProspectResource();
       var submissionWithStatus = createSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT);
@@ -107,16 +107,16 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
       var initialProspectSubmission = createSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT);
       initialProspectSubmission.setSubmittedTimestamp(Instant.now().minusSeconds(4000));
-      initialProspectSubmission.setStatus(SubmissionDetailStatus.APPROVED);
+      initialProspectSubmission.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var prospectUpdateSubmission = createSubmissionDetail(prospectResource, SubmissionType.PROSPECT_UPDATE);
       prospectUpdateSubmission.setSubmittedTimestamp(Instant.now().minusSeconds(3000));
-      prospectUpdateSubmission.setStatus(SubmissionDetailStatus.APPROVED);
+      prospectUpdateSubmission.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var discoveryLinkedToAProspect = createDiscoveryResource();
 
       var initialDiscoverySubmission = createSubmissionDetail(discoveryLinkedToAProspect, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
-      initialDiscoverySubmission.setStatus(SubmissionDetailStatus.APPROVED);
+      initialDiscoverySubmission.setStatus(SubmissionDetailStatus.ACCEPTED);
       initialDiscoverySubmission.setSubmittedTimestamp(Instant.now().minusSeconds(2000));
 
       var discoveryUpdateSubmission = createSubmissionDetail(discoveryLinkedToAProspect, SubmissionType.UPDATE_DISCOVERY);
@@ -149,13 +149,13 @@ class SubmissionHistoryQueryServiceIntegrationTest {
                     SubmissionDetailStatus.SUBMITTED,
                     discoveryUpdateSubmission.getId()),
                 tuple(
-                    SubmissionDetailStatus.APPROVED,
+                    SubmissionDetailStatus.ACCEPTED,
                     initialDiscoverySubmission.getId()),
                 tuple(
-                    SubmissionDetailStatus.APPROVED,
+                    SubmissionDetailStatus.ACCEPTED,
                     prospectUpdateSubmission.getId()),
                 tuple(
-                    SubmissionDetailStatus.APPROVED,
+                    SubmissionDetailStatus.ACCEPTED,
                     initialProspectSubmission.getId()
                 )
             );
@@ -170,7 +170,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
                     SubmissionDetailStatus.SUBMITTED,
                     discoveryUpdateSubmission.getId()),
                 tuple(
-                    SubmissionDetailStatus.APPROVED,
+                    SubmissionDetailStatus.ACCEPTED,
                     initialDiscoverySubmission.getId())
             );
       }
@@ -186,7 +186,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
       var initialProspectSubmission = createSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT);
       initialProspectSubmission.setSubmittedTimestamp(Instant.now().minusSeconds(4000));
-      initialProspectSubmission.setStatus(SubmissionDetailStatus.APPROVED);
+      initialProspectSubmission.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var prospectUpdateSubmission = createSubmissionDetail(
           prospectResource, withdrawn, SubmissionType.PROSPECT_UPDATE);
@@ -211,7 +211,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
                     SubmissionDetailStatus.SUBMITTED,
                     prospectUpdateSubmission.getId()),
                 tuple(
-                    SubmissionDetailStatus.APPROVED,
+                    SubmissionDetailStatus.ACCEPTED,
                     initialProspectSubmission.getId()
                 )
             );
@@ -222,7 +222,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
                 SubmissionQuerySearchRecord::submissionDetailId)
             .containsExactly(
                 tuple(
-                    SubmissionDetailStatus.APPROVED,
+                    SubmissionDetailStatus.ACCEPTED,
                     initialProspectSubmission.getId())
             );
       }
@@ -244,7 +244,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
     }
 
     @ParameterizedTest
-    @EnumSource(value = SubmissionDetailStatus.class, names = {"APPROVED"}, mode = EnumSource.Mode.EXCLUDE)
+    @EnumSource(value = SubmissionDetailStatus.class, names = {"ACCEPTED"}, mode = EnumSource.Mode.EXCLUDE)
     void WhenSubmissionWithNoApprovedOnResource_assertNoneReturned(SubmissionDetailStatus status) {
       var prospectResource = createProspectResource();
       var submissionWithStatus = createSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT);
@@ -267,7 +267,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
       var submittedSubmission = createSubmissionDetail(prospectResource, SubmissionType.PROSPECT_UPDATE);
       submittedSubmission.setSubmittedTimestamp(approvedSubmission.getSubmittedTimestamp().minusSeconds(1000));
       submittedSubmission.setStatus(SubmissionDetailStatus.SUBMITTED);
-      submittedSubmission.setApprovedTimestamp(null);
+      submittedSubmission.setAcceptedTimestamp(null);
       entityManager.persist(approvedSubmission);
       entityManager.flush();
       entityManager.persist(submittedSubmission);
@@ -284,13 +284,13 @@ class SubmissionHistoryQueryServiceIntegrationTest {
               SubmissionQuerySearchRecord::submissionType)
           .containsExactly(
               tuple(
-                  SubmissionDetailStatus.APPROVED,
+                  SubmissionDetailStatus.ACCEPTED,
                   approvedSubmission.getId(),
                   approvedSubmission.getSubmissionType())
           );
 
       assertThat(results.get(0))
-          .extracting(SubmissionQuerySearchRecord::approvedTimestamp)
+          .extracting(SubmissionQuerySearchRecord::acceptedTimestamp)
           .isNotNull();
     }
 
@@ -301,20 +301,20 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
       var initialProspectSubmission = createSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT);
       initialProspectSubmission.setSubmittedTimestamp(Instant.now().minusSeconds(4000));
-      initialProspectSubmission.setStatus(SubmissionDetailStatus.APPROVED);
+      initialProspectSubmission.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var prospectUpdateSubmission = createSubmissionDetail(prospectResource, SubmissionType.PROSPECT_UPDATE);
       prospectUpdateSubmission.setSubmittedTimestamp(Instant.now().minusSeconds(3000));
-      prospectUpdateSubmission.setStatus(SubmissionDetailStatus.APPROVED);
+      prospectUpdateSubmission.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var discoveryLinkedToAProspect = createDiscoveryResource();
 
       var initialDiscoverySubmission = createSubmissionDetail(discoveryLinkedToAProspect, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
-      initialDiscoverySubmission.setStatus(SubmissionDetailStatus.APPROVED);
+      initialDiscoverySubmission.setStatus(SubmissionDetailStatus.ACCEPTED);
       initialDiscoverySubmission.setSubmittedTimestamp(Instant.now().minusSeconds(2000));
 
       var discoveryUpdateSubmission = createSubmissionDetail(discoveryLinkedToAProspect, SubmissionType.UPDATE_DISCOVERY);
-      discoveryUpdateSubmission.setStatus(SubmissionDetailStatus.APPROVED);
+      discoveryUpdateSubmission.setStatus(SubmissionDetailStatus.ACCEPTED);
       discoveryUpdateSubmission.setSubmittedTimestamp(Instant.now().minusSeconds(1000));
 
       if (linkedResources) {
@@ -340,16 +340,16 @@ class SubmissionHistoryQueryServiceIntegrationTest {
                 SubmissionQuerySearchRecord::submissionDetailId)
             .containsExactly(
                 tuple(
-                    SubmissionDetailStatus.APPROVED,
+                    SubmissionDetailStatus.ACCEPTED,
                     discoveryUpdateSubmission.getId()),
                 tuple(
-                    SubmissionDetailStatus.APPROVED,
+                    SubmissionDetailStatus.ACCEPTED,
                     initialDiscoverySubmission.getId()),
                 tuple(
-                    SubmissionDetailStatus.APPROVED,
+                    SubmissionDetailStatus.ACCEPTED,
                     prospectUpdateSubmission.getId()),
                 tuple(
-                    SubmissionDetailStatus.APPROVED,
+                    SubmissionDetailStatus.ACCEPTED,
                     initialProspectSubmission.getId())
             );
       } else {
@@ -360,10 +360,10 @@ class SubmissionHistoryQueryServiceIntegrationTest {
                 SubmissionQuerySearchRecord::submissionDetailId)
             .containsExactly(
                 tuple(
-                    SubmissionDetailStatus.APPROVED,
+                    SubmissionDetailStatus.ACCEPTED,
                     discoveryUpdateSubmission.getId()),
                 tuple(
-                    SubmissionDetailStatus.APPROVED,
+                    SubmissionDetailStatus.ACCEPTED,
                     initialDiscoverySubmission.getId())
             );
       }

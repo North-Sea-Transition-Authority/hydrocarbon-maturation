@@ -92,7 +92,7 @@ class DiscoveryGasCaseVolumetricTotalsControllerTest extends AbstractSubmissionC
   @SecurityTest
   void getGasCaseVolumetricTotals_andStatusIsNotDraft_assertForbidden() throws Exception {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(DiscoveryGasCaseVolumetricTotalsController.class).getDiscoveryGasCaseVolumetricTotals(
                 submissionDetailId)))

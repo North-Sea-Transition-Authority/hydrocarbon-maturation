@@ -25,7 +25,7 @@ breadcrumbsMap=breadcrumbsMap>
   </#if>
   <#if relinquishmentSubmission>
     <#assign guidanceTextLicence>
-      The licence will be removed from this ${resourceType} when the relinquishment submission is approved.
+      The licence will be removed from this ${resourceType} when the relinquishment submission is accepted.
     </#assign>
   <#else>
     <#assign guidanceTextLicence>

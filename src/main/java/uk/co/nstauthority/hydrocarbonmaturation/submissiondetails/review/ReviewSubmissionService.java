@@ -140,7 +140,7 @@ public class ReviewSubmissionService {
         && resourceLinkService.isResourceLinkedOrSameResource(
             currentResource, selectedSubmissionDetail.getSubmission().getResource())
         && submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
-            selectedSubmissionDetail, Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED));
+            selectedSubmissionDetail, Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED));
   }
 
   Optional<SubmissionDetail> getUpdateSubmissionDetailBySubmission(Submission submission) {

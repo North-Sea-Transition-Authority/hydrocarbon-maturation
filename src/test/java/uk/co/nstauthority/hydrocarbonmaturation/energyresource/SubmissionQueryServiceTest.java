@@ -72,7 +72,7 @@ class SubmissionQueryServiceTest {
       var searchTerm = "discovery";
 
       var latestApprovedResourceDetail = createResourceDetail(
-          searchTerm, ResourceType.DISCOVERY, SubmissionDetailStatus.APPROVED, SubmissionType.UPDATE_DISCOVERY);
+          searchTerm, ResourceType.DISCOVERY, SubmissionDetailStatus.ACCEPTED, SubmissionType.UPDATE_DISCOVERY);
       when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.DISCOVERY, searchTerm))
           .thenReturn(List.of(
               latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource(),
@@ -114,7 +114,7 @@ class SubmissionQueryServiceTest {
     void whenDiscoverySubmission_whenSubmissionPreventsSubmission_assertEmpty(SubmissionType submissionType) {
       var searchTerm = "discovery";
       var latestApprovedResourceDetail = createResourceDetail(
-          searchTerm, ResourceType.DISCOVERY, SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_DISCOVERY);
+          searchTerm, ResourceType.DISCOVERY, SubmissionDetailStatus.ACCEPTED, SubmissionType.CREATE_DISCOVERY);
       when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.DISCOVERY, searchTerm))
           .thenReturn(List.of(latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource()));
       when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(
@@ -155,7 +155,7 @@ class SubmissionQueryServiceTest {
       var searchTerm = "prospect";
 
       var latestApprovedResourceDetail = createResourceDetail(
-          searchTerm, ResourceType.PROSPECT, SubmissionDetailStatus.APPROVED, submissionType);
+          searchTerm, ResourceType.PROSPECT, SubmissionDetailStatus.ACCEPTED, submissionType);
       when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.PROSPECT, searchTerm))
           .thenReturn(List.of(latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource()));
       when(submissionDetailService.getLatestApprovedProspectSubmissionForResource(
@@ -192,7 +192,7 @@ class SubmissionQueryServiceTest {
     void whenProspectSubmission_whenSubmissionPreventsSubmission_assertEmpty(SubmissionType submissionType) {
       var searchTerm = "prospect";
       var latestApprovedResourceDetail = createResourceDetail(
-          searchTerm, ResourceType.PROSPECT, SubmissionDetailStatus.APPROVED, submissionType);
+          searchTerm, ResourceType.PROSPECT, SubmissionDetailStatus.ACCEPTED, submissionType);
       when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.PROSPECT, searchTerm))
           .thenReturn(List.of(latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource()));
       when(submissionDetailService.getLatestApprovedProspectSubmissionForResource(
@@ -228,9 +228,9 @@ class SubmissionQueryServiceTest {
     void whenProspectSubmission_whenTwoResourcesMatchesSubmission_assertEmpty(SubmissionType submissionType) {
       var searchTerm = "prospect";
       var latestApprovedResourceDetail = createResourceDetail(
-          searchTerm, ResourceType.PROSPECT, SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_PROSPECT);
+          searchTerm, ResourceType.PROSPECT, SubmissionDetailStatus.ACCEPTED, SubmissionType.CREATE_PROSPECT);
       var latestApprovedResourceDetail2 = createResourceDetail(
-          searchTerm, ResourceType.PROSPECT, SubmissionDetailStatus.APPROVED, SubmissionType.PROSPECT_UPDATE);
+          searchTerm, ResourceType.PROSPECT, SubmissionDetailStatus.ACCEPTED, SubmissionType.PROSPECT_UPDATE);
       when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.PROSPECT, searchTerm))
           .thenReturn(List.of(
               latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource(),
@@ -289,10 +289,10 @@ class SubmissionQueryServiceTest {
       var latestApprovedDiscoveryName = "discovery resource";
       var latestApprovedProspectResourceDetail = createResourceDetail(
           latestApprovedProspectName, ResourceType.PROSPECT,
-          SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_PROSPECT);
+          SubmissionDetailStatus.ACCEPTED, SubmissionType.CREATE_PROSPECT);
       var latestApprovedDiscoveryResourceDetail = createResourceDetail(
           latestApprovedDiscoveryName, ResourceType.DISCOVERY,
-          SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_DISCOVERY);
+          SubmissionDetailStatus.ACCEPTED, SubmissionType.CREATE_DISCOVERY);
 
       var prospectResource = latestApprovedProspectResourceDetail.getSubmissionDetail().getSubmission().getResource();
       var discoveryResource = latestApprovedDiscoveryResourceDetail.getSubmissionDetail().getSubmission().getResource();
@@ -330,10 +330,10 @@ class SubmissionQueryServiceTest {
       var latestApprovedDiscoveryName = "discovery resource";
       var latestApprovedProspectResourceDetail = createResourceDetail(
           latestApprovedProspectName, ResourceType.PROSPECT,
-          SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_PROSPECT);
+          SubmissionDetailStatus.ACCEPTED, SubmissionType.CREATE_PROSPECT);
       var latestApprovedDiscoveryResourceDetail = createResourceDetail(
           latestApprovedDiscoveryName, ResourceType.DISCOVERY,
-          SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_DISCOVERY);
+          SubmissionDetailStatus.ACCEPTED, SubmissionType.CREATE_DISCOVERY);
 
       var prospectResource = latestApprovedProspectResourceDetail.getSubmissionDetail().getSubmission().getResource();
       var discoveryResource = latestApprovedDiscoveryResourceDetail.getSubmissionDetail().getSubmission().getResource();
@@ -365,7 +365,7 @@ class SubmissionQueryServiceTest {
       var searchTerm = "discovery";
 
       var latestApprovedResourceDetail = createResourceDetail(
-          searchTerm, ResourceType.DISCOVERY, SubmissionDetailStatus.APPROVED, SubmissionType.UPDATE_DISCOVERY);
+          searchTerm, ResourceType.DISCOVERY, SubmissionDetailStatus.ACCEPTED, SubmissionType.UPDATE_DISCOVERY);
       var resource = latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource();
 
       when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.DISCOVERY, searchTerm))
@@ -401,7 +401,7 @@ class SubmissionQueryServiceTest {
       var searchTerm = "discovery";
 
       var latestApprovedResourceDetail = createResourceDetail(
-          searchTerm, ResourceType.DISCOVERY, SubmissionDetailStatus.APPROVED, SubmissionType.UPDATE_DISCOVERY);
+          searchTerm, ResourceType.DISCOVERY, SubmissionDetailStatus.ACCEPTED, SubmissionType.UPDATE_DISCOVERY);
       var resource = latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource();
 
       when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.DISCOVERY, searchTerm))
@@ -420,7 +420,7 @@ class SubmissionQueryServiceTest {
       var searchTerm = "discovery";
 
       var latestApprovedResourceDetail = createResourceDetail(
-          searchTerm, ResourceType.DISCOVERY, SubmissionDetailStatus.APPROVED, SubmissionType.RELINQUISHMENT_DISCOVERY);
+          searchTerm, ResourceType.DISCOVERY, SubmissionDetailStatus.ACCEPTED, SubmissionType.RELINQUISHMENT_DISCOVERY);
       var resource = latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource();
 
       when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.DISCOVERY, searchTerm))

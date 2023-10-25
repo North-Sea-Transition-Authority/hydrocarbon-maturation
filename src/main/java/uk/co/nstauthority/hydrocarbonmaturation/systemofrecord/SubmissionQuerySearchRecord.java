@@ -6,7 +6,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 public record SubmissionQuerySearchRecord(SubmissionDetailStatus status,
-                                          Timestamp approvedTimestamp,
+                                          Timestamp acceptedTimestamp,
                                           UUID submissionDetailId,
                                           SubmissionType submissionType) {
 }

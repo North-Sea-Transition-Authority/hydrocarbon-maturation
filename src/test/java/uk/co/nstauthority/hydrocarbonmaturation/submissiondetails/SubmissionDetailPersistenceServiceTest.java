@@ -151,13 +151,13 @@ class SubmissionDetailPersistenceServiceTest {
 
     assertThat(submissionDetail)
         .extracting(
-            SubmissionDetail::getApprovedByWuaId,
-            SubmissionDetail::getApprovedTimestamp,
+            SubmissionDetail::getAcceptedByWuaId,
+            SubmissionDetail::getAcceptedTimestamp,
             SubmissionDetail::getStatus)
         .containsExactly(
             USER_WUA_ID.intValue(),
             INSTANT,
-            SubmissionDetailStatus.APPROVED
+            SubmissionDetailStatus.ACCEPTED
         );
     verify(submissionDetailRepository, times(1)).save(submissionDetail);
     verify(resourceDetailsPersistenceService, times(1))
@@ -252,7 +252,7 @@ class SubmissionDetailPersistenceServiceTest {
   void createCorrectionSubmissionDetail_assertCorrectionProperties() {
     var parentSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var submission = SubmissionTestUtils.createSubmission(mock(Resource.class));
-    parentSubmissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    parentSubmissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     parentSubmissionDetail.setVersionNumber(1);
     parentSubmissionDetail.setCreatedByWuaId(1);
     parentSubmissionDetail.setSubmittedTimestamp(INSTANT);

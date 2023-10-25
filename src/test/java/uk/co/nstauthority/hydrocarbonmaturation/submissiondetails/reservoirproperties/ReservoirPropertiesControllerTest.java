@@ -124,7 +124,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
   @SecurityTest
   void getReservoirProperties_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(ReservoirPropertiesController.class)
@@ -309,7 +309,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     var discoverySubmissionDetailId = UUID.randomUUID();
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(submissionType,
         discoverySubmissionDetailId);
-    discoverySubmissionDetail.setApprovedTimestamp(Instant.now());
+    discoverySubmissionDetail.setAcceptedTimestamp(Instant.now());
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
@@ -388,7 +388,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     var fieldSubmissionDetailId = UUID.randomUUID();
     var fieldSubmissionDetail = SubmissionDetailTestUtils.createFieldSubmissionDetail(submissionType, fieldSubmissionDetailId);
 
-    fieldSubmissionDetail.setApprovedTimestamp(Instant.now());
+    fieldSubmissionDetail.setAcceptedTimestamp(Instant.now());
 
     var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
     var fieldReservoirSubmissionDetailId = fieldReservoirSubmissionDetail.getId();
@@ -617,7 +617,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     var discoverySubmissionDetailId = UUID.randomUUID();
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY,
         discoverySubmissionDetailId);
-    discoverySubmissionDetail.setApprovedTimestamp(Instant.now());
+    discoverySubmissionDetail.setAcceptedTimestamp(Instant.now());
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
@@ -715,7 +715,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     var discoverySubmissionDetailId = UUID.randomUUID();
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY,
         discoverySubmissionDetailId);
-    discoverySubmissionDetail.setApprovedTimestamp(Instant.now());
+    discoverySubmissionDetail.setAcceptedTimestamp(Instant.now());
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
@@ -809,7 +809,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         fieldSubmissionDetailId);
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
-    fieldSubmissionDetail.setApprovedTimestamp(Instant.now());
+    fieldSubmissionDetail.setAcceptedTimestamp(Instant.now());
     when(submissionDetailService.getSubmissionDetail(fieldSubmissionDetailId)).thenReturn(Optional.of(fieldSubmissionDetail));
 
     var form = new ReservoirPropertiesForm();
@@ -899,7 +899,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         fieldSubmissionDetailId);
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
-    fieldSubmissionDetail.setApprovedTimestamp(Instant.now());
+    fieldSubmissionDetail.setAcceptedTimestamp(Instant.now());
     when(submissionDetailService.getSubmissionDetail(fieldSubmissionDetailId)).thenReturn(Optional.of(fieldSubmissionDetail));
 
     var form = new ReservoirPropertiesForm();
@@ -993,7 +993,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         fieldSubmissionDetailId);
     var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
     var fieldReservoirSubmissionDetailId = fieldReservoirSubmissionDetail.getId();
-    fieldSubmissionDetail.setApprovedTimestamp(Instant.now());
+    fieldSubmissionDetail.setAcceptedTimestamp(Instant.now());
     when(submissionDetailService.getSubmissionDetail(fieldSubmissionDetailId)).thenReturn(Optional.of(fieldSubmissionDetail));
 
     var form = new ReservoirPropertiesForm();
@@ -1090,7 +1090,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         fieldSubmissionDetailId);
     var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
     var fieldReservoirSubmissionDetailId = fieldReservoirSubmissionDetail.getId();
-    fieldSubmissionDetail.setApprovedTimestamp(Instant.now());
+    fieldSubmissionDetail.setAcceptedTimestamp(Instant.now());
     when(submissionDetailService.getSubmissionDetail(fieldSubmissionDetailId)).thenReturn(Optional.of(fieldSubmissionDetail));
 
     var form = new ReservoirPropertiesForm();
@@ -1197,7 +1197,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     var fieldSubmissionDetail = SubmissionDetailTestUtils.createFieldSubmissionDetail(submissionType, fieldSubmissionDetailId);
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
-    fieldSubmissionDetail.setApprovedTimestamp(Instant.now());
+    fieldSubmissionDetail.setAcceptedTimestamp(Instant.now());
     when(submissionDetailService.getSubmissionDetail(fieldSubmissionDetailId)).thenReturn(Optional.of(fieldSubmissionDetail));
 
     var form = new ReservoirPropertiesForm();
@@ -1288,7 +1288,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         fieldSubmissionDetailId);
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
-    fieldSubmissionDetail.setApprovedTimestamp(Instant.now());
+    fieldSubmissionDetail.setAcceptedTimestamp(Instant.now());
     when(submissionDetailService.getSubmissionDetail(fieldSubmissionDetailId)).thenReturn(Optional.of(fieldSubmissionDetail));
 
     var form = new ReservoirPropertiesForm();

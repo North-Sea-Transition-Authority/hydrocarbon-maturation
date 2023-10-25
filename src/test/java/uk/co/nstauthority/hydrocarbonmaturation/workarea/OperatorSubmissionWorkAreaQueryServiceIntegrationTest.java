@@ -430,13 +430,13 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
                                                        Integer responsibleOrganisationIdForSubmission) {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setId(null);
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     submissionDetail.setSubmission(SubmissionIntegrationTestUtils.createSubmission(resource, entityManager));
 
     var createdTimestamp = Instant.now().minusMillis(2000);
     submissionDetail.setCreatedTimestamp(createdTimestamp);
-    submissionDetail.setApprovedTimestamp(createdTimestamp.plusMillis(1000));
+    submissionDetail.setAcceptedTimestamp(createdTimestamp.plusMillis(1000));
     submissionDetail.getSubmission().setResource(resource);
     entityManager.persist(submissionDetail);
     entityManager.flush();

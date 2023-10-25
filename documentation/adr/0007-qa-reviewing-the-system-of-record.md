@@ -44,8 +44,8 @@ This functionality is very similar to the functionality outlined in [0006-viewin
 The only difference being that we also need to show the submitted submissions as well as approved submissions. Therefore, we will adapt the service that so that it can conditionally also include submitted submissions.
 
 The format for submitted submissions also differs slightly. The format in the drop-down menu for the two states will be:
-- not approved: "(#) [submission type] (Pending approval)"
-- approved: "(#) [submission type] (Approved: dd Month yyyy)"
+- not accepted: "(#) [submission type] (Pending acceptance)"
+- accepted: "(#) [submission type] (Accepted: dd Month yyyy)"
 
 ### Full summary of submission
 

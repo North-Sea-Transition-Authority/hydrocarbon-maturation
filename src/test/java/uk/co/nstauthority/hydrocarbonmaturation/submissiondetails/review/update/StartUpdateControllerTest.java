@@ -53,7 +53,7 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void showStartUpdatePage_whenNotStatusNotSubmitted() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(StartUpdateController.class).showStartUpdatePage(SUBMISSION_DETAIL_ID)))
                 .with(user(USER)))

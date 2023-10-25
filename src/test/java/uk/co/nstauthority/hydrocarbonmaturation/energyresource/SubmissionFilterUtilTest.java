@@ -106,7 +106,7 @@ class SubmissionFilterUtilTest {
   @Test
   void isSubmissionPreventingDryHoleOrDiscovery_whenSubmittedProspectRelinquishment_assertTrue() {
     submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_PROSPECT);
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
 
     assertThat(SubmissionFilterUtil.isSubmissionPreventingDryHoleOrDiscovery(submissionDetail)).isTrue();
   }
@@ -156,7 +156,7 @@ class SubmissionFilterUtilTest {
   @Test
   void isSubmissionPreventingDiscoveryRelinquishment_whenDiscoveryRelinquishment_assertTrue() {
     submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_DISCOVERY);
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
 
     assertThat(SubmissionFilterUtil.isSubmissionPreventingDiscoveryRelinquishment(submissionDetail)).isTrue();
   }

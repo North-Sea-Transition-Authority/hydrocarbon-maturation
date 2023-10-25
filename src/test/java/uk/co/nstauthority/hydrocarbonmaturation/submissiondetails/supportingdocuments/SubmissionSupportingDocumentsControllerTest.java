@@ -82,7 +82,7 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
 
   @SecurityTest
   void upload_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     MockMultipartFile mockMultipartFile = new MockMultipartFile("file", (byte[]) null);
     mockMvc.perform(multipart(ReverseRouter.route(
             on(SubmissionSupportingDocumentsController.class).upload(submissionDetailId, supportingDocumentType, null)))
@@ -126,7 +126,7 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(submissionDetail,
-        Set.of(SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.DRAFT)))
+        Set.of(SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.DRAFT)))
         .thenReturn(true);
     setUpWhenUserIsResponsibleTeam_passSecurity();
 
@@ -145,7 +145,7 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(submissionDetail,
-        Set.of(SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.DRAFT)))
+        Set.of(SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.DRAFT)))
         .thenReturn(false);
     setUpWhenUserIsResponsibleTeam_passSecurity();
 
@@ -160,7 +160,7 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
 
   @SecurityTest
   void delete_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
 
     mockMvc.perform(post(
             ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).delete(submissionDetailId, uploadedFile.getId())))

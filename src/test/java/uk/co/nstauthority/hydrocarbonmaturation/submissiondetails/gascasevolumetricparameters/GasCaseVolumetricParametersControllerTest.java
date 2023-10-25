@@ -100,7 +100,7 @@ class GasCaseVolumetricParametersControllerTest extends AbstractSubmissionContro
 
   @SecurityTest
   void getGasCaseVolumetrics_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(GasCaseVolumetricParametersController.class)
                 .getGasCaseVolumetrics(submissionDetailId, reservoirSubmissionDetailId)))
@@ -221,7 +221,7 @@ class GasCaseVolumetricParametersControllerTest extends AbstractSubmissionContro
     var discoverySubmissionDetailId = UUID.randomUUID();
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY,
         discoverySubmissionDetailId);
-    discoverySubmissionDetail.setApprovedTimestamp(Instant.now());
+    discoverySubmissionDetail.setAcceptedTimestamp(Instant.now());
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
 

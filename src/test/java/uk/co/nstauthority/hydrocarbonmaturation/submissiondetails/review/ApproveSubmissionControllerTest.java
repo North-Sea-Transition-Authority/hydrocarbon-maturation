@@ -141,7 +141,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
     assertThat(modelMap)
         .contains(
             entry("submissionType", submissionDetail.getSubmissionType()),
-            entry("pageName", "Are you sure you want to approve this %s?".formatted(expectedTypeName.toLowerCase())),
+            entry("pageName", "Are you sure you want to accept this %s?".formatted(expectedTypeName.toLowerCase())),
             entry("resourceName", expectedName),
             entry("actionUrl", ReverseRouter.route(on(ApproveSubmissionController.class)
                 .approveSubmission(SUBMISSION_DETAIL_ID, null))),
@@ -189,7 +189,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void approveSubmission_canNotApprove() throws Exception{
     doAnswer(invocation -> {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Submission cannot be approved by user with ID %s "
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Submission cannot be accepted by user with ID %s "
           .formatted("1"));
     }).when(submissionApprovalService).approveSubmissionOrThrow(submissionDetail);
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
@@ -230,7 +230,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
         RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(false);
     when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
         submissionDetail,
-        Set.of(SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.APPROVED)
+        Set.of(SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.ACCEPTED)
     )).thenReturn(false);
 
     mockMvc.perform(

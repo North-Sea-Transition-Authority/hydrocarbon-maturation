@@ -94,7 +94,7 @@ public class ResourceGroupController {
     var pageName = getPageName(resource);
     var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(
         submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource)
-            .orElseThrow(() -> new RemiEntityNotFoundException("Could not find the latest approved submission for resource %s"
+            .orElseThrow(() -> new RemiEntityNotFoundException("Could not find the latest accepted submission for resource %s"
                 .formatted(resource.getId()))));
     var modelAndView = new ModelAndView("remi/review/manageResourceGroups")
         .addObject("form", form)

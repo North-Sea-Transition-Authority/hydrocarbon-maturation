@@ -130,7 +130,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
 
   @SecurityTest
   void showSubmissionSummary_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)

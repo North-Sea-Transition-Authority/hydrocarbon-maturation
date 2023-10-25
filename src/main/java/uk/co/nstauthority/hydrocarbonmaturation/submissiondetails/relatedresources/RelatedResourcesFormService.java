@@ -94,7 +94,7 @@ public class RelatedResourcesFormService implements SubmissionFormService {
                 currentSubmissionDetail, null))
         .map(ResourceGroupView::resourceName)
         .orElseThrow(() -> new IllegalStateException(
-            "Could not get resource name for the latest approved submission of resource with ID %s"
+            "Could not get resource name for the latest accepted submission of resource with ID %s"
                 .formatted(submissionDetail.getSubmission().getResource().getId())));
 
     return searchSelectorService.buildPrePopulatedSelections(

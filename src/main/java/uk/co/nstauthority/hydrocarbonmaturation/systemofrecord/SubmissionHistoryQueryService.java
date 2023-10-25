@@ -31,7 +31,7 @@ public class SubmissionHistoryQueryService {
         List.of(
             getResourceIdAndNotWithdrawnCondition(resourceId),
             SUBMISSION_DETAILS.STATUS.in(
-                SubmissionDetailStatus.APPROVED.name(),
+                SubmissionDetailStatus.ACCEPTED.name(),
                 SubmissionDetailStatus.SUBMITTED.name()))
     );
   }
@@ -40,14 +40,14 @@ public class SubmissionHistoryQueryService {
     return getSubmissionsOnResourceQueryResults(
         List.of(
             getResourceIdAndNotWithdrawnCondition(resourceId),
-            SUBMISSION_DETAILS.STATUS.eq(SubmissionDetailStatus.APPROVED.name()))
+            SUBMISSION_DETAILS.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))
     );
   }
 
   private List<SubmissionQuerySearchRecord> getSubmissionsOnResourceQueryResults(List<Condition> conditions) {
     return context.select(
             SUBMISSION_DETAILS.STATUS,
-            SUBMISSION_DETAILS.APPROVED_TIMESTAMP,
+            SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP,
             SUBMISSION_DETAILS.ID,
             SUBMISSION_DETAILS.SUBMISSION_TYPE)
         .from(SUBMISSIONS
@@ -57,7 +57,7 @@ public class SubmissionHistoryQueryService {
                         .on(SD_2.SUBMISSION_ID.eq(SUBMISSIONS_2.ID)
                             //gets the latest approved or submitted submission detail on a submission
                             .and(SD_2.STATUS.in(
-                                SubmissionDetailStatus.APPROVED.name(),
+                                SubmissionDetailStatus.ACCEPTED.name(),
                                 SubmissionDetailStatus.SUBMITTED.name()))))
                     .where(SD_2.SUBMISSION_ID.eq(SUBMISSIONS.ID))
                     .orderBy(SD_2.VERSION_NUMBER.desc())

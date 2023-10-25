@@ -102,7 +102,7 @@ class OilFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getOilFluidProperties_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(OilFluidPropertyController.class).getOilFluidProperties(submissionDetailId, reservoirSubmissionDetail.getId())))
                 .with(user(USER)))

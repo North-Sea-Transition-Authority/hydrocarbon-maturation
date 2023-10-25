@@ -85,7 +85,7 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
   @SecurityTest
   void getOpportunityDetailsPage_andStatusIsNotDraft_assertForbidden() throws Exception {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetailId, form)))
                 .with(user(USER)))

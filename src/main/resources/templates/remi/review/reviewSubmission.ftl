@@ -65,7 +65,7 @@
     <#elseif canReview>
       <@fdsAction.buttonGroup>
         <#if !updateRequested>
-          <@fdsAction.link linkText="Approve submission" linkClass="govuk-button" linkUrl=springUrl(approveUrl)/>
+          <@fdsAction.link linkText="Accept submission" linkClass="govuk-button" linkUrl=springUrl(approveUrl)/>
           <#if canRequestUpdate>
             <@fdsAction.link
               linkText="Request update"

@@ -76,10 +76,10 @@ class SubmissionDetailVersionInterceptorRuleTest extends AbstractInterceptorRule
 
   @Test
   void check_whenIsLatestExtant_assertPassed() {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     submissionDetail.setVersionNumber(4);
     when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(submissionDetail,
-        Set.of(SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.APPROVED)))
+        Set.of(SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.ACCEPTED)))
         .thenReturn(true);
 
     var interceptorResult = submissionDetailVersionInterceptorRule.check(
@@ -99,7 +99,7 @@ class SubmissionDetailVersionInterceptorRuleTest extends AbstractInterceptorRule
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetail.setVersionNumber(4);
     when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(submissionDetail,
-        Set.of(SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.APPROVED)))
+        Set.of(SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.ACCEPTED)))
         .thenReturn(false);
 
     var interceptorResult = submissionDetailVersionInterceptorRule.check(
@@ -119,7 +119,7 @@ class SubmissionDetailVersionInterceptorRuleTest extends AbstractInterceptorRule
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     submissionDetail.setVersionNumber(4);
     when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(submissionDetail,
-        Set.of(SubmissionDetailStatus.DRAFT, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.APPROVED)))
+        Set.of(SubmissionDetailStatus.DRAFT, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.ACCEPTED)))
         .thenReturn(false);
 
     var interceptorResult = submissionDetailVersionInterceptorRule.check(
@@ -156,7 +156,7 @@ class SubmissionDetailVersionInterceptorRuleTest extends AbstractInterceptorRule
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetail.setVersionNumber(4);
     when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(submissionDetail,
-        Set.of(SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.APPROVED)))
+        Set.of(SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.ACCEPTED)))
         .thenReturn(true);
 
     var interceptorResult = submissionDetailVersionInterceptorRule.check(

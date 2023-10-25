@@ -93,7 +93,7 @@ class OilCaseVolumetricParametersControllerTest extends AbstractSubmissionContro
 
   @SecurityTest
   void getOilCaseVolumetrics_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(OilCaseVolumetricParametersController.class)
                 .getOilCaseVolumetrics(submissionDetailId, reservoirSubmissionDetailId)))
@@ -230,7 +230,7 @@ class OilCaseVolumetricParametersControllerTest extends AbstractSubmissionContro
     var discoverySubmissionDetailId = UUID.randomUUID();
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY,
         discoverySubmissionDetailId);
-    discoverySubmissionDetail.setApprovedTimestamp(Instant.now());
+    discoverySubmissionDetail.setAcceptedTimestamp(Instant.now());
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
 

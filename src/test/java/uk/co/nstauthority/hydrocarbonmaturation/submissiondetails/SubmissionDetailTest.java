@@ -98,7 +98,7 @@ class SubmissionDetailTest {
   @EnumSource(SubmissionDetailStatus.class)
   void isDraftOrApprovedSubmission(SubmissionDetailStatus status) {
     submissionDetail.setStatus(status);
-    if (status == SubmissionDetailStatus.DRAFT || status == SubmissionDetailStatus.APPROVED) {
+    if (status == SubmissionDetailStatus.DRAFT || status == SubmissionDetailStatus.ACCEPTED) {
       assertTrue(submissionDetail.isDraftOrApprovedSubmission());
     } else {
       assertFalse(submissionDetail.isDraftOrApprovedSubmission());

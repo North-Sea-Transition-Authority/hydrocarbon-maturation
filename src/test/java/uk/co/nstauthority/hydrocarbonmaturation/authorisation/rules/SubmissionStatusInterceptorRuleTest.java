@@ -65,7 +65,7 @@ class SubmissionStatusInterceptorRuleTest extends AbstractInterceptorRuleTest {
 
   @Test
   void validate_approved() {
-    when(submissionDetail.getStatus()).thenReturn(SubmissionDetailStatus.APPROVED);
+    when(submissionDetail.getStatus()).thenReturn(SubmissionDetailStatus.ACCEPTED);
 
     var annotation = getAnnotation(
         TestControllerDraftOrSubmitted.class,

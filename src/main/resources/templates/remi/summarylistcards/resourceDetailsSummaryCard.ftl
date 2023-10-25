@@ -10,7 +10,7 @@
       ${resourceDetailValues.organisationNameAndNumber()}
     </@fdsSummaryList.summaryListRowNoAction>
     <#if resourceDetailValues.showOrganisationNameAtTimeOfApproval()>
-      <@fdsSummaryList.summaryListRowNoAction keyText="Name at time of approval">
+      <@fdsSummaryList.summaryListRowNoAction keyText="Name at time of acceptance">
         ${resourceDetailValues.organisationNameAndNumberAtTimeOfApproval()}
       </@fdsSummaryList.summaryListRowNoAction>
     </#if>

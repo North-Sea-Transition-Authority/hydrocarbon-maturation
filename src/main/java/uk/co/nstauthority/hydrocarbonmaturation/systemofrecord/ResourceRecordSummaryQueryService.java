@@ -52,7 +52,7 @@ class ResourceRecordSummaryQueryService {
                 select(SD_2.ID)
                     .from(SUBMISSIONS_2
                         .join(SD_2).on(SUBMISSIONS_2.ID.eq(SD_2.SUBMISSION_ID))
-                        .and(SD_2.STATUS.eq(SubmissionDetailStatus.APPROVED.name())))
+                        .and(SD_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name())))
                     .where(SUBMISSIONS_2.ID.eq(SUBMISSIONS.ID))
                     .orderBy(SD_2.VERSION_NUMBER.desc())
                     .limit(1)
@@ -70,7 +70,7 @@ class ResourceRecordSummaryQueryService {
             RESOURCE_DETAILS.ID,
             REGULATOR_MANAGED_INFORMATION.ID
         ))
-        .orderBy(SUBMISSION_DETAILS.APPROVED_TIMESTAMP.desc().nullsLast())
+        .orderBy(SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP.desc().nullsLast())
         .limit(1)
         .fetchOptionalInto(ResourceRecordSummaryQueryResult.class);
   }

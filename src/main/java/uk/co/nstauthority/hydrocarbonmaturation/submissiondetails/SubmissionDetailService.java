@@ -46,37 +46,37 @@ public class SubmissionDetailService {
 
   public Optional<SubmissionDetail> getLatestApprovedProspectSubmissionForResource(Resource resource) {
     // Finds the latest prospect update or create update submission that is approved.
-    return submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(
+    return submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(
         submissionPersistenceService.getSubmissionsByResource(resource),
         List.of(SubmissionType.PROSPECT_UPDATE, SubmissionType.CREATE_PROSPECT),
-        SubmissionDetailStatus.APPROVED
+        SubmissionDetailStatus.ACCEPTED
     );
   }
 
   public Optional<SubmissionDetail> getApprovedOrSubmittedSubmissionDetailByResource(Resource resource) {
     return submissionDetailRepository.findFirstBySubmissionInAndStatusInOrderByVersionNumberDesc(
         submissionPersistenceService.getSubmissionsByResource(resource),
-        List.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED)
+        List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)
     );
   }
 
   public Optional<SubmissionDetail> getLatestApprovedDiscoverySubmissionDetailForResource(Resource resource) {
     // Finds the latest approved discovery (update or create) submission that is approved for the resource.
     return submissionDetailRepository
-        .findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(
+        .findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(
             submissionPersistenceService.getSubmissionsByResource(resource),
             List.of(
                 SubmissionType.CREATE_DISCOVERY,
                 SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
                 SubmissionType.UPDATE_DISCOVERY),
-            SubmissionDetailStatus.APPROVED);
+            SubmissionDetailStatus.ACCEPTED);
   }
 
   public Optional<SubmissionDetail> getLatestApprovedSubmissionDetailForResource(Resource resource) {
     return submissionDetailRepository
-        .findFirstBySubmissionInAndStatusOrderByApprovedTimestampDesc(
+        .findFirstBySubmissionInAndStatusOrderByAcceptedTimestampDesc(
             submissionPersistenceService.getSubmissionsByResource(resource),
-            SubmissionDetailStatus.APPROVED);
+            SubmissionDetailStatus.ACCEPTED);
   }
 
   public Optional<SubmissionDetail> getLatestApprovedSubmissionDetailForResourceAndSubmissionTypes(
@@ -84,10 +84,10 @@ public class SubmissionDetailService {
       List<SubmissionType> submissionTypes) {
     // Finds the latest approved discovery (update or create) submission that is approved for the resource.
     return submissionDetailRepository
-        .findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByApprovedTimestampDesc(
+        .findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(
             submissionPersistenceService.getSubmissionsByResource(resource),
             submissionTypes,
-            SubmissionDetailStatus.APPROVED);
+            SubmissionDetailStatus.ACCEPTED);
   }
 
   public SubmissionDetail getSubmissionDetailForIdOrError(UUID id) {
@@ -100,7 +100,7 @@ public class SubmissionDetailService {
         .stream()
         .map(submission -> getLatestExtantVersionSubmissionDetailBySubmissionAndStatuses(
             submission,
-            Set.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)
+            Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)
         ))
         .flatMap(Optional::stream)
         .toList();
@@ -120,7 +120,7 @@ public class SubmissionDetailService {
         .findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
             submissionPersistenceService.getSubmissionsByResource(resource),
             List.of(SubmissionType.RELINQUISHMENT_DISCOVERY, SubmissionType.RELINQUISHMENT_PROSPECT),
-            List.of(SubmissionDetailStatus.APPROVED, SubmissionDetailStatus.SUBMITTED))
+            List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED))
         .isPresent();
   }
 
@@ -137,7 +137,7 @@ public class SubmissionDetailService {
             .map(ResourceLink::getProspectResource)
             .map(this::getLatestApprovedProspectSubmissionForResource)
             .flatMap(Optional::stream)
-            .min(Comparator.comparing(SubmissionDetail::getApprovedTimestamp));
+            .min(Comparator.comparing(SubmissionDetail::getAcceptedTimestamp));
       case CREATE_PROSPECT, CREATE_DISCOVERY, CREATE_FIELD, CREATE_CSR, CREATE_FDP, CREATE_FDPA, CREATE_COP ->
           Optional.of(submissionDetail);
     };

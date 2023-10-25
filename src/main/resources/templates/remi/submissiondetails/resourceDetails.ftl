@@ -20,7 +20,7 @@
     </#if>
     <#if relinquishmentSubmission>
       <#assign guidanceTextOrganisation>
-        The responsible party will be removed from this ${resourceType} when the relinquishment submission is approved.
+        The responsible party will be removed from this ${resourceType} when the relinquishment submission is accepted.
       </#assign>
     <#else>
       <#assign guidanceTextOrganisation>

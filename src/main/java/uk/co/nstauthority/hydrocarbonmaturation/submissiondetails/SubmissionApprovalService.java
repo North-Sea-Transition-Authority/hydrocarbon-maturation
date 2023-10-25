@@ -70,7 +70,7 @@ public class SubmissionApprovalService {
 
     // corrections will already have submission and approval details stored, just need to set the status
     if (BooleanUtils.isTrue(submissionDetail.isCorrection())) {
-      submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+      submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
       submissionDetailPersistenceService.saveSubmissionDetail(submissionDetail);
     } else {
       submissionDetailPersistenceService.submitSubmission(submissionDetail);
@@ -95,7 +95,7 @@ public class SubmissionApprovalService {
 
       submissionEmailService.sendSubmissionApprovalEmail(submissionDetail);
     } else {
-      throw new ActionNotAllowedException("Submission cannot be approved by user with ID %s"
+      throw new ActionNotAllowedException("Submission cannot be accepted by user with ID %s"
           .formatted(userDetailService.getUserWuaId()));
     }
   }

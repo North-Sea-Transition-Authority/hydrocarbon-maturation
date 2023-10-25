@@ -215,7 +215,7 @@ class ViewResourceRecordServiceTest {
     @BeforeEach
     void setUp() {
       submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-      submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+      submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     }
 
     @Test
@@ -224,7 +224,7 @@ class ViewResourceRecordServiceTest {
           submissionDetail.getSubmission().getResource(), submissionDetail.getSubmission().getResource()))
           .thenReturn(true);
       when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
-          submissionDetail, Set.of(SubmissionDetailStatus.APPROVED)))
+          submissionDetail, Set.of(SubmissionDetailStatus.ACCEPTED)))
           .thenReturn(true);
 
       var result = underTest.canViewSubmissionDetail(
@@ -239,7 +239,7 @@ class ViewResourceRecordServiceTest {
           submissionDetail.getSubmission().getResource(), submissionDetail.getSubmission().getResource()))
           .thenReturn(true);
       when(submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
-          submissionDetail, Set.of(SubmissionDetailStatus.APPROVED)))
+          submissionDetail, Set.of(SubmissionDetailStatus.ACCEPTED)))
           .thenReturn(false);
 
       var result = underTest.canViewSubmissionDetail(
@@ -260,7 +260,7 @@ class ViewResourceRecordServiceTest {
 
     @Test
     void whenIsSameResourceAndWithdrawn_assertFalse() {
-      submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+      submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
       submissionDetail.getSubmission().setWithdrawn(true);
 
       var result = underTest.canViewSubmissionDetail(

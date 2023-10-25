@@ -21,11 +21,11 @@ class SubmissionHistorySelectorUtilTest {
     var selectedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
     var approvedSubmissionDetail = SubmissionDetailTestUtils
         .createNewProspectSubmissionDetail();
-    approvedSubmissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
-    approvedSubmissionDetail.setApprovedTimestamp(
+    approvedSubmissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
+    approvedSubmissionDetail.setAcceptedTimestamp(
         LocalDateTime.of(2012, 11, 11, 10, 10)
             .toInstant(ZoneOffset.UTC));
-    selectedSubmissionDetail.setApprovedTimestamp(Instant.now());
+    selectedSubmissionDetail.setAcceptedTimestamp(Instant.now());
     var queryResult = List.of(
         SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(selectedSubmissionDetail),
         SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(approvedSubmissionDetail)
@@ -33,9 +33,9 @@ class SubmissionHistorySelectorUtilTest {
 
     var expectedMap = Map.of(
         selectedSubmissionDetail.getId().toString(),
-        "Submission 2: Prospect update (Pending approval)",
+        "Submission 2: Prospect update (Pending acceptance)",
         approvedSubmissionDetail.getId().toString(),
-        "Submission 1: Prospect create (Approved: 11 November 2012)"
+        "Submission 1: Prospect create (Accepted: 11 November 2012)"
     );
     assertEquals(expectedMap, SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult));
   }

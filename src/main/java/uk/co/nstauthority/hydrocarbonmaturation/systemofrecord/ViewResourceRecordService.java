@@ -90,12 +90,12 @@ public class ViewResourceRecordService {
   public boolean canViewSubmissionDetail(SubmissionDetail selectedSubmissionDetail, Resource resource) {
     //can only view submitted or approved submissions on the same resource, or linked resource
     //the submission detail to be viewed also has to be the latest approved on submission
-    return selectedSubmissionDetail.getStatus() == SubmissionDetailStatus.APPROVED
+    return selectedSubmissionDetail.getStatus() == SubmissionDetailStatus.ACCEPTED
         && BooleanUtils.isNotTrue(selectedSubmissionDetail.getSubmission().isWithdrawn())
         && resourceLinkService.isResourceLinkedOrSameResource(
             resource, selectedSubmissionDetail.getSubmission().getResource())
         && submissionDetailService.isLatestSubmissionDetailForSubmissionWithStatuses(
-            selectedSubmissionDetail, Set.of(SubmissionDetailStatus.APPROVED));
+            selectedSubmissionDetail, Set.of(SubmissionDetailStatus.ACCEPTED));
   }
 
   public boolean canViewResource(ResourceRecordSummaryView resourceRecord, ServiceUserDetail user) {

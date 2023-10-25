@@ -74,7 +74,7 @@ class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getDryWellDetails_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(DryWellDetailsController.class).getDryWellDetails(submissionDetailId, null)))
                 .with(user(USER)))

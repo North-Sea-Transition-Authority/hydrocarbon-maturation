@@ -76,7 +76,7 @@ class RelatedResourcesControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getRelatedResourcesPage_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(RelatedResourcesController.class).getRelatedResources(submissionDetailId, form)))
                 .with(user(USER)))
@@ -94,7 +94,7 @@ class RelatedResourcesControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getRelatedResourcesPage_andUserIsNotRegulatorAndNotResponsibleParty_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
             get(ReverseRouter.route(on(RelatedResourcesController.class)
@@ -105,7 +105,7 @@ class RelatedResourcesControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void saveRelatedResourcesPage_andUserIsNotRegulatorAndNotResponsibleParty_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
             post(ReverseRouter.route(on(RelatedResourcesController.class)

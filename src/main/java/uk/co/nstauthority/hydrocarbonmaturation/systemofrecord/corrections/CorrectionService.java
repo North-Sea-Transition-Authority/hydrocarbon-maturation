@@ -90,7 +90,7 @@ public class CorrectionService {
       case SUBMISSION_CORRECTION -> createSubmissionCorrectionAndRedirect(
           UUID.fromString(form.getSubmissionIdForCorrectingInformation()),
           user);
-      case APPROVAL_DATE_CHANGE -> updateApprovedDateAndRedirect(
+      case ACCEPTED_DATE_CHANGE -> updateApprovedDateAndRedirect(
           UUID.fromString(form.getSubmissionIdForChangingApprovedDate()),
           form.getApprovalDateChangeDay(),
           form.getApprovalDateChangeMonth(),
@@ -104,7 +104,7 @@ public class CorrectionService {
     return switch (correctionType) {
       case HISTORIC_UPDATE, SUBMISSION_CORRECTION -> ReverseRouter.redirect(on(TaskListController.class)
           .getTaskList(submissionDetail.getId()));
-      case APPROVAL_DATE_CHANGE -> ReverseRouter.redirect(on(ViewResourceRecordController.class)
+      case ACCEPTED_DATE_CHANGE -> ReverseRouter.redirect(on(ViewResourceRecordController.class)
           .showSubmissionSummary(submissionDetail.getSubmission().getResource().getId(), submissionDetail.getId(), null));
       case REMOVE_SUBMISSION -> null;
     };
@@ -118,8 +118,8 @@ public class CorrectionService {
     );
     correctionSubmissionDetail.setSubmittedByWuaId(user.wuaId().intValue());
     correctionSubmissionDetail.setSubmittedTimestamp(previousSubmissionDetail.getSubmittedTimestamp());
-    correctionSubmissionDetail.setApprovedByWuaId(user.wuaId().intValue());
-    correctionSubmissionDetail.setApprovedTimestamp(previousSubmissionDetail.getApprovedTimestamp());
+    correctionSubmissionDetail.setAcceptedByWuaId(user.wuaId().intValue());
+    correctionSubmissionDetail.setAcceptedTimestamp(previousSubmissionDetail.getAcceptedTimestamp());
     setCorrectionDetails(correctionSubmissionDetail, user);
     submissionDetailPersistenceService.saveSubmissionDetail(correctionSubmissionDetail);
     return getCorrectionRedirectForType(CorrectionType.SUBMISSION_CORRECTION, correctionSubmissionDetail);
@@ -137,13 +137,13 @@ public class CorrectionService {
         user
     );
 
-    correctionSubmissionDetail.setStatus(SubmissionDetailStatus.APPROVED);
+    correctionSubmissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
 
     setApprovalDateAndUser(correctionSubmissionDetail, day, month, year, user);
 
     submissionDetailPersistenceService.saveSubmissionDetail(correctionSubmissionDetail);
 
-    return getCorrectionRedirectForType(CorrectionType.APPROVAL_DATE_CHANGE, correctionSubmissionDetail);
+    return getCorrectionRedirectForType(CorrectionType.ACCEPTED_DATE_CHANGE, correctionSubmissionDetail);
   }
 
   @Transactional
@@ -189,8 +189,8 @@ public class CorrectionService {
         .atStartOfDay(ZoneId.systemDefault()).toInstant();
     submissionDetail.setSubmittedTimestamp(approvedDate);
     submissionDetail.setSubmittedByWuaId(serviceUserDetail.wuaId().intValue());
-    submissionDetail.setApprovedTimestamp(approvedDate);
-    submissionDetail.setApprovedByWuaId(serviceUserDetail.wuaId().intValue());
+    submissionDetail.setAcceptedTimestamp(approvedDate);
+    submissionDetail.setAcceptedByWuaId(serviceUserDetail.wuaId().intValue());
   }
 
   private void setCorrectionDetails(SubmissionDetail submissionDetail, ServiceUserDetail serviceUserDetail) {

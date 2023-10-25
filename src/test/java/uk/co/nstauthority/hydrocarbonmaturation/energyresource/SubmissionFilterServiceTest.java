@@ -216,7 +216,7 @@ class SubmissionFilterServiceTest {
         SubmissionType submissionType) {
       var submissionToBeFiltered = SubmissionDetailTestUtils.createSubmissionDetail(
           SubmissionType.PROSPECT_UPDATE);
-      submissionToBeFiltered.setStatus(SubmissionDetailStatus.APPROVED);
+      submissionToBeFiltered.setStatus(SubmissionDetailStatus.ACCEPTED);
       var resourceLink = new ResourceLink();
       var discoveryResource = new Resource();
       discoveryResource.setType(ResourceType.DISCOVERY);

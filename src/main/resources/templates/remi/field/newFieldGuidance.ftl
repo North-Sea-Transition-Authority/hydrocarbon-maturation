@@ -9,7 +9,7 @@
       check with the operator responsible for the field that you have permissions to submit updates on their behalf
     </li>
     <li>
-      check if there is an open submission for the field in draft or awaiting approval as only one open submission is allowed at a time
+      check if there is an open submission for the field in draft or awaiting acceptance as only one open submission is allowed at a time
     </li>
     <li>
       check the status of the field is ${statusString}
