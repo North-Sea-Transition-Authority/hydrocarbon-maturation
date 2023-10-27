@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -27,9 +28,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.LicenceViewTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 
 @ExtendWith(MockitoExtension.class)
@@ -45,6 +50,8 @@ class SearchResourceRecordsServiceTest {
   private SubmissionResourceService submissionResourceService;
   @Mock
   private LicenceQueryService licenceQueryService;
+  @Mock
+  private SubmissionDetailService submissionDetailService;
   @InjectMocks
   private SearchResourceRecordsService underTest;
   @Mock
@@ -96,7 +103,8 @@ class SearchResourceRecordsServiceTest {
           buildAndMockResourceRecordQueryResult(
               "resource-name1", "1/12", 1, "Org A",
               List.of(extantLicenceView1.licenceId(), extantLicenceView2.licenceId()),
-              List.of(extantLicenceView1.licenceRef(), extantLicenceView2.licenceRef()));
+              List.of(extantLicenceView1.licenceRef(), extantLicenceView2.licenceRef()),
+              ResponsibleTeamType.EXPLORATION);
       var notExtantLicenceView2 = LicenceViewTestUtil.Builder()
           .withLicenceId(3)
           .withLicenceRef("F1")
@@ -112,9 +120,17 @@ class SearchResourceRecordsServiceTest {
       var result2 =
           buildAndMockResourceRecordQueryResult("resource-name2", null, 2,
               "Org B", List.of(notExtantLicenceView2.licenceId(), notExtantLicenceView3.licenceId()),
-              List.of(notExtantLicenceView2.licenceRef(), notExtantLicenceView3.licenceRef()));
+              List.of(notExtantLicenceView2.licenceRef(), notExtantLicenceView3.licenceRef()),
+              ResponsibleTeamType.EXPLORATION);
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form))
           .thenReturn(List.of(result1, result2));
+
+      var submissionDetailProspect = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
+      when(submissionDetailService.getSubmissionDetail(result1.getSubmissionDetailId()))
+          .thenReturn(Optional.of(submissionDetailProspect));
+      var submissionDetailRelinquishment = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.RELINQUISHMENT_PROSPECT);
+      when(submissionDetailService.getSubmissionDetail(result2.getSubmissionDetailId()))
+          .thenReturn(Optional.of(submissionDetailRelinquishment));
 
       var results = underTest.getResourceRecordSearchResults(
           form, resourceRecordQueryServiceStrategy);
@@ -133,19 +149,21 @@ class SearchResourceRecordsServiceTest {
               ),
               tuple(
                   "resource-name2",
-                  result2.getResourceType().getDisplayName(),
+                  result2.getResourceType().getDisplayName() + " (Relinquishment)",
                   getActionUrl(result2.getResourceId())
               )
           );
 
       assertThat(results.get(0).modelProperties().getProperties())
           .containsExactly(
+              entry("teamResponsible", ResponsibleTeamType.EXPLORATION.getDisplayName()),
               entry("organisationResponsible", "Org A"),
               entry("licences", List.of("L1", "L2"))
           );
 
       assertThat(results.get(1).modelProperties().getProperties())
           .containsExactly(
+              entry("teamResponsible", ResponsibleTeamType.EXPLORATION.getDisplayName()),
               entry("organisationResponsible", "Org B"),
               entry("licences", List.of("F1", "F2"))
           );
@@ -161,9 +179,11 @@ class SearchResourceRecordsServiceTest {
                                                                             int organisationResponsibleId,
                                                                             String orgName,
                                                                             List<Integer> licencesTheResourceIsOn,
-                                                                            List<String> licencesDisplayed) {
+                                                                            List<String> licencesDisplayed,
+                                                                            ResponsibleTeamType responsibleTeam) {
       when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(organisationResponsibleId)).thenReturn(orgName);
       when(submissionDetailDisplayService.getLicencesForDisplay(licencesTheResourceIsOn)).thenReturn(licencesDisplayed);
+      when(submissionDetailDisplayService.getTeamResponsibleDisplay(responsibleTeam)).thenReturn(responsibleTeam.getDisplayName());
       if (centreOfInterest != null) {
         when(submissionDetailDisplayService
             .getResourceNameAndCentreOfInterestBlockDisplay(resourceName, centreOfInterest))
@@ -180,8 +200,8 @@ class SearchResourceRecordsServiceTest {
           resourceName,
           centreOfInterest,
           organisationResponsibleId,
-          licencesTheResourceIsOn
-      );
+          licencesTheResourceIsOn,
+          responsibleTeam);
     }
 
   }

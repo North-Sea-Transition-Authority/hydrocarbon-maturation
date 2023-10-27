@@ -9,8 +9,12 @@
 
         <@fdsResultList.resultListDataItem>
             <@fdsResultList.resultListDataValue
-              key="Responsible organisation"
-              value=modelProperties["organisationResponsible"]/>
+              key="Responsible team"
+              value=modelProperties["teamResponsible"]/>
+
+            <@fdsResultList.resultListDataValue
+            key="Responsible organisation"
+            value=modelProperties["organisationResponsible"]/>
 
             <#assign licencesDisplay>
               <#if modelProperties["licences"]?has_content>

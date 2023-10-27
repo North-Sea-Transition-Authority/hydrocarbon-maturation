@@ -8,6 +8,9 @@ import org.springframework.util.CollectionUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.EnumUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 
 @Service
 public class SubmissionDetailDisplayService {
@@ -20,6 +23,10 @@ public class SubmissionDetailDisplayService {
                                         LicenceQueryService licenceQueryService) {
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.licenceQueryService = licenceQueryService;
+  }
+
+  public String getTeamResponsibleDisplay(ResponsibleTeamType responsibleTeamType) {
+    return responsibleTeamType.getDisplayName();
   }
 
   public String getOrganisationResponsibleDisplay(Integer organisationResponsibleId) {

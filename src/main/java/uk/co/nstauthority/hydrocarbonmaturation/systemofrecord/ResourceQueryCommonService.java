@@ -55,7 +55,8 @@ class ResourceQueryCommonService {
             RESOURCE_DETAILS.ORGANISATION_ID,
             DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
-                .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()))
+                .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
+            REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM)
         .from(RESOURCES
           .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
               select(SD_2.ID)
@@ -82,7 +83,8 @@ class ResourceQueryCommonService {
             SUBMISSION_DETAILS.ID,
             GENERAL_DETAILS.ID,
             TRAP_PROPERTIES.ID,
-            RESOURCE_DETAILS.ID
+            RESOURCE_DETAILS.ID,
+            REGULATOR_MANAGED_INFORMATION.ID
         )
         .having(aggregateConditionList)
         .orderBy(SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP.desc().nullsLast(),

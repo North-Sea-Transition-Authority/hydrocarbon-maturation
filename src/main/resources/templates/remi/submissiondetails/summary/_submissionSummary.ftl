@@ -87,6 +87,8 @@
         sourceAndSealSummaryView=sourceAndSealSummaryView
         trapPropertiesSummaryView=trapPropertiesSummaryView
         resourceDetailSummaryView=resourceDetailSummaryView
+        oilCaseVolumetricTotalsSummaryView=oilCaseVolumetricTotalsSummaryView!""
+        gasCaseVolumetricTotalsSummaryView=gasCaseVolumetricTotalsSummaryView!""
         reservoirSummaries=reservoirSummaries/>
     </#if>
 </#macro>

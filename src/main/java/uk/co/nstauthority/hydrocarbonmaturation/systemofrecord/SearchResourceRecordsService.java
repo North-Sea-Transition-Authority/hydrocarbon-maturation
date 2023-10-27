@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUt
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 
@@ -26,18 +27,20 @@ class SearchResourceRecordsService {
   private final SubmissionResourceService submissionResourceService;
   private final OrganisationUnitQueryService organisationUnitQueryService;
   private final LicenceQueryService licenceQueryService;
+  private final SubmissionDetailService submissionDetailService;
 
   @Autowired
   SearchResourceRecordsService(SubmissionDetailDisplayService submissionDetailDisplayService,
                                SearchSelectorService searchSelectorService,
                                SubmissionResourceService submissionResourceService,
                                OrganisationUnitQueryService organisationUnitQueryService,
-                               LicenceQueryService licenceQueryService) {
+                               LicenceQueryService licenceQueryService, SubmissionDetailService submissionDetailService) {
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.searchSelectorService = searchSelectorService;
     this.submissionResourceService = submissionResourceService;
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.licenceQueryService = licenceQueryService;
+    this.submissionDetailService = submissionDetailService;
   }
 
   List<ResourceRecordSearchResultItem> getResourceRecordSearchResults(SearchResourceRecordsForm form,
@@ -103,7 +106,7 @@ class SearchResourceRecordsService {
 
     return new ResourceRecordSearchResultItem(
         getHeadingText(resourceRecordQueryResult),
-        resourceRecordQueryResult.getResourceType().getDisplayName(),
+        getCaptionText(resourceRecordQueryResult),
         getActionUrl(resourceRecordQueryResult),
         getResultItemModelProperties(resourceRecordQueryResult));
   }
@@ -115,6 +118,14 @@ class SearchResourceRecordsService {
     );
   }
 
+  private String getCaptionText(ResourceRecordQueryResult resourceRecordQueryResult) {
+    var submissionDetailId = resourceRecordQueryResult.getSubmissionDetailId();
+    return submissionDetailService.getSubmissionDetail(submissionDetailId)
+        .map(submissionDetail -> resourceRecordQueryResult.getResourceType().getDisplayName() +
+            (submissionDetail.isRelinquishment() ? " (Relinquishment)" : ""))
+        .orElse("");
+  }
+
   private String getActionUrl(ResourceRecordQueryResult resourceRecordQueryResult) {
     return ReverseRouter.route(on(ViewResourceRecordController.class)
         .showResourceRecord(resourceRecordQueryResult.getResourceId()));
@@ -123,6 +134,10 @@ class SearchResourceRecordsService {
   private ResourceRecordSearchResultItemModelProperties getResultItemModelProperties(
       ResourceRecordQueryResult resourceRecordQueryResult) {
     return new ResourceRecordSearchResultItemModelProperties()
+        .addProperty("teamResponsible",
+            submissionDetailDisplayService.getTeamResponsibleDisplay(
+                resourceRecordQueryResult.getResponsibleTeam()
+            ))
         .addProperty("organisationResponsible",
             submissionDetailDisplayService.getOrganisationResponsibleDisplay(
                 resourceRecordQueryResult.getOrganisationResponsibleId()))

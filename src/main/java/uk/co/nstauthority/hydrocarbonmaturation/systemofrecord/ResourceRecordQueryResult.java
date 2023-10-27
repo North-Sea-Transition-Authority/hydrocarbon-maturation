@@ -3,6 +3,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 import java.util.List;
 import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 
 class ResourceRecordQueryResult {
 
@@ -13,6 +15,7 @@ class ResourceRecordQueryResult {
   private final String centreOfInterestQuadBlock;
   private final Integer organisationResponsibleId;
   private final List<Integer> licencesTheResourceIsOn;
+  private final ResponsibleTeamType responsibleTeam;
 
   ResourceRecordQueryResult(UUID resourceId,
                             UUID submissionDetailId,
@@ -20,7 +23,8 @@ class ResourceRecordQueryResult {
                             String resourceName,
                             String centreOfInterestQuadBlock,
                             Integer organisationResponsibleId,
-                            List<Integer> licencesTheResourceIsOn) {
+                            List<Integer> licencesTheResourceIsOn,
+                            ResponsibleTeamType responsibleTeam) {
     this.resourceId = resourceId;
     this.submissionDetailId = submissionDetailId;
     this.resourceType = ResourceType.valueOf(resourceType);
@@ -28,6 +32,7 @@ class ResourceRecordQueryResult {
     this.centreOfInterestQuadBlock = centreOfInterestQuadBlock;
     this.organisationResponsibleId = organisationResponsibleId;
     this.licencesTheResourceIsOn = licencesTheResourceIsOn;
+    this.responsibleTeam = responsibleTeam;
   }
 
   public UUID getResourceId() {
@@ -56,5 +61,9 @@ class ResourceRecordQueryResult {
 
   List<Integer> getLicencesTheResourceIsOn() {
     return licencesTheResourceIsOn;
+  }
+
+  public ResponsibleTeamType getResponsibleTeam() {
+    return responsibleTeam;
   }
 }
