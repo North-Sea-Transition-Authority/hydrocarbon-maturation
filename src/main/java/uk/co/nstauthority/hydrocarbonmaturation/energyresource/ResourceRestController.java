@@ -67,10 +67,11 @@ public class ResourceRestController {
   }
 
   @GetMapping("/resources")
-  public RestSearchResult searchResources(@RequestParam("term") String searchTerm) {
+  public RestSearchResult searchResources(@RequestParam("term") String searchTerm,
+                                          ServiceUserDetail user) {
     return searchSelectorService.search(
         searchTerm,
-        submissionQueryService::getLatestResourceSubmissionsByName
+        submissionQueryService.getLatestResourceSubmissionsByName(searchTerm, user)
     );
   }
 

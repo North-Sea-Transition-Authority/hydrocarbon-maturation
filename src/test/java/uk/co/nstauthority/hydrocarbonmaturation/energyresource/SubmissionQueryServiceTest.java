@@ -18,6 +18,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -27,9 +29,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionReso
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.InternalTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionQueryServiceTest {
+
+  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
   @Mock
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
@@ -57,6 +63,12 @@ class SubmissionQueryServiceTest {
 
   @Mock
   private ResourceLinkService resourceLinkService;
+
+  @Mock
+  private IndustryTeamService industryTeamService;
+
+  @Mock
+  private InternalTeamService internalTeamService;
 
   @InjectMocks
   private SubmissionQueryService submissionQueryService;
@@ -312,8 +324,12 @@ class SubmissionQueryServiceTest {
           .thenReturn(latestApprovedDiscoveryResourceDetail.getResourceName());
       when(submissionResourceService.getResourceDisplayName(latestApprovedProspectResourceDetail))
           .thenReturn(latestApprovedProspectResourceDetail.getResourceName());
+      when(internalTeamService.isRegulatorOrAreaTeamUser())
+          .thenReturn(false);
+      when(industryTeamService.getOrganisationUnitIdsForUser(USER))
+          .thenReturn(List.of(latestApprovedDiscoveryResourceDetail.getOrganisationId()));
 
-      var result = submissionQueryService.getLatestResourceSubmissionsByName(searchTerm);
+      var result = submissionQueryService.getLatestResourceSubmissionsByName(searchTerm, USER);
 
       assertThat(result)
           .extracting(ResourceView::getSelectionId, ResourceView::getSelectionText)
@@ -346,14 +362,86 @@ class SubmissionQueryServiceTest {
           .thenReturn(latestApprovedDiscoveryResourceDetail);
       when(submissionResourceService.getResourceDisplayName(latestApprovedDiscoveryResourceDetail))
           .thenReturn(latestApprovedDiscoveryResourceDetail.getResourceName());
+      when(internalTeamService.isRegulatorOrAreaTeamUser())
+          .thenReturn(false);
+      when(industryTeamService.getOrganisationUnitIdsForUser(USER))
+          .thenReturn(List.of(latestApprovedDiscoveryResourceDetail.getOrganisationId()));
 
-      var result = submissionQueryService.getLatestResourceSubmissionsByName(searchTerm);
+      var result = submissionQueryService.getLatestResourceSubmissionsByName(searchTerm, USER);
 
       assertThat(result)
           .extracting(ResourceView::getSelectionId, ResourceView::getSelectionText)
           .containsExactly(
               tuple(latestApprovedDiscoveryResourceDetail.getId().toString(), latestApprovedDiscoveryName)
           );
+    }
+
+    @Test
+    void whenTwoResources_prospectIsLinkedToDiscovery_notInOrganisation_isRegulator_assertOneReturned() {
+      var searchTerm = "resource";
+      var latestApprovedProspectName = "prospect resource";
+      var latestApprovedDiscoveryName = "discovery resource";
+      var latestApprovedProspectResourceDetail = createResourceDetail(
+          latestApprovedProspectName, ResourceType.PROSPECT,
+          SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_PROSPECT);
+      var latestApprovedDiscoveryResourceDetail = createResourceDetail(
+          latestApprovedDiscoveryName, ResourceType.DISCOVERY,
+          SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_DISCOVERY);
+
+      var prospectResource = latestApprovedProspectResourceDetail.getSubmissionDetail().getSubmission().getResource();
+      var discoveryResource = latestApprovedDiscoveryResourceDetail.getSubmissionDetail().getSubmission().getResource();
+      when(submissionResourceService.getResourcesByName(searchTerm)).thenReturn(List.of(prospectResource, discoveryResource));
+      when(resourceLinkService.prospectIsLinkedToDiscovery(prospectResource)).thenReturn(true);
+      when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(discoveryResource))
+          .thenReturn(Optional.of(latestApprovedDiscoveryResourceDetail.getSubmissionDetail()));
+      when(resourceDetailsPersistenceService.getResourceDetailOrThrow(
+          latestApprovedDiscoveryResourceDetail.getSubmissionDetail()))
+          .thenReturn(latestApprovedDiscoveryResourceDetail);
+      when(submissionResourceService.getResourceDisplayName(latestApprovedDiscoveryResourceDetail))
+          .thenReturn(latestApprovedDiscoveryResourceDetail.getResourceName());
+      when(internalTeamService.isRegulatorOrAreaTeamUser())
+          .thenReturn(true);
+
+      var result = submissionQueryService.getLatestResourceSubmissionsByName(searchTerm, USER);
+
+      assertThat(result)
+          .extracting(ResourceView::getSelectionId, ResourceView::getSelectionText)
+          .containsExactly(
+              tuple(latestApprovedDiscoveryResourceDetail.getId().toString(), latestApprovedDiscoveryName)
+          );
+    }
+
+    @Test
+    void whenTwoResources_prospectIsLinkedToDiscovery_notInOrganisation_assertNoneReturned() {
+      var searchTerm = "resource";
+      var latestApprovedProspectName = "prospect resource";
+      var latestApprovedDiscoveryName = "discovery resource";
+      var latestApprovedProspectResourceDetail = createResourceDetail(
+          latestApprovedProspectName, ResourceType.PROSPECT,
+          SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_PROSPECT);
+      var latestApprovedDiscoveryResourceDetail = createResourceDetail(
+          latestApprovedDiscoveryName, ResourceType.DISCOVERY,
+          SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_DISCOVERY);
+
+      var prospectResource = latestApprovedProspectResourceDetail.getSubmissionDetail().getSubmission().getResource();
+      var discoveryResource = latestApprovedDiscoveryResourceDetail.getSubmissionDetail().getSubmission().getResource();
+      when(submissionResourceService.getResourcesByName(searchTerm)).thenReturn(List.of(prospectResource, discoveryResource));
+      when(resourceLinkService.prospectIsLinkedToDiscovery(prospectResource)).thenReturn(true);
+      when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(discoveryResource))
+          .thenReturn(Optional.of(latestApprovedDiscoveryResourceDetail.getSubmissionDetail()));
+      when(resourceDetailsPersistenceService.getResourceDetailOrThrow(
+          latestApprovedDiscoveryResourceDetail.getSubmissionDetail()))
+          .thenReturn(latestApprovedDiscoveryResourceDetail);
+      when(internalTeamService.isRegulatorOrAreaTeamUser())
+          .thenReturn(false);
+      when(industryTeamService.getOrganisationUnitIdsForUser(USER))
+          .thenReturn(List.of());
+
+      var result = submissionQueryService.getLatestResourceSubmissionsByName(searchTerm, USER);
+
+      assertThat(result)
+          .extracting(ResourceView::getSelectionId, ResourceView::getSelectionText)
+          .isEmpty();
     }
   }
 

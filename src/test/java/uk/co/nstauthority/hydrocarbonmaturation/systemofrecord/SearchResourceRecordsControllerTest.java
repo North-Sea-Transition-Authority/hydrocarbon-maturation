@@ -165,7 +165,7 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
                 .clearSearchResourceRecordFilter(null, null))),
             entry("resourceRecordSearchResultItems", Collections.emptyList()),
             entry("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
-                .searchResources(null))),
+                .searchResources(null, null))),
             entry("resourceName", Map.of()),
             entry("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class)
                 .searchOrganisationUnits(null))),
