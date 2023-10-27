@@ -109,7 +109,7 @@
         </#if>
       <#else>
         <@fdsInsetText.insetText>
-          To search, add some filters and click the 'Filter' button.
+          To search, add some filters and click the 'Filter results' button.
         </@fdsInsetText.insetText>
       </#if>
 
