@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
@@ -39,10 +40,10 @@ class SourceAndSealPersistenceServiceTest {
   void saveSourceAndSealDetails_whenGivenAForm_verifyCreatedEntity() {
     var form = new SourceAndSealForm();
     form.setSourceGroupName(GroupName.BRENT);
-    form.setSourceLithology(SourceLithology.OTHER);
+    form.setSourceLithology(StandardLithology.OTHER);
     form.setSourceLithologyOther("other source lithology");
     form.setTopSealGroupName(GroupName.CLAIR);
-    form.setTopSealLithology(TopSealLithology.OTHER);
+    form.setTopSealLithology(StandardLithology.OTHER);
     form.setTopSealLithologyOther("other top seal lithology");
     var sourceAndSealArgumentCaptor = ArgumentCaptor.forClass(SourceAndSeal.class);
 

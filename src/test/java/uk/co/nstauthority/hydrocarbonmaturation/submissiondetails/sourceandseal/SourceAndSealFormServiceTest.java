@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
@@ -132,10 +133,10 @@ class SourceAndSealFormServiceTest {
     var sourceAndSeal = new SourceAndSeal();
     sourceAndSeal.setSubmissionDetail(submissionDetail);
     sourceAndSeal.setSourceGroupName(GroupName.DUNLIN);
-    sourceAndSeal.setSourceLithology(SourceLithology.OTHER);
+    sourceAndSeal.setSourceLithology(StandardLithology.OTHER);
     sourceAndSeal.setSourceLithologyOther("other source lithology");
     sourceAndSeal.setTopSealGroupName(GroupName.CLAIR);
-    sourceAndSeal.setTopSealLithology(TopSealLithology.OTHER);
+    sourceAndSeal.setTopSealLithology(StandardLithology.OTHER);
     sourceAndSeal.setTopSealLithologyOther("other top seal lithology");
 
     return sourceAndSeal;

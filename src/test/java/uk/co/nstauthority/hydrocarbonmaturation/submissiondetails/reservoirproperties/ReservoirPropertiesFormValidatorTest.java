@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -107,7 +108,7 @@ class ReservoirPropertiesFormValidatorTest {
   @Test
   void validate_otherLithologyNotProvided_thenValidationErrors() {
     var form = new ReservoirPropertiesForm();
-    form.setLithology(ReservoirLithology.OTHER);
+    form.setLithology(StandardLithology.OTHER);
     form.setLithologyOther(null);
     var bindingResult = validateReservoirProperties(form, ValidationType.FULL, SubmissionType.CREATE_PROSPECT);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -949,7 +950,7 @@ class ReservoirPropertiesFormValidatorTest {
     form.setFormationName("source formation name");
     form.setAgeStageOrSeries(AgeSeries.LOWER_CARBONIFEROUS);
     form.setGroupName(GroupName.BRENT);
-    form.setLithology(ReservoirLithology.OTHER);
+    form.setLithology(StandardLithology.OTHER);
     form.setLithologyOther("other lithology");
     form.setReservoirConnectivity("connectivity");
     form.setReservoirFacies("facies");

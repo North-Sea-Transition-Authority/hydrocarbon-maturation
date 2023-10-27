@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal;
 
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
@@ -9,12 +10,12 @@ class SourceAndSealForm implements SubmissionForm {
   private String sourceFormationName;
   private AgeSeries sourceAgeStage;
   private GroupName sourceGroupName;
-  private SourceLithology sourceLithology;
+  private StandardLithology sourceLithology;
   private String sourceLithologyOther;
   private String topSealFormationName;
   private AgeSeries topSealAgeStage;
   private GroupName topSealGroupName;
-  private TopSealLithology topSealLithology;
+  private StandardLithology topSealLithology;
   private String topSealLithologyOther;
 
   public String getSourceFormationName() {
@@ -43,11 +44,11 @@ class SourceAndSealForm implements SubmissionForm {
     this.sourceGroupName = sourceGroupName;
   }
 
-  public SourceLithology getSourceLithology() {
+  public StandardLithology getSourceLithology() {
     return sourceLithology;
   }
 
-  public void setSourceLithology(SourceLithology sourceLithology) {
+  public void setSourceLithology(StandardLithology sourceLithology) {
     this.sourceLithology = sourceLithology;
   }
 
@@ -85,12 +86,12 @@ class SourceAndSealForm implements SubmissionForm {
     this.topSealGroupName = topSealGroupName;
   }
 
-  public TopSealLithology getTopSealLithology() {
+  public StandardLithology getTopSealLithology() {
     return topSealLithology;
   }
 
   public void setTopSealLithology(
-      TopSealLithology topSealLithology) {
+      StandardLithology topSealLithology) {
     this.topSealLithology = topSealLithology;
   }
 

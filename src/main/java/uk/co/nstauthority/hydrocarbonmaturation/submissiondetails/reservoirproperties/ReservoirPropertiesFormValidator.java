@@ -8,6 +8,7 @@ import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.EnumUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -193,7 +194,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "formationName", "formationName.required",
             "Enter a formation name");
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lithology", "lithology.required", "Select a lithology");
-    if (reservoirPropertiesForm.getLithology() == ReservoirLithology.OTHER) {
+    if (reservoirPropertiesForm.getLithology() == StandardLithology.OTHER) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "lithologyOther", "lithologyOther.required",
           "Enter an other lithology");
     }

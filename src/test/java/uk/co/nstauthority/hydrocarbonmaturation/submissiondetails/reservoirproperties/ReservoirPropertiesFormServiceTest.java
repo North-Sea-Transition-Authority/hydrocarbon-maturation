@@ -19,6 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -643,7 +644,7 @@ class ReservoirPropertiesFormServiceTest {
   private ReservoirProperty getReservoirProperty(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setReservoirSubmissionDetail(reservoirSubmissionDetail);
-    reservoirProperty.setLithology(ReservoirLithology.OTHER);
+    reservoirProperty.setLithology(StandardLithology.OTHER);
     reservoirProperty.setLithologyOther("other lithology");
     reservoirProperty.setReservoirConnectivity("connectivity");
     reservoirProperty.setReservoirFacies("facies");

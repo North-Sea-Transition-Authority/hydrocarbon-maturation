@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -93,8 +94,8 @@ public class SourceAndSealController {
         )
         .addObject("preSelectedSourceAgeStage", ageSeriesSearchService.getPreSelectedAgeSeries(form.getSourceAgeStage()))
         .addObject("preSelectedTopSealAgeStage", ageSeriesSearchService.getPreSelectedAgeSeries(form.getTopSealAgeStage()))
-        .addObject("topSealLithologyOptions", TopSealLithology.getTopSealLithologyOptions())
-        .addObject("sourceLithologyOptions", SourceLithology.getSourceLithologyOptions());
+        .addObject("topSealLithologyOptions", StandardLithology.getStandardLithologyOptions())
+        .addObject("sourceLithologyOptions", StandardLithology.getStandardLithologyOptions());
 
     return TaskListBreadcrumbUtil
         .addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);

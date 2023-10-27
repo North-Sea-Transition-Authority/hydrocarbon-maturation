@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
@@ -61,15 +62,15 @@ public class SourceAndSealSummaryService {
     return "";
   }
 
-  private String getTopSealLithologyDisplay(TopSealLithology topSealLithology, String otherLithology) {
+  private String getTopSealLithologyDisplay(StandardLithology topSealLithology, String otherLithology) {
     var sealLithology = topSealLithology != null ? topSealLithology.getDisplayName() : "";
     var sealLithologyOther = ObjectUtils.defaultIfNull(otherLithology, "");
-    return topSealLithology == TopSealLithology.OTHER ? sealLithologyOther : sealLithology;
+    return topSealLithology == StandardLithology.OTHER ? sealLithologyOther : sealLithology;
   }
 
-  private String getSourceLithologyDisplay(SourceLithology sourceLithology, String otherLithology) {
+  private String getSourceLithologyDisplay(StandardLithology sourceLithology, String otherLithology) {
     var sourceLithologyName = sourceLithology != null ? sourceLithology.getDisplayName() : "";
     var sourceLithologyOther = ObjectUtils.defaultIfNull(otherLithology, "");
-    return sourceLithology == SourceLithology.OTHER ? sourceLithologyOther : sourceLithologyName;
+    return sourceLithology == StandardLithology.OTHER ? sourceLithologyOther : sourceLithologyName;
   }
 }

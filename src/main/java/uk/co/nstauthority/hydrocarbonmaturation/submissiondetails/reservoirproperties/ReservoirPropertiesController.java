@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -124,7 +125,7 @@ public class ReservoirPropertiesController {
     var modelAndView = new ModelAndView("remi/submissiondetails/reservoirProperties")
         .addObject("form", form)
         .addObject("groupNames", GroupName.getGroupNames())
-        .addObject("lithologyOptions", ReservoirLithology.getReservoirLithologyOptions())
+        .addObject("lithologyOptions", StandardLithology.getStandardLithologyOptions())
         .addObject("formationRestEndpoint",
             SearchSelectorService.route(on(FormationRestController.class).getFormationListWithManualEntry(null))
         )

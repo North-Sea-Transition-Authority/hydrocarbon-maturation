@@ -11,6 +11,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSubmissionDetailChildEntity;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
@@ -49,7 +50,7 @@ class ReservoirProperty implements ReservoirSubmissionDetailChildEntity {
   private GroupName groupName;
 
   @Enumerated(EnumType.STRING)
-  private ReservoirLithology lithology;
+  private StandardLithology lithology;
 
   private String lithologyOther;
 
@@ -144,12 +145,12 @@ class ReservoirProperty implements ReservoirSubmissionDetailChildEntity {
     this.groupName = groupName;
   }
 
-  public ReservoirLithology getLithology() {
+  public StandardLithology getLithology() {
     return lithology;
   }
 
   public void setLithology(
-      ReservoirLithology lithology) {
+      StandardLithology lithology) {
     this.lithology = lithology;
   }
 

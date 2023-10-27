@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
@@ -61,8 +62,8 @@ class SourceAndSealFormValidatorTest {
   @Test
   void validate_whenOtherLithologyNotProvided_thenValidationErrors() {
     var form = getPopulatedSourceAndSealForm();
-    form.setSourceLithology(SourceLithology.OTHER);
-    form.setTopSealLithology(TopSealLithology.OTHER);
+    form.setSourceLithology(StandardLithology.OTHER);
+    form.setTopSealLithology(StandardLithology.OTHER);
     var bindingResult = validateSourceAndSealForm_fullValidation(form);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -101,11 +102,11 @@ class SourceAndSealFormValidatorTest {
     form.setSourceFormationName("source formation name");
     form.setTopSealFormationName("top seal formation name");
     form.setSourceAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
-    form.setSourceLithology(SourceLithology.CLAYSTONE);
+    form.setSourceLithology(StandardLithology.COAL);
     form.setTopSealAgeStage(AgeSeries.LOWER_CRETACEOUS);
     form.setSourceGroupName(GroupName.BRENT);
     form.setTopSealGroupName(GroupName.CLAIR);
-    form.setTopSealLithology(TopSealLithology.CEMENTED_SANDSTONE);
+    form.setTopSealLithology(StandardLithology.COAL);
     return form;
   }
 }

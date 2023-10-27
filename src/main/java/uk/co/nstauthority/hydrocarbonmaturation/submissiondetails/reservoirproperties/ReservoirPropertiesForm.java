@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
@@ -15,7 +16,7 @@ class ReservoirPropertiesForm implements SubmissionForm {
   private String subUnit;
   private AgeSeries ageStageOrSeries;
   private GroupName groupName;
-  private ReservoirLithology lithology;
+  private StandardLithology lithology;
   private String lithologyOther;
   private ProbabilityDistributionForm averageNetPayThickness = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm grossReservoirThickness = new ProbabilityDistributionForm();
@@ -94,12 +95,12 @@ class ReservoirPropertiesForm implements SubmissionForm {
     this.groupName = groupName;
   }
 
-  public ReservoirLithology getLithology() {
+  public StandardLithology getLithology() {
     return lithology;
   }
 
   public void setLithology(
-      ReservoirLithology lithology) {
+      StandardLithology lithology) {
     this.lithology = lithology;
   }
 

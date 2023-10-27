@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -121,7 +122,7 @@ class ReservoirPropertiesSummaryServiceTest {
   void getReservoirPropertiesSummaryFromReservoirSubmissionDetail_whenProspect_whenMixedCase() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     var reservoirProperty = new ReservoirProperty();
-    reservoirProperty.setLithology(ReservoirLithology.CARBONATE);
+    reservoirProperty.setLithology(StandardLithology.CHALK);
     reservoirProperty.setGroupName(GroupName.CLAIR);
 
     whenGetProbabilityDistributionSummaryCalled(true, ResourceType.PROSPECT, reservoirSubmissionDetail);
@@ -148,7 +149,7 @@ class ReservoirPropertiesSummaryServiceTest {
         .containsExactly(
             SubmissionType.CREATE_PROSPECT,
             GroupName.CLAIR.getDisplayName(),
-            ReservoirLithology.CARBONATE.getDisplayName(),
+            StandardLithology.CHALK.getDisplayName(),
             "",
             "",
             List.of(
@@ -167,7 +168,7 @@ class ReservoirPropertiesSummaryServiceTest {
   void getReservoirPropertiesSummaryFromReservoirSubmissionDetail_whenProspect_reservoirProperty() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     var reservoirProperty = new ReservoirProperty();
-    reservoirProperty.setLithology(ReservoirLithology.CHALK);
+    reservoirProperty.setLithology(StandardLithology.CHALK);
     reservoirProperty.setGroupName(GroupName.BRUCE);
     reservoirProperty.setReservoirFacies("facies");
     reservoirProperty.setReservoirConnectivity("connectivity");
@@ -191,7 +192,7 @@ class ReservoirPropertiesSummaryServiceTest {
         .containsExactly(
             SubmissionType.CREATE_PROSPECT,
             GroupName.BRUCE.getDisplayName(),
-            ReservoirLithology.CHALK.getDisplayName(),
+            StandardLithology.CHALK.getDisplayName(),
             "facies",
             "connectivity",
             List.of(
@@ -208,7 +209,7 @@ class ReservoirPropertiesSummaryServiceTest {
   @Test
   void getReservoirPropertiesSummaryFromReservoirSubmissionDetail_withOtherLithology() {
     var reservoirProperty = new ReservoirProperty();
-    reservoirProperty.setLithology(ReservoirLithology.OTHER);
+    reservoirProperty.setLithology(StandardLithology.OTHER);
     var otherLithology = "Other lithology";
     reservoirProperty.setLithologyOther(otherLithology);
 
@@ -227,7 +228,7 @@ class ReservoirPropertiesSummaryServiceTest {
 
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setGroupName(GroupName.COAL_MEASURES);
-    reservoirProperty.setLithology(ReservoirLithology.CARBONATE);
+    reservoirProperty.setLithology(StandardLithology.CHALK);
     reservoirProperty.setReservoirFacies("facies");
     reservoirProperty.setReservoirConnectivity("connectivity");
 
@@ -251,7 +252,7 @@ class ReservoirPropertiesSummaryServiceTest {
         .containsExactly(
             SubmissionType.POST_DRILL_DRY_HOLE,
             GroupName.COAL_MEASURES.getDisplayName(),
-            ReservoirLithology.CARBONATE.getDisplayName(),
+            StandardLithology.CHALK.getDisplayName(),
             "facies",
             "connectivity",
             List.of(
@@ -280,7 +281,7 @@ class ReservoirPropertiesSummaryServiceTest {
 
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setGroupName(GroupName.DUNLIN);
-    reservoirProperty.setLithology(ReservoirLithology.CHALK);
+    reservoirProperty.setLithology(StandardLithology.CHALK);
     reservoirProperty.setReservoirFacies("facies");
     reservoirProperty.setReservoirConnectivity("connectivity");
     List<ProbabilityDistributionSummaryView> expectedList;
@@ -314,7 +315,7 @@ class ReservoirPropertiesSummaryServiceTest {
         .containsExactly(
             SubmissionType.CREATE_DISCOVERY,
             GroupName.DUNLIN.getDisplayName(),
-            ReservoirLithology.CHALK.getDisplayName(),
+            StandardLithology.CHALK.getDisplayName(),
             "facies",
             "connectivity",
             expectedList,
@@ -333,7 +334,7 @@ class ReservoirPropertiesSummaryServiceTest {
 
     var reservoirProperty = new ReservoirProperty();
     reservoirProperty.setGroupName(GroupName.DUNLIN);
-    reservoirProperty.setLithology(ReservoirLithology.CHALK);
+    reservoirProperty.setLithology(StandardLithology.CHALK);
     reservoirProperty.setReservoirFacies("facies");
     reservoirProperty.setReservoirConnectivity("connectivity");
     List<ProbabilityDistributionSummaryView> expectedList;
@@ -368,7 +369,7 @@ class ReservoirPropertiesSummaryServiceTest {
         .containsExactly(
             SubmissionType.CREATE_DISCOVERY,
             GroupName.DUNLIN.getDisplayName(),
-            ReservoirLithology.CHALK.getDisplayName(),
+            StandardLithology.CHALK.getDisplayName(),
             "facies",
             "connectivity",
             expectedList,
@@ -550,7 +551,7 @@ class ReservoirPropertiesSummaryServiceTest {
 
   @ParameterizedTest
   @EnumSource(
-      value = ReservoirLithology.class,
+      value = StandardLithology.class,
       names = {"OTHER"},
       mode = EnumSource.Mode.EXCLUDE
   )
@@ -560,7 +561,7 @@ class ReservoirPropertiesSummaryServiceTest {
     reservoirProperty.setSubUnit(ReservoirSubUnit.M1);
     reservoirProperty.setAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
     reservoirProperty.setGroupName(GroupName.CHALK);
-    reservoirProperty.setLithology(ReservoirLithology.SANDSTONE);
+    reservoirProperty.setLithology(StandardLithology.SANDSTONE);
     reservoirProperty.setReservoirFacies("Test Facies");
     reservoirProperty.setReservoirConnectivity("Connected");
 
@@ -580,7 +581,7 @@ class ReservoirPropertiesSummaryServiceTest {
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.SUB_UNIT, ReservoirSubUnit.M1.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.AGE_STAGE_OR_SERIES, AgeSeries.LOWER_CARBONIFEROUS.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.GROUP_NAME, GroupName.CHALK.getDisplayName());
-    summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.LITHOLOGY, ReservoirLithology.SANDSTONE.getDisplayName());
+    summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.LITHOLOGY, StandardLithology.SANDSTONE.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.RESERVOIR_FACIES, "Test Facies");
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.RESERVOIR_CONNECTIVITY, "Connected");
 
@@ -631,7 +632,7 @@ class ReservoirPropertiesSummaryServiceTest {
     reservoirProperty.setSubUnit(ReservoirSubUnit.M1);
     reservoirProperty.setAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
     reservoirProperty.setGroupName(GroupName.CHALK);
-    reservoirProperty.setLithology(ReservoirLithology.OTHER);
+    reservoirProperty.setLithology(StandardLithology.OTHER);
     reservoirProperty.setLithologyOther("Something else");
     reservoirProperty.setReservoirFacies("Test Facies");
     reservoirProperty.setReservoirConnectivity("Connected");
@@ -703,7 +704,7 @@ class ReservoirPropertiesSummaryServiceTest {
     reservoirProperty.setSubUnit(ReservoirSubUnit.M1);
     reservoirProperty.setAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
     reservoirProperty.setGroupName(GroupName.CHALK);
-    reservoirProperty.setLithology(ReservoirLithology.SANDSTONE);
+    reservoirProperty.setLithology(StandardLithology.SANDSTONE);
     reservoirProperty.setReservoirFacies("Test Facies");
     reservoirProperty.setReservoirConnectivity("Connected");
 
@@ -723,7 +724,7 @@ class ReservoirPropertiesSummaryServiceTest {
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.SUB_UNIT, ReservoirSubUnit.M1.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.AGE_STAGE_OR_SERIES, AgeSeries.LOWER_CARBONIFEROUS.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.GROUP_NAME, GroupName.CHALK.getDisplayName());
-    summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.LITHOLOGY, ReservoirLithology.SANDSTONE.getDisplayName());
+    summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.LITHOLOGY, StandardLithology.SANDSTONE.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.RESERVOIR_FACIES, "Test Facies");
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.RESERVOIR_CONNECTIVITY, "Connected");
 
@@ -774,7 +775,7 @@ class ReservoirPropertiesSummaryServiceTest {
     reservoirProperty.setSubUnit(ReservoirSubUnit.M1);
     reservoirProperty.setAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
     reservoirProperty.setGroupName(GroupName.CHALK);
-    reservoirProperty.setLithology(ReservoirLithology.SANDSTONE);
+    reservoirProperty.setLithology(StandardLithology.SANDSTONE);
     reservoirProperty.setReservoirFacies("Test Facies");
     reservoirProperty.setReservoirConnectivity("Connected");
 
@@ -794,7 +795,7 @@ class ReservoirPropertiesSummaryServiceTest {
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.SUB_UNIT, ReservoirSubUnit.M1.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.AGE_STAGE_OR_SERIES, AgeSeries.LOWER_CARBONIFEROUS.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.GROUP_NAME, GroupName.CHALK.getDisplayName());
-    summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.LITHOLOGY, ReservoirLithology.SANDSTONE.getDisplayName());
+    summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.LITHOLOGY, StandardLithology.SANDSTONE.getDisplayName());
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.RESERVOIR_FACIES, "Test Facies");
     summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.RESERVOIR_CONNECTIVITY, "Connected");
 

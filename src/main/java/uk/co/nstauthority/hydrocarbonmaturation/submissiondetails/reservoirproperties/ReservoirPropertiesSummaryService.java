@@ -11,6 +11,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
@@ -156,7 +157,7 @@ public class ReservoirPropertiesSummaryService implements SummarySectionService<
               reservoirProperty.getGroupName().getDisplayName());
 
           var lithology = reservoirProperty.getLithology();
-          if (ReservoirLithology.OTHER.equals(lithology)) {
+          if (StandardLithology.OTHER.equals(lithology)) {
             summaryDataView.addKeyValue(LITHOLOGY,
                 reservoirProperty.getLithologyOther());
           } else {
@@ -246,7 +247,7 @@ public class ReservoirPropertiesSummaryService implements SummarySectionService<
   private String getLithologyDisplay(ReservoirProperty reservoirProperty) {
     var lithology = reservoirProperty.getLithology() != null ? reservoirProperty.getLithology().getDisplayName() : "";
     var lithologyOther = ObjectUtils.defaultIfNull(reservoirProperty.getLithologyOther(), "");
-    return reservoirProperty.getLithology() == ReservoirLithology.OTHER ? lithologyOther : lithology;
+    return reservoirProperty.getLithology() == StandardLithology.OTHER ? lithologyOther : lithology;
   }
 
   private void addNetPorosity(SubmissionDetail submissionDetail,

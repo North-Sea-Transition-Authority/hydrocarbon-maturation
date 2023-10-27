@@ -10,6 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
@@ -43,7 +44,7 @@ class SourceAndSeal implements SubmissionDetailChildEntity {
   private GroupName sourceGroupName;
 
   @Enumerated(EnumType.STRING)
-  private SourceLithology sourceLithology;
+  private StandardLithology sourceLithology;
 
   private String sourceLithologyOther;
 
@@ -61,7 +62,7 @@ class SourceAndSeal implements SubmissionDetailChildEntity {
   private GroupName topSealGroupName;
 
   @Enumerated(EnumType.STRING)
-  private TopSealLithology topSealLithology;
+  private StandardLithology topSealLithology;
 
   private String topSealLithologyOther;
 
@@ -124,11 +125,11 @@ class SourceAndSeal implements SubmissionDetailChildEntity {
     this.sourceGroupName = groupName;
   }
 
-  public SourceLithology getSourceLithology() {
+  public StandardLithology getSourceLithology() {
     return sourceLithology;
   }
 
-  public void setSourceLithology(SourceLithology sourceLithology) {
+  public void setSourceLithology(StandardLithology sourceLithology) {
     this.sourceLithology = sourceLithology;
   }
 
@@ -183,12 +184,12 @@ class SourceAndSeal implements SubmissionDetailChildEntity {
     this.topSealGroupName = topSealGroupName;
   }
 
-  public TopSealLithology getTopSealLithology() {
+  public StandardLithology getTopSealLithology() {
     return topSealLithology;
   }
 
   public void setTopSealLithology(
-      TopSealLithology topSealLithology) {
+      StandardLithology topSealLithology) {
     this.topSealLithology = topSealLithology;
   }
 

@@ -32,6 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeriesRestController;
@@ -195,7 +196,7 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
         )
         .containsEntry("preSelectedSourceAgeStage", preSelectedSourceAgeStage)
         .containsEntry("preSelectedTopSealAgeStage", preSelectedTopSealAgeStage)
-        .containsEntry("topSealLithologyOptions", TopSealLithology.getTopSealLithologyOptions())
-        .containsEntry("sourceLithologyOptions", SourceLithology.getSourceLithologyOptions());
+        .containsEntry("topSealLithologyOptions", StandardLithology.getStandardLithologyOptions())
+        .containsEntry("sourceLithologyOptions", StandardLithology.getStandardLithologyOptions());
   }
 }

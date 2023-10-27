@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
@@ -48,7 +49,7 @@ class SourceAndSealFormValidator implements SubmissionValidator {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "sourceLithology", "sourceLithology.required",
         "Enter a source lithology");
 
-    if (sourceAndSealForm.getSourceLithology() == SourceLithology.OTHER) {
+    if (sourceAndSealForm.getSourceLithology() == StandardLithology.OTHER) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "sourceLithologyOther", "sourceLithologyOther.required",
           "Enter other source lithology");
     }
@@ -65,7 +66,7 @@ class SourceAndSealFormValidator implements SubmissionValidator {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "topSealLithology", "topSealLithology.required",
         "Enter a top seal lithology");
 
-    if (sourceAndSealForm.getTopSealLithology() == TopSealLithology.OTHER) {
+    if (sourceAndSealForm.getTopSealLithology() == StandardLithology.OTHER) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "topSealLithologyOther", "topSealLithologyOther.required",
           "Enter other top seal lithology");
     }

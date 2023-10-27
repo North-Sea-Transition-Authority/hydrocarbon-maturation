@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
@@ -50,10 +51,10 @@ class SourceAndSealSummaryServiceTest {
   void getSourceAndSealSummaryFromSubmissionDetail_view() {
     sourceAndSeal.setSourceAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
     sourceAndSeal.setSourceGroupName(GroupName.BRENT);
-    sourceAndSeal.setSourceLithology(SourceLithology.CLAYSTONE);
+    sourceAndSeal.setSourceLithology(StandardLithology.COAL);
     sourceAndSeal.setTopSealAgeStage(AgeSeries.LOWER_DEVONIAN);
     sourceAndSeal.setTopSealGroupName(GroupName.BRUCE);
-    sourceAndSeal.setTopSealLithology(TopSealLithology.CEMENTED_SANDSTONE);
+    sourceAndSeal.setTopSealLithology(StandardLithology.COAL);
 
     when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
         .thenReturn(Optional.of(sourceAndSeal));
@@ -72,10 +73,10 @@ class SourceAndSealSummaryServiceTest {
         .containsExactly(
             AgeSeries.LOWER_CARBONIFEROUS.getDisplayName(),
             GroupName.BRENT.getDisplayName(),
-            SourceLithology.CLAYSTONE.getDisplayName(),
+            StandardLithology.COAL.getDisplayName(),
             AgeSeries.LOWER_DEVONIAN.getDisplayName(),
             GroupName.BRUCE.getDisplayName(),
-            TopSealLithology.CEMENTED_SANDSTONE.getDisplayName()
+            StandardLithology.COAL.getDisplayName()
         );
   }
 
@@ -142,7 +143,7 @@ class SourceAndSealSummaryServiceTest {
   @Test
   void getSourceAndSealSummaryFromSubmissionDetail_otherSealLithologyView() {
     var otherSealLithology = "other";
-    sourceAndSeal.setTopSealLithology(TopSealLithology.OTHER);
+    sourceAndSeal.setTopSealLithology(StandardLithology.OTHER);
     sourceAndSeal.setTopSealLithologyOther(otherSealLithology);
 
     when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
@@ -157,7 +158,7 @@ class SourceAndSealSummaryServiceTest {
   @Test
   void getSourceAndSealSummaryFromSubmissionDetail_otherSourceLithologyView() {
     var otherSourceLithology = "other";
-    sourceAndSeal.setSourceLithology(SourceLithology.OTHER);
+    sourceAndSeal.setSourceLithology(StandardLithology.OTHER);
     sourceAndSeal.setSourceLithologyOther(otherSourceLithology);
 
     when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))

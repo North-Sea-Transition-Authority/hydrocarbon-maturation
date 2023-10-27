@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.EnumUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 
@@ -32,7 +33,7 @@ class SourceAndSealPersistenceService {
     sourceAndSeal.setSourceGroupName(form.getSourceGroupName());
     sourceAndSeal.setSourceLithology(form.getSourceLithology());
     sourceAndSeal.setSourceLithologyOther(
-        form.getSourceLithology() == SourceLithology.OTHER ? form.getSourceLithologyOther() : null
+        form.getSourceLithology() == StandardLithology.OTHER ? form.getSourceLithologyOther() : null
     );
 
     setTopSealFormationName(form, sourceAndSeal);
@@ -41,7 +42,7 @@ class SourceAndSealPersistenceService {
     sourceAndSeal.setTopSealGroupName(form.getTopSealGroupName());
     sourceAndSeal.setTopSealLithology(form.getTopSealLithology());
     sourceAndSeal.setTopSealLithologyOther(
-        form.getTopSealLithology() == TopSealLithology.OTHER ? form.getTopSealLithologyOther() : null
+        form.getTopSealLithology() == StandardLithology.OTHER ? form.getTopSealLithologyOther() : null
     );
 
     sourceAndSealRepository.save(sourceAndSeal);

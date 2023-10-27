@@ -10,6 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.EnumUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
@@ -42,7 +43,7 @@ class ReservoirPropertiesPersistenceService {
     reservoirProperty.setGroupName(form.getGroupName());
     reservoirProperty.setLithology(form.getLithology());
     reservoirProperty.setLithologyOther(
-        form.getLithology() == ReservoirLithology.OTHER ? form.getLithologyOther() : null
+        form.getLithology() == StandardLithology.OTHER ? form.getLithologyOther() : null
     );
 
     if (submissionDetail.isDryWellOrDiscoverySubmission() || submissionDetail.isFieldSubmission()) {
