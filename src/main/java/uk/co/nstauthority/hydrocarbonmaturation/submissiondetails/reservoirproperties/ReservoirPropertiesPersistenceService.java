@@ -354,8 +354,10 @@ class ReservoirPropertiesPersistenceService {
     reservoirProperty.setDepositionalSetting(depositionalSetting);
 
     var depositionalEnvironmentFromSetting = form.getDepositionalEnvironmentMap().get(depositionalSetting);
-    var depositionalEnvironment = EnumUtils.getEnumValue(DepositionalEnvironment.class, depositionalEnvironmentFromSetting);
-    reservoirProperty.setDepositionalEnvironment(depositionalEnvironment);
+    if (depositionalEnvironmentFromSetting != null) {
+      var depositionalEnvironment = EnumUtils.getEnumValue(DepositionalEnvironment.class, depositionalEnvironmentFromSetting);
+      reservoirProperty.setDepositionalEnvironment(depositionalEnvironment);
+    }
   }
 
   private void saveBarrierBafflesDetail(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {

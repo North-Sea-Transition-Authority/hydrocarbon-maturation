@@ -1,14 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService.RESERVOIR_PROPERTIES;
-import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService.RESERVOIR_PROPERTIES_DISPLAY_ORDER;
-import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.assertSummarySection;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +29,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService.RESERVOIR_PROPERTIES;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService.RESERVOIR_PROPERTIES_DISPLAY_ORDER;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.assertSummarySection;
 
 @ExtendWith(MockitoExtension.class)
 class ReservoirPropertiesSummaryServiceTest {
@@ -827,6 +828,80 @@ class ReservoirPropertiesSummaryServiceTest {
     // build expected card for probability distributions
     var summaryCard2 = SummaryCard.probabilitySummaryCard(
         probabilityDistributionSummaryViews
+    );
+    var summaryItem2 = SummaryItem.withCard(RESERVOIR_PROPERTIES, summaryCard2);
+
+    // check properties of cards returned
+    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail);
+
+    assertThat(summarySection).isPresent();
+
+    assertSummarySection(summarySection.get(), RESERVOIR_PROPERTIES_DISPLAY_ORDER);
+
+    var summaryItems = List.of(summaryItem1, summaryItem2);
+    assertThat(summarySection.get().summaryItems()).usingRecursiveComparison().isEqualTo(summaryItems);
+  }
+
+  @Test
+  void getSummarySection_nonEmpty_manualInputs() {
+    var reservoirProperty = new ReservoirProperty();
+    reservoirProperty.setFormationNameManual("manual formation");
+    reservoirProperty.setSubUnitManual("manual subunit");
+    reservoirProperty.setAgeStageManual("manual age stage");
+    reservoirProperty.setGroupName(GroupName.CHALK);
+    reservoirProperty.setLithology(ReservoirLithology.OTHER);
+    reservoirProperty.setLithologyOther("other lithology");
+    reservoirProperty.setReservoirFacies("Test Facies");
+    reservoirProperty.setReservoirConnectivity("Connected");
+
+    when(reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail))
+            .thenReturn(Optional.of(reservoirProperty));
+    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
+            .thenReturn(false);
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail))
+            .thenReturn(true);
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+            .thenReturn(false);
+
+    // build expected card for regular fields
+    var summaryDataView = SummaryDataView.newWithKeyValue(
+            ReservoirPropertiesSummaryService.FORMATION_NAME, "manual formation"
+    );
+    summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.SUB_UNIT, "manual subunit");
+    summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.AGE_STAGE_OR_SERIES, "manual age stage");
+    summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.GROUP_NAME, GroupName.CHALK.getDisplayName());
+    summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.LITHOLOGY, "other lithology");
+    summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.RESERVOIR_FACIES, "Test Facies");
+    summaryDataView.addKeyValue(ReservoirPropertiesSummaryService.RESERVOIR_CONNECTIVITY, "Connected");
+
+    var summaryCard1 = SummaryCard.simpleSummaryCard(summaryDataView);
+    var summaryItem1 = SummaryItem.withCard(RESERVOIR_PROPERTIES, summaryCard1);
+
+    // create mock for expected probability distributions for hydrocarbon type
+    var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
+    listOfInstances.add(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY);
+
+    var probabilityDistributionSummaryView1 = ProbabilityDistributionSummaryView.empty("test1");
+    var probabilityDistributionSummaryView2 = ProbabilityDistributionSummaryView.empty("test2");
+    List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews = List.of(
+            probabilityDistributionSummaryView1,
+            probabilityDistributionSummaryView2
+    );
+
+    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+            listOfInstances, submissionDetail, reservoirSubmissionDetail
+    )).thenReturn(probabilityDistributionSummaryViews);
+
+    // build expected card for probability distributions
+    var summaryCard2 = SummaryCard.probabilitySummaryCard(
+            probabilityDistributionSummaryViews
     );
     var summaryItem2 = SummaryItem.withCard(RESERVOIR_PROPERTIES, summaryCard2);
 

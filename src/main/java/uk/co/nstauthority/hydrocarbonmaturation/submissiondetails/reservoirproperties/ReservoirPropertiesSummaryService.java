@@ -147,12 +147,33 @@ public class ReservoirPropertiesSummaryService implements SummarySectionService<
     var summaryDataView = new SummaryDataView(new ArrayList<>());
     reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail).ifPresentOrElse(
         reservoirProperty -> {
-          summaryDataView.addKeyValue(FORMATION_NAME,
-              reservoirProperty.getFormationName().getDisplayName());
-          summaryDataView.addKeyValue(SUB_UNIT,
-              reservoirProperty.getSubUnit().getDisplayName());
-          summaryDataView.addKeyValue(AGE_STAGE_OR_SERIES,
-              reservoirProperty.getAgeStage().getDisplayName());
+          var formationName = reservoirProperty.getFormationName();
+          if (formationName == null) {
+            summaryDataView.addKeyValue(FORMATION_NAME,
+                reservoirProperty.getFormationNameManual());
+          } else {
+            summaryDataView.addKeyValue(FORMATION_NAME,
+                reservoirProperty.getFormationName().getDisplayName());
+          }
+
+          var subUnit = reservoirProperty.getSubUnit();
+          if (subUnit == null) {
+            summaryDataView.addKeyValue(SUB_UNIT,
+                reservoirProperty.getSubUnitManual());
+          } else {
+            summaryDataView.addKeyValue(SUB_UNIT,
+                reservoirProperty.getSubUnit().getDisplayName());
+          }
+
+          var ageStage = reservoirProperty.getAgeStage();
+          if (ageStage == null) {
+            summaryDataView.addKeyValue(AGE_STAGE_OR_SERIES,
+                reservoirProperty.getAgeStageManual());
+          } else {
+            summaryDataView.addKeyValue(AGE_STAGE_OR_SERIES,
+                reservoirProperty.getAgeStage().getDisplayName());
+          }
+
           summaryDataView.addKeyValue(GROUP_NAME,
               reservoirProperty.getGroupName().getDisplayName());
 

@@ -659,4 +659,71 @@ class ReservoirPropertiesPersistenceServiceTest {
 
     return form;
   }
+
+  @Test
+  void saveReservoirProperties_whenAny_field_withNoDepositionalEnvironmentForSetting() {
+    var form = getValidForm();
+    form.setDepositionalSetting(DepositionalSetting.COASTAL.name());
+
+    var fieldSubmissionDetail = SubmissionDetailTestUtils.createFieldSubmissionDetail(SubmissionType.CREATE_CSR);
+    var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
+    var reservoirPropertiesArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
+    var barrierBaffleDetailArgumentCaptor = ArgumentCaptor.forClass(BarrierBaffleDetail.class);
+    when(reservoirPropertiesRepository.findByReservoirSubmissionDetail(fieldReservoirSubmissionDetail))
+        .thenReturn(Optional.empty());
+
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, fieldReservoirSubmissionDetail);
+
+    verifyFieldSubmissionTypesProbabilityTablesSaved(form, fieldReservoirSubmissionDetail);
+
+    verify(reservoirPropertiesRepository, times(1)).save(reservoirPropertiesArgumentCaptor.capture());
+
+    var savedReservoirProperty = reservoirPropertiesArgumentCaptor.getValue();
+
+    // clear saved barrier baffles
+    verify(barrierBaffleDetailRepository, never()).deleteAllByReservoirPropertyAndVerticalLateralType(savedReservoirProperty, VerticalLateralType.LATERAL);
+    verify(barrierBaffleDetailRepository, never()).deleteAllByReservoirPropertyAndVerticalLateralType(savedReservoirProperty, VerticalLateralType.VERTICAL);
+
+    var totalBarrierBaffles = form.getLateralBarriersBafflesDetail().size() + form.getVerticalBarriersBafflesDetail().size();
+    verify(barrierBaffleDetailRepository, times(totalBarrierBaffles))
+        .save(barrierBaffleDetailArgumentCaptor.capture());
+    verifyNoMoreInteractions(barrierBaffleDetailRepository);
+
+    var savedBarrierBaffleDetails = barrierBaffleDetailArgumentCaptor.getAllValues();
+    var expectedBarrierBaffles = Stream.of(form.getLateralBarriersBafflesDetail(), form.getVerticalBarriersBafflesDetail())
+        .flatMap(Collection::stream).toList();
+
+    assertThat(savedBarrierBaffleDetails).extracting(barrierBaffleDetail -> barrierBaffleDetail.getBarrierBaffle().getEnumName())
+        .containsAnyElementsOf(expectedBarrierBaffles);
+
+    var depositionalSetting = EnumUtils.getEnumValue(DepositionalSetting.class, form.getDepositionalSetting());
+
+    assertThat(savedReservoirProperty)
+        .extracting(
+            ReservoirProperty::getReservoirSubmissionDetail,
+            ReservoirProperty::getReservoirFacies,
+            ReservoirProperty::getReservoirConnectivity,
+            ReservoirProperty::getGroupName,
+            ReservoirProperty::getLithology,
+            ReservoirProperty::getLithologyOther,
+            ReservoirProperty::getFracturePressure,
+            ReservoirProperty::getDepositionalSetting,
+            ReservoirProperty::getDepositionalEnvironment,
+            ReservoirProperty::getLateralBarriersBaffles,
+            ReservoirProperty::getVerticalBarriersBaffles
+        )
+        .containsExactly(
+            fieldReservoirSubmissionDetail,
+            form.getReservoirFacies(),
+            form.getReservoirConnectivity(),
+            form.getGroupName(),
+            form.getLithology(),
+            form.getLithologyOther(),
+            form.getFracturePressure().asBigDecimal().get(),
+            depositionalSetting,
+            null,
+            form.getIsLateralBarriersBaffles(),
+            form.getIsVerticalBarriersBaffles()
+        );
+  }
 }
