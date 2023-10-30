@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -96,6 +98,75 @@ class ChanceOfSuccessPersistenceServiceTest {
             form.getRelatedToSpecificWellLocation(),
             form.getWellModifiedPercentage().createBigDecimalOrNull(),
             form.getWellModifiedComments()
+        );
+  }
+
+  @Test
+  void saveChanceOfSuccess_whenMissingPercentages_totalsAreZero() {
+    var form = new ChanceOfSuccessForm();
+    var chanceOfSuccessDetailsForm = new ChanceOfSuccessDetailsForm();
+    var prospectForm = new ProspectSpecificChanceOfSuccessForm();
+    prospectForm.setChanceOfSuccessDetailsForm(chanceOfSuccessDetailsForm);
+    form.setPlayChanceOfSuccess(chanceOfSuccessDetailsForm);
+    form.setProspectSpecificChanceOfSuccess(prospectForm);
+
+    var chanceOfSuccessArgumentCaptor = ArgumentCaptor.forClass(ChanceOfSuccess.class);
+
+    chanceOfSuccessPersistenceService.saveChanceOfSuccess(form, submissionDetail);
+
+    verify(chanceOfSuccessRepository, times(1)).save(chanceOfSuccessArgumentCaptor.capture());
+    var savedChanceOfSuccess = chanceOfSuccessArgumentCaptor.getValue();
+
+    assertThat(savedChanceOfSuccess)
+        .extracting(
+            ChanceOfSuccess::getPlayTotal,
+            ChanceOfSuccess::getProspectSpecificTotal,
+            ChanceOfSuccess::getOverallTotal
+        )
+        .containsExactly(
+            BigDecimal.ZERO,
+            BigDecimal.ZERO,
+            BigDecimal.ZERO
+        );
+  }
+
+  @Test
+  void saveChanceOfSuccess_whenPopulatedPercentages_totalsAreCalculated() {
+    var form = ChanceOfSuccessTestUtil.createChanceOfSuccessForm();
+
+    var playTotal =
+        ((Float.parseFloat(form.getPlayChanceOfSuccess().getSourcePercentage().getDecimalInputValue()) / 100)
+            * (Float.parseFloat(form.getPlayChanceOfSuccess().getReservoirPercentage().getDecimalInputValue()) / 100)
+            * (Float.parseFloat(form.getPlayChanceOfSuccess().getTopSealPercentage().getDecimalInputValue()) / 100))
+            * 100;
+
+    var prospectSpecificTotal =
+        ((Float.parseFloat(form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getSourcePercentage().getDecimalInputValue()) / 100)
+            * (Float.parseFloat(form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getReservoirPercentage().getDecimalInputValue()) / 100)
+            * (Float.parseFloat(form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getTopSealPercentage().getDecimalInputValue()) / 100)
+            * (Float.parseFloat(form.getProspectSpecificChanceOfSuccess().getTrapPercentage().getDecimalInputValue()) / 100)
+            * (Float.parseFloat(form.getProspectSpecificChanceOfSuccess().getMigrationPercentage().getDecimalInputValue()) / 100))
+            * 100;
+
+    var overallTotal = ((playTotal / 100) * (prospectSpecificTotal / 100)) * 100;
+
+    var chanceOfSuccessArgumentCaptor = ArgumentCaptor.forClass(ChanceOfSuccess.class);
+
+    chanceOfSuccessPersistenceService.saveChanceOfSuccess(form, submissionDetail);
+
+    verify(chanceOfSuccessRepository, times(1)).save(chanceOfSuccessArgumentCaptor.capture());
+    var savedChanceOfSuccess = chanceOfSuccessArgumentCaptor.getValue();
+
+    assertThat(savedChanceOfSuccess)
+        .extracting(
+            ChanceOfSuccess::getPlayTotal,
+            ChanceOfSuccess::getProspectSpecificTotal,
+            ChanceOfSuccess::getOverallTotal
+        )
+        .containsExactly(
+            BigDecimal.valueOf(playTotal).setScale(2, RoundingMode.HALF_EVEN),
+            BigDecimal.valueOf(prospectSpecificTotal).setScale(2, RoundingMode.HALF_EVEN),
+            BigDecimal.valueOf(overallTotal).setScale(2, RoundingMode.HALF_EVEN)
         );
   }
 

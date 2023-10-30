@@ -65,15 +65,54 @@ class ChanceOfSuccessFormServiceTest {
     var chanceOfSuccessForm = chanceOfSuccessFormService.getChanceOfSuccessForm(submissionDetail);
 
     assertThat(chanceOfSuccessForm)
-        .hasAllNullFieldsOrPropertiesExcept("playChanceOfSuccess", "prospectSpecificChanceOfSuccess");
-
-    assertThat(chanceOfSuccessForm.getPlayChanceOfSuccess())
-        .isInstanceOf(ChanceOfSuccessDetailsForm.class)
-        .hasAllNullFieldsOrPropertiesExcept("sourcePercentage", "reservoirPercentage", "topSealPercentage");
-
-    assertThat(chanceOfSuccessForm.getProspectSpecificChanceOfSuccess())
-        .isInstanceOf(ProspectSpecificChanceOfSuccessForm.class)
-        .hasAllNullFieldsOrPropertiesExcept("trapPercentage", "migrationPercentage", "chanceOfSuccessDetailsForm");
+        .extracting(
+            form -> form.getPlayChanceOfSuccess().getSourcePercentage().getDecimalInputValue(),
+            form -> form.getPlayChanceOfSuccess().getSourceComments(),
+            form -> form.getPlayChanceOfSuccess().getReservoirPercentage().getDecimalInputValue(),
+            form -> form.getPlayChanceOfSuccess().getReservoirComments(),
+            form -> form.getPlayChanceOfSuccess().getTopSealPercentage().getDecimalInputValue(),
+            form -> form.getPlayChanceOfSuccess().getTopSealComments(),
+            form -> form.getProspectSpecificChanceOfSuccess().getTrapPercentage().getDecimalInputValue(),
+            form -> form.getProspectSpecificChanceOfSuccess().getTrapComments(),
+            form -> form.getProspectSpecificChanceOfSuccess().getMigrationPercentage().getDecimalInputValue(),
+            form -> form.getProspectSpecificChanceOfSuccess().getMigrationComments(),
+            form -> form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getSourcePercentage().getDecimalInputValue(),
+            form -> form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getSourceComments(),
+            form -> form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getReservoirPercentage().getDecimalInputValue(),
+            form -> form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getReservoirComments(),
+            form -> form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getTopSealPercentage().getDecimalInputValue(),
+            form -> form.getProspectSpecificChanceOfSuccess().getChanceOfSuccessDetailsForm().getTopSealComments(),
+            ChanceOfSuccessForm::getGeophysicallyModified,
+            form -> form.getGeophysicallyModifiedPercentage().getDecimalInputValue(),
+            ChanceOfSuccessForm::getGeophysicallyModifiedComments,
+            ChanceOfSuccessForm::getRelatedToSpecificWellLocation,
+            form -> form.getWellModifiedPercentage().getDecimalInputValue(),
+            ChanceOfSuccessForm::getWellModifiedComments
+        )
+        .containsExactly(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
   }
 
   @Test
@@ -144,10 +183,10 @@ class ChanceOfSuccessFormServiceTest {
     assertThat(chanceOfSuccessFormService.getChanceOfSuccessForm(submissionDetail))
         .extracting(
             ChanceOfSuccessForm::getGeophysicallyModified,
-            ChanceOfSuccessForm::getGeophysicallyModifiedPercentage,
+            form -> form.getGeophysicallyModifiedPercentage().getDecimalInputValue(),
             ChanceOfSuccessForm::getGeophysicallyModifiedComments,
             ChanceOfSuccessForm::getRelatedToSpecificWellLocation,
-            ChanceOfSuccessForm::getWellModifiedPercentage,
+            form -> form.getWellModifiedPercentage().getDecimalInputValue(),
             ChanceOfSuccessForm::getWellModifiedComments
         )
         .containsExactly(

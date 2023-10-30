@@ -44,6 +44,8 @@ public class ChanceOfSuccess implements SubmissionDetailChildEntity {
   @Column(name = "play_top_seal_comments")
   private String topSealComments;
 
+  private BigDecimal playTotal;
+
   @Column(name = "prospect_specific_trap_percentage")
   private BigDecimal prospectTrapPercentage;
 
@@ -74,6 +76,10 @@ public class ChanceOfSuccess implements SubmissionDetailChildEntity {
   @Column(name = "prospect_specific_top_seal_comments")
   private String prospectTopSealComments;
 
+  private BigDecimal prospectSpecificTotal;
+
+  private BigDecimal overallTotal;
+
   private Boolean geophysicallyModified;
   private BigDecimal geophysicallyModifiedPercentage;
   private String geophysicallyModifiedComments;
@@ -86,6 +92,7 @@ public class ChanceOfSuccess implements SubmissionDetailChildEntity {
     return id;
   }
 
+  @Override
   public void setId(UUID id) {
     this.id = id;
   }
@@ -94,6 +101,7 @@ public class ChanceOfSuccess implements SubmissionDetailChildEntity {
     return submissionDetail;
   }
 
+  @Override
   public void setSubmissionDetail(SubmissionDetail submissionDetail) {
     this.submissionDetail = submissionDetail;
   }
@@ -146,36 +154,44 @@ public class ChanceOfSuccess implements SubmissionDetailChildEntity {
     this.topSealComments = topSealComments;
   }
 
+  public BigDecimal getPlayTotal() {
+    return playTotal;
+  }
+
+  public void setPlayTotal(BigDecimal playTotal) {
+    this.playTotal = playTotal;
+  }
+
   public BigDecimal getProspectTrapPercentage() {
     return prospectTrapPercentage;
   }
 
-  public void setProspectTrapPercentage(BigDecimal trapPercentage) {
-    this.prospectTrapPercentage = trapPercentage;
+  public void setProspectTrapPercentage(BigDecimal prospectTrapPercentage) {
+    this.prospectTrapPercentage = prospectTrapPercentage;
   }
 
   public String getProspectTrapComments() {
     return prospectTrapComments;
   }
 
-  public void setProspectTrapComments(String trapComments) {
-    this.prospectTrapComments = trapComments;
+  public void setProspectTrapComments(String prospectTrapComments) {
+    this.prospectTrapComments = prospectTrapComments;
   }
 
   public BigDecimal getProspectMigrationPercentage() {
     return prospectMigrationPercentage;
   }
 
-  public void setProspectMigrationPercentage(BigDecimal migrationPercentage) {
-    this.prospectMigrationPercentage = migrationPercentage;
+  public void setProspectMigrationPercentage(BigDecimal prospectMigrationPercentage) {
+    this.prospectMigrationPercentage = prospectMigrationPercentage;
   }
 
   public String getProspectMigrationComments() {
     return prospectMigrationComments;
   }
 
-  public void setProspectMigrationComments(String migrationComments) {
-    this.prospectMigrationComments = migrationComments;
+  public void setProspectMigrationComments(String prospectMigrationComments) {
+    this.prospectMigrationComments = prospectMigrationComments;
   }
 
   public BigDecimal getProspectSourcePercentage() {
@@ -224,6 +240,22 @@ public class ChanceOfSuccess implements SubmissionDetailChildEntity {
 
   public void setProspectTopSealComments(String prospectTopSealComments) {
     this.prospectTopSealComments = prospectTopSealComments;
+  }
+
+  public BigDecimal getProspectSpecificTotal() {
+    return prospectSpecificTotal;
+  }
+
+  public void setProspectSpecificTotal(BigDecimal prospectSpecificTotal) {
+    this.prospectSpecificTotal = prospectSpecificTotal;
+  }
+
+  public BigDecimal getOverallTotal() {
+    return overallTotal;
+  }
+
+  public void setOverallTotal(BigDecimal overallTotal) {
+    this.overallTotal = overallTotal;
   }
 
   public Boolean getGeophysicallyModified() {

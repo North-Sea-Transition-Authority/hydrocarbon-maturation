@@ -22,7 +22,7 @@
       ${chanceOfSuccessValues.playTopSealComments()}
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Total play chance of success">
-      ${chanceOfSuccessValues.totalPlayChanceOfSucces()}
+      ${chanceOfSuccessValues.totalPlayChanceOfSuccess()}
     </@fdsSummaryList.summaryListRowNoAction>
   </@fdsSummaryList.summaryListCard>
 

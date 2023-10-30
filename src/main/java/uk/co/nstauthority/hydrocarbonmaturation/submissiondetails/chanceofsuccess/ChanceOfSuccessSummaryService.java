@@ -1,7 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -37,18 +35,8 @@ public class ChanceOfSuccessSummaryService {
     var playTopSealComments = chanceOfSuccess.getTopSealComments() != null
         ?  chanceOfSuccess.getTopSealComments() : "";
 
-    var totalPlayChanceOfSuccess = "";
-    BigDecimal totalPlayChanceOfSuccessDecimal = BigDecimal.ZERO;
-
-    if (chanceOfSuccess.getSourcePercentage() != null
-        && chanceOfSuccess.getReservoirPercentage() != null
-        && chanceOfSuccess.getTopSealPercentage() != null) {
-      totalPlayChanceOfSuccessDecimal = chanceOfSuccess.getSourcePercentage().divide(BigDecimal.valueOf(100))
-          .multiply(chanceOfSuccess.getReservoirPercentage().divide(BigDecimal.valueOf(100)))
-          .multiply(chanceOfSuccess.getTopSealPercentage().divide(BigDecimal.valueOf(100)));
-      totalPlayChanceOfSuccess = totalPlayChanceOfSuccessDecimal.multiply(BigDecimal.valueOf(100))
-          .setScale(2, RoundingMode.HALF_EVEN) + "%";
-    }
+    var totalPlayChanceOfSuccess = chanceOfSuccess.getPlayTotal() != null
+        ? chanceOfSuccess.getPlayTotal().toString() + "%" : "";
 
     var prospectSpecificSourcePercentage = chanceOfSuccess.getProspectSourcePercentage() != null
         ? chanceOfSuccess.getProspectSourcePercentage().toString() + "%" : "";
@@ -71,31 +59,11 @@ public class ChanceOfSuccessSummaryService {
     var prospectSpecificMigrationComments = chanceOfSuccess.getProspectMigrationComments() != null
         ? chanceOfSuccess.getProspectMigrationComments() : "";
 
-    var prospectSpecificChance = "";
-    BigDecimal prospectSpecificChanceDecimal = BigDecimal.ZERO;
+    var prospectSpecificChance = chanceOfSuccess.getProspectSpecificTotal() != null
+        ? chanceOfSuccess.getProspectSpecificTotal().toString() + "%" : "";
 
-    if (chanceOfSuccess.getProspectSourcePercentage() != null
-        && chanceOfSuccess.getProspectReservoirPercentage() != null
-        && chanceOfSuccess.getProspectTopSealPercentage() != null
-        && chanceOfSuccess.getProspectTrapPercentage() != null
-        && chanceOfSuccess.getProspectMigrationPercentage() != null) {
-      prospectSpecificChanceDecimal = chanceOfSuccess.getProspectSourcePercentage().divide(BigDecimal.valueOf(100))
-          .multiply(chanceOfSuccess.getProspectReservoirPercentage().divide(BigDecimal.valueOf(100)))
-          .multiply(chanceOfSuccess.getProspectTopSealPercentage().divide(BigDecimal.valueOf(100)))
-          .multiply(chanceOfSuccess.getProspectTrapPercentage().divide(BigDecimal.valueOf(100)))
-          .multiply(chanceOfSuccess.getProspectMigrationPercentage().divide(BigDecimal.valueOf(100)));
-
-      prospectSpecificChance = prospectSpecificChanceDecimal
-          .multiply(BigDecimal.valueOf(100))
-          .setScale(2, RoundingMode.HALF_EVEN) + "%";
-    }
-
-    var overallChanceOfSuccess = "";
-    if (!prospectSpecificChance.isEmpty() && !totalPlayChanceOfSuccess.isEmpty()) {
-      overallChanceOfSuccess = prospectSpecificChanceDecimal.multiply(totalPlayChanceOfSuccessDecimal)
-          .multiply(BigDecimal.valueOf(100))
-          .setScale(2, RoundingMode.HALF_EVEN) + "%";
-    }
+    var overallChanceOfSuccess = chanceOfSuccess.getOverallTotal() != null
+        ? chanceOfSuccess.getOverallTotal() + "%" : "";
 
     var geophysicallyModified = chanceOfSuccess.getGeophysicallyModified() != null
         ? BooleanUtil.yesNoFromBoolean(chanceOfSuccess.getGeophysicallyModified()) : "";

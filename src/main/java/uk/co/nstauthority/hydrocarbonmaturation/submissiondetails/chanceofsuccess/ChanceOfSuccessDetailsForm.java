@@ -4,11 +4,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 
 public class ChanceOfSuccessDetailsForm {
 
-  private DecimalInput sourcePercentage;
+  private DecimalInput sourcePercentage = new DecimalInput();
   private String sourceComments;
-  private DecimalInput reservoirPercentage;
+  private DecimalInput reservoirPercentage = new DecimalInput();
   private String reservoirComments;
-  private DecimalInput topSealPercentage;
+  private DecimalInput topSealPercentage = new DecimalInput();
   private String topSealComments;
 
   public DecimalInput getSourcePercentage() {

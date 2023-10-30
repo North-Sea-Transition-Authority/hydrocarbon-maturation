@@ -8,10 +8,10 @@ class ChanceOfSuccessForm implements SubmissionForm {
   private ChanceOfSuccessDetailsForm playChanceOfSuccess;
   private ProspectSpecificChanceOfSuccessForm prospectSpecificChanceOfSuccess;
   private Boolean geophysicallyModified;
-  private DecimalInput geophysicallyModifiedPercentage;
+  private DecimalInput geophysicallyModifiedPercentage = new DecimalInput();
   private String geophysicallyModifiedComments;
   private Boolean relatedToSpecificWellLocation;
-  private DecimalInput wellModifiedPercentage;
+  private DecimalInput wellModifiedPercentage = new DecimalInput();
   private String wellModifiedComments;
 
   public ChanceOfSuccessDetailsForm getPlayChanceOfSuccess() {

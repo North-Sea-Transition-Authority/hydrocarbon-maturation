@@ -45,6 +45,7 @@ class ChanceOfSuccessSummaryServiceTest {
     chanceOfSuccess.setTopSealComments("comment");
     chanceOfSuccess.setReservoirPercentage(BigDecimal.valueOf(5.0));
     chanceOfSuccess.setReservoirComments("comment");
+    chanceOfSuccess.setPlayTotal(BigDecimal.valueOf(5.0));
     chanceOfSuccess.setProspectSourcePercentage(BigDecimal.valueOf(5.0));
     chanceOfSuccess.setProspectSourceComments("comment");
     chanceOfSuccess.setProspectReservoirPercentage(BigDecimal.valueOf(5.0));
@@ -55,6 +56,8 @@ class ChanceOfSuccessSummaryServiceTest {
     chanceOfSuccess.setProspectTrapComments("comment");
     chanceOfSuccess.setProspectMigrationPercentage(BigDecimal.valueOf(5.0));
     chanceOfSuccess.setProspectMigrationComments("comment");
+    chanceOfSuccess.setProspectSpecificTotal(BigDecimal.valueOf(10.10));
+    chanceOfSuccess.setOverallTotal(BigDecimal.valueOf(90.99));
     chanceOfSuccess.setRelatedToSpecificWellLocation(true);
     chanceOfSuccess.setWellModifiedPercentage(BigDecimal.valueOf(5.0));
     chanceOfSuccess.setWellModifiedComments("comment");
@@ -64,6 +67,13 @@ class ChanceOfSuccessSummaryServiceTest {
     var view = chanceOfSuccessSummaryService.getChanceOfSuccessSummaryFromSubmissionDetail(submissionDetail);
     assertThat(view)
         .extracting(
+            ChanceOfSuccessSummaryView::playSourcePercentage,
+            ChanceOfSuccessSummaryView::playSourceComments,
+            ChanceOfSuccessSummaryView::playReservoirPercentage,
+            ChanceOfSuccessSummaryView::playReservoirComments,
+            ChanceOfSuccessSummaryView::playTopSealPercentage,
+            ChanceOfSuccessSummaryView::playTopSealComments,
+            ChanceOfSuccessSummaryView::totalPlayChanceOfSuccess,
             ChanceOfSuccessSummaryView::prospectSpecificReservoirPercentage,
             ChanceOfSuccessSummaryView::prospectSpecificReservoirComments,
             ChanceOfSuccessSummaryView::prospectSpecificTopSealPercentage,
@@ -72,19 +82,22 @@ class ChanceOfSuccessSummaryServiceTest {
             ChanceOfSuccessSummaryView::prospectSpecificTrapComments,
             ChanceOfSuccessSummaryView::prospectSpecificMigrationPercentage,
             ChanceOfSuccessSummaryView::prospectSpecificMigrationComments,
+            ChanceOfSuccessSummaryView::totalProspectSpecificChance,
+            ChanceOfSuccessSummaryView::overallChanceOfSuccess,
             ChanceOfSuccessSummaryView::geophysicallyModified,
             ChanceOfSuccessSummaryView::geophysicallyModifiedPercentage,
             ChanceOfSuccessSummaryView::geophysicallyModifiedComments,
             ChanceOfSuccessSummaryView::specificWellLocation,
             ChanceOfSuccessSummaryView::wellModifiedPercentage,
-            ChanceOfSuccessSummaryView::wellModifiedComments,
-            ChanceOfSuccessSummaryView::playSourcePercentage,
-            ChanceOfSuccessSummaryView::playSourceComments,
-            ChanceOfSuccessSummaryView::playReservoirPercentage,
-            ChanceOfSuccessSummaryView::playReservoirComments,
-            ChanceOfSuccessSummaryView::playTopSealPercentage,
-            ChanceOfSuccessSummaryView::playTopSealComments)
+            ChanceOfSuccessSummaryView::wellModifiedComments)
         .containsExactly(
+            chanceOfSuccess.getSourcePercentage().toString() + "%",
+            chanceOfSuccess.getSourceComments(),
+            chanceOfSuccess.getReservoirPercentage().toString() + "%",
+            chanceOfSuccess.getReservoirComments(),
+            chanceOfSuccess.getTopSealPercentage().toString() + "%",
+            chanceOfSuccess.getTopSealComments(),
+            chanceOfSuccess.getPlayTotal().toString() + "%",
             chanceOfSuccess.getProspectReservoirPercentage().toString() + "%",
             chanceOfSuccess.getProspectReservoirComments(),
             chanceOfSuccess.getProspectTopSealPercentage().toString() + "%",
@@ -93,18 +106,14 @@ class ChanceOfSuccessSummaryServiceTest {
             chanceOfSuccess.getProspectTrapComments(),
             chanceOfSuccess.getProspectMigrationPercentage().toString() + "%",
             chanceOfSuccess.getProspectMigrationComments(),
+            chanceOfSuccess.getProspectSpecificTotal().toString() + "%",
+            chanceOfSuccess.getOverallTotal().toString() + "%",
             "Yes",
             chanceOfSuccess.getGeophysicallyModifiedPercentage().toString() + "%",
             chanceOfSuccess.getGeophysicallyModifiedComments(),
             "Yes",
             chanceOfSuccess.getWellModifiedPercentage().toString() + "%",
-            chanceOfSuccess.getWellModifiedComments(),
-            chanceOfSuccess.getSourcePercentage().toString() + "%",
-            chanceOfSuccess.getSourceComments(),
-            chanceOfSuccess.getReservoirPercentage().toString() + "%",
-            chanceOfSuccess.getReservoirComments(),
-            chanceOfSuccess.getTopSealPercentage().toString() + "%",
-            chanceOfSuccess.getTopSealComments()
+            chanceOfSuccess.getWellModifiedComments()
         );
   }
 
@@ -116,6 +125,13 @@ class ChanceOfSuccessSummaryServiceTest {
     var view = chanceOfSuccessSummaryService.getChanceOfSuccessSummaryFromSubmissionDetail(submissionDetail);
     assertThat(view)
         .extracting(
+            ChanceOfSuccessSummaryView::playSourcePercentage,
+            ChanceOfSuccessSummaryView::playSourceComments,
+            ChanceOfSuccessSummaryView::playReservoirPercentage,
+            ChanceOfSuccessSummaryView::playReservoirComments,
+            ChanceOfSuccessSummaryView::playTopSealPercentage,
+            ChanceOfSuccessSummaryView::playTopSealComments,
+            ChanceOfSuccessSummaryView::totalPlayChanceOfSuccess,
             ChanceOfSuccessSummaryView::prospectSpecificReservoirPercentage,
             ChanceOfSuccessSummaryView::prospectSpecificReservoirComments,
             ChanceOfSuccessSummaryView::prospectSpecificTopSealPercentage,
@@ -124,19 +140,18 @@ class ChanceOfSuccessSummaryServiceTest {
             ChanceOfSuccessSummaryView::prospectSpecificTrapComments,
             ChanceOfSuccessSummaryView::prospectSpecificMigrationPercentage,
             ChanceOfSuccessSummaryView::prospectSpecificMigrationComments,
+            ChanceOfSuccessSummaryView::totalProspectSpecificChance,
+            ChanceOfSuccessSummaryView::overallChanceOfSuccess,
             ChanceOfSuccessSummaryView::geophysicallyModified,
             ChanceOfSuccessSummaryView::geophysicallyModifiedPercentage,
             ChanceOfSuccessSummaryView::geophysicallyModifiedComments,
             ChanceOfSuccessSummaryView::specificWellLocation,
             ChanceOfSuccessSummaryView::wellModifiedPercentage,
-            ChanceOfSuccessSummaryView::wellModifiedComments,
-            ChanceOfSuccessSummaryView::playSourcePercentage,
-            ChanceOfSuccessSummaryView::playSourceComments,
-            ChanceOfSuccessSummaryView::playReservoirPercentage,
-            ChanceOfSuccessSummaryView::playReservoirComments,
-            ChanceOfSuccessSummaryView::playTopSealPercentage,
-            ChanceOfSuccessSummaryView::playTopSealComments)
+            ChanceOfSuccessSummaryView::wellModifiedComments)
         .containsExactly(
+            "",
+            "",
+            "",
             "",
             "",
             "",
@@ -168,6 +183,13 @@ class ChanceOfSuccessSummaryServiceTest {
     var view = chanceOfSuccessSummaryService.getChanceOfSuccessSummaryFromSubmissionDetail(submissionDetail);
     assertThat(view)
         .extracting(
+            ChanceOfSuccessSummaryView::playSourcePercentage,
+            ChanceOfSuccessSummaryView::playSourceComments,
+            ChanceOfSuccessSummaryView::playReservoirPercentage,
+            ChanceOfSuccessSummaryView::playReservoirComments,
+            ChanceOfSuccessSummaryView::playTopSealPercentage,
+            ChanceOfSuccessSummaryView::playTopSealComments,
+            ChanceOfSuccessSummaryView::totalPlayChanceOfSuccess,
             ChanceOfSuccessSummaryView::prospectSpecificReservoirPercentage,
             ChanceOfSuccessSummaryView::prospectSpecificReservoirComments,
             ChanceOfSuccessSummaryView::prospectSpecificTopSealPercentage,
@@ -176,19 +198,18 @@ class ChanceOfSuccessSummaryServiceTest {
             ChanceOfSuccessSummaryView::prospectSpecificTrapComments,
             ChanceOfSuccessSummaryView::prospectSpecificMigrationPercentage,
             ChanceOfSuccessSummaryView::prospectSpecificMigrationComments,
+            ChanceOfSuccessSummaryView::totalProspectSpecificChance,
+            ChanceOfSuccessSummaryView::overallChanceOfSuccess,
             ChanceOfSuccessSummaryView::geophysicallyModified,
             ChanceOfSuccessSummaryView::geophysicallyModifiedPercentage,
             ChanceOfSuccessSummaryView::geophysicallyModifiedComments,
             ChanceOfSuccessSummaryView::specificWellLocation,
             ChanceOfSuccessSummaryView::wellModifiedPercentage,
-            ChanceOfSuccessSummaryView::wellModifiedComments,
-            ChanceOfSuccessSummaryView::playSourcePercentage,
-            ChanceOfSuccessSummaryView::playSourceComments,
-            ChanceOfSuccessSummaryView::playReservoirPercentage,
-            ChanceOfSuccessSummaryView::playReservoirComments,
-            ChanceOfSuccessSummaryView::playTopSealPercentage,
-            ChanceOfSuccessSummaryView::playTopSealComments)
+            ChanceOfSuccessSummaryView::wellModifiedComments)
         .containsExactly(
+            "",
+            "",
+            "",
             "",
             "",
             "",

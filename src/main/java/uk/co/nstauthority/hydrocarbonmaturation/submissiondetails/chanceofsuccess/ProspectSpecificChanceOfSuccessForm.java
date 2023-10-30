@@ -5,9 +5,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 public class ProspectSpecificChanceOfSuccessForm {
 
   private ChanceOfSuccessDetailsForm chanceOfSuccessDetailsForm;
-  private DecimalInput trapPercentage;
+  private DecimalInput trapPercentage = new DecimalInput();
   private String trapComments;
-  private DecimalInput migrationPercentage;
+  private DecimalInput migrationPercentage = new DecimalInput();
   private String migrationComments;
 
   public ChanceOfSuccessDetailsForm getChanceOfSuccessDetailsForm() {
