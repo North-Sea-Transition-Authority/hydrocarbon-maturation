@@ -383,10 +383,10 @@ class SubmissionQueryServiceTest {
       var latestApprovedDiscoveryName = "discovery resource";
       var latestApprovedProspectResourceDetail = createResourceDetail(
           latestApprovedProspectName, ResourceType.PROSPECT,
-          SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_PROSPECT);
+          SubmissionDetailStatus.ACCEPTED, SubmissionType.CREATE_PROSPECT);
       var latestApprovedDiscoveryResourceDetail = createResourceDetail(
           latestApprovedDiscoveryName, ResourceType.DISCOVERY,
-          SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_DISCOVERY);
+          SubmissionDetailStatus.ACCEPTED, SubmissionType.CREATE_DISCOVERY);
 
       var prospectResource = latestApprovedProspectResourceDetail.getSubmissionDetail().getSubmission().getResource();
       var discoveryResource = latestApprovedDiscoveryResourceDetail.getSubmissionDetail().getSubmission().getResource();
@@ -418,10 +418,10 @@ class SubmissionQueryServiceTest {
       var latestApprovedDiscoveryName = "discovery resource";
       var latestApprovedProspectResourceDetail = createResourceDetail(
           latestApprovedProspectName, ResourceType.PROSPECT,
-          SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_PROSPECT);
+          SubmissionDetailStatus.ACCEPTED, SubmissionType.CREATE_PROSPECT);
       var latestApprovedDiscoveryResourceDetail = createResourceDetail(
           latestApprovedDiscoveryName, ResourceType.DISCOVERY,
-          SubmissionDetailStatus.APPROVED, SubmissionType.CREATE_DISCOVERY);
+          SubmissionDetailStatus.ACCEPTED, SubmissionType.CREATE_DISCOVERY);
 
       var prospectResource = latestApprovedProspectResourceDetail.getSubmissionDetail().getSubmission().getResource();
       var discoveryResource = latestApprovedDiscoveryResourceDetail.getSubmissionDetail().getSubmission().getResource();

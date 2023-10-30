@@ -1,5 +1,14 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService.RESERVOIR_PROPERTIES;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService.RESERVOIR_PROPERTIES_DISPLAY_ORDER;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.assertSummarySection;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,16 +38,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService.RESERVOIR_PROPERTIES;
-import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSummaryService.RESERVOIR_PROPERTIES_DISPLAY_ORDER;
-import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.assertSummarySection;
 
 @ExtendWith(MockitoExtension.class)
 class ReservoirPropertiesSummaryServiceTest {
@@ -849,7 +848,7 @@ class ReservoirPropertiesSummaryServiceTest {
     reservoirProperty.setSubUnitManual("manual subunit");
     reservoirProperty.setAgeStageManual("manual age stage");
     reservoirProperty.setGroupName(GroupName.CHALK);
-    reservoirProperty.setLithology(ReservoirLithology.OTHER);
+    reservoirProperty.setLithology(StandardLithology.OTHER);
     reservoirProperty.setLithologyOther("other lithology");
     reservoirProperty.setReservoirFacies("Test Facies");
     reservoirProperty.setReservoirConnectivity("Connected");
