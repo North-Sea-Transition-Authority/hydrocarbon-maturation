@@ -108,6 +108,7 @@ flyway {
 	user = 'remi_app'
 	password = 'dev'
 	schemas = ['remi']
+	outOfOrder=true
 }
 
 //Set the url before the build to dynamically set the port

@@ -26,7 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegra
 
 @IntegrationTest
 // Before any test runs, 10 legacy resources are imported (insert_migration_padi_data.sql)
-@Sql(scripts = {"/manualscripts/padimigration/0001_padi_table_create.sql", "/shapefiles/insert_migration_padi_data.sql"}, executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(scripts = {"/manualscripts/padimigration/00010_padi_table_create.sql", "/shapefiles/insert_migration_padi_data.sql"}, executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(scripts = {"/shapefiles/teardown_migration_data.sql"}, executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
 class ShapefileMigrationIntegrationTest {
   private static final String MIGRATION_SHAPEFILES_DIR_LOCATION = ResourceUtils.CLASSPATH_URL_PREFIX + "shapefiles/migration/";

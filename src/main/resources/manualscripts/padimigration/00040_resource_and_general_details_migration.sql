@@ -7,12 +7,14 @@ DECLARE
     well_investment TEXT := 'Well Investment';
     relinquishment TEXT := 'Relinquishment';
     licence_rec RECORD;
+    reservoir_id UUID;
 
 BEGIN
 
     FOR submission_rec IN (
         SELECT
             sd.id,
+            r.type,
             prdh.name_alternative,
             CASE
                 WHEN (
@@ -53,9 +55,29 @@ BEGIN
             END other_info_source,
             CASE WHEN prdh.stage_name = bid THEN prdh.application_ref END licence_app_ref
         FROM remi.submission_details sd
+        JOIN remi.submissions s ON s.id = sd.submission_id
+        JOIN remi.resources r ON r.id = s.resource_id
         JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = sd.legacy_res_data_id
     )
     LOOP
+
+        IF submission_rec.type = 'PROSPECT' THEN
+
+            INSERT INTO remi.reservoirs (id, name)
+            VALUES (
+                gen_random_uuid(),
+                submission_rec.name_alternative
+            ) RETURNING id INTO reservoir_id;
+
+            INSERT INTO remi.reservoir_submission_details (id, reservoir, submission_detail_id, status)
+            VALUES (
+                gen_random_uuid(),
+                reservoir_id,
+                submission_rec.id,
+                'EXTANT'
+            );
+
+        END IF;
 
         INSERT INTO remi.resource_details (
             id,

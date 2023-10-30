@@ -10,9 +10,10 @@ BEGIN
     -- Get oil and gas outputs and apply to either oil or gas hydrocarbon case
     -- as we can't rely on the PaDI hydrocarbon case to be accurate for the information supplied
     FOR oil_and_gas_output_rec IN (
-        SELECT prdvo.*, sd.id sd_id, r.type resource_type
+        SELECT prdvo.*, sd.id sd_id, r.type resource_type, rsd.id rsd_id
         FROM remi.padi_res_data_vol_outputs prdvo
         JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdvo.resdat_id
+        JOIN remi.reservoir_submission_details rsd ON rsd.submission_detail_id = sd.id
         JOIN remi.submissions s ON s.id = sd.submission_id
         JOIN remi.resources r ON r.id = s.resource_id
         JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = sd.legacy_res_data_id
@@ -24,13 +25,11 @@ BEGIN
         -- oil case outputs
         INSERT INTO remi.oil_case_outputs (
             id,
-            submission_detail_id,
-            risked_oil_equivalent_recoverable_mean,
+            reservoir_submission_detail_id,
             has_associated_gas_recoverable_resources
         ) VALUES (
             gen_random_uuid(),
-            oil_and_gas_output_rec.sd_id,
-            NULL, -- is this in PaDI?
+            oil_and_gas_output_rec.rsd_id,
             FALSE -- updated later if required
         );
 
@@ -131,7 +130,7 @@ BEGIN
 
             UPDATE remi.oil_case_outputs
             SET has_associated_gas_recoverable_resources = TRUE
-            WHERE submission_detail_id = oil_and_gas_output_rec.sd_id;
+            WHERE reservoir_submission_detail_id = oil_and_gas_output_rec.rsd_id;
 
             INSERT INTO remi.probability_distributions (
                 id,
@@ -209,11 +208,11 @@ BEGIN
         -- gas case outputs
         INSERT INTO remi.gas_case_outputs (
             id,
-            submission_detail_id,
+            reservoir_submission_detail_id,
             has_associated_condensate_recoverable_resources
         ) VALUES (
             gen_random_uuid(),
-            oil_and_gas_output_rec.sd_id,
+            oil_and_gas_output_rec.rsd_id,
             FALSE -- updated later if required
         );
 
@@ -314,7 +313,7 @@ BEGIN
 
             UPDATE remi.gas_case_outputs
             SET has_associated_condensate_recoverable_resources = TRUE
-            WHERE submission_detail_id = oil_and_gas_output_rec.sd_id;
+            WHERE reservoir_submission_detail_id = oil_and_gas_output_rec.rsd_id;
 
             INSERT INTO remi.probability_distributions (
                 id,
@@ -393,9 +392,10 @@ BEGIN
 
     -- If mixed hydrocarbon case we can simply populate the mixed case output types
     FOR mixed_output_rec IN (
-        SELECT prdvo.*, sd.id sd_id, r.type resource_type
+        SELECT prdvo.*, sd.id sd_id, r.type resource_type, rsd.id rsd_id
         FROM remi.padi_res_data_vol_outputs prdvo
         JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdvo.resdat_id
+        JOIN remi.reservoir_submission_details rsd ON rsd.submission_detail_id = sd.id
         JOIN remi.submissions s ON s.id = sd.submission_id
         JOIN remi.resources r ON r.id = s.resource_id
         JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = sd.legacy_res_data_id
@@ -407,13 +407,11 @@ BEGIN
         -- mixed case outputs
         INSERT INTO remi.mixed_case_outputs (
             id,
-            submission_detail_id,
-            risked_oil_equivalent_recoverable_mean,
+            reservoir_submission_detail_id,
             has_associated_gas_recoverable_resources
         ) VALUES (
              gen_random_uuid(),
              mixed_output_rec.sd_id,
-             NULL, -- is this in PaDI?
              FALSE -- updated later if required
          );
 
@@ -514,7 +512,7 @@ BEGIN
 
             UPDATE remi.mixed_case_outputs
             SET has_associated_gas_recoverable_resources = TRUE
-            WHERE submission_detail_id = mixed_output_rec.sd_id;
+            WHERE reservoir_submission_detail_id = mixed_output_rec.rsd_id;
 
             INSERT INTO remi.probability_distributions (
                 id,
