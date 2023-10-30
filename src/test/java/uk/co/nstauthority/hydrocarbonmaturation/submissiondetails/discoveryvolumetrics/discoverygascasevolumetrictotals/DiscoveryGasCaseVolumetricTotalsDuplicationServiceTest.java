@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotal;
 
 @ExtendWith(MockitoExtension.class)
 class DiscoveryGasCaseVolumetricTotalsDuplicationServiceTest {
@@ -41,12 +43,33 @@ class DiscoveryGasCaseVolumetricTotalsDuplicationServiceTest {
   @Mock
   private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
 
+  @Mock
+  private DiscoveryGasCaseVolumetricTotalsService discoveryGasCaseVolumetricTotalsService;
+
   @InjectMocks
   private DiscoveryGasCaseVolumetricTotalsDuplicationService discoveryGasCaseVolumetricTotalsDuplicationService;
 
   @ParameterizedTest
   @MethodSource("allDiscoverySubmissionTypes")
-  void duplicateReservoirSection_ProbabilityDistributionsExist_DoesDuplicate(SubmissionType submissionType) {
+  void duplicateSection_TotalsExist_DoesDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    var gasCaseVolumetricTotal = mock(GasCaseVolumetricTotal.class);
+    when(discoveryGasCaseVolumetricTotalsService.getGasCaseVolumetricTotal(oldSubmissionDetail))
+        .thenReturn(Optional.of(gasCaseVolumetricTotal));
+
+    discoveryGasCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    var argumentCaptor1 = ArgumentCaptor.forClass(SubmissionDetail.class);
+    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(argumentCaptor1.capture(), eq(gasCaseVolumetricTotal),
+        eq(GasCaseVolumetricTotal.class));
+    assertThat(argumentCaptor1.getValue()).isEqualTo(newSubmissionDetail);
+  }
+
+  @ParameterizedTest
+  @MethodSource("allDiscoverySubmissionTypes")
+  void duplicateSection_ProbabilityDistributionsExist_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
@@ -69,7 +92,7 @@ class DiscoveryGasCaseVolumetricTotalsDuplicationServiceTest {
 
   @ParameterizedTest
   @MethodSource("allDiscoverySubmissionTypes")
-  void duplicateReservoirSection_ProbabilityDistributionsDoNotExist_DoesNotDuplicate(SubmissionType submissionType) {
+  void duplicateSection_ProbabilityDistributionsDoNotExist_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
@@ -83,7 +106,7 @@ class DiscoveryGasCaseVolumetricTotalsDuplicationServiceTest {
   }
 
   @Test
-  void duplicateReservoirSection_SubmissionDetailIsProspect_DoesNotDuplicate() {
+  void duplicateSection_SubmissionDetailIsProspect_DoesNotDuplicate() {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_PROSPECT);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.PROSPECT_UPDATE);
 

@@ -24,16 +24,9 @@ public class MixedCaseOutput implements ReservoirSubmissionDetailChildEntity {
   @JoinColumn(name = "reservoir_submission_detail_id")
   private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
-
   private Boolean hasAssociatedGasRecoverableResources;
 
-  public Boolean getHasAssociatedGasRecoverableResources() {
-    return hasAssociatedGasRecoverableResources;
-  }
-
-  public void setHasAssociatedGasRecoverableResources(Boolean hasAssociatedGasRecoverableResources) {
-    this.hasAssociatedGasRecoverableResources = hasAssociatedGasRecoverableResources;
-  }
+  private Boolean hasAssociatedCondensateRecoverableResources;
 
   public UUID getId() {
     return id;
@@ -49,5 +42,21 @@ public class MixedCaseOutput implements ReservoirSubmissionDetailChildEntity {
 
   public void setReservoirSubmissionDetail(ReservoirSubmissionDetail submissionDetail) {
     this.reservoirSubmissionDetail = submissionDetail;
+  }
+
+  public Boolean getHasAssociatedGasRecoverableResources() {
+    return hasAssociatedGasRecoverableResources;
+  }
+
+  public void setHasAssociatedGasRecoverableResources(Boolean hasAssociatedGasRecoverableResources) {
+    this.hasAssociatedGasRecoverableResources = hasAssociatedGasRecoverableResources;
+  }
+
+  public Boolean getHasAssociatedCondensateRecoverableResources() {
+    return hasAssociatedCondensateRecoverableResources;
+  }
+
+  public void setHasAssociatedCondensateRecoverableResources(Boolean hasAssociatedCondensateRecoverableResources) {
+    this.hasAssociatedCondensateRecoverableResources = hasAssociatedCondensateRecoverableResources;
   }
 }

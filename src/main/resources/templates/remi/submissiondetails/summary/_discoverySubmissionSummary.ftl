@@ -21,6 +21,7 @@
 <#import '../../summarylistcards/resourceDetailsSummaryCard.ftl' as resourceDetailSummary>
 <#import '../../summarylistcards/discoveryOilCaseVolumetricTotalsSummaryCard.ftl' as discoveryOilCaseVolumetricTotalsSummary>
 <#import '../../summarylistcards/discoveryGasCaseVolumetricTotalsSummaryCard.ftl' as discoveryGasCaseVolumetricTotalsSummary>
+<#import '../../summarylistcards/discoveryCombinedCaseVolumetricTotalsSummaryCard.ftl' as discoveryCombinedCaseVolumetricTotalsSummary>
 <#import '../../summary/_reservoirSummary.ftl' as reservoirSummary>
 
 <#-- @ftlvariable name="accordionId" type="String" -->
@@ -70,34 +71,11 @@
             <#if isGasCaseOnly>
                 <@discoveryGasCaseVolumetricTotalsSummary.gasCaseVolumetricTotalsSummaryCard gasCaseVolumetricTotals=gasCaseVolumetricTotalsSummaryView/>
             </#if>
+            <#if isCombinedCase>
+                <@discoveryCombinedCaseVolumetricTotalsSummary.combinedCaseVolumetricTotalsSummaryCard combinedCaseVolumetricTotals=combinedCaseVolumetricTotalsSummaryView/>
+            </#if>
         </@fdsAccordion.accordionSection>
     </#if>
     <@reservoirSummary.reservoirSummary reservoirSummaries/>
-<#--    <@fdsAccordion.accordionSection sectionHeading="Volumetrics" summaryText="Oil case, gas case, and mixed case volumetric parameters and outputs">-->
-<#--        <#if oilOnlyDiscovery>-->
-<#--            <@oilCaseVolumetricsSummary.oilCaseVolumetricsSummary oilCaseVolumetricsValues=oilCaseVolumetricsSummaryView/>-->
-<#--            <@oilCaseOutputsSummary.oilCaseOutputsSummaryCard oilCaseOutputsValues=oilCaseOutputsSummaryView withContingentUncertaintyCategories=true/>-->
-<#--        </#if>-->
-<#--        <#if gasOnlyDiscovery>-->
-<#--            <@gasCaseVolumetricsSummary.gasCaseVolumetricsSummary gasCaseVolumetricsValues=gasCaseVolumetricsSummaryView/>-->
-<#--            <@gasCaseOutputsSummary.gasCaseOutputsSummaryCard gasCaseOutputsValues=gasCaseOutputsSummaryView withContingentUncertaintyCategories=true/>-->
-<#--        </#if>-->
-<#--        <#if mixedDiscovery>-->
-<#--            <@mixedCaseVolumetricsSummary.mixedCaseVolumetricsSummary mixedCaseVolumetricsValues=mixedCaseVolumetricsSummaryView/>-->
-<#--            <@mixedCaseOutputsSummary.mixedCaseOutputsSummaryCard mixedCaseOutputsValues=mixedCaseOutputsSummaryView withContingentUncertaintyCategories=true/>-->
-<#--        </#if>-->
-<#--    </@fdsAccordion.accordionSection>-->
-<#--    <@fdsAccordion.accordionSection sectionHeading="Average hydrocarbon properties" summaryText="Oil, gas and general properties">-->
-<#--        <#if oilOnlyDiscovery || mixedDiscovery>-->
-<#--            <@oilFluidSummary.oilFluidPropertiesCard-->
-<#--            oilFluidValues=oilFluidPropertiesSummaryView/>-->
-<#--        </#if>-->
-<#--        <#if gasOnlyDiscovery || mixedDiscovery>-->
-<#--            <@gasFluidSummary.gasFluidPropertiesCard-->
-<#--            gasFluidValues=gasFluidPropertiesSummaryView/>-->
-<#--        </#if>-->
-<#--        <@generalFluidSummary.generalFluidPropertiesCard-->
-<#--        generalFluidValues=generalFluidPropertiesSummaryView/>-->
-<#--    </@fdsAccordion.accordionSection>-->
   </@fdsAccordion.accordion>
 </#macro>

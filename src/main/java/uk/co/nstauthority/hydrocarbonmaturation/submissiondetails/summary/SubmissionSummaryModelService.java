@@ -205,15 +205,15 @@ public class SubmissionSummaryModelService {
 
       if (isOilCaseOnly) {
         modelAndView.addObject("oilCaseVolumetricTotalsSummaryView",
-                discoverySummaryService.getOilCaseVolumetricTotalsFromSubmissionDetail(submissionDetail));
+            discoverySummaryService.getOilCaseVolumetricTotalsFromSubmissionDetail(submissionDetail));
       }
       if (isGasCaseOnly) {
         modelAndView.addObject("gasCaseVolumetricTotalsSummaryView",
-                discoverySummaryService.getGasCaseVolumetricTotalsFromSubmissionDetail(submissionDetail));
+            discoverySummaryService.getGasCaseVolumetricTotalsFromSubmissionDetail(submissionDetail));
       }
       if (isCombinedCase) {
-        //TODO HM-668 add combined case totals
-        modelAndView.addObject("combinedCaseVolumetricTotalsSummaryView", null);
+        modelAndView.addObject("combinedCaseVolumetricTotalsSummaryView",
+            discoverySummaryService.getCombinedCaseVolumetricTotalsFromSubmissionDetail(submissionDetail));
       }
     } else {
       modelAndView.addObject("totalsRequired", false);

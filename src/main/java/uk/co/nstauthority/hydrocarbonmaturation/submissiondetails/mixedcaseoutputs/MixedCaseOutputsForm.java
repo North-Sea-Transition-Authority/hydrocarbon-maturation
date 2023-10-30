@@ -14,6 +14,7 @@ public class MixedCaseOutputsForm implements SubmissionForm {
   private ProbabilityDistributionForm oilEquivalentRecoverableResources = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm riskedOilEquivalentRecoverableMean = new ProbabilityDistributionForm();
   private Boolean hasAssociatedGasRecoverableResources;
+  private Boolean hasAssociatedCondensateRecoverableResources;
 
   public Boolean getHasAssociatedGasRecoverableResources() {
     return hasAssociatedGasRecoverableResources;
@@ -93,5 +94,13 @@ public class MixedCaseOutputsForm implements SubmissionForm {
   public void setRiskedOilEquivalentRecoverableMean(
       ProbabilityDistributionForm riskedOilEquivalentRecoverableMean) {
     this.riskedOilEquivalentRecoverableMean = riskedOilEquivalentRecoverableMean;
+  }
+
+  public Boolean getHasAssociatedCondensateRecoverableResources() {
+    return hasAssociatedCondensateRecoverableResources;
+  }
+
+  public void setHasAssociatedCondensateRecoverableResources(Boolean hasAssociatedCondensateRecoverableResources) {
+    this.hasAssociatedCondensateRecoverableResources = hasAssociatedCondensateRecoverableResources;
   }
 }

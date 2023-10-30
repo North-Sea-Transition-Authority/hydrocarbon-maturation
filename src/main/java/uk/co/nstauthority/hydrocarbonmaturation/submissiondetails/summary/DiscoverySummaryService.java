@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverycominbedcasevolumetrictotals.DiscoveryCombinedCaseVolTotalsSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverycominbedcasevolumetrictotals.DiscoveryCombinedVolTotalsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSummaryService;
@@ -65,6 +67,7 @@ class DiscoverySummaryService {
   private final ReservoirSummaryService reservoirSummaryService;
   private final DiscoveryOilCaseVolumetricTotalsSummaryService discoveryOilCaseVolumetricTotalsSummaryService;
   private final DiscoveryGasCaseVolumetricTotalsSummaryService discoveryGasCaseVolumetricTotalsSummaryService;
+  private final DiscoveryCombinedVolTotalsSummaryService discoveryCombinedVolTotalsSummaryService;
 
   @Autowired
   DiscoverySummaryService(GasFluidPropertySummaryService gasFluidPropertySummaryService,
@@ -86,7 +89,8 @@ class DiscoverySummaryService {
                           SourceAndSealSummaryService sourceAndSealSummaryService,
                           ReservoirSummaryService reservoirSummaryService,
                           DiscoveryOilCaseVolumetricTotalsSummaryService discoveryOilCaseVolumetricTotalsSummaryService,
-                          DiscoveryGasCaseVolumetricTotalsSummaryService discoveryGasCaseVolumetricTotalsSummaryService) {
+                          DiscoveryGasCaseVolumetricTotalsSummaryService discoveryGasCaseVolumetricTotalsSummaryService,
+                          DiscoveryCombinedVolTotalsSummaryService discoveryCombinedVolTotalsSummaryService) {
     this.gasFluidPropertySummaryService = gasFluidPropertySummaryService;
     this.oilFluidPropertySummaryService = oilFluidPropertySummaryService;
     this.generalFluidPropertySummaryService = generalFluidPropertySummaryService;
@@ -107,6 +111,7 @@ class DiscoverySummaryService {
     this.reservoirSummaryService = reservoirSummaryService;
     this.discoveryOilCaseVolumetricTotalsSummaryService = discoveryOilCaseVolumetricTotalsSummaryService;
     this.discoveryGasCaseVolumetricTotalsSummaryService = discoveryGasCaseVolumetricTotalsSummaryService;
+    this.discoveryCombinedVolTotalsSummaryService = discoveryCombinedVolTotalsSummaryService;
   }
 
   public DiscoveryWellDetailsSummaryView getDiscoveryWellDetailsSummaryViewFromSubmissionDetail(
@@ -206,5 +211,12 @@ class DiscoverySummaryService {
       SubmissionDetail submissionDetail
   ) {
     return discoveryGasCaseVolumetricTotalsSummaryService.getGasCaseVolumetricTotalsSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  public DiscoveryCombinedCaseVolTotalsSummaryView getCombinedCaseVolumetricTotalsFromSubmissionDetail(
+      SubmissionDetail submissionDetail
+  ) {
+    return discoveryCombinedVolTotalsSummaryService
+        .getCombinedCaseVolumetricTotalsSummaryFromSubmissionDetail(submissionDetail);
   }
 }

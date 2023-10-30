@@ -1,0 +1,2 @@
+ALTER TABLE mixed_case_outputs
+ADD COLUMN has_associated_condensate_recoverable_resources BOOLEAN;

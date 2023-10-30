@@ -11,7 +11,7 @@ public record OilCaseOutputsSummaryView(String hasAssociatedGasRecoverableResour
         List.of(
             ProbabilityDistributionSummaryView.empty("Oil in place"),
             ProbabilityDistributionSummaryView.empty("Oil recoverable resources"),
-            ProbabilityDistributionSummaryView.empty("Associated-gas recoverable resources"),
+            ProbabilityDistributionSummaryView.empty("Associated gas recoverable resources"),
             ProbabilityDistributionSummaryView.empty("Oil equivalent recoverable resources"),
             ProbabilityDistributionSummaryView.empty("Risked oil equivalent recoverable")
         )

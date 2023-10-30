@@ -71,11 +71,19 @@
       template=gasRecoverableResourcesTemplate
       error=gasRecoverableResourcesError/>
 
-    <@probabilityDistribution.probabilityDistributionSingularTemplate
-      probabilityDistributionPath="form.associatedCondensateRecoverableResources"
-      labelText="Associated condensate recoverable resources"
-      template=associatedCondensateRecoverableResourcesTemplate
-      error=associatedCondensateRecoverableResourcesError/>
+    <@fdsRadio.radioGroup
+      path="form.hasAssociatedCondensateRecoverableResources"
+      labelText="Do you expect to find associated condensate recoverable resources?"
+      hiddenContent=true>
+          <@fdsRadio.radioYes path="form.hasAssociatedCondensateRecoverableResources">
+              <@probabilityDistribution.probabilityDistributionSingularTemplate
+              probabilityDistributionPath="form.associatedCondensateRecoverableResources"
+              labelText="Associated condensate recoverable resources"
+              template=associatedCondensateRecoverableResourcesTemplate
+              error=associatedCondensateRecoverableResourcesError/>
+          </@fdsRadio.radioYes>
+          <@fdsRadio.radioNo path="form.hasAssociatedCondensateRecoverableResources"/>
+      </@fdsRadio.radioGroup>
 
     <@probabilityDistribution.probabilityDistributionSingularTemplate
       probabilityDistributionPath="form.oilEquivalentRecoverableResources"

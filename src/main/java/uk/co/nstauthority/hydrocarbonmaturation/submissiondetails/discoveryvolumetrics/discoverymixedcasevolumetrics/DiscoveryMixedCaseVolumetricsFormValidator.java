@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverymixedcasevolumetrics;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
@@ -147,9 +146,5 @@ public class DiscoveryMixedCaseVolumetricsFormValidator implements SubmissionVal
         "Oil equivalent recoverable resources",
         ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
     );
-  }
-
-  private boolean hasAssociatedGasRecoverableResources(MixedCaseOutputsForm form) {
-    return BooleanUtils.isTrue(form.getHasAssociatedGasRecoverableResources());
   }
 }

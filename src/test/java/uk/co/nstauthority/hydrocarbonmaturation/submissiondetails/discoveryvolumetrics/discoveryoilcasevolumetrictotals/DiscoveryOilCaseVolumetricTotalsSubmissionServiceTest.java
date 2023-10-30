@@ -12,8 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.Errors;
-import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -37,7 +35,7 @@ class DiscoveryOilCaseVolumetricTotalsSubmissionServiceTest {
 
     when(discoveryOilCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail)).thenReturn(form);
     when(discoveryOilCaseVolumetricTotalsFormValidator.isValid(
-        any(OilCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(ValidationType.FULL))
+        eq(form), any(Errors.class), eq(submissionDetail), eq(ValidationType.FULL))
     ).thenReturn(true);
 
     assertTrue(discoveryOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail));
@@ -47,12 +45,10 @@ class DiscoveryOilCaseVolumetricTotalsSubmissionServiceTest {
   void isSectionSubmittable_whenNotSubmittable_thenFalse() {
     var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     var form = new OilCaseOutputsForm();
-    var bindingResultWithError = ReverseRouter.emptyBindingResult();
-    bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
     when(discoveryOilCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail)).thenReturn(form);
     when(discoveryOilCaseVolumetricTotalsFormValidator.isValid(
-        any(OilCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(ValidationType.FULL))
+        eq(form), any(Errors.class), eq(submissionDetail), eq(ValidationType.FULL))
     ).thenReturn(false);
 
     assertFalse(discoveryOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail));

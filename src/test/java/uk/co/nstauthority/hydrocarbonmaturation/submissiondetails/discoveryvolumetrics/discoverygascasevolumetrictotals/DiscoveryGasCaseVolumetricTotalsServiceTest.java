@@ -71,37 +71,20 @@ class DiscoveryGasCaseVolumetricTotalsServiceTest {
         ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
     )).thenReturn(oilEquivalent);
 
-    assertThat(discoveryGasCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail))
-        .extracting(
-            GasCaseOutputsForm::getHasAssociatedCondensateRecoverableResources,
-            form -> form.getGasInPlace().getProbabilityDistributionType(),
-            form -> form.getGasInPlace().getConstant().getConstant(),
-            form -> form.getGasInPlace().getConstant().getComments(),
-            form -> form.getGasRecoverableResources().getProbabilityDistributionType(),
-            form -> form.getGasRecoverableResources().getConstant().getConstant(),
-            form -> form.getGasRecoverableResources().getConstant().getComments(),
-            form -> form.getAssociatedCondensateRecoverableResources().getProbabilityDistributionType(),
-            form -> form.getAssociatedCondensateRecoverableResources().getConstant().getConstant(),
-            form -> form.getAssociatedCondensateRecoverableResources().getConstant().getComments(),
-            form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
-            form -> form.getOilEquivalentRecoverableResources().getConstant().getConstant(),
-            form -> form.getOilEquivalentRecoverableResources().getConstant().getComments()
-        )
-        .containsExactly(
-            true,
-            gasInPlace.getProbabilityDistributionType(),
-            gasInPlace.getConstant().getConstant(),
-            gasInPlace.getConstant().getComments(),
-            recoverableResources.getProbabilityDistributionType(),
-            recoverableResources.getConstant().getConstant(),
-            recoverableResources.getConstant().getComments(),
-            associatedCondensate.getProbabilityDistributionType(),
-            associatedCondensate.getConstant().getConstant(),
-            associatedCondensate.getConstant().getComments(),
-            oilEquivalent.getProbabilityDistributionType(),
-            oilEquivalent.getConstant().getConstant(),
-            oilEquivalent.getConstant().getComments()
-        );
+    assertThat(discoveryGasCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail)
+        .getHasAssociatedCondensateRecoverableResources()).isTrue();
+
+    assertThat(discoveryGasCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail)
+        .getGasInPlace()).usingRecursiveComparison().isEqualTo(gasInPlace);
+
+    assertThat(discoveryGasCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail)
+        .getGasRecoverableResources()).usingRecursiveComparison().isEqualTo(recoverableResources);
+
+    assertThat(discoveryGasCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail)
+        .getAssociatedCondensateRecoverableResources()).usingRecursiveComparison().isEqualTo(associatedCondensate);
+
+    assertThat(discoveryGasCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail)
+        .getOilEquivalentRecoverableResources()).usingRecursiveComparison().isEqualTo(oilEquivalent);
   }
 
   @Test

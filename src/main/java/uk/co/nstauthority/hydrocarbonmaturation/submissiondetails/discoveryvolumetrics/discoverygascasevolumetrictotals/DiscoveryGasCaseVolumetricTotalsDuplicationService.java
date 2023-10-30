@@ -10,19 +10,23 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotal;
 
 @Service
 public class DiscoveryGasCaseVolumetricTotalsDuplicationService implements SubmissionSectionDuplicationService {
 
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private final DiscoveryGasCaseVolumetricTotalsService discoveryGasCaseVolumetricTotalsService;
 
   @Autowired
   public DiscoveryGasCaseVolumetricTotalsDuplicationService(
       ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
-      SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
+      SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService,
+      DiscoveryGasCaseVolumetricTotalsService discoveryGasCaseVolumetricTotalsService) {
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
+    this.discoveryGasCaseVolumetricTotalsService = discoveryGasCaseVolumetricTotalsService;
   }
 
 
@@ -34,6 +38,15 @@ public class DiscoveryGasCaseVolumetricTotalsDuplicationService implements Submi
     if (!newSubmissionDetail.isDiscoverySubmission()) {
       return;
     }
+
+    discoveryGasCaseVolumetricTotalsService.getGasCaseVolumetricTotal(oldSubmissionDetail)
+        .ifPresent(gasCaseVolumetricTotal ->
+            submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
+                newSubmissionDetail,
+                gasCaseVolumetricTotal,
+                GasCaseVolumetricTotal.class
+            )
+        );
 
     var applicableInstances = Set.of(
         ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY,

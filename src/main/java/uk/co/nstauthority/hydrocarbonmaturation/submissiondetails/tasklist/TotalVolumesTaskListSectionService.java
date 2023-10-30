@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverycominbedcasevolumetrictotals.DiscoveryCombinedCaseVolTotalsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverycominbedcasevolumetrictotals.DiscoveryCombinedVolTotalsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsController;
@@ -24,17 +26,20 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
   private final GeneralReservoirInformationService generalReservoirInformationService;
   private final DiscoveryOilCaseVolumetricTotalsSubmissionService discoveryOilCaseVolumetricTotalsSubmissionService;
   private final DiscoveryGasCaseVolumetricTotalsSubmissionService discoveryGasCaseVolumetricTotalsSubmissionService;
+  private final DiscoveryCombinedVolTotalsSubmissionService discoveryCombinedVolTotalsSubmissionService;
 
   @Autowired
   public TotalVolumesTaskListSectionService(
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
       GeneralReservoirInformationService generalReservoirInformationService,
       DiscoveryOilCaseVolumetricTotalsSubmissionService discoveryOilCaseVolumetricTotalsSubmissionService,
-      DiscoveryGasCaseVolumetricTotalsSubmissionService discoveryGasCaseVolumetricTotalsSubmissionService) {
+      DiscoveryGasCaseVolumetricTotalsSubmissionService discoveryGasCaseVolumetricTotalsSubmissionService,
+      DiscoveryCombinedVolTotalsSubmissionService discoveryCombinedVolTotalsSubmissionService) {
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.generalReservoirInformationService = generalReservoirInformationService;
     this.discoveryOilCaseVolumetricTotalsSubmissionService = discoveryOilCaseVolumetricTotalsSubmissionService;
     this.discoveryGasCaseVolumetricTotalsSubmissionService = discoveryGasCaseVolumetricTotalsSubmissionService;
+    this.discoveryCombinedVolTotalsSubmissionService = discoveryCombinedVolTotalsSubmissionService;
   }
 
   public boolean sectionIsPresent(SubmissionDetail submissionDetail) {
@@ -91,6 +96,9 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
       if (isGasCaseOnly(reservoirSubmissionDetails)) {
         return discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail);
       }
+      if (isCombinedCase(reservoirSubmissionDetails)) {
+        return discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail);
+      }
     }
     return false;
   }
@@ -115,6 +123,15 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
             ),
             ReverseRouter.route(on(DiscoveryGasCaseVolumetricTotalsController.class)
                 .getDiscoveryGasCaseVolumetricTotals(submissionDetail.getId())))
+        );
+      }
+      if (isCombinedCase(reservoirSubmissionDetails)) {
+        listOfItems.add(new TaskListItem("Total oil and gas case volumetrics",
+            TaskListLabel.notStartedOrComplete(
+                discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail)
+            ),
+            ReverseRouter.route(on(DiscoveryCombinedCaseVolTotalsController.class)
+                .getDiscoveryCombinedCaseVolumetricTotals(submissionDetail.getId())))
         );
       }
     }
