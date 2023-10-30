@@ -15,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -27,6 +28,9 @@ class OilCaseOutputsSubmissionServiceTest {
   @Mock
   private OilCaseOutputsFormValidator oilCaseOutputsFormValidator;
 
+  @Mock
+  private GeneralReservoirInformationService generalReservoirInformationService;
+
   @InjectMocks
   private OilCaseOutputsSubmissionService oilCaseOutputsSubmissionService;
 
@@ -38,7 +42,10 @@ class OilCaseOutputsSubmissionServiceTest {
 
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
-    when(oilCaseOutputsFormService.getOilCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(form);
+    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
+        .thenReturn(true);
+    when(oilCaseOutputsFormService.getOilCaseOutputsForm(reservoirSubmissionDetail))
+        .thenReturn(form);
     when(oilCaseOutputsFormValidator.isValid(
         eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
         .thenReturn(true);
@@ -54,11 +61,24 @@ class OilCaseOutputsSubmissionServiceTest {
     var bindingResultWithError = ReverseRouter.emptyBindingResult();
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
-    when(oilCaseOutputsFormService.getOilCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(form);
+    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
+        .thenReturn(true);
+    when(oilCaseOutputsFormService.getOilCaseOutputsForm(reservoirSubmissionDetail))
+        .thenReturn(form);
     when(oilCaseOutputsFormValidator.isValid(
         eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
         .thenReturn(false);
 
     assertFalse(oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
+  }
+
+  @Test
+  void isSectionSubmittable_whenNotApplicable_thenTrue() {
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
+        .thenReturn(false);
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail))
+        .thenReturn(false);
+    assertTrue(oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 }

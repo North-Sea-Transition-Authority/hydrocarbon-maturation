@@ -24,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirprope
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirAdditionsFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,6 +38,9 @@ class ReservoirTaskListSectionServiceTest {
 
   @Mock
   private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+
+  @Mock
+  private ReservoirAdditionsFormValidator reservoirAdditionsFormValidator;
 
   @InjectMocks
   private ReservoirTaskListSectionService reservoirTaskListSectionService;

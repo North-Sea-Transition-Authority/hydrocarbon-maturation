@@ -15,6 +15,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -23,6 +24,9 @@ class MixedCaseVolumetricParametersSubmissionServiceTest {
 
   @Mock
   private MixedCaseVolumetricParametersFormService mixedCaseVolumetricParametersFormService;
+
+  @Mock
+  private GeneralReservoirInformationService generalReservoirInformationService;
 
   @InjectMocks
   private MixedCaseVolumetricParametersSubmissionService mixedCaseVolumetricParametersSubmissionService;
@@ -35,6 +39,8 @@ class MixedCaseVolumetricParametersSubmissionServiceTest {
 
     var emptyBindingResult = ReverseRouter.emptyBindingResult();
 
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail))
+        .thenReturn(true);
     when(mixedCaseVolumetricParametersFormService.getMixedCaseVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
 
     when(mixedCaseVolumetricParametersFormService.validate(
@@ -52,12 +58,22 @@ class MixedCaseVolumetricParametersSubmissionServiceTest {
     var bindingResultWithError = ReverseRouter.emptyBindingResult();
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
-    when(mixedCaseVolumetricParametersFormService.getMixedCaseVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
-
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail))
+        .thenReturn(true);
+    when(mixedCaseVolumetricParametersFormService.getMixedCaseVolumetricsForm(reservoirSubmissionDetail))
+        .thenReturn(form);
     when(mixedCaseVolumetricParametersFormService.validate(
         eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
         .thenReturn(bindingResultWithError);
 
     assertFalse(mixedCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
+  }
+
+  @Test
+  void isSectionSubmittable_whenNotApplicable_thenTrue() {
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail))
+        .thenReturn(false);
+    assertTrue(mixedCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 }

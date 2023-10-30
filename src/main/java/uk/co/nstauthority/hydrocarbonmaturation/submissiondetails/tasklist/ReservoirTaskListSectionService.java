@@ -6,15 +6,21 @@ import java.util.ArrayList;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.ReservoirAdditionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirAdditionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirAdditionsFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
 public class ReservoirTaskListSectionService implements TaskListSectionService {
@@ -22,15 +28,18 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
   private final ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService;
   private final PermeabilitySubmissionService permeabilitySubmissionService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+  private final ReservoirAdditionsFormValidator reservoirAdditionsFormValidator;
 
   @Autowired
   public ReservoirTaskListSectionService(
       ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService,
       PermeabilitySubmissionService permeabilitySubmissionService,
-      ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
+      ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
+      ReservoirAdditionsFormValidator reservoirAdditionsFormValidator) {
     this.reservoirPropertiesSubmissionService = reservoirPropertiesSubmissionService;
     this.permeabilitySubmissionService = permeabilitySubmissionService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
+    this.reservoirAdditionsFormValidator = reservoirAdditionsFormValidator;
   }
 
   @Override
@@ -38,12 +47,17 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
 
     var items = new ArrayList<TaskListItem>();
 
+    var reservoirAdditionsForm = new ReservoirAdditionForm(ReservoirAdditionStatus.NO);
+    BindingResult bindingResult = new BeanPropertyBindingResult(reservoirAdditionsForm, "form");
+
     if (submissionDetail.isDiscoverySubmission() || submissionDetail.isFieldSubmission()) {
       items.add(
           new TaskListItem("%s reservoirs".formatted(
               submissionDetail.getSubmission().getResource().getType().getDisplayName()),
-              //TODO base task list label on completeness of reservoir sub-tasks
-              TaskListLabel.NOT_COMPLETE,
+              reservoirAdditionsFormValidator
+                  .isValid(reservoirAdditionsForm, bindingResult, submissionDetail, ValidationType.FULL)
+                  ? TaskListLabel.COMPLETE
+                  : TaskListLabel.NOT_COMPLETE,
               reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail)
                   ? ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(
                       submissionDetail.getId(), null))
@@ -80,6 +94,7 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
 
   @Override
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
+
     if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
       var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
           .getExtantReservoirSubmissionDetail(submissionDetail);

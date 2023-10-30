@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -25,6 +26,9 @@ class OilFluidPropertySubmissionServiceTest {
 
   @Mock
   private OilFluidPropertyFormValidator oilFluidPropertyFormValidator;
+
+  @Mock
+  private GeneralReservoirInformationService generalReservoirInformationService;
 
   @InjectMocks
   private OilFluidPropertySubmissionService oilFluidPropertySubmissionService;
@@ -40,6 +44,8 @@ class OilFluidPropertySubmissionServiceTest {
 
   @Test
   void isSectionSubmittable_whenSubmittable_thenTrue() {
+    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
+        .thenReturn(true);
     when(oilFluidPropertyFormService.getOilFluidPropertyForm(reservoirSubmissionDetail)).thenReturn(
         oilFluidPropertyForm);
     when(oilFluidPropertyFormValidator.isValid(eq(oilFluidPropertyForm), any(BindingResult.class), eq(reservoirSubmissionDetail), eq(ValidationType.FULL)))
@@ -50,10 +56,23 @@ class OilFluidPropertySubmissionServiceTest {
 
   @Test
   void isSectionSubmittable_whenNotSubmittable_thenFalse() {
-    when(oilFluidPropertyFormService.getOilFluidPropertyForm(reservoirSubmissionDetail)).thenReturn(oilFluidPropertyForm);
+    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
+        .thenReturn(true);
+    when(oilFluidPropertyFormService.getOilFluidPropertyForm(reservoirSubmissionDetail))
+        .thenReturn(oilFluidPropertyForm);
     when(oilFluidPropertyFormValidator.isValid(eq(oilFluidPropertyForm), any(BindingResult.class), eq(reservoirSubmissionDetail), eq(ValidationType.FULL)))
         .thenReturn(false);
 
     assertFalse(oilFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
+  }
+
+  @Test
+  void isSectionSubmittable_whenNotApplicable_thenTrue() {
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
+        .thenReturn(false);
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail))
+        .thenReturn(false);
+    assertTrue(oilFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 }

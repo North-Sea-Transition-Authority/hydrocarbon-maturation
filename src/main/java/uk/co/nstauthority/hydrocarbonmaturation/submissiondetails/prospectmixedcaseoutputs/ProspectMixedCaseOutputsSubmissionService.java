@@ -23,6 +23,9 @@ public class ProspectMixedCaseOutputsSubmissionService implements ReservoirSecti
 
   @Override
   public boolean isSectionSubmittable(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    if (!reservoirSubmissionDetail.getSubmissionDetail().isProspectSubmission()) {
+      return true;
+    }
     var form = prospectMixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();

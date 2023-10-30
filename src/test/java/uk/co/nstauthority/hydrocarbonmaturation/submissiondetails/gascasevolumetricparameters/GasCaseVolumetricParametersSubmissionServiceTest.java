@@ -16,6 +16,7 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetricparameters.FieldGasVolumetricParametersService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -31,6 +32,9 @@ class GasCaseVolumetricParametersSubmissionServiceTest {
   @Mock
   private FieldGasVolumetricParametersService fieldGasVolumetricParametersService;
 
+  @Mock
+  private GeneralReservoirInformationService generalReservoirInformationService;
+
   @InjectMocks
   private GasCaseVolumetricParametersSubmissionService gasCaseVolumetricParametersSubmissionService;
 
@@ -40,8 +44,10 @@ class GasCaseVolumetricParametersSubmissionServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new GasCaseVolumetricParametersForm();
 
-    when(gasCaseVolumetricParametersFormService.getGasCaseVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
-
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+        .thenReturn(true);
+    when(gasCaseVolumetricParametersFormService.getGasCaseVolumetricsForm(reservoirSubmissionDetail))
+        .thenReturn(form);
     when(gasCaseVolumetricParametersFormValidator.isValid(eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
         .thenReturn(true);
 
@@ -56,8 +62,10 @@ class GasCaseVolumetricParametersSubmissionServiceTest {
     var bindingResultWithError = ReverseRouter.emptyBindingResult();
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
-    when(gasCaseVolumetricParametersFormService.getGasCaseVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
-
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+        .thenReturn(true);
+    when(gasCaseVolumetricParametersFormService.getGasCaseVolumetricsForm(reservoirSubmissionDetail))
+        .thenReturn(form);
     when(gasCaseVolumetricParametersFormValidator.isValid(eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
         .thenReturn(false);
 
@@ -70,7 +78,10 @@ class GasCaseVolumetricParametersSubmissionServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new GasCaseVolumetricParametersForm();
 
-    when(fieldGasVolumetricParametersService.getGasVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+        .thenReturn(true);
+    when(fieldGasVolumetricParametersService.getGasVolumetricsForm(reservoirSubmissionDetail))
+        .thenReturn(form);
     when(gasCaseVolumetricParametersFormValidator.isValid(
         eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
         .thenReturn(true);
@@ -84,11 +95,24 @@ class GasCaseVolumetricParametersSubmissionServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new GasCaseVolumetricParametersForm();
 
-    when(fieldGasVolumetricParametersService.getGasVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+        .thenReturn(true);
+    when(fieldGasVolumetricParametersService.getGasVolumetricsForm(reservoirSubmissionDetail))
+        .thenReturn(form);
     when(gasCaseVolumetricParametersFormValidator.isValid(
         eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
         .thenReturn(false);
 
     assertFalse(gasCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
+  }
+
+  @Test
+  void isSectionSubmittable_whenNotApplicable_thenTrue() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail))
+        .thenReturn(false);
+    assertTrue(gasCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 }

@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -27,6 +28,9 @@ class GasFluidPropertySubmissionServiceTest {
 
   @Mock
   private GasFluidPropertyFormValidator gasFluidPropertyFormValidator;
+
+  @Mock
+  private GeneralReservoirInformationService generalReservoirInformationService;
 
   @InjectMocks
   private GasFluidPropertySubmissionService gasFluidPropertySubmissionService;
@@ -42,7 +46,10 @@ class GasFluidPropertySubmissionServiceTest {
 
   @Test
   void isSectionSubmittable_whenSubmittable_thenTrue() {
-    when(gasFluidPropertyFormService.getGasFluidPropertyForm(reservoirSubmissionDetail)).thenReturn(gasFluidPropertyForm);
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+        .thenReturn(true);
+    when(gasFluidPropertyFormService.getGasFluidPropertyForm(reservoirSubmissionDetail))
+        .thenReturn(gasFluidPropertyForm);
     when(gasFluidPropertyFormValidator.isValid(eq(gasFluidPropertyForm), any(BindingResult.class), eq(reservoirSubmissionDetail), eq(ValidationType.FULL)))
         .thenReturn(true);
 
@@ -54,10 +61,21 @@ class GasFluidPropertySubmissionServiceTest {
     var bindingResultWithError = ReverseRouter.emptyBindingResult();
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+        .thenReturn(true);
     when(gasFluidPropertyFormService.getGasFluidPropertyForm(reservoirSubmissionDetail)).thenReturn(gasFluidPropertyForm);
     when(gasFluidPropertyFormValidator.isValid(eq(gasFluidPropertyForm), any(BindingResult.class), eq(reservoirSubmissionDetail), eq(ValidationType.FULL)))
         .thenReturn(false);
 
     assertFalse(gasFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
+  }
+
+  @Test
+  void isSectionSubmittable_whenNotApplicable_thenTrue() {
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+        .thenReturn(false);
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail))
+        .thenReturn(false);
+    assertTrue(gasFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 }

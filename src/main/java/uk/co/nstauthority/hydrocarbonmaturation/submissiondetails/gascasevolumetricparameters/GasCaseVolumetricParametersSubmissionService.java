@@ -7,6 +7,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirSectionSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetricparameters.FieldGasVolumetricParametersService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -16,27 +17,34 @@ public class GasCaseVolumetricParametersSubmissionService implements ReservoirSe
   private final GasCaseVolumetricParametersFormService gasCaseVolumetricParametersFormService;
   private final GasCaseVolumetricParametersFormValidator gasCaseVolumetricParametersFormValidator;
   private final FieldGasVolumetricParametersService fieldGasVolumetricParametersService;
+  private final GeneralReservoirInformationService generalReservoirInformationService;
 
   @Autowired
   public GasCaseVolumetricParametersSubmissionService(
       GasCaseVolumetricParametersFormService gasCaseVolumetricParametersFormService,
       GasCaseVolumetricParametersFormValidator gasCaseVolumetricParametersFormValidator,
-      FieldGasVolumetricParametersService fieldGasVolumetricParametersService) {
+      FieldGasVolumetricParametersService fieldGasVolumetricParametersService,
+      GeneralReservoirInformationService generalReservoirInformationService) {
     this.gasCaseVolumetricParametersFormService = gasCaseVolumetricParametersFormService;
     this.gasCaseVolumetricParametersFormValidator = gasCaseVolumetricParametersFormValidator;
     this.fieldGasVolumetricParametersService = fieldGasVolumetricParametersService;
+    this.generalReservoirInformationService = generalReservoirInformationService;
   }
 
   @Override
   public boolean isSectionSubmittable(ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    GasCaseVolumetricParametersForm form;
-    if (reservoirSubmissionDetail.getSubmissionDetail().getSubmission().getResource().getType() == ResourceType.FIELD) {
-      form = fieldGasVolumetricParametersService.getGasVolumetricsForm(reservoirSubmissionDetail);
-    } else {
-      form = gasCaseVolumetricParametersFormService.getGasCaseVolumetricsForm(reservoirSubmissionDetail);
+    if (generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)
+        || generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail)) {
+      GasCaseVolumetricParametersForm form;
+      if (reservoirSubmissionDetail.getSubmissionDetail().getSubmission().getResource().getType() == ResourceType.FIELD) {
+        form = fieldGasVolumetricParametersService.getGasVolumetricsForm(reservoirSubmissionDetail);
+      } else {
+        form = gasCaseVolumetricParametersFormService.getGasCaseVolumetricsForm(reservoirSubmissionDetail);
+      }
+      BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
+      var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+      return gasCaseVolumetricParametersFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
     }
-    BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
-    return gasCaseVolumetricParametersFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
+    return true;
   }
 }

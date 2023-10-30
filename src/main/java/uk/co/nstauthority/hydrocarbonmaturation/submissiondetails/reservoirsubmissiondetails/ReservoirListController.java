@@ -93,8 +93,7 @@ public class ReservoirListController {
         .addObject("pageTitle", pageName)
         .addObject("reservoirCount", form.getReservoirs().size())
         .addObject("backLinkUrl",
-            ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId()))
-        );
+            ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId())));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, "Reservoirs", submissionDetail);
     return modelAndView;

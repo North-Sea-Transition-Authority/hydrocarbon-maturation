@@ -7,8 +7,8 @@
 htmlTitle=pageTitle
 pageHeading=pageTitle
 pageSize=PageSize.TWO_THIRDS_COLUMN
-breadcrumbsMap=breadcrumbsMap>
-
+breadcrumbsMap=breadcrumbsMap
+singleErrorMessage=singleErrorMessage>
     <#list reservoirTaskListItems as reservoirs>
         <#assign actions>
             <@fdsSummaryList.summaryListCardActionList>
@@ -30,4 +30,20 @@ breadcrumbsMap=breadcrumbsMap>
             </div>
         </@fdsSummaryList.summaryListCard>
     </#list>
+
+    <@fdsForm.htmlForm>
+        <@fdsRadio.radioGroup
+            path="form.reservoirAdditionStatus"
+            fieldsetHeadingClass="govuk-fieldset__legend--l"
+            labelText="Do you want to add another reservoir?"
+            hiddenContent=true>
+            <#assign firstItem=true/>
+            <#list reservoirAdditionStatusOptions as key, value>
+              <@fdsRadio.radioItem path="form.reservoirAdditionStatus" itemMap={key : value} isFirstItem=firstItem/>
+              <#assign firstItem=false/>
+            </#list>
+          </@fdsRadio.radioGroup>
+
+          <@fdsAction.button buttonText="Save and continue" buttonValue=springUrl(actionUrl!"#")/>
+    </@fdsForm.htmlForm>
 </@defaultPage>

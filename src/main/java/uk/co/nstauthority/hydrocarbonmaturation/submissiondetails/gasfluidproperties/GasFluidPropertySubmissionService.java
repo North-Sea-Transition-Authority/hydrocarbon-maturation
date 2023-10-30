@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirSectionSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -15,17 +16,25 @@ public class GasFluidPropertySubmissionService implements ReservoirSectionSubmis
 
   private final GasFluidPropertyFormValidator gasFluidPropertyFormValidator;
 
+  private final GeneralReservoirInformationService generalReservoirInformationService;
+
   @Autowired
   public GasFluidPropertySubmissionService(GasFluidPropertyFormService gasFluidPropertyFormService,
-                                           GasFluidPropertyFormValidator gasFluidPropertyFormValidator) {
+                                           GasFluidPropertyFormValidator gasFluidPropertyFormValidator,
+                                           GeneralReservoirInformationService generalReservoirInformationService) {
     this.gasFluidPropertyFormService = gasFluidPropertyFormService;
     this.gasFluidPropertyFormValidator = gasFluidPropertyFormValidator;
+    this.generalReservoirInformationService = generalReservoirInformationService;
   }
 
   @Override
   public boolean isSectionSubmittable(ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    var form = gasFluidPropertyFormService.getGasFluidPropertyForm(reservoirSubmissionDetail);
-    BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    return gasFluidPropertyFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL);
+    if (generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)
+        || generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail)) {
+      var form = gasFluidPropertyFormService.getGasFluidPropertyForm(reservoirSubmissionDetail);
+      BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
+      return gasFluidPropertyFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL);
+    }
+    return true;
   }
 }

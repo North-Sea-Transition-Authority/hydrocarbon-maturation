@@ -26,7 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @ExtendWith(MockitoExtension.class)
-class ReservoirSubmissionDetailPersistenceServiceTest {
+class ReservoirAdditionsDetailPersistenceServiceTest {
 
   private static final String RESERVOIR_NAME_1 = "reservoir name 1";
   private static final String RESERVOIR_NAME_2 = "reservoir name 2";

@@ -44,7 +44,19 @@ public class ReservoirSubmissionDetailPersistenceService {
   }
 
   @Transactional
-  void saveReservoirSubmissionDetails(ReservoirListForm form, SubmissionDetail submissionDetail) {
+  public ReservoirSubmissionDetail createReservoirAndReservoirSubmissionDetail(SubmissionDetail submissionDetail) {
+    var reservoir = reservoirPersistenceService.createReservoir("");
+
+    var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
+    reservoirSubmissionDetail.setReservoir(reservoir);
+    reservoirSubmissionDetail.setSubmissionDetail(submissionDetail);
+    reservoirSubmissionDetail.setStatus(ReservoirSubmissionDetailStatus.EXTANT);
+
+    return reservoirSubmissionDetailRepository.save(reservoirSubmissionDetail);
+  }
+
+  @Transactional
+  public void saveReservoirSubmissionDetails(ReservoirListForm form, SubmissionDetail submissionDetail) {
     var reservoirSubmissionDetails = new ArrayList<ReservoirSubmissionDetail>();
     form.getReservoirs().stream().filter(Objects::nonNull).forEach(reservoir -> {
       var newReservoir = reservoirPersistenceService.createReservoir(reservoir);

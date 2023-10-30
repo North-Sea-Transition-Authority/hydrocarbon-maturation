@@ -15,6 +15,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -61,5 +62,13 @@ class ProspectMixedCaseOutputsSubmissionServiceTest {
     ).thenReturn(false);
 
     assertFalse(prospectMixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
+  }
+
+  @Test
+  void isSectionSubmittable_whenNotApplicable_thenTrue() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    assertTrue(prospectMixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 }
