@@ -1,5 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.mvc.error;
 
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -65,7 +68,34 @@ class ErrorServiceTest {
     final var resultingModelMap =  errorService.addErrorAttributesToModel(
         new ModelAndView(),
         new NullPointerException(),
-        "test"
+        "test",
+        SC_INTERNAL_SERVER_ERROR
+    ).getModelMap();
+
+    assertThat(resultingModelMap).containsOnlyKeys(
+        ERROR_REF_ATTRIBUTE_NAME,
+        SERVICE_HOME_URLS_ATTRIBUTE_NAME,
+        SERVICE_BRANDING_ATTRIBUTE,
+        CUSTOMER_BRANDING_ATTRIBUTE,
+        TECHNICAL_SUPPORT_ATTRIBUTE,
+        ACCESSIBILITY_STATEMENT_URL,
+        FEEDBACK_PAGE_URL,
+        STACK_TRACE_ATTRIBUTE,
+        CONTACT_URL
+    );
+    Object errorRef = resultingModelMap.get(ERROR_REF_ATTRIBUTE_NAME);
+    assertThat(errorRef).isNotNull();
+    assertThat((String) errorRef).doesNotContainPattern(UNSAFE_CHARACTERS);
+    assertThat(resultingModelMap.get(STACK_TRACE_ATTRIBUTE)).isNotNull();
+  }
+
+  @Test
+  void addErrorAttributesToModel_whenBadRequest_assertExpectedModelAttributes() {
+    final var resultingModelMap =  errorService.addErrorAttributesToModel(
+        new ModelAndView(),
+        new NullPointerException(),
+        "test",
+        SC_BAD_REQUEST
     ).getModelMap();
 
     assertThat(resultingModelMap).containsOnlyKeys(
@@ -90,7 +120,28 @@ class ErrorServiceTest {
     final var resultingModelMap =  errorService.addErrorAttributesToModel(
         new ModelAndView(),
         null,
-        "test"
+        "test",
+        SC_INTERNAL_SERVER_ERROR
+    ).getModelMap();
+
+    assertThat(resultingModelMap).containsOnlyKeys(
+        SERVICE_HOME_URLS_ATTRIBUTE_NAME,
+        SERVICE_BRANDING_ATTRIBUTE,
+        CUSTOMER_BRANDING_ATTRIBUTE,
+        TECHNICAL_SUPPORT_ATTRIBUTE,
+        ACCESSIBILITY_STATEMENT_URL,
+        CONTACT_URL,
+        FEEDBACK_PAGE_URL
+    );
+  }
+
+  @Test
+  void addErrorAttributesToModel_whenNotInternalServerError_assertExpectedModelAttributes() {
+    final var resultingModelMap =  errorService.addErrorAttributesToModel(
+        new ModelAndView(),
+        null,
+        "test",
+        SC_FORBIDDEN
     ).getModelMap();
 
     assertThat(resultingModelMap).containsOnlyKeys(

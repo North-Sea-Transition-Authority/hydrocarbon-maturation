@@ -108,7 +108,7 @@ class SubmissionHandlerInterceptorTest {
 
     assertThatThrownBy(() -> submissionHandlerInterceptor.preHandle(request, response, handlerMethod))
         .isInstanceOf(ResponseStatusException.class)
-        .matches(e -> ((ResponseStatusException) e).getStatus().equals(HttpStatus.BAD_REQUEST));
+        .matches(e -> ((ResponseStatusException) e).getStatus().equals(HttpStatus.NOT_FOUND));
 
     verifyNoInteractions(submissionDetailService);
   }
@@ -124,7 +124,7 @@ class SubmissionHandlerInterceptorTest {
 
     assertThatThrownBy(() -> submissionHandlerInterceptor.preHandle(request, response, handlerMethod))
         .isInstanceOf(ResponseStatusException.class)
-        .matches(e -> ((ResponseStatusException) e).getStatus().equals(HttpStatus.BAD_REQUEST));
+        .matches(e -> ((ResponseStatusException) e).getStatus().equals(HttpStatus.NOT_FOUND));
 
   }
 

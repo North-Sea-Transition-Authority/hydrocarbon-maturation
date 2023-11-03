@@ -1,7 +1,12 @@
 package uk.co.nstauthority.hydrocarbonmaturation.mvc.error;
 
+import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
+import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -39,9 +44,10 @@ public class ErrorService {
   public ModelAndView addErrorAttributesToModel(
       ModelAndView modelAndView,
       Throwable throwable,
-      String url) {
+      String url,
+      int statusCode) {
     LOGGER.info("Error found for URL: {}", url);
-    if (throwable != null) {
+    if (throwable != null && !expectedErrorStatuses().contains(statusCode)) {
       addStackTraceToModel(modelAndView, throwable);
       addErrorReference(modelAndView, throwable);
     }
@@ -96,5 +102,9 @@ public class ErrorService {
         .getFeedback(null)));
     modelAndView.addObject("contactInformationUrl", ReverseRouter.route(on(ContactInformationController.class)
         .getContactInformationPage()));
+  }
+
+  private static List<Integer> expectedErrorStatuses() {
+    return List.of(SC_NOT_FOUND, SC_METHOD_NOT_ALLOWED, SC_FORBIDDEN, SC_UNAUTHORIZED);
   }
 }

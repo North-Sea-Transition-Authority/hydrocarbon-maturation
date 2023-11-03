@@ -60,6 +60,7 @@ GHSA-jgvc-jfgh-rjvv
 
 # Guava
 CVE-2023-2976
+CVE-2020-8908
 
 # Tomcat
 CVE-2023-28708

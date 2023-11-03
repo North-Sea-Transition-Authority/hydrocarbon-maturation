@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.mvc.error;
 
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_METHOD_NOT_ALLOWED;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
@@ -47,7 +48,7 @@ public class DefaultErrorController implements ErrorController {
     var servletException = request.getAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE);
     var throwable = (Throwable) ObjectUtils.defaultIfNull(dispatcherException, servletException);
     var url = (String) request.getAttribute(RequestDispatcher.ERROR_REQUEST_URI);
-    errorService.addErrorAttributesToModel(modelAndView, throwable, url);
+    errorService.addErrorAttributesToModel(modelAndView, throwable, url, statusCode.orElse(SC_INTERNAL_SERVER_ERROR));
 
     return modelAndView;
   }

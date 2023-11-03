@@ -67,13 +67,13 @@ public class SubmissionHandlerInterceptor extends AbstractHandlerInterceptor {
 
     if (submissionDetailId == null) {
       LOGGER.warn("Received request with no submissionDetailId present");
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
     var submissionDetail = submissionDetailService.getSubmissionDetail(UUID.fromString(submissionDetailId));
     if (submissionDetail.isEmpty()) {
       LOGGER.warn("Received request with non-existent submission detail id {}", submissionDetailId);
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
     for (var securityRule : securityRules) {
