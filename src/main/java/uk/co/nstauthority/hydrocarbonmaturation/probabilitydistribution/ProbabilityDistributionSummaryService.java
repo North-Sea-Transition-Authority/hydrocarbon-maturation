@@ -73,6 +73,9 @@ public class ProbabilityDistributionSummaryService {
     var min = Objects.requireNonNullElse(probabilityDistribution.getMinValue(), "").toString();
     var max = Objects.requireNonNullElse(probabilityDistribution.getMaxValue(), "").toString();
     var mostLikely = Objects.requireNonNullElse(probabilityDistribution.getMostLikelyValue(), "").toString();
+    var oneP = Objects.requireNonNullElse(probabilityDistribution.getOneP(), "").toString();
+    var twoP = Objects.requireNonNullElse(probabilityDistribution.getTwoP(), "").toString();
+    var threeP = Objects.requireNonNullElse(probabilityDistribution.getThreeP(), "").toString();
 
     var probabilityDistributionType = "";
 
@@ -103,6 +106,9 @@ public class ProbabilityDistributionSummaryService {
         mostLikely,
         max,
         units,
+        oneP,
+        twoP,
+        threeP,
         comments);
   }
 }

@@ -174,6 +174,30 @@ public class ProbabilityDistributionTemplateService {
         probabilityDistributionTypeInputs
     );
 
+    checkAvailabilityAndAddProbabilityInputs(
+        behaviour.is1PAvailable(),
+        behaviour.is1PRequired(),
+        promptOverrides,
+        ProbabilityOfExceedanceType.ONE_P,
+        probabilityDistributionTypeInputs
+    );
+
+    checkAvailabilityAndAddProbabilityInputs(
+        behaviour.is2PAvailable(),
+        behaviour.is2PRequired(),
+        promptOverrides,
+        ProbabilityOfExceedanceType.TWO_P,
+        probabilityDistributionTypeInputs
+    );
+
+    checkAvailabilityAndAddProbabilityInputs(
+        behaviour.is3PAvailable(),
+        behaviour.is3PRequired(),
+        promptOverrides,
+        ProbabilityOfExceedanceType.THREE_P,
+        probabilityDistributionTypeInputs
+    );
+
     probabilityDistributionTypeWithInputs.setProbabilityDistributionTypeInputs(probabilityDistributionTypeInputs);
 
     probabilityDistributionTypeWithInputsList.add(probabilityDistributionTypeWithInputs);

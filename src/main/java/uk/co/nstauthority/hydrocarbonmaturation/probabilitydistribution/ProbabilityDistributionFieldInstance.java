@@ -473,7 +473,34 @@ public enum ProbabilityDistributionFieldInstance {
       "Risked oil equivalent recoverable"
   ),
 
-  // Total Oil case volumetrics
+  //Total oil case outputs / volumetrics
+  TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD(
+      FieldVolumetricsBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Oil in place"
+  ),
+  TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD(
+      FieldVolumetricsBehaviourResources.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Oil recoverable resources"
+  ),
+  TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD(
+      FieldVolumetricsBehaviourReserves.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Oil recoverable reserves"
+  ),
+  TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD(
+      FieldVolumetricsBehaviourResources.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Associated gas recoverable resources"
+  ),
+  TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD(
+      FieldVolumetricsBehaviourReserves.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Associated gas recoverable reserves"
+  ),
+
+  // Total field oil case volumetrics
   TOTAL_OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY(
       DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
@@ -522,7 +549,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Oil equivalent recoverable resources"
   ),
 
-  // Total gas case volumetrics
+  // Total discovery gas case volumetrics
   TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY(
       DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
@@ -596,6 +623,48 @@ public enum ProbabilityDistributionFieldInstance {
       DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
       "Associated condensate recoverable resources"
+  ),
+
+  // Common volumetrics for fields
+  TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD(
+      FieldVolumetricsBehaviourResources.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Associated condensate recoverable resources"
+  ),
+  TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD(
+      FieldVolumetricsBehaviourReserves.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Associated condensate recoverable reserves"
+  ),
+  TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD(
+      FieldVolumetricsBehaviourResources.class,
+      ProbabilityOfExceedanceUnits.MMBOE,
+      "Oil equivalent recoverable resources"
+  ),
+  TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD(
+      FieldVolumetricsBehaviourReserves.class,
+      ProbabilityOfExceedanceUnits.MMBOE,
+      "Oil equivalent recoverable reserves"
+  ),
+  TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD(
+      FieldVolumetricsBehaviourResources.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Natural gas liquid resources"
+  ),
+  TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESERVES_FIELD(
+      FieldVolumetricsBehaviourReserves.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Natural gas liquid reserves"
+  ),
+  TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD(
+      FieldVolumetricsBehaviourResources.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Sales gas resources"
+  ),
+  TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD(
+      FieldVolumetricsBehaviourReserves.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Sales gas reserves"
   ),
 
   // Field Permeability

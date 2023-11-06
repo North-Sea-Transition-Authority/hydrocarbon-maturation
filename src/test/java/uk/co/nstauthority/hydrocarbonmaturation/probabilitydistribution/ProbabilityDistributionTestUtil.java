@@ -131,6 +131,9 @@ public class ProbabilityDistributionTestUtil {
     probabilityOfExceedanceForm.setMax(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setConstant(new DecimalInput("abc"));
     probabilityOfExceedanceForm.setMostLikely(new DecimalInput("abc"));
+    probabilityOfExceedanceForm.setOneP(new DecimalInput("abc"));
+    probabilityOfExceedanceForm.setTwoP(new DecimalInput("abc"));
+    probabilityOfExceedanceForm.setThreeP(new DecimalInput("abc"));
     return probabilityOfExceedanceForm;
   }
 
@@ -178,6 +181,15 @@ public class ProbabilityDistributionTestUtil {
     }
     if (behaviour.isMostLikelyAvailable()) {
       probabilityOfExceedanceForm.setMostLikely(DecimalInputTestUtil.getDecimalInput(5));
+    }
+    if (behaviour.is1PAvailable()) {
+      probabilityOfExceedanceForm.setOneP(DecimalInputTestUtil.getDecimalInput(5));
+    }
+    if (behaviour.is2PAvailable()) {
+      probabilityOfExceedanceForm.setTwoP(DecimalInputTestUtil.getDecimalInput(5));
+    }
+    if (behaviour.is3PAvailable()) {
+      probabilityOfExceedanceForm.setThreeP(DecimalInputTestUtil.getDecimalInput(5));
     }
     probabilityOfExceedanceForm.setComments("Comments");
     return probabilityOfExceedanceForm;

@@ -157,7 +157,7 @@ public class SubmissionSummaryModelService {
         .addObject("reservoirSummaries",
             discoverySummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail));
 
-    addTotalVolumes(submissionDetail, modelAndView);
+    addDiscoveryTotalVolumes(submissionDetail, modelAndView);
     addCommonAttributes(submissionDetail, modelAndView);
     return modelAndView;
   }
@@ -188,7 +188,7 @@ public class SubmissionSummaryModelService {
     }
   }
 
-  private void addTotalVolumes(SubmissionDetail submissionDetail, ModelAndView modelAndView) {
+  private void addDiscoveryTotalVolumes(SubmissionDetail submissionDetail, ModelAndView modelAndView) {
     if (totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail)) {
       modelAndView.addObject("totalsRequired", true);
       var reservoirSubmissionDetails =

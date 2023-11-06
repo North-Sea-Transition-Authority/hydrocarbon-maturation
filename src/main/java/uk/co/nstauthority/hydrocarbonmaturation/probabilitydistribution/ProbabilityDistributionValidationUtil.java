@@ -35,6 +35,9 @@ public class ProbabilityDistributionValidationUtil {
   public static final String ONE_C_TO_THREE_C_ERROR_MESSAGE =
       "%s - 1C to 3C values must be in the order of 1C < 2C < 3C";
 
+  public static final String ONE_P_TO_THREE_P_ERROR_MESSAGE =
+          "%s - 1P to 3P values must be in the order of 1P < 2P < 3P";
+
   private ProbabilityDistributionValidationUtil() {
     throw new IllegalUtilClassInstantiationException(this.getClass());
   }
@@ -304,6 +307,45 @@ public class ProbabilityDistributionValidationUtil {
           errors
       );
 
+      // validate 1P input
+      validateInput(
+              behaviour.is1PAvailable(),
+              behaviour.is1PRequired(),
+              formField,
+              typePath,
+              ProbabilityOfExceedanceType.ONE_P.getPath(),
+              probabilityOfExceedanceForm.getOneP(),
+              units,
+              validationType,
+              errors
+      );
+
+      // validate 2P input
+      validateInput(
+              behaviour.is2PAvailable(),
+              behaviour.is2PRequired(),
+              formField,
+              typePath,
+              ProbabilityOfExceedanceType.TWO_P.getPath(),
+              probabilityOfExceedanceForm.getTwoP(),
+              units,
+              validationType,
+              errors
+      );
+
+      // validate 3P input
+      validateInput(
+              behaviour.is3PAvailable(),
+              behaviour.is3PRequired(),
+              formField,
+              typePath,
+              ProbabilityOfExceedanceType.THREE_P.getPath(),
+              probabilityOfExceedanceForm.getThreeP(),
+              units,
+              validationType,
+              errors
+      );
+
       var formTypePath = formField + "." + typePath + ".";
       var errorPath = cleanPath(formTypePath + "error");
       var errorCountAfter = errors.getErrorCount();
@@ -442,6 +484,46 @@ public class ProbabilityDistributionValidationUtil {
               errorPath,
               errorPath + ERROR_CODE,
               ONE_C_TO_THREE_C_ERROR_MESSAGE.formatted(label)
+          );
+        }
+      }
+
+      /* 1P to 3P validation */
+      probabilityValues = List.of(
+              probabilityOfExceedanceForm.getOneP(),
+              probabilityOfExceedanceForm.getTwoP(),
+              probabilityOfExceedanceForm.getThreeP()
+      );
+      filteredProbabilityValues = probabilityValues.stream()
+              .filter(DecimalInput::hasContent)
+              .collect(Collectors.toCollection(ArrayList::new));
+
+      pathList = new ArrayList<String>();
+      if (probabilityOfExceedanceForm.getOneP().hasContent()) {
+        var onePPath = cleanPath(formTypePath + ProbabilityOfExceedanceType.ONE_P.getPath() + DECIMAL_INPUT_VALUE_PATH);
+        pathList.add(onePPath);
+      }
+      if (probabilityOfExceedanceForm.getTwoP().hasContent()) {
+        var twoPPath = cleanPath(formTypePath + ProbabilityOfExceedanceType.TWO_P.getPath() + DECIMAL_INPUT_VALUE_PATH);
+        pathList.add(twoPPath);
+      }
+      if (probabilityOfExceedanceForm.getThreeP().hasContent()) {
+        var threePPath = cleanPath(formTypePath + ProbabilityOfExceedanceType.THREE_P.getPath() + DECIMAL_INPUT_VALUE_PATH);
+        pathList.add(threePPath);
+      }
+
+      errorCountAfter = errors.getErrorCount();
+
+      // validate 3P to 1P values if any have been entered and no other errors have been found so far
+      if (!filteredProbabilityValues.isEmpty() && errorCountAfter == errorCountBefore) {
+        validateProbabilityFieldOrder(filteredProbabilityValues, pathList, errors);
+
+        errorCountAfter = errors.getErrorCount();
+        if (errorCountAfter > errorCountBefore) {
+          errors.rejectValue(
+                  errorPath,
+                  errorPath + ERROR_CODE,
+                  ONE_P_TO_THREE_P_ERROR_MESSAGE.formatted(label)
           );
         }
       }

@@ -34,8 +34,7 @@
                         summaryHeading=summaryCard.displayName()!""/>
                     <#elseif summaryCard.summaryCardType() == "PROBABILITY_DISTRIBUTION_SUMMARY">
                         <@probabilityDistributionSummary.probabilityDistributionTable
-                        probabilityDistributions=summaryCard.summaryData()
-                        />
+                        probabilityDistributions=summaryCard.summaryData()/>
                     <#elseif summaryCard.summaryCardType() == "EMPTY_SUMMARY">
                         <@emptySummary.emptySummary/>
                     </#if>

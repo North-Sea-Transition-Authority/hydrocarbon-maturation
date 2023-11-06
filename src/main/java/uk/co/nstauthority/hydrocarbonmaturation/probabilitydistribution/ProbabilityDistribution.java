@@ -73,6 +73,15 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity, Res
 
   private BigDecimal mostLikelyValue;
 
+  @Column(name = "one_p")
+  private BigDecimal oneP;
+
+  @Column(name = "two_p")
+  private BigDecimal twoP;
+
+  @Column(name = "three_p")
+  private BigDecimal threeP;
+
   private String comments;
 
   public ProbabilityDistribution() {
@@ -239,6 +248,30 @@ public class ProbabilityDistribution implements SubmissionDetailChildEntity, Res
 
   public void setMostLikelyValue(BigDecimal mostLikelyValue) {
     this.mostLikelyValue = mostLikelyValue;
+  }
+
+  public BigDecimal getOneP() {
+    return oneP;
+  }
+
+  public void setOneP(BigDecimal oneP) {
+    this.oneP = oneP;
+  }
+
+  public BigDecimal getTwoP() {
+    return twoP;
+  }
+
+  public void setTwoP(BigDecimal twoP) {
+    this.twoP = twoP;
+  }
+
+  public BigDecimal getThreeP() {
+    return threeP;
+  }
+
+  public void setThreeP(BigDecimal threeP) {
+    this.threeP = threeP;
   }
 
   public String getComments() {

@@ -142,4 +142,34 @@ public abstract class BaseBehaviour implements ProbabilityDistributionTypeBehavi
   public boolean is3CRequired() {
     return false;
   }
+
+  @Override
+  public boolean is1PAvailable() {
+    return false;
+  }
+
+  @Override
+  public boolean is1PRequired() {
+    return false;
+  }
+
+  @Override
+  public boolean is2PAvailable() {
+    return false;
+  }
+
+  @Override
+  public boolean is2PRequired() {
+    return false;
+  }
+
+  @Override
+  public boolean is3PAvailable() {
+    return false;
+  }
+
+  @Override
+  public boolean is3PRequired() {
+    return false;
+  }
 }

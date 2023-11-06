@@ -80,7 +80,7 @@ class ProspectMixedCaseOutputsSummaryServiceTest {
     var testSummary = new ProbabilityDistributionSummaryView(
          "test", "type", "20",
         "20", "20", "20", "20", "20", "20", "20", "20", "20",
-        "20", "", "20", "unit", "comments");
+        "20", "", "20", "unit", "5", "5", "5", "comments");
 
     when(prospectMixedCaseOutputsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(mixedCaseOutput));

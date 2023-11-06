@@ -12,10 +12,10 @@ public enum ProbabilityOfExceedanceUnits {
   RB_STB("rb/stb"),
   SCF_STB("scf/stb"),
   MMSTB("mmstb"),
+  MMBBL("mmbbl"),
   MMBOE("mmboe"),
   BCF("bcf"),
-  MD("mD")
-  ;
+  MD("mD");
 
   private final String unitDisplay;
 

@@ -70,4 +70,13 @@ public record SummaryCard(
     return probabilitySummaryCardWithHeading(null, probabilityDistributionSummaryViews);
   }
 
+  public static SummaryCard fieldProbabilitySummaryCard(
+      List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews) {
+    return new SummaryCard(
+        null,
+        SummaryCardType.FIELD_PROBABILITY_DISTRIBUTION_SUMMARY,
+        probabilityDistributionSummaryViews
+    );
+  }
+
 }

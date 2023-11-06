@@ -4,7 +4,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 
 public class ProbabilityOfExceedanceForm {
 
-
   // error field is not used for input. It is used to bind the error message to.
   private String error;
   private DecimalInput min = new DecimalInput();
@@ -21,6 +20,9 @@ public class ProbabilityOfExceedanceForm {
   private DecimalInput max = new DecimalInput();
   private DecimalInput constant = new DecimalInput();
   private DecimalInput mostLikely = new DecimalInput();
+  private DecimalInput oneP = new DecimalInput();
+  private DecimalInput twoP = new DecimalInput();
+  private DecimalInput threeP = new DecimalInput();
   private String comments;
 
   public String getError() {
@@ -141,6 +143,30 @@ public class ProbabilityOfExceedanceForm {
 
   public void setMostLikely(DecimalInput mostLikely) {
     this.mostLikely = mostLikely;
+  }
+
+  public DecimalInput getOneP() {
+    return oneP;
+  }
+
+  public void setOneP(DecimalInput oneP) {
+    this.oneP = oneP;
+  }
+
+  public DecimalInput getTwoP() {
+    return twoP;
+  }
+
+  public void setTwoP(DecimalInput twoP) {
+    this.twoP = twoP;
+  }
+
+  public DecimalInput getThreeP() {
+    return threeP;
+  }
+
+  public void setThreeP(DecimalInput threeP) {
+    this.threeP = threeP;
   }
 
   public String getComments() {

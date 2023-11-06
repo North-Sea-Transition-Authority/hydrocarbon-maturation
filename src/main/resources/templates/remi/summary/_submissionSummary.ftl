@@ -2,6 +2,7 @@
 <#import '_simpleSummary.ftl' as simpleSummary>
 <#import '_tableSummary.ftl' as tableSummary>
 <#import '_emptySummary.ftl' as emptySummary>
+<#import '_probabilityDistributionSummary.ftl' as probabilityDistributionSummary>
 
 <#-- @ftlvariable name="summarySections" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection>" -->
 <#-- @ftlvariable name="summaryItem" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem>" -->
@@ -23,7 +24,14 @@
                 summaryTableView=summaryCard.summaryData()
                 summaryHeading=summaryCard.displayName()!""/>
             <#elseif summaryCard.summaryCardType() == "EMPTY_SUMMARY">
-              <@emptySummary.emptySummary heading=summaryCard.displayName()/>
+              <@emptySummary.emptySummary
+                heading=summaryCard.displayName()/>
+            <#elseif summaryCard.summaryCardType() == "PROBABILITY_DISTRIBUTION_SUMMARY">
+              <@probabilityDistributionSummary.probabilityDistributionTable
+              probabilityDistributions=summaryCard.summaryData()/>
+            <#elseif summaryCard.summaryCardType() == "FIELD_PROBABILITY_DISTRIBUTION_SUMMARY">
+              <@probabilityDistributionSummary.fieldProbabilityDistributionTable
+              probabilityDistributions=summaryCard.summaryData()/>
             </#if>
           </#list>
         </@fdsAccordion.accordionSection>

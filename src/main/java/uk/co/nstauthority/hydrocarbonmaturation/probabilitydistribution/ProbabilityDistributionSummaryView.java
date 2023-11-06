@@ -17,11 +17,17 @@ public record ProbabilityDistributionSummaryView(
     String mostLikely,
     String max,
     String units,
+    String oneP,
+    String twoP,
+    String threeP,
     String comments
 ) {
   public static ProbabilityDistributionSummaryView empty(String probabilityDistributionName) {
     return new ProbabilityDistributionSummaryView(
         probabilityDistributionName,
+        "",
+        "",
+        "",
         "",
         "",
         "",

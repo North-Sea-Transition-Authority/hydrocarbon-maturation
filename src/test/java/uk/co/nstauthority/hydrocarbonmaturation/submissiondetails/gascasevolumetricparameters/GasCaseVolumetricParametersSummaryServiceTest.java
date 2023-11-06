@@ -71,7 +71,7 @@ class GasCaseVolumetricParametersSummaryServiceTest {
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
         "20", "20", "20", "20", "20", "20", "20", "20", "20",
-        "20", "20", "unit", "", "comments");
+        "20", "20", "unit", "", "5", "5", "5", "comments");
 
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail), eq(reservoirSubmissionDetail)))
@@ -109,7 +109,7 @@ class GasCaseVolumetricParametersSummaryServiceTest {
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
         "20", "20", "20", "20", "20", "20", "20", "20", "20",
-        "20", "20", "unit", "", "comments");
+        "20", "20", "unit", "", "5", "5", "5", "comments");
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
 

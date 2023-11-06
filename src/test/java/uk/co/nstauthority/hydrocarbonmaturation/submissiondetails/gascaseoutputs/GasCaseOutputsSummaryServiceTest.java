@@ -73,7 +73,8 @@ class GasCaseOutputSummaryServiceTest {
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
         "20", "20", "20", "20", "20", "20", "20", "20", "20",
-        "20", "20", "10", "unit", "comments");
+        "20", "20", "10", "unit", "5",
+        "5", "5", "comments");
 
     when(gasCaseOutputsPersistenceService.getGasCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(gasCaseOutput));
@@ -124,7 +125,8 @@ class GasCaseOutputSummaryServiceTest {
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
         "20", "20", "20", "20", "20", "20", "20", "20", "20",
-        "20", "20", "10", "unit", "comments");
+        "20", "20", "10", "unit", "5",
+        "5", "5", "comments");
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     gasCaseOutput.setReservoirSubmissionDetail(discoveryReservoirSubmissionDetail);

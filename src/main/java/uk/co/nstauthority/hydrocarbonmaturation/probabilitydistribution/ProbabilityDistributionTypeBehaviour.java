@@ -56,4 +56,16 @@ public interface ProbabilityDistributionTypeBehaviour {
   boolean is3CAvailable();
 
   boolean is3CRequired();
+
+  boolean is1PAvailable();
+
+  boolean is1PRequired();
+
+  boolean is2PAvailable();
+
+  boolean is2PRequired();
+
+  boolean is3PAvailable();
+
+  boolean is3PRequired();
 }

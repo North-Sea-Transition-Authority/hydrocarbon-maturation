@@ -216,6 +216,54 @@ class ProbabilityDistributionValidationUtilTest {
         .doesNotContain(ProbabilityDistributionValidationUtil.P99_TO_P1_ERROR_MESSAGE.formatted("dummy"));
   }
 
+  @Test
+  void validate1P2P3P_wrongOrder() {
+    var dummyForm = new DummyForm();
+    var probabilityDistributionForm = new ProbabilityDistributionForm();
+    probabilityDistributionForm.setProbabilityDistributionType(ProbabilityDistributionType.CUSTOM);
+    var probabilityOfExceedanceForm = new ProbabilityOfExceedanceForm();
+    probabilityOfExceedanceForm.setOneP(DecimalInput.createDecimalInput(3));
+    probabilityOfExceedanceForm.setTwoP(DecimalInput.createDecimalInput(2));
+    probabilityOfExceedanceForm.setThreeP(DecimalInput.createDecimalInput(1));
+    probabilityDistributionForm.setProbabilityOfExceedanceForm(probabilityOfExceedanceForm);
+    dummyForm.setDummy(probabilityDistributionForm);
+    var errors = new BeanPropertyBindingResult(dummyForm, "form");
+    ProbabilityDistributionValidationUtil.validateCustomFull(
+            dummyForm.getDummy(),
+            errors,
+            "dummy",
+            "dummy",
+            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
+    );
+    assertThat(errors.getAllErrors())
+            .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+            .contains(ProbabilityDistributionValidationUtil.ONE_P_TO_THREE_P_ERROR_MESSAGE.formatted("dummy"));
+  }
+
+  @Test
+  void validate1P2P3P_correctOrder() {
+    var dummyForm = new DummyForm();
+    var probabilityDistributionForm = new ProbabilityDistributionForm();
+    probabilityDistributionForm.setProbabilityDistributionType(ProbabilityDistributionType.CUSTOM);
+    var probabilityOfExceedanceForm = new ProbabilityOfExceedanceForm();
+    probabilityOfExceedanceForm.setOneP(DecimalInput.createDecimalInput(1));
+    probabilityOfExceedanceForm.setTwoP(DecimalInput.createDecimalInput(2));
+    probabilityOfExceedanceForm.setThreeP(DecimalInput.createDecimalInput(3));
+    probabilityDistributionForm.setProbabilityOfExceedanceForm(probabilityOfExceedanceForm);
+    dummyForm.setDummy(probabilityDistributionForm);
+    var errors = new BeanPropertyBindingResult(dummyForm, "form");
+    ProbabilityDistributionValidationUtil.validateCustomFull(
+            dummyForm.getDummy(),
+            errors,
+            "dummy",
+            "dummy",
+            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
+    );
+    assertThat(errors.getAllErrors())
+            .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+            .doesNotContain(ProbabilityDistributionValidationUtil.ONE_P_TO_THREE_P_ERROR_MESSAGE.formatted("dummy"));
+  }
+
   static class DummyForm {
     private ProbabilityDistributionForm dummy;
 

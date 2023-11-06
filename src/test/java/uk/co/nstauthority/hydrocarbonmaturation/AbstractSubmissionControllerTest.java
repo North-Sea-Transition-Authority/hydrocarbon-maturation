@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -30,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionSt
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionTypeInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
@@ -172,10 +174,32 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
     var resourceDetail = new ResourceDetail();
     resourceDetail.setOrganisationId(1);
     when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.of(resourceDetail));
+            .thenReturn(Optional.of(resourceDetail));
     when(industryTeamService.getOrganisationUnitIdsForUserWithIndustryTeamRoles(
-        user, Set.of(IndustryTeamRole.SUBMITTER)))
-        .thenReturn(List.of(1));
+            user, Set.of(IndustryTeamRole.SUBMITTER)))
+            .thenReturn(List.of(1));
+  }
+
+  protected void setUpWhenUserIsResponsibleOrganisation_field_passSecurity(ServiceUserDetail user, SubmissionDetail submissionDetail) {
+    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
+            .thenReturn(operatorTeamMembershipInterceptorRule);
+    var responsibleTeam = new RegulatorManagedInformation();
+    submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
+    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+    responsibleTeam.setResource(submissionDetail.getSubmission().getResource());
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
+            submissionDetail.getSubmission().getResource()))
+            .thenReturn(responsibleTeam);
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOrganisationId(1);
+    var field = mock(Field.class);
+    when(field.getResponsibleOrganisationId())
+            .thenReturn(resourceDetail.getOrganisationId());
+    when(fieldPersistenceService.getFieldByResourceOrThrow(submissionDetail.getSubmission().getResource()))
+            .thenReturn(field);
+    when(industryTeamService.getOrganisationUnitIdsForUserWithIndustryTeamRoles(
+            user, Set.of(IndustryTeamRole.SUBMITTER)))
+            .thenReturn(List.of(1));
   }
 
   protected void setUpWhenUserIsResponsibleTeam_passSecurity() {
@@ -246,6 +270,29 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         .thenReturn(List.of(1));
     when(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1)))
         .thenReturn(false);
+  }
+
+  protected void setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_field_failSecurity(ServiceUserDetail user, SubmissionDetail submissionDetail) {
+    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
+            .thenReturn(operatorTeamMembershipInterceptorRule);
+    var responsibleTeam = new RegulatorManagedInformation();
+    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+    responsibleTeam.setResource(submissionDetail.getSubmission().getResource());
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(
+            submissionDetail.getSubmission().getResource()))
+            .thenReturn(responsibleTeam);
+    when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
+            .thenReturn(false);
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOrganisationId(1);
+    var field = new Field();
+    field.setResponsibleOrganisationId(resourceDetail.getOrganisationId());
+    when(fieldPersistenceService.getFieldByResourceOrThrow(submissionDetail.getSubmission().getResource()))
+            .thenReturn(field);
+    when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(resourceDetail.getOrganisationId()))
+            .thenReturn(List.of(1));
+    when(industryTeamService.isSubmitterForOrganisationGroups(user, List.of(1)))
+            .thenReturn(false);
   }
 
   protected void setUpWhenIsLatestExtantSubmissionVersion_passSecurity(SubmissionDetail submissionDetail) {
