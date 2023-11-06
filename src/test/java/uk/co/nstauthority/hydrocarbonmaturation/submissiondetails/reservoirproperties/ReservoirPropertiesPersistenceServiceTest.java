@@ -1,7 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.never;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -86,9 +86,9 @@ class ReservoirPropertiesPersistenceServiceTest {
 
     verify(reservoirPropertiesRepository, times(1)).save(reservoirPropertiesArgumentCaptor.capture());
 
-    var savedReservoirProperty = reservoirPropertiesArgumentCaptor.getValue();
+    var capturedReservoirProperty = reservoirPropertiesArgumentCaptor.getValue();
 
-    assertThat(savedReservoirProperty)
+    assertThat(capturedReservoirProperty)
         .extracting(
             ReservoirProperty::getReservoirSubmissionDetail,
             ReservoirProperty::getGroupName,
@@ -224,6 +224,10 @@ class ReservoirPropertiesPersistenceServiceTest {
     existingReservoirProperty.setId(UUID.randomUUID());
     when(reservoirPropertiesRepository.findByReservoirSubmissionDetail(fieldReservoirSubmissionDetail))
         .thenReturn(Optional.of(existingReservoirProperty));
+    var savedReservoirProperty = new ReservoirProperty();
+    savedReservoirProperty.setId(UUID.randomUUID());
+    when(reservoirPropertiesRepository.save(any(ReservoirProperty.class)))
+        .thenReturn(savedReservoirProperty);
 
     reservoirPropertiesPersistenceService.saveReservoirProperty(form, fieldReservoirSubmissionDetail);
 
@@ -231,7 +235,7 @@ class ReservoirPropertiesPersistenceServiceTest {
 
     verify(reservoirPropertiesRepository, times(1)).save(reservoirPropertiesArgumentCaptor.capture());
 
-    var savedReservoirProperty = reservoirPropertiesArgumentCaptor.getValue();
+    var capturedReservoirProperty = reservoirPropertiesArgumentCaptor.getValue();
 
     // clear saved barrier baffles
     verify(barrierBaffleDetailRepository, times(1)).deleteAllByReservoirPropertyAndVerticalLateralType(savedReservoirProperty, VerticalLateralType.LATERAL);
@@ -253,7 +257,7 @@ class ReservoirPropertiesPersistenceServiceTest {
     var depositionalEnvironment = form.getDepositionalEnvironmentMap().get(depositionalSetting);
     var expectedDepositionalEnvironment = EnumUtils.getEnumValue(DepositionalEnvironment.class, depositionalEnvironment);
 
-    assertThat(savedReservoirProperty)
+    assertThat(capturedReservoirProperty)
         .extracting(
             ReservoirProperty::getReservoirSubmissionDetail,
             ReservoirProperty::getReservoirFacies,
@@ -284,7 +288,6 @@ class ReservoirPropertiesPersistenceServiceTest {
 
   @Test
   void saveReservoirProperties_whenAnyField_withNoExistingReservoirProperty_verifyCreated_Entity() {
-
     var form = getValidForm();
     var fieldSubmissionDetail = SubmissionDetailTestUtils.createFieldSubmissionDetail(SubmissionType.CREATE_CSR);
     var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
@@ -292,6 +295,10 @@ class ReservoirPropertiesPersistenceServiceTest {
     var barrierBaffleDetailArgumentCaptor = ArgumentCaptor.forClass(BarrierBaffleDetail.class);
     when(reservoirPropertiesRepository.findByReservoirSubmissionDetail(fieldReservoirSubmissionDetail))
         .thenReturn(Optional.empty());
+    var savedReservoirProperty = new ReservoirProperty();
+    savedReservoirProperty.setId(UUID.randomUUID());
+    when(reservoirPropertiesRepository.save(any(ReservoirProperty.class)))
+        .thenReturn(savedReservoirProperty);
 
     reservoirPropertiesPersistenceService.saveReservoirProperty(form, fieldReservoirSubmissionDetail);
 
@@ -299,11 +306,11 @@ class ReservoirPropertiesPersistenceServiceTest {
 
     verify(reservoirPropertiesRepository, times(1)).save(reservoirPropertiesArgumentCaptor.capture());
 
-    var savedReservoirProperty = reservoirPropertiesArgumentCaptor.getValue();
+    var capturedReservoirProperty = reservoirPropertiesArgumentCaptor.getValue();
 
     // clear saved barrier baffles
-    verify(barrierBaffleDetailRepository, never()).deleteAllByReservoirPropertyAndVerticalLateralType(savedReservoirProperty, VerticalLateralType.LATERAL);
-    verify(barrierBaffleDetailRepository, never()).deleteAllByReservoirPropertyAndVerticalLateralType(savedReservoirProperty, VerticalLateralType.VERTICAL);
+    verify(barrierBaffleDetailRepository, times(1)).deleteAllByReservoirPropertyAndVerticalLateralType(savedReservoirProperty, VerticalLateralType.LATERAL);
+    verify(barrierBaffleDetailRepository, times(1)).deleteAllByReservoirPropertyAndVerticalLateralType(savedReservoirProperty, VerticalLateralType.VERTICAL);
 
     var totalBarrierBaffles = form.getLateralBarriersBafflesDetail().size() + form.getVerticalBarriersBafflesDetail().size();
     verify(barrierBaffleDetailRepository, times(totalBarrierBaffles))
@@ -321,7 +328,7 @@ class ReservoirPropertiesPersistenceServiceTest {
     var depositionalEnvironment = form.getDepositionalEnvironmentMap().get(depositionalSetting);
     var expectedDepositionalEnvironment = EnumUtils.getEnumValue(DepositionalEnvironment.class, depositionalEnvironment);
 
-    assertThat(savedReservoirProperty)
+    assertThat(capturedReservoirProperty)
         .extracting(
             ReservoirProperty::getReservoirSubmissionDetail,
             ReservoirProperty::getReservoirFacies,
@@ -348,6 +355,38 @@ class ReservoirPropertiesPersistenceServiceTest {
             form.getIsLateralBarriersBaffles(),
             form.getIsVerticalBarriersBaffles()
         );
+  }
+
+  @Test
+  void saveReservoirProperties_whenAnyField_withNoDepositionalSetting_verifyCreated_Entity() {
+    var form = getValidForm();
+    form.setDepositionalSetting(null);
+
+    var fieldSubmissionDetail = SubmissionDetailTestUtils.createFieldSubmissionDetail(SubmissionType.CREATE_CSR);
+    var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
+    var reservoirPropertiesArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
+    when(reservoirPropertiesRepository.findByReservoirSubmissionDetail(fieldReservoirSubmissionDetail))
+        .thenReturn(Optional.empty());
+
+    var savedReservoirProperty = new ReservoirProperty();
+    savedReservoirProperty.setId(UUID.randomUUID());
+    when(reservoirPropertiesRepository.save(any(ReservoirProperty.class)))
+        .thenReturn(savedReservoirProperty);
+
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, fieldReservoirSubmissionDetail);
+
+    verifyFieldSubmissionTypesProbabilityTablesSaved(form, fieldReservoirSubmissionDetail);
+
+    verify(reservoirPropertiesRepository, times(1)).save(reservoirPropertiesArgumentCaptor.capture());
+
+    var capturedReservoirProperty = reservoirPropertiesArgumentCaptor.getValue();
+
+    assertThat(capturedReservoirProperty)
+        .extracting(
+            ReservoirProperty::getDepositionalSetting,
+            ReservoirProperty::getDepositionalEnvironment
+        )
+        .containsOnlyNulls();
   }
 
   @Test
@@ -621,6 +660,37 @@ class ReservoirPropertiesPersistenceServiceTest {
         );
   }
 
+  @Test
+  void saveReservoirProperties_whenAny_field_withNoDepositionalEnvironmentForSetting() {
+    var form = getValidForm();
+    form.setDepositionalSetting(DepositionalSetting.COASTAL.name());
+
+    var reservoirArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
+
+    var fieldSubmissionDetail = SubmissionDetailTestUtils.createFieldSubmissionDetail(SubmissionType.CREATE_CSR);
+    var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
+
+    var savedReservoirProperty = new ReservoirProperty();
+    savedReservoirProperty.setId(UUID.randomUUID());
+    when(reservoirPropertiesRepository.save(any(ReservoirProperty.class)))
+        .thenReturn(savedReservoirProperty);
+
+    reservoirPropertiesPersistenceService.saveReservoirProperty(form, fieldReservoirSubmissionDetail);
+    verify(reservoirPropertiesRepository, times(1)).save(reservoirArgumentCaptor.capture());
+    var capturedReservoirProperty = reservoirArgumentCaptor.getValue();
+
+    var depositionalSetting = EnumUtils.getEnumValue(DepositionalSetting.class, form.getDepositionalSetting());
+    assertThat(capturedReservoirProperty)
+        .extracting(
+            ReservoirProperty::getDepositionalSetting,
+            ReservoirProperty::getDepositionalEnvironment
+        )
+        .containsExactly(
+            depositionalSetting,
+            null
+        );
+  }
+
   private ReservoirPropertiesForm getValidForm() {
     var form = new ReservoirPropertiesForm();
     form.setGroupName(GroupName.CLAIR);
@@ -658,72 +728,5 @@ class ReservoirPropertiesPersistenceServiceTest {
         ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
 
     return form;
-  }
-
-  @Test
-  void saveReservoirProperties_whenAny_field_withNoDepositionalEnvironmentForSetting() {
-    var form = getValidForm();
-    form.setDepositionalSetting(DepositionalSetting.COASTAL.name());
-
-    var fieldSubmissionDetail = SubmissionDetailTestUtils.createFieldSubmissionDetail(SubmissionType.CREATE_CSR);
-    var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
-    var reservoirPropertiesArgumentCaptor = ArgumentCaptor.forClass(ReservoirProperty.class);
-    var barrierBaffleDetailArgumentCaptor = ArgumentCaptor.forClass(BarrierBaffleDetail.class);
-    when(reservoirPropertiesRepository.findByReservoirSubmissionDetail(fieldReservoirSubmissionDetail))
-        .thenReturn(Optional.empty());
-
-    reservoirPropertiesPersistenceService.saveReservoirProperty(form, fieldReservoirSubmissionDetail);
-
-    verifyFieldSubmissionTypesProbabilityTablesSaved(form, fieldReservoirSubmissionDetail);
-
-    verify(reservoirPropertiesRepository, times(1)).save(reservoirPropertiesArgumentCaptor.capture());
-
-    var savedReservoirProperty = reservoirPropertiesArgumentCaptor.getValue();
-
-    // clear saved barrier baffles
-    verify(barrierBaffleDetailRepository, never()).deleteAllByReservoirPropertyAndVerticalLateralType(savedReservoirProperty, VerticalLateralType.LATERAL);
-    verify(barrierBaffleDetailRepository, never()).deleteAllByReservoirPropertyAndVerticalLateralType(savedReservoirProperty, VerticalLateralType.VERTICAL);
-
-    var totalBarrierBaffles = form.getLateralBarriersBafflesDetail().size() + form.getVerticalBarriersBafflesDetail().size();
-    verify(barrierBaffleDetailRepository, times(totalBarrierBaffles))
-        .save(barrierBaffleDetailArgumentCaptor.capture());
-    verifyNoMoreInteractions(barrierBaffleDetailRepository);
-
-    var savedBarrierBaffleDetails = barrierBaffleDetailArgumentCaptor.getAllValues();
-    var expectedBarrierBaffles = Stream.of(form.getLateralBarriersBafflesDetail(), form.getVerticalBarriersBafflesDetail())
-        .flatMap(Collection::stream).toList();
-
-    assertThat(savedBarrierBaffleDetails).extracting(barrierBaffleDetail -> barrierBaffleDetail.getBarrierBaffle().getEnumName())
-        .containsAnyElementsOf(expectedBarrierBaffles);
-
-    var depositionalSetting = EnumUtils.getEnumValue(DepositionalSetting.class, form.getDepositionalSetting());
-
-    assertThat(savedReservoirProperty)
-        .extracting(
-            ReservoirProperty::getReservoirSubmissionDetail,
-            ReservoirProperty::getReservoirFacies,
-            ReservoirProperty::getReservoirConnectivity,
-            ReservoirProperty::getGroupName,
-            ReservoirProperty::getLithology,
-            ReservoirProperty::getLithologyOther,
-            ReservoirProperty::getFracturePressure,
-            ReservoirProperty::getDepositionalSetting,
-            ReservoirProperty::getDepositionalEnvironment,
-            ReservoirProperty::getLateralBarriersBaffles,
-            ReservoirProperty::getVerticalBarriersBaffles
-        )
-        .containsExactly(
-            fieldReservoirSubmissionDetail,
-            form.getReservoirFacies(),
-            form.getReservoirConnectivity(),
-            form.getGroupName(),
-            form.getLithology(),
-            form.getLithologyOther(),
-            form.getFracturePressure().asBigDecimal().get(),
-            depositionalSetting,
-            null,
-            form.getIsLateralBarriersBaffles(),
-            form.getIsVerticalBarriersBaffles()
-        );
   }
 }

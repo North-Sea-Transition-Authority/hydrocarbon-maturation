@@ -148,42 +148,35 @@ public class ReservoirPropertiesSummaryService implements SummarySectionService<
     reservoirPropertiesPersistenceService.getReservoirProperty(reservoirSubmissionDetail).ifPresentOrElse(
         reservoirProperty -> {
           var formationName = reservoirProperty.getFormationName();
-          if (formationName == null) {
-            summaryDataView.addKeyValue(FORMATION_NAME,
-                reservoirProperty.getFormationNameManual());
-          } else {
-            summaryDataView.addKeyValue(FORMATION_NAME,
-                reservoirProperty.getFormationName().getDisplayName());
-          }
+          summaryDataView.addKeyValue(FORMATION_NAME, formationName != null
+              ? formationName.getDisplayName()
+              : reservoirProperty.getFormationNameManual());
 
           var subUnit = reservoirProperty.getSubUnit();
-          if (subUnit == null) {
-            summaryDataView.addKeyValue(SUB_UNIT,
-                reservoirProperty.getSubUnitManual());
-          } else {
-            summaryDataView.addKeyValue(SUB_UNIT,
-                reservoirProperty.getSubUnit().getDisplayName());
-          }
+          summaryDataView.addKeyValue(SUB_UNIT, subUnit != null
+              ? subUnit.getDisplayName()
+              : reservoirProperty.getSubUnitManual());
 
           var ageStage = reservoirProperty.getAgeStage();
-          if (ageStage == null) {
-            summaryDataView.addKeyValue(AGE_STAGE_OR_SERIES,
-                reservoirProperty.getAgeStageManual());
-          } else {
-            summaryDataView.addKeyValue(AGE_STAGE_OR_SERIES,
-                reservoirProperty.getAgeStage().getDisplayName());
-          }
+          summaryDataView.addKeyValue(AGE_STAGE_OR_SERIES, ageStage != null
+              ? ageStage.getDisplayName()
+              : reservoirProperty.getAgeStageManual());
 
-          summaryDataView.addKeyValue(GROUP_NAME,
-              reservoirProperty.getGroupName().getDisplayName());
+          var groupName = reservoirProperty.getGroupName();
+          summaryDataView.addKeyValue(GROUP_NAME, groupName != null
+              ? reservoirProperty.getGroupName().getDisplayName()
+              : "");
 
           var lithology = reservoirProperty.getLithology();
           if (StandardLithology.OTHER.equals(lithology)) {
             summaryDataView.addKeyValue(LITHOLOGY,
                 reservoirProperty.getLithologyOther());
+          } else if (lithology != null) {
+            summaryDataView.addKeyValue(LITHOLOGY,
+                lithology.getDisplayName());
           } else {
             summaryDataView.addKeyValue(LITHOLOGY,
-                reservoirProperty.getLithology().getDisplayName());
+                "");
           }
 
           summaryDataView.addKeyValue(RESERVOIR_FACIES,

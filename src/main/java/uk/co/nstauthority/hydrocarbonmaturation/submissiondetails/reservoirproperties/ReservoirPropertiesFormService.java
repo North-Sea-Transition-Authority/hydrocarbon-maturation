@@ -63,14 +63,20 @@ class ReservoirPropertiesFormService {
 
       if (resourceType == ResourceType.FIELD) {
         form.setFracturePressure(DecimalInput.createDecimalInput(reservoirProperty.getFracturePressure()));
-        form.setDepositionalSetting(reservoirProperty.getDepositionalSetting().name());
+
+        var depositionalSetting = reservoirProperty.getDepositionalSetting();
+        if (depositionalSetting != null) {
+          form.setDepositionalSetting(depositionalSetting.name());
+          var depositionalEnvironment = reservoirProperty.getDepositionalEnvironment();
+          if (depositionalEnvironment != null) {
+            form.getDepositionalEnvironmentMap().put(depositionalSetting, depositionalEnvironment.name());
+          }
+        }
         form.setIsLateralBarriersBaffles(reservoirProperty.getLateralBarriersBaffles());
         form.setIsVerticalBarriersBaffles(reservoirProperty.getVerticalBarriersBaffles());
         setLateralBarrierBaffles(reservoirProperty, form);
         setVerticalBarrierBaffles(reservoirProperty, form);
 
-        var depositionalSetting = reservoirProperty.getDepositionalSetting();
-        form.getDepositionalEnvironmentMap().put(depositionalSetting, reservoirProperty.getDepositionalEnvironment().name());
       }
     }
 

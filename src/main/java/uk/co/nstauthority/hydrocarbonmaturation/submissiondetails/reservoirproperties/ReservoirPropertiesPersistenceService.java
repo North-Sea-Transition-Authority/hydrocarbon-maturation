@@ -156,10 +156,14 @@ class ReservoirPropertiesPersistenceService {
 
       reservoirProperty.setLateralBarriersBaffles(form.getIsLateralBarriersBaffles());
       reservoirProperty.setVerticalBarriersBaffles(form.getIsVerticalBarriersBaffles());
-      saveBarrierBafflesDetail(form, reservoirProperty);
     }
 
-    reservoirPropertiesRepository.save(reservoirProperty);
+    var savedReservoirProperty = reservoirPropertiesRepository.save(reservoirProperty);
+
+    if (submissionDetail.isFieldSubmission()) {
+      // save reservoir property first to assign reservoir_property_id used in barrier_baffles table.
+      saveBarrierBafflesDetail(form, savedReservoirProperty);
+    }
   }
 
   Optional<ReservoirProperty> getReservoirProperty(ReservoirSubmissionDetail reservoirSubmissionDetail) {
@@ -350,22 +354,21 @@ class ReservoirPropertiesPersistenceService {
   }
 
   private void saveDepositionalSettingAndEnvironment(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {
-    var depositionalSetting = EnumUtils.getEnumValue(DepositionalSetting.class, form.getDepositionalSetting());
-    reservoirProperty.setDepositionalSetting(depositionalSetting);
+    if (form.getDepositionalSetting() != null) {
+      var depositionalSetting = EnumUtils.getEnumValue(DepositionalSetting.class, form.getDepositionalSetting());
+      reservoirProperty.setDepositionalSetting(depositionalSetting);
 
-    var depositionalEnvironmentFromSetting = form.getDepositionalEnvironmentMap().get(depositionalSetting);
-    if (depositionalEnvironmentFromSetting != null) {
-      var depositionalEnvironment = EnumUtils.getEnumValue(DepositionalEnvironment.class, depositionalEnvironmentFromSetting);
-      reservoirProperty.setDepositionalEnvironment(depositionalEnvironment);
+      var depositionalEnvironmentFromSetting = form.getDepositionalEnvironmentMap().get(depositionalSetting);
+      if (depositionalEnvironmentFromSetting != null) {
+        var depositionalEnvironment = EnumUtils.getEnumValue(DepositionalEnvironment.class, depositionalEnvironmentFromSetting);
+        reservoirProperty.setDepositionalEnvironment(depositionalEnvironment);
+      }
     }
   }
 
   private void saveBarrierBafflesDetail(ReservoirPropertiesForm form, ReservoirProperty reservoirProperty) {
-    // clean db unless new reservoir property
-    if (reservoirProperty.getId() != null) {
-      clearLateralBarrierBaffles(reservoirProperty);
-      clearVerticalBarrierBaffles(reservoirProperty);
-    }
+    clearLateralBarrierBaffles(reservoirProperty);
+    clearVerticalBarrierBaffles(reservoirProperty);
 
     // save new details
     if (form.getIsLateralBarriersBaffles() != null && form.getIsLateralBarriersBaffles()) {
