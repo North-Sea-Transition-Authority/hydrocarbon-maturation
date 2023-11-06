@@ -12,8 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
@@ -40,10 +38,6 @@ class OilCaseOutputsSubmissionServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new OilCaseOutputsForm();
 
-    var emptyBindingResult = ReverseRouter.emptyBindingResult();
-
-    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
-        .thenReturn(true);
     when(oilCaseOutputsFormService.getOilCaseOutputsForm(reservoirSubmissionDetail))
         .thenReturn(form);
     when(oilCaseOutputsFormValidator.isValid(
@@ -58,11 +52,7 @@ class OilCaseOutputsSubmissionServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new OilCaseOutputsForm();
-    var bindingResultWithError = ReverseRouter.emptyBindingResult();
-    bindingResultWithError.addError(new FieldError("object", "field", "message"));
 
-    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
-        .thenReturn(true);
     when(oilCaseOutputsFormService.getOilCaseOutputsForm(reservoirSubmissionDetail))
         .thenReturn(form);
     when(oilCaseOutputsFormValidator.isValid(
@@ -76,8 +66,6 @@ class OilCaseOutputsSubmissionServiceTest {
   void isSectionSubmittable_whenNotApplicable_thenTrue() {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
     when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
-        .thenReturn(false);
-    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail))
         .thenReturn(false);
     assertTrue(oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }

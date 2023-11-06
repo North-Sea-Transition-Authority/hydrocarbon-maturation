@@ -35,6 +35,8 @@ public class ProspectMixedCaseOutputsPersistenceService {
     mixedCaseOutput.setReservoirSubmissionDetail(reservoirSubmissionDetail);
     var hasAssociatedGasRecoverableResources = mixedCaseOutputsForm.getHasAssociatedGasRecoverableResources();
     mixedCaseOutput.setHasAssociatedGasRecoverableResources(hasAssociatedGasRecoverableResources);
+    var hasAssociatedCondensateRecoverableResources = mixedCaseOutputsForm.getHasAssociatedCondensateRecoverableResources();
+    mixedCaseOutput.setHasAssociatedCondensateRecoverableResources(hasAssociatedCondensateRecoverableResources);
 
     mixedCaseOutputsRepository.save(mixedCaseOutput);
   }
@@ -94,12 +96,18 @@ public class ProspectMixedCaseOutputsPersistenceService {
 
     var associatedCondensateRecoverableResources =
         ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT;
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-        associatedCondensateRecoverableResources,
-        mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
-        submissionDetail,
-        reservoirSubmissionDetail
-    );
+    if (BooleanUtils.isTrue(mixedCaseOutputsForm.getHasAssociatedCondensateRecoverableResources())) {
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+          associatedCondensateRecoverableResources,
+          mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
+          submissionDetail,
+          reservoirSubmissionDetail
+      );
+    } else if (BooleanUtils.isFalse(mixedCaseOutputsForm.getHasAssociatedCondensateRecoverableResources())) {
+      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
+          associatedCondensateRecoverableResources,
+          reservoirSubmissionDetail);
+    }
 
     var oilRecoverableResources =
         ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT;

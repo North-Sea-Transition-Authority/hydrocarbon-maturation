@@ -32,7 +32,7 @@ class DiscoveryMixedCaseVolumetricsFormServiceTest {
   @InjectMocks
   private DiscoveryMixedCaseVolumetricsFormService discoveryMixedCaseVolumetricsFormService;
 
-  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
   private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
 
   @Test
@@ -72,8 +72,10 @@ class DiscoveryMixedCaseVolumetricsFormServiceTest {
             form -> form.getGasInPlace().getProbabilityDistributionType(),
             form -> form.getGasRecoverableResources().getProbabilityDistributionType(),
             form -> form.getRiskedOilEquivalentRecoverableMean().getProbabilityDistributionType(),
-            MixedCaseOutputsForm::getHasAssociatedGasRecoverableResources)
+            MixedCaseOutputsForm::getHasAssociatedGasRecoverableResources,
+            MixedCaseOutputsForm::getHasAssociatedCondensateRecoverableResources)
         .containsExactly(
+            null,
             null,
             null,
             null,
@@ -88,86 +90,81 @@ class DiscoveryMixedCaseVolumetricsFormServiceTest {
 
   @Test
   void getMixedCaseOutputsForm_existingDiscoveryEntity_thenPopulatedForm() {
-    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
+    var oilInPlace = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY
+    );
+    var oilRecoverableResources = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY
+    );
+    var associatedGas = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
+    );
+    var gasInPlace = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY
+    );
+    var gasRecoverableResources = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY
+    );
+    var oilEquivalent = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+    );
+    var associatedCondensate = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
+    );
 
-    var probabilityDistributionForm =
-        ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm();
-
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY))
-        .thenReturn(probabilityDistributionForm);
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY))
+        .thenReturn(oilInPlace);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY))
-        .thenReturn(probabilityDistributionForm);
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY))
+        .thenReturn(oilRecoverableResources);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY))
-        .thenReturn(probabilityDistributionForm);
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY))
+        .thenReturn(associatedGas);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY))
-        .thenReturn(probabilityDistributionForm);
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY))
+        .thenReturn(gasInPlace);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY))
-        .thenReturn(probabilityDistributionForm);
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY))
+        .thenReturn(gasRecoverableResources);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY))
-        .thenReturn(probabilityDistributionForm);
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY))
+        .thenReturn(associatedCondensate);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        discoveryReservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY))
-        .thenReturn(probabilityDistributionForm);
+        reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY))
+        .thenReturn(oilEquivalent);
 
     MixedCaseOutput mixedCaseOutput = new MixedCaseOutput();
-    mixedCaseOutput.setHasAssociatedGasRecoverableResources(true);
-    when(discoveryMixedCaseVolumetricsPersistenceService.getMixedCaseOutput(discoveryReservoirSubmissionDetail))
+    mixedCaseOutput.setHasAssociatedCondensateRecoverableResources(true);
+    mixedCaseOutput.setReservoirSubmissionDetail(reservoirSubmissionDetail);
+    when(discoveryMixedCaseVolumetricsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(mixedCaseOutput));
 
-    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(discoveryReservoirSubmissionDetail))
-        .extracting(
-            form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
-            form -> form.getOilEquivalentRecoverableResources().getCustom().getConstant(),
-            form -> form.getOilEquivalentRecoverableResources().getCustom().getComments(),
-            form -> form.getAssociatedGasRecoverableResources().getProbabilityDistributionType(),
-            form -> form.getAssociatedGasRecoverableResources().getCustom().getConstant(),
-            form -> form.getAssociatedGasRecoverableResources().getCustom().getComments(),
-            form -> form.getOilInPlace().getProbabilityDistributionType(),
-            form -> form.getOilInPlace().getCustom().getConstant(),
-            form -> form.getOilInPlace().getCustom().getComments(),
-            form -> form.getAssociatedCondensateRecoverableResources().getProbabilityDistributionType(),
-            form -> form.getAssociatedCondensateRecoverableResources().getCustom().getConstant(),
-            form -> form.getAssociatedCondensateRecoverableResources().getCustom().getComments(),
-            form -> form.getOilRecoverableResources().getProbabilityDistributionType(),
-            form -> form.getOilRecoverableResources().getCustom().getConstant(),
-            form -> form.getOilRecoverableResources().getCustom().getComments(),
-            form -> form.getGasInPlace().getProbabilityDistributionType(),
-            form -> form.getGasInPlace().getCustom().getConstant(),
-            form -> form.getGasInPlace().getCustom().getComments(),
-            form -> form.getGasRecoverableResources().getProbabilityDistributionType(),
-            form -> form.getGasRecoverableResources().getCustom().getConstant(),
-            form -> form.getGasRecoverableResources().getCustom().getComments(),
-            MixedCaseOutputsForm::getHasAssociatedGasRecoverableResources)
-        .containsExactly(
-            probabilityDistributionForm.getProbabilityDistributionType(),
-            probabilityDistributionForm.getCustom().getConstant(),
-            probabilityDistributionForm.getCustom().getComments(),
-            probabilityDistributionForm.getProbabilityDistributionType(),
-            probabilityDistributionForm.getCustom().getConstant(),
-            probabilityDistributionForm.getCustom().getComments(),
-            probabilityDistributionForm.getProbabilityDistributionType(),
-            probabilityDistributionForm.getCustom().getConstant(),
-            probabilityDistributionForm.getCustom().getComments(),
-            probabilityDistributionForm.getProbabilityDistributionType(),
-            probabilityDistributionForm.getCustom().getConstant(),
-            probabilityDistributionForm.getCustom().getComments(),
-            probabilityDistributionForm.getProbabilityDistributionType(),
-            probabilityDistributionForm.getCustom().getConstant(),
-            probabilityDistributionForm.getCustom().getComments(),
-            probabilityDistributionForm.getProbabilityDistributionType(),
-            probabilityDistributionForm.getCustom().getConstant(),
-            probabilityDistributionForm.getCustom().getComments(),
-            probabilityDistributionForm.getProbabilityDistributionType(),
-            probabilityDistributionForm.getCustom().getConstant(),
-            probabilityDistributionForm.getCustom().getComments(),
-            true
-        );
+    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
+        .getHasAssociatedCondensateRecoverableResources()).isTrue();
+
+    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
+        .getHasAssociatedGasRecoverableResources()).isNull();
+
+    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
+        .getOilInPlace()).usingRecursiveComparison().isEqualTo(oilInPlace);
+
+    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
+        .getOilRecoverableResources()).usingRecursiveComparison().isEqualTo(oilRecoverableResources);
+
+    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
+        .getAssociatedGasRecoverableResources()).usingRecursiveComparison().isEqualTo(associatedGas);
+
+    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
+        .getGasInPlace()).usingRecursiveComparison().isEqualTo(gasInPlace);
+
+    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
+        .getGasRecoverableResources()).usingRecursiveComparison().isEqualTo(gasRecoverableResources);
+
+    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
+        .getAssociatedCondensateRecoverableResources()).usingRecursiveComparison().isEqualTo(associatedCondensate);
+
+    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
+        .getOilEquivalentRecoverableResources()).usingRecursiveComparison().isEqualTo(oilEquivalent);
   }
 }

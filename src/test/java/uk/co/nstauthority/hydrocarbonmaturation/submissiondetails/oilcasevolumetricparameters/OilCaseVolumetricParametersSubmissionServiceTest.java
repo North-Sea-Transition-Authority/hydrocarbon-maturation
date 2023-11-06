@@ -41,9 +41,6 @@ class OilCaseVolumetricParametersSubmissionServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new OilCaseVolumetricParametersForm();
-
-    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
-        .thenReturn(true);
     when(oilCaseVolumetricParametersFormService.getOilCaseVolumetricsForm(reservoirSubmissionDetail))
         .thenReturn(form);
     when(oilCaseVolumetricParametersFormValidator.isValid(
@@ -58,9 +55,6 @@ class OilCaseVolumetricParametersSubmissionServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new OilCaseVolumetricParametersForm();
-
-    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
-        .thenReturn(true);
     when(oilCaseVolumetricParametersFormService.getOilCaseVolumetricsForm(reservoirSubmissionDetail))
         .thenReturn(form);
     when(oilCaseVolumetricParametersFormValidator.isValid(
@@ -76,8 +70,8 @@ class OilCaseVolumetricParametersSubmissionServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new OilCaseVolumetricParametersForm();
 
-    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
-        .thenReturn(true);
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+        .thenReturn(false);
     when(fieldOilVolumetricParametersService.getOilVolumetricsForm(reservoirSubmissionDetail))
         .thenReturn(form);
     when(oilCaseVolumetricParametersFormValidator.isValid(
@@ -93,8 +87,8 @@ class OilCaseVolumetricParametersSubmissionServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new OilCaseVolumetricParametersForm();
 
-    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
-        .thenReturn(true);
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+        .thenReturn(false);
     when(fieldOilVolumetricParametersService.getOilVolumetricsForm(reservoirSubmissionDetail))
         .thenReturn(form);
     when(oilCaseVolumetricParametersFormValidator.isValid(
@@ -107,10 +101,8 @@ class OilCaseVolumetricParametersSubmissionServiceTest {
   @Test
   void isSectionSubmittable_whenNotApplicable_thenTrue() {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
-    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
-        .thenReturn(false);
-    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail))
-        .thenReturn(false);
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+        .thenReturn(true);
     assertTrue(oilCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 }

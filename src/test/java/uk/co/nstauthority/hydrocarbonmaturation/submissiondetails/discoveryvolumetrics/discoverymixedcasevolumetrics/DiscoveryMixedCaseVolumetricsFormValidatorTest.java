@@ -58,6 +58,8 @@ class DiscoveryMixedCaseVolumetricsFormValidatorTest {
                 Set.of("oilInPlace." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("associatedGasRecoverableResources." + probabilityDistributionType.getPath() + ".error",
+                Set.of("associatedGasRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("gasInPlace." + probabilityDistributionType.getPath() + ".error",
@@ -66,6 +68,21 @@ class DiscoveryMixedCaseVolumetricsFormValidatorTest {
                 Set.of("gasRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("associatedCondensateRecoverableResources." + probabilityDistributionType.getPath() + ".error.error"))
+        );
+  }
+
+  @Test
+  void validate_whenYesNoNotSelected_thenValidationErrors() {
+    var form = getValidForm();
+    form.setHasAssociatedCondensateRecoverableResources(null);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    discoveryMixedCaseVolumetricsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("hasAssociatedCondensateRecoverableResources", Set.of("hasAssociatedCondensateRecoverableResources.required"))
         );
   }
 
@@ -84,6 +101,8 @@ class DiscoveryMixedCaseVolumetricsFormValidatorTest {
                 Set.of("oilInPlace." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("associatedGasRecoverableResources." + probabilityDistributionType.getPath() + ".error",
+                Set.of("associatedGasRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("gasInPlace." + probabilityDistributionType.getPath() + ".error",
@@ -109,6 +128,7 @@ class DiscoveryMixedCaseVolumetricsFormValidatorTest {
     form.setOilInPlace(probabilityDistributionForm);
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionForm);
     form.setGasRecoverableResources(probabilityDistributionForm);
+    form.setHasAssociatedCondensateRecoverableResources(true);
 
     return form;
   }
@@ -128,19 +148,42 @@ class DiscoveryMixedCaseVolumetricsFormValidatorTest {
     form.setOilInPlace(probabilityDistributionForm);
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionForm);
     form.setGasRecoverableResources(probabilityDistributionForm);
+    form.setHasAssociatedCondensateRecoverableResources(true);
 
     return form;
   }
 
   private MixedCaseOutputsForm getValidForm() {
     var form = new MixedCaseOutputsForm();
-    form.setGasInPlace(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY));
-    form.setAssociatedGasRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY));
-    form.setOilEquivalentRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY));
-    form.setOilRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY));
-    form.setOilInPlace(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY));
-    form.setAssociatedCondensateRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY));
-    form.setGasRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY));
+    var oilInPlace = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY
+    );
+    var oilRecoverableResources = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY
+    );
+    var associatedGas = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
+    );
+    var gasInPlace = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY
+    );
+    var gasRecoverableResources = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY
+    );
+    var associatedCondensate = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
+    );
+    var oilEquivalent = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+    );
+    form.setOilInPlace(oilInPlace);
+    form.setOilRecoverableResources(oilRecoverableResources);
+    form.setAssociatedGasRecoverableResources(associatedGas);
+    form.setGasInPlace(gasInPlace);
+    form.setOilEquivalentRecoverableResources(oilEquivalent);
+    form.setAssociatedCondensateRecoverableResources(associatedCondensate);
+    form.setGasRecoverableResources(gasRecoverableResources);
+    form.setHasAssociatedCondensateRecoverableResources(true);
     return form;
   }
 

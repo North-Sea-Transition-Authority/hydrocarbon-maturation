@@ -53,7 +53,7 @@ class DiscoveryMixedCaseVolumetricsPersistenceServiceTest {
     form.setOilRecoverableResources(probDistribution);
     form.setOilEquivalentRecoverableResources(probDistribution);
     form.setAssociatedCondensateRecoverableResources(probDistribution);
-    form.setHasAssociatedGasRecoverableResources(true);
+    form.setHasAssociatedCondensateRecoverableResources(true);
 
     discoveryMixedCaseVolumetricsPersistenceService.saveMixedCaseOutputs(form, reservoirSubmissionDetail);
 
@@ -129,14 +129,14 @@ class DiscoveryMixedCaseVolumetricsPersistenceServiceTest {
             submissionDetail,
             reservoirSubmissionDetail);
 
-    verify(probabilityDistributionPersistenceService, times(1))
+    verify(probabilityDistributionPersistenceService, never())
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
             form.getAssociatedCondensateRecoverableResources(),
             submissionDetail,
             reservoirSubmissionDetail);
 
-    verify(probabilityDistributionPersistenceService, never())
+    verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
             form.getAssociatedGasRecoverableResources(),

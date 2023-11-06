@@ -4,10 +4,12 @@ import java.util.List;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 
 public record MixedCaseOutputsSummaryView(String hasAssociatedGasRecoverableResources,
+                                          String hasAssociatedCondensateRecoverableResources,
                                           List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews) {
 
   public static MixedCaseOutputsSummaryView empty() {
     return new MixedCaseOutputsSummaryView(
+        "",
         "",
         List.of(
             ProbabilityDistributionSummaryView.empty("Oil in place"),

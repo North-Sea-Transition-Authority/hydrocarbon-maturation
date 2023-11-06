@@ -29,11 +29,11 @@ public class DiscoveryMixedCaseVolumetricsFormService {
   private MixedCaseOutputsForm submissionDetailToForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var form = new MixedCaseOutputsForm();
     var mixedCaseOutputs = discoveryMixedCaseVolumetricsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail);
-    var hasAssociatedGasRecoverableResources = mixedCaseOutputs
-        .map(MixedCaseOutput::getHasAssociatedGasRecoverableResources)
+    var hasAssociatedCondensateRecoverableResources = mixedCaseOutputs
+        .map(MixedCaseOutput::getHasAssociatedCondensateRecoverableResources)
         .orElse(null);
 
-    form.setHasAssociatedGasRecoverableResources(hasAssociatedGasRecoverableResources);
+    form.setHasAssociatedCondensateRecoverableResources(hasAssociatedCondensateRecoverableResources);
 
     form.setOilInPlace(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         reservoirSubmissionDetail,

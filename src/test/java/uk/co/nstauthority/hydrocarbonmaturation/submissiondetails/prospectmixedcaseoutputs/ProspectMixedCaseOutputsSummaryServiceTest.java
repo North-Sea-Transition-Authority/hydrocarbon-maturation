@@ -55,13 +55,16 @@ class ProspectMixedCaseOutputsSummaryServiceTest {
         .thenReturn(emptySummary);
 
     mixedCaseOutput.setHasAssociatedGasRecoverableResources(true);
+    mixedCaseOutput.setHasAssociatedCondensateRecoverableResources(true);
 
     var view = prospectMixedCaseOutputsSummaryService.getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
     assertThat(view)
         .extracting(
             MixedCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
+            MixedCaseOutputsSummaryView::hasAssociatedCondensateRecoverableResources,
             MixedCaseOutputsSummaryView::probabilityDistributionSummaryViews)
         .containsExactly(
+            "Yes",
             "Yes",
             List.of(
                 emptySummary,
@@ -134,13 +137,16 @@ class ProspectMixedCaseOutputsSummaryServiceTest {
         .thenReturn(testSummary);
 
     mixedCaseOutput.setHasAssociatedGasRecoverableResources(true);
+    mixedCaseOutput.setHasAssociatedCondensateRecoverableResources(true);
 
     var view = prospectMixedCaseOutputsSummaryService.getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
     assertThat(view)
         .extracting(
             MixedCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
+            MixedCaseOutputsSummaryView::hasAssociatedCondensateRecoverableResources,
             MixedCaseOutputsSummaryView::probabilityDistributionSummaryViews)
         .containsExactly(
+            "Yes",
             "Yes",
             List.of(
                 testSummary,
@@ -163,8 +169,10 @@ class ProspectMixedCaseOutputsSummaryServiceTest {
     assertThat(view)
         .extracting(
             MixedCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
+            MixedCaseOutputsSummaryView::hasAssociatedCondensateRecoverableResources,
             MixedCaseOutputsSummaryView::probabilityDistributionSummaryViews)
         .containsExactly(
+            "",
             "",
             List.of(
                 ProbabilityDistributionSummaryView.empty("Oil in place"),

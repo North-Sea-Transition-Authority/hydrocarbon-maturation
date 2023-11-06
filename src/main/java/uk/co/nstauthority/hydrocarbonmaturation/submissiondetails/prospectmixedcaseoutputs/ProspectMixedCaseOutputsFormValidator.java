@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.prospectmixedcaseoutputs;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -64,14 +65,16 @@ class ProspectMixedCaseOutputsFormValidator implements SubmissionValidator {
         ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT
     );
 
-    var associatedCondensateRecoverableResources = mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources();
-    ProbabilityDistributionValidationUtil.validateCustomPartial(
-        associatedCondensateRecoverableResources,
-        errors,
-        "associatedCondensateRecoverableResources",
-        "Associated condensate recoverable resources",
-        ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT
-    );
+    if (hasAssociatedCondensateRecoverableResources(mixedCaseOutputsForm)) {
+      var associatedCondensateRecoverableResources = mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources();
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          associatedCondensateRecoverableResources,
+          errors,
+          "associatedCondensateRecoverableResources",
+          "Associated condensate recoverable resources",
+          ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT
+      );
+    }
 
     var oilEquivalentRecoverableResources = mixedCaseOutputsForm.getOilEquivalentRecoverableResources();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
@@ -150,14 +153,23 @@ class ProspectMixedCaseOutputsFormValidator implements SubmissionValidator {
         ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT
     );
 
-    var associatedCondensateRecoverableResources = mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources();
-    ProbabilityDistributionValidationUtil.validateCustomFull(
-        associatedCondensateRecoverableResources,
+    ValidationUtils.rejectIfEmptyOrWhitespace(
         errors,
-        "associatedCondensateRecoverableResources",
-        "Associated condensate recoverable resources",
-        ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT
+        "hasAssociatedCondensateRecoverableResources",
+        "hasAssociatedCondensateRecoverableResources.required",
+        "Select whether you expect to find associated condensate recoverable resources"
     );
+
+    if (hasAssociatedCondensateRecoverableResources(mixedCaseOutputsForm)) {
+      var associatedCondensateRecoverableResources = mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources();
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          associatedCondensateRecoverableResources,
+          errors,
+          "associatedCondensateRecoverableResources",
+          "Associated condensate recoverable resources",
+          ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT
+      );
+    }
 
     var oilEquivalentRecoverableResources = mixedCaseOutputsForm.getOilEquivalentRecoverableResources();
     ProbabilityDistributionValidationUtil.validateCustomFull(
@@ -179,7 +191,10 @@ class ProspectMixedCaseOutputsFormValidator implements SubmissionValidator {
   }
 
   private boolean hasAssociatedGasRecoverableResources(MixedCaseOutputsForm form) {
-    return form.getHasAssociatedGasRecoverableResources() != null
-        && form.getHasAssociatedGasRecoverableResources();
+    return BooleanUtils.isTrue(form.getHasAssociatedGasRecoverableResources());
+  }
+
+  private boolean hasAssociatedCondensateRecoverableResources(MixedCaseOutputsForm form) {
+    return BooleanUtils.isTrue(form.getHasAssociatedCondensateRecoverableResources());
   }
 }

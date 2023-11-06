@@ -33,18 +33,20 @@ public class GasCaseVolumetricParametersSubmissionService implements ReservoirSe
 
   @Override
   public boolean isSectionSubmittable(ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    if (generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)
-        || generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail)) {
-      GasCaseVolumetricParametersForm form;
-      if (reservoirSubmissionDetail.getSubmissionDetail().getSubmission().getResource().getType() == ResourceType.FIELD) {
-        form = fieldGasVolumetricParametersService.getGasVolumetricsForm(reservoirSubmissionDetail);
-      } else {
-        form = gasCaseVolumetricParametersFormService.getGasCaseVolumetricsForm(reservoirSubmissionDetail);
-      }
-      BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-      var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
-      return gasCaseVolumetricParametersFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
+    GasCaseVolumetricParametersForm form;
+    if (reservoirSubmissionDetail.getSubmissionDetail().getSubmission().getResource().getType() == ResourceType.FIELD) {
+      form = fieldGasVolumetricParametersService.getGasVolumetricsForm(reservoirSubmissionDetail);
+    } else {
+      form = gasCaseVolumetricParametersFormService.getGasCaseVolumetricsForm(reservoirSubmissionDetail);
     }
-    return true;
+
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+
+    if (!submissionDetail.isProspectSubmission() && generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)) {
+      return true;
+    }
+
+    BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
+    return gasCaseVolumetricParametersFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
   }
 }

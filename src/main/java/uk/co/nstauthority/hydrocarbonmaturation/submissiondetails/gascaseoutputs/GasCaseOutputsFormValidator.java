@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -194,7 +195,6 @@ class GasCaseOutputsFormValidator implements SubmissionValidator {
   }
 
   private boolean hasAssociatedCondensateRecoverableResources(GasCaseOutputsForm gasCaseOutputsForm) {
-    return gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources() != null
-        && gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources();
+    return BooleanUtils.isTrue(gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources());
   }
 }

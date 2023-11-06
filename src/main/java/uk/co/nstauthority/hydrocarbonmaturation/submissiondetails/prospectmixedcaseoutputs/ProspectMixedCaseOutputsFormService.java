@@ -33,6 +33,10 @@ public class ProspectMixedCaseOutputsFormService {
         .map(MixedCaseOutput::getHasAssociatedGasRecoverableResources)
         .orElse(null);
     form.setHasAssociatedGasRecoverableResources(hasAssociatedGasRecoverableResources);
+    var hasAssociatedCondensateRecoverableResources = mixedCaseOutputs
+        .map(MixedCaseOutput::getHasAssociatedCondensateRecoverableResources)
+        .orElse(null);
+    form.setHasAssociatedCondensateRecoverableResources(hasAssociatedCondensateRecoverableResources);
 
     form.setOilInPlace(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         reservoirSubmissionDetail,

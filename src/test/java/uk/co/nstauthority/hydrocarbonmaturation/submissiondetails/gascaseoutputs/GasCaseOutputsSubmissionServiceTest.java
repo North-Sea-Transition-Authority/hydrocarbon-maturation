@@ -39,11 +39,6 @@ class GasCaseOutputsSubmissionServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     var form = new GasCaseOutputsForm();
-
-    var emptyBindingResult = ReverseRouter.emptyBindingResult();
-
-    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
-        .thenReturn(true);
     when(gasCaseOutputsFormService.getGasCaseOutputsForm(reservoirSubmissionDetail))
         .thenReturn(form);
     when(gasCaseOutputsFormValidator.isValid(
@@ -60,9 +55,6 @@ class GasCaseOutputsSubmissionServiceTest {
     var form = new GasCaseOutputsForm();
     var bindingResultWithError = ReverseRouter.emptyBindingResult();
     bindingResultWithError.addError(new FieldError("object", "field", "message"));
-
-    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
-        .thenReturn(true);
     when(gasCaseOutputsFormService.getGasCaseOutputsForm(reservoirSubmissionDetail))
         .thenReturn(form);
     when(gasCaseOutputsFormValidator.isValid(
@@ -74,10 +66,9 @@ class GasCaseOutputsSubmissionServiceTest {
 
   @Test
   void isSectionSubmittable_whenNotApplicable_thenTrue() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
 
-    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail))
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
         .thenReturn(false);
     assertTrue(gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }

@@ -33,8 +33,8 @@ public class DiscoveryMixedCaseVolumetricsPersistenceService {
     var mixedCaseOutput = getMixedCaseOutput(reservoirSubmissionDetail).orElseGet(MixedCaseOutput::new);
 
     mixedCaseOutput.setReservoirSubmissionDetail(reservoirSubmissionDetail);
-    var hasAssociatedGasRecoverableResources = mixedCaseOutputsForm.getHasAssociatedGasRecoverableResources();
-    mixedCaseOutput.setHasAssociatedGasRecoverableResources(hasAssociatedGasRecoverableResources);
+    var hasAssociatedCondensateRecoverableResources = mixedCaseOutputsForm.getHasAssociatedCondensateRecoverableResources();
+    mixedCaseOutput.setHasAssociatedCondensateRecoverableResources(hasAssociatedCondensateRecoverableResources);
 
     mixedCaseOutputsRepository.save(mixedCaseOutput);
   }
@@ -60,20 +60,12 @@ public class DiscoveryMixedCaseVolumetricsPersistenceService {
         reservoirSubmissionDetail
     );
 
-    var associatedGasRecoverableResources =
-          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY;
-    if (hasAssociatedGasRecoverableResources(mixedCaseOutputsForm)) {
-      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-          associatedGasRecoverableResources,
-          mixedCaseOutputsForm.getAssociatedGasRecoverableResources(),
-          submissionDetail,
-          reservoirSubmissionDetail
-      );
-    } else if (BooleanUtils.isFalse(mixedCaseOutputsForm.getHasAssociatedGasRecoverableResources())) {
-      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
-          associatedGasRecoverableResources,
-          reservoirSubmissionDetail);
-    }
+    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
+        mixedCaseOutputsForm.getAssociatedGasRecoverableResources(),
+        submissionDetail,
+        reservoirSubmissionDetail
+    );
 
     var gasInPlace = ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
@@ -93,12 +85,20 @@ public class DiscoveryMixedCaseVolumetricsPersistenceService {
 
     var associatedCondensateRecoverableResources =
           ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY;
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-        associatedCondensateRecoverableResources,
-        mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
-        submissionDetail,
-        reservoirSubmissionDetail
-    );
+    if (BooleanUtils.isTrue(mixedCaseOutputsForm.getHasAssociatedCondensateRecoverableResources())) {
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+          associatedCondensateRecoverableResources,
+          mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
+          submissionDetail,
+          reservoirSubmissionDetail
+      );
+    } else if (BooleanUtils.isFalse(mixedCaseOutputsForm.getHasAssociatedCondensateRecoverableResources())) {
+      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
+          associatedCondensateRecoverableResources,
+          reservoirSubmissionDetail
+      );
+    }
+
 
     var oilRecoverableResources = ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY;
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
@@ -111,14 +111,5 @@ public class DiscoveryMixedCaseVolumetricsPersistenceService {
 
   public Optional<MixedCaseOutput> getMixedCaseOutput(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     return mixedCaseOutputsRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail);
-  }
-
-  private boolean hasAssociatedGasRecoverableResources(MixedCaseOutputsForm form) {
-    return BooleanUtils.isTrue(form.getHasAssociatedGasRecoverableResources());
-  }
-
-  @Transactional
-  public void deleteMixedCaseOutputForReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    mixedCaseOutputsRepository.deleteByReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 }

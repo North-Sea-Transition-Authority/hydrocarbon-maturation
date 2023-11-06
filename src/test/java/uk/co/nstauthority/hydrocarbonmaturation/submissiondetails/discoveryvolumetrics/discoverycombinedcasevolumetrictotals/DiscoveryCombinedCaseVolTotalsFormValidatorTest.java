@@ -39,7 +39,7 @@ class DiscoveryCombinedCaseVolTotalsFormValidatorTest {
   @ParameterizedTest
   @EnumSource(value = ValidationType.class)
   void validate_whenValidForm_thenNoValidationErrors(ValidationType validationType) {
-    var form = getDiscoveryValidForm();
+    var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     discoveryCombinedCaseVolTotalsFormValidator.isValid(form, bindingResult, submissionDetail, validationType);
     assertFalse(bindingResult.hasErrors());
@@ -66,13 +66,15 @@ class DiscoveryCombinedCaseVolTotalsFormValidatorTest {
             entry("gasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("gasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error"))
+                Set.of("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error"))
         );
   }
 
   @Test
   void validate_whenYesNoNotSelected_thenValidationErrors() {
-    var form = getDiscoveryValidForm();
+    var form = getValidForm();
     form.setHasAssociatedCondensateRecoverableResources(null);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     discoveryCombinedCaseVolTotalsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
@@ -86,11 +88,7 @@ class DiscoveryCombinedCaseVolTotalsFormValidatorTest {
   }
 
   @ParameterizedTest
-  @EnumSource(
-      value = ProbabilityDistributionType.class,
-      names = {"CUSTOM", "NOT_CALCULATED"},
-      mode = EnumSource.Mode.EXCLUDE
-  )
+  @EnumSource(value = ProbabilityDistributionType.class)
   void validate_whenEmptyExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithEmptyDistributions(probabilityDistributionType);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -118,11 +116,7 @@ class DiscoveryCombinedCaseVolTotalsFormValidatorTest {
   }
 
   @ParameterizedTest
-  @EnumSource(
-      value = ProbabilityDistributionType.class,
-      names = {"CUSTOM", "NOT_CALCULATED"},
-      mode = EnumSource.Mode.EXCLUDE
-  )
+  @EnumSource(value = ProbabilityDistributionType.class)
   void validate_whenInvalidExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithInvalidDistributions(probabilityDistributionType);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -184,10 +178,6 @@ class DiscoveryCombinedCaseVolTotalsFormValidatorTest {
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionForm);
     form.setHasAssociatedCondensateRecoverableResources(true);
     return form;
-  }
-
-  private MixedCaseOutputsForm getDiscoveryValidForm() {
-    return getValidForm();
   }
 
   private MixedCaseOutputsForm getValidForm() {

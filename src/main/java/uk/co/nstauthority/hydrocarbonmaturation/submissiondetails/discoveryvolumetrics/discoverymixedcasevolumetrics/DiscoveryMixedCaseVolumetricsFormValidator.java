@@ -1,7 +1,9 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverymixedcasevolumetrics;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -129,14 +131,22 @@ public class DiscoveryMixedCaseVolumetricsFormValidator implements SubmissionVal
         ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY
     );
 
-    var associatedCondensateRecoverableResources = mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources();
-    ProbabilityDistributionValidationUtil.validateCustomFull(
-        associatedCondensateRecoverableResources,
+    ValidationUtils.rejectIfEmptyOrWhitespace(
         errors,
-        "associatedCondensateRecoverableResources",
-        "Associated condensate recoverable resources",
-        ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
-    );
+        "hasAssociatedCondensateRecoverableResources",
+        "hasAssociatedCondensateRecoverableResources.required",
+        "Select whether you expect to find associated condensate recoverable resources");
+
+    if (hasAssociatedCondensateRecoverableResources(mixedCaseOutputsForm)) {
+      var associatedCondensateRecoverableResources = mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources();
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          associatedCondensateRecoverableResources,
+          errors,
+          "associatedCondensateRecoverableResources",
+          "Associated condensate recoverable resources",
+          ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
+      );
+    }
 
     var oilEquivalentRecoverableResources = mixedCaseOutputsForm.getOilEquivalentRecoverableResources();
     ProbabilityDistributionValidationUtil.validateCustomFull(
@@ -146,5 +156,9 @@ public class DiscoveryMixedCaseVolumetricsFormValidator implements SubmissionVal
         "Oil equivalent recoverable resources",
         ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
     );
+  }
+
+  private boolean hasAssociatedCondensateRecoverableResources(MixedCaseOutputsForm mixedCaseOutputsForm) {
+    return BooleanUtils.isTrue(mixedCaseOutputsForm.getHasAssociatedCondensateRecoverableResources());
   }
 }

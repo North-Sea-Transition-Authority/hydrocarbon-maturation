@@ -58,6 +58,8 @@ class ProspectMixedCaseOutputsFormValidatorTest {
                 Set.of("oilInPlace." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("associatedGasRecoverableResources." + probabilityDistributionType.getPath() + ".error",
+                Set.of("associatedGasRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("gasInPlace." + probabilityDistributionType.getPath() + ".error",
@@ -75,6 +77,7 @@ class ProspectMixedCaseOutputsFormValidatorTest {
   void validate_whenYesNoNotSelected_thenValidationErrors() {
     var form = getValidForm();
     form.setHasAssociatedGasRecoverableResources(null);
+    form.setHasAssociatedCondensateRecoverableResources(null);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     prospectMixedCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
@@ -82,7 +85,8 @@ class ProspectMixedCaseOutputsFormValidatorTest {
 
     assertThat(extractedErrors)
         .contains(
-            entry("hasAssociatedGasRecoverableResources", Set.of("hasAssociatedGasRecoverableResources.required"))
+            entry("hasAssociatedGasRecoverableResources", Set.of("hasAssociatedGasRecoverableResources.required")),
+            entry("hasAssociatedCondensateRecoverableResources", Set.of("hasAssociatedCondensateRecoverableResources.required"))
         );
   }
 
@@ -101,6 +105,8 @@ class ProspectMixedCaseOutputsFormValidatorTest {
                 Set.of("oilInPlace." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("associatedGasRecoverableResources." + probabilityDistributionType.getPath() + ".error",
+                Set.of("associatedGasRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error",
                 Set.of("oilEquivalentRecoverableResources." + probabilityDistributionType.getPath() + ".error.error")),
             entry("gasInPlace." + probabilityDistributionType.getPath() + ".error",
@@ -130,6 +136,7 @@ class ProspectMixedCaseOutputsFormValidatorTest {
     form.setGasRecoverableResources(probabilityDistributionForm);
     form.setRiskedOilEquivalentRecoverableMean(probabilityDistributionForm);
     form.setHasAssociatedGasRecoverableResources(true);
+    form.setHasAssociatedCondensateRecoverableResources(true);
 
     return form;
   }
@@ -150,8 +157,8 @@ class ProspectMixedCaseOutputsFormValidatorTest {
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionForm);
     form.setGasRecoverableResources(probabilityDistributionForm);
     form.setRiskedOilEquivalentRecoverableMean(probabilityDistributionForm);
-    form.setHasAssociatedGasRecoverableResources(false);
-
+    form.setHasAssociatedGasRecoverableResources(true);
+    form.setHasAssociatedCondensateRecoverableResources(true);
     return form;
   }
 
@@ -166,6 +173,7 @@ class ProspectMixedCaseOutputsFormValidatorTest {
     form.setGasRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT));
     form.setRiskedOilEquivalentRecoverableMean(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.MIXED_CASE_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT));
     form.setHasAssociatedGasRecoverableResources(true);
+    form.setHasAssociatedCondensateRecoverableResources(true);
     return form;
   }
 

@@ -27,14 +27,12 @@ public class GasCaseOutputsSubmissionService implements ReservoirSectionSubmissi
 
   @Override
   public boolean isSectionSubmittable(ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    if (generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)
-        || generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail)) {
-      var form = gasCaseOutputsFormService.getGasCaseOutputsForm(reservoirSubmissionDetail);
-      BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-      var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
-      return gasCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
+    var form = gasCaseOutputsFormService.getGasCaseOutputsForm(reservoirSubmissionDetail);
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+    if (!submissionDetail.isProspectSubmission() && !generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)) {
+      return true;
     }
-
-    return true;
+    BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
+    return gasCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
   }
 }
