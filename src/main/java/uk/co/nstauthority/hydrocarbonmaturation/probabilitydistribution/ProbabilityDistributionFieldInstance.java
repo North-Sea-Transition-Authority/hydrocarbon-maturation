@@ -442,6 +442,11 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.MMSTB,
       "Oil in place"
   ),
+  OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD(
+      FieldVolumetricsBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Oil in place"
+  ),
   OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT(
       ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,

@@ -45,6 +45,17 @@ public class ProbabilityDistributionPersistenceService {
     }
   }
 
+  @Transactional
+  public void saveProbabilityDistributionWhenNotNull(ProbabilityDistributionFieldInstance probabilityDistributionFieldInstance,
+                                                     ProbabilityDistributionForm probabilityDistributionForm,
+                                                     ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+    if (probabilityDistributionForm.getProbabilityDistributionType() != null) {
+      saveProbabilityDistribution(probabilityDistributionFieldInstance, probabilityDistributionForm, submissionDetail,
+          reservoirSubmissionDetail);
+    }
+  }
+
   private void saveProbabilityDistribution(
       ProbabilityDistributionFieldInstance instance,
       ProbabilityDistributionForm form,
