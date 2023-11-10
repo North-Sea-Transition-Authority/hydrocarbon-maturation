@@ -40,7 +40,7 @@ public class FieldGasCaseVolumetricTotalsSummaryService implements SummarySectio
   public Optional<SummarySection> getSummarySection(SubmissionDetail submissionDetail) {
     var reservoirSubmissionDetails =
         reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
-    if (!submissionDetail.isFieldSubmission() || totalVolumesTaskListSectionService.isOilCaseOnly(reservoirSubmissionDetails)) {
+    if (!submissionDetail.isFieldSubmission() || !totalVolumesTaskListSectionService.isGasCaseOnly(reservoirSubmissionDetails)) {
       return Optional.empty();
     }
     var summaryItems = List.of(getResourcesAndReservesSummary(submissionDetail));

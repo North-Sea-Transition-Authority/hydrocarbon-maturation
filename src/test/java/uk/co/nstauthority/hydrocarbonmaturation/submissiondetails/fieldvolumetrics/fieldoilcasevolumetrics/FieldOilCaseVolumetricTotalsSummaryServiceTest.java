@@ -53,8 +53,8 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
             .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail)
         ).thenReturn(reservoirSubmissionDetails);
 
-        when(totalVolumesTaskListSectionService.isGasCaseOnly(reservoirSubmissionDetails))
-            .thenReturn(true);
+        when(totalVolumesTaskListSectionService.isOilCaseOnly(reservoirSubmissionDetails))
+            .thenReturn(false);
 
         assertThat(fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail))
             .isEmpty();
@@ -69,8 +69,8 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
             .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail)
         ).thenReturn(reservoirSubmissionDetails);
 
-        when(totalVolumesTaskListSectionService.isGasCaseOnly(reservoirSubmissionDetails))
-            .thenReturn(false);
+        when(totalVolumesTaskListSectionService.isOilCaseOnly(reservoirSubmissionDetails))
+            .thenReturn(true);
 
         var emptyProbabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
         when(probabilityDistributionSummaryService

@@ -93,42 +93,42 @@ public class FieldGasCaseVolumetricTotalsService {
   }
 
   private void saveProbabilityDistributionFields(
-      GasCaseOutputsForm oilCaseOutputsForm,
+      GasCaseOutputsForm gasCaseOutputsForm,
       SubmissionDetail submissionDetail) {
 
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD,
-        oilCaseOutputsForm.getGasInPlace(),
+        gasCaseOutputsForm.getGasInPlace(),
         submissionDetail
     );
 
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD,
-        oilCaseOutputsForm.getGasRecoverableResources(),
+        gasCaseOutputsForm.getGasRecoverableResources(),
         submissionDetail
     );
 
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD,
-        oilCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
+        gasCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
         submissionDetail
     );
 
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,
-        oilCaseOutputsForm.getOilEquivalentRecoverableResources(),
+        gasCaseOutputsForm.getOilEquivalentRecoverableResources(),
         submissionDetail
     );
 
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD,
-        oilCaseOutputsForm.getNaturalGasLiquidsResources(),
+        gasCaseOutputsForm.getNaturalGasLiquidsResources(),
         submissionDetail
     );
 
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD,
-        oilCaseOutputsForm.getSalesGasResources(),
+        gasCaseOutputsForm.getSalesGasResources(),
         submissionDetail
     );
 
@@ -136,31 +136,31 @@ public class FieldGasCaseVolumetricTotalsService {
       // Save the fields related to reserves if it's not a concept select report submission
       probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD,
-          oilCaseOutputsForm.getGasRecoverableReserves(),
+          gasCaseOutputsForm.getGasRecoverableReserves(),
           submissionDetail
       );
 
       probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD,
-          oilCaseOutputsForm.getAssociatedCondensateRecoverableReserves(),
+          gasCaseOutputsForm.getAssociatedCondensateRecoverableReserves(),
           submissionDetail
       );
 
       probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD,
-          oilCaseOutputsForm.getOilEquivalentRecoverableReserves(),
+          gasCaseOutputsForm.getOilEquivalentRecoverableReserves(),
           submissionDetail
       );
 
       probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESERVES_FIELD,
-          oilCaseOutputsForm.getNaturalGasLiquidsReserves(),
+          gasCaseOutputsForm.getNaturalGasLiquidsReserves(),
           submissionDetail
       );
 
       probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD,
-          oilCaseOutputsForm.getSalesGasReserves(),
+          gasCaseOutputsForm.getSalesGasReserves(),
           submissionDetail
       );
     }

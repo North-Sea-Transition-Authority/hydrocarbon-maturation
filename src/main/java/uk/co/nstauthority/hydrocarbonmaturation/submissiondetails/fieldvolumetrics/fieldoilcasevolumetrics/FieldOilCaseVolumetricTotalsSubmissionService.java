@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -13,6 +14,7 @@ public class FieldOilCaseVolumetricTotalsSubmissionService implements SectionSub
   private final FieldOilCaseVolumetricTotalsService fieldOilCaseVolumetricTotalsService;
   private final FieldOilCaseVolumetricTotalsFormValidator fieldOilCaseVolumetricTotalsFormValidator;
 
+  @Autowired
   public FieldOilCaseVolumetricTotalsSubmissionService(
       FieldOilCaseVolumetricTotalsService fieldOilCaseVolumetricTotalsService,
       FieldOilCaseVolumetricTotalsFormValidator fieldOilCaseVolumetricTotalsFormValidator) {

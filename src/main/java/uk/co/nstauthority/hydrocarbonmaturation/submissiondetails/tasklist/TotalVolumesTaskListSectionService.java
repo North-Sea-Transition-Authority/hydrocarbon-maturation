@@ -15,6 +15,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolum
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldcombinedcasedvolumetrictotals.FieldCombinedCaseVolumetricTotalsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldcombinedcasedvolumetrictotals.FieldCombinedCaseVolumetricTotalsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldgascasevolumetrics.FieldGasCaseVolumetricTotalsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldgascasevolumetrics.FieldGasCaseVolumetricTotalsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.FieldOilCaseVolumetricTotalsController;
@@ -33,6 +35,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
   private final DiscoveryCombinedVolTotalsSubmissionService discoveryCombinedVolTotalsSubmissionService;
   private final FieldOilCaseVolumetricTotalsSubmissionService fieldOilCaseVolumetricTotalsSubmissionService;
   private final FieldGasCaseVolumetricTotalsSubmissionService fieldGasCaseVolumetricTotalsSubmissionService;
+  private final FieldCombinedCaseVolumetricTotalsSubmissionService fieldCombinedCaseVolumetricTotalsSubmissionService;
 
   @Autowired
   public TotalVolumesTaskListSectionService(
@@ -42,7 +45,8 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
       DiscoveryGasCaseVolumetricTotalsSubmissionService discoveryGasCaseVolumetricTotalsSubmissionService,
       DiscoveryCombinedVolTotalsSubmissionService discoveryCombinedVolTotalsSubmissionService,
       FieldOilCaseVolumetricTotalsSubmissionService fieldOilCaseVolumetricTotalsSubmissionService,
-      FieldGasCaseVolumetricTotalsSubmissionService fieldGasCaseVolumetricTotalsSubmissionService) {
+      FieldGasCaseVolumetricTotalsSubmissionService fieldGasCaseVolumetricTotalsSubmissionService,
+      FieldCombinedCaseVolumetricTotalsSubmissionService fieldCombinedCaseVolumetricTotalsSubmissionService) {
 
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.generalReservoirInformationService = generalReservoirInformationService;
@@ -51,6 +55,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
     this.discoveryCombinedVolTotalsSubmissionService = discoveryCombinedVolTotalsSubmissionService;
     this.fieldOilCaseVolumetricTotalsSubmissionService = fieldOilCaseVolumetricTotalsSubmissionService;
     this.fieldGasCaseVolumetricTotalsSubmissionService = fieldGasCaseVolumetricTotalsSubmissionService;
+    this.fieldCombinedCaseVolumetricTotalsSubmissionService = fieldCombinedCaseVolumetricTotalsSubmissionService;
   }
 
   public boolean sectionIsPresent(SubmissionDetail submissionDetail) {
@@ -92,8 +97,8 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
       return true;
     }
 
-    var reservoirSubmissionDetails =
-        reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
+    var reservoirSubmissionDetails = reservoirSubmissionDetailPersistenceService
+        .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
     if (reservoirSubmissionDetails.isEmpty()) {
       return false;
     }
@@ -166,6 +171,15 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
             ),
             ReverseRouter.route(on(FieldGasCaseVolumetricTotalsController.class)
                 .getFieldGasCaseVolumetricTotals(submissionDetail.getId())))
+        );
+      }
+      if (isCombinedCase(reservoirSubmissionDetails)) {
+        listOfItems.add(new TaskListItem("Total oil and gas case volumetrics",
+            TaskListLabel.notStartedOrComplete(
+                fieldCombinedCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail)
+            ),
+            ReverseRouter.route(on(FieldCombinedCaseVolumetricTotalsController.class)
+                .getFieldCombinedCaseVolumetricTotals(submissionDetail.getId())))
         );
       }
     }

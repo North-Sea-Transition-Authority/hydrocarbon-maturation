@@ -465,7 +465,7 @@ class FieldOilCaseVolumetricTotalsServiceTest {
     probabilityDistributionFormResources.setCustom(probabilityOfExceedanceFormResources);
 
     form.setOilInPlace(probabilityDistributionFormResources);
-    form.setAssociatedCondensateRecoverableResources(probabilityDistributionFormResources);
+    form.setOilRecoverableResources(probabilityDistributionFormResources);
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionFormResources);
     form.setAssociatedGasRecoverableResources(probabilityDistributionFormResources);
     form.setOilEquivalentRecoverableResources(probabilityDistributionFormResources);
@@ -490,7 +490,7 @@ class FieldOilCaseVolumetricTotalsServiceTest {
     probabilityDistributionFormReserves.setCustom(probabilityOfExceedanceFormResources);
 
     form.setAssociatedCondensateRecoverableReserves(probabilityDistributionFormReserves);
-    form.setAssociatedCondensateRecoverableReserves(probabilityDistributionFormReserves);
+    form.setOilRecoverableReserves(probabilityDistributionFormReserves);
     form.setAssociatedGasRecoverableReserves(probabilityDistributionFormReserves);
     form.setOilEquivalentRecoverableReserves(probabilityDistributionFormReserves);
     form.setNaturalGasLiquidsReserves(probabilityDistributionFormReserves);

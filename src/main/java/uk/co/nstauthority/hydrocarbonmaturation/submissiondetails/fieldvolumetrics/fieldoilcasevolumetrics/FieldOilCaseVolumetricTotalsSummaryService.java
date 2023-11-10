@@ -40,7 +40,7 @@ public class FieldOilCaseVolumetricTotalsSummaryService implements SummarySectio
   public Optional<SummarySection> getSummarySection(SubmissionDetail submissionDetail) {
     var reservoirSubmissionDetails =
         reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
-    if (!submissionDetail.isFieldSubmission() || totalVolumesTaskListSectionService.isGasCaseOnly(reservoirSubmissionDetails)) {
+    if (!submissionDetail.isFieldSubmission() || !totalVolumesTaskListSectionService.isOilCaseOnly(reservoirSubmissionDetails)) {
       return Optional.empty();
     }
     var summaryItems = List.of(getResourcesAndReservesSummary(submissionDetail));
@@ -68,6 +68,7 @@ public class FieldOilCaseVolumetricTotalsSummaryService implements SummarySectio
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD
       )
     );
+
     if (!submissionDetail.isConceptSelectReportSubmission()) {
       listOfInstances.addAll(List.of(
               ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD,

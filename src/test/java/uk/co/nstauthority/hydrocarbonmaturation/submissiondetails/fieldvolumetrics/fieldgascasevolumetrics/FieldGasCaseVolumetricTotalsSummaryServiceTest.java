@@ -47,8 +47,8 @@ class FieldGasCaseVolumetricTotalsSummaryServiceTest {
   @Test
   void getSummarySection_notApplicableHydrocarbon_thenEmpty() {
     var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
-    when(totalVolumesTaskListSectionService.isOilCaseOnly(anyList()))
-        .thenReturn(true);
+    when(totalVolumesTaskListSectionService.isGasCaseOnly(anyList()))
+        .thenReturn(false);
     assertThat(fieldGasCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail))
         .isEmpty();
   }
@@ -56,6 +56,9 @@ class FieldGasCaseVolumetricTotalsSummaryServiceTest {
   @Test
   void getSummarySection_validForm_assertStructure() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_COP);
+
+    when(totalVolumesTaskListSectionService.isGasCaseOnly(anyList()))
+        .thenReturn(true);
 
     var probabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
     when(probabilityDistributionSummaryService
