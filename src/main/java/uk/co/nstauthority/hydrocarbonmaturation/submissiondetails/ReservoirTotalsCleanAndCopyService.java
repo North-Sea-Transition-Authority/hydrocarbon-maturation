@@ -17,9 +17,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservo
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 
 @Service
-public class ReservoirTotalsCopyService {
+public class ReservoirTotalsCleanAndCopyService {
 
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
@@ -28,16 +29,19 @@ public class ReservoirTotalsCopyService {
   private final GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService;
   private final DiscoveryMixedCaseVolumetricsPersistenceService discoveryMixedCaseVolumetricsPersistenceService;
   private final DiscoveryCombinedCaseVolTotalsService discoveryCombinedCaseVolTotalsService;
+  private final TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
 
   @Autowired
-  public ReservoirTotalsCopyService(
+  public ReservoirTotalsCleanAndCopyService(
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
       ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
       GeneralReservoirInformationService generalReservoirInformationService,
       DiscoveryGasCaseVolumetricTotalsService discoveryGasCaseVolumetricTotalsService,
       GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService,
       DiscoveryMixedCaseVolumetricsPersistenceService discoveryMixedCaseVolumetricsPersistenceService,
-      DiscoveryCombinedCaseVolTotalsService discoveryCombinedCaseVolTotalsService) {
+      DiscoveryCombinedCaseVolTotalsService discoveryCombinedCaseVolTotalsService,
+      TotalVolumesTaskListSectionService totalVolumesTaskListSectionService) {
+
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.generalReservoirInformationService = generalReservoirInformationService;
@@ -45,6 +49,7 @@ public class ReservoirTotalsCopyService {
     this.gasCaseOutputsPersistenceService = gasCaseOutputsPersistenceService;
     this.discoveryMixedCaseVolumetricsPersistenceService = discoveryMixedCaseVolumetricsPersistenceService;
     this.discoveryCombinedCaseVolTotalsService = discoveryCombinedCaseVolTotalsService;
+    this.totalVolumesTaskListSectionService = totalVolumesTaskListSectionService;
   }
 
 
@@ -53,7 +58,7 @@ public class ReservoirTotalsCopyService {
    * then copy the probability information from that into the totals for the submission.
    * @param submissionDetail the submission detail being submitted
    */
-  public void copySingleReservoirIntoTotals(SubmissionDetail submissionDetail) {
+  public void cleanAndCopyDiscoveryVolumetricTotals(SubmissionDetail submissionDetail) {
     if (!submissionDetail.isDiscoverySubmission()) {
       return;
     }
@@ -71,6 +76,8 @@ public class ReservoirTotalsCopyService {
     );
 
     if (reservoirSubmissionDetails.size() == 1) {
+      // if single reservoir,  copy into totals
+      // clean any previous totals saved first
       probabilityDistributionPersistenceService.deleteProbabilityDistributions(totals, submissionDetail);
       discoveryGasCaseVolumetricTotalsService.deleteGasCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
       discoveryCombinedCaseVolTotalsService.deleteCombinedCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
@@ -79,7 +86,14 @@ public class ReservoirTotalsCopyService {
       copyOil(reservoirSubmissionDetail, submissionDetail);
       copyGas(reservoirSubmissionDetail, submissionDetail);
       copyCommon(reservoirSubmissionDetail, submissionDetail);
+    }  else if (totalVolumesTaskListSectionService.isGasCaseOnly(reservoirSubmissionDetails)) {
+      // if gas only, clean any oil totals saved
+      deleteOilOnlyDiscoveryTotals(submissionDetail);
+    } else if (totalVolumesTaskListSectionService.isOilCaseOnly(reservoirSubmissionDetails)) {
+      // if oil only, clean any gas totals saved
+      deleteGasOnlyDiscoveryTotals(submissionDetail);
     }
+    // combined case currently requires all totals so do not delete any totals
   }
 
   private void copyOil(ReservoirSubmissionDetail reservoirSubmissionDetail, SubmissionDetail submissionDetail) {
@@ -166,5 +180,24 @@ public class ReservoirTotalsCopyService {
         ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY,
         submissionDetail
     );
+  }
+
+  private void deleteOilOnlyDiscoveryTotals(SubmissionDetail submissionDetail) {
+    List<ProbabilityDistributionFieldInstance> totals = List.of(
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY,
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
+    );
+
+    probabilityDistributionPersistenceService.deleteProbabilityDistributions(totals, submissionDetail);
+  }
+
+  private void deleteGasOnlyDiscoveryTotals(SubmissionDetail submissionDetail) {
+    List<ProbabilityDistributionFieldInstance> totals = List.of(
+        ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY,
+        ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY
+    );
+
+    probabilityDistributionPersistenceService.deleteProbabilityDistributions(totals, submissionDetail);
   }
 }

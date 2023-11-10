@@ -22,7 +22,7 @@ public class SubmissionApprovalService {
   private final SubmissionUpdateService submissionUpdateService;
   private final ResponsibleTeamService responsibleTeamService;
   private final AreaTeamService areaTeamService;
-  private final ReservoirTotalsCopyService reservoirTotalsCopyService;
+  private final ReservoirTotalsCleanAndCopyService reservoirTotalsCleanAndCopyService;
 
   @Autowired
   public SubmissionApprovalService(
@@ -32,7 +32,7 @@ public class SubmissionApprovalService {
       SubmissionEmailService submissionEmailService,
       SubmissionUpdateService submissionUpdateService,
       ResponsibleTeamService responsibleTeamService,
-      AreaTeamService areaTeamService, ReservoirTotalsCopyService reservoirTotalsCopyService) {
+      AreaTeamService areaTeamService, ReservoirTotalsCleanAndCopyService reservoirTotalsCleanAndCopyService) {
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
     this.regulatorTeamService = regulatorTeamService;
     this.userDetailService = userDetailService;
@@ -40,12 +40,12 @@ public class SubmissionApprovalService {
     this.submissionUpdateService = submissionUpdateService;
     this.responsibleTeamService = responsibleTeamService;
     this.areaTeamService = areaTeamService;
-    this.reservoirTotalsCopyService = reservoirTotalsCopyService;
+    this.reservoirTotalsCleanAndCopyService = reservoirTotalsCleanAndCopyService;
   }
 
   @Transactional
   public void submitSubmission(SubmissionDetail submissionDetail) {
-    reservoirTotalsCopyService.copySingleReservoirIntoTotals(submissionDetail);
+    reservoirTotalsCleanAndCopyService.cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
 
     // corrections will already have submission and approval details stored, just need to set the status
     if (BooleanUtils.isTrue(submissionDetail.isCorrection())) {

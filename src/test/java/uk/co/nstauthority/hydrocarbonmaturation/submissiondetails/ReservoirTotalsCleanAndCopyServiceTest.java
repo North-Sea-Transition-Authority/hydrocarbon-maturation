@@ -1,9 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -29,9 +31,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutpu
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 
 @ExtendWith(MockitoExtension.class)
-class ReservoirTotalsCopyServiceTest {
+class ReservoirTotalsCleanAndCopyServiceTest {
 
   @Mock
   private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
@@ -47,9 +50,11 @@ class ReservoirTotalsCopyServiceTest {
   private DiscoveryMixedCaseVolumetricsPersistenceService discoveryMixedCaseVolumetricsPersistenceService;
   @Mock
   private DiscoveryCombinedCaseVolTotalsService discoveryCombinedCaseVolTotalsService;
+  @Mock
+  private TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
 
   @InjectMocks
-  private ReservoirTotalsCopyService reservoirTotalsCopyService;
+  private ReservoirTotalsCleanAndCopyService reservoirTotalsCleanAndCopyService;
 
   @Captor
   private ArgumentCaptor<GasCaseVolumetricTotal> gasCaseVolumetricTotalArgumentCaptor;
@@ -60,7 +65,7 @@ class ReservoirTotalsCopyServiceTest {
   @Test
   void copySingleReservoirIntoTotals_whenNotADiscovery() {
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    reservoirTotalsCopyService.copySingleReservoirIntoTotals(submissionDetail);
+    reservoirTotalsCleanAndCopyService.cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
     verifyNoInteractions(reservoirSubmissionDetailPersistenceService);
     verifyNoInteractions(probabilityDistributionPersistenceService);
     verifyNoInteractions(generalReservoirInformationService);
@@ -71,7 +76,7 @@ class ReservoirTotalsCopyServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(List.of(new ReservoirSubmissionDetail(), new ReservoirSubmissionDetail()));
-    reservoirTotalsCopyService.copySingleReservoirIntoTotals(submissionDetail);
+    reservoirTotalsCleanAndCopyService.cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
     verifyNoInteractions(probabilityDistributionPersistenceService);
     verifyNoInteractions(generalReservoirInformationService);
   }
@@ -94,7 +99,7 @@ class ReservoirTotalsCopyServiceTest {
     when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)).thenReturn(true);
     when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)).thenReturn(false);
     when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail)).thenReturn(false);
-    reservoirTotalsCopyService.copySingleReservoirIntoTotals(submissionDetail);
+    reservoirTotalsCleanAndCopyService.cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
     verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(totals, submissionDetail);
     verify(probabilityDistributionPersistenceService).copyProbabilityDistribution(
         ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY,
@@ -144,7 +149,7 @@ class ReservoirTotalsCopyServiceTest {
     when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)).thenReturn(false);
     when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)).thenReturn(true);
     when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail)).thenReturn(false);
-    reservoirTotalsCopyService.copySingleReservoirIntoTotals(submissionDetail);
+    reservoirTotalsCleanAndCopyService.cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
     verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(totals, submissionDetail);
     verify(probabilityDistributionPersistenceService).copyProbabilityDistribution(
         ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY,
@@ -197,7 +202,7 @@ class ReservoirTotalsCopyServiceTest {
     when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)).thenReturn(false);
     when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)).thenReturn(true);
     when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail)).thenReturn(false);
-    reservoirTotalsCopyService.copySingleReservoirIntoTotals(submissionDetail);
+    reservoirTotalsCleanAndCopyService.cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
     verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(totals, submissionDetail);
     verify(probabilityDistributionPersistenceService).copyProbabilityDistribution(
         ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY,
@@ -241,7 +246,7 @@ class ReservoirTotalsCopyServiceTest {
     when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)).thenReturn(false);
     when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)).thenReturn(false);
     when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail)).thenReturn(true);
-    reservoirTotalsCopyService.copySingleReservoirIntoTotals(submissionDetail);
+    reservoirTotalsCleanAndCopyService.cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
     verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(totals, submissionDetail);
     verify(probabilityDistributionPersistenceService).copyProbabilityDistribution(
         ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY,
@@ -319,7 +324,7 @@ class ReservoirTotalsCopyServiceTest {
     when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)).thenReturn(false);
     when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)).thenReturn(false);
     when(generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail)).thenReturn(true);
-    reservoirTotalsCopyService.copySingleReservoirIntoTotals(submissionDetail);
+    reservoirTotalsCleanAndCopyService.cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
     verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(totals, submissionDetail);
     verify(probabilityDistributionPersistenceService).copyProbabilityDistribution(
         ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY,
@@ -363,5 +368,56 @@ class ReservoirTotalsCopyServiceTest {
         ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
         submissionDetail
     );
+  }
+
+  @Test
+  void cleanTotals_oilOnlyCase_deleteGasTotals() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var reservoirSubmissionDetails = mock(List.class);
+    when(reservoirSubmissionDetails.size()).thenReturn(2);
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetails);
+    when(totalVolumesTaskListSectionService.isOilCaseOnly(reservoirSubmissionDetails))
+        .thenReturn(true);
+
+    reservoirTotalsCleanAndCopyService.cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
+
+    verifyDeleteGasOnlyDiscoveryTotals(submissionDetail);
+  }
+
+  @Test
+  void cleanTotals_gasOnlyCase_deleteOilTotals() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var reservoirSubmissionDetails = mock(List.class);
+    when(reservoirSubmissionDetails.size()).thenReturn(2);
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetails);
+    when(totalVolumesTaskListSectionService.isGasCaseOnly(reservoirSubmissionDetails))
+        .thenReturn(true);
+
+    reservoirTotalsCleanAndCopyService.cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
+
+    verifyDeleteOilOnlyDiscoveryTotals(submissionDetail);
+  }
+
+  void verifyDeleteOilOnlyDiscoveryTotals(SubmissionDetail submissionDetail) {
+    List<ProbabilityDistributionFieldInstance> totals = List.of(
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY,
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
+    );
+
+    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(totals, submissionDetail);
+    verifyNoMoreInteractions(probabilityDistributionPersistenceService);
+  }
+
+  void verifyDeleteGasOnlyDiscoveryTotals(SubmissionDetail submissionDetail) {
+    List<ProbabilityDistributionFieldInstance> totals = List.of(
+        ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY,
+        ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY
+    );
+
+    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(totals, submissionDetail);
+    verifyNoMoreInteractions(probabilityDistributionPersistenceService);
   }
 }

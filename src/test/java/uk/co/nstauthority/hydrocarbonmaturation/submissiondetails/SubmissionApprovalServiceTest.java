@@ -48,7 +48,7 @@ class SubmissionApprovalServiceTest {
   @Mock
   private AreaTeamService areaTeamService;
   @Mock
-  private ReservoirTotalsCopyService reservoirTotalsCopyService;
+  private ReservoirTotalsCleanAndCopyService reservoirTotalsCleanAndCopyService;
   @InjectMocks
   private SubmissionApprovalService submissionApprovalService;
 
@@ -71,7 +71,7 @@ class SubmissionApprovalServiceTest {
 
       submissionApprovalService.submitSubmission(submissionDetail);
 
-      verify(reservoirTotalsCopyService).copySingleReservoirIntoTotals(submissionDetail);
+      verify(reservoirTotalsCleanAndCopyService).cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
       verify(submissionDetailPersistenceService).submitSubmission(submissionDetail);
       verify(submissionUpdateService, times(1))
           .resolveUpdateOnSubmission(submissionDetail);
@@ -85,7 +85,7 @@ class SubmissionApprovalServiceTest {
 
       submissionApprovalService.submitSubmission(submissionDetail);
 
-      verify(reservoirTotalsCopyService).copySingleReservoirIntoTotals(submissionDetail);
+      verify(reservoirTotalsCleanAndCopyService).cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
       var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
       verify(submissionDetailPersistenceService).saveSubmissionDetail(submissionDetailArgumentCaptor.capture());
       assertEquals(SubmissionDetailStatus.ACCEPTED, submissionDetailArgumentCaptor.getValue().getStatus());
@@ -102,7 +102,7 @@ class SubmissionApprovalServiceTest {
 
       submissionApprovalService.submitSubmission(submissionDetail);
 
-      verify(reservoirTotalsCopyService).copySingleReservoirIntoTotals(submissionDetail);
+      verify(reservoirTotalsCleanAndCopyService).cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
       verify(submissionDetailPersistenceService).submitSubmission(submissionDetail);
       verifyNoInteractions(submissionUpdateService);
       verify(submissionEmailService, times(1))
@@ -122,7 +122,7 @@ class SubmissionApprovalServiceTest {
 
       submissionApprovalService.submitSubmission(submissionDetail);
 
-      verify(reservoirTotalsCopyService).copySingleReservoirIntoTotals(submissionDetail);
+      verify(reservoirTotalsCleanAndCopyService).cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
       verify(submissionDetailPersistenceService).submitSubmission(submissionDetail);
       verify(submissionDetailPersistenceService).approveSubmission(submissionDetail);
       verifyNoInteractions(submissionEmailService);
