@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilvolumetrics;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics;
 
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;

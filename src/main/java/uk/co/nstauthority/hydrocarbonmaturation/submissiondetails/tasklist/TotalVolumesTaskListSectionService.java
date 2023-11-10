@@ -15,8 +15,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolum
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSubmissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilvolumetrics.FieldOilCaseVolumetricTotalsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilvolumetrics.FieldOilCaseVolumetricTotalsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldgascasevolumetrics.FieldGasCaseVolumetricTotalsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldgascasevolumetrics.FieldGasCaseVolumetricTotalsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.FieldOilCaseVolumetricTotalsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.FieldOilCaseVolumetricTotalsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
@@ -30,6 +32,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
   private final DiscoveryGasCaseVolumetricTotalsSubmissionService discoveryGasCaseVolumetricTotalsSubmissionService;
   private final DiscoveryCombinedVolTotalsSubmissionService discoveryCombinedVolTotalsSubmissionService;
   private final FieldOilCaseVolumetricTotalsSubmissionService fieldOilCaseVolumetricTotalsSubmissionService;
+  private final FieldGasCaseVolumetricTotalsSubmissionService fieldGasCaseVolumetricTotalsSubmissionService;
 
   @Autowired
   public TotalVolumesTaskListSectionService(
@@ -38,13 +41,16 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
       DiscoveryOilCaseVolumetricTotalsSubmissionService discoveryOilCaseVolumetricTotalsSubmissionService,
       DiscoveryGasCaseVolumetricTotalsSubmissionService discoveryGasCaseVolumetricTotalsSubmissionService,
       DiscoveryCombinedVolTotalsSubmissionService discoveryCombinedVolTotalsSubmissionService,
-      FieldOilCaseVolumetricTotalsSubmissionService fieldOilCaseVolumetricTotalsSubmissionService) {
+      FieldOilCaseVolumetricTotalsSubmissionService fieldOilCaseVolumetricTotalsSubmissionService,
+      FieldGasCaseVolumetricTotalsSubmissionService fieldGasCaseVolumetricTotalsSubmissionService) {
+
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.generalReservoirInformationService = generalReservoirInformationService;
     this.discoveryOilCaseVolumetricTotalsSubmissionService = discoveryOilCaseVolumetricTotalsSubmissionService;
     this.discoveryGasCaseVolumetricTotalsSubmissionService = discoveryGasCaseVolumetricTotalsSubmissionService;
     this.discoveryCombinedVolTotalsSubmissionService = discoveryCombinedVolTotalsSubmissionService;
     this.fieldOilCaseVolumetricTotalsSubmissionService = fieldOilCaseVolumetricTotalsSubmissionService;
+    this.fieldGasCaseVolumetricTotalsSubmissionService = fieldGasCaseVolumetricTotalsSubmissionService;
   }
 
   public boolean sectionIsPresent(SubmissionDetail submissionDetail) {
@@ -151,6 +157,15 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
             ),
             ReverseRouter.route(on(FieldOilCaseVolumetricTotalsController.class)
                 .getFieldOilCaseVolumetricTotals(submissionDetail.getId())))
+        );
+      }
+      if (isGasCaseOnly(reservoirSubmissionDetails)) {
+        listOfItems.add(new TaskListItem("Total gas case volumetrics",
+            TaskListLabel.notStartedOrComplete(
+                fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail)
+            ),
+            ReverseRouter.route(on(FieldGasCaseVolumetricTotalsController.class)
+                .getFieldGasCaseVolumetricTotals(submissionDetail.getId())))
         );
       }
     }

@@ -3,8 +3,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetr
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilvolumetrics.FieldOilCaseVolumetricTotalsSummaryService.TOTAL_OIL_VOLUMETRICS_ORDER;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.FieldOilCaseVolumetricTotalsSummaryService.TOTAL_OIL_VOLUMETRICS_ORDER;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.FieldOilCaseVolumetricTotalsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 
@@ -24,6 +28,13 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
 
     @Mock
     private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
+
+    @Mock
+    private TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
+
+    @Mock
+    private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+
 
     @InjectMocks
     private FieldOilCaseVolumetricTotalsSummaryService fieldOilCaseVolumetricTotalsSummaryService;
@@ -35,9 +46,34 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
             .isEmpty();
     }
 
+
+    @Test
+    void getSummarySection_notOilCase_thenEmpty() {
+        var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+
+        var reservoirSubmissionDetails = mock(List.class);
+        when(reservoirSubmissionDetailPersistenceService
+            .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail)
+        ).thenReturn(reservoirSubmissionDetails);
+
+        when(totalVolumesTaskListSectionService.isGasCaseOnly(reservoirSubmissionDetails))
+            .thenReturn(true);
+
+        assertThat(fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail))
+            .isEmpty();
+    }
+
     @Test
     void getSummarySection_emptyForm_thenEmptyValues() {
         var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_COP);
+
+        var reservoirSubmissionDetails = mock(List.class);
+        when(reservoirSubmissionDetailPersistenceService
+            .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail)
+        ).thenReturn(reservoirSubmissionDetails);
+
+        when(totalVolumesTaskListSectionService.isGasCaseOnly(reservoirSubmissionDetails))
+            .thenReturn(false);
 
         var emptyProbabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
         when(probabilityDistributionSummaryService

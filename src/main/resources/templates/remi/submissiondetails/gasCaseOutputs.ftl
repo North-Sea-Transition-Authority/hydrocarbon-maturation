@@ -13,6 +13,8 @@
 <#-- @ftlvariable name="oilEquivalentRecoverableResourcesTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplate" -->
 <#-- @ftlvariable name="oilEquivalentRecoverableResourcesError" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError" -->
 
+<#assign submissionTypeOrBlank = submissionType!""/>
+<#assign showReserves = submissionTypeOrBlank != "CREATE_CSR"/>
 <@defaultPage
   htmlTitle=pageTitle
   pageHeading=pageTitle
@@ -51,6 +53,52 @@
       labelText="Oil equivalent recoverable resources"
       template=oilEquivalentRecoverableResourcesTemplate
       error=oilEquivalentRecoverableResourcesError/>
+
+    <#if resourceType == 'FIELD'>
+      <@probabilityDistribution.probabilityDistributionSingularTemplate
+      probabilityDistributionPath="form.naturalGasLiquidsResources"
+      labelText="Natural gas liquids resources"
+      template=naturalGasLiquidsResourcesTemplate
+      error=naturalGasLiquidsResourcesError/>
+
+      <@probabilityDistribution.probabilityDistributionSingularTemplate
+      probabilityDistributionPath="form.salesGasResources"
+      labelText="Total sales gas resources"
+      template=salesGasResourcesTemplate
+      error=salesGasResourcesError/>
+    </#if>
+
+    <#if resourceType == 'FIELD' && showReserves>
+      <@probabilityDistribution.probabilityDistributionSingularTemplate
+      probabilityDistributionPath="form.gasRecoverableReserves"
+      labelText="Gas recoverable reserves"
+      template=gasRecoverableReservesTemplate
+      error=gasRecoverableReservesError/>
+
+      <@probabilityDistribution.probabilityDistributionSingularTemplate
+      probabilityDistributionPath="form.associatedCondensateRecoverableReserves"
+      labelText="Associated condensate recoverable reserves"
+      template=associatedCondensateRecoverableReservesTemplate
+      error=associatedCondensateRecoverableReservesError/>
+
+      <@probabilityDistribution.probabilityDistributionSingularTemplate
+      probabilityDistributionPath="form.oilEquivalentRecoverableReserves"
+      labelText="Oil equivalent recoverable reserves"
+      template=oilEquivalentRecoverableReservesTemplate
+      error=oilEquivalentRecoverableReservesError/>
+
+      <@probabilityDistribution.probabilityDistributionSingularTemplate
+      probabilityDistributionPath="form.naturalGasLiquidsReserves"
+      labelText="Natural gas liquids reserves"
+      template=naturalGasLiquidsReservesTemplate
+      error=naturalGasLiquidsReservesError/>
+
+      <@probabilityDistribution.probabilityDistributionSingularTemplate
+      probabilityDistributionPath="form.salesGasReserves"
+      labelText="Sales gas reserves"
+      template=salesGasReservesTemplate
+      error=salesGasReservesError/>
+    </#if>
 
     <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
   </@fdsForm.htmlForm>

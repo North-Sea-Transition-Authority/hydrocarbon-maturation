@@ -1,5 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilvolumetrics;
-
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldgascasevolumetrics;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -24,73 +23,71 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
-@RequestMapping("/submission-details/{submissionDetailId}/field-oil-volumetrics")
+@RequestMapping("/submission-details/{submissionDetailId}/field-gas-volumetric-totals")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
 @HasSubmissionType(submissionTypes = SecuritySubmissionTypes.FIELD_SUBMISSIONS)
 @IsFromResponsibleTeam
-public class FieldOilCaseVolumetricTotalsController {
+public class FieldGasCaseVolumetricTotalsController {
 
   public static final String PAGE_NAME = "Total oil case volumetrics";
 
   private final SubmissionDetailService submissionDetailService;
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
-  private final FieldOilCaseVolumetricTotalsService fieldOilCaseVolumetricTotalsService;
-  private final FieldOilCaseVolumetricTotalsFormValidator fieldOilCaseVolumetricTotalsFormValidator;
+  private final FieldGasCaseVolumetricTotalsService fieldGasCaseVolumetricTotalsService;
+  private final FieldGasCaseVolumetricTotalsFormValidator fieldGasCaseVolumetricTotalsFormValidator;
 
   @Autowired
-  public FieldOilCaseVolumetricTotalsController(
+  public FieldGasCaseVolumetricTotalsController(
       SubmissionDetailService submissionDetailService,
       ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
-      FieldOilCaseVolumetricTotalsService fieldOilCaseVolumetricTotalsService,
-      FieldOilCaseVolumetricTotalsFormValidator fieldOilCaseVolumetricTotalsFormValidator) {
+      FieldGasCaseVolumetricTotalsService fieldGasCaseVolumetricTotalsService,
+      FieldGasCaseVolumetricTotalsFormValidator fieldGasCaseVolumetricTotalsFormValidator) {
     this.submissionDetailService = submissionDetailService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
-    this.fieldOilCaseVolumetricTotalsService = fieldOilCaseVolumetricTotalsService;
-    this.fieldOilCaseVolumetricTotalsFormValidator = fieldOilCaseVolumetricTotalsFormValidator;
+    this.fieldGasCaseVolumetricTotalsService = fieldGasCaseVolumetricTotalsService;
+    this.fieldGasCaseVolumetricTotalsFormValidator = fieldGasCaseVolumetricTotalsFormValidator;
   }
 
   @GetMapping
-  public ModelAndView getFieldOilCaseVolumetricTotals(@PathVariable("submissionDetailId") UUID submissionDetailId) {
+  public ModelAndView getFieldGasCaseVolumetricTotals(@PathVariable("submissionDetailId") UUID submissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    return getFieldOilCaseVolumetricTotalsModelAndView(
-        fieldOilCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail), submissionDetail);
+    return getFieldGasCaseVolumetricTotalsModelAndView(
+        fieldGasCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail), submissionDetail);
   }
 
   @PostMapping
-  public ModelAndView saveFieldOilCaseVolumetricTotals(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                                       @ModelAttribute("form") OilCaseOutputsForm form,
+  public ModelAndView saveFieldGasCaseVolumetricTotals(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                                       @ModelAttribute("form") GasCaseOutputsForm form,
                                                        BindingResult bindingResult,
                                                        ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
 
-    if (!fieldOilCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
-      return getFieldOilCaseVolumetricTotalsModelAndViewWithErrors(bindingResult, form, submissionDetail);
+    if (!fieldGasCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
+      return getFieldGasCaseVolumetricTotalsModelAndViewWithErrors(bindingResult, form, submissionDetail);
     } else {
-      fieldOilCaseVolumetricTotalsService.saveFieldOilCaseVolumetricTotals(form, submissionDetail);
+      fieldGasCaseVolumetricTotalsService.saveFieldGasCaseVolumetricTotals(form, submissionDetail);
       return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
     }
   }
 
-  private ModelAndView getFieldOilCaseVolumetricTotalsModelAndView(OilCaseOutputsForm form,
+  private ModelAndView getFieldGasCaseVolumetricTotalsModelAndView(GasCaseOutputsForm form,
                                                                    SubmissionDetail submissionDetail) {
-    var modelAndView = new ModelAndView("remi/submissiondetails/oilCaseOutputs")
+    var modelAndView = new ModelAndView("remi/submissiondetails/gasCaseOutputs")
         .addObject("form", form)
         .addObject("resourceType", submissionDetail.getSubmission().getResource().getType().toString())
         .addObject("submissionType", submissionDetail.getSubmissionType().getEnumName())
         .addObject("pageTitle", PAGE_NAME)
-        .addObject("oilInPlaceError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("oilRecoverableReservesError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("gasInPlaceError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("gasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("gasRecoverableReservesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("associatedCondensateRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("associatedCondensateRecoverableReservesError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("associatedGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("associatedGasRecoverableReservesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilEquivalentRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilEquivalentRecoverableReservesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("naturalGasLiquidsResourcesError", ProbabilityDistributionTypeError.emptyError())
@@ -99,18 +96,15 @@ public class FieldOilCaseVolumetricTotalsController {
         .addObject("salesGasReservesError", ProbabilityDistributionTypeError.emptyError());
 
     modelAndView
-        .addObject("oilInPlaceTemplate",
+        .addObject("gasInPlaceTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD))
-        .addObject("oilRecoverableResourcesTemplate",
+                ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD))
+        .addObject("gasRecoverableResourcesTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD))
+                ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD))
         .addObject("associatedCondensateRecoverableResourcesTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD))
-        .addObject("associatedGasRecoverableResourcesTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD))
         .addObject("oilEquivalentRecoverableResourcesTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD))
@@ -124,15 +118,12 @@ public class FieldOilCaseVolumetricTotalsController {
 
     if (!submissionDetail.isConceptSelectReportSubmission()) {
       modelAndView
-          .addObject("oilRecoverableReservesTemplate",
+          .addObject("gasRecoverableReservesTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                  ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD))
+                  ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD))
           .addObject("associatedCondensateRecoverableReservesTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                   ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD))
-          .addObject("associatedGasRecoverableReservesTemplate",
-              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                  ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD))
           .addObject("oilEquivalentRecoverableReservesTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                   ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD))
@@ -149,33 +140,28 @@ public class FieldOilCaseVolumetricTotalsController {
     return modelAndView;
   }
 
-  private ModelAndView getFieldOilCaseVolumetricTotalsModelAndViewWithErrors(BindingResult bindingResult,
-                                                                             OilCaseOutputsForm form,
+  private ModelAndView getFieldGasCaseVolumetricTotalsModelAndViewWithErrors(BindingResult bindingResult,
+                                                                             GasCaseOutputsForm form,
                                                                              SubmissionDetail submissionDetail) {
-    var modelAndView = getFieldOilCaseVolumetricTotalsModelAndView(form, submissionDetail);
+    var modelAndView = getFieldGasCaseVolumetricTotalsModelAndView(form, submissionDetail);
 
     modelAndView
         .addObject("form", form)
-        .addObject("oilInPlaceError",
+        .addObject("gasInPlaceError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,
-                "oilInPlace",
-                form.getOilInPlace()))
-        .addObject("oilRecoverableResourcesError",
+                "gasInPlace",
+                form.getGasInPlace()))
+        .addObject("gasRecoverableResourcesError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,
-                "oilRecoverableResources",
-                form.getOilRecoverableResources()))
+                "gasRecoverableResources",
+                form.getGasRecoverableResources()))
         .addObject("associatedCondensateRecoverableResourcesError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,
                 "associatedCondensateRecoverableResources",
                 form.getAssociatedCondensateRecoverableResources()))
-        .addObject("associatedGasRecoverableResourcesError",
-            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
-                bindingResult,
-                "associatedGasRecoverableResources",
-                form.getAssociatedGasRecoverableResources()))
         .addObject("oilEquivalentRecoverableResourcesError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,
@@ -194,21 +180,16 @@ public class FieldOilCaseVolumetricTotalsController {
 
     if (!submissionDetail.isConceptSelectReportSubmission()) {
       modelAndView
-          .addObject("oilRecoverableReservesError",
+          .addObject("gasRecoverableReservesError",
               probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                   bindingResult,
-                  "oilRecoverableReserves",
-                  form.getOilRecoverableReserves()))
+                  "gasRecoverableReserves",
+                  form.getGasRecoverableReserves()))
           .addObject("associatedCondensateRecoverableReservesError",
               probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                   bindingResult,
                   "associatedCondensateRecoverableReserves",
                   form.getAssociatedCondensateRecoverableReserves()))
-          .addObject("associatedGasRecoverableReservesError",
-              probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
-                  bindingResult,
-                  "associatedGasRecoverableReserves",
-                  form.getAssociatedGasRecoverableReserves()))
           .addObject("oilEquivalentRecoverableReservesError",
               probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                   bindingResult,
@@ -229,3 +210,4 @@ public class FieldOilCaseVolumetricTotalsController {
     return modelAndView;
   }
 }
+

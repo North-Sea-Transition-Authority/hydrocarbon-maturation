@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilvolumetrics;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldgascasevolumetrics;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,59 +8,58 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 
 @Service
-public class FieldOilCaseVolumetricTotalsSummaryService implements SummarySectionService<SubmissionDetail> {
+public class FieldGasCaseVolumetricTotalsSummaryService implements SummarySectionService<SubmissionDetail> {
 
-  public static final String TOTAL_OIL_VOLUMETRICS = "Total oil volumetrics";
-  public static final int TOTAL_OIL_VOLUMETRICS_ORDER = 20;
+  public static final String TOTAL_GAS_VOLUMETRICS = "Total gas volumetrics";
+  public static final int TOTAL_GAS_VOLUMETRICS_ORDER = 20;
 
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+  private final TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
 
   @Autowired
-  public FieldOilCaseVolumetricTotalsSummaryService(ProbabilityDistributionSummaryService probabilityDistributionSummaryService) {
+  public FieldGasCaseVolumetricTotalsSummaryService(
+      ProbabilityDistributionSummaryService probabilityDistributionSummaryService,
+      ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
+      TotalVolumesTaskListSectionService totalVolumesTaskListSectionService) {
+
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
+    this.totalVolumesTaskListSectionService = totalVolumesTaskListSectionService;
   }
 
   @Override
   public Optional<SummarySection> getSummarySection(SubmissionDetail submissionDetail) {
-    if (!submissionDetail.isFieldSubmission()) {
+    var reservoirSubmissionDetails =
+        reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
+    if (!submissionDetail.isFieldSubmission() || totalVolumesTaskListSectionService.isOilCaseOnly(reservoirSubmissionDetails)) {
       return Optional.empty();
     }
     var summaryItems = List.of(getResourcesAndReservesSummary(submissionDetail));
-    return Optional.of(new SummarySection(TOTAL_OIL_VOLUMETRICS_ORDER, summaryItems, ""));
-  }
-
-  private SummaryCard getOtherSummary(SubmissionDetail submissionDetail) {
-    var listOfInstances = List.of(ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD);
-    var listOfSummaryViews = probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-            listOfInstances,
-            submissionDetail,
-            null
-        );
-    return SummaryCard.probabilitySummaryCard(listOfSummaryViews);
+    return Optional.of(new SummarySection(TOTAL_GAS_VOLUMETRICS_ORDER, summaryItems, ""));
   }
 
   private SummaryItem getResourcesAndReservesSummary(SubmissionDetail submissionDetail) {
     var listOfInstances = new ArrayList<>(List.of(
-        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD,
-        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD
-      )
+    )
     );
     if (!submissionDetail.isConceptSelectReportSubmission()) {
       listOfInstances.addAll(List.of(
-              ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD,
+              ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD,
               ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD,
-              ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD,
               ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD,
               ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESERVES_FIELD,
               ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD
@@ -73,8 +72,19 @@ public class FieldOilCaseVolumetricTotalsSummaryService implements SummarySectio
             listOfInstances, submissionDetail, null
         );
 
-    return SummaryItem.withCards(TOTAL_OIL_VOLUMETRICS, List.of(
+    return SummaryItem.withCards(TOTAL_GAS_VOLUMETRICS, List.of(
         getOtherSummary(submissionDetail),
         SummaryCard.fieldProbabilitySummaryCard(listOfSummaryViews)));
+  }
+
+  private SummaryCard getOtherSummary(SubmissionDetail submissionDetail) {
+    var listOfInstances = List.of(ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD);
+    var listOfSummaryViews = probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+            listOfInstances,
+            submissionDetail,
+            null
+        );
+    return SummaryCard.probabilitySummaryCard(listOfSummaryViews);
   }
 }

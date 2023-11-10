@@ -81,6 +81,7 @@ public class DiscoveryGasCaseVolumetricTotalsController {
                                                                        SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/gasCaseOutputs")
         .addObject("form", form)
+        .addObject("resourceType",  submissionDetail.getSubmission().getResource())
         .addObject("gasInPlaceError", ProbabilityDistributionTypeError.emptyError())
         .addObject("gasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("associatedCondensateRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())

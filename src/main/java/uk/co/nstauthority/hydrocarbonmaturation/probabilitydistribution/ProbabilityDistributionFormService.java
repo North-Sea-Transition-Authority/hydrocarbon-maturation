@@ -101,6 +101,12 @@ public class ProbabilityDistributionFormService {
     exceedanceForm.setConstant(DecimalInput.createDecimalInput(constant));
     var mostLikely = probabilityDistribution.getMostLikelyValue();
     exceedanceForm.setMostLikely(DecimalInput.createDecimalInput(mostLikely));
+    var oneP = probabilityDistribution.getOneP();
+    exceedanceForm.setOneP(DecimalInput.createDecimalInput(oneP));
+    var twoP = probabilityDistribution.getTwoP();
+    exceedanceForm.setTwoP(DecimalInput.createDecimalInput(twoP));
+    var threeP = probabilityDistribution.getThreeP();
+    exceedanceForm.setThreeP(DecimalInput.createDecimalInput(threeP));
     var comments = probabilityDistribution.getComments();
     exceedanceForm.setComments(comments);
     return exceedanceForm;
