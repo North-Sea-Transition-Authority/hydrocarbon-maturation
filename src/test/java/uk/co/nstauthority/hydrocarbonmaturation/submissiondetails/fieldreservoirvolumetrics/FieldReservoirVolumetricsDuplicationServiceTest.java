@@ -83,7 +83,40 @@ class FieldReservoirVolumetricsDuplicationServiceTest {
 
   @ParameterizedTest
   @MethodSource("allFieldSubmissionTypes")
-  void duplicateReservoirSection_ProbabilityDistributionsDoNotExist_OilCase_DoesNotDuplicate(SubmissionType submissionType) {
+  void duplicateReservoirSection_ProbabilityDistributionsExist_GasCase_DoesDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    when(generalReservoirInformationService.isGasOnly(newReservoirSubmissionDetail))
+        .thenReturn(true);
+
+    var probabilityDistribution1 = mock(ProbabilityDistribution.class);
+    var probabilityDistribution2 = mock(ProbabilityDistribution.class);
+
+    var applicableInstances = Set.of(ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD);
+    when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail, applicableInstances))
+        .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
+
+    fieldReservoirVolumetricsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+
+    var argumentCaptor1 = ArgumentCaptor.forClass(ReservoirSubmissionDetail.class);
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(argumentCaptor1.capture(), eq(probabilityDistribution1),
+        eq(ProbabilityDistribution.class));
+    assertThat(argumentCaptor1.getValue().getSubmissionDetail()).isEqualTo(newSubmissionDetail);
+
+    var argumentCaptor2 = ArgumentCaptor.forClass(ReservoirSubmissionDetail.class);
+    verify(reservoirDuplicationPersistenceService).duplicateChildAndReplaceParent(argumentCaptor2.capture(), eq(probabilityDistribution2),
+        eq(ProbabilityDistribution.class));
+    assertThat(argumentCaptor2.getValue().getSubmissionDetail()).isEqualTo(newSubmissionDetail);
+  }
+
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void duplicateReservoirSection_ProbabilityDistributionsDoNotExist_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 

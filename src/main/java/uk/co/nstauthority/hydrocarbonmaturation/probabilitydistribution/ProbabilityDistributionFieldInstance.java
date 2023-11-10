@@ -522,7 +522,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Associated gas recoverable resources"
   ),
 
-  // Gas case outputs
+  // Gas case outputs / volumetrics
   GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT(
       ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
@@ -530,6 +530,11 @@ public enum ProbabilityDistributionFieldInstance {
   ),
   GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY(
       DiscoveryOutputsBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Gas in place"
+  ),
+  GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD(
+      FieldVolumetricsBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
       "Gas in place"
   ),
@@ -706,6 +711,7 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.MD,
       "Vertical permeability"
   );
+
   private Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour;
   private final List<ProbabilityDistributionType> presetTypes;
 

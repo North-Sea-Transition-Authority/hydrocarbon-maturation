@@ -77,6 +77,38 @@ class FieldReservoirVolumetricsSummaryServiceTest {
 
   }
 
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void getSummarySection_fieldSubmission_gasCase_present(SubmissionType submissionType) {
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionType);
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+        .thenReturn(true);
+
+    var listOfInstances = List.of(ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD);
+    var summaryViews = List.of(ProbabilityDistributionSummaryView.empty("test"));
+    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        listOfInstances,
+        submissionDetail,
+        reservoirSubmissionDetail)
+    ).thenReturn(summaryViews);
+
+    var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
+    assertThat(summarySection).isPresent();
+
+    var expectedCard = SummaryCard.probabilitySummaryCard(summaryViews);
+    var expectedItem = SummaryItem.withCard(FieldReservoirVolumetricsSummaryService.GAS_VOLUMETRICS, expectedCard);
+
+    assertThat(summarySection.get().summaryItems()).hasSize(1);
+
+    var summaryItem = summarySection.get().summaryItems().get(0);
+    assertThat(summaryItem)
+        .usingRecursiveComparison()
+        .isEqualTo(expectedItem);
+
+  }
+
   private static Stream<Arguments> allFieldSubmissionTypes() {
     return Arrays.stream(SubmissionType.values())
         .filter(SubmissionDetailUtil::isFieldSubmission)

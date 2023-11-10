@@ -18,7 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
-class FieldReservoirSubmissionServiceTest {
+class FieldReservoirVolumetricsSubmissionServiceTest {
 
   @Mock
   private FieldReservoirVolumetricsFormValidator fieldReservoirVolumetricsFormValidator;
@@ -27,7 +27,7 @@ class FieldReservoirSubmissionServiceTest {
   private FieldReservoirVolumetricsFormService fieldReservoirVolumetricsFormService;
 
   @InjectMocks
-  private FieldReservoirSubmissionService fieldReservoirSubmissionService;
+  private FieldReservoirVolumetricsSubmissionService fieldReservoirVolumetricsSubmissionService;
 
   private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
@@ -47,7 +47,7 @@ class FieldReservoirSubmissionServiceTest {
         eq(ValidationType.FULL)))
         .thenReturn(true);
 
-    assertTrue(fieldReservoirSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
+    assertTrue(fieldReservoirVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 
   @Test
@@ -61,6 +61,6 @@ class FieldReservoirSubmissionServiceTest {
         eq(ValidationType.FULL)))
         .thenReturn(false);
 
-    assertFalse(fieldReservoirSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
+    assertFalse(fieldReservoirVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
 }

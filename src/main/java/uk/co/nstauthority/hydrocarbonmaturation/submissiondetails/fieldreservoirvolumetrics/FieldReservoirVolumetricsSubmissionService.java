@@ -8,13 +8,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-public class FieldReservoirSubmissionService implements ReservoirSectionSubmissionService {
+public class FieldReservoirVolumetricsSubmissionService implements ReservoirSectionSubmissionService {
 
   private final FieldReservoirVolumetricsFormService fieldReservoirVolumetricsFormService;
   private final FieldReservoirVolumetricsFormValidator fieldReservoirVolumetricsFormValidator;
 
-  public FieldReservoirSubmissionService(FieldReservoirVolumetricsFormService fieldReservoirVolumetricsFormService,
-                                         FieldReservoirVolumetricsFormValidator fieldReservoirVolumetricsFormValidator) {
+  public FieldReservoirVolumetricsSubmissionService(
+      FieldReservoirVolumetricsFormService fieldReservoirVolumetricsFormService,
+      FieldReservoirVolumetricsFormValidator fieldReservoirVolumetricsFormValidator) {
+
     this.fieldReservoirVolumetricsFormService = fieldReservoirVolumetricsFormService;
     this.fieldReservoirVolumetricsFormValidator = fieldReservoirVolumetricsFormValidator;
   }

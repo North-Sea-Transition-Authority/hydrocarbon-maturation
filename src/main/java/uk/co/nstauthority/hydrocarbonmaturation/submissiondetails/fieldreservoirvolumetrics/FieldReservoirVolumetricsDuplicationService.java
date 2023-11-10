@@ -43,6 +43,8 @@ public class FieldReservoirVolumetricsDuplicationService implements ReservoirSec
       var applicableInstances = new java.util.HashSet<ProbabilityDistributionFieldInstance>(Set.of());
       if (generalReservoirInformationService.isOilOnly(newReservoirSubmissionDetail)) {
         applicableInstances.add(ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD);
+      } else if (generalReservoirInformationService.isGasOnly(newReservoirSubmissionDetail)) {
+        applicableInstances.add(ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD);
       }
 
       probabilityDistributionPersistenceService

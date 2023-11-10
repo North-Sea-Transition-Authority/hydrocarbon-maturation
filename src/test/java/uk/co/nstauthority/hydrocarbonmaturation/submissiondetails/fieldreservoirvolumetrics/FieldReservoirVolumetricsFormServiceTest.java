@@ -52,7 +52,10 @@ class FieldReservoirVolumetricsFormServiceTest {
   }
 
   @Test
-  void getFieldReservoirVolumetricsForm() {
+  void getFieldReservoirVolumetricsForm_oilCase() {
+    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
+        .thenReturn(true);
+
     var oilInPlace = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
         ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD
     );
@@ -66,6 +69,23 @@ class FieldReservoirVolumetricsFormServiceTest {
   }
 
   @Test
+  void getFieldReservoirVolumetricsForm_gasCase() {
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+        .thenReturn(true);
+
+    var gasInPlace = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
+    );
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        reservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
+    )).thenReturn(gasInPlace);
+
+    var form = fieldReservoirVolumetricsFormService.getFieldReservoirVolumetricsForm(reservoirSubmissionDetail);
+    assertThat(form.getGasInPlace()).isEqualTo(gasInPlace);
+  }
+
+  @Test
   void saveFieldReservoirVolumetricsForm_oilCase() {
     when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
         .thenReturn(true);
@@ -76,6 +96,24 @@ class FieldReservoirVolumetricsFormServiceTest {
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             eq(ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD),
+            any(ProbabilityDistributionForm.class),
+            eq(reservoirSubmissionDetail)
+        );
+
+    verifyNoMoreInteractions(probabilityDistributionPersistenceService);
+  }
+
+  @Test
+  void saveFieldReservoirVolumetricsForm_gasCase() {
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+        .thenReturn(true);
+
+    var form = getForm();
+    fieldReservoirVolumetricsFormService.saveFieldReservoirVolumetrics(form, reservoirSubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            eq(ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD),
             any(ProbabilityDistributionForm.class),
             eq(reservoirSubmissionDetail)
         );

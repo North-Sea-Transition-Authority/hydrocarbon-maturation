@@ -252,5 +252,4 @@ class FieldReservoirOilVolumetricsControllerTest extends AbstractSubmissionContr
         .saveFieldReservoirVolumetrics(form, reservoirSubmissionDetail);
     verifyNoMoreInteractions(fieldReservoirVolumetricsFormService);
   }
-
 }

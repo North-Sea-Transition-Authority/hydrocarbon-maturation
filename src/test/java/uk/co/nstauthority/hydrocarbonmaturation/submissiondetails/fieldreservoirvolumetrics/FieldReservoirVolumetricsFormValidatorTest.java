@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
@@ -18,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
@@ -25,13 +28,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class FieldReservoirVolumetricsFormValidatorTest {
+  @Mock
+  private GeneralReservoirInformationService generalReservoirInformationService;
+
   private FieldReservoirVolumetricsFormValidator fieldReservoirVolumetricsFormValidator;
 
   private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @BeforeEach
   void setUp() {
-    fieldReservoirVolumetricsFormValidator = new FieldReservoirVolumetricsFormValidator();
+    fieldReservoirVolumetricsFormValidator = new FieldReservoirVolumetricsFormValidator(generalReservoirInformationService);
 
     var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
     reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
@@ -48,7 +54,9 @@ class FieldReservoirVolumetricsFormValidatorTest {
 
   @ParameterizedTest
   @EnumSource(value = ValidationType.class)
-  void validate_whenInvalidForm_thenValidationErrors(ValidationType validationType) {
+  void validate_whenInvalidForm_thenValidationErrors_oilCase(ValidationType validationType) {
+    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)).thenReturn(true);
+
     var form = getInvalidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     fieldReservoirVolumetricsFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType);
@@ -64,8 +72,30 @@ class FieldReservoirVolumetricsFormValidatorTest {
         );
   }
 
+  @ParameterizedTest
+  @EnumSource(value = ValidationType.class)
+  void validate_whenInvalidForm_thenValidationErrors_gasCase(ValidationType validationType) {
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)).thenReturn(true);
+
+    var form = getInvalidForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    fieldReservoirVolumetricsFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType);
+
+    assertTrue(bindingResult.hasErrors());
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("gasInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("gasInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error"))
+        );
+  }
+
   @Test
-  void validatePartial_whenEmptyForm_thenNoValidationErrors() {
+  void validatePartial_whenEmptyForm_thenNoValidationErrors_oilCase() {
+    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)).thenReturn(true);
+
     var form = getEmptyForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     fieldReservoirVolumetricsFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.PARTIAL);
@@ -73,7 +103,19 @@ class FieldReservoirVolumetricsFormValidatorTest {
   }
 
   @Test
-  void validateFull_whenEmptyForm_thenValidationErrors() {
+  void validatePartial_whenEmptyForm_thenNoValidationErrors_gasCase() {
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)).thenReturn(true);
+
+    var form = getEmptyForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    fieldReservoirVolumetricsFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.PARTIAL);
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  @Test
+  void validateFull_whenEmptyForm_thenValidationErrors_oilCase() {
+    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)).thenReturn(true);
+
     var form = getEmptyForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     fieldReservoirVolumetricsFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL);
@@ -89,6 +131,25 @@ class FieldReservoirVolumetricsFormValidatorTest {
         );
   }
 
+  @Test
+  void validateFull_whenEmptyForm_thenValidationErrors_gasCase() {
+    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)).thenReturn(true);
+
+    var form = getEmptyForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    fieldReservoirVolumetricsFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL);
+
+    assertTrue(bindingResult.hasErrors());
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("gasInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("gasInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error"))
+        );
+  }
+
   private FieldReservoirVolumetricsForm getValidForm() {
     var form = new FieldReservoirVolumetricsForm();
 
@@ -98,11 +159,12 @@ class FieldReservoirVolumetricsFormValidatorTest {
     probabilityOfExceedanceForm.setMean(DecimalInput.createDecimalInput(3));
     probabilityOfExceedanceForm.setP10(DecimalInput.createDecimalInput(4));
 
-    var oilInPlace = new ProbabilityDistributionForm();
-    oilInPlace.setCustom(probabilityOfExceedanceForm);
-    oilInPlace.setProbabilityDistributionType(ProbabilityDistributionType.CUSTOM);
+    var hydrocarbonInPlace = new ProbabilityDistributionForm();
+    hydrocarbonInPlace.setCustom(probabilityOfExceedanceForm);
+    hydrocarbonInPlace.setProbabilityDistributionType(ProbabilityDistributionType.CUSTOM);
 
-    form.setOilInPlace(oilInPlace);
+    form.setOilInPlace(hydrocarbonInPlace);
+    form.setGasInPlace(hydrocarbonInPlace);
 
     return form;
   }
@@ -112,11 +174,12 @@ class FieldReservoirVolumetricsFormValidatorTest {
 
     var probabilityOfExceedanceForm = new ProbabilityOfExceedanceForm();
 
-    var oilInPlace = new ProbabilityDistributionForm();
-    oilInPlace.setCustom(probabilityOfExceedanceForm);
-    oilInPlace.setProbabilityDistributionType(ProbabilityDistributionType.CUSTOM);
+    var hydrocarbonInPlace = new ProbabilityDistributionForm();
+    hydrocarbonInPlace.setCustom(probabilityOfExceedanceForm);
+    hydrocarbonInPlace.setProbabilityDistributionType(ProbabilityDistributionType.CUSTOM);
 
-    form.setOilInPlace(oilInPlace);
+    form.setOilInPlace(hydrocarbonInPlace);
+    form.setGasInPlace(hydrocarbonInPlace);
 
     return form;
   }
@@ -131,11 +194,12 @@ class FieldReservoirVolumetricsFormValidatorTest {
     probabilityOfExceedanceForm.setMean(invalidDecimalInput);
     probabilityOfExceedanceForm.setP10(invalidDecimalInput);
 
-    var oilInPlace = new ProbabilityDistributionForm();
-    oilInPlace.setCustom(probabilityOfExceedanceForm);
-    oilInPlace.setProbabilityDistributionType(ProbabilityDistributionType.CUSTOM);
+    var hydrocarbonInPlace = new ProbabilityDistributionForm();
+    hydrocarbonInPlace.setCustom(probabilityOfExceedanceForm);
+    hydrocarbonInPlace.setProbabilityDistributionType(ProbabilityDistributionType.CUSTOM);
 
-    form.setOilInPlace(oilInPlace);
+    form.setOilInPlace(hydrocarbonInPlace);
+    form.setGasInPlace(hydrocarbonInPlace);
 
     return form;
   }

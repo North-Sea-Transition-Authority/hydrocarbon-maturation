@@ -16,8 +16,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestr
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetricparameters.FieldGasVolumetricParametersController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldoilvolumetricparameters.FieldOilVolumetricParametersController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldreservoirvolumetrics.FieldReservoirGasVolumetricsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldreservoirvolumetrics.FieldReservoirOilVolumetricsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldreservoirvolumetrics.FieldReservoirSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldreservoirvolumetrics.FieldReservoirVolumetricsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetricparameters.GasCaseVolumetricParametersController;
@@ -62,7 +63,7 @@ public class ReservoirTaskListService {
   private final GasFluidPropertySubmissionService gasFluidPropertySubmissionService;
   private final DiscoveryMixedCaseVolumetricsSubmissionService discoveryMixedCaseVolumetricsSubmissionService;
   private final GeneralFluidPropertySubmissionService generalFluidPropertySubmissionService;
-  private final FieldReservoirSubmissionService fieldReservoirSubmissionService;
+  private final FieldReservoirVolumetricsSubmissionService fieldReservoirVolumetricsSubmissionService;
 
   @Autowired
   public ReservoirTaskListService(
@@ -80,7 +81,7 @@ public class ReservoirTaskListService {
       OilFluidPropertySubmissionService oilFluidPropertySubmissionService,
       GasFluidPropertySubmissionService gasFluidPropertySubmissionService,
       GeneralFluidPropertySubmissionService generalFluidPropertySubmissionService,
-      FieldReservoirSubmissionService fieldReservoirSubmissionService) {
+      FieldReservoirVolumetricsSubmissionService fieldReservoirVolumetricsSubmissionService) {
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.permeabilitySubmissionService = permeabilitySubmissionService;
     this.generalReservoirInformationSubmissionService = generalReservoirInformationSubmissionService;
@@ -95,7 +96,7 @@ public class ReservoirTaskListService {
     this.oilFluidPropertySubmissionService = oilFluidPropertySubmissionService;
     this.gasFluidPropertySubmissionService = gasFluidPropertySubmissionService;
     this.generalFluidPropertySubmissionService = generalFluidPropertySubmissionService;
-    this.fieldReservoirSubmissionService = fieldReservoirSubmissionService;
+    this.fieldReservoirVolumetricsSubmissionService = fieldReservoirVolumetricsSubmissionService;
   }
 
   public List<ReservoirTaskListItem> getAllReservoirTaskLists(SubmissionDetail submissionDetail) {
@@ -188,7 +189,7 @@ public class ReservoirTaskListService {
           items.add(
               new TaskListItem("Oil volumetrics",
                   TaskListLabel.notStartedOrComplete(
-                      fieldReservoirSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                      fieldReservoirVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
                   ReverseRouter.route(on(FieldReservoirOilVolumetricsController.class).getFieldReservoirVolumetrics(
                       submissionDetail.getId(),
                       reservoirSubmissionDetail.getId())))
@@ -222,16 +223,26 @@ public class ReservoirTaskListService {
         );
       }
 
-      if ((hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY)
-          && resourceType == ResourceType.DISCOVERY) {
-        items.add(
-            new TaskListItem("Gas case volumetrics",
-                TaskListLabel.notStartedOrComplete(
-                    gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-                ReverseRouter.route(on(GasCaseOutputsController.class).getGasCaseOutputs(
-                    submissionDetail.getId(),
-                    reservoirSubmissionDetail.getId())))
-        );
+      if ((hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY)) {
+        if (resourceType == ResourceType.DISCOVERY) {
+          items.add(
+              new TaskListItem("Gas case volumetrics",
+                  TaskListLabel.notStartedOrComplete(
+                      gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                  ReverseRouter.route(on(GasCaseOutputsController.class).getGasCaseOutputs(
+                      submissionDetail.getId(),
+                      reservoirSubmissionDetail.getId())))
+          );
+        } else if (resourceType == ResourceType.FIELD) {
+          items.add(
+              new TaskListItem("Gas volumetrics",
+                  TaskListLabel.notStartedOrComplete(
+                      fieldReservoirVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                  ReverseRouter.route(on(FieldReservoirGasVolumetricsController.class).getFieldReservoirVolumetrics(
+                      submissionDetail.getId(),
+                      reservoirSubmissionDetail.getId())))
+          );
+        }
       }
 
       if ((hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY

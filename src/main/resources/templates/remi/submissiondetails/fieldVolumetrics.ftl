@@ -17,11 +17,13 @@ breadcrumbsMap=breadcrumbsMap>
             error=oilInPlaceError/>
         </#if>
 
-<#--        <@probabilityDistribution.probabilityDistributionSingularTemplate-->
-<#--        probabilityDistributionPath="form.gasInPlace"-->
-<#--        labelText="Gas in place"-->
-<#--        template=gasInPlaceTemplate-->
-<#--        error=gasInPlaceError/>-->
+        <#if hydrocarbonType == "GAS_ONLY">
+            <@probabilityDistribution.probabilityDistributionSingularTemplate
+            probabilityDistributionPath="form.gasInPlace"
+            labelText="Gas in place"
+            template=gasInPlaceTemplate
+            error=gasInPlaceError/>
+        </#if>
 
         <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
     </@fdsForm.htmlForm>
