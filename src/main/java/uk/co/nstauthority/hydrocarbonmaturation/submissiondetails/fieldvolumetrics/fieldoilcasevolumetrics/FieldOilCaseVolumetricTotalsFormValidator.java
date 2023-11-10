@@ -87,7 +87,7 @@ public class FieldOilCaseVolumetricTotalsFormValidator implements SubmissionVali
             ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD
     );
 
-    var naturalGasLiquidsResources = oilCaseOutputsForm.getOilEquivalentRecoverableResources();
+    var naturalGasLiquidsResources = oilCaseOutputsForm.getNaturalGasLiquidsResources();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
             naturalGasLiquidsResources,
             errors,
@@ -143,7 +143,7 @@ public class FieldOilCaseVolumetricTotalsFormValidator implements SubmissionVali
             ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
     );
 
-    var naturalGasLiquidsReserves = oilCaseOutputsForm.getOilEquivalentRecoverableReserves();
+    var naturalGasLiquidsReserves = oilCaseOutputsForm.getNaturalGasLiquidsReserves();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
             naturalGasLiquidsReserves,
             errors,
@@ -199,7 +199,7 @@ public class FieldOilCaseVolumetricTotalsFormValidator implements SubmissionVali
             ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD
     );
 
-    var naturalGasLiquidsResources = oilCaseOutputsForm.getOilEquivalentRecoverableResources();
+    var naturalGasLiquidsResources = oilCaseOutputsForm.getNaturalGasLiquidsResources();
     ProbabilityDistributionValidationUtil.validateCustomFull(
             naturalGasLiquidsResources,
             errors,
@@ -255,7 +255,7 @@ public class FieldOilCaseVolumetricTotalsFormValidator implements SubmissionVali
             ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
     );
 
-    var naturalGasLiquidsReserves = oilCaseOutputsForm.getOilEquivalentRecoverableReserves();
+    var naturalGasLiquidsReserves = oilCaseOutputsForm.getNaturalGasLiquidsReserves();
     ProbabilityDistributionValidationUtil.validateCustomFull(
             naturalGasLiquidsReserves,
             errors,
