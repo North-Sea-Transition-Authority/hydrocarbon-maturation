@@ -55,7 +55,8 @@ BEGIN
                 p50,
                 mean_value,
                 p10,
-                p1
+                p1,
+                comments
             ) VALUES (
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
@@ -70,7 +71,8 @@ BEGIN
                 abs(oil_and_gas_output_rec.oil_inplace_p50),
                 abs(oil_and_gas_output_rec.oil_inplace_mean),
                 abs(oil_and_gas_output_rec.oil_inplace_p10),
-                abs(oil_and_gas_output_rec.oil_inplace_p01)
+                abs(oil_and_gas_output_rec.oil_inplace_p01),
+                oil_and_gas_output_rec.oil_inplace_comment
             );
 
         END IF;
@@ -97,7 +99,8 @@ BEGIN
                 p50,
                 mean_value,
                 p10,
-                p1
+                p1,
+                comments
             ) VALUES (
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
@@ -112,7 +115,8 @@ BEGIN
                 abs(oil_and_gas_output_rec.oil_recoverable_p50),
                 abs(oil_and_gas_output_rec.oil_recoverable_mean),
                 abs(oil_and_gas_output_rec.oil_recoverable_p10),
-                abs(oil_and_gas_output_rec.oil_recoverable_p01)
+                abs(oil_and_gas_output_rec.oil_recoverable_p01),
+                oil_and_gas_output_rec.oil_recoverable_comment
             );
 
         END IF;
@@ -143,7 +147,8 @@ BEGIN
                 p50,
                 mean_value,
                 p10,
-                p1
+                p1,
+                comments
             ) VALUES (
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
@@ -158,7 +163,8 @@ BEGIN
                 abs(oil_and_gas_output_rec.assgas_recoverable_p50),
                 abs(oil_and_gas_output_rec.assgas_recoverable_mean),
                 abs(oil_and_gas_output_rec.assgas_recoverable_p10),
-                abs(oil_and_gas_output_rec.assgas_recoverable_p01)
+                abs(oil_and_gas_output_rec.assgas_recoverable_p01),
+                oil_and_gas_output_rec.assgas_recoverable_comment
             );
 
         END IF;
@@ -185,7 +191,8 @@ BEGIN
                 p50,
                 mean_value,
                 p10,
-                p1
+                p1,
+                comments
             ) VALUES (
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
@@ -200,7 +207,8 @@ BEGIN
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_p50),
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_mean),
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_p10),
-                abs(oil_and_gas_output_rec.oilequiv_recoverable_p01)
+                abs(oil_and_gas_output_rec.oilequiv_recoverable_p01),
+                oil_and_gas_output_rec.oilequiv_recoverable_comment
             );
 
         END IF;
@@ -238,7 +246,8 @@ BEGIN
                 p50,
                 mean_value,
                 p10,
-                p1
+                p1,
+                comments
             ) VALUES (
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
@@ -253,7 +262,8 @@ BEGIN
                 abs(oil_and_gas_output_rec.gas_inplace_p50),
                 abs(oil_and_gas_output_rec.gas_inplace_mean),
                 abs(oil_and_gas_output_rec.gas_inplace_p10),
-                abs(oil_and_gas_output_rec.gas_inplace_p01)
+                abs(oil_and_gas_output_rec.gas_inplace_p01),
+                oil_and_gas_output_rec.gas_inplace_comment
             );
 
         END IF;
@@ -280,7 +290,8 @@ BEGIN
                 p50,
                 mean_value,
                 p10,
-                p1
+                p1,
+                comments
             ) VALUES (
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
@@ -295,7 +306,8 @@ BEGIN
                 abs(oil_and_gas_output_rec.gas_recoverable_p50),
                 abs(oil_and_gas_output_rec.gas_recoverable_mean),
                 abs(oil_and_gas_output_rec.gas_recoverable_p10),
-                abs(oil_and_gas_output_rec.gas_recoverable_p01)
+                abs(oil_and_gas_output_rec.gas_recoverable_p01),
+                oil_and_gas_output_rec.gas_recoverable_comment
             );
 
         END IF;
@@ -326,7 +338,8 @@ BEGIN
                 p50,
                 mean_value,
                 p10,
-                p1
+                p1,
+                comments
             ) VALUES (
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
@@ -341,7 +354,8 @@ BEGIN
                 abs(oil_and_gas_output_rec.asscon_recoverable_p50),
                 abs(oil_and_gas_output_rec.asscon_recoverable_mean),
                 abs(oil_and_gas_output_rec.asscon_recoverable_p10),
-                abs(oil_and_gas_output_rec.asscon_recoverable_p01)
+                abs(oil_and_gas_output_rec.asscon_recoverable_p01),
+                oil_and_gas_output_rec.asscon_recoverable_comment
             );
 
         END IF;
@@ -368,7 +382,8 @@ BEGIN
                 p50,
                 mean_value,
                 p10,
-                p1
+                p1,
+                comments
             ) VALUES (
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
@@ -383,7 +398,8 @@ BEGIN
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_p50),
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_mean),
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_p10),
-                abs(oil_and_gas_output_rec.oilequiv_recoverable_p01)
+                abs(oil_and_gas_output_rec.oilequiv_recoverable_p01),
+                oil_and_gas_output_rec.oilequiv_recoverable_comment
             );
 
         END IF;
@@ -437,7 +453,8 @@ BEGIN
                 p50,
                 mean_value,
                 p10,
-                p1
+                p1,
+                comments
             ) VALUES (
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
@@ -452,7 +469,8 @@ BEGIN
                 abs(mixed_output_rec.oil_inplace_p50),
                 abs(mixed_output_rec.oil_inplace_mean),
                 abs(mixed_output_rec.oil_inplace_p10),
-                abs(mixed_output_rec.oil_inplace_p01)
+                abs(mixed_output_rec.oil_inplace_p01),
+                mixed_output_rec.oil_inplace_comment
             );
 
         END IF;
@@ -479,7 +497,8 @@ BEGIN
                 p50,
                 mean_value,
                 p10,
-                p1
+                p1,
+                comments
             ) VALUES (
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
@@ -494,7 +513,8 @@ BEGIN
                 abs(mixed_output_rec.oil_recoverable_p50),
                 abs(mixed_output_rec.oil_recoverable_mean),
                 abs(mixed_output_rec.oil_recoverable_p10),
-                abs(mixed_output_rec.oil_recoverable_p01)
+                abs(mixed_output_rec.oil_recoverable_p01),
+                mixed_output_rec.oil_recoverable_comment
             );
 
         END IF;
@@ -525,7 +545,8 @@ BEGIN
                 p50,
                 mean_value,
                 p10,
-                p1
+                p1,
+                comments
             ) VALUES (
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
@@ -540,7 +561,8 @@ BEGIN
                 abs(mixed_output_rec.assgas_recoverable_p50),
                 abs(mixed_output_rec.assgas_recoverable_mean),
                 abs(mixed_output_rec.assgas_recoverable_p10),
-                abs(mixed_output_rec.assgas_recoverable_p01)
+                abs(mixed_output_rec.assgas_recoverable_p01),
+                mixed_output_rec.assgas_recoverable_comment
             );
 
         END IF;
@@ -567,7 +589,8 @@ BEGIN
                 p50,
                 mean_value,
                 p10,
-                p1
+                p1,
+                comments
             ) VALUES (
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
@@ -582,7 +605,8 @@ BEGIN
                 abs(mixed_output_rec.gas_inplace_p50),
                 abs(mixed_output_rec.gas_inplace_mean),
                 abs(mixed_output_rec.gas_inplace_p10),
-                abs(mixed_output_rec.gas_inplace_p01)
+                abs(mixed_output_rec.gas_inplace_p01),
+                mixed_output_rec.gas_inplace_comment
             );
 
         END IF;
@@ -609,7 +633,8 @@ BEGIN
                 p50,
                 mean_value,
                 p10,
-                p1
+                p1,
+                comments
             ) VALUES (
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
@@ -624,7 +649,8 @@ BEGIN
                 abs(mixed_output_rec.gas_recoverable_p50),
                 abs(mixed_output_rec.gas_recoverable_mean),
                 abs(mixed_output_rec.gas_recoverable_p10),
-                abs(mixed_output_rec.gas_recoverable_p01)
+                abs(mixed_output_rec.gas_recoverable_p01),
+                mixed_output_rec.gas_recoverable_comment
             );
 
         END IF;
@@ -651,7 +677,8 @@ BEGIN
                 p50,
                 mean_value,
                 p10,
-                p1
+                p1,
+                comments
             ) VALUES (
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
@@ -666,7 +693,8 @@ BEGIN
                 abs(mixed_output_rec.asscon_recoverable_p50),
                 abs(mixed_output_rec.asscon_recoverable_mean),
                 abs(mixed_output_rec.asscon_recoverable_p10),
-                abs(mixed_output_rec.asscon_recoverable_p01)
+                abs(mixed_output_rec.asscon_recoverable_p01),
+                mixed_output_rec.asscon_recoverable_comment
             );
 
         END IF;
@@ -693,7 +721,8 @@ BEGIN
                 p50,
                 mean_value,
                 p10,
-                p1
+                p1,
+                comments
             ) VALUES (
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
@@ -708,7 +737,8 @@ BEGIN
                 abs(mixed_output_rec.oilequiv_recoverable_p50),
                 abs(mixed_output_rec.oilequiv_recoverable_mean),
                 abs(mixed_output_rec.oilequiv_recoverable_p10),
-                abs(mixed_output_rec.oilequiv_recoverable_p01)
+                abs(mixed_output_rec.oilequiv_recoverable_p01),
+                mixed_output_rec.oilequiv_recoverable_comment
             );
 
         END IF;

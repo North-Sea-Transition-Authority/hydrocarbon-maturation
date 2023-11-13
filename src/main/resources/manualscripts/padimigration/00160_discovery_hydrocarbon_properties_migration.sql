@@ -10,8 +10,10 @@ DECLARE
 BEGIN
 
     FOR discovery_rec IN (
-        SELECT sd.id sd_id, r.type, sd.submission_type, prdd.*
-        FROM remi.submission_details sd
+        -- TODO get all reservoirs for a given resource and join to their specific resdat_ids
+        SELECT rsd.id rsd_id, sd.id sd_id, r.type, sd.submission_type, prdd.*
+        FROM remi.reservoir_submission_details rsd
+        JOIN remi.submission_details sd ON sd.id = rsd.submission_detail_id
         JOIN remi.submissions s ON s.id = sd.submission_id
         JOIN remi.resources r ON r.id = s.resource_id
         JOIN remi.padi_res_data_disc prdd ON prdd.resdat_id = sd.legacy_res_data_id
@@ -36,7 +38,7 @@ BEGIN
 
             INSERT INTO remi.oil_fluid_properties(
                 id,
-                submission_detail_id,
+                reservoir_submission_detail_id,
                 oil_gravity,
                 oil_viscosity,
                 oil_sulphur,
@@ -44,7 +46,7 @@ BEGIN
                 oil_other_wax_appearance_temperature
             ) VALUES (
                 gen_random_uuid(),
-                discovery_rec.sd_id,
+                discovery_rec.rsd_id,
                 CASE
                     WHEN discovery_rec.oil_gravity ~ '^[0-9\.]+$' -- checks to see if the data is a number, doesn't enter text values, e.g. "N/A", "Unknown", etc
                     THEN ROUND(discovery_rec.oil_gravity::NUMERIC)
@@ -96,7 +98,7 @@ BEGIN
 
             INSERT INTO remi.gas_fluid_properties (
                 id,
-                submission_detail_id,
+                reservoir_submission_detail_id,
                 gas_specific_gravity,
                 gas_h2s,
                 gas_co2,
@@ -110,7 +112,7 @@ BEGIN
                 advise_other_gases_concentration
             ) VALUES (
                 gen_random_uuid(),
-                discovery_rec.sd_id,
+                discovery_rec.rsd_id,
                 CASE
                     WHEN discovery_rec.gas_gravity ~ '^[0-9\.]+$'
                     THEN ROUND(discovery_rec.gas_gravity::NUMERIC, 2)
@@ -168,7 +170,7 @@ BEGIN
 
             INSERT INTO remi.general_fluid_properties(
                 id,
-                submission_detail_id,
+                reservoir_submission_detail_id,
                 datum_depth,
                 temperature_at_datum_depth,
                 pressure_at_datum_depth,
@@ -176,9 +178,13 @@ BEGIN
                 water_salinity
             ) VALUES (
                 gen_random_uuid(),
-                discovery_rec.sd_id,
-                discovery_rec.datum_depth,
-                discovery_rec.datum_temp,
+                discovery_rec.rsd_id,
+                CASE
+                    WHEN discovery_rec.datum_units IN ('ft tvdss', 'feet', 'ft MD')
+                        THEN discovery_rec.datum_depth * 0.3048
+                    ELSE discovery_rec.datum_depth
+                END,
+                (discovery_rec.datum_temp - 32) * 1.8,
                 discovery_rec.datum_pressure,
                 discovery_rec.datum_saturation_pressure,
                 NULL -- does this exist in PaDI?
