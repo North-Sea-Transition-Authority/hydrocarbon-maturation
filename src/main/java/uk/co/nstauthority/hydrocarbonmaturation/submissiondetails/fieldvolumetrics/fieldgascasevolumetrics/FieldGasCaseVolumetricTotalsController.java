@@ -35,7 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @IsFromResponsibleTeam
 public class FieldGasCaseVolumetricTotalsController {
 
-  public static final String PAGE_NAME = "Total oil case volumetrics";
+  public static final String PAGE_NAME = "Total gas case volumetrics";
 
   private final SubmissionDetailService submissionDetailService;
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
