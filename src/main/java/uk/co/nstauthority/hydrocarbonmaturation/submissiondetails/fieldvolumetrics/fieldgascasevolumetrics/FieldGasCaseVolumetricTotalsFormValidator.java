@@ -77,7 +77,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD
     );
 
-    var naturalGasLiquidsResources = gasCaseOutputsForm.getOilEquivalentRecoverableResources();
+    var naturalGasLiquidsResources = gasCaseOutputsForm.getNaturalGasLiquidsResources();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
         naturalGasLiquidsResources,
         errors,
@@ -124,7 +124,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
     );
 
-    var naturalGasLiquidsReserves = gasCaseOutputsForm.getOilEquivalentRecoverableReserves();
+    var naturalGasLiquidsReserves = gasCaseOutputsForm.getNaturalGasLiquidsReserves();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
         naturalGasLiquidsReserves,
         errors,
@@ -171,7 +171,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD
     );
 
-    var naturalGasLiquidsResources = gasCaseOutputsForm.getOilEquivalentRecoverableResources();
+    var naturalGasLiquidsResources = gasCaseOutputsForm.getNaturalGasLiquidsResources();
     ProbabilityDistributionValidationUtil.validateCustomFull(
         naturalGasLiquidsResources,
         errors,
@@ -218,7 +218,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
     );
 
-    var naturalGasLiquidsReserves = gasCaseOutputsForm.getOilEquivalentRecoverableReserves();
+    var naturalGasLiquidsReserves = gasCaseOutputsForm.getNaturalGasLiquidsReserves();
     ProbabilityDistributionValidationUtil.validateCustomFull(
         naturalGasLiquidsReserves,
         errors,
