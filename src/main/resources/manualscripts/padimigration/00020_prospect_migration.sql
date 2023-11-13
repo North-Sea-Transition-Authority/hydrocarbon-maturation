@@ -6,6 +6,8 @@ DECLARE
     remi_res_id UUID;
     submission_rec RECORD;
     remi_submission_id UUID;
+    reservoir_id UUID;
+    remi_submission_detail_id UUID;
 
 BEGIN
 
@@ -71,7 +73,8 @@ BEGIN
                 WHEN rank() over (PARTITION BY prg2.remi_resource_id ORDER BY TO_DATE(prdh2.stage_date, 'DD/MM/YYYY HH24:MI:SS'), prdh2.resdat_id) = 1 THEN 'CREATE_PROSPECT'
                 ELSE 'PROSPECT_UPDATE'
             END submission_type,
-            prg2.legacy_res_data_id legacy_data_id
+            prg2.legacy_res_data_id legacy_data_id,
+            prdh2.name_alternative
         FROM remi.padi_res_data_header prdh2
         JOIN remi.padi_resource_groupings prg2 ON prg2.legacy_res_data_id = prdh2.resdat_id
         JOIN remi.resources r ON r.id = prg2.remi_resource_id
@@ -85,7 +88,8 @@ BEGIN
             prg2.remi_resource_id,
             TO_DATE(prdh2.stage_date, 'DD/MM/YYYY HH24:MI:SS') approved_date,
             'POST_DRILL_DRY_HOLE' submission_type,
-            prg2.legacy_res_data_id
+            prg2.legacy_res_data_id,
+            prdh2.name_alternative
         FROM remi.padi_res_data_header prdh2
         JOIN remi.padi_resource_groupings prg2 ON prg2.legacy_res_data_id = prdh2.resdat_id
         JOIN remi.resources r ON r.id = prg2.remi_resource_id
@@ -99,7 +103,8 @@ BEGIN
             prg2.remi_resource_id,
             TO_DATE(prdh2.stage_date, 'DD/MM/YYYY HH24:MI:SS') approved_date,
             'RELINQUISHMENT_PROSPECT' submission_type,
-            prg2.legacy_res_data_id
+            prg2.legacy_res_data_id,
+            prdh2.name_alternative
         FROM remi.padi_res_data_header prdh2
         JOIN remi.padi_resource_groupings prg2 ON prg2.legacy_res_data_id = prdh2.resdat_id
         JOIN remi.resources r ON r.id = prg2.remi_resource_id
@@ -139,6 +144,20 @@ BEGIN
             1,
             1,
             submission_rec.legacy_data_id
+        ) RETURNING id INTO remi_submission_detail_id;
+
+        INSERT INTO remi.reservoirs (id, name)
+        VALUES (
+            gen_random_uuid(),
+            submission_rec.name_alternative
+        ) RETURNING id INTO reservoir_id;
+
+        INSERT INTO remi.reservoir_submission_details (id, reservoir, submission_detail_id, status)
+        VALUES (
+            gen_random_uuid(),
+            reservoir_id,
+            remi_submission_detail_id,
+            'EXTANT'
         );
 
     END LOOP;

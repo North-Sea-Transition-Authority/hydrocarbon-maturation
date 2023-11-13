@@ -7,7 +7,6 @@ DECLARE
     well_investment TEXT := 'Well Investment';
     relinquishment TEXT := 'Relinquishment';
     licence_rec RECORD;
-    reservoir_id UUID;
 
 BEGIN
 
@@ -15,7 +14,7 @@ BEGIN
         SELECT
             sd.id,
             r.type,
-            prdh.name_alternative,
+            COALESCE(pmrd.resource_name, prdh.name_alternative) chosen_resource_name,
             CASE
                 WHEN (
                     SELECT pqbm.shore_type
@@ -58,26 +57,9 @@ BEGIN
         JOIN remi.submissions s ON s.id = sd.submission_id
         JOIN remi.resources r ON r.id = s.resource_id
         JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = sd.legacy_res_data_id
+        LEFT JOIN remi.padi_multi_reservoir_discoveries pmrd ON pmrd.resdat_id = sd.legacy_res_data_id
     )
     LOOP
-
-        IF submission_rec.type = 'PROSPECT' THEN
-
-            INSERT INTO remi.reservoirs (id, name)
-            VALUES (
-                gen_random_uuid(),
-                submission_rec.name_alternative
-            ) RETURNING id INTO reservoir_id;
-
-            INSERT INTO remi.reservoir_submission_details (id, reservoir, submission_detail_id, status)
-            VALUES (
-                gen_random_uuid(),
-                reservoir_id,
-                submission_rec.id,
-                'EXTANT'
-            );
-
-        END IF;
 
         INSERT INTO remi.resource_details (
             id,
@@ -90,7 +72,7 @@ BEGIN
         ) VALUES (
             gen_random_uuid(),
             submission_rec.id,
-            submission_rec.name_alternative,
+            submission_rec.chosen_resource_name,
             submission_rec.onshore_offshore,
             submission_rec.org_unit_id,
             submission_rec.org_unit_name,

@@ -609,7 +609,17 @@ CREATE TABLE remi.padi_resource_groupings (
     legacy_resource_id TEXT,
     agreed_operator TEXT,
     legacy_res_data_id INTEGER,
-    resource_type TEXT
+    name_alternative TEXT,
+    resource_type TEXT,
+    relinquishment BOOLEAN
+);
+
+CREATE TABLE remi.padi_reservoirs (
+    id UUID PRIMARY KEY,
+    remi_resource_id UUID,
+    legacy_resource_id TEXT,
+    remi_reservoir_id UUID,
+    legacy_res_data_id INTEGER
 );
 
 CREATE TABLE remi.padi_well_mapping (
@@ -633,4 +643,18 @@ CREATE TABLE remi.padi_licence_mapping (
     padi_res_data_id INTEGER,
     licence          TEXT,
     licence_id       INTEGER
+);
+
+CREATE TABLE remi.padi_multi_reservoir_discoveries (
+    resource_id         TEXT,
+    choice              TEXT,
+    name_of_prospect    TEXT,
+    resource_name       TEXT,
+    opportunity_type    TEXT,
+    split_type          TEXT,
+    resource_stage_name TEXT,
+    play_fairway        TEXT,
+    reservoir_horizon   TEXT,
+    reference           TEXT,
+    resdat_id           INTEGER
 );
