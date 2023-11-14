@@ -7,6 +7,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotal;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotalsRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
 
@@ -14,13 +16,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.Subm
 public class FieldCombinedCaseVolumetricTotalsDuplicationService implements SubmissionSectionDuplicationService {
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private final CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository;
 
   public FieldCombinedCaseVolumetricTotalsDuplicationService(
       ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
-      SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
+      SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService,
+      CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository) {
 
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
+    this.combinedCaseVolumetricTotalsRepository = combinedCaseVolumetricTotalsRepository;
   }
 
   @Override
@@ -28,6 +33,15 @@ public class FieldCombinedCaseVolumetricTotalsDuplicationService implements Subm
     if (!newSubmissionDetail.isFieldSubmission()) {
       return;
     }
+
+    combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(oldSubmissionDetail)
+        .ifPresent(combinedCaseVolumetricTotal ->
+            submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
+                newSubmissionDetail,
+                combinedCaseVolumetricTotal,
+                CombinedCaseVolumetricTotal.class
+            )
+        );
 
     var applicableInstances = new java.util.HashSet<>(Set.of(
             ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD,

@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldgascasevolumetrics;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,20 +9,25 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotal;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotalsRepository;
 
 @Service
 public class FieldGasCaseVolumetricTotalsService {
 
   private final ProbabilityDistributionFormService probabilityDistributionFormService;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
+  private final GasCaseVolumetricTotalsRepository gasCaseVolumetricTotalsRepository;
 
   @Autowired
   public FieldGasCaseVolumetricTotalsService(
       ProbabilityDistributionFormService probabilityDistributionFormService,
-      ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService) {
+      ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
+      GasCaseVolumetricTotalsRepository gasCaseVolumetricTotalsRepository) {
 
     this.probabilityDistributionFormService = probabilityDistributionFormService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
+    this.gasCaseVolumetricTotalsRepository = gasCaseVolumetricTotalsRepository;
   }
 
   public GasCaseOutputsForm submissionDetailToForm(SubmissionDetail submissionDetail) {
@@ -36,6 +42,11 @@ public class FieldGasCaseVolumetricTotalsService {
         submissionDetail,
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD
     ));
+
+    var hasAssociatedCondensateRecoverableResources = gasCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail)
+        .map(GasCaseVolumetricTotal::getHasAssociatedCondensateRecoverableResources)
+        .orElse(null);
+    form.setHasAssociatedCondensateRecoverableResources(hasAssociatedCondensateRecoverableResources);
 
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
@@ -88,8 +99,19 @@ public class FieldGasCaseVolumetricTotalsService {
   }
 
   @Transactional
-  public void saveFieldGasCaseVolumetricTotals(GasCaseOutputsForm oilCaseOutputsForm, SubmissionDetail submissionDetail) {
-    saveProbabilityDistributionFields(oilCaseOutputsForm, submissionDetail);
+  public void saveFieldGasCaseVolumetricTotals(GasCaseOutputsForm gasCaseOutputsForm, SubmissionDetail submissionDetail) {
+    saveProbabilityDistributionFields(gasCaseOutputsForm, submissionDetail);
+    saveGasVolumetricTotal(gasCaseOutputsForm, submissionDetail);
+  }
+
+  private void saveGasVolumetricTotal(GasCaseOutputsForm gasCaseOutputsForm, SubmissionDetail submissionDetail) {
+    var gasVolumetricTotal = gasCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail)
+        .orElse(new GasCaseVolumetricTotal());
+    gasVolumetricTotal.setSubmissionDetail(submissionDetail);
+    gasVolumetricTotal
+        .setHasAssociatedCondensateRecoverableResources(gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources());
+
+    gasCaseVolumetricTotalsRepository.save(gasVolumetricTotal);
   }
 
   private void saveProbabilityDistributionFields(
@@ -108,11 +130,19 @@ public class FieldGasCaseVolumetricTotalsService {
         submissionDetail
     );
 
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD,
-        gasCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
-        submissionDetail
-    );
+    var hasAssociatedCondensateRecoverableResources = gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources();
+    if (BooleanUtils.isTrue(hasAssociatedCondensateRecoverableResources)) {
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+          ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD,
+          gasCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
+          submissionDetail
+      );
+    } else if (BooleanUtils.isFalse(hasAssociatedCondensateRecoverableResources)) {
+      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
+          ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD,
+          submissionDetail
+      );
+    }
 
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,

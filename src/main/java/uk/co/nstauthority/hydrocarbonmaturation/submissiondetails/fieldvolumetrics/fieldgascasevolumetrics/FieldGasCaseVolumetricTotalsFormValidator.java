@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldgascasevolumetrics;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
@@ -59,14 +60,17 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD
     );
 
-    var associatedCondensateRecoverableResources = gasCaseOutputsForm.getAssociatedCondensateRecoverableResources();
-    ProbabilityDistributionValidationUtil.validateCustomPartial(
-        associatedCondensateRecoverableResources,
-        errors,
-        "associatedCondensateRecoverableResources",
-        "Associated condensate recoverable resources",
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD
-    );
+    var hasAssociatedCondensate = gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources();
+    if (BooleanUtils.isTrue(hasAssociatedCondensate)) {
+      var associatedCondensateRecoverableResources = gasCaseOutputsForm.getAssociatedCondensateRecoverableResources();
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          associatedCondensateRecoverableResources,
+          errors,
+          "associatedCondensateRecoverableResources",
+          "Associated condensate recoverable resources",
+          ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD
+      );
+    }
 
     var oilEquivalentRecoverableResources = gasCaseOutputsForm.getOilEquivalentRecoverableResources();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
@@ -153,14 +157,22 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD
     );
 
-    var associatedCondensateRecoverableResources = gasCaseOutputsForm.getAssociatedCondensateRecoverableResources();
-    ProbabilityDistributionValidationUtil.validateCustomFull(
-        associatedCondensateRecoverableResources,
-        errors,
-        "associatedCondensateRecoverableResources",
-        "Associated condensate recoverable resources",
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD
-    );
+    var hasAssociatedCondensate = gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources();
+    if (BooleanUtils.isTrue(hasAssociatedCondensate)) {
+      var associatedCondensateRecoverableResources = gasCaseOutputsForm.getAssociatedCondensateRecoverableResources();
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          associatedCondensateRecoverableResources,
+          errors,
+          "associatedCondensateRecoverableResources",
+          "Associated condensate recoverable resources",
+          ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD
+      );
+    } else if (hasAssociatedCondensate == null) {
+      errors.rejectValue(
+          "hasAssociatedCondensateRecoverableResources",
+          "hasAssociatedCondensateRecoverableResources.required",
+          "Select if you expect to find associated condensate recoverable resources");
+    }
 
     var oilEquivalentRecoverableResources = gasCaseOutputsForm.getOilEquivalentRecoverableResources();
     ProbabilityDistributionValidationUtil.validateCustomFull(

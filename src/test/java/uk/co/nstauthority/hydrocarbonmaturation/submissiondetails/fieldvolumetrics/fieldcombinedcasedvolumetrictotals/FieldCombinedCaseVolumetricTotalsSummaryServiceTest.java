@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -11,8 +12,12 @@ import static org.mockito.Mockito.when;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldgascasevolumetrics.FieldGasCaseVolumetricTotalsSummaryService.TOTAL_GAS_VOLUMETRICS_ORDER;
 
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,6 +26,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotal;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotalsRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -36,6 +43,9 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
 
   @Mock
   private TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
+
+  @Mock
+  private CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository;
 
   @InjectMocks
   private FieldCombinedCaseVolumetricTotalsSummaryService fieldCombinedCaseVolumetricTotalsSummaryService;
@@ -57,7 +67,7 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
   }
 
   @Test
-  void getSummarySection_validForm_assertStructure() {
+  void getSummarySection_validForm_hasAssociatedCondensate_assertStructure() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_COP);
 
     var probabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
@@ -128,7 +138,6 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD,
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD
@@ -165,7 +174,6 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD,
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD,
@@ -180,6 +188,107 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
     );
 
     fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail);
+
+    verify(probabilityDistributionSummaryService, times(1))
+        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+            resourceAndReserveInstances,
+            submissionDetail,
+            null
+        );
+
+    verifyNoMoreInteractions(probabilityDistributionSummaryService);
+  }
+
+  @ParameterizedTest
+  @NullSource
+  @ValueSource(booleans =  {false})
+  void getSummarySection_hasNoAssociatedCondensate(Boolean hasAssociatedCondensate) {
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_COP);
+
+    var probabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+            any(),
+            eq(submissionDetail),
+            eq(null)
+        )).thenReturn(List.of(probabilitySummaryView));
+    when(totalVolumesTaskListSectionService.isCombinedCase(anyList()))
+        .thenReturn(true);
+
+    var combinedCaseVolumetricTotal = mock(CombinedCaseVolumetricTotal.class);
+    when(combinedCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources())
+        .thenReturn(hasAssociatedCondensate);
+    when(combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(combinedCaseVolumetricTotal));
+
+    fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail);
+
+    var resourceAndReserveInstances = List.of(
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD,
+
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESERVES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD
+    );
+
+    verify(probabilityDistributionSummaryService, times(1))
+        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+            resourceAndReserveInstances,
+            submissionDetail,
+            null
+        );
+
+    verifyNoMoreInteractions(probabilityDistributionSummaryService);
+  }
+
+  @Test
+  void getSummarySection_hasAssociatedCondensate() {
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_COP);
+
+    var probabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+            any(),
+            eq(submissionDetail),
+            eq(null)
+        )).thenReturn(List.of(probabilitySummaryView));
+    when(totalVolumesTaskListSectionService.isCombinedCase(anyList()))
+        .thenReturn(true);
+
+    var combinedCaseVolumetricTotal = mock(CombinedCaseVolumetricTotal.class);
+    when(combinedCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources())
+        .thenReturn(true);
+    when(combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(combinedCaseVolumetricTotal));
+
+    fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail);
+
+    var resourceAndReserveInstances = List.of(
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD,
+
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESERVES_FIELD,
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD
+    );
 
     verify(probabilityDistributionSummaryService, times(1))
         .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(

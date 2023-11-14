@@ -3,11 +3,14 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetr
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotal;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotalsRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -23,16 +26,19 @@ public class FieldCombinedCaseVolumetricTotalsSummaryService implements SummaryS
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
   private final TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
+  private final CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository;
 
   @Autowired
   public FieldCombinedCaseVolumetricTotalsSummaryService(
       ProbabilityDistributionSummaryService probabilityDistributionSummaryService,
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
-      TotalVolumesTaskListSectionService totalVolumesTaskListSectionService) {
+      TotalVolumesTaskListSectionService totalVolumesTaskListSectionService,
+      CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository) {
 
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.totalVolumesTaskListSectionService = totalVolumesTaskListSectionService;
+    this.combinedCaseVolumetricTotalsRepository = combinedCaseVolumetricTotalsRepository;
   }
 
   @Override
@@ -52,12 +58,20 @@ public class FieldCombinedCaseVolumetricTotalsSummaryService implements SummaryS
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD,
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD
-    )
+      )
     );
+
+    var combinedCaseVolumetricTotal = combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail)
+        .orElse(new CombinedCaseVolumetricTotal());
+    if (BooleanUtils.isTrue(combinedCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources())) {
+      listOfInstances.add(
+          ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD
+      );
+    }
+
     if (!submissionDetail.isConceptSelectReportSubmission()) {
       listOfInstances.addAll(List.of(
               ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD,

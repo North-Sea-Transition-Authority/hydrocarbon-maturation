@@ -8,21 +8,26 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotal;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotalsRepository;
 
 @Service
 public class FieldGasCaseVolumetricTotalsDuplicationService implements SubmissionSectionDuplicationService {
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private final GasCaseVolumetricTotalsRepository gasCaseVolumetricTotalsRepository;
 
   @Autowired
   public FieldGasCaseVolumetricTotalsDuplicationService(
       ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
-      SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
+      SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService,
+      GasCaseVolumetricTotalsRepository gasCaseVolumetricTotalsRepository) {
 
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
+    this.gasCaseVolumetricTotalsRepository = gasCaseVolumetricTotalsRepository;
   }
 
 
@@ -31,6 +36,15 @@ public class FieldGasCaseVolumetricTotalsDuplicationService implements Submissio
     if (!newSubmissionDetail.isFieldSubmission()) {
       return;
     }
+
+    gasCaseVolumetricTotalsRepository.findBySubmissionDetail(oldSubmissionDetail)
+        .ifPresent(combinedCaseVolumetricTotal ->
+            submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
+                newSubmissionDetail,
+                combinedCaseVolumetricTotal,
+                CombinedCaseVolumetricTotal.class
+            )
+        );
 
     var applicableInstances = new java.util.HashSet<>(Set.of(
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD,

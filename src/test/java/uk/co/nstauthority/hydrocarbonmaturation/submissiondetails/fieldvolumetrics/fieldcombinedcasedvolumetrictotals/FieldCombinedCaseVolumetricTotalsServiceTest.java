@@ -1,11 +1,13 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldcombinedcasedvolumetrictotals;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,6 +20,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotal;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotalsRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsForm;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,8 +32,48 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
   @Mock
   private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
+  @Mock
+  private CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository;
+
   @InjectMocks
   private FieldCombinedCaseVolumetricTotalsService fieldCombinedCaseVolumetricTotalsService;
+
+  @Test
+  void submissionDetailToForm_noCombinedVolumetricExists() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+
+    when(combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.empty());
+
+    fieldCombinedCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail);
+
+    var hasAssociatedCondensate =
+        fieldCombinedCaseVolumetricTotalsService
+            .submissionDetailToForm(submissionDetail).getHasAssociatedCondensateRecoverableResources();
+
+    assertThat(hasAssociatedCondensate).isNull();
+  }
+
+  @Test
+  void submissionDetailToForm_combinedVolumetricExists() {
+    var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+
+    var combinedCaseVolumetricTotal = mock(CombinedCaseVolumetricTotal.class);
+    when(combinedCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources())
+        .thenReturn(true);
+
+    when(combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(combinedCaseVolumetricTotal));
+
+    fieldCombinedCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail);
+
+    var hasAssociatedCondensate =
+        fieldCombinedCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail)
+            .getHasAssociatedCondensateRecoverableResources();
+
+    assertThat(hasAssociatedCondensate)
+        .isEqualTo(combinedCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources());
+  }
 
   @Test
   void testSubmissionDetailToForm_isNotConceptSelectReportSubmission() {
@@ -134,6 +178,7 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
     expectedForm.setOilInPlace(oilInPlace);
 
     expectedForm.setGasRecoverableResources(gasRecoverableResources);
+    expectedForm.setHasAssociatedCondensateRecoverableResources(true);
     expectedForm.setAssociatedCondensateRecoverableResources(associatedCondensateRecoverableResources);
     expectedForm.setOilEquivalentRecoverableResources(oilEquivalentRecoverableResources);
     expectedForm.setNaturalGasLiquidsResources(naturalGasLiquidsResources);
@@ -186,10 +231,16 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
         submissionDetail,
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD
     )).thenReturn(form.getGasRecoverableResources());
+
+    var combinedCaseVolumetricTotal = new CombinedCaseVolumetricTotal();
+    combinedCaseVolumetricTotal.setHasAssociatedCondensateRecoverableResources(true);
+    when(combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(combinedCaseVolumetricTotal));
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD
     )).thenReturn(form.getAssociatedCondensateRecoverableResources());
+
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD

@@ -3,11 +3,14 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetr
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotal;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotalsRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -24,16 +27,19 @@ public class FieldGasCaseVolumetricTotalsSummaryService implements SummarySectio
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
   private final TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
+  private final GasCaseVolumetricTotalsRepository gasCaseVolumetricTotalsRepository;
 
   @Autowired
   public FieldGasCaseVolumetricTotalsSummaryService(
       ProbabilityDistributionSummaryService probabilityDistributionSummaryService,
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
-      TotalVolumesTaskListSectionService totalVolumesTaskListSectionService) {
+      TotalVolumesTaskListSectionService totalVolumesTaskListSectionService,
+      GasCaseVolumetricTotalsRepository gasCaseVolumetricTotalsRepository) {
 
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.totalVolumesTaskListSectionService = totalVolumesTaskListSectionService;
+    this.gasCaseVolumetricTotalsRepository = gasCaseVolumetricTotalsRepository;
   }
 
   @Override
@@ -50,12 +56,20 @@ public class FieldGasCaseVolumetricTotalsSummaryService implements SummarySectio
   private SummaryItem getResourcesAndReservesSummary(SubmissionDetail submissionDetail) {
     var listOfInstances = new ArrayList<>(List.of(
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD,
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD
-    )
+      )
     );
+
+    var gasCaseVolumetricTotal = gasCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail)
+        .orElse(new GasCaseVolumetricTotal());
+    if (BooleanUtils.isTrue(gasCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources())) {
+      listOfInstances.add(
+          ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD
+      );
+    }
+
     if (!submissionDetail.isConceptSelectReportSubmission()) {
       listOfInstances.addAll(List.of(
               ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD,

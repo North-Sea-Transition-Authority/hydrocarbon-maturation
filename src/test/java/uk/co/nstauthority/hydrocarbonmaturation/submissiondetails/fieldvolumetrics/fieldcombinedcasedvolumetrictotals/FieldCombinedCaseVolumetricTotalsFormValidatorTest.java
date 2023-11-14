@@ -268,6 +268,44 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
         );
   }
 
+  @Test
+  void validateFull_emptyForm_hasNoAssociatedCondensateSelection_thenError() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_COP);
+
+    var form = getEmptyForm();
+    form.setHasAssociatedCondensateRecoverableResources(null);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertFalse(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL));
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("hasAssociatedCondensateRecoverableResources",
+                Set.of("hasAssociatedCondensateRecoverableResources.required"))
+        );
+  }
+
+  @Test
+  void validatePartial_emptyForm_HasAssociatedCondensateSelection_thenNoError() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_COP);
+
+    var form = getEmptyForm();
+    form.setHasAssociatedCondensateRecoverableResources(null);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertTrue(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.PARTIAL));
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .doesNotContain(
+            entry("hasAssociatedCondensateRecoverableResources",
+                Set.of("hasAssociatedCondensateRecoverableResources.required"))
+        );
+  }
+
   private MixedCaseOutputsForm getValidForm() {
     var oilInPlace = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD
@@ -328,6 +366,7 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
     form.setAssociatedGasRecoverableResources(associatedGasResources);
     form.setGasRecoverableResources(gasRecoverableResources);
     form.setOilEquivalentRecoverableResources(oilEquivalentResources);
+    form.setHasAssociatedCondensateRecoverableResources(true);
     form.setAssociatedCondensateRecoverableResources(associatedCondensateResources);
     form.setNaturalGasLiquidsResources(naturalGasLiquidsResources);
     form.setSalesGasResources(salesGasResources);
@@ -371,6 +410,7 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
     form.setAssociatedGasRecoverableResources(probabilityDistributionForm);
     form.setGasRecoverableResources(probabilityDistributionForm);
     form.setOilEquivalentRecoverableResources(probabilityDistributionForm);
+    form.setHasAssociatedCondensateRecoverableResources(true);
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionForm);
     form.setNaturalGasLiquidsResources(probabilityDistributionForm);
     form.setSalesGasResources(probabilityDistributionForm);
@@ -399,6 +439,7 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
     form.setAssociatedGasRecoverableResources(probabilityDistributionForm);
     form.setGasRecoverableResources(probabilityDistributionForm);
     form.setOilEquivalentRecoverableResources(probabilityDistributionForm);
+    form.setHasAssociatedCondensateRecoverableResources(true);
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionForm);
     form.setNaturalGasLiquidsResources(probabilityDistributionForm);
     form.setSalesGasResources(probabilityDistributionForm);

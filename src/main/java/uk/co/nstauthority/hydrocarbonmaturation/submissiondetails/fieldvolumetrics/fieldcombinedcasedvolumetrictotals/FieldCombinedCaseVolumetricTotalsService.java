@@ -1,12 +1,15 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldcombinedcasedvolumetrictotals;
 
 import javax.transaction.Transactional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotal;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotalsRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsForm;
 
 @Service
@@ -15,14 +18,17 @@ public class FieldCombinedCaseVolumetricTotalsService {
   private final ProbabilityDistributionFormService probabilityDistributionFormService;
 
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
+  private final CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository;
 
   @Autowired
   public FieldCombinedCaseVolumetricTotalsService(
       ProbabilityDistributionFormService probabilityDistributionFormService,
-      ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService) {
+      ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
+      CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository) {
 
     this.probabilityDistributionFormService = probabilityDistributionFormService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
+    this.combinedCaseVolumetricTotalsRepository = combinedCaseVolumetricTotalsRepository;
   }
 
   public MixedCaseOutputsForm submissionDetailToForm(SubmissionDetail submissionDetail) {
@@ -42,6 +48,12 @@ public class FieldCombinedCaseVolumetricTotalsService {
         submissionDetail,
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD
     ));
+
+    var hasAssociatedCondensateRecoverableResources =
+        combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail)
+          .map(CombinedCaseVolumetricTotal::getHasAssociatedCondensateRecoverableResources)
+          .orElse(null);
+    form.setHasAssociatedCondensateRecoverableResources(hasAssociatedCondensateRecoverableResources);
 
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
@@ -116,6 +128,17 @@ public class FieldCombinedCaseVolumetricTotalsService {
   @Transactional
   public void saveFieldCombinedCaseVolumetricTotals(MixedCaseOutputsForm form, SubmissionDetail submissionDetail) {
     saveProbabilityDistributionFields(form, submissionDetail);
+    saveCombinedCaseVolumetricTotal(form, submissionDetail);
+  }
+
+  private void saveCombinedCaseVolumetricTotal(MixedCaseOutputsForm mixedCaseOutputsForm, SubmissionDetail submissionDetail) {
+    var combinedCaseVolumetricTotal = combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail)
+        .orElse(new CombinedCaseVolumetricTotal());
+    combinedCaseVolumetricTotal.setSubmissionDetail(submissionDetail);
+    combinedCaseVolumetricTotal.setHasAssociatedCondensateRecoverableResources(
+        mixedCaseOutputsForm.getHasAssociatedCondensateRecoverableResources()
+    );
+    combinedCaseVolumetricTotalsRepository.save(combinedCaseVolumetricTotal);
   }
 
   private void saveProbabilityDistributionFields(
@@ -151,11 +174,19 @@ public class FieldCombinedCaseVolumetricTotalsService {
         submissionDetail
     );
 
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD,
-        mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
-        submissionDetail
-    );
+    var hasAssociatedCondensateRecoverableResources = mixedCaseOutputsForm.getHasAssociatedCondensateRecoverableResources();
+    if (BooleanUtils.isTrue(hasAssociatedCondensateRecoverableResources)) {
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+          ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD,
+          mixedCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
+          submissionDetail
+      );
+    } else if (BooleanUtils.isFalse(hasAssociatedCondensateRecoverableResources)) {
+      probabilityDistributionPersistenceService.deleteProbabilityDistribution(
+          ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD,
+          submissionDetail
+      );
+    }
 
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,

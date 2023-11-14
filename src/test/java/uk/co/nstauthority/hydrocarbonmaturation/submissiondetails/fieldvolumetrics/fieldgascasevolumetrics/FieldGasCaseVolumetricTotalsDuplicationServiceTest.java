@@ -5,12 +5,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -30,7 +32,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotal;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotal;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotalsRepository;
 
 @ExtendWith(MockitoExtension.class)
 class FieldGasCaseVolumetricTotalsDuplicationServiceTest {
@@ -41,8 +46,49 @@ class FieldGasCaseVolumetricTotalsDuplicationServiceTest {
   @Mock
   private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
 
+  @Mock
+  private GasCaseVolumetricTotalsRepository gasCaseVolumetricTotalsRepository;
+
   @InjectMocks
   private FieldGasCaseVolumetricTotalsDuplicationService fieldGasCaseVolumetricTotalsDuplicationService;
+
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void duplicateSection_TotalsExist_DoesDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    var gasCaseVolumetricTotal = mock(GasCaseVolumetricTotal.class);
+    when(gasCaseVolumetricTotalsRepository.findBySubmissionDetail(oldSubmissionDetail))
+        .thenReturn(Optional.of(gasCaseVolumetricTotal));
+
+    fieldGasCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    var argumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
+    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(argumentCaptor.capture(), eq(gasCaseVolumetricTotal),
+        eq(CombinedCaseVolumetricTotal.class));
+    assertThat(argumentCaptor.getValue()).isEqualTo(newSubmissionDetail);
+  }
+
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void duplicateSection_TotalsDoNotExist_DoesNotDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    var gasCaseVolumetricTotal = mock(GasCaseVolumetricTotal.class);
+    when(gasCaseVolumetricTotalsRepository.findBySubmissionDetail(oldSubmissionDetail))
+        .thenReturn(Optional.empty());
+
+    fieldGasCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    verify(submissionDuplicationPersistenceService, times(0))
+        .duplicateChildAndReplaceParent(
+            any(SubmissionDetail.class),
+            eq(gasCaseVolumetricTotal),
+            eq(CombinedCaseVolumetricTotal.class)
+        );
+  }
 
   @ParameterizedTest
   @MethodSource("allFieldSubmissionTypes")
