@@ -22,12 +22,13 @@ DECLARE
 BEGIN
 
     FOR volumetric_parameters IN (
-        SELECT prdp.*, LOWER(prdh.hc_case) hydrocarbon_case, sd.id sd_id, sd.submission_type, r.type resource_type
+        SELECT prdp.*, LOWER(prdh.hc_case) hydrocarbon_case, sd.id sd_id, sd.submission_type
         FROM remi.padi_res_data_param prdp
         JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = prdp.resdat_id
         JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdh.resdat_id
         JOIN remi.submissions s ON s.id = sd.submission_id
         JOIN remi.resources r ON r.id = s.resource_id
+        WHERE r.type = 'PROSPECT'
     )
     LOOP
 
@@ -73,7 +74,7 @@ BEGIN
             volumetric_parameters.sd_id,
             padi_distribution_type,
             padi_other_distribution_type,
-            CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'DEPTH_TO_CREST_PROSPECT' ELSE 'DEPTH_TO_CREST_DISCOVERY' END,
+            'DEPTH_TO_CREST_PROSPECT',
             NULL, -- does min exist in PaDI
             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_p99) END,
             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_p90) END,
@@ -130,7 +131,7 @@ BEGIN
             volumetric_parameters.sd_id,
             padi_distribution_type,
             padi_other_distribution_type,
-            CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'DEPTH_TO_SPILL_POINT_PROSPECT' ELSE 'DEPTH_TO_SPILL_POINT_DISCOVERY' END,
+            'DEPTH_TO_SPILL_POINT_PROSPECT',
             NULL, -- does min exist in PaDI
             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_p99) END,
             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_p90) END,
@@ -187,7 +188,7 @@ BEGIN
             volumetric_parameters.sd_id,
             padi_distribution_type,
             padi_other_distribution_type,
-            CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'PRODUCTIVE_AREA_PROSPECT' ELSE 'PRODUCTIVE_AREA_DISCOVERY' END,
+            'PRODUCTIVE_AREA_PROSPECT',
             NULL, -- does min exist in PaDI
             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_p99) END,
             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_p90) END,
@@ -245,7 +246,7 @@ BEGIN
             volumetric_parameters.sd_id,
             padi_distribution_type,
             padi_other_distribution_type,
-            CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'GROSS_RESERVOIR_THICKNESS_PROSPECT' ELSE 'GROSS_RESERVOIR_THICKNESS_DISCOVERY' END,
+            'GROSS_RESERVOIR_THICKNESS_PROSPECT',
             NULL, -- does min exist in PaDI
             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_p99) END,
             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_p90) END,
@@ -302,7 +303,7 @@ BEGIN
             volumetric_parameters.sd_id,
             padi_distribution_type,
             padi_other_distribution_type,
-            CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'GROSS_ROCK_VOLUME_PROSPECT' ELSE 'GROSS_ROCK_VOLUME_DISCOVERY' END,
+            'GROSS_ROCK_VOLUME_PROSPECT',
             NULL, -- does min exist in PaDI
             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_p99) END,
             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_p90) END,
@@ -359,7 +360,7 @@ BEGIN
             volumetric_parameters.sd_id,
             padi_distribution_type,
             padi_other_distribution_type,
-            CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'NET_TO_GROSS_PROSPECT' ELSE 'NET_TO_GROSS_DISCOVERY' END,
+            'NET_TO_GROSS_PROSPECT',
             NULL, -- does min exist in PaDI
             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_p99) END,
             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_p90) END,
@@ -416,7 +417,7 @@ BEGIN
             volumetric_parameters.sd_id,
             padi_distribution_type,
             padi_other_distribution_type,
-            CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'NET_POROSITY_PROSPECT' ELSE 'NET_POROSITY_DISCOVERY' END,
+            'NET_POROSITY_PROSPECT',
             NULL, -- does min exist in PaDI
             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_p99) END,
             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_p90) END,
@@ -476,8 +477,7 @@ BEGIN
             padi_other_distribution_type,
             CASE
                 WHEN volumetric_parameters.submission_type = 'POST_DRILL_DRY_HOLE' THEN 'AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL'
-                WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'AVERAGE_NET_RESERVOIR_THICKNESS_PROSPECT'
-                ELSE 'AVERAGE_NET_RESERVOIR_THICKNESS_DISCOVERY'
+                ELSE 'AVERAGE_NET_PAY_THICKNESS_PROSPECT'
             END,
             NULL, -- does min exist in PaDI
             CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.net_pay_p99) END,
@@ -537,7 +537,7 @@ BEGIN
                 volumetric_parameters.sd_id,
                 padi_distribution_type,
                 padi_other_distribution_type,
-                CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'PERCENT_OF_GRV_OIL_BEARING_PROSPECT' ELSE 'PERCENT_OF_GRV_OIL_BEARING_DISCOVERY' END,
+                'PERCENT_OF_GRV_OIL_BEARING_PROSPECT',
                 NULL, -- does min exist in PaDI
                 CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_p99) END,
                 CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_p90) END,
@@ -769,14 +769,8 @@ BEGIN
                 padi_distribution_type,
                 padi_other_distribution_type,
                 CASE
-                    WHEN volumetric_parameters.resource_type = 'PROSPECT' AND volumetric_parameters.hydrocarbon_case IN ('gas', 'condensate')
-                        THEN 'GAS_FORMATION_VOLUME_FACTOR_PROSPECT'
-                    WHEN volumetric_parameters.resource_type = 'DISCOVERY' AND volumetric_parameters.hydrocarbon_case IN ('gas', 'condensate')
-                        THEN 'GAS_FORMATION_VOLUME_FACTOR_DISCOVERY'
-                    WHEN volumetric_parameters.resource_type = 'PROSPECT' AND volumetric_parameters.hydrocarbon_case = 'oil'
-                        THEN 'OIL_FORMATION_VOLUME_FACTOR_PROSPECT'
-                    WHEN volumetric_parameters.resource_type = 'DISCOVERY' AND volumetric_parameters.hydrocarbon_case = 'oil'
-                        THEN 'OIL_FORMATION_VOLUME_FACTOR_DISCOVERY'
+                    WHEN volumetric_parameters.hydrocarbon_case IN ('gas', 'condensate') THEN 'GAS_FORMATION_VOLUME_FACTOR_PROSPECT'
+                    WHEN volumetric_parameters.hydrocarbon_case = 'oil' THEN 'OIL_FORMATION_VOLUME_FACTOR_PROSPECT'
                 END,
                 NULL, -- does min exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p99) END,
@@ -834,7 +828,7 @@ BEGIN
                 volumetric_parameters.sd_id,
                 padi_distribution_type,
                 padi_other_distribution_type,
-                CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'OIL_RECOVERY_FACTOR_PROSPECT' ELSE 'OIL_RECOVERY_FACTOR_DISCOVERY' END,
+                'OIL_RECOVERY_FACTOR_PROSPECT',
                 NULL, -- does min exist in PaDI
                 CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_p99) END,
                 CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_p90) END,
@@ -950,7 +944,7 @@ BEGIN
                 volumetric_parameters.sd_id,
                 padi_distribution_type,
                 padi_other_distribution_type,
-                CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT' ELSE 'MIXED_OIL_FORMATION_VOLUME_FACTOR_DISCOVERY' END,
+                'MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT',
                 NULL, -- does min exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p99) END,
                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p90) END,
@@ -991,7 +985,7 @@ BEGIN
                 volumetric_parameters.sd_id,
                 padi_distribution_type,
                 padi_other_distribution_type,
-                CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT' ELSE 'MIXED_GAS_FORMATION_VOLUME_FACTOR_DISCOVERY' END,
+                'MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT',
                 NULL, -- does min exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p99) END,
                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p90) END,
@@ -1047,7 +1041,7 @@ BEGIN
                 volumetric_parameters.sd_id,
                 padi_distribution_type,
                 padi_other_distribution_type,
-                CASE WHEN volumetric_parameters.resource_type = 'PROSPECT' THEN 'MIXED_OIL_RECOVERY_FACTOR_PROSPECT' ELSE 'MIXED_OIL_RECOVERY_FACTOR_DISCOVERY' END,
+                'MIXED_OIL_RECOVERY_FACTOR_PROSPECT',
                 NULL, -- does min exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_p99) END,
                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_p90) END,
