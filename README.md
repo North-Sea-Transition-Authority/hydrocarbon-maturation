@@ -131,7 +131,7 @@ INSERT INTO remi.team_member_roles(uuid, team_id, wua_id, role) VALUES (
 - Log in as the `industry-manage@remi.co.uk`
 - Manage the industry team and add the `Industry` users from the [ReMI Development Users confluence page](https://fivium.atlassian.net/wiki/spaces/BESPOKE/pages/1739600/ReMI+Development+Users)
 
-### Checkstyle
+### 10. Checkstyle
 1. In Intellij install the Checkstyle-IDEA plugin (from third-party repositories)
 2. Go to File > Settings > Checkstyle
 3. Click the plus icon under "Configuration File"
