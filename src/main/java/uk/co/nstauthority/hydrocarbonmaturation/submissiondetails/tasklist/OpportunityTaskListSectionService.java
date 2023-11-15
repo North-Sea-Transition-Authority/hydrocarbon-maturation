@@ -12,6 +12,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsController;
@@ -32,6 +34,7 @@ class OpportunityTaskListSectionService implements TaskListSectionService {
   private final HydrocarbonCaseSubmissionService hydrocarbonCaseSubmissionService;
   private final ChanceOfSuccessSubmissionService chanceOfSuccessSubmissionService;
   private final OutlineForMaximumCaseSubmissionService outlineForMaximumCaseSubmissionService;
+  private final FieldTrapPropertiesSubmissionService fieldTrapPropertiesSubmissionService;
 
   @Autowired
   OpportunityTaskListSectionService(OpportunityDetailsSubmissionService opportunityDetailsSubmissionService,
@@ -39,13 +42,15 @@ class OpportunityTaskListSectionService implements TaskListSectionService {
                                     SourceAndSealSubmissionService sourceAndSealSubmissionService,
                                     HydrocarbonCaseSubmissionService hydrocarbonCaseSubmissionService,
                                     ChanceOfSuccessSubmissionService chanceOfSuccessSubmissionService,
-                                    OutlineForMaximumCaseSubmissionService outlineForMaximumCaseSubmissionService) {
+                                    OutlineForMaximumCaseSubmissionService outlineForMaximumCaseSubmissionService,
+                                    FieldTrapPropertiesSubmissionService fieldTrapPropertiesSubmissionService) {
     this.opportunityDetailsSubmissionService = opportunityDetailsSubmissionService;
     this.trapPropertiesSubmissionService = trapPropertiesSubmissionService;
     this.sourceAndSealSubmissionService = sourceAndSealSubmissionService;
     this.hydrocarbonCaseSubmissionService = hydrocarbonCaseSubmissionService;
     this.chanceOfSuccessSubmissionService = chanceOfSuccessSubmissionService;
     this.outlineForMaximumCaseSubmissionService = outlineForMaximumCaseSubmissionService;
+    this.fieldTrapPropertiesSubmissionService = fieldTrapPropertiesSubmissionService;
   }
 
   @Override
@@ -103,11 +108,19 @@ class OpportunityTaskListSectionService implements TaskListSectionService {
       );
     }
 
-    listOfItems.add(
-        new TaskListItem("Trap properties",
-            TaskListLabel.notStartedOrComplete(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)),
-            ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetail.getId())))
-    );
+    if (submissionDetail.isFieldSubmission()) {
+      listOfItems.add(
+          new TaskListItem("Trap properties",
+              TaskListLabel.notStartedOrComplete(fieldTrapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)),
+              ReverseRouter.route(on(FieldTrapPropertiesController.class).getFieldTrapProperties(submissionDetail.getId())))
+      );
+    } else {
+      listOfItems.add(
+          new TaskListItem("Trap properties",
+              TaskListLabel.notStartedOrComplete(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)),
+              ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetail.getId())))
+      );
+    }
 
     listOfItems.add(
         new TaskListItem("Source and seal",

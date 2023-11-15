@@ -21,6 +21,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCaseSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsController;
@@ -49,8 +51,12 @@ class OpportunityTaskListSectionServiceTest {
 
   @Mock
   private ChanceOfSuccessSubmissionService chanceOfSuccessSubmissionService;
+
   @Mock
   private OutlineForMaximumCaseSubmissionService outlineForMaximumCaseSubmissionService;
+
+  @Mock
+  private FieldTrapPropertiesSubmissionService fieldTrapPropertiesSubmissionService;
 
   @InjectMocks
   private OpportunityTaskListSectionService opportunityTaskListSectionService;
@@ -167,6 +173,7 @@ class OpportunityTaskListSectionServiceTest {
   @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
   void getSection_fieldSubmission(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+    when(fieldTrapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
     var taskListSectionOptional = opportunityTaskListSectionService.getSection(submissionDetail);
@@ -181,8 +188,8 @@ class OpportunityTaskListSectionServiceTest {
             TaskListSection::displayOrder)
         .containsExactly(List.of(
                 new TaskListItem("Trap properties",
-                    TaskListLabel.NOT_COMPLETE,
-                    ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetail.getId()))),
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(FieldTrapPropertiesController.class).getFieldTrapProperties(submissionDetail.getId()))),
                 new TaskListItem("Source and seal",
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetail.getId())))),

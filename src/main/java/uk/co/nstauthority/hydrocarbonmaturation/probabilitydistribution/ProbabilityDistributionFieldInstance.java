@@ -24,6 +24,11 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to crest"
   ),
+  DEPTH_TO_CREST_FIELD(
+      FieldTrapPropertiesBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
+      "Depth to crest"
+  ),
   DEPTH_TO_SPILL_POINT_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.M_TVDSS,
@@ -34,6 +39,11 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to spill point"
   ),
+  DEPTH_TO_SPILL_POINT_FIELD(
+      FieldTrapPropertiesBehaviour.class,
+      ProbabilityOfExceedanceUnits.M_TVDSS,
+      "Depth to spill point"
+  ),
   PRODUCTIVE_AREA_PROSPECT(
       List.of(NORMAL, LOGNORMAL, BETA, TRIANGULAR, RECTANGULAR, CONSTANT),
       ProbabilityOfExceedanceUnits.KM2,
@@ -41,6 +51,11 @@ public enum ProbabilityDistributionFieldInstance {
   ),
   PRODUCTIVE_AREA_DISCOVERY(
       List.of(TRIANGULAR, RECTANGULAR, CONSTANT),
+      ProbabilityOfExceedanceUnits.KM2,
+      "Productive area"
+  ),
+  PRODUCTIVE_AREA_FIELD(
+      FieldTrapPropertiesBehaviour.class,
       ProbabilityOfExceedanceUnits.KM2,
       "Productive area"
   ),

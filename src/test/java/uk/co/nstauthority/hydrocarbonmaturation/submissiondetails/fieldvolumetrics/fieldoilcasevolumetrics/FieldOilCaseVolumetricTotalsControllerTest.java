@@ -99,7 +99,7 @@ class FieldOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionContr
   }
 
   @SecurityTest
-  void getOilVolumetricTotals_andTypeIsNotDiscovery_assertForbidden() throws Exception {
+  void getOilVolumetricTotals_andTypeIsNotField_assertForbidden() throws Exception {
     setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     mockMvc.perform(

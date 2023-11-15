@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trappropertie
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -54,6 +55,15 @@ public class TrapProperty implements SubmissionDetailChildEntity {
 
   @Enumerated(EnumType.STRING)
   private Hemisphere longitudeHemisphere;
+
+  private String closureMechanisms;
+
+  @Column(name = "vertically_separate_hc_pools")
+  private BigDecimal verticallySeparateHcPools;
+
+  private BigDecimal structuralCompartments;
+
+  private BigDecimal originalHydrocarbonColumnHeight;
 
   public UUID getId() {
     return id;
@@ -166,5 +176,37 @@ public class TrapProperty implements SubmissionDetailChildEntity {
 
   public void setCentreOfInterestQuadrantBlock(String centreOfInterestQuadrantBlock) {
     this.centreOfInterestQuadrantBlock = centreOfInterestQuadrantBlock;
+  }
+
+  public String getClosureMechanisms() {
+    return closureMechanisms;
+  }
+
+  public void setClosureMechanisms(String closureMechanisms) {
+    this.closureMechanisms = closureMechanisms;
+  }
+
+  public BigDecimal getVerticallySeparateHcPools() {
+    return verticallySeparateHcPools;
+  }
+
+  public void setVerticallySeparateHcPools(BigDecimal verticallySeparateHcPools) {
+    this.verticallySeparateHcPools = verticallySeparateHcPools;
+  }
+
+  public BigDecimal getStructuralCompartments() {
+    return structuralCompartments;
+  }
+
+  public void setStructuralCompartments(BigDecimal structuralCompartments) {
+    this.structuralCompartments = structuralCompartments;
+  }
+
+  public BigDecimal getOriginalHydrocarbonColumnHeight() {
+    return originalHydrocarbonColumnHeight;
+  }
+
+  public void setOriginalHydrocarbonColumnHeight(BigDecimal originalHydrocarbonColumnHeight) {
+    this.originalHydrocarbonColumnHeight = originalHydrocarbonColumnHeight;
   }
 }

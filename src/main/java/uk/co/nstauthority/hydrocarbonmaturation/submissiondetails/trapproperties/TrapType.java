@@ -4,7 +4,7 @@ import java.util.Map;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 
-enum TrapType implements Displayable {
+public enum TrapType implements Displayable {
   STRUCTURAL("Structural", 10),
   STRATIGRAPHIC("Stratigraphic", 20),
   COMBINATION("Combination", 30),
@@ -18,7 +18,7 @@ enum TrapType implements Displayable {
     this.displayOrder = displayOrder;
   }
 
-  static Map<String, String> getTrapTypes() {
+  public static Map<String, String> getTrapTypes() {
     return DisplayableEnumOptionUtil.getDisplayableOptions(TrapType.class);
   }
 

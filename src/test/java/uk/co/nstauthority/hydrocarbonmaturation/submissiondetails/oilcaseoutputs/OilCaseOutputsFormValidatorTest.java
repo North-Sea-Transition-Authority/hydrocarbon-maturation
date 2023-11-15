@@ -12,7 +12,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
@@ -167,14 +166,6 @@ class OilCaseOutputsFormValidatorTest {
             entry("riskedOilEquivalentRecoverableMean." + probabilityDistributionType.getPath() + ".error",
                 Set.of("riskedOilEquivalentRecoverableMean." + probabilityDistributionType.getPath() + ".error.error"))
         );
-  }
-
-  private BindingResult validateOilCaseOutputsForm_fullValidation(OilCaseOutputsForm form) {
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    oilCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
-
-    return bindingResult;
   }
 
   private OilCaseOutputsForm getFormWithInvalidDistributions(
