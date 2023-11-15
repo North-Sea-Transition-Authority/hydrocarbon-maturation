@@ -4,8 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
@@ -55,7 +58,10 @@ class FieldReservoirVolumetricsFormValidatorTest {
   @ParameterizedTest
   @EnumSource(value = ValidationType.class)
   void validate_whenInvalidForm_thenValidationErrors_oilCase(ValidationType validationType) {
-    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)).thenReturn(true);
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isOilOnly(reservoirHydrocarbons)).thenReturn(true);
 
     var form = getInvalidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -75,7 +81,10 @@ class FieldReservoirVolumetricsFormValidatorTest {
   @ParameterizedTest
   @EnumSource(value = ValidationType.class)
   void validate_whenInvalidForm_thenValidationErrors_gasCase(ValidationType validationType) {
-    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)).thenReturn(true);
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isGasOnly(reservoirHydrocarbons)).thenReturn(true);
 
     var form = getInvalidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -92,9 +101,37 @@ class FieldReservoirVolumetricsFormValidatorTest {
         );
   }
 
+  @ParameterizedTest
+  @EnumSource(value = ValidationType.class)
+  void validate_whenInvalidForm_thenValidationErrors_combinedCase(ValidationType validationType) {
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)).thenReturn(true);
+
+    var form = getInvalidForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    fieldReservoirVolumetricsFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType);
+
+    assertTrue(bindingResult.hasErrors());
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("oilInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("oilInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("gasInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("gasInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error"))
+        );
+  }
+
   @Test
   void validatePartial_whenEmptyForm_thenNoValidationErrors_oilCase() {
-    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)).thenReturn(true);
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isOilOnly(reservoirHydrocarbons)).thenReturn(true);
 
     var form = getEmptyForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -104,7 +141,23 @@ class FieldReservoirVolumetricsFormValidatorTest {
 
   @Test
   void validatePartial_whenEmptyForm_thenNoValidationErrors_gasCase() {
-    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)).thenReturn(true);
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isGasOnly(reservoirHydrocarbons)).thenReturn(true);
+
+    var form = getEmptyForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    fieldReservoirVolumetricsFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.PARTIAL);
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  @Test
+  void validatePartial_whenEmptyForm_thenNoValidationErrors_combinedCase() {
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)).thenReturn(true);
 
     var form = getEmptyForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -114,7 +167,10 @@ class FieldReservoirVolumetricsFormValidatorTest {
 
   @Test
   void validateFull_whenEmptyForm_thenValidationErrors_oilCase() {
-    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)).thenReturn(true);
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isOilOnly(reservoirHydrocarbons)).thenReturn(true);
 
     var form = getEmptyForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -133,7 +189,10 @@ class FieldReservoirVolumetricsFormValidatorTest {
 
   @Test
   void validateFull_whenEmptyForm_thenValidationErrors_gasCase() {
-    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)).thenReturn(true);
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isGasOnly(reservoirHydrocarbons)).thenReturn(true);
 
     var form = getEmptyForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -145,6 +204,30 @@ class FieldReservoirVolumetricsFormValidatorTest {
 
     assertThat(extractedErrors)
         .contains(
+            entry("gasInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("gasInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error"))
+        );
+  }
+
+  @Test
+  void validateFull_whenEmptyForm_thenValidationErrors_combinedCase() {
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)).thenReturn(true);
+
+    var form = getEmptyForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    fieldReservoirVolumetricsFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL);
+
+    assertTrue(bindingResult.hasErrors());
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("oilInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("oilInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("gasInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("gasInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error"))
         );

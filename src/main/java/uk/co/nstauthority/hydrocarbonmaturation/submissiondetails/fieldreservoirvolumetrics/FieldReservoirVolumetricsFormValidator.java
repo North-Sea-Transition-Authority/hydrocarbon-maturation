@@ -6,6 +6,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ReservoirSubmissionValidator;
 
@@ -21,7 +22,10 @@ public class FieldReservoirVolumetricsFormValidator implements ReservoirSubmissi
   public void validatePartial(SubmissionForm form, Errors errors, ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var fieldVolumetricsForm = (FieldReservoirVolumetricsForm) form;
 
-    if (generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)) {
+    var reservoirHydrocarbons = generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)
+        .orElse(new ReservoirHydrocarbons());
+    if (generalReservoirInformationService.isOilOnly(reservoirHydrocarbons)
+        || generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)) {
       var oilInPlace = fieldVolumetricsForm.getOilInPlace();
       ProbabilityDistributionValidationUtil.validateCustomPartial(
           oilInPlace,
@@ -30,7 +34,10 @@ public class FieldReservoirVolumetricsFormValidator implements ReservoirSubmissi
           "Oil in place",
           ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD
       );
-    } else if (generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)) {
+    }
+
+    if (generalReservoirInformationService.isGasOnly(reservoirHydrocarbons)
+        || generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)) {
       var gasInPlace = fieldVolumetricsForm.getGasInPlace();
       ProbabilityDistributionValidationUtil.validateCustomPartial(
           gasInPlace,
@@ -46,7 +53,11 @@ public class FieldReservoirVolumetricsFormValidator implements ReservoirSubmissi
   public void validateFull(SubmissionForm form, Errors errors, ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var fieldVolumetricsForm = (FieldReservoirVolumetricsForm) form;
 
-    if (generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)) {
+    var reservoirHydrocarbons = generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)
+        .orElse(new ReservoirHydrocarbons());
+
+    if (generalReservoirInformationService.isOilOnly(reservoirHydrocarbons)
+        || generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)) {
       var oilInPlace = fieldVolumetricsForm.getOilInPlace();
       ProbabilityDistributionValidationUtil.validateCustomFull(
           oilInPlace,
@@ -55,7 +66,10 @@ public class FieldReservoirVolumetricsFormValidator implements ReservoirSubmissi
           "Oil in place",
           ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD
       );
-    } else if (generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)) {
+    }
+
+    if (generalReservoirInformationService.isGasOnly(reservoirHydrocarbons)
+        || generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)) {
       var gasInPlace = fieldVolumetricsForm.getGasInPlace();
       ProbabilityDistributionValidationUtil.validateCustomFull(
           gasInPlace,

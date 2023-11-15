@@ -51,6 +51,7 @@ CVE-2022-45688
 CVE-2022-45689
 CVE-2022-45690
 CVE-2023-5072
+GHSA-4jq9-2xhw-jpx7
 
 # Spring boot actuator autoconfigure
 CVE-2023-20873

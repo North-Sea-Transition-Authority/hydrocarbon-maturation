@@ -24,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestr
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetricparameters.FieldGasVolumetricParametersController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldoilvolumetricparameters.FieldOilVolumetricParametersController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldreservoirvolumetrics.FieldReservoirCombinedVolumetricsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldreservoirvolumetrics.FieldReservoirGasVolumetricsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldreservoirvolumetrics.FieldReservoirOilVolumetricsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldreservoirvolumetrics.FieldReservoirVolumetricsSubmissionService;
@@ -809,7 +810,7 @@ class ReservoirTaskListServiceTest {
                 new TaskListItem(
                     "Gas volumetrics",
                     TaskListLabel.COMPLETE,
-                    ReverseRouter.route(on(FieldReservoirGasVolumetricsController.class).getFieldReservoirVolumetrics(
+                    ReverseRouter.route(on(FieldReservoirGasVolumetricsController.class).getFieldGasVolumetrics(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
                 ),
@@ -987,6 +988,8 @@ class ReservoirTaskListServiceTest {
     when(gasFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(oilFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(generalFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(fieldReservoirVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+
 
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
@@ -1034,6 +1037,13 @@ class ReservoirTaskListServiceTest {
                     "Gas volumetric parameters",
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(FieldGasVolumetricParametersController.class).getGasVolumetrics(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Oil and gas volumetrics",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(FieldReservoirCombinedVolumetricsController.class).getFieldCombinedVolumetrics(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
                 ),
@@ -1091,6 +1101,7 @@ class ReservoirTaskListServiceTest {
     when(oilCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(gasCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(generalFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
+    when(fieldReservoirVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
 
     var reservoirTaskListItems = reservoirTaskListService.getAllReservoirTaskLists(submissionDetail);
 
@@ -1133,6 +1144,13 @@ class ReservoirTaskListServiceTest {
                     "Gas volumetric parameters",
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(FieldGasVolumetricParametersController.class).getGasVolumetrics(
+                        reservoirSubmissionDetail.getSubmissionDetail().getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
+                new TaskListItem(
+                    "Oil and gas volumetrics",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(FieldReservoirCombinedVolumetricsController.class).getFieldCombinedVolumetrics(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
                 ),

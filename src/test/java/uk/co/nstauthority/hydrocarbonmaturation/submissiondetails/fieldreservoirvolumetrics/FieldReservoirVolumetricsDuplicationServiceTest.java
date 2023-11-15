@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
@@ -58,7 +60,10 @@ class FieldReservoirVolumetricsDuplicationServiceTest {
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
-    when(generalReservoirInformationService.isOilOnly(newReservoirSubmissionDetail))
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(newReservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isOilOnly(reservoirHydrocarbons))
         .thenReturn(true);
 
     var probabilityDistribution1 = mock(ProbabilityDistribution.class);
@@ -91,7 +96,10 @@ class FieldReservoirVolumetricsDuplicationServiceTest {
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
-    when(generalReservoirInformationService.isGasOnly(newReservoirSubmissionDetail))
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(newReservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isGasOnly(reservoirHydrocarbons))
         .thenReturn(true);
 
     var probabilityDistribution1 = mock(ProbabilityDistribution.class);
@@ -124,7 +132,10 @@ class FieldReservoirVolumetricsDuplicationServiceTest {
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
-    when(generalReservoirInformationService.isOilOnly(newReservoirSubmissionDetail))
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(newReservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isOilOnly(reservoirHydrocarbons))
         .thenReturn(true);
 
     var applicableInstances = Set.of(ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD);

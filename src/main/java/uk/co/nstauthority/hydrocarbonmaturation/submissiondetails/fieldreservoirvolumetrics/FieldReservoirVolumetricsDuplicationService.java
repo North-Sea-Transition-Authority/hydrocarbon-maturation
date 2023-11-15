@@ -9,6 +9,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSectionDuplicationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
@@ -41,9 +42,18 @@ public class FieldReservoirVolumetricsDuplicationService implements ReservoirSec
 
     if (oldSubmissionDetail.hasSameResourceType(newSubmissionDetail)) {
       var applicableInstances = new java.util.HashSet<ProbabilityDistributionFieldInstance>(Set.of());
-      if (generalReservoirInformationService.isOilOnly(newReservoirSubmissionDetail)) {
+      var newReservoirHydrocarbons = generalReservoirInformationService
+          .getReservoirHydrocarbons(newReservoirSubmissionDetail)
+          .orElse(new ReservoirHydrocarbons());
+      if (generalReservoirInformationService.isOilOnly(newReservoirHydrocarbons)
+          || generalReservoirInformationService.isCombinedOilAndGas(newReservoirHydrocarbons)) {
         applicableInstances.add(ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD);
-      } else if (generalReservoirInformationService.isGasOnly(newReservoirSubmissionDetail)) {
+      } else if (generalReservoirInformationService.isGasOnly(newReservoirHydrocarbons)) {
+        applicableInstances.add(ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD);
+      }
+
+      if (generalReservoirInformationService.isGasOnly(newReservoirHydrocarbons)
+          || generalReservoirInformationService.isCombinedOilAndGas(newReservoirHydrocarbons)) {
         applicableInstances.add(ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD);
       }
 

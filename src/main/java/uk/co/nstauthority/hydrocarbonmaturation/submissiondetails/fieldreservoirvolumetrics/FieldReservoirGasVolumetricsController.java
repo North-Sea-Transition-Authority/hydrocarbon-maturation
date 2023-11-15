@@ -30,7 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/" +
-    "reservoir-submission-details/{reservoirSubmissionDetailId}/gas-volumetrics")
+    "reservoir-submission-details/{reservoirSubmissionDetailId}/field-gas-volumetrics")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
 @HasSubmissionType(submissionTypes = SecuritySubmissionTypes.FIELD_SUBMISSIONS)
 @IsFromResponsibleTeam
@@ -56,21 +56,21 @@ public class FieldReservoirGasVolumetricsController {
   }
 
   @GetMapping
-  public ModelAndView getFieldReservoirVolumetrics(
+  public ModelAndView getFieldGasVolumetrics(
       @PathVariable("submissionDetailId") UUID submissionDetailId,
       @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
 
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
 
-    return getFieldReservoirVolumetricsModelAndView(
+    return getFieldGasVolumetricsModelAndView(
         fieldReservoirVolumetricsFormService.getFieldReservoirVolumetricsForm(reservoirSubmissionDetail),
         reservoirSubmissionDetail
     );
   }
 
   @PostMapping
-  public ModelAndView saveFieldReservoirVolumetrics(
+  public ModelAndView saveFieldGasVolumetrics(
       @PathVariable("submissionDetailId") UUID submissionDetailId,
       @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
       @ModelAttribute("form") FieldReservoirVolumetricsForm form,
@@ -81,7 +81,7 @@ public class FieldReservoirGasVolumetricsController {
         .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
 
     if (!fieldReservoirVolumetricsFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType)) {
-      return getFieldReservoirVolumetricsModelAndViewWithErrors(bindingResult, form, reservoirSubmissionDetail);
+      return getFieldGasVolumetricsModelAndViewWithErrors(bindingResult, form, reservoirSubmissionDetail);
     } else {
       fieldReservoirVolumetricsFormService.saveFieldReservoirVolumetrics(form, reservoirSubmissionDetail);
       return ReverseRouter.redirect(on(ReservoirTaskListController.class)
@@ -89,7 +89,7 @@ public class FieldReservoirGasVolumetricsController {
     }
   }
 
-  private ModelAndView getFieldReservoirVolumetricsModelAndView(
+  private ModelAndView getFieldGasVolumetricsModelAndView(
       FieldReservoirVolumetricsForm form, ReservoirSubmissionDetail reservoirSubmissionDetail) {
 
     var modelAndView = new ModelAndView("remi/submissiondetails/fieldVolumetrics")
@@ -106,10 +106,10 @@ public class FieldReservoirGasVolumetricsController {
     );
   }
 
-  private ModelAndView getFieldReservoirVolumetricsModelAndViewWithErrors(BindingResult bindingResult,
-                                                                          FieldReservoirVolumetricsForm form,
-                                                                          ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    var modelAndView = getFieldReservoirVolumetricsModelAndView(form, reservoirSubmissionDetail);
+  private ModelAndView getFieldGasVolumetricsModelAndViewWithErrors(BindingResult bindingResult,
+                                                                    FieldReservoirVolumetricsForm form,
+                                                                    ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var modelAndView = getFieldGasVolumetricsModelAndView(form, reservoirSubmissionDetail);
 
     modelAndView.addObject("gasInPlaceError",
         probabilityDistributionTemplateService.getProbabilityDistributionTypeError(

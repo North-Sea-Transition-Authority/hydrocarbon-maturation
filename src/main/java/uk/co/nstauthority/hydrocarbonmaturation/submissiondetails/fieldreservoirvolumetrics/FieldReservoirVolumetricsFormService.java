@@ -7,6 +7,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
@@ -29,13 +30,19 @@ public class FieldReservoirVolumetricsFormService {
 
   public FieldReservoirVolumetricsForm getFieldReservoirVolumetricsForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var form = new FieldReservoirVolumetricsForm();
+    var reservoirHydrocarbons = generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)
+        .orElse(new ReservoirHydrocarbons());
 
-    if (generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)) {
+    if (generalReservoirInformationService.isOilOnly(reservoirHydrocarbons)
+        || generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)) {
       form.setOilInPlace(probabilityDistributionFormService.probabilityDistributionEntityToForm(
           reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD
       ));
-    } else if (generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)) {
+    }
+
+    if (generalReservoirInformationService.isGasOnly(reservoirHydrocarbons)
+        || generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)) {
       form.setGasInPlace(probabilityDistributionFormService.probabilityDistributionEntityToForm(
           reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
@@ -47,14 +54,20 @@ public class FieldReservoirVolumetricsFormService {
   @Transactional
   public void saveFieldReservoirVolumetrics(FieldReservoirVolumetricsForm form,
                                             ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var reservoirHydrocarbons = generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)
+        .orElse(new ReservoirHydrocarbons());
 
-    if (generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)) {
+    if (generalReservoirInformationService.isOilOnly(reservoirHydrocarbons)
+        || generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)) {
       probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD,
           form.getOilInPlace(),
           reservoirSubmissionDetail
       );
-    } else if (generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)) {
+    }
+
+    if (generalReservoirInformationService.isGasOnly(reservoirHydrocarbons)
+        || generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)) {
       probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD,
           form.getGasInPlace(),

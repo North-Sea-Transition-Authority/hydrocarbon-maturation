@@ -16,14 +16,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
@@ -32,7 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/" +
-    "reservoir-submission-details/{reservoirSubmissionDetailId}/oil-volumetrics")
+    "reservoir-submission-details/{reservoirSubmissionDetailId}/field-oil-volumetrics")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
 @HasSubmissionType(submissionTypes = SecuritySubmissionTypes.FIELD_SUBMISSIONS)
 @IsFromResponsibleTeam
@@ -40,7 +38,6 @@ public class FieldReservoirOilVolumetricsController {
   public static final String OIL_VOLUMETRICS_PAGE_TITLE = "Oil volumetrics";
 
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
-  private final GeneralReservoirInformationService generalReservoirInformationService;
   private final FieldReservoirVolumetricsFormService fieldReservoirVolumetricsFormService;
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
   private final FieldReservoirVolumetricsFormValidator fieldReservoirVolumetricsFormValidator;
@@ -48,13 +45,11 @@ public class FieldReservoirOilVolumetricsController {
   @Autowired
   public FieldReservoirOilVolumetricsController(
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
-      GeneralReservoirInformationService generalReservoirInformationService,
       FieldReservoirVolumetricsFormService fieldReservoirVolumetricsFormService,
       ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
       FieldReservoirVolumetricsFormValidator fieldReservoirVolumetricsFormValidator) {
 
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
-    this.generalReservoirInformationService = generalReservoirInformationService;
     this.fieldReservoirVolumetricsFormService = fieldReservoirVolumetricsFormService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
     this.fieldReservoirVolumetricsFormValidator = fieldReservoirVolumetricsFormValidator;
@@ -97,16 +92,10 @@ public class FieldReservoirOilVolumetricsController {
   private ModelAndView getFieldReservoirVolumetricsModelAndView(
       FieldReservoirVolumetricsForm form, ReservoirSubmissionDetail reservoirSubmissionDetail) {
 
-    var hydrocarbonCase = generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)
-        .map(ReservoirHydrocarbons::getHydrocarbonsDiscovered)
-        .orElseThrow(() ->
-            new RemiEntityNotFoundException("There are no hydrocarbon types for the reservoir submission with id %s"
-                .formatted(reservoirSubmissionDetail.getId())));
-
     var modelAndView = new ModelAndView("remi/submissiondetails/fieldVolumetrics")
         .addObject("pageTitle", OIL_VOLUMETRICS_PAGE_TITLE)
         .addObject("form", form)
-        .addObject("hydrocarbonType", hydrocarbonCase)
+        .addObject("hydrocarbonType", HydrocarbonsDiscovered.OIL_ONLY)
         .addObject("oilInPlaceError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilInPlaceTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(

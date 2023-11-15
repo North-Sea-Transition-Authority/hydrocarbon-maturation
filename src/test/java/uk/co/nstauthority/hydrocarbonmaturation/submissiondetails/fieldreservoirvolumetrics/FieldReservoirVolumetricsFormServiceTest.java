@@ -3,11 +3,13 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldreservoi
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
@@ -53,7 +56,10 @@ class FieldReservoirVolumetricsFormServiceTest {
 
   @Test
   void getFieldReservoirVolumetricsForm_oilCase() {
-    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isOilOnly(reservoirHydrocarbons))
         .thenReturn(true);
 
     var oilInPlace = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
@@ -70,7 +76,10 @@ class FieldReservoirVolumetricsFormServiceTest {
 
   @Test
   void getFieldReservoirVolumetricsForm_gasCase() {
-    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isGasOnly(reservoirHydrocarbons))
         .thenReturn(true);
 
     var gasInPlace = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
@@ -86,8 +95,41 @@ class FieldReservoirVolumetricsFormServiceTest {
   }
 
   @Test
+  void getFieldReservoirVolumetricsForm_combinedCase() {
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons))
+        .thenReturn(true);
+
+    var gasInPlace = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
+    );
+    var oilInPlace = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
+        ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD
+    );
+
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        reservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
+    )).thenReturn(gasInPlace);
+
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        reservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD
+    )).thenReturn(oilInPlace);
+
+    var form = fieldReservoirVolumetricsFormService.getFieldReservoirVolumetricsForm(reservoirSubmissionDetail);
+    assertThat(form.getGasInPlace()).isEqualTo(gasInPlace);
+    assertThat(form.getOilInPlace()).isEqualTo(oilInPlace);
+  }
+
+  @Test
   void saveFieldReservoirVolumetricsForm_oilCase() {
-    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isOilOnly(reservoirHydrocarbons))
         .thenReturn(true);
 
     var form = getForm();
@@ -105,7 +147,10 @@ class FieldReservoirVolumetricsFormServiceTest {
 
   @Test
   void saveFieldReservoirVolumetricsForm_gasCase() {
-    when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isGasOnly(reservoirHydrocarbons))
         .thenReturn(true);
 
     var form = getForm();
@@ -114,6 +159,33 @@ class FieldReservoirVolumetricsFormServiceTest {
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             eq(ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD),
+            any(ProbabilityDistributionForm.class),
+            eq(reservoirSubmissionDetail)
+        );
+
+    verifyNoMoreInteractions(probabilityDistributionPersistenceService);
+  }
+
+  @Test
+  void saveFieldReservoirVolumetricsForm_combinedCase() {
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons))
+        .thenReturn(true);
+
+    var form = getForm();
+    fieldReservoirVolumetricsFormService.saveFieldReservoirVolumetrics(form, reservoirSubmissionDetail);
+
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            eq(ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD),
+            any(ProbabilityDistributionForm.class),
+            eq(reservoirSubmissionDetail)
+        );
+    verify(probabilityDistributionPersistenceService, times(1))
+        .saveProbabilityDistributionWhenNotNull(
+            eq(ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD),
             any(ProbabilityDistributionForm.class),
             eq(reservoirSubmissionDetail)
         );

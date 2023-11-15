@@ -18,11 +18,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
@@ -35,6 +39,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -63,7 +69,7 @@ class FieldReservoirGasVolumetricsControllerTest extends AbstractSubmissionContr
   }
 
   @SecurityTest
-  void getFieldReservoirVolumetrics_assertOkay() throws Exception {
+  void getFieldGasVolumetrics_assertOkay() throws Exception {
 
     when(fieldReservoirVolumetricsFormService.getFieldReservoirVolumetricsForm(reservoirSubmissionDetail))
         .thenReturn(new FieldReservoirVolumetricsForm());
@@ -71,42 +77,95 @@ class FieldReservoirGasVolumetricsControllerTest extends AbstractSubmissionContr
     setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
 
     mockMvc.perform(get(ReverseRouter.route(on(FieldReservoirGasVolumetricsController.class)
-            .getFieldReservoirVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+            .getFieldGasVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
             .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/fieldVolumetrics"));
   }
 
-  @SecurityTest
-  void getFieldReservoirVolumetrics_andStatusIsNotDraft_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionDetailStatus.class,
+      names = {"DRAFT"},
+      mode = EnumSource.Mode.EXCLUDE
+  )
+  void getFieldGasVolumetrics_andStatusIsNotDraft_assertForbidden(
+      SubmissionDetailStatus submissionDetailStatus) throws Exception {
+
+    submissionDetail.setStatus(submissionDetailStatus);
     mockMvc.perform(get(ReverseRouter.route(on(FieldReservoirGasVolumetricsController.class)
-            .getFieldReservoirVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+            .getFieldGasVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
             .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
-  @SecurityTest
-  void getFieldReservoirVolumetrics_andTypeIsNotField_assertForbidden() throws Exception {
-    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
+  @ParameterizedTest
+  @MethodSource("allNonFieldSubmissionTypes")
+  void getFieldGasVolumetrics_andTypeIsNotField_assertForbidden(
+      SubmissionType submissionType) throws Exception {
+
+    submissionDetail.setSubmissionType(submissionType);
     mockMvc.perform(get(ReverseRouter.route(on(FieldReservoirGasVolumetricsController.class)
-            .getFieldReservoirVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+            .getFieldGasVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
             .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void getFieldGasVolumetrics_andTypeIsField_assertOkay(
+      SubmissionType submissionType) throws Exception {
+
+    submissionDetail.setSubmissionType(submissionType);
+
+    when(fieldReservoirVolumetricsFormService.getFieldReservoirVolumetricsForm(reservoirSubmissionDetail))
+        .thenReturn(new FieldReservoirVolumetricsForm());
+
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
+
+    mockMvc.perform(get(ReverseRouter.route(on(FieldReservoirGasVolumetricsController.class)
+            .getFieldGasVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+            .with(user(USER)))
+        .andExpect(status().isOk());
+  }
+  @ParameterizedTest
+  @EnumSource(value = ValidationType.class)
+  void saveFieldGasReservoirVolumetrics_invalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
+
+    when(fieldReservoirVolumetricsFormValidator.isValid(
+        any(SubmissionForm.class),
+        any(BindingResult.class),
+        eq(reservoirSubmissionDetail),
+        eq(ValidationType.FULL))
+    ).thenReturn(false);
+
+    mockMvc.perform(post(ReverseRouter.route(on(FieldReservoirGasVolumetricsController.class)
+            .saveFieldGasVolumetrics(
+                submissionDetail.getId(),
+                reservoirSubmissionDetail.getId(),
+                null,
+                null,
+                null)))
+            .with(user(USER))
+            .with(csrf())
+            .params(ControllerTestUtils.validationPostParams(validationType)))
+        .andExpect(status().is2xxSuccessful())
+        .andExpect(view().name("remi/submissiondetails/fieldVolumetrics"));
+  }
+
   @SecurityTest
-  void getPermeabilityPage_andUserNotInResponsibleOrganisation_assertForbidden() throws Exception {
+  void getFieldGasVolumetrics_andUserNotInResponsibleOrganisation_assertForbidden() throws Exception {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_field_failSecurity(USER, submissionDetail);
     mockMvc.perform(get(ReverseRouter.route(on(FieldReservoirGasVolumetricsController.class)
-            .getFieldReservoirVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+            .getFieldGasVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
             .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
-  void getFieldReservoirVolumetricsModelAndView_assertModelProperties(SubmissionType submissionType) throws Exception {
+  void getFieldGasVolumetricsModelAndView_assertModelProperties(SubmissionType submissionType) throws Exception {
     submissionDetail.setSubmissionType(submissionType);
 
     var form = new FieldReservoirVolumetricsForm();
@@ -115,7 +174,7 @@ class FieldReservoirGasVolumetricsControllerTest extends AbstractSubmissionContr
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
                     get(ReverseRouter.route(on(FieldReservoirGasVolumetricsController.class)
-                        .getFieldReservoirVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+                        .getFieldGasVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
                         .with(user(USER)))
                 .andReturn()
                 .getModelAndView())
@@ -167,7 +226,7 @@ class FieldReservoirGasVolumetricsControllerTest extends AbstractSubmissionContr
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
                 post(ReverseRouter.route(on(FieldReservoirGasVolumetricsController.class)
-                    .saveFieldReservoirVolumetrics(
+                    .saveFieldGasVolumetrics(
                         submissionDetail.getId(),
                         reservoirSubmissionDetail.getId(),
                         null,
@@ -212,7 +271,7 @@ class FieldReservoirGasVolumetricsControllerTest extends AbstractSubmissionContr
 
     mockMvc.perform(
             post(ReverseRouter.route(on(FieldReservoirGasVolumetricsController.class)
-                .saveFieldReservoirVolumetrics(
+                .saveFieldGasVolumetrics(
                     submissionDetail.getId(),
                     reservoirSubmissionDetail.getId(),
                     null,
@@ -229,5 +288,18 @@ class FieldReservoirGasVolumetricsControllerTest extends AbstractSubmissionContr
     verify(fieldReservoirVolumetricsFormService, times(1))
         .saveFieldReservoirVolumetrics(form, reservoirSubmissionDetail);
     verifyNoMoreInteractions(fieldReservoirVolumetricsFormService);
+  }
+
+  private static Stream<Arguments> allNonFieldSubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(submissionType -> !SubmissionDetailUtil.isFieldSubmission(submissionType))
+        .map(Arguments::of);
+  }
+
+  private static Stream<Arguments> allFieldSubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(SubmissionDetailUtil::isFieldSubmission)
+        .filter(submissionType -> !submissionType.equals(SubmissionType.CREATE_FIELD))
+        .map(Arguments::of);
   }
 }

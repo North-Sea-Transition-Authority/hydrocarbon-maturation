@@ -20,7 +20,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -38,8 +37,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
@@ -51,9 +48,6 @@ class FieldReservoirOilVolumetricsControllerTest extends AbstractSubmissionContr
 
   @MockBean
   private FieldReservoirVolumetricsFormService fieldReservoirVolumetricsFormService;
-
-  @MockBean
-  private GeneralReservoirInformationService generalReservoirInformationService;
 
   @MockBean
   private FieldReservoirVolumetricsFormValidator fieldReservoirVolumetricsFormValidator;
@@ -74,11 +68,6 @@ class FieldReservoirOilVolumetricsControllerTest extends AbstractSubmissionContr
 
     when(fieldReservoirVolumetricsFormService.getFieldReservoirVolumetricsForm(reservoirSubmissionDetail))
         .thenReturn(new FieldReservoirVolumetricsForm());
-
-    var reservoirHydrocarbons = new ReservoirHydrocarbons();
-    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
-    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
-        .thenReturn(Optional.of(reservoirHydrocarbons));
 
     setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
 
@@ -120,11 +109,6 @@ class FieldReservoirOilVolumetricsControllerTest extends AbstractSubmissionContr
   @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
   void getFieldReservoirVolumetricsModelAndView_assertModelProperties(SubmissionType submissionType) throws Exception {
     submissionDetail.setSubmissionType(submissionType);
-
-    var reservoirHydrocarbons = new ReservoirHydrocarbons();
-    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
-    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
-        .thenReturn(Optional.of(reservoirHydrocarbons));
 
     var form = new FieldReservoirVolumetricsForm();
     when(fieldReservoirVolumetricsFormService.getFieldReservoirVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
@@ -173,11 +157,6 @@ class FieldReservoirOilVolumetricsControllerTest extends AbstractSubmissionContr
         .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
         .thenReturn(reservoirSubmissionDetail);
 
-    var reservoirHydrocarbons = new ReservoirHydrocarbons();
-    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
-    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
-        .thenReturn(Optional.of(reservoirHydrocarbons));
-
     var form = new FieldReservoirVolumetricsForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     when(fieldReservoirVolumetricsFormValidator.isValid(
@@ -219,10 +198,6 @@ class FieldReservoirOilVolumetricsControllerTest extends AbstractSubmissionContr
   void saveFieldReservoirVolumetrics_validForm_assertSavedandRedirection(
       SubmissionType submissionType) throws Exception {
     submissionDetail.setSubmissionType(submissionType);
-
-    when(reservoirSubmissionDetailPersistenceService
-        .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
-        .thenReturn(reservoirSubmissionDetail);
 
     var form = new FieldReservoirVolumetricsForm();
     when(fieldReservoirVolumetricsFormValidator.isValid(

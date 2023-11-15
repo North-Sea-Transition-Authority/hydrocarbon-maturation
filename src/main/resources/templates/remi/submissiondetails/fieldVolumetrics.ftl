@@ -9,7 +9,7 @@ pageSize=PageSize.FULL_WIDTH
 errorItems=errorList
 breadcrumbsMap=breadcrumbsMap>
     <@fdsForm.htmlForm>
-        <#if hydrocarbonType == "OIL_ONLY">
+        <#if hydrocarbonType == "OIL_ONLY" || hydrocarbonType == "MIXED_OIL_AND_GAS">
             <@probabilityDistribution.probabilityDistributionSingularTemplate
             probabilityDistributionPath="form.oilInPlace"
             labelText="Oil in place"
@@ -17,7 +17,7 @@ breadcrumbsMap=breadcrumbsMap>
             error=oilInPlaceError/>
         </#if>
 
-        <#if hydrocarbonType == "GAS_ONLY">
+        <#if hydrocarbonType == "GAS_ONLY" || hydrocarbonType == "MIXED_OIL_AND_GAS">
             <@probabilityDistribution.probabilityDistributionSingularTemplate
             probabilityDistributionPath="form.gasInPlace"
             labelText="Gas in place"

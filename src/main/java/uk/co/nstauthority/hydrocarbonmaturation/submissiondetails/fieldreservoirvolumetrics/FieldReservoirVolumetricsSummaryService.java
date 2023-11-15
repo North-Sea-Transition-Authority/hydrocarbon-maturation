@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
@@ -22,6 +23,8 @@ public class FieldReservoirVolumetricsSummaryService implements SummarySectionSe
 
   public static final String OIL_VOLUMETRICS = "Oil volumetrics";
   public static final String GAS_VOLUMETRICS = "Gas volumetrics";
+  public static final String OIL_AND_GAS_VOLUMETRICS = "Oil and gas volumetrics";
+
   public static final int FIELD_RESERVOIR_VOLUMETRICS_DISPLAY_ORDER = 40;
 
   @Autowired
@@ -39,12 +42,15 @@ public class FieldReservoirVolumetricsSummaryService implements SummarySectionSe
     }
 
     var summaryItems = new ArrayList<SummaryItem>();
-    if (generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail)) {
+    var reservoirHydrocarbons = generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)
+        .orElse(new ReservoirHydrocarbons());
+    if (generalReservoirInformationService.isOilOnly(reservoirHydrocarbons)) {
       summaryItems.add(getOilCaseSummary(reservoirSubmissionDetail));
-    } else if (generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)) {
+    } else if (generalReservoirInformationService.isGasOnly(reservoirHydrocarbons)) {
       summaryItems.add(getGasCaseSummary(reservoirSubmissionDetail));
+    } else if (generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)) {
+      summaryItems.add(getCombinedSummary(reservoirSubmissionDetail));
     }
-
     return Optional.of(new SummarySection(FIELD_RESERVOIR_VOLUMETRICS_DISPLAY_ORDER, summaryItems, ""));
   }
 
@@ -73,5 +79,22 @@ public class FieldReservoirVolumetricsSummaryService implements SummarySectionSe
         );
 
     return SummaryItem.withCard(GAS_VOLUMETRICS, SummaryCard.probabilitySummaryCard(listOfSummaryViews));
+  }
+
+  private SummaryItem getCombinedSummary(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+
+    List<ProbabilityDistributionFieldInstance> listOfInstances =
+        List.of(
+            ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD,
+            ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
+        );
+
+    var listOfSummaryViews =
+        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+            listOfInstances, submissionDetail, reservoirSubmissionDetail
+        );
+
+    return SummaryItem.withCard(OIL_AND_GAS_VOLUMETRICS, SummaryCard.probabilitySummaryCard(listOfSummaryViews));
   }
 }
