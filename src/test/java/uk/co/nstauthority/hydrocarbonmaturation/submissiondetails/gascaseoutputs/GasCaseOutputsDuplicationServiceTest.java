@@ -33,6 +33,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
@@ -47,6 +49,9 @@ class GasCaseOutputsDuplicationServiceTest {
   @Mock
   private ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
+  @Mock
+  private GeneralReservoirInformationService generalReservoirInformationService;
+
   @InjectMocks
   private GasCaseOutputsDuplicationService gasCaseOutputsDuplicationService;
 
@@ -59,6 +64,9 @@ class GasCaseOutputsDuplicationServiceTest {
     var reservoir = new Reservoir();
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    when(generalReservoirInformationService.isGasOnly(oldReservoirSubmissionDetail))
+        .thenReturn(true);
 
     var gasCaseOutput = mock(GasCaseOutput.class);
     when(gasCaseOutputsPersistenceService.getGasCaseOutput(oldReservoirSubmissionDetail))
@@ -80,6 +88,9 @@ class GasCaseOutputsDuplicationServiceTest {
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
+    when(generalReservoirInformationService.isGasOnly(oldReservoirSubmissionDetail))
+        .thenReturn(true);
+
     when(gasCaseOutputsPersistenceService.getGasCaseOutput(oldReservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
@@ -98,6 +109,9 @@ class GasCaseOutputsDuplicationServiceTest {
     var reservoir = new Reservoir();
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    when(generalReservoirInformationService.isGasOnly(oldReservoirSubmissionDetail))
+        .thenReturn(true);
 
     var probabilityDistribution1 = mock(ProbabilityDistribution.class);
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
@@ -126,6 +140,9 @@ class GasCaseOutputsDuplicationServiceTest {
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
+    when(generalReservoirInformationService.isGasOnly(oldReservoirSubmissionDetail))
+        .thenReturn(true);
+
     whenGetAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail)
         .thenReturn(Collections.emptyList());
 
@@ -145,10 +162,34 @@ class GasCaseOutputsDuplicationServiceTest {
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
+    when(generalReservoirInformationService.isGasOnly(oldReservoirSubmissionDetail))
+        .thenReturn(true);
+
     gasCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
     verify(reservoirDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(GasCaseOutput.class), eq(GasCaseOutput.class));
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+  }
+
+  @ParameterizedTest
+  @MethodSource("allDiscoveryAndProspectSubmissionTypes")
+  void duplicateReservoirSection_NotGasCase_DoesNotDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    when(generalReservoirInformationService.isGasOnly(oldReservoirSubmissionDetail))
+        .thenReturn(false);
+
+    gasCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(OilCaseOutput.class), eq(OilCaseOutput.class));
     verify(reservoirDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
@@ -161,6 +202,9 @@ class GasCaseOutputsDuplicationServiceTest {
     var reservoir = new Reservoir();
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    when(generalReservoirInformationService.isGasOnly(oldReservoirSubmissionDetail))
+        .thenReturn(true);
 
     gasCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 

@@ -9,6 +9,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
@@ -17,15 +18,19 @@ public class DiscoveryMixedCaseVolumetricsDuplicationService implements Reservoi
   private final DiscoveryMixedCaseVolumetricsPersistenceService discoveryMixedCaseVolumetricsPersistenceService;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
+  private final GeneralReservoirInformationService generalReservoirInformationService;
 
   @Autowired
   DiscoveryMixedCaseVolumetricsDuplicationService(
       DiscoveryMixedCaseVolumetricsPersistenceService discoveryMixedCaseVolumetricsPersistenceService,
       ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
-      ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
+      ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService,
+      GeneralReservoirInformationService generalReservoirInformationService) {
+
     this.discoveryMixedCaseVolumetricsPersistenceService = discoveryMixedCaseVolumetricsPersistenceService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.reservoirDuplicationPersistenceService = reservoirDuplicationPersistenceService;
+    this.generalReservoirInformationService = generalReservoirInformationService;
   }
 
   @Override
@@ -35,7 +40,8 @@ public class DiscoveryMixedCaseVolumetricsDuplicationService implements Reservoi
     var oldSubmissionDetail = oldReservoirSubmissionDetail.getSubmissionDetail();
     var newSubmissionDetail = newReservoirSubmissionDetail.getSubmissionDetail();
 
-    if (!newSubmissionDetail.isDiscoverySubmission()) {
+    if (!newSubmissionDetail.isDiscoverySubmission()
+        || !generalReservoirInformationService.isCombinedOilAndGas(oldReservoirSubmissionDetail)) {
       return;
     }
 

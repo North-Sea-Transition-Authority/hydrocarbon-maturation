@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolu
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -33,6 +34,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotal;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 
 @ExtendWith(MockitoExtension.class)
 class DiscoveryGasCaseVolumetricTotalsDuplicationServiceTest {
@@ -46,6 +50,12 @@ class DiscoveryGasCaseVolumetricTotalsDuplicationServiceTest {
   @Mock
   private DiscoveryGasCaseVolumetricTotalsService discoveryGasCaseVolumetricTotalsService;
 
+  @Mock
+  private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+
+  @Mock
+  private TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
+
   @InjectMocks
   private DiscoveryGasCaseVolumetricTotalsDuplicationService discoveryGasCaseVolumetricTotalsDuplicationService;
 
@@ -58,6 +68,8 @@ class DiscoveryGasCaseVolumetricTotalsDuplicationServiceTest {
     var gasCaseVolumetricTotal = mock(GasCaseVolumetricTotal.class);
     when(discoveryGasCaseVolumetricTotalsService.getGasCaseVolumetricTotal(oldSubmissionDetail))
         .thenReturn(Optional.of(gasCaseVolumetricTotal));
+    when(totalVolumesTaskListSectionService.isGasCaseOnly(anyList()))
+        .thenReturn(true);
 
     discoveryGasCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
@@ -77,6 +89,8 @@ class DiscoveryGasCaseVolumetricTotalsDuplicationServiceTest {
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
     whenGetAllProbabilityDistributionsForInstances(oldSubmissionDetail)
         .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
+    when(totalVolumesTaskListSectionService.isGasCaseOnly(anyList()))
+        .thenReturn(true);
 
     discoveryGasCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
@@ -98,6 +112,8 @@ class DiscoveryGasCaseVolumetricTotalsDuplicationServiceTest {
 
     whenGetAllProbabilityDistributionsForInstances(oldSubmissionDetail)
         .thenReturn(Collections.emptyList());
+    when(totalVolumesTaskListSectionService.isGasCaseOnly(anyList()))
+        .thenReturn(true);
 
     discoveryGasCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
@@ -126,6 +142,26 @@ class DiscoveryGasCaseVolumetricTotalsDuplicationServiceTest {
     );
 
     return when(probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(oldSubmissionDetail, applicableInstances));
+  }
+
+  @ParameterizedTest
+  @MethodSource("allDiscoverySubmissionTypes")
+  void duplicateSection_NotAllGasReservoirs_DoesNotDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    var reservoirSubmissionDetail = mock(ReservoirSubmissionDetail.class);
+    var reservoirSubmissionDetails = List.of(reservoirSubmissionDetail);
+    when(reservoirSubmissionDetailPersistenceService
+        .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail)
+    ).thenReturn(reservoirSubmissionDetails);
+    when(totalVolumesTaskListSectionService.isGasCaseOnly(reservoirSubmissionDetails))
+        .thenReturn(false);
+
+    discoveryGasCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    verify(submissionDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
 
   private static Stream<Arguments> allDiscoverySubmissionTypes() {

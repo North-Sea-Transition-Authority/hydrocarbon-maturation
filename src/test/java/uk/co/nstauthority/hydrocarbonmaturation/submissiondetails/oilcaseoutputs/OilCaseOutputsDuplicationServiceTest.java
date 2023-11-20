@@ -34,6 +34,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
@@ -48,6 +49,9 @@ class OilCaseOutputsDuplicationServiceTest {
   @Mock
   private ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
+  @Mock
+  private GeneralReservoirInformationService generalReservoirInformationService;
+
   @InjectMocks
   private OilCaseOutputsDuplicationService oilCaseOutputsDuplicationService;
 
@@ -60,6 +64,9 @@ class OilCaseOutputsDuplicationServiceTest {
     var reservoir = new Reservoir();
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    when(generalReservoirInformationService.isOilOnly(oldReservoirSubmissionDetail))
+        .thenReturn(true);
 
     var oilCaseOutput = mock(OilCaseOutput.class);
     when(oilCaseOutputsPersistenceService.getOilCaseOutput(oldReservoirSubmissionDetail))
@@ -81,6 +88,9 @@ class OilCaseOutputsDuplicationServiceTest {
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
+    when(generalReservoirInformationService.isOilOnly(oldReservoirSubmissionDetail))
+        .thenReturn(true);
+
     when(oilCaseOutputsPersistenceService.getOilCaseOutput(oldReservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
@@ -99,6 +109,9 @@ class OilCaseOutputsDuplicationServiceTest {
     var reservoir = new Reservoir();
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    when(generalReservoirInformationService.isOilOnly(oldReservoirSubmissionDetail))
+        .thenReturn(true);
 
     var probabilityDistribution1 = mock(ProbabilityDistribution.class);
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
@@ -128,6 +141,9 @@ class OilCaseOutputsDuplicationServiceTest {
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
+    when(generalReservoirInformationService.isOilOnly(oldReservoirSubmissionDetail))
+        .thenReturn(true);
+
     whenGetAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail)
         .thenReturn(Collections.emptyList());
 
@@ -147,6 +163,30 @@ class OilCaseOutputsDuplicationServiceTest {
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
+    when(generalReservoirInformationService.isOilOnly(oldReservoirSubmissionDetail))
+        .thenReturn(true);
+
+    oilCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(OilCaseOutput.class), eq(OilCaseOutput.class));
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+  }
+
+  @ParameterizedTest
+  @MethodSource("allDiscoveryAndProspectSubmissionTypes")
+  void duplicateReservoirSection_NotOilCase_DoesNotDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    when(generalReservoirInformationService.isOilOnly(oldReservoirSubmissionDetail))
+        .thenReturn(false);
+
     oilCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
     verify(reservoirDuplicationPersistenceService, never())
@@ -163,6 +203,9 @@ class OilCaseOutputsDuplicationServiceTest {
     var reservoir = new Reservoir();
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    when(generalReservoirInformationService.isOilOnly(oldReservoirSubmissionDetail))
+        .thenReturn(true);
 
     oilCaseOutputsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 

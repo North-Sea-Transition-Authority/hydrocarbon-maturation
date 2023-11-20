@@ -11,29 +11,40 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotal;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 
 @Service
 public class DiscoveryCombinedCaseVolTotalsDupService implements SubmissionSectionDuplicationService {
   private final DiscoveryCombinedCaseVolTotalsService discoveryCombinedCaseVolTotalsService;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+  private final TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
 
   @Autowired
   DiscoveryCombinedCaseVolTotalsDupService(
       DiscoveryCombinedCaseVolTotalsService discoveryCombinedCaseVolTotalsService,
       ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
-      SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
+      SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService,
+      ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
+      TotalVolumesTaskListSectionService totalVolumesTaskListSectionService) {
+
     this.discoveryCombinedCaseVolTotalsService = discoveryCombinedCaseVolTotalsService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
+    this.totalVolumesTaskListSectionService = totalVolumesTaskListSectionService;
   }
 
   @Override
   @Transactional
   public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail,
                                          SubmissionDetail newSubmissionDetail) {
-
-    if (!newSubmissionDetail.isDiscoverySubmission()) {
+    var reservoirSubmissionDetails = reservoirSubmissionDetailPersistenceService
+        .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail);
+    if (!newSubmissionDetail.isDiscoverySubmission()
+        || !totalVolumesTaskListSectionService.isCombinedCase(reservoirSubmissionDetails)) {
       return;
     }
 

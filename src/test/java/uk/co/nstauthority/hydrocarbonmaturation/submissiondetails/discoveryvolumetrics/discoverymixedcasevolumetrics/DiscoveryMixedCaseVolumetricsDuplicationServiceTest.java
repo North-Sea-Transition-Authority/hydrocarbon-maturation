@@ -32,7 +32,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutput;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 
@@ -47,6 +49,9 @@ class DiscoveryMixedCaseVolumetricsDuplicationServiceTest {
   @Mock
   private ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
+  @Mock
+  private GeneralReservoirInformationService generalReservoirInformationService;
+
   @InjectMocks
   private DiscoveryMixedCaseVolumetricsDuplicationService discoveryMixedCaseVolumetricsDuplicationService;
 
@@ -59,6 +64,12 @@ class DiscoveryMixedCaseVolumetricsDuplicationServiceTest {
     var reservoir = new Reservoir();
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    when(generalReservoirInformationService.isCombinedOilAndGas(oldReservoirSubmissionDetail))
+        .thenReturn(true);
+
+    when(generalReservoirInformationService.isCombinedOilAndGas(oldReservoirSubmissionDetail))
+        .thenReturn(true);
 
     var mixedCaseOutput = mock(MixedCaseOutput.class);
     when(discoveryMixedCaseVolumetricsPersistenceService.getMixedCaseOutput(oldReservoirSubmissionDetail))
@@ -80,6 +91,9 @@ class DiscoveryMixedCaseVolumetricsDuplicationServiceTest {
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
+    when(generalReservoirInformationService.isCombinedOilAndGas(oldReservoirSubmissionDetail))
+        .thenReturn(true);
+
     when(discoveryMixedCaseVolumetricsPersistenceService.getMixedCaseOutput(oldReservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
@@ -98,6 +112,9 @@ class DiscoveryMixedCaseVolumetricsDuplicationServiceTest {
     var reservoir = new Reservoir();
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    when(generalReservoirInformationService.isCombinedOilAndGas(oldReservoirSubmissionDetail))
+        .thenReturn(true);
 
     var probabilityDistribution1 = mock(ProbabilityDistribution.class);
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
@@ -126,6 +143,9 @@ class DiscoveryMixedCaseVolumetricsDuplicationServiceTest {
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
+    when(generalReservoirInformationService.isCombinedOilAndGas(oldReservoirSubmissionDetail))
+        .thenReturn(true);
+
     whenGetAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail)
         .thenReturn(Collections.emptyList());
 
@@ -145,10 +165,34 @@ class DiscoveryMixedCaseVolumetricsDuplicationServiceTest {
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
+    when(generalReservoirInformationService.isCombinedOilAndGas(oldReservoirSubmissionDetail))
+        .thenReturn(true);
+
     discoveryMixedCaseVolumetricsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
     verify(reservoirDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(MixedCaseOutput.class), eq(MixedCaseOutput.class));
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+  }
+
+  @ParameterizedTest
+  @MethodSource("allDiscoverySubmissionTypes")
+  void duplicateReservoirSection_NotCombinedCase_DoesNotDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    when(generalReservoirInformationService.isCombinedOilAndGas(oldReservoirSubmissionDetail))
+        .thenReturn(true);
+
+    discoveryMixedCaseVolumetricsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(OilCaseOutput.class), eq(OilCaseOutput.class));
     verify(reservoirDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
   }
@@ -161,6 +205,9 @@ class DiscoveryMixedCaseVolumetricsDuplicationServiceTest {
     var reservoir = new Reservoir();
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    when(generalReservoirInformationService.isCombinedOilAndGas(oldReservoirSubmissionDetail))
+        .thenReturn(true);
 
     discoveryMixedCaseVolumetricsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 

@@ -10,6 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
@@ -17,14 +18,17 @@ public class GasCaseOutputsDuplicationService implements ReservoirSectionDuplica
   private final GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
+  private final GeneralReservoirInformationService generalReservoirInformationService;
 
   @Autowired
   GasCaseOutputsDuplicationService(GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService,
                                    ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
-                                   ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
+                                   ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService,
+                                   GeneralReservoirInformationService generalReservoirInformationService) {
     this.gasCaseOutputsPersistenceService = gasCaseOutputsPersistenceService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.reservoirDuplicationPersistenceService = reservoirDuplicationPersistenceService;
+    this.generalReservoirInformationService = generalReservoirInformationService;
   }
 
   @Override
@@ -34,7 +38,8 @@ public class GasCaseOutputsDuplicationService implements ReservoirSectionDuplica
     var oldSubmissionDetail = oldReservoirSubmissionDetail.getSubmissionDetail();
     var newSubmissionDetail = newReservoirSubmissionDetail.getSubmissionDetail();
 
-    if (!newSubmissionDetail.isDiscoverySubmission() && !newSubmissionDetail.isProspectSubmission()) {
+    var isDiscoveryOrProspect = newSubmissionDetail.isDiscoverySubmission() || newSubmissionDetail.isProspectSubmission();
+    if (!isDiscoveryOrProspect || !generalReservoirInformationService.isGasOnly(oldReservoirSubmissionDetail)) {
       return;
     }
 

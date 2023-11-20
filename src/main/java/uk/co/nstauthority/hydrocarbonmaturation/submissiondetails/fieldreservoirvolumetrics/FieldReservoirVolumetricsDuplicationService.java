@@ -48,8 +48,6 @@ public class FieldReservoirVolumetricsDuplicationService implements ReservoirSec
       if (generalReservoirInformationService.isOilOnly(newReservoirHydrocarbons)
           || generalReservoirInformationService.isCombinedOilAndGas(newReservoirHydrocarbons)) {
         applicableInstances.add(ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD);
-      } else if (generalReservoirInformationService.isGasOnly(newReservoirHydrocarbons)) {
-        applicableInstances.add(ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD);
       }
 
       if (generalReservoirInformationService.isGasOnly(newReservoirHydrocarbons)

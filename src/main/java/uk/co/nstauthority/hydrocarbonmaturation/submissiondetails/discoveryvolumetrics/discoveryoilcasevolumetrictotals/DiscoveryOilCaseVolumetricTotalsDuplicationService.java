@@ -10,19 +10,27 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 
 @Service
 public class DiscoveryOilCaseVolumetricTotalsDuplicationService implements SubmissionSectionDuplicationService {
 
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+  private final TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
 
   @Autowired
   public DiscoveryOilCaseVolumetricTotalsDuplicationService(
       ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
-      SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
+      SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService,
+      ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
+      TotalVolumesTaskListSectionService totalVolumesTaskListSectionService) {
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
+    this.totalVolumesTaskListSectionService = totalVolumesTaskListSectionService;
   }
 
 
@@ -31,7 +39,10 @@ public class DiscoveryOilCaseVolumetricTotalsDuplicationService implements Submi
   public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail,
                                          SubmissionDetail newSubmissionDetail) {
 
-    if (!newSubmissionDetail.isDiscoverySubmission()) {
+    var reservoirSubmissionDetails = reservoirSubmissionDetailPersistenceService
+        .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail);
+    if (!newSubmissionDetail.isDiscoverySubmission()
+        || !totalVolumesTaskListSectionService.isOilCaseOnly(reservoirSubmissionDetails)) {
       return;
     }
 

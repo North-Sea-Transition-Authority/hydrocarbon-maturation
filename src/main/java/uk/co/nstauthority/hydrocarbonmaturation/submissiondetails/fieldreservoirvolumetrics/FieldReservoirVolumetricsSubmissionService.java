@@ -23,6 +23,9 @@ public class FieldReservoirVolumetricsSubmissionService implements ReservoirSect
 
   @Override
   public boolean isSectionSubmittable(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    if (!reservoirSubmissionDetail.getSubmissionDetail().isFieldSubmission()) {
+      return true;
+    }
     var form = fieldReservoirVolumetricsFormService.getFieldReservoirVolumetricsForm(reservoirSubmissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
     return fieldReservoirVolumetricsFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL);
