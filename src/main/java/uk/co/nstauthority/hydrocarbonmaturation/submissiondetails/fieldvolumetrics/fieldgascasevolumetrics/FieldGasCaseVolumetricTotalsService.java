@@ -195,4 +195,9 @@ public class FieldGasCaseVolumetricTotalsService {
       );
     }
   }
+
+  @Transactional
+  public void deleteGasCaseVolumetricTotalsForSubmissionDetail(SubmissionDetail submissionDetail) {
+    gasCaseVolumetricTotalsRepository.deleteBySubmissionDetail(submissionDetail);
+  }
 }

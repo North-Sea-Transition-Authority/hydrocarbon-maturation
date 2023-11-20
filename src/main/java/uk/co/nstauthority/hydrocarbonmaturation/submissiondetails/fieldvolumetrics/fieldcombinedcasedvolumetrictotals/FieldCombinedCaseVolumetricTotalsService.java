@@ -250,4 +250,9 @@ public class FieldCombinedCaseVolumetricTotalsService {
       );
     }
   }
+
+  @Transactional
+  public void deleteCombinedCaseVolumetricTotalsForSubmissionDetail(SubmissionDetail submissionDetail) {
+    combinedCaseVolumetricTotalsRepository.deleteBySubmissionDetail(submissionDetail);
+  }
 }

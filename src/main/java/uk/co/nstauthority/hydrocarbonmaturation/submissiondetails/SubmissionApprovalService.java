@@ -45,7 +45,7 @@ public class SubmissionApprovalService {
 
   @Transactional
   public void submitSubmission(SubmissionDetail submissionDetail) {
-    reservoirTotalsCleanAndCopyService.cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
+    reservoirTotalsCleanAndCopyService.cleanAndCopyVolumetricTotals(submissionDetail);
 
     // corrections will already have submission and approval details stored, just need to set the status
     if (BooleanUtils.isTrue(submissionDetail.isCorrection())) {

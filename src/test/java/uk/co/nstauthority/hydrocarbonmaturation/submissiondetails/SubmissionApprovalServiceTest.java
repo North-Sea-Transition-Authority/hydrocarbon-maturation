@@ -71,7 +71,7 @@ class SubmissionApprovalServiceTest {
 
       submissionApprovalService.submitSubmission(submissionDetail);
 
-      verify(reservoirTotalsCleanAndCopyService).cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
+      verify(reservoirTotalsCleanAndCopyService).cleanAndCopyVolumetricTotals(submissionDetail);
       verify(submissionDetailPersistenceService).submitSubmission(submissionDetail);
       verify(submissionUpdateService, times(1))
           .resolveUpdateOnSubmission(submissionDetail);
@@ -85,7 +85,7 @@ class SubmissionApprovalServiceTest {
 
       submissionApprovalService.submitSubmission(submissionDetail);
 
-      verify(reservoirTotalsCleanAndCopyService).cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
+      verify(reservoirTotalsCleanAndCopyService).cleanAndCopyVolumetricTotals(submissionDetail);
       var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
       verify(submissionDetailPersistenceService).saveSubmissionDetail(submissionDetailArgumentCaptor.capture());
       assertEquals(SubmissionDetailStatus.ACCEPTED, submissionDetailArgumentCaptor.getValue().getStatus());
@@ -102,7 +102,7 @@ class SubmissionApprovalServiceTest {
 
       submissionApprovalService.submitSubmission(submissionDetail);
 
-      verify(reservoirTotalsCleanAndCopyService).cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
+      verify(reservoirTotalsCleanAndCopyService).cleanAndCopyVolumetricTotals(submissionDetail);
       verify(submissionDetailPersistenceService).submitSubmission(submissionDetail);
       verifyNoInteractions(submissionUpdateService);
       verify(submissionEmailService, times(1))
@@ -122,7 +122,7 @@ class SubmissionApprovalServiceTest {
 
       submissionApprovalService.submitSubmission(submissionDetail);
 
-      verify(reservoirTotalsCleanAndCopyService).cleanAndCopyDiscoveryVolumetricTotals(submissionDetail);
+      verify(reservoirTotalsCleanAndCopyService).cleanAndCopyVolumetricTotals(submissionDetail);
       verify(submissionDetailPersistenceService).submitSubmission(submissionDetail);
       verify(submissionDetailPersistenceService).approveSubmission(submissionDetail);
       verifyNoInteractions(submissionEmailService);
