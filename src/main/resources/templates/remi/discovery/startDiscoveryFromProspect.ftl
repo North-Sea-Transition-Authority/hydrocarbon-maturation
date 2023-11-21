@@ -8,7 +8,7 @@
 htmlTitle=pageTitle
 pageHeading=pageTitle
 pageSize=PageSize.TWO_THIRDS_COLUMN
-backLinkEnabled=true>
+backLinkUrl=springUrl(backLinkUrl)>
   <@fdsStartPage.startPage startActionText="Start now" startActionUrl=actionUrl>
     <p class="govuk-body">
       Use this service to provide a post-drill update to a prospect that resulted in a discovery.

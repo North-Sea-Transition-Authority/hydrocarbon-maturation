@@ -37,8 +37,12 @@ class StartPostDrillDiscoveryControllerTest extends AbstractSubmissionController
 
     assert modelAndView != null;
     assertThat(modelAndView.getModel())
-        .extracting("actionUrl")
-        .isEqualTo(ReverseRouter.route(on(StartPostDrillDiscoveryController.class).startPostDrillDiscovery()));
+        .extracting(
+            "actionUrl",
+            "backLinkUrl"
+        ).containsExactly(
+            ReverseRouter.route(on(StartPostDrillDiscoveryController.class).startPostDrillDiscovery()),
+            ReverseRouter.route(on(DiscoveryPurposeController.class).getDiscoveryPurposeForm()));
   }
 
   @SecurityTest
