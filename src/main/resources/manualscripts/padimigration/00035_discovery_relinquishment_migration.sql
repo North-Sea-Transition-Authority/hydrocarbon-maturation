@@ -6,6 +6,9 @@ DO $$
         reservoir_id UUID;
         remi_submission_id UUID;
         remi_submission_detail_id UUID;
+        prospect_link_rec RECORD;
+        discovery_link_rec RECORD;
+        discovery_link_resource_id UUID;
 
     BEGIN
 
@@ -119,6 +122,78 @@ DO $$
                 'EXTANT'
             );
 
+        END LOOP;
+
+        FOR prospect_link_rec IN (
+            SELECT prg.remi_resource_id, prg.legacy_resource_id, prg.agreed_operator
+            FROM remi.padi_resource_groupings prg
+            WHERE EXISTS (
+                SELECT 1
+                FROM remi.padi_resource_groupings prg2
+                WHERE prg2.resource_type != 'PROSPECT'
+                AND prg2.legacy_resource_id = prg.legacy_resource_id
+                AND (
+                    (prg2.agreed_operator = prg.agreed_operator)
+                    OR
+                    (prg.agreed_operator IS NULL AND prg2.agreed_operator IS NULL)
+                )
+                AND prg2.relinquishment IS TRUE
+            )
+            AND prg.resource_type = 'PROSPECT'
+            GROUP BY prg.remi_resource_id, prg.legacy_resource_id, prg.agreed_operator
+        )
+        LOOP
+
+            -- temp insert into resources to satisfy FK constraint on resource links
+            INSERT INTO remi.resources (
+                id,
+                type,
+                created_timestamp
+            ) VALUES (
+                 gen_random_uuid(),
+                 'DISCOVERY',
+                 now()
+            ) RETURNING id INTO discovery_link_resource_id;
+
+            INSERT INTO remi.resource_links (
+                id,
+                prospect_resource_id,
+                discovery_resource_id,
+                legacy_resource_id
+            ) VALUES (
+                gen_random_uuid(),
+                prospect_link_rec.remi_resource_id,
+                discovery_link_resource_id, --temp set to resource above
+                prospect_link_rec.legacy_resource_id
+            );
+        END LOOP;
+
+        FOR discovery_link_rec IN (
+            SELECT prg.remi_resource_id, prg.legacy_resource_id, prg.agreed_operator
+            FROM remi.padi_resource_groupings prg
+            WHERE prg.relinquishment IS TRUE
+            AND EXISTS (
+                SELECT 1
+                FROM remi.padi_resource_groupings prg2
+                WHERE prg2.resource_type != 'DISCOVERY'
+                AND prg2.legacy_resource_id = prg.legacy_resource_id
+                AND (
+                    (prg2.agreed_operator = prg.agreed_operator)
+                    OR
+                    (prg.agreed_operator IS NULL AND prg2.agreed_operator IS NULL)
+                )
+            )
+            AND prg.resource_type = 'DISCOVERY'
+            GROUP BY prg.remi_resource_id, prg.legacy_resource_id, prg.agreed_operator
+        )
+        LOOP
+            UPDATE remi.resource_links
+            SET discovery_resource_id = discovery_link_rec.remi_resource_id
+            WHERE discovery_resource_id = discovery_link_resource_id;
+
+            -- Delete temp resource used to link prospect and discoveries
+            DELETE FROM remi.resources r
+            WHERE r.id = discovery_link_resource_id;
         END LOOP;
     END;
 $$;

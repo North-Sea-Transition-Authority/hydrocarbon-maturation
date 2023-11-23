@@ -611,7 +611,8 @@ CREATE TABLE remi.padi_resource_groupings (
     legacy_res_data_id INTEGER,
     name_alternative TEXT,
     resource_type TEXT,
-    relinquishment BOOLEAN
+    relinquishment BOOLEAN,
+    multi_reservoir BOOLEAN
 );
 
 CREATE TABLE remi.padi_reservoirs (
