@@ -3,18 +3,32 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Stream;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryKeyValue;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
+import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
 @ExtendWith(MockitoExtension.class)
 class SourceAndSealSummaryServiceTest {
@@ -168,5 +182,246 @@ class SourceAndSealSummaryServiceTest {
         .getSourceAndSealSummaryFromSubmissionDetail(submissionDetail);
 
     assertThat(summaryView.sourceLithology()).isEqualTo(otherSourceLithology);
+  }
+
+  @ParameterizedTest
+  @MethodSource("allNonFieldSubmissionTypes")
+  void getSummarySection_nonFieldSubmission_thenEmpty(SubmissionType submissionType) {
+    SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+
+    assertThat(sourceAndSealSummaryService.getSummarySection(submissionDetail)).isEmpty();
+  }
+
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void getSummarySection_nonManualEntrys_assertProperties(SubmissionType submissionType) {
+    SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+
+    var sourceAndSeal = sourceAndSealWithNonManualEntrys();
+    when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
+        .thenReturn(Optional.of(sourceAndSeal));
+
+    SummaryDataView summaryCard = (SummaryDataView) sourceAndSealSummaryService.getSummarySection(submissionDetail)
+        .get()
+        .summaryItems()
+        .get(0)
+        .summaryCards()
+        .get(0)
+        .summaryData();
+
+    assertThat(summaryCard.keyValues())
+        .extracting(
+            SummaryKeyValue::key,
+            SummaryKeyValue::value
+        )
+        .containsExactly(
+            Tuple.tuple(SourceAndSealSummaryService.SOURCE_AGE_STAGE, sourceAndSeal.getSourceAgeStage().getDisplayName()),
+            Tuple.tuple(SourceAndSealSummaryService.SOURCE_GROUP_NAME, sourceAndSeal.getSourceGroupName().getDisplayName()),
+            Tuple.tuple(SourceAndSealSummaryService.SOURCE_FORMATION_NAME, sourceAndSeal.getSourceFormationName().getDisplayName()),
+            Tuple.tuple(SourceAndSealSummaryService.SOURCE_LITHOLOGY, sourceAndSeal.getSourceLithology().getDisplayName()),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_AGE_STAGE, sourceAndSeal.getTopSealAgeStage().getDisplayName()),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_GROUP_NAME, sourceAndSeal.getTopSealGroupName().getDisplayName()),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_FORMATION_NAME, sourceAndSeal.getTopSealFormationName().getDisplayName()),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_LITHOLOGY, sourceAndSeal.getTopSealLithology().getDisplayName()),
+
+            Tuple.tuple(SourceAndSealSummaryService.SEAL_THICKNESS,
+                NumberUtil.getNumberStringWithUnitsOrEmpty(sourceAndSeal.getSealThickness(), "m")),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_FRACTURE_PRESSURE,
+                NumberUtil.getNumberStringWithUnitsOrEmpty(sourceAndSeal.getTopSealFracturePressure(), "psi"))
+        );
+  }
+
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void getSummarySection_fieldSubmission_assertStructure(SubmissionType submissionType) {
+    SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+
+    var sourceAndSeal = sourceAndSealWithNonManualEntrys();
+    when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
+        .thenReturn(Optional.of(sourceAndSeal));
+
+    var summarySection = sourceAndSealSummaryService.getSummarySection(submissionDetail);
+    assertThat(summarySection).isPresent();
+
+    assertThat(summarySection.get())
+        .extracting(
+            SummarySection::displayOrder,
+            SummarySection::summaryText
+        ).containsExactly(
+            SourceAndSealSummaryService.SOURCE_AND_SEAL_DISPLAY_ORDER,
+            ""
+        );
+
+    var summaryItems = summarySection.get().summaryItems();
+    assertThat(summaryItems).hasSize(1);
+
+    var summaryItem = summaryItems.get(0);
+    assertThat(summaryItem.displayName()).isEqualTo(SourceAndSealSummaryService.SOURCE_AND_SEAL);
+
+    var summaryCards = summaryItem.summaryCards();
+    assertThat(summaryCards).hasSize(1);
+
+    var summaryCard = summaryCards.get(0);
+    assertThat(summaryCard.summaryCardType()).isEqualTo(SummaryCardType.SIMPLE_SUMMARY);
+
+    assertThat(summaryCard.summaryData()).isNotNull();
+  }
+
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void getSummarySection_manualEntrys_assertProperties(SubmissionType submissionType) {
+    SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+
+    var sourceAndSeal = sourceAndSealWithManualEntrys();
+    when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
+        .thenReturn(Optional.of(sourceAndSeal));
+
+    SummaryDataView summaryCard = (SummaryDataView) sourceAndSealSummaryService.getSummarySection(submissionDetail)
+        .get()
+        .summaryItems()
+        .get(0)
+        .summaryCards()
+        .get(0)
+        .summaryData();
+
+    assertThat(summaryCard.keyValues())
+        .extracting(
+            SummaryKeyValue::key,
+            SummaryKeyValue::value
+        )
+        .containsExactly(
+            Tuple.tuple(SourceAndSealSummaryService.SOURCE_AGE_STAGE, sourceAndSeal.getSourceAgeStageManual()),
+            Tuple.tuple(SourceAndSealSummaryService.SOURCE_GROUP_NAME, sourceAndSeal.getSourceGroupName().getDisplayName()),
+            Tuple.tuple(SourceAndSealSummaryService.SOURCE_FORMATION_NAME, sourceAndSeal.getSourceFormationNameManual()),
+            Tuple.tuple(SourceAndSealSummaryService.SOURCE_LITHOLOGY, sourceAndSeal.getSourceLithologyOther()),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_AGE_STAGE, sourceAndSeal.getTopSealAgeStageManual()),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_GROUP_NAME, sourceAndSeal.getTopSealGroupName().getDisplayName()),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_FORMATION_NAME, sourceAndSeal.getTopSealFormationNameManual()),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_LITHOLOGY, sourceAndSeal.getTopSealLithologyOther()),
+
+            Tuple.tuple(SourceAndSealSummaryService.SEAL_THICKNESS,
+                NumberUtil.getNumberStringWithUnitsOrEmpty(sourceAndSeal.getSealThickness(), "m")),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_FRACTURE_PRESSURE,
+                NumberUtil.getNumberStringWithUnitsOrEmpty(sourceAndSeal.getTopSealFracturePressure(), "psi"))
+        );
+  }
+
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void getSummarySection_noSourceAndSealExists_assertProperties(SubmissionType submissionType) {
+    SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+
+    when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
+        .thenReturn(Optional.empty());
+
+    SummaryDataView summaryCard = (SummaryDataView) sourceAndSealSummaryService.getSummarySection(submissionDetail)
+        .get()
+        .summaryItems()
+        .get(0)
+        .summaryCards()
+        .get(0)
+        .summaryData();
+
+    assertThat(summaryCard.keyValues())
+        .extracting(
+            SummaryKeyValue::key,
+            SummaryKeyValue::value
+        )
+        .containsExactly(
+            Tuple.tuple(SourceAndSealSummaryService.SOURCE_AGE_STAGE, ""),
+            Tuple.tuple(SourceAndSealSummaryService.SOURCE_GROUP_NAME, ""),
+            Tuple.tuple(SourceAndSealSummaryService.SOURCE_FORMATION_NAME, ""),
+            Tuple.tuple(SourceAndSealSummaryService.SOURCE_LITHOLOGY, ""),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_AGE_STAGE, ""),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_GROUP_NAME, ""),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_FORMATION_NAME, ""),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_LITHOLOGY, ""),
+            Tuple.tuple(SourceAndSealSummaryService.SEAL_THICKNESS, ""),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_FRACTURE_PRESSURE, "")
+        );
+  }
+
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void getSummarySection_sourceAndSealExistsWithAllEmptyValues_assertProperties(SubmissionType submissionType) {
+    SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+
+    var emptySourceAndSeal = new SourceAndSeal();
+    emptySourceAndSeal.setSubmissionDetail(submissionDetail);
+
+    when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
+        .thenReturn(Optional.of(emptySourceAndSeal));
+
+    SummaryDataView summaryCard = (SummaryDataView) sourceAndSealSummaryService.getSummarySection(submissionDetail)
+        .get()
+        .summaryItems()
+        .get(0)
+        .summaryCards()
+        .get(0)
+        .summaryData();
+
+    assertThat(summaryCard.keyValues())
+        .extracting(
+            SummaryKeyValue::key,
+            SummaryKeyValue::value
+        )
+        .containsExactly(
+            Tuple.tuple(SourceAndSealSummaryService.SOURCE_AGE_STAGE, ""),
+            Tuple.tuple(SourceAndSealSummaryService.SOURCE_GROUP_NAME, ""),
+            Tuple.tuple(SourceAndSealSummaryService.SOURCE_FORMATION_NAME, ""),
+            Tuple.tuple(SourceAndSealSummaryService.SOURCE_LITHOLOGY, ""),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_AGE_STAGE, ""),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_GROUP_NAME, ""),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_FORMATION_NAME, ""),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_LITHOLOGY, ""),
+            Tuple.tuple(SourceAndSealSummaryService.SEAL_THICKNESS, ""),
+            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_FRACTURE_PRESSURE, "")
+        );
+  }
+
+  private SourceAndSeal sourceAndSealWithNonManualEntrys() {
+    var sourceAndSeal = new SourceAndSeal();
+    sourceAndSeal.setSourceFormationName(Formation.NAUST);
+    sourceAndSeal.setSourceAgeStage(AgeSeries.LOWER_CARBONIFEROUS);
+    sourceAndSeal.setSourceGroupName(GroupName.BRUCE);
+    sourceAndSeal.setSourceLithology(StandardLithology.LIMESTONE);
+    sourceAndSeal.setTopSealFormationName(Formation.NESS);
+    sourceAndSeal.setTopSealAgeStage(AgeSeries.PLEISTOCENE);
+    sourceAndSeal.setTopSealGroupName(GroupName.CHALK);
+    sourceAndSeal.setTopSealLithology(StandardLithology.COAL);
+    sourceAndSeal.setSealThickness(BigDecimal.ONE);
+    sourceAndSeal.setTopSealFracturePressure(BigDecimal.TEN);
+
+    return sourceAndSeal;
+  }
+
+  private SourceAndSeal sourceAndSealWithManualEntrys() {
+    var sourceAndSeal = new SourceAndSeal();
+    sourceAndSeal.setSourceFormationNameManual("source formation");
+    sourceAndSeal.setSourceGroupName(GroupName.BRUCE);
+    sourceAndSeal.setSourceAgeStageManual("source age");
+    sourceAndSeal.setSourceLithology(StandardLithology.OTHER);
+    sourceAndSeal.setSourceLithologyOther("source lithology");
+    sourceAndSeal.setTopSealFormationNameManual("top seal formation");
+    sourceAndSeal.setTopSealGroupName(GroupName.CHALK);
+    sourceAndSeal.setTopSealAgeStageManual("top seal age");
+    sourceAndSeal.setTopSealLithology(StandardLithology.OTHER);
+    sourceAndSeal.setTopSealLithologyOther("top seal lithology");
+    sourceAndSeal.setSealThickness(BigDecimal.ONE);
+    sourceAndSeal.setTopSealFracturePressure(BigDecimal.TEN);
+
+    return sourceAndSeal;
+  }
+
+  private static Stream<Arguments> allFieldSubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(SubmissionDetailUtil::isFieldSubmission)
+        .map(Arguments::of);
+  }
+
+  private static Stream<Arguments> allNonFieldSubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(submissionType -> !SubmissionDetailUtil.isFieldSubmission(submissionType))
+        .map(Arguments::of);
   }
 }

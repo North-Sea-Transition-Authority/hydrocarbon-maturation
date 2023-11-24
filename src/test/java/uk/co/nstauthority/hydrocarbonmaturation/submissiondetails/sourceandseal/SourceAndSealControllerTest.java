@@ -185,6 +185,7 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(modelMap)
         .containsEntry("form", form)
+        .containsEntry("fieldSubmission", submissionDetail.isFieldSubmission())
         .containsEntry("groupNames", GroupName.getGroupNames())
         .containsEntry("formationRestEndpoint",
             SearchSelectorService.route(on(FormationRestController.class).getFormationListWithManualEntry(null))

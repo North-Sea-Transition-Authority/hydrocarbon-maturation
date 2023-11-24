@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
@@ -48,6 +49,11 @@ class SourceAndSealFormService {
     form.setTopSealGroupName(sourceAndSeal.getTopSealGroupName());
     form.setTopSealLithology(sourceAndSeal.getTopSealLithology());
     form.setTopSealLithologyOther(sourceAndSeal.getTopSealLithologyOther());
+
+    if (sourceAndSeal.getSubmissionDetail() != null && sourceAndSeal.getSubmissionDetail().isFieldSubmission()) {
+      form.setSealThickness(DecimalInput.createDecimalInput(sourceAndSeal.getSealThickness()));
+      form.setTopSealFracturePressure(DecimalInput.createDecimalInput(sourceAndSeal.getTopSealFracturePressure()));
+    }
 
     return form;
   }

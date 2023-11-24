@@ -4,15 +4,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
@@ -48,21 +57,15 @@ class SourceAndSealFormServiceTest {
             SourceAndSealForm::getTopSealFormationName,
             SourceAndSealForm::getTopSealAgeStage,
             SourceAndSealForm::getTopSealLithology,
-            SourceAndSealForm::getTopSealLithologyOther
+            SourceAndSealForm::getTopSealLithologyOther,
+            sourceAndSealForm -> sourceAndSealForm.getSealThickness().getDecimalInputValue(),
+            sourceAndSealForm1 -> sourceAndSealForm1.getTopSealFracturePressure().getDecimalInputValue()
         )
-        .containsExactly(
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-        );
+        .containsOnlyNulls();
   }
 
   @Test
-  void sourceAndSealEntityToForm_existingEntity_thenPopulatedForm() {
+  void sourceAndSealEntityToForm_nonFieldSubmission_existingEntity_thenPopulatedForm() {
     var sourceAndSeal = getSourceAndSeal(submissionDetail);
     when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail)).thenReturn(Optional.of(sourceAndSeal));
 
@@ -78,6 +81,34 @@ class SourceAndSealFormServiceTest {
             sourceAndSeal.getSourceLithologyOther(),
             sourceAndSeal.getTopSealLithology(),
             sourceAndSeal.getTopSealLithologyOther()
+        );
+  }
+
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void sourceAndSealEntityToForm_fieldSubmission_existingEntity_thenPopulatedForm(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    var sourceAndSeal = getSourceAndSeal(submissionDetail);
+    when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail)).thenReturn(Optional.of(sourceAndSeal));
+
+    var form = sourceAndSealFormService.getSourceAndSealForm(submissionDetail);
+    assertThat(form)
+        .extracting(
+            SourceAndSealForm::getSourceLithology,
+            SourceAndSealForm::getSourceLithologyOther,
+            SourceAndSealForm::getTopSealLithology,
+            SourceAndSealForm::getTopSealLithologyOther,
+            sourceAndSealForm -> sourceAndSealForm.getSealThickness().getDecimalInputValue(),
+            sourceAndSealForm -> sourceAndSealForm.getTopSealFracturePressure().getDecimalInputValue()
+        )
+        .containsExactly(
+            sourceAndSeal.getSourceLithology(),
+            sourceAndSeal.getSourceLithologyOther(),
+            sourceAndSeal.getTopSealLithology(),
+            sourceAndSeal.getTopSealLithologyOther(),
+            DecimalInput.createDecimalInput(sourceAndSeal.getSealThickness()).getDecimalInputValue(),
+            DecimalInput.createDecimalInput(sourceAndSeal.getTopSealFracturePressure()).getDecimalInputValue()
         );
   }
 
@@ -138,7 +169,16 @@ class SourceAndSealFormServiceTest {
     sourceAndSeal.setTopSealGroupName(GroupName.CLAIR);
     sourceAndSeal.setTopSealLithology(StandardLithology.OTHER);
     sourceAndSeal.setTopSealLithologyOther("other top seal lithology");
+    sourceAndSeal.setSealThickness(BigDecimal.ONE);
+    sourceAndSeal.setTopSealFracturePressure(BigDecimal.ONE);
 
     return sourceAndSeal;
+  }
+
+  private static Stream<Arguments> allFieldSubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(SubmissionDetailUtil::isFieldSubmission)
+        .filter(submissionType -> submissionType != SubmissionType.CREATE_FIELD)
+        .map(Arguments::of);
   }
 }

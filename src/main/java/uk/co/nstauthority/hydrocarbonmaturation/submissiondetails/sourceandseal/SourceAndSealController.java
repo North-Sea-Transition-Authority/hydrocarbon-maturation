@@ -83,6 +83,7 @@ public class SourceAndSealController {
   private ModelAndView getSourceAndSealModelAndView(SourceAndSealForm form, SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/sourceAndSeal")
         .addObject("form", form)
+        .addObject("fieldSubmission", submissionDetail.isFieldSubmission())
         .addObject("groupNames", GroupName.getGroupNames())
         .addObject("formationRestEndpoint",
             SearchSelectorService.route(on(FormationRestController.class).getFormationListWithManualEntry(null))
@@ -96,6 +97,7 @@ public class SourceAndSealController {
         .addObject("preSelectedTopSealAgeStage", ageSeriesSearchService.getPreSelectedAgeSeries(form.getTopSealAgeStage()))
         .addObject("topSealLithologyOptions", StandardLithology.getStandardLithologyOptions())
         .addObject("sourceLithologyOptions", StandardLithology.getStandardLithologyOptions());
+
 
     return TaskListBreadcrumbUtil
         .addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);

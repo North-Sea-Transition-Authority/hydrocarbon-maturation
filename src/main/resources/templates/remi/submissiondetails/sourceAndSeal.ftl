@@ -75,6 +75,26 @@
         </@fdsRadio.radioGroup>
     </@fdsFieldset.fieldset>
 
-    <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
+      <#if fieldSubmission>
+          <@fdsTextInput.textInput
+          path="form.sealThickness.decimalInputValue"
+          labelText="Seal thickness"
+          suffix="m"
+          suffixScreenReaderPrompt="in meters"
+          inputClass="govuk-input--width-5"
+          optionalLabel=false
+          />
+
+          <@fdsTextInput.textInput
+          path="form.topSealFracturePressure.decimalInputValue"
+          labelText="Top seal fracture pressure"
+          suffix="psi"
+          suffixScreenReaderPrompt="in psi"
+          inputClass="govuk-input--width-5"
+          optionalLabel=true
+          />
+      </#if>
+
+      <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
   </@fdsForm.htmlForm>
 </@defaultPage>

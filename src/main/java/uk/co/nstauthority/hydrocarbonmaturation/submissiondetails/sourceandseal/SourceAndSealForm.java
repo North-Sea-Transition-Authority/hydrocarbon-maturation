@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal;
 
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
@@ -17,6 +18,8 @@ class SourceAndSealForm implements SubmissionForm {
   private GroupName topSealGroupName;
   private StandardLithology topSealLithology;
   private String topSealLithologyOther;
+  private DecimalInput sealThickness = new DecimalInput();
+  private DecimalInput topSealFracturePressure = new DecimalInput();
 
   public String getSourceFormationName() {
     return sourceFormationName;
@@ -101,5 +104,21 @@ class SourceAndSealForm implements SubmissionForm {
 
   public void setTopSealLithologyOther(String topSealLithologyOther) {
     this.topSealLithologyOther = topSealLithologyOther;
+  }
+
+  public DecimalInput getSealThickness() {
+    return sealThickness;
+  }
+
+  public void setSealThickness(DecimalInput sealThickness) {
+    this.sealThickness = sealThickness;
+  }
+
+  public DecimalInput getTopSealFracturePressure() {
+    return topSealFracturePressure;
+  }
+
+  public void setTopSealFracturePressure(DecimalInput topSealFracturePressure) {
+    this.topSealFracturePressure = topSealFracturePressure;
   }
 }

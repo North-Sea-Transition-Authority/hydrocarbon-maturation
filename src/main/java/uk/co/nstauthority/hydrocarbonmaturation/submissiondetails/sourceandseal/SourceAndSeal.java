@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -65,6 +66,10 @@ class SourceAndSeal implements SubmissionDetailChildEntity {
   private StandardLithology topSealLithology;
 
   private String topSealLithologyOther;
+
+  private BigDecimal sealThickness;
+
+  private BigDecimal topSealFracturePressure;
 
   public UUID getId() {
     return id;
@@ -199,5 +204,21 @@ class SourceAndSeal implements SubmissionDetailChildEntity {
 
   public void setTopSealLithologyOther(String topSealLithologyOther) {
     this.topSealLithologyOther = topSealLithologyOther;
+  }
+
+  public BigDecimal getSealThickness() {
+    return sealThickness;
+  }
+
+  public void setSealThickness(BigDecimal sealThickness) {
+    this.sealThickness = sealThickness;
+  }
+
+  public BigDecimal getTopSealFracturePressure() {
+    return topSealFracturePressure;
+  }
+
+  public void setTopSealFracturePressure(BigDecimal topSealFracturePressure) {
+    this.topSealFracturePressure = topSealFracturePressure;
   }
 }

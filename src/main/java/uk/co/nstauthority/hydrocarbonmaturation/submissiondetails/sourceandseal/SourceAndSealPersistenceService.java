@@ -45,6 +45,11 @@ class SourceAndSealPersistenceService {
         form.getTopSealLithology() == StandardLithology.OTHER ? form.getTopSealLithologyOther() : null
     );
 
+    if  (submissionDetail.isFieldSubmission()) {
+      sourceAndSeal.setSealThickness(form.getSealThickness().createBigDecimalOrNull());
+      sourceAndSeal.setTopSealFracturePressure(form.getTopSealFracturePressure().createBigDecimalOrNull());
+    }
+
     sourceAndSealRepository.save(sourceAndSeal);
   }
 
