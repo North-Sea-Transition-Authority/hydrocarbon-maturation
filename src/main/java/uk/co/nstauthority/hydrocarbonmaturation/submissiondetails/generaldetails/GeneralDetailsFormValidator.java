@@ -68,6 +68,10 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
     if (isRelinquishment) {
       validateDateOfRelinquishment(ValidationType.PARTIAL, generalDetailsForm, errors);
     }
+
+    if (submissionDetail.isCessationOfProductionSubmission()) {
+      validateFieldStoppedProducingDate(ValidationType.PARTIAL, generalDetailsForm, errors);
+    }
   }
 
   @Override
@@ -110,6 +114,42 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
     if (isRelinquishment) {
       validateDateOfRelinquishment(ValidationType.FULL, generalDetailsForm, errors);
     }
+
+    validateFieldValues(errors, submissionDetail, generalDetailsForm);
+  }
+
+  private void validateFieldValues(Errors errors, SubmissionDetail submissionDetail, GeneralDetailsForm generalDetailsForm) {
+    if (submissionDetail.isCessationOfProductionSubmission()) {
+      validateFieldStoppedProducingDate(ValidationType.FULL, generalDetailsForm, errors);
+    } else if (submissionDetail.isFieldDevelopmentPlanSubmission()
+        || submissionDetail.isFieldDevelopmentPlanAddendumSubmission()) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(
+          errors,
+          "capitalProjectScopeDelivered",
+          "capitalProjectScopeDelivered.required",
+          "Provide a summary of the capital project scope that has been delivered"
+      );
+    }
+
+    if (submissionDetail.isFieldSubmission()) {
+      if (DriveMechanism.OTHER.equals(generalDetailsForm.getCurrentDriveMechanism())) {
+        ValidationUtils.rejectIfEmpty(
+            errors,
+            "otherDriveMechanism",
+            "otherDriveMechanism.required",
+            "Provide the other drive mechanism"
+
+        );
+      } else {
+        ValidationUtils.rejectIfEmpty(
+            errors,
+            "currentDriveMechanism",
+            "currentDriveMechanism.required",
+            "Select the current drive mechanism"
+
+        );
+      }
+    }
   }
 
   private void validateDateOfRelinquishment(ValidationType validationType,
@@ -132,6 +172,27 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
           form.getRelinquishmentDay(),
           form.getRelinquishmentMonth(),
           form.getRelinquishmentYear(),
+          errors);
+    }
+  }
+
+  private void validateFieldStoppedProducingDate(ValidationType validationType,
+                                                 GeneralDetailsForm form,
+                                                 Errors errors) {
+    var dateStoppedProducingHasInput = !StringUtils.isAllBlank(
+        form.getFieldStoppedProducingYear(),
+        form.getFieldStoppedProducingMonth(),
+        form.getFieldStoppedProducingDay()
+    );
+
+    if (validationType == ValidationType.FULL
+        || (validationType == ValidationType.PARTIAL && dateStoppedProducingHasInput)) {
+      DateValidationUtil.validateDate(
+          "fieldStoppedProducing",
+          "date field stopped producing",
+          form.getFieldStoppedProducingDay(),
+          form.getFieldStoppedProducingMonth(),
+          form.getFieldStoppedProducingYear(),
           errors);
     }
   }

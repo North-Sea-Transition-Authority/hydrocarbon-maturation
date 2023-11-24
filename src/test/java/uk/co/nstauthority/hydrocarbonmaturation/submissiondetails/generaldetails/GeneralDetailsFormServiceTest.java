@@ -207,7 +207,8 @@ class GeneralDetailsFormServiceTest {
   void generalDetailEntityToForm_existingEntity_withLicenceApplicationReferenceOnly_thenPopulatedForm() {
     var generalDetail = getGeneralDetail(submissionDetail);
     generalDetail.setLicenceApplicationReference(LICENCE_APPLICATION_REF);
-    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(generalDetail));
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(generalDetail));
 
     assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail).getLicenceApplication())
         .isEqualTo(SearchSelectorService.getValueWithManualEntryPrefix(LICENCE_APPLICATION_REF));
@@ -218,7 +219,8 @@ class GeneralDetailsFormServiceTest {
     var generalDetail = getGeneralDetail(submissionDetail);
     generalDetail.setLicenceApplicationReference(LICENCE_APPLICATION_REF);
     generalDetail.setLicenceApplicationId(Integer.parseInt(LICENCE_APPLICATION_ID));
-    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(generalDetail));
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(generalDetail));
 
     assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail).getLicenceApplication())
         .isEqualTo(LICENCE_APPLICATION_ID);
@@ -231,7 +233,8 @@ class GeneralDetailsFormServiceTest {
     submissionDetail.setSubmissionType(submissionType);
     var generalDetail = getGeneralDetail(submissionDetail);
     generalDetail.setRelinquishmentDate(LocalDate.of(2012, 5, 22));
-    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(generalDetail));
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(generalDetail));
 
     assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail))
         .extracting(
@@ -252,7 +255,8 @@ class GeneralDetailsFormServiceTest {
     submissionDetail.setSubmissionType(submissionType);
     var generalDetail = getGeneralDetail(submissionDetail);
     generalDetail.setRelinquishmentDate(null);
-    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(generalDetail));
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(generalDetail));
 
     assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail))
         .extracting(
@@ -260,6 +264,65 @@ class GeneralDetailsFormServiceTest {
             GeneralDetailsForm::getRelinquishmentMonth,
             GeneralDetailsForm::getRelinquishmentYear)
         .containsOnlyNulls();
+  }
+
+  @Test
+  void generalDetailEntityToForm_existingEntity_cop_thenStoppedProducingDate() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_COP);
+    var generalDetail = getGeneralDetail(submissionDetail);
+
+    generalDetail.setFieldStoppedProducingDate(LocalDate.of(1999, 5, 1));
+
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(generalDetail));
+
+    assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail))
+        .extracting(
+            GeneralDetailsForm::getFieldStoppedProducingDay,
+            GeneralDetailsForm::getFieldStoppedProducingMonth,
+            GeneralDetailsForm::getFieldStoppedProducingYear
+        ).containsExactly(
+            String.valueOf(generalDetail.getFieldStoppedProducingDate().getDayOfMonth()),
+            String.valueOf(generalDetail.getFieldStoppedProducingDate().getMonthValue()),
+            String.valueOf(generalDetail.getFieldStoppedProducingDate().getYear())
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_FDP", "CREATE_FDPA"})
+  void generalDetailEntityToForm_existingEntity_FdpAndFdpa_thenCapitalProjectScope(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    var generalDetail = getGeneralDetail(submissionDetail);
+
+    generalDetail.setCapitalProjectScopeDelivered("test");
+
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(generalDetail));
+
+    assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail).getCapitalProjectScopeDelivered())
+        .isEqualTo(generalDetail.getCapitalProjectScopeDelivered());
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_FDP", "CREATE_FDPA"})
+  void generalDetailEntityToForm_existingEntity_allFieldSubmission_thenCommonFieldAttributes(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    var generalDetail = getGeneralDetail(submissionDetail);
+
+    generalDetail.setCurrentDriveMechanism(DriveMechanism.OTHER);
+    generalDetail.setOtherDriveMechanism("test");
+
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(generalDetail));
+
+    assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail))
+        .extracting(
+            GeneralDetailsForm::getCurrentDriveMechanism,
+            GeneralDetailsForm::getOtherDriveMechanism
+        ).containsExactly(
+            generalDetail.getCurrentDriveMechanism(),
+            generalDetail.getOtherDriveMechanism()
+        );
   }
 
   @Test
@@ -370,6 +433,10 @@ class GeneralDetailsFormServiceTest {
     generalDetail.setSubmissionDetail(submissionDetail);
     generalDetail.setResourceLocatedInUkcs(true);
     generalDetail.setInformationSource(InformationSource.WELL_INVESTMENT_DECISION);
+    generalDetail.setFieldStoppedProducingDate(LocalDate.of(1999, 5, 1));
+    generalDetail.setCapitalProjectScopeDelivered("test");
+    generalDetail.setCurrentDriveMechanism(DriveMechanism.OTHER);
+    generalDetail.setOtherDriveMechanism("test");
     return generalDetail;
   }
 }

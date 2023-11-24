@@ -3,8 +3,10 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -26,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -366,6 +369,141 @@ class GeneralDetailsFormValidatorTest {
         );
   }
 
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void validatePartial_validFieldSubmission_selectedDriveMechanism(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    var form = getValidForm();
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertTrue(generalDetailsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.PARTIAL));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors).isEmpty();
+  }
+
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void validateFull_validFieldSubmission_selectedDriveMechanism(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_FDP);
+
+    var form = getValidForm();
+    form.setCurrentDriveMechanism(DriveMechanism.DEPLETION);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertTrue(generalDetailsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors).isEmpty();
+  }
+
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void validateFull_fieldSubmission_emptyOtherDriveMechanism(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_FDP);
+
+    var form = getValidForm();
+    form.setCurrentDriveMechanism(DriveMechanism.OTHER);
+    form.setOtherDriveMechanism(null);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertFalse(generalDetailsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors)
+        .containsExactly(entry("otherDriveMechanism", Set.of("otherDriveMechanism.required")));
+  }
+
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void validatePartial_fieldSubmission_emptyOtherDriveMechanism(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_FDP);
+
+    var form = getValidForm();
+    form.setCurrentDriveMechanism(DriveMechanism.OTHER);
+    form.setOtherDriveMechanism(null);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertTrue(generalDetailsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.PARTIAL));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors).isEmpty();
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"CREATE_FDP", "CREATE_FDPA"}
+  )
+  void validateFull_FdpAndFdpa_invalidForm(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    var form = getInvalidForm();
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertFalse(generalDetailsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors)
+        .contains(
+            entry("currentDriveMechanism", Set.of("currentDriveMechanism.required")),
+            entry("licenceSelect", Set.of("licenceSelect.required")),
+            entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty")),
+            entry("resourceLocatedInUkcs", Set.of("resourceLocatedInUkcs.required")),
+            entry("capitalProjectScopeDelivered", Set.of("capitalProjectScopeDelivered.required"))
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"CREATE_FDP", "CREATE_FDPA"}
+  )
+  void validatePartial_FdpAndFdpa_invalidForm(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    var form = getInvalidForm();
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertTrue(generalDetailsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.PARTIAL));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors).isEmpty();
+  }
+
+  @Test
+  void validateFull_Cop_invalidForm() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_COP);
+
+    var form = getInvalidForm();
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertFalse(generalDetailsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors)
+        .contains(
+            entry("currentDriveMechanism", Set.of("currentDriveMechanism.required")),
+            entry("licenceSelect", Set.of("licenceSelect.required")),
+            entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty")),
+            entry("resourceLocatedInUkcs", Set.of("resourceLocatedInUkcs.required")),
+            entry("fieldStoppedProducingDay", Set.of("fieldStoppedProducingDay.invalid")),
+            entry("fieldStoppedProducingMonth", Set.of("fieldStoppedProducingMonth.invalid")),
+            entry("fieldStoppedProducingYear", Set.of("fieldStoppedProducingYear.invalid"))
+        );
+  }
+
+  @Test
+  void validatePartial_Cop_invalidForm() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_COP);
+
+    var form = getInvalidForm();
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertFalse(generalDetailsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.PARTIAL));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors)
+        .contains(
+            entry("fieldStoppedProducingDay", Set.of("fieldStoppedProducingDay.invalid")),
+            entry("fieldStoppedProducingMonth", Set.of("fieldStoppedProducingMonth.invalid")),
+            entry("fieldStoppedProducingYear", Set.of("fieldStoppedProducingYear.invalid"))
+        );
+  }
+
   private BindingResult validateOffshoreGeneralDetailsForm(GeneralDetailsForm form, ValidationType validationType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     generalDetailsFormValidator.isValid(
@@ -386,6 +524,25 @@ class GeneralDetailsFormValidatorTest {
     return bindingResult;
   }
 
+  private GeneralDetailsForm getInvalidForm() {
+    var invalidDecimalInput = new DecimalInput("a");
+    var form = new GeneralDetailsForm();
+    form.setResourceLocatedInUkcs(null);
+    form.setPercentageLocatedInUkcs(invalidDecimalInput);
+    form.setInformationSource(null);
+    form.setQuadrantBlocks(List.of());
+    form.setLicences(List.of());
+    form.setRelinquishmentDay("a");
+    form.setRelinquishmentMonth("a");
+    form.setRelinquishmentYear("a");
+    form.setCapitalProjectScopeDelivered(" ");
+    form.setCurrentDriveMechanism(null);
+    form.setFieldStoppedProducingDay("a");
+    form.setFieldStoppedProducingMonth("a");
+    form.setFieldStoppedProducingYear("a");
+    return form;
+  }
+
   private GeneralDetailsForm getValidForm() {
     var form = new GeneralDetailsForm();
     form.setResourceLocatedInUkcs(false);
@@ -396,6 +553,17 @@ class GeneralDetailsFormValidatorTest {
     form.setRelinquishmentDay("12");
     form.setRelinquishmentMonth("6");
     form.setRelinquishmentYear("2011");
+    form.setCapitalProjectScopeDelivered("test summary of scope");
+    form.setCurrentDriveMechanism(DriveMechanism.DEPLETION);
+    form.setFieldStoppedProducingDay("01");
+    form.setFieldStoppedProducingMonth("05");
+    form.setFieldStoppedProducingYear("1999");
     return form;
+  }
+
+  private static Stream<Arguments> allFieldSubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(SubmissionDetailUtil::isFieldSubmission)
+        .map(Arguments::of);
   }
 }

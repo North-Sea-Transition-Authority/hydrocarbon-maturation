@@ -48,6 +48,23 @@ public class DisplayableEnumOptionUtil {
         ));
   }
 
+  /*
+   * Gets the displayable options with a map of the display name and hint text in separate objects
+   * rather than in a single string.
+   * @param displayableOptionEnum
+   * @return  Map<Enum name, Map<Enum display name, Enum description>>
+   */
+  public static Map<String, Map<String, String>> getDisplayableOptionsWithSeparateNameAndDescription(
+      Class<? extends Displayable> displayableOptionEnum
+  ) {
+    return Arrays.stream((Displayable[]) displayableOptionEnum.getEnumConstants())
+        .sorted(Comparator.comparingInt(Displayable::getDisplayOrder))
+        .collect(StreamUtil.toLinkedHashMap(
+            Displayable::getEnumName,
+            displayable -> Map.of(displayable.getDisplayName(), displayable.getDescription())
+        ));
+  }
+
   public static String getDisplayableOptionOrDefault(Displayable displayable, String defaultText) {
     return displayable != null
         ? displayable.getDisplayName()

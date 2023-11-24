@@ -47,6 +47,15 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
 
   private LocalDate relinquishmentDate;
 
+  private LocalDate fieldStoppedProducingDate;
+
+  private String capitalProjectScopeDelivered;
+
+  @Enumerated(EnumType.STRING)
+  private DriveMechanism currentDriveMechanism;
+
+  private String otherDriveMechanism;
+
   public UUID getId() {
     return id;
   }
@@ -142,5 +151,37 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
 
   public void setRelinquishmentDate(LocalDate relinquishmentDate) {
     this.relinquishmentDate = relinquishmentDate;
+  }
+
+  public LocalDate getFieldStoppedProducingDate() {
+    return fieldStoppedProducingDate;
+  }
+
+  public void setFieldStoppedProducingDate(LocalDate fieldStoppedProducingDate) {
+    this.fieldStoppedProducingDate = fieldStoppedProducingDate;
+  }
+
+  public String getCapitalProjectScopeDelivered() {
+    return capitalProjectScopeDelivered;
+  }
+
+  public void setCapitalProjectScopeDelivered(String capitalProjectScopeDelivered) {
+    this.capitalProjectScopeDelivered = capitalProjectScopeDelivered;
+  }
+
+  public DriveMechanism getCurrentDriveMechanism() {
+    return currentDriveMechanism;
+  }
+
+  public void setCurrentDriveMechanism(DriveMechanism currentDriveMechanism) {
+    this.currentDriveMechanism = currentDriveMechanism;
+  }
+
+  public String getOtherDriveMechanism() {
+    return otherDriveMechanism;
+  }
+
+  public void setOtherDriveMechanism(String otherDriveMechanism) {
+    this.otherDriveMechanism = otherDriveMechanism;
   }
 }

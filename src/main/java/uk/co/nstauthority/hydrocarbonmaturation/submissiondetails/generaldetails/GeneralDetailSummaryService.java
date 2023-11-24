@@ -26,6 +26,9 @@ public class GeneralDetailSummaryService implements SummarySectionService<Submis
   public static final String PERCENT_WITHIN_UKCS = "Percentage located in UKCS";
   public static final String PERCENT_WITHIN_ENGLAND = "Percentage located in England";
   public static final String QUADRANT_AND_BLOCKS = "Quadrant and blocks";
+  public static final String FIELD_STOPPED_PRODUCING_DATE = "Date field stopped producing";
+  public static final String CAPITAL_PROJECT_SCOPE_DELIVERED = "Capital project scope delivered";
+  public static final String CURRENT_DRIVE_MECHANISM = "Current drive mechanism";
 
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
@@ -183,9 +186,35 @@ public class GeneralDetailSummaryService implements SummarySectionService<Submis
 
     summaryDataView.addKeyValue(QUADRANT_AND_BLOCKS, String.join(", ", quadrantAndBlocks));
 
+    addFieldSummaryValues(submissionDetail, generalDetail, summaryDataView);
+
     var summaryCard = SummaryCard.simpleSummaryCard(
         summaryDataView
     );
     return SummaryItem.withCard(GENERAL_DETAILS, summaryCard);
+  }
+
+  private void addFieldSummaryValues(SubmissionDetail submissionDetail,
+                                     GeneralDetail generalDetail,
+                                     SummaryDataView summaryDataView) {
+    if (submissionDetail.isCessationOfProductionSubmission()) {
+      summaryDataView.addKeyValue(FIELD_STOPPED_PRODUCING_DATE,
+          DateUtil.formatDateOrBlank(generalDetail.getFieldStoppedProducingDate()));
+    }
+
+    if (submissionDetail.isFieldDevelopmentPlanSubmission() || submissionDetail.isFieldDevelopmentPlanAddendumSubmission()) {
+      summaryDataView.addKeyValue(CAPITAL_PROJECT_SCOPE_DELIVERED, generalDetail.getCapitalProjectScopeDelivered());
+    }
+
+    if (submissionDetail.isFieldSubmission()) {
+      if (DriveMechanism.OTHER.equals(generalDetail.getCurrentDriveMechanism())) {
+        summaryDataView.addKeyValue(CURRENT_DRIVE_MECHANISM, generalDetail.getOtherDriveMechanism());
+      } else {
+        var currentDriveMechanism = generalDetail.getCurrentDriveMechanism() != null
+            ? generalDetail.getCurrentDriveMechanism().getDisplayName()
+            : "";
+        summaryDataView.addKeyValue(CURRENT_DRIVE_MECHANISM, currentDriveMechanism);
+      }
+    }
   }
 }

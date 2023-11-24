@@ -18,14 +18,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
@@ -37,6 +41,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -179,9 +184,11 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("resourceType", ResourceType.PROSPECT.name().toLowerCase()),
             entry("prospectSubmission", true),
             entry("discoverySubmission", false),
+            entry("fieldSubmission", false),
             entry("relinquishmentSubmission", false),
             entry("alreadyAddedQuadrantBlocks", quadrantBlockViewList),
-            entry("isOffshore", true)
+            entry("isOffshore", true),
+            entry("submissionType", submissionDetail.getSubmissionType())
         );
     assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
 
@@ -235,9 +242,11 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("resourceType", ResourceType.DISCOVERY.name().toLowerCase()),
             entry("prospectSubmission", false),
             entry("discoverySubmission", true),
+            entry("fieldSubmission", false),
             entry("relinquishmentSubmission", false),
             entry("alreadyAddedQuadrantBlocks", quadrantBlockViewList),
-            entry("isOffshore", false)
+            entry("isOffshore", false),
+            entry("submissionType", submissionDetail.getSubmissionType())
         );
     assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
 
@@ -249,6 +258,45 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)),
             TaskListController.PAGE_NAME)
     );
+  }
+
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void getGeneralDetailsModelAndView_fieldSubmission_assertModelProperties(SubmissionType submissionType) throws Exception {
+    submissionDetail.setSubmissionType(submissionType);
+    when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.ONSHORE);
+    var discovery = new Resource();
+    discovery.setType(ResourceType.DISCOVERY);
+    var submission = new Submission();
+    submission.setResource(discovery);
+    submissionDetail.setSubmission(submission);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    var form = new GeneralDetailsForm();
+    var preselectedLicenceApplication = Map.of("licenceapp1", "licence app 1");
+
+    when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
+    when(generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication())).thenReturn(
+        preselectedLicenceApplication);
+
+    var quadrantBlockView1 = new QuadrantAndBlockView("test", "test", true);
+    var quadrantBlockViewList = List.of(quadrantBlockView1);
+    when(generalDetailsFormService.getQuadrantAndBlockViews(form)).thenReturn(quadrantBlockViewList);
+
+    var modelMap = Objects.requireNonNull(
+            mockMvc.perform(
+                    get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetailId, null)))
+                        .with(user(USER)))
+                .andReturn()
+                .getModelAndView())
+        .getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("fieldSubmission", true),
+            entry("submissionType", submissionDetail.getSubmissionType()),
+            entry("driveMechanismOptions", DriveMechanism.getDriveMechanismOptionsWithHintText())
+        );
+    assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
   }
 
   @ParameterizedTest
@@ -277,8 +325,16 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
         .contains(
             entry("prospectSubmission", submissionDetail.isProspectSubmission()),
             entry("discoverySubmission", submissionDetail.isDiscoverySubmission()),
+            entry("fieldSubmission", false),
             entry("relinquishmentSubmission", true)
         )
         .doesNotContainKey("informationSources");
+  }
+
+  private static Stream<Arguments> allFieldSubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(SubmissionDetailUtil::isFieldSubmission)
+        .filter(submissionType -> submissionType != SubmissionType.CREATE_FIELD)
+        .map(Arguments::of);
   }
 }

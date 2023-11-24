@@ -7,13 +7,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -25,6 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,7 +59,7 @@ class GeneralDetailsPersistenceServiceTest {
         licenceApplicationQueryService,
         licencePersistenceService);
     var submissionDetailId = UUID.randomUUID();
-    submissionDetail = new SubmissionDetail();
+    submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     submissionDetail.setId(submissionDetailId);
   }
 
@@ -365,6 +370,67 @@ class GeneralDetailsPersistenceServiceTest {
         .hasAllNullFieldsOrPropertiesExcept("submissionDetail", "informationSource");
   }
 
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void saveGeneralDetails_whenField_verifyCommon(SubmissionType submissionType) {
+    var form = new GeneralDetailsForm();
+    submissionDetail.setSubmissionType(submissionType);
+    var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, OnshoreOffshore.OFFSHORE);
+
+    verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
+    var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
+
+    assertThat(savedGeneralDetail)
+        .extracting(
+            GeneralDetail::getCurrentDriveMechanism,
+            GeneralDetail::getOtherDriveMechanism
+        ).containsExactly(
+            form.getCurrentDriveMechanism(),
+            form.getOtherDriveMechanism()
+        );
+  }
+
+  @Test
+  void saveGeneralDetails_whenCop_assertFieldStoppedProducingDate() {
+    var expectedDateFieldStoppedProducing = LocalDate.of(1999, 05, 01);
+    var form = new GeneralDetailsForm();
+    form.setFieldStoppedProducingDay("01");
+    form.setFieldStoppedProducingMonth("05");
+    form.setFieldStoppedProducingYear("1999");
+
+
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_COP);
+    var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, OnshoreOffshore.OFFSHORE);
+
+    verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
+    var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
+
+    assertThat(savedGeneralDetail.getFieldStoppedProducingDate())
+        .hasToString(expectedDateFieldStoppedProducing.toString());
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_FDP", "CREATE_FDPA"})
+  void saveGeneralDetails_whenFdpOrFdpa_assertFieldStoppedProducingDate(SubmissionType submissionType) {
+    var form = new GeneralDetailsForm();
+    form.setCapitalProjectScopeDelivered("test");
+
+    submissionDetail.setSubmissionType(submissionType);
+    var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
+
+    generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, OnshoreOffshore.OFFSHORE);
+
+    verify(generalDetailsRepository, times(1)).save(generalDetailsArgumentCaptor.capture());
+    var savedGeneralDetail = (GeneralDetail) generalDetailsArgumentCaptor.getValue();
+
+    assertThat(savedGeneralDetail.getCapitalProjectScopeDelivered())
+        .isEqualTo(form.getCapitalProjectScopeDelivered());
+  }
+
   @Test
   void updateGeneralDetailProspect_whenGivenAForm_verifySaved() {
     var form = new UpdateProspectForm();
@@ -465,5 +531,11 @@ class GeneralDetailsPersistenceServiceTest {
         .thenReturn(hasExtantLicence);
 
     assertThat(generalDetailsPersistenceService.isOnAnExtantLicence(generalDetail)).isEqualTo(hasExtantLicence);
+  }
+
+  private static Stream<Arguments> allFieldSubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(SubmissionDetailUtil::isFieldSubmission)
+        .map(Arguments::of);
   }
 }

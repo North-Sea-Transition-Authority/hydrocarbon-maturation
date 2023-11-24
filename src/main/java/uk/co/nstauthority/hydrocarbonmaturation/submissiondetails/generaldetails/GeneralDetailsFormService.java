@@ -101,13 +101,9 @@ public class GeneralDetailsFormService {
         .map(LicenceView::getId)
         .toList();
 
-    if (submissionDetail.isRelinquishment() && generalDetail.getRelinquishmentDate() != null) {
-      form.setRelinquishmentDay(String.valueOf(generalDetail.getRelinquishmentDate().getDayOfMonth()));
-      form.setRelinquishmentMonth(String.valueOf(generalDetail.getRelinquishmentDate().getMonthValue()));
-      form.setRelinquishmentYear(String.valueOf(generalDetail.getRelinquishmentDate().getYear()));
-    }
-
     form.setLicences(licences);
+
+    setFieldValues(generalDetail, form, submissionDetail);
 
     return form;
   }
@@ -151,4 +147,28 @@ public class GeneralDetailsFormService {
         .orElse(false);
   }
 
+  private void setFieldValues(GeneralDetail generalDetail, GeneralDetailsForm form, SubmissionDetail submissionDetail) {
+    if (submissionDetail.isRelinquishment() && generalDetail.getRelinquishmentDate() != null) {
+      form.setRelinquishmentDay(String.valueOf(generalDetail.getRelinquishmentDate().getDayOfMonth()));
+      form.setRelinquishmentMonth(String.valueOf(generalDetail.getRelinquishmentDate().getMonthValue()));
+      form.setRelinquishmentYear(String.valueOf(generalDetail.getRelinquishmentDate().getYear()));
+    }
+
+    if (submissionDetail.isCessationOfProductionSubmission() && generalDetail.getFieldStoppedProducingDate() != null) {
+      form.setFieldStoppedProducingDay(String.valueOf(generalDetail.getFieldStoppedProducingDate().getDayOfMonth()));
+      form.setFieldStoppedProducingMonth(String.valueOf(generalDetail.getFieldStoppedProducingDate().getMonthValue()));
+      form.setFieldStoppedProducingYear(String.valueOf(generalDetail.getFieldStoppedProducingDate().getYear()));
+    }
+
+    if (submissionDetail.isFieldDevelopmentPlanSubmission() || submissionDetail.isFieldDevelopmentPlanAddendumSubmission()) {
+      form.setCapitalProjectScopeDelivered(generalDetail.getCapitalProjectScopeDelivered());
+    }
+
+    if (submissionDetail.isFieldSubmission()) {
+      form.setCurrentDriveMechanism(generalDetail.getCurrentDriveMechanism());
+      if (DriveMechanism.OTHER.equals(form.getCurrentDriveMechanism())) {
+        form.setOtherDriveMechanism(generalDetail.getOtherDriveMechanism());
+      }
+    }
+  }
 }

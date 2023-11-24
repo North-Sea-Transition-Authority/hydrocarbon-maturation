@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.enumUtil;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -46,6 +47,36 @@ class DisplayableEnumOptionUtilTest {
         .isEqualTo("second text");
     assertThat(DisplayableEnumOptionUtil.getDisplayableOptionOrDefault(option3, "default text"))
         .isEqualTo("third one");
+  }
+
+  @Test
+  void getDisplayableOptionsWithSeparateNameAndDescription_assertMapInRightOrder() {
+    var returnedMap = DisplayableEnumOptionUtil.getDisplayableOptionsWithSeparateNameAndDescription(DisplayableTestEnum.class);
+
+    assertThat(returnedMap.entrySet())
+        .containsExactly(
+          entry(DisplayableTestEnum.OPTION_ONE.name(),
+              Map.of(DisplayableTestEnum.OPTION_ONE.getDisplayName(), DisplayableTestEnum.OPTION_ONE.getDescription())),
+          entry(DisplayableTestEnum.OPTION_TWO.name(),
+              Map.of(DisplayableTestEnum.OPTION_TWO.getDisplayName(), DisplayableTestEnum.OPTION_TWO.getDescription())),
+          entry(DisplayableTestEnum.OPTION_THREE.name(),
+              Map.of(DisplayableTestEnum.OPTION_THREE.getDisplayName(), DisplayableTestEnum.OPTION_THREE.getDescription()))
+        );
+  }
+
+  @Test
+  void getDisplayableOptionsWithSeparateNameAndDescription_noDescriptions() {
+    var returnedMap = DisplayableEnumOptionUtil.getDisplayableOptionsWithSeparateNameAndDescription(DisplayableTestEnum.class);
+
+    assertThat(returnedMap.entrySet())
+        .contains(
+            entry(DisplayableTestEnum.OPTION_ONE.name(),
+                Map.of(DisplayableTestEnum.OPTION_ONE.getDisplayName(), DisplayableTestEnum.OPTION_ONE.getDescription())),
+            entry(DisplayableTestEnum.OPTION_TWO.name(),
+                Map.of(DisplayableTestEnum.OPTION_TWO.getDisplayName(), DisplayableTestEnum.OPTION_TWO.getDescription())),
+            entry(DisplayableTestEnum.OPTION_THREE.name(),
+                Map.of(DisplayableTestEnum.OPTION_THREE.getDisplayName(), DisplayableTestEnum.OPTION_THREE.getDescription()))
+        );
   }
 
   enum DisplayableTestEnum implements Displayable {

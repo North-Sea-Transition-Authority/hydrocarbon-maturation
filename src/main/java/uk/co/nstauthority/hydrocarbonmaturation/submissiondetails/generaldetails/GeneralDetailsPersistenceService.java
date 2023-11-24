@@ -67,6 +67,33 @@ public class GeneralDetailsPersistenceService {
       );
     }
 
+    if (submissionDetail.isCessationOfProductionSubmission()
+        && !StringUtils.isAnyBlank(
+            form.getFieldStoppedProducingMonth(),
+            form.getFieldStoppedProducingDay(),
+            form.getFieldStoppedProducingYear())) {
+
+      generalDetail.setFieldStoppedProducingDate(
+          LocalDate.of(
+              Integer.parseInt(form.getFieldStoppedProducingYear()),
+              Integer.parseInt(form.getFieldStoppedProducingMonth()),
+              Integer.parseInt(form.getFieldStoppedProducingDay()))
+      );
+    }
+
+    if (submissionDetail.isFieldDevelopmentPlanSubmission() || submissionDetail.isFieldDevelopmentPlanAddendumSubmission()) {
+      generalDetail.setCapitalProjectScopeDelivered(form.getCapitalProjectScopeDelivered());
+    }
+
+    if (submissionDetail.isFieldSubmission()) {
+      generalDetail.setCurrentDriveMechanism(form.getCurrentDriveMechanism());
+      if (DriveMechanism.OTHER.equals(form.getCurrentDriveMechanism())) {
+        generalDetail.setOtherDriveMechanism(form.getOtherDriveMechanism());
+      } else {
+        generalDetail.setOtherDriveMechanism(null);
+      }
+    }
+
     generalDetailsRepository.save(generalDetail);
     licencePersistenceService.saveLicences(form, generalDetail);
     quadrantAndBlockPersistenceService.saveQuadrantAndBlocks(form, generalDetail);

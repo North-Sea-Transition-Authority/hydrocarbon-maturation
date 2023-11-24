@@ -105,6 +105,52 @@ breadcrumbsMap=breadcrumbsMap>
           yearPath="form.relinquishmentYear"
           labelText="Date of relinquishment"/>
       </#if>
+
+      <#if submissionType == "CREATE_COP">
+        <@fdsDateInput.dateInput
+        formId="fieldStoppedProducing-date-input"
+        dayPath="form.fieldStoppedProducingDay"
+        monthPath="form.fieldStoppedProducingMonth"
+        yearPath="form.fieldStoppedProducingYear"
+        labelText="What date did the field stop producing?"/>
+      </#if>
+
+      <#if submissionType == "CREATE_FDP">
+        <@fdsTextarea.textarea
+        path="form.capitalProjectScopeDelivered"
+        labelText="Provide a short summary of the capital project scope delivered within this FDP"
+        hintText="For example, fixed 4 Slot Wellhead platform with gas export pipeline and 1 well"/>
+      <#elseif submissionType == "CREATE_FDPA">
+        <@fdsTextarea.textarea
+        path="form.capitalProjectScopeDelivered"
+        labelText="Provide a short summary of the capital project scope delivered within this FDPA"
+        hintText="For example, fixed 4 Slot Wellhead platform with gas export pipeline and 1 well"/>
+      </#if>
+
+      <#if fieldSubmission>
+        <@fdsRadio.radioGroup path="form.currentDriveMechanism" labelText="Current drive mechanism" hiddenContent=true>
+          <#assign firstItem=true/>
+          <#list driveMechanismOptions as key, value>
+            <#list value as displayName, hintText>
+              <@fdsRadio.radioItem
+              path="form.currentDriveMechanism"
+              itemMap={key : displayName}
+              isFirstItem=firstItem
+              itemHintText=hintText>
+                <#if key == "OTHER">
+                  <@fdsTextInput.textInput
+                  path="form.otherDriveMechanism"
+                  labelText="Provide the other drive mechanism"
+                  nestingPath="form.currentDriveMechanism"
+                  />
+                </#if>
+                <#assign firstItem=false/>
+              </@fdsRadio.radioItem>
+            </#list>
+          </#list>
+        </@fdsRadio.radioGroup>
+      </#if>
+
       <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
     </@fdsForm.htmlForm>
 </@defaultPage>

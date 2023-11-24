@@ -5,7 +5,7 @@ import java.util.List;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
-class GeneralDetailsForm implements SubmissionForm {
+public class GeneralDetailsForm implements SubmissionForm {
 
   private Boolean resourceLocatedInUkcs;
   private Boolean resourceLocatedInEngland;
@@ -23,6 +23,15 @@ class GeneralDetailsForm implements SubmissionForm {
   private String relinquishmentDay;
   private String relinquishmentMonth;
   private String relinquishmentYear;
+
+  private String fieldStoppedProducingDay;
+  private String fieldStoppedProducingMonth;
+  private String fieldStoppedProducingYear;
+
+  private String capitalProjectScopeDelivered;
+
+  private DriveMechanism currentDriveMechanism;
+  private String otherDriveMechanism;
 
   public Boolean getResourceLocatedInUkcs() {
     return resourceLocatedInUkcs;
@@ -137,5 +146,53 @@ class GeneralDetailsForm implements SubmissionForm {
 
   public void setRelinquishmentYear(String relinquishmentYear) {
     this.relinquishmentYear = relinquishmentYear;
+  }
+
+  public String getFieldStoppedProducingDay() {
+    return fieldStoppedProducingDay;
+  }
+
+  public void setFieldStoppedProducingDay(String fieldStoppedProducingDay) {
+    this.fieldStoppedProducingDay = fieldStoppedProducingDay;
+  }
+
+  public String getFieldStoppedProducingMonth() {
+    return fieldStoppedProducingMonth;
+  }
+
+  public void setFieldStoppedProducingMonth(String fieldStoppedProducingMonth) {
+    this.fieldStoppedProducingMonth = fieldStoppedProducingMonth;
+  }
+
+  public String getFieldStoppedProducingYear() {
+    return fieldStoppedProducingYear;
+  }
+
+  public void setFieldStoppedProducingYear(String fieldStoppedProducingYear) {
+    this.fieldStoppedProducingYear = fieldStoppedProducingYear;
+  }
+
+  public String getCapitalProjectScopeDelivered() {
+    return capitalProjectScopeDelivered;
+  }
+
+  public void setCapitalProjectScopeDelivered(String capitalProjectScopeDelivered) {
+    this.capitalProjectScopeDelivered = capitalProjectScopeDelivered;
+  }
+
+  public DriveMechanism getCurrentDriveMechanism() {
+    return currentDriveMechanism;
+  }
+
+  public void setCurrentDriveMechanism(DriveMechanism currentDriveMechanism) {
+    this.currentDriveMechanism = currentDriveMechanism;
+  }
+
+  public String getOtherDriveMechanism() {
+    return otherDriveMechanism;
+  }
+
+  public void setOtherDriveMechanism(String otherDriveMechanism) {
+    this.otherDriveMechanism = otherDriveMechanism;
   }
 }

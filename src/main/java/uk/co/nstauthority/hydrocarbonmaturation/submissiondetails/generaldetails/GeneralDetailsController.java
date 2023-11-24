@@ -85,6 +85,7 @@ public class GeneralDetailsController {
                 .searchLicenceApplicationsWithManualEntry(null)))
         .addObject("discoverySubmission", submissionDetail.isDiscoverySubmission())
         .addObject("prospectSubmission", submissionDetail.isProspectSubmission())
+        .addObject("fieldSubmission", submissionDetail.isFieldSubmission())
         .addObject("relinquishmentSubmission",
             submissionDetail.isDiscoveryRelinquishment() || submissionDetail.isProspectRelinquishment())
         .addObject("licenceApplication",
@@ -100,7 +101,9 @@ public class GeneralDetailsController {
             form))
         .addObject("hasLicencesOnEarlierSubmission", generalDetailsFormService
             .hasLicencesOnEarlierSubmission(submissionDetail))
-        .addObject("isOffshore", onshoreOffshore == OnshoreOffshore.OFFSHORE);
+        .addObject("isOffshore", onshoreOffshore == OnshoreOffshore.OFFSHORE)
+        .addObject("driveMechanismOptions", DriveMechanism.getDriveMechanismOptionsWithHintText())
+        .addObject("submissionType", submissionDetail.getSubmissionType());
 
     // Relinquishment information source is automatically set to relinquishment
     if (!submissionDetail.isRelinquishment()) {
