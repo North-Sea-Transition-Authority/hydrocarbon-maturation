@@ -527,16 +527,16 @@ class ReservoirTaskListServiceTest {
                         reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
-                    "Oil volumetrics",
+                    "Oil volumetric parameters",
                     TaskListLabel.COMPLETE,
-                    ReverseRouter.route(on(FieldReservoirOilVolumetricsController.class).getFieldReservoirVolumetrics(
+                    ReverseRouter.route(on(FieldOilVolumetricParametersController.class).getOilVolumetrics(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
-                    "Oil volumetric parameters",
+                    "Oil volumetrics",
                     TaskListLabel.COMPLETE,
-                    ReverseRouter.route(on(FieldOilVolumetricParametersController.class).getOilVolumetrics(
+                    ReverseRouter.route(on(FieldReservoirOilVolumetricsController.class).getFieldReservoirVolumetrics(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
                 ),
@@ -618,16 +618,16 @@ class ReservoirTaskListServiceTest {
                         reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
-                    "Oil volumetrics",
+                    "Oil volumetric parameters",
                     TaskListLabel.COMPLETE,
-                    ReverseRouter.route(on(FieldReservoirOilVolumetricsController.class).getFieldReservoirVolumetrics(
+                    ReverseRouter.route(on(FieldOilVolumetricParametersController.class).getOilVolumetrics(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
-                    "Oil volumetric parameters",
+                    "Oil volumetrics",
                     TaskListLabel.COMPLETE,
-                    ReverseRouter.route(on(FieldOilVolumetricParametersController.class).getOilVolumetrics(
+                    ReverseRouter.route(on(FieldReservoirOilVolumetricsController.class).getFieldReservoirVolumetrics(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
                 ),
@@ -808,16 +808,16 @@ class ReservoirTaskListServiceTest {
                         reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
-                    "Gas volumetrics",
+                    "Gas volumetric parameters",
                     TaskListLabel.COMPLETE,
-                    ReverseRouter.route(on(FieldReservoirGasVolumetricsController.class).getFieldGasVolumetrics(
+                    ReverseRouter.route(on(FieldGasVolumetricParametersController.class).getGasVolumetrics(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
                 ),
                 new TaskListItem(
-                    "Gas volumetric parameters",
+                    "Gas volumetrics",
                     TaskListLabel.COMPLETE,
-                    ReverseRouter.route(on(FieldGasVolumetricParametersController.class).getGasVolumetrics(
+                    ReverseRouter.route(on(FieldReservoirGasVolumetricsController.class).getFieldGasVolumetrics(
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
                 ),
@@ -931,16 +931,16 @@ class ReservoirTaskListServiceTest {
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
                 ),
+                new TaskListItem("Oil properties",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(OilFluidPropertyController.class).getOilFluidProperties(
+                        submissionDetail.getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
                 new TaskListItem(
                     "Gas properties",
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(GasFluidPropertyController.class).getGasFluidProperties(
-                        submissionDetail.getId(),
-                        reservoirSubmissionDetail.getId()))
-                ),
-                new TaskListItem("Oil properties",
-                    TaskListLabel.COMPLETE,
-                    ReverseRouter.route(on(OilFluidPropertyController.class).getOilFluidProperties(
                         submissionDetail.getId(),
                         reservoirSubmissionDetail.getId()))
                 ),
@@ -1047,16 +1047,16 @@ class ReservoirTaskListServiceTest {
                         reservoirSubmissionDetail.getSubmissionDetail().getId(),
                         reservoirSubmissionDetail.getId()))
                 ),
+                new TaskListItem("Oil properties",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(OilFluidPropertyController.class).getOilFluidProperties(
+                        submissionDetail.getId(),
+                        reservoirSubmissionDetail.getId()))
+                ),
                 new TaskListItem(
                     "Gas properties",
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(GasFluidPropertyController.class).getGasFluidProperties(
-                            submissionDetail.getId(),
-                            reservoirSubmissionDetail.getId()))
-                ),
-                new TaskListItem("Oil properties",
-                    TaskListLabel.COMPLETE,
-                    ReverseRouter.route(on(OilFluidPropertyController.class).getOilFluidProperties(
                         submissionDetail.getId(),
                         reservoirSubmissionDetail.getId()))
                 ),

@@ -176,28 +176,6 @@ public class ReservoirTaskListService {
         );
       }
 
-      if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY) {
-        if (resourceType == ResourceType.DISCOVERY) {
-          items.add(
-              new TaskListItem("Oil case volumetrics",
-                  TaskListLabel.notStartedOrComplete(
-                      oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-                  ReverseRouter.route(on(OilCaseOutputsController.class).getOilCaseOutputs(
-                      submissionDetail.getId(),
-                      reservoirSubmissionDetail.getId())))
-          );
-        } else if (resourceType == ResourceType.FIELD) {
-          items.add(
-              new TaskListItem("Oil volumetrics",
-                  TaskListLabel.notStartedOrComplete(
-                      fieldReservoirVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-                  ReverseRouter.route(on(FieldReservoirOilVolumetricsController.class).getFieldReservoirVolumetrics(
-                      submissionDetail.getId(),
-                      reservoirSubmissionDetail.getId())))
-          );
-        }
-      }
-
       if ((hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
           || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS)
           && resourceType == ResourceType.FIELD) {
@@ -222,28 +200,6 @@ public class ReservoirTaskListService {
                     submissionDetail.getId(),
                     reservoirSubmissionDetail.getId())))
         );
-      }
-
-      if ((hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY)) {
-        if (resourceType == ResourceType.DISCOVERY) {
-          items.add(
-              new TaskListItem("Gas case volumetrics",
-                  TaskListLabel.notStartedOrComplete(
-                      gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-                  ReverseRouter.route(on(GasCaseOutputsController.class).getGasCaseOutputs(
-                      submissionDetail.getId(),
-                      reservoirSubmissionDetail.getId())))
-          );
-        } else if (resourceType == ResourceType.FIELD) {
-          items.add(
-              new TaskListItem("Gas volumetrics",
-                  TaskListLabel.notStartedOrComplete(
-                      fieldReservoirVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-                  ReverseRouter.route(on(FieldReservoirGasVolumetricsController.class).getFieldGasVolumetrics(
-                      submissionDetail.getId(),
-                      reservoirSubmissionDetail.getId())))
-          );
-        }
       }
 
       if ((hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
@@ -281,16 +237,51 @@ public class ReservoirTaskListService {
         }
       }
 
-      if (!submissionDetail.isCessationOfProductionSubmission()) {
-        if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
-            || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
-          items.add(new TaskListItem("Gas properties",
-              TaskListLabel.notStartedOrComplete(
-                  gasFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-              ReverseRouter.route(on(GasFluidPropertyController.class)
-                  .getGasFluidProperties(submissionDetail.getId(), reservoirSubmissionDetail.getId()))));
+      if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY) {
+        if (resourceType == ResourceType.DISCOVERY) {
+          items.add(
+              new TaskListItem("Oil case volumetrics",
+                  TaskListLabel.notStartedOrComplete(
+                      oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                  ReverseRouter.route(on(OilCaseOutputsController.class).getOilCaseOutputs(
+                      submissionDetail.getId(),
+                      reservoirSubmissionDetail.getId())))
+          );
+        } else if (resourceType == ResourceType.FIELD) {
+          items.add(
+              new TaskListItem("Oil volumetrics",
+                  TaskListLabel.notStartedOrComplete(
+                      fieldReservoirVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                  ReverseRouter.route(on(FieldReservoirOilVolumetricsController.class).getFieldReservoirVolumetrics(
+                      submissionDetail.getId(),
+                      reservoirSubmissionDetail.getId())))
+          );
         }
+      }
 
+      if ((hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY)) {
+        if (resourceType == ResourceType.DISCOVERY) {
+          items.add(
+              new TaskListItem("Gas case volumetrics",
+                  TaskListLabel.notStartedOrComplete(
+                      gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                  ReverseRouter.route(on(GasCaseOutputsController.class).getGasCaseOutputs(
+                      submissionDetail.getId(),
+                      reservoirSubmissionDetail.getId())))
+          );
+        } else if (resourceType == ResourceType.FIELD) {
+          items.add(
+              new TaskListItem("Gas volumetrics",
+                  TaskListLabel.notStartedOrComplete(
+                      fieldReservoirVolumetricsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+                  ReverseRouter.route(on(FieldReservoirGasVolumetricsController.class).getFieldGasVolumetrics(
+                      submissionDetail.getId(),
+                      reservoirSubmissionDetail.getId())))
+          );
+        }
+      }
+
+      if (!submissionDetail.isCessationOfProductionSubmission()) {
         if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
             || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
           items.add(new TaskListItem("Oil properties",
@@ -298,6 +289,15 @@ public class ReservoirTaskListService {
                   oilFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
               ReverseRouter.route(on(OilFluidPropertyController.class)
                   .getOilFluidProperties(submissionDetail.getId(), reservoirSubmissionDetail.getId()))));
+        }
+
+        if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
+            || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+          items.add(new TaskListItem("Gas properties",
+              TaskListLabel.notStartedOrComplete(
+                  gasFluidPropertySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+              ReverseRouter.route(on(GasFluidPropertyController.class)
+                  .getGasFluidProperties(submissionDetail.getId(), reservoirSubmissionDetail.getId()))));
         }
       }
 

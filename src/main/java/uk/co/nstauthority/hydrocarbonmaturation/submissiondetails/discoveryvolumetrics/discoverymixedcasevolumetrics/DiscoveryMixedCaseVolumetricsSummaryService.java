@@ -18,7 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 @Service
 public class DiscoveryMixedCaseVolumetricsSummaryService implements SummarySectionService<ReservoirSubmissionDetail> {
 
-  public static final String OIL_AND_GAS_CASE_OUTPUTS = "Oil and gas case outputs (resources)";
+  public static final String OIL_AND_GAS_CASE_OUTPUTS = "Oil and gas case volumetrics";
   public static final int OIL_AND_GAS_CASE_OUTPUTS_DISPLAY_ORDER = 60;
 
   private final GeneralReservoirInformationService generalReservoirInformationService;

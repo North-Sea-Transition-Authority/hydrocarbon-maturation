@@ -25,7 +25,7 @@ public class FieldReservoirVolumetricsSummaryService implements SummarySectionSe
   public static final String GAS_VOLUMETRICS = "Gas volumetrics";
   public static final String OIL_AND_GAS_VOLUMETRICS = "Oil and gas volumetrics";
 
-  public static final int FIELD_RESERVOIR_VOLUMETRICS_DISPLAY_ORDER = 40;
+  public static final int FIELD_RESERVOIR_VOLUMETRICS_DISPLAY_ORDER = 60;
 
   @Autowired
   public FieldReservoirVolumetricsSummaryService(ProbabilityDistributionSummaryService probabilityDistributionSummaryService,
