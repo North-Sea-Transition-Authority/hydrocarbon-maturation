@@ -14,16 +14,23 @@ import uk.co.nstauthority.hydrocarbonmaturation.RealSecurityAbstractControllerTe
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.businesssupport.BusinessSupportConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfigurationProperties;
 
-@ContextConfiguration(classes = {ContactInformationController.class})
+@ContextConfiguration(classes = {
+    ContactInformationController.class,
+    TechnicalSupportConfiguration.class})
 @EnableConfigurationProperties(value = {
+    BusinessSupportConfigurationProperties.class,
     TechnicalSupportConfigurationProperties.class})
 class ContactInformationControllerTest extends RealSecurityAbstractControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+
+  @Autowired
+  private BusinessSupportConfigurationProperties businessSupportConfigurationProperties;
 
   @Autowired
   private TechnicalSupportConfiguration technicalSupportConfiguration;
@@ -34,8 +41,10 @@ class ContactInformationControllerTest extends RealSecurityAbstractControllerTes
             .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/footer/contactInformation"))
+        .andExpect(model().attribute("businessSupport",
+            businessSupportConfigurationProperties))
         .andExpect(model().attribute("technicalSupport",
-            technicalSupportConfiguration.getTechnicalSupportConfigurationProperties()));
+            technicalSupportConfiguration.getTechnicalSupportConfigurationProperties()));;
   }
 
   @SecurityTest
