@@ -70,6 +70,7 @@ BEGIN
             AND prg2.agreed_operator = prg3.agreed_operator
             AND prg3.resource_type = 'PROSPECT'
         )
+        AND prdh2.stage_name != 'PARS'
         GROUP BY prg2.remi_resource_id
         UNION
         -- Discoveries not tied to prospects
@@ -91,6 +92,7 @@ BEGIN
             AND prg2.agreed_operator = prg3.agreed_operator
             AND prg3.resource_type = 'PROSPECT'
         )
+        AND prdh2.stage_name != 'PARS'
         GROUP BY prg2.remi_resource_id
     )
     LOOP
@@ -134,6 +136,7 @@ BEGIN
         JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = prdvo.resdat_id
         JOIN remi.padi_resource_groupings prg ON prg.legacy_res_data_id = prdh.resdat_id
         WHERE prg.remi_resource_id = submission_rec.remi_resource_id
+        AND prdh.stage_name != 'PARS'
         AND prdvo.oilequiv_recoverable_p50 = (
             SELECT MAX(prdvo2.oilequiv_recoverable_p50)
             FROM remi.padi_res_data_vol_outputs prdvo2
@@ -151,6 +154,7 @@ BEGIN
             JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = prdvo.resdat_id
             JOIN remi.padi_resource_groupings prg ON prg.legacy_res_data_id = prdh.resdat_id
             WHERE prg.remi_resource_id = submission_rec.remi_resource_id
+            AND prdh.stage_name != 'PARS'
             AND prdvo.oilequiv_recoverable_mean = (
                 SELECT MAX(prdvo2.oilequiv_recoverable_mean)
                 FROM remi.padi_res_data_vol_outputs prdvo2

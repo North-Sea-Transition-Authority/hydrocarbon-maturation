@@ -213,22 +213,12 @@ DO $$
             SELECT
                 prdp.*,
                 LOWER(prdh.hc_case) hydrocarbon_case,
-                (
-                    SELECT sd.id
-                    FROM remi.submission_details sd
-                    JOIN remi.submissions s ON s.id = sd.submission_id
-                    JOIN remi.resources r ON r.id = s.resource_id
-                    WHERE pr.remi_resource_id = r.id
-                    GROUP BY sd.id
-                ) sd_id,
-                (
-                    SELECT rsd.id
-                    FROM remi.reservoir_submission_details rsd
-                    WHERE rsd.reservoir = pr.remi_reservoir_id
-                ) rsd_id
+                rsd.submission_detail_id sd_id,
+                rsd.id rsd_id
             FROM remi.padi_res_data_param prdp
             JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = prdp.resdat_id
             JOIN remi.padi_reservoirs pr ON pr.legacy_res_data_id = prdh.resdat_id
+            JOIN remi.reservoir_submission_details rsd ON rsd.reservoir = pr.remi_reservoir_id
             WHERE prdh.opportunity_type = 'Discovery'
         )
         LOOP

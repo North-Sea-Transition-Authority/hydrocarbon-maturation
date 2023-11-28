@@ -24,14 +24,15 @@ BEGIN
             SELECT 1
             FROM remi.probability_distributions pd
             WHERE pd.instance IN (
-                'GAS_HYDROCARBON_SATURATION',
+                'GAS_HYDROCARBON_SATURATION_PROSPECT',
                 'GAS_EXPANSION_FACTOR',
                 'GAS_RECOVERY_FACTOR',
+                'GAS_FORMATION_VOLUME_FACTOR_PROSPECT',
                 'CONDENSATE_GAS_RATIO_LIFE_OF_FIELD',
-                'GAS_OUTPUTS_GAS_IN_PLACE',
-                'GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES',
-                'GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES',
-                'GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES'
+                'GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT',
+                'GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_PROSPECT',
+                'GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT',
+                'GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT'
             )
             AND pd.submission_detail_id = case_rec.sd_id
             AND pd.distribution_type != 'NOT_CALCULATED'
@@ -43,14 +44,14 @@ BEGIN
             SELECT 1
             FROM remi.probability_distributions pd
             WHERE pd.instance IN (
-                'OIL_RECOVERY_FACTOR',
-                'FORMATION_VOLUME_FACTOR_PROSPECT_DISCOVERY',
+                'OIL_RECOVERY_FACTOR_PROSPECT',
+                'OIL_FORMATION_VOLUME_FACTOR_PROSPECT',
                 'OIL_HYDROCARBON_SATURATION',
                 'ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD',
-                'OIL_OUTPUTS_OIL_IN_PLACE',
-                'OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES',
-                'OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES',
-                'OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES'
+                'OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT',
+                'OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT',
+                'OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT',
+                'OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT'
             )
             AND pd.submission_detail_id = case_rec.sd_id
             AND pd.distribution_type != 'NOT_CALCULATED'

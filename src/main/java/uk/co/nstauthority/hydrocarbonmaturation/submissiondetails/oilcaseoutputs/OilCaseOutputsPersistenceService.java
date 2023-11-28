@@ -27,13 +27,15 @@ public class OilCaseOutputsPersistenceService {
   public void saveOilCaseOutputs(OilCaseOutputsForm oilCaseOutputsForm, ReservoirSubmissionDetail reservoirSubmissionDetail) {
     saveProbabilityDistributionFields(oilCaseOutputsForm, reservoirSubmissionDetail);
 
-    var oilCaseOutput = getOilCaseOutput(reservoirSubmissionDetail).orElseGet(OilCaseOutput::new);
+    if (reservoirSubmissionDetail.getSubmissionDetail().isProspectSubmission()) {
+      var oilCaseOutput = getOilCaseOutput(reservoirSubmissionDetail).orElseGet(OilCaseOutput::new);
 
-    oilCaseOutput.setReservoirSubmissionDetail(reservoirSubmissionDetail);
-    var hasAssociatedGasRecoverableResources = oilCaseOutputsForm.getHasAssociatedGasRecoverableResources();
-    oilCaseOutput.setHasAssociatedGasRecoverableResources(hasAssociatedGasRecoverableResources);
+      oilCaseOutput.setReservoirSubmissionDetail(reservoirSubmissionDetail);
+      var hasAssociatedGasRecoverableResources = oilCaseOutputsForm.getHasAssociatedGasRecoverableResources();
+      oilCaseOutput.setHasAssociatedGasRecoverableResources(hasAssociatedGasRecoverableResources);
 
-    oilCaseOutputsRepository.save(oilCaseOutput);
+      oilCaseOutputsRepository.save(oilCaseOutput);
+    }
   }
 
   private void saveProbabilityDistributionFields(

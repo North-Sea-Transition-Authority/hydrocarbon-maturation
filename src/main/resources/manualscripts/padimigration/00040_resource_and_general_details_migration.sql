@@ -22,7 +22,7 @@ BEGIN
                     WHERE pqbm.padi_resource_id = prdh.resource_id
                     GROUP BY pqbm.shore_type
                 ) = 'ONSHORE' THEN 'ONSHORE'
-                ELSE 'OFFSHORE' -- raised https://ogajira2.atlassian.net/browse/HM-430 to determine onshore / offshore strategy
+                ELSE 'OFFSHORE'
             END onshore_offshore,
             (
                 SELECT pom.org_unit_id

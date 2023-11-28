@@ -67,7 +67,6 @@ BEGIN
             total_depth_formation_comments,
             data_acquisition_programme,
             geophysical_update_commentary,
-            hydrocarbons_discovered,
             discovery_status,
             chance_of_commerciality_comments,
             total_well_cost,
@@ -95,7 +94,6 @@ BEGIN
             discovery_rec.td_comment,
             discovery_rec.data_acquisition_programme,
             discovery_rec.geophysical_update_comment,
-            NULL, -- TBD in another migration script
             CASE
                 WHEN discovery_rec.well_result_type = 'Potentially Commercial Discovery' THEN 'POTENTIALLY_COMMERCIAL_DISCOVERY'
                 WHEN discovery_rec.well_result_type IN ('Minor Discovery', 'Technical Discovery') THEN 'TECHNICAL_DISCOVERY'

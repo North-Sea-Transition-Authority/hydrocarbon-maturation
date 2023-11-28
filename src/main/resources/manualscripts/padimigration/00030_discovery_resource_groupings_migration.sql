@@ -9,21 +9,21 @@ DECLARE
 BEGIN
 
     -- Set legacy resdat_id based on name, resource id, and reference as not provided in data extract for multi reservoirs
-    FOR multi_reservoir_rec IN (
-        SELECT prdh.resdat_id, prdh.resource_id, pmrd.resource_stage_name, pmrd.reference
-        FROM remi.padi_multi_reservoir_discoveries pmrd
-        JOIN remi.padi_res_data_header prdh ON prdh.name_alternative = pmrd.resource_stage_name AND pmrd.resource_id = prdh.resource_id AND prdh.reference = pmrd.reference
-        GROUP BY prdh.resdat_id, prdh.resource_id, pmrd.resource_stage_name, pmrd.reference
-    )
-    LOOP
-
-        UPDATE remi.padi_multi_reservoir_discoveries
-        SET resdat_id = multi_reservoir_rec.resdat_id
-        WHERE resource_id = multi_reservoir_rec.resource_id
-        AND resource_stage_name = multi_reservoir_rec.resource_stage_name
-        AND reference = multi_reservoir_rec.reference;
-
-    END LOOP;
+--     FOR multi_reservoir_rec IN (
+--         SELECT prdh.resdat_id, prdh.resource_id, pmrd.resource_stage_name, pmrd.reference
+--         FROM remi.padi_multi_reservoir_discoveries pmrd
+--         JOIN remi.padi_res_data_header prdh ON prdh.name_alternative = pmrd.resource_stage_name AND pmrd.resource_id = prdh.resource_id AND prdh.reference = pmrd.reference
+--         GROUP BY prdh.resdat_id, prdh.resource_id, pmrd.resource_stage_name, pmrd.reference
+--     )
+--     LOOP
+--
+--         UPDATE remi.padi_multi_reservoir_discoveries
+--         SET resdat_id = multi_reservoir_rec.resdat_id
+--         WHERE resource_id = multi_reservoir_rec.resource_id
+--         AND resource_stage_name = multi_reservoir_rec.resource_stage_name
+--         AND reference = multi_reservoir_rec.reference;
+--
+--     END LOOP;
 
     -- Create discovery groupings based on the PaDI resource and the agreed organisation names
     -- Reliquishments will be created separately for discoveries
@@ -39,6 +39,7 @@ BEGIN
         LEFT JOIN remi.padi_multi_reservoir_discoveries pmrd ON pmrd.resdat_id = prdh.resdat_id
         WHERE prdh.opportunity_type = 'Discovery'
         AND prdh.stage_name != 'Relinquishment'
+        AND prdh.stage_name != 'PARS'
     )
     LOOP
 
@@ -68,11 +69,11 @@ BEGIN
 
     -- Create ReMI discovery resources and link them to the PaDI resource groupings. The groupings will be used to create the submissions later
     FOR resource_rec IN (
-        SELECT prg.legacy_resource_id padi_res_id, prg.agreed_operator padi_operator
+        SELECT prg.legacy_resource_id padi_res_id, prg.agreed_operator padi_operator, prg.multi_reservoir
         FROM remi.padi_resource_groupings prg
         WHERE prg.resource_type = 'DISCOVERY'
         AND prg.relinquishment IS FALSE
-        GROUP BY prg.legacy_resource_id, prg.agreed_operator
+        GROUP BY prg.legacy_resource_id, prg.agreed_operator, prg.multi_reservoir
     )
     LOOP
 
@@ -88,7 +89,8 @@ BEGIN
         WHERE prg.legacy_resource_id = resource_rec.padi_res_id
         AND ((prg.agreed_operator = resource_rec.padi_operator) OR (prg.agreed_operator IS NULL AND resource_rec.padi_operator IS NULL))
         AND prg.resource_type = 'DISCOVERY'
-        AND prg.relinquishment IS FALSE;
+        AND prg.relinquishment IS FALSE
+        AND prg.multi_reservoir = resource_rec.multi_reservoir;
 
     END LOOP;
 

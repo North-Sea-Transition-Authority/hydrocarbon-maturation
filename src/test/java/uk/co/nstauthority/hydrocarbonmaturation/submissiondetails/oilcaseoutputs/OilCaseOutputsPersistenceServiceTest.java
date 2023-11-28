@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -130,7 +131,7 @@ class OilCaseOutputsPersistenceServiceTest {
             discoverySubmissionDetail,
             discoveryReservoirSubmissionDetail);
 
-    verify(oilCaseOutputsRepository, times(1)).save(any(OilCaseOutput.class));
+    verifyNoInteractions(oilCaseOutputsRepository);
   }
 
   @Test

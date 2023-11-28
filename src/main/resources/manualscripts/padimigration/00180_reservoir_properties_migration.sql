@@ -2,35 +2,67 @@ DO $$
 
 DECLARE
 
-    reservoir_rec RECORD;
+    discovery_reservoir_rec RECORD;
+    dry_well_reservoir_rec RECORD;
 
 BEGIN
 
-    FOR reservoir_rec IN (
-        SELECT sd.id sd_id, prdd.facies, prdd.connectivity
-        FROM remi.submission_details sd
-        JOIN remi.submissions s ON s.id = sd.submission_id
-        JOIN remi.resources r ON r.id = s.resource_id
-        JOIN remi.padi_res_data_disc prdd ON prdd.resdat_id = sd.legacy_res_data_id
-        WHERE r.type = 'DISCOVERY' OR sd.submission_type = 'POST_DRILL_DRY_HOLE'
+    FOR discovery_reservoir_rec IN (
+        SELECT rsd.id rsd_id, prdd.facies, prdd.connectivity
+        FROM remi.padi_res_data_disc prdd
+        JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = prdd.resdat_id
+        JOIN remi.padi_reservoirs pr ON pr.legacy_res_data_id = prdh.resdat_id
+        JOIN remi.reservoir_submission_details rsd ON rsd.reservoir = pr.remi_reservoir_id
+        WHERE prdh.opportunity_type = 'Discovery'
     )
     LOOP
 
         IF COALESCE(
-            reservoir_rec.facies,
-            reservoir_rec.connectivity
+            discovery_reservoir_rec.facies,
+            discovery_reservoir_rec.connectivity
         ) IS NOT NULL THEN
 
             INSERT INTO remi.reservoir_properties (
                 id,
-                submission_detail_id,
+                reservoir_submission_detail_id,
                 reservoir_facies,
                 reservoir_connectivity
             ) VALUES (
                 gen_random_uuid(),
-                reservoir_rec.sd_id,
-                reservoir_rec.facies,
-                reservoir_rec.connectivity
+                discovery_reservoir_rec.rsd_id,
+                discovery_reservoir_rec.facies,
+                discovery_reservoir_rec.connectivity
+            );
+
+        END IF;
+
+    END LOOP;
+
+    FOR dry_well_reservoir_rec IN (
+        SELECT rsd.id rsd_id, prdd.facies, prdd.connectivity
+        FROM remi.padi_res_data_disc prdd
+        JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = prdd.resdat_id
+        JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdh.resdat_id
+        JOIN remi.reservoir_submission_details rsd ON rsd.submission_detail_id = sd.id
+        WHERE sd.submission_type = 'POST_DRILL_DRY_HOLE'
+    )
+    LOOP
+
+        IF COALESCE(
+            dry_well_reservoir_rec.facies,
+            dry_well_reservoir_rec.connectivity
+        ) IS NOT NULL THEN
+
+            INSERT INTO remi.reservoir_properties (
+                id,
+                reservoir_submission_detail_id,
+                reservoir_facies,
+                reservoir_connectivity
+            ) VALUES (
+                gen_random_uuid(),
+                dry_well_reservoir_rec.rsd_id,
+                dry_well_reservoir_rec.facies,
+                dry_well_reservoir_rec.connectivity
             );
 
         END IF;

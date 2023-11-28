@@ -21,6 +21,7 @@ DO $$
                     WHEN rank() over (PARTITION BY prg2.remi_resource_id ORDER BY TO_DATE(prdh2.stage_date, 'DD/MM/YYYY HH24:MI:SS'), prdh2.resdat_id) = 1 THEN 'CREATE_DISCOVERY_FROM_PROSPECT'
                     ELSE 'UPDATE_DISCOVERY'
                 END submission_type,
+                prdh2.resource_id legacy_res_id,
                 prg2.legacy_res_data_id,
                 prdh2.name_alternative
             FROM remi.padi_res_data_header prdh2
@@ -30,6 +31,7 @@ DO $$
             AND prg2.relinquishment IS FALSE
             AND prg2.resource_type = 'DISCOVERY'
             AND prg2.multi_reservoir IS FALSE
+            AND prdh2.stage_name != 'PARS'
             AND EXISTS (
                 SELECT 1
                 FROM remi.padi_resource_groupings prg3
@@ -46,6 +48,7 @@ DO $$
                     WHEN rank() over (PARTITION BY prg2.remi_resource_id ORDER BY TO_DATE(prdh2.stage_date, 'DD/MM/YYYY HH24:MI:SS'), prdh2.resdat_id) = 1 THEN 'CREATE_DISCOVERY'
                     ELSE 'UPDATE_DISCOVERY'
                 END submission_type,
+                prdh2.resource_id,
                 prg2.legacy_res_data_id,
                 prdh2.name_alternative
             FROM remi.padi_res_data_header prdh2
@@ -55,6 +58,7 @@ DO $$
             AND prg2.relinquishment IS FALSE
             AND prg2.resource_type = 'DISCOVERY'
             AND prg2.multi_reservoir IS FALSE
+            AND prdh2.stage_name != 'PARS'
             AND NOT EXISTS (
                 SELECT 1
                 FROM remi.padi_resource_groupings prg3
@@ -102,6 +106,20 @@ DO $$
                gen_random_uuid(),
                submission_rec.name_alternative
             ) RETURNING id INTO reservoir_id;
+
+            INSERT INTO remi.padi_reservoirs (
+                id,
+                remi_resource_id,
+                legacy_resource_id,
+                remi_reservoir_id,
+                legacy_res_data_id
+            ) VALUES (
+                 gen_random_uuid(),
+                 submission_rec.remi_resource_id,
+                 submission_rec.legacy_res_id,
+                 reservoir_id,
+                 submission_rec.legacy_res_data_id
+             );
 
             INSERT INTO remi.reservoir_submission_details (id, reservoir, submission_detail_id, status)
             VALUES (

@@ -65,9 +65,9 @@ BEGIN
                 pqbm.block_centroid_match centroid,
                 pqbm.padi_resource_id
             FROM remi.padi_quad_block_mapping pqbm
-                 JOIN remi.padi_res_data_header prdh ON prdh.resource_id = pqbm.padi_resource_id
-                 JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdh.resdat_id
-                 JOIN remi.trap_properties tp ON tp.submission_detail_id = sd.id
+            JOIN remi.padi_res_data_header prdh ON prdh.resource_id = pqbm.padi_resource_id
+            JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdh.resdat_id
+            JOIN remi.trap_properties tp ON tp.submission_detail_id = sd.id
             WHERE pqbm.block_centroid_match IS NOT NULL
             AND pqbm.block_centroid_match NOT LIKE '%,%' -- can't migrate onshore centroids which have multiple quad/blocks after the GIS to PEARS block mapping as we don't know which is the true centre of interest
         )

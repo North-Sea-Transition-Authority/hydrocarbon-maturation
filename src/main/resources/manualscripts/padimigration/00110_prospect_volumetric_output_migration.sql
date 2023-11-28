@@ -19,6 +19,7 @@ BEGIN
         JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = sd.legacy_res_data_id
         WHERE sd.submission_type != 'POST_DRILL_DRY_HOLE'
         AND LOWER(prdh.hc_case) IN ('oil','gas','condensate')
+        AND r.type = 'PROSPECT'
     )
     LOOP
 
@@ -56,15 +57,13 @@ BEGIN
                 mean_value,
                 p10,
                 p1,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
                 custom_dist_type,
-                CASE
-                    WHEN oil_and_gas_output_rec.resource_type = 'PROSPECT' THEN 'OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT'
-                    ELSE 'OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY'
-                END,
+                'OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT',
                 abs(oil_and_gas_output_rec.oil_inplace_p99),
                 abs(oil_and_gas_output_rec.oil_inplace_p90),
                 abs(oil_and_gas_output_rec.oil_inplace_mode),
@@ -72,7 +71,8 @@ BEGIN
                 abs(oil_and_gas_output_rec.oil_inplace_mean),
                 abs(oil_and_gas_output_rec.oil_inplace_p10),
                 abs(oil_and_gas_output_rec.oil_inplace_p01),
-                oil_and_gas_output_rec.oil_inplace_comment
+                oil_and_gas_output_rec.oil_inplace_comment,
+                oil_and_gas_output_rec.rsd_id
             );
 
         END IF;
@@ -100,15 +100,13 @@ BEGIN
                 mean_value,
                 p10,
                 p1,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
                 custom_dist_type,
-                CASE
-                    WHEN oil_and_gas_output_rec.resource_type = 'PROSPECT' THEN 'OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT'
-                    ELSE 'OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY'
-                END,
+                'OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT',
                 abs(oil_and_gas_output_rec.oil_recoverable_p99),
                 abs(oil_and_gas_output_rec.oil_recoverable_p90),
                 abs(oil_and_gas_output_rec.oil_recoverable_mode),
@@ -116,7 +114,8 @@ BEGIN
                 abs(oil_and_gas_output_rec.oil_recoverable_mean),
                 abs(oil_and_gas_output_rec.oil_recoverable_p10),
                 abs(oil_and_gas_output_rec.oil_recoverable_p01),
-                oil_and_gas_output_rec.oil_recoverable_comment
+                oil_and_gas_output_rec.oil_recoverable_comment,
+                oil_and_gas_output_rec.rsd_id
             );
 
         END IF;
@@ -148,15 +147,13 @@ BEGIN
                 mean_value,
                 p10,
                 p1,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
                 custom_dist_type,
-                CASE
-                    WHEN oil_and_gas_output_rec.resource_type = 'PROSPECT' THEN 'OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT'
-                    ELSE 'OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY'
-                END,
+                'OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT',
                 abs(oil_and_gas_output_rec.assgas_recoverable_p99),
                 abs(oil_and_gas_output_rec.assgas_recoverable_p90),
                 abs(oil_and_gas_output_rec.assgas_recoverable_mode),
@@ -164,7 +161,8 @@ BEGIN
                 abs(oil_and_gas_output_rec.assgas_recoverable_mean),
                 abs(oil_and_gas_output_rec.assgas_recoverable_p10),
                 abs(oil_and_gas_output_rec.assgas_recoverable_p01),
-                oil_and_gas_output_rec.assgas_recoverable_comment
+                oil_and_gas_output_rec.assgas_recoverable_comment,
+                oil_and_gas_output_rec.rsd_id
             );
 
         END IF;
@@ -192,15 +190,13 @@ BEGIN
                 mean_value,
                 p10,
                 p1,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
                 custom_dist_type,
-                CASE
-                    WHEN oil_and_gas_output_rec.resource_type = 'PROSPECT' THEN 'OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT'
-                    ELSE 'OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY'
-                END,
+                'OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT',
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_p99),
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_p90),
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_mode),
@@ -208,7 +204,8 @@ BEGIN
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_mean),
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_p10),
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_p01),
-                oil_and_gas_output_rec.oilequiv_recoverable_comment
+                oil_and_gas_output_rec.oilequiv_recoverable_comment,
+                oil_and_gas_output_rec.rsd_id
             );
 
         END IF;
@@ -247,15 +244,13 @@ BEGIN
                 mean_value,
                 p10,
                 p1,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
                 custom_dist_type,
-                CASE
-                    WHEN oil_and_gas_output_rec.resource_type = 'PROSPECT' THEN 'GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT'
-                    ELSE 'GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY'
-                END,
+                'GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT',
                 abs(oil_and_gas_output_rec.gas_inplace_p99),
                 abs(oil_and_gas_output_rec.gas_inplace_p90),
                 abs(oil_and_gas_output_rec.gas_inplace_mode),
@@ -263,7 +258,8 @@ BEGIN
                 abs(oil_and_gas_output_rec.gas_inplace_mean),
                 abs(oil_and_gas_output_rec.gas_inplace_p10),
                 abs(oil_and_gas_output_rec.gas_inplace_p01),
-                oil_and_gas_output_rec.gas_inplace_comment
+                oil_and_gas_output_rec.gas_inplace_comment,
+                oil_and_gas_output_rec.rsd_id
             );
 
         END IF;
@@ -291,15 +287,13 @@ BEGIN
                 mean_value,
                 p10,
                 p1,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
                 custom_dist_type,
-                CASE
-                    WHEN oil_and_gas_output_rec.resource_type = 'PROSPECT' THEN 'GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_PROSPECT'
-                    ELSE 'GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY'
-                END,
+                'GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_PROSPECT',
                 abs(oil_and_gas_output_rec.gas_recoverable_p99),
                 abs(oil_and_gas_output_rec.gas_recoverable_p90),
                 abs(oil_and_gas_output_rec.gas_recoverable_mode),
@@ -307,7 +301,8 @@ BEGIN
                 abs(oil_and_gas_output_rec.gas_recoverable_mean),
                 abs(oil_and_gas_output_rec.gas_recoverable_p10),
                 abs(oil_and_gas_output_rec.gas_recoverable_p01),
-                oil_and_gas_output_rec.gas_recoverable_comment
+                oil_and_gas_output_rec.gas_recoverable_comment,
+                oil_and_gas_output_rec.rsd_id
             );
 
         END IF;
@@ -339,15 +334,13 @@ BEGIN
                 mean_value,
                 p10,
                 p1,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
                 custom_dist_type,
-                CASE
-                    WHEN oil_and_gas_output_rec.resource_type = 'PROSPECT' THEN 'GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT'
-                    ELSE 'GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY'
-                END,
+                'GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT',
                 abs(oil_and_gas_output_rec.asscon_recoverable_p99),
                 abs(oil_and_gas_output_rec.asscon_recoverable_p90),
                 abs(oil_and_gas_output_rec.asscon_recoverable_mode),
@@ -355,7 +348,8 @@ BEGIN
                 abs(oil_and_gas_output_rec.asscon_recoverable_mean),
                 abs(oil_and_gas_output_rec.asscon_recoverable_p10),
                 abs(oil_and_gas_output_rec.asscon_recoverable_p01),
-                oil_and_gas_output_rec.asscon_recoverable_comment
+                oil_and_gas_output_rec.asscon_recoverable_comment,
+                oil_and_gas_output_rec.rsd_id
             );
 
         END IF;
@@ -383,15 +377,13 @@ BEGIN
                 mean_value,
                 p10,
                 p1,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 oil_and_gas_output_rec.sd_id,
                 custom_dist_type,
-                CASE
-                    WHEN oil_and_gas_output_rec.resource_type = 'PROSPECT' THEN 'GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT'
-                    ELSE 'GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY'
-                END,
+                'GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT',
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_p99),
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_p90),
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_mode),
@@ -399,7 +391,8 @@ BEGIN
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_mean),
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_p10),
                 abs(oil_and_gas_output_rec.oilequiv_recoverable_p01),
-                oil_and_gas_output_rec.oilequiv_recoverable_comment
+                oil_and_gas_output_rec.oilequiv_recoverable_comment,
+                oil_and_gas_output_rec.rsd_id
             );
 
         END IF;
@@ -417,6 +410,7 @@ BEGIN
         JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = sd.legacy_res_data_id
         WHERE sd.submission_type != 'POST_DRILL_DRY_HOLE'
         AND LOWER(prdh.hc_case) = 'mixed oil and gas'
+        AND r.type = 'PROSPECT'
     )
     LOOP
 
@@ -427,7 +421,7 @@ BEGIN
             has_associated_gas_recoverable_resources
         ) VALUES (
              gen_random_uuid(),
-             mixed_output_rec.sd_id,
+             mixed_output_rec.rsd_id,
              FALSE -- updated later if required
          );
 
@@ -454,15 +448,13 @@ BEGIN
                 mean_value,
                 p10,
                 p1,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
                 custom_dist_type,
-                CASE
-                    WHEN mixed_output_rec.resource_type = 'PROSPECT' THEN 'MIXED_CASE_OIL_IN_PLACE_PROSPECT'
-                    ELSE 'MIXED_CASE_OIL_IN_PLACE_DISCOVERY'
-                END,
+                'MIXED_CASE_OIL_IN_PLACE_PROSPECT',
                 abs(mixed_output_rec.oil_inplace_p99),
                 abs(mixed_output_rec.oil_inplace_p90),
                 abs(mixed_output_rec.oil_inplace_mode),
@@ -470,7 +462,8 @@ BEGIN
                 abs(mixed_output_rec.oil_inplace_mean),
                 abs(mixed_output_rec.oil_inplace_p10),
                 abs(mixed_output_rec.oil_inplace_p01),
-                mixed_output_rec.oil_inplace_comment
+                mixed_output_rec.oil_inplace_comment,
+                mixed_output_rec.rsd_id
             );
 
         END IF;
@@ -498,15 +491,13 @@ BEGIN
                 mean_value,
                 p10,
                 p1,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
                 custom_dist_type,
-                CASE
-                    WHEN mixed_output_rec.resource_type = 'PROSPECT' THEN 'MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT'
-                    ELSE 'MIXED_CASE_OIL_RECOVERABLE_RESOURCES_DISCOVERY'
-                END,
+                'MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT',
                 abs(mixed_output_rec.oil_recoverable_p99),
                 abs(mixed_output_rec.oil_recoverable_p90),
                 abs(mixed_output_rec.oil_recoverable_mode),
@@ -514,7 +505,8 @@ BEGIN
                 abs(mixed_output_rec.oil_recoverable_mean),
                 abs(mixed_output_rec.oil_recoverable_p10),
                 abs(mixed_output_rec.oil_recoverable_p01),
-                mixed_output_rec.oil_recoverable_comment
+                mixed_output_rec.oil_recoverable_comment,
+                mixed_output_rec.rsd_id
             );
 
         END IF;
@@ -546,15 +538,13 @@ BEGIN
                 mean_value,
                 p10,
                 p1,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
                 custom_dist_type,
-                CASE
-                    WHEN mixed_output_rec.resource_type = 'PROSPECT' THEN 'MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT'
-                    ELSE 'MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT'
-                END,
+                'MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT',
                 abs(mixed_output_rec.assgas_recoverable_p99),
                 abs(mixed_output_rec.assgas_recoverable_p90),
                 abs(mixed_output_rec.assgas_recoverable_mode),
@@ -562,7 +552,8 @@ BEGIN
                 abs(mixed_output_rec.assgas_recoverable_mean),
                 abs(mixed_output_rec.assgas_recoverable_p10),
                 abs(mixed_output_rec.assgas_recoverable_p01),
-                mixed_output_rec.assgas_recoverable_comment
+                mixed_output_rec.assgas_recoverable_comment,
+                mixed_output_rec.rsd_id
             );
 
         END IF;
@@ -590,15 +581,13 @@ BEGIN
                 mean_value,
                 p10,
                 p1,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
                 custom_dist_type,
-                CASE
-                    WHEN mixed_output_rec.resource_type = 'PROSPECT' THEN 'MIXED_CASE_GAS_IN_PLACE_PROSPECT'
-                    ELSE 'MIXED_CASE_GAS_IN_PLACE_DISCOVERY'
-                END,
+                'MIXED_CASE_GAS_IN_PLACE_PROSPECT',
                 abs(mixed_output_rec.gas_inplace_p99),
                 abs(mixed_output_rec.gas_inplace_p90),
                 abs(mixed_output_rec.gas_inplace_mode),
@@ -606,7 +595,8 @@ BEGIN
                 abs(mixed_output_rec.gas_inplace_mean),
                 abs(mixed_output_rec.gas_inplace_p10),
                 abs(mixed_output_rec.gas_inplace_p01),
-                mixed_output_rec.gas_inplace_comment
+                mixed_output_rec.gas_inplace_comment,
+                mixed_output_rec.rsd_id
             );
 
         END IF;
@@ -634,15 +624,13 @@ BEGIN
                 mean_value,
                 p10,
                 p1,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
                 custom_dist_type,
-                CASE
-                    WHEN mixed_output_rec.resource_type = 'PROSPECT' THEN 'MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT'
-                    ELSE 'MIXED_CASE_GAS_RECOVERABLE_RESOURCES_DISCOVERY'
-                END,
+                'MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT',
                 abs(mixed_output_rec.gas_recoverable_p99),
                 abs(mixed_output_rec.gas_recoverable_p90),
                 abs(mixed_output_rec.gas_recoverable_mode),
@@ -650,7 +638,8 @@ BEGIN
                 abs(mixed_output_rec.gas_recoverable_mean),
                 abs(mixed_output_rec.gas_recoverable_p10),
                 abs(mixed_output_rec.gas_recoverable_p01),
-                mixed_output_rec.gas_recoverable_comment
+                mixed_output_rec.gas_recoverable_comment,
+                mixed_output_rec.rsd_id
             );
 
         END IF;
@@ -678,15 +667,13 @@ BEGIN
                 mean_value,
                 p10,
                 p1,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
                 custom_dist_type,
-                CASE
-                    WHEN mixed_output_rec.resource_type = 'PROSPECT' THEN 'MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT'
-                    ELSE 'MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY'
-                END,
+                'MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT',
                 abs(mixed_output_rec.asscon_recoverable_p99),
                 abs(mixed_output_rec.asscon_recoverable_p90),
                 abs(mixed_output_rec.asscon_recoverable_mode),
@@ -694,7 +681,8 @@ BEGIN
                 abs(mixed_output_rec.asscon_recoverable_mean),
                 abs(mixed_output_rec.asscon_recoverable_p10),
                 abs(mixed_output_rec.asscon_recoverable_p01),
-                mixed_output_rec.asscon_recoverable_comment
+                mixed_output_rec.asscon_recoverable_comment,
+                mixed_output_rec.rsd_id
             );
 
         END IF;
@@ -722,15 +710,13 @@ BEGIN
                 mean_value,
                 p10,
                 p1,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 mixed_output_rec.sd_id,
                 custom_dist_type,
-                CASE
-                    WHEN mixed_output_rec.resource_type = 'PROSPECT' THEN 'MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT'
-                    ELSE 'MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY'
-                END,
+                'MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT',
                 abs(mixed_output_rec.oilequiv_recoverable_p99),
                 abs(mixed_output_rec.oilequiv_recoverable_p90),
                 abs(mixed_output_rec.oilequiv_recoverable_mode),
@@ -738,7 +724,8 @@ BEGIN
                 abs(mixed_output_rec.oilequiv_recoverable_mean),
                 abs(mixed_output_rec.oilequiv_recoverable_p10),
                 abs(mixed_output_rec.oilequiv_recoverable_p01),
-                mixed_output_rec.oilequiv_recoverable_comment
+                mixed_output_rec.oilequiv_recoverable_comment,
+                mixed_output_rec.rsd_id
             );
 
         END IF;

@@ -22,12 +22,13 @@ DECLARE
 BEGIN
 
     FOR volumetric_parameters IN (
-        SELECT prdp.*, LOWER(prdh.hc_case) hydrocarbon_case, sd.id sd_id, sd.submission_type
+        SELECT prdp.*, LOWER(prdh.hc_case) hydrocarbon_case, sd.id sd_id, sd.submission_type, rsd.id rsd_id
         FROM remi.padi_res_data_param prdp
         JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = prdp.resdat_id
         JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdh.resdat_id
         JOIN remi.submissions s ON s.id = sd.submission_id
         JOIN remi.resources r ON r.id = s.resource_id
+        JOIN remi.reservoir_submission_details rsd ON rsd.submission_detail_id = sd.id
         WHERE r.type = 'PROSPECT'
     )
     LOOP
@@ -240,7 +241,8 @@ BEGIN
             max_value,
             constant_value,
             most_likely_value,
-            comments
+            comments,
+            reservoir_submission_detail_id
         ) VALUES (
             gen_random_uuid(),
             volumetric_parameters.sd_id,
@@ -258,7 +260,8 @@ BEGIN
             NULL, -- does max exist in PaDI
             CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.gross_thick_mean) END,
             NULL, -- does most likely exist in PaDI
-            volumetric_parameters.gross_thick_comment
+            volumetric_parameters.gross_thick_comment,
+            volumetric_parameters.rsd_id
         );
 
         padi_distribution_type := NULL;
@@ -297,7 +300,8 @@ BEGIN
             max_value,
             constant_value,
             most_likely_value,
-            comments
+            comments,
+            reservoir_submission_detail_id
         ) VALUES (
             gen_random_uuid(),
             volumetric_parameters.sd_id,
@@ -315,7 +319,8 @@ BEGIN
             NULL, -- does max exist in PaDI
             CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.grv_mean) END,
             NULL, -- does most likely exist in PaDI
-            volumetric_parameters.grv_comment
+            volumetric_parameters.grv_comment,
+            volumetric_parameters.rsd_id
         );
 
         padi_distribution_type := NULL;
@@ -354,7 +359,8 @@ BEGIN
             max_value,
             constant_value,
             most_likely_value,
-            comments
+            comments,
+            reservoir_submission_detail_id
         ) VALUES (
             gen_random_uuid(),
             volumetric_parameters.sd_id,
@@ -372,7 +378,8 @@ BEGIN
             NULL, -- does max exist in PaDI
             CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.ntg_mean) END,
             NULL, -- does most likely exist in PaDI
-            volumetric_parameters.ntg_comment
+            volumetric_parameters.ntg_comment,
+            volumetric_parameters.rsd_id
         );
 
         padi_distribution_type := NULL;
@@ -411,7 +418,8 @@ BEGIN
             max_value,
             constant_value,
             most_likely_value,
-            comments
+            comments,
+            reservoir_submission_detail_id
         ) VALUES (
             gen_random_uuid(),
             volumetric_parameters.sd_id,
@@ -429,7 +437,8 @@ BEGIN
             NULL, -- does max exist in PaDI
             CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.porosity_mean) END,
             NULL, -- does most likely exist in PaDI
-            volumetric_parameters.porosity_comment
+            volumetric_parameters.porosity_comment,
+            volumetric_parameters.rsd_id
         );
 
         padi_distribution_type := NULL;
@@ -469,7 +478,8 @@ BEGIN
             max_value,
             constant_value,
             most_likely_value,
-            comments
+            comments,
+            reservoir_submission_detail_id
         ) VALUES (
             gen_random_uuid(),
             volumetric_parameters.sd_id,
@@ -490,7 +500,8 @@ BEGIN
             NULL, -- does max exist in PaDI
             CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.net_pay_mean) END,
             NULL, -- does most likely exist in PaDI
-            volumetric_parameters.net_pay_comment
+            volumetric_parameters.net_pay_comment,
+            volumetric_parameters.rsd_id
         );
 
         padi_distribution_type := NULL;
@@ -531,7 +542,8 @@ BEGIN
                 max_value,
                 constant_value,
                 most_likely_value,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 volumetric_parameters.sd_id,
@@ -549,7 +561,8 @@ BEGIN
                 NULL, -- does max exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.grv_perc_oil_mean) END,
                 NULL, -- does most likely exist in PaDI
-                volumetric_parameters.grv_perc_oil_comment
+                volumetric_parameters.grv_perc_oil_comment,
+                volumetric_parameters.rsd_id
             );
 
             padi_distribution_type := NULL;
@@ -592,7 +605,8 @@ BEGIN
                 max_value,
                 constant_value,
                 most_likely_value,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 volumetric_parameters.sd_id,
@@ -610,7 +624,8 @@ BEGIN
                 NULL, -- does max exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.gef_mean) END,
                 NULL, -- does most likely exist in PaDI
-                volumetric_parameters.gef_comment
+                volumetric_parameters.gef_comment,
+                volumetric_parameters.rsd_id
             );
 
             padi_distribution_type := NULL;
@@ -650,7 +665,8 @@ BEGIN
                 max_value,
                 constant_value,
                 most_likely_value,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 volumetric_parameters.sd_id,
@@ -668,7 +684,8 @@ BEGIN
                 NULL, -- does max exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.rf_gas_mean) END,
                 NULL, -- does most likely exist in PaDI
-                volumetric_parameters.rf_gas_comment
+                volumetric_parameters.rf_gas_comment,
+                volumetric_parameters.rsd_id
             );
 
             padi_distribution_type := NULL;
@@ -706,7 +723,8 @@ BEGIN
                 max_value,
                 constant_value,
                 most_likely_value,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 volumetric_parameters.sd_id,
@@ -724,7 +742,8 @@ BEGIN
                 NULL, -- does max exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.cgr_mean) END,
                 NULL, -- does most likely exist in PaDI
-                volumetric_parameters.cgr_comment
+                volumetric_parameters.cgr_comment,
+                volumetric_parameters.rsd_id
             );
 
             padi_distribution_type := NULL;
@@ -762,7 +781,8 @@ BEGIN
                 max_value,
                 constant_value,
                 most_likely_value,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 volumetric_parameters.sd_id,
@@ -783,7 +803,8 @@ BEGIN
                 NULL, -- does max exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.fvf_mean) END,
                 NULL, -- does most likely exist in PaDI
-                volumetric_parameters.fvf_comment
+                volumetric_parameters.fvf_comment,
+                volumetric_parameters.rsd_id
             );
 
             padi_distribution_type := NULL;
@@ -822,7 +843,8 @@ BEGIN
                 max_value,
                 constant_value,
                 most_likely_value,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 volumetric_parameters.sd_id,
@@ -840,7 +862,8 @@ BEGIN
                 NULL, -- does max exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.rf_oil_mean) END,
                 NULL, -- does most likely exist in PaDI
-                volumetric_parameters.rf_oil_comment
+                volumetric_parameters.rf_oil_comment,
+                volumetric_parameters.rsd_id
             );
 
             padi_distribution_type := NULL;
@@ -878,7 +901,8 @@ BEGIN
                 max_value,
                 constant_value,
                 most_likely_value,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 volumetric_parameters.sd_id,
@@ -896,7 +920,8 @@ BEGIN
                 NULL, -- does max exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.gor_mean) END,
                 NULL, -- does most likely exist in PaDI
-                volumetric_parameters.gor_comment
+                volumetric_parameters.gor_comment,
+                volumetric_parameters.rsd_id
             );
 
             padi_distribution_type := NULL;
@@ -938,7 +963,8 @@ BEGIN
                 max_value,
                 constant_value,
                 most_likely_value,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 volumetric_parameters.sd_id,
@@ -956,7 +982,8 @@ BEGIN
                 NULL, -- does max exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.fvf_mean) END,
                 NULL, -- does most likely exist in PaDI
-                volumetric_parameters.fvf_comment
+                volumetric_parameters.fvf_comment,
+                volumetric_parameters.rsd_id
             );
 
             padi_distribution_type := NULL;
@@ -979,7 +1006,8 @@ BEGIN
                 max_value,
                 constant_value,
                 most_likely_value,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 volumetric_parameters.sd_id,
@@ -997,7 +1025,8 @@ BEGIN
                 NULL, -- does max exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.fvf_mean) END,
                 NULL, -- does most likely exist in PaDI
-                volumetric_parameters.fvf_comment
+                volumetric_parameters.fvf_comment,
+                volumetric_parameters.rsd_id
             );
 
             padi_distribution_type := NULL;
@@ -1035,7 +1064,8 @@ BEGIN
                 max_value,
                 constant_value,
                 most_likely_value,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 volumetric_parameters.sd_id,
@@ -1053,7 +1083,8 @@ BEGIN
                 NULL, -- does max exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.rf_oil_mean) END,
                 NULL, -- does most likely exist in PaDI
-                volumetric_parameters.rf_oil_comment
+                volumetric_parameters.rf_oil_comment,
+                volumetric_parameters.rsd_id
             );
 
             padi_distribution_type := NULL;
@@ -1092,7 +1123,8 @@ BEGIN
                 max_value,
                 constant_value,
                 most_likely_value,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 volumetric_parameters.sd_id,
@@ -1110,7 +1142,8 @@ BEGIN
                 NULL, -- does max exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.gor_mean) END,
                 NULL, -- does most likely exist in PaDI
-                volumetric_parameters.gor_comment
+                volumetric_parameters.gor_comment,
+                volumetric_parameters.rsd_id
             );
 
             padi_distribution_type := NULL;
@@ -1148,7 +1181,8 @@ BEGIN
                 max_value,
                 constant_value,
                 most_likely_value,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 volumetric_parameters.sd_id,
@@ -1166,7 +1200,8 @@ BEGIN
                 NULL, -- does max exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.gef_mean) END,
                 NULL, -- does most likely exist in PaDI
-                volumetric_parameters.gef_comment
+                volumetric_parameters.gef_comment,
+                volumetric_parameters.rsd_id
             );
 
             padi_distribution_type := NULL;
@@ -1204,7 +1239,8 @@ BEGIN
                 max_value,
                 constant_value,
                 most_likely_value,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 volumetric_parameters.sd_id,
@@ -1222,7 +1258,8 @@ BEGIN
                 NULL, -- does max exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.rf_gas_mean) END,
                 NULL, -- does most likely exist in PaDI
-                volumetric_parameters.rf_gas_comment
+                volumetric_parameters.rf_gas_comment,
+                volumetric_parameters.rsd_id
             );
 
             padi_distribution_type := NULL;
@@ -1261,7 +1298,8 @@ BEGIN
                 max_value,
                 constant_value,
                 most_likely_value,
-                comments
+                comments,
+                reservoir_submission_detail_id
             ) VALUES (
                 gen_random_uuid(),
                 volumetric_parameters.sd_id,
@@ -1279,7 +1317,8 @@ BEGIN
                 NULL, -- does max exist in PaDI
                 CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.cgr_mean) END,
                 NULL, -- does most likely exist in PaDI
-                volumetric_parameters.cgr_comment
+                volumetric_parameters.cgr_comment,
+                volumetric_parameters.rsd_id
             );
 
         END IF;

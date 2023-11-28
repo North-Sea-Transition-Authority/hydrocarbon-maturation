@@ -10,15 +10,12 @@ DECLARE
 BEGIN
 
     FOR discovery_rec IN (
-        -- TODO get all reservoirs for a given resource and join to their specific resdat_ids
-        SELECT rsd.id rsd_id, sd.id sd_id, r.type, sd.submission_type, prdd.*
-        FROM remi.reservoir_submission_details rsd
-        JOIN remi.submission_details sd ON sd.id = rsd.submission_detail_id
-        JOIN remi.submissions s ON s.id = sd.submission_id
-        JOIN remi.resources r ON r.id = s.resource_id
-        JOIN remi.padi_res_data_disc prdd ON prdd.resdat_id = sd.legacy_res_data_id
-        WHERE r.type = 'DISCOVERY'
-        AND prdd.resource_id IS NOT NULL
+        SELECT rsd.id rsd_id, prdd.*
+        FROM remi.padi_res_data_disc prdd
+        JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = prdd.resdat_id
+        JOIN remi.padi_reservoirs pr ON pr.legacy_res_data_id = prdh.resdat_id
+        JOIN remi.reservoir_submission_details rsd ON rsd.reservoir = pr.remi_reservoir_id
+        WHERE prdh.opportunity_type = 'Discovery'
     )
     LOOP
 
