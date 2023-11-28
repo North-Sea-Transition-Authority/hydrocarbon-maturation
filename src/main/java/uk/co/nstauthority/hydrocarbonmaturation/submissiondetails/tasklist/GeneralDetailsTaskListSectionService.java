@@ -15,6 +15,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.consideringccus.ConsideringCcusController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.consideringccus.ConsideringCcusSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesController;
@@ -28,6 +30,7 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
   private final GeneralDetailSubmissionService generalDetailSubmissionService;
   private final ResourceDetailsSubmissionService resourceDetailsSubmissionService;
   private final RelatedResourcesSubmissionService relatedResourcesSubmissionService;
+  private final ConsideringCcusSubmissionService consideringCcusSubmissionService;
   private final PermissionService permissionService;
   private final UserDetailService userDetailService;
 
@@ -35,11 +38,13 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
   GeneralDetailsTaskListSectionService(GeneralDetailSubmissionService generalDetailSubmissionService,
                                        ResourceDetailsSubmissionService resourceDetailsSubmissionService,
                                        RelatedResourcesSubmissionService relatedResourcesSubmissionService,
+                                       ConsideringCcusSubmissionService consideringCcusSubmissionService,
                                        PermissionService permissionService,
                                        UserDetailService userDetailService) {
     this.generalDetailSubmissionService = generalDetailSubmissionService;
     this.resourceDetailsSubmissionService = resourceDetailsSubmissionService;
     this.relatedResourcesSubmissionService = relatedResourcesSubmissionService;
+    this.consideringCcusSubmissionService = consideringCcusSubmissionService;
     this.permissionService = permissionService;
     this.userDetailService = userDetailService;
   }
@@ -90,6 +95,14 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
                       : "prospects"),
               TaskListLabel.notStartedOrComplete(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail)),
               ReverseRouter.route(on(RelatedResourcesController.class).getRelatedResources(submissionDetail.getId(), null)))
+      );
+    }
+
+    if (submissionDetail.isFieldSubmission()) {
+      listOfItems.add(
+          new TaskListItem(ConsideringCcusController.PAGE_NAME,
+              TaskListLabel.notStartedOrComplete(consideringCcusSubmissionService.isSectionSubmittable(submissionDetail)),
+              ReverseRouter.route(on(ConsideringCcusController.class).getConsideringCcus(submissionDetail.getId())))
       );
     }
 

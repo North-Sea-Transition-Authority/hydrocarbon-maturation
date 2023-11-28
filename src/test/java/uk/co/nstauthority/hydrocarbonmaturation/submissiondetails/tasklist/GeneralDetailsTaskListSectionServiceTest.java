@@ -24,6 +24,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.consideringccus.ConsideringCcusController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.consideringccus.ConsideringCcusSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesController;
@@ -41,6 +43,8 @@ class GeneralDetailsTaskListSectionServiceTest {
   private RelatedResourcesSubmissionService relatedResourcesSubmissionService;
   @Mock
   private ResourceDetailsSubmissionService resourceDetailsSubmissionService;
+  @Mock
+  private ConsideringCcusSubmissionService consideringCcusSubmissionService;
   @Mock
   private UserDetailService userDetailService;
   @Mock
@@ -337,5 +341,41 @@ class GeneralDetailsTaskListSectionServiceTest {
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
 
     assertFalse(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {
+      "CREATE_CSR",
+      "CREATE_FDP",
+      "CREATE_FDPA",
+      "CREATE_COP"},
+      mode = EnumSource.Mode.INCLUDE)
+  void getSection_SubmissionTypeIsField_fieldOnlySections(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    when(consideringCcusSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+
+    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
+
+    var section = taskListSectionOptional.get();
+
+    assertThat(section)
+        .extracting(
+            TaskListSection::items,
+            TaskListSection::displayName,
+            TaskListSection::displayOrder)
+        .containsExactly(List.of(
+                new TaskListItem("General details",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(GeneralDetailsController.class)
+                        .getGeneralDetails(submissionDetail.getId(), null))),
+                new TaskListItem(ConsideringCcusController.PAGE_NAME,
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(ConsideringCcusController.class)
+                        .getConsideringCcus(submissionDetail.getId())))
+            ),
+            "General details",
+            10
+        );
   }
 }

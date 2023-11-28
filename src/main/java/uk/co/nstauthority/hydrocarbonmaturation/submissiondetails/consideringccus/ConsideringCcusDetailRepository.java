@@ -1,0 +1,12 @@
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.consideringccus;
+
+import java.util.Optional;
+import java.util.UUID;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+
+@Repository
+interface ConsideringCcusDetailRepository extends CrudRepository<ConsideringCcusDetail, UUID> {
+  Optional<ConsideringCcusDetail> findConsideringCcusDetailBySubmissionDetail(SubmissionDetail submissionDetail);
+}
