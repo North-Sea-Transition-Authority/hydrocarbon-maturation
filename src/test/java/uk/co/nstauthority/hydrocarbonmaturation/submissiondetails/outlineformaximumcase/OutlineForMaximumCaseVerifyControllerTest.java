@@ -198,6 +198,7 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class)
                 .getOutlineForMaximumCaseUpload(submissionDetail.getId(), null)),
             OpportunityTaskListSectionService.OUTLINE_FOR_MAXIMUM_CASE)

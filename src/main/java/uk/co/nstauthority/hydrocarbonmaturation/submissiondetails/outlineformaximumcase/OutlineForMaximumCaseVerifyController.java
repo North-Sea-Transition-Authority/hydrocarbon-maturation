@@ -109,6 +109,7 @@ public class OutlineForMaximumCaseVerifyController {
 
     var breadcrumbs = Breadcrumbs.builder(BREADCRUMB)
         .addWorkAreaBreadcrumb()
+        .addTaskListBreadcrumb(submissionDetail)
         .addBreadcrumb(outlineFormMaximumCaseUploadBreadcrumb)
         .build();
     BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);
