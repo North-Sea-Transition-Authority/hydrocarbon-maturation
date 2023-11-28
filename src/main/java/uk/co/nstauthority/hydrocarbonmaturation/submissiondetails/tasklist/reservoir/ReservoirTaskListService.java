@@ -70,6 +70,8 @@ public class ReservoirTaskListService {
   private final FieldReservoirVolumetricsSubmissionService fieldReservoirVolumetricsSubmissionService;
   private final ReservoirSubmissionSectionService reservoirSubmissionSectionService;
 
+  public static final String WELL_TEST_RESULTS = "Well test results";
+
   @Autowired
   public ReservoirTaskListService(
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
@@ -342,7 +344,7 @@ public class ReservoirTaskListService {
 
     if (selectedSections.contains(ReservoirSubmissionSectionType.DRILL_STEM_TEST)) {
       items.add(
-          new TaskListItem("Well test results",
+          new TaskListItem(WELL_TEST_RESULTS,
               TaskListLabel.notStartedOrComplete(
                   drillStemTestSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
               ReverseRouter.route(on(DrillStemTestController.class).getDrillStemTestPage(

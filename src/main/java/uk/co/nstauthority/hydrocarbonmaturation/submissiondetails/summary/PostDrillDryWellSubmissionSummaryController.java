@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionAppr
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ReviewAndSubmitTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.InternalTeamService;
@@ -89,7 +90,11 @@ public class PostDrillDryWellSubmissionSummaryController {
         .addObject("submittable", submissionReadyService.isSubmissionSubmittable(submissionDetail))
         .addObject("isRegulatorOrAreaTeamUser", internalTeamService.isRegulatorOrAreaTeamUser());
 
-    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
+    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(
+        modelAndView,
+        ReviewAndSubmitTaskListSectionService.REVIEW_SUBMIT_ITEM_NAME,
+        submissionDetail
+    );
 
     return modelAndView;
   }

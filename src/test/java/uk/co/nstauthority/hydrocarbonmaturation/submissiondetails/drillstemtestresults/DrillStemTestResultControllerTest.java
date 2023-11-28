@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,8 +37,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListService;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = DrillStemTestResultController.class)
 class DrillStemTestResultControllerTest extends AbstractSubmissionControllerTest {
@@ -260,8 +265,22 @@ class DrillStemTestResultControllerTest extends AbstractSubmissionControllerTest
     assertEquals(DrillStemTestResultForm.class, modelMap.get("form").getClass());
     assertThat(modelMap)
         .contains(
-            entry("form", form))
-        .containsKeys("breadcrumbsMap");
+            entry("form", form));
+
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class)
+                .getWorkArea(null)),
+            WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(TaskListController.class)
+            .getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class)
+                .getReservoirTaskList(submissionDetail.getId(), null)),
+            ReservoirTaskListController.PAGE_TITLE),
+        entry(ReverseRouter.route(on(DrillStemTestResultController.class)
+                .getDrillStemTestResultPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)),
+            ReservoirTaskListService.WELL_TEST_RESULTS));
   }
 
   @Test

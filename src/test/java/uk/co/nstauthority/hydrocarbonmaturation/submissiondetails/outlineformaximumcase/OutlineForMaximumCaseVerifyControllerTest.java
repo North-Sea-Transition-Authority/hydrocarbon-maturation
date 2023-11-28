@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,9 +37,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationPr
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.OpportunityTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = OutlineForMaximumCaseVerifyController.class)
 class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionControllerTest {
@@ -186,12 +189,18 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
         entry("cancelUrl",
             ReverseRouter.route(on(TaskListController.class)
                 .getTaskList(submissionDetailId))),
-        entry("backLinkUrl",
-            ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class)
-                .getOutlineForMaximumCaseUpload(submissionDetailId, null))),
         entry("geoJsonDataUrl",
             mapGeoJsonDataRoute),
         entry("dataMapAttributions", mapAttributions)
+    );
+
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class)
+                .getOutlineForMaximumCaseUpload(submissionDetail.getId(), null)),
+            OpportunityTaskListSectionService.OUTLINE_FOR_MAXIMUM_CASE)
     );
   }
 }

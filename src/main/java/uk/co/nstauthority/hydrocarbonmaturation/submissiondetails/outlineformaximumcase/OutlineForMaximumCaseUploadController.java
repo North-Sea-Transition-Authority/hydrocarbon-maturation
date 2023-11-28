@@ -23,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.OpportunityTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -100,6 +101,10 @@ public class OutlineForMaximumCaseUploadController {
         .addObject("outlineForMaximumCaseUploads", outlineForMaximumCaseFormService.getOutlineForMaximumCaseUploads(form));
 
     return TaskListBreadcrumbUtil
-        .addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
+        .addTaskListAndWorkAreaToModelAndView(
+            modelAndView,
+            OpportunityTaskListSectionService.OUTLINE_FOR_MAXIMUM_CASE,
+            submissionDetail
+        );
   }
 }

@@ -19,6 +19,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.PostDrillDryWellSubmissionSummaryController.PAGE_NAME;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +48,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = PostDrillDryWellSubmissionSummaryController.class)
 class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmissionControllerTest {
@@ -224,6 +226,12 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
             entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
             entry("accordionId", submissionDetailId)
         );
+
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME));
   }
 
   private void mockCreatePostDrillDryWellSubmissionSummaryModelAndView() {

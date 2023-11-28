@@ -20,6 +20,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,6 +57,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = DiscoverySubmissionSummaryController.class)
 class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControllerTest {
@@ -258,6 +260,12 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
             entry("accordionId", submissionDetailId),
             entry("totalsRequired", false)
         );
+
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME));
   }
 
   private void mockCreateDiscoverySubmissionSummaryModelAndView() {

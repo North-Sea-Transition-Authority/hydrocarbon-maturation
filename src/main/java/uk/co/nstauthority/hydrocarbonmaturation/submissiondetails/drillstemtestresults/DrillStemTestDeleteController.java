@@ -21,9 +21,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListService;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/" +
@@ -38,6 +37,7 @@ class DrillStemTestDeleteController {
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   public static final String PAGE_NAME = "Delete confirmation";
+  public static final String BREADCRUMB = "Remove";
 
   @Autowired
   DrillStemTestDeleteController(DrillStemTestResultPersistenceService drillStemTestResultPersistenceService,
@@ -100,23 +100,20 @@ class DrillStemTestDeleteController {
             drillStemTestResultsSummaryService.createSummaryViewFromDrillStemTestResult(
                 drillStemTestResult, DrillStemTestResultSummaryMode.VIEW, 1));
 
-    var breadCrumbs = getBreadcrumbs(reservoirSubmissionDetail);
-    BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadCrumbs);
-    return modelAndView;
-  }
-
-  private Breadcrumbs getBreadcrumbs(ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
-    return Breadcrumbs.builder(PAGE_NAME)
+    var wellTestResultsBreadcrumb = new BreadcrumbItem(
+        ReservoirTaskListService.WELL_TEST_RESULTS,
+        ReverseRouter.route(on(DrillStemTestController.class)
+            .getDrillStemTestPage(submissionDetail.getId(), reservoirSubmissionDetailId, null))
+        );
+    var breadcrumbs = Breadcrumbs.builder(BREADCRUMB)
         .addWorkAreaBreadcrumb()
-        .addBreadcrumb(new BreadcrumbItem(
-            TaskListController.PAGE_NAME,
-            ReverseRouter.route(on(TaskListController.class).getTaskList(reservoirSubmissionDetail.getId()))))
-        .addBreadcrumb(new BreadcrumbItem(
-            DrillStemTestController.PAGE_NAME,
-            ReverseRouter.route(on(DrillStemTestController.class)
-                .getDrillStemTestPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))))
+        .addTaskListBreadcrumb(submissionDetail)
+        .addReservoirTaskListBreadcrumb(submissionDetail)
+        .addBreadcrumb(wellTestResultsBreadcrumb)
         .build();
+    BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);
+
+    return modelAndView;
   }
 
   private void addRedirectNotification(String formationName, RedirectAttributes redirectAttributes) {

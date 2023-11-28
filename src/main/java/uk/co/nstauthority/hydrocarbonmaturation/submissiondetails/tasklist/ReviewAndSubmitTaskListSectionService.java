@@ -15,7 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.Prospe
 @Service
 public class ReviewAndSubmitTaskListSectionService implements TaskListSectionService {
 
-  private static final String REVIEW_SUBMIT_ITEM_NAME = "Review and submit";
+  public static final String REVIEW_SUBMIT_ITEM_NAME = "Review and submit";
 
   @Override
   public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail) {

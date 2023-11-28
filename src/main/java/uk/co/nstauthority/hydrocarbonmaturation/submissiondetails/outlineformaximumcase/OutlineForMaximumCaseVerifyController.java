@@ -16,11 +16,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
+import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbItem;
+import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
+import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.OpportunityTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -32,6 +36,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 public class OutlineForMaximumCaseVerifyController {
 
   public static final String PAGE_NAME = "Verify shapefile of outline for maximum case";
+  public static final String BREADCRUMB = "Verify outline for maximum case";
+
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final OutlineForMaximumCaseVerifyFormService outlineForMaximumCaseVerifyFormService;
@@ -85,15 +91,28 @@ public class OutlineForMaximumCaseVerifyController {
 
   private ModelAndView getOutlineForMaximumCaseModelAndView(OutlineForMaximumCaseVerifyForm form,
                                                             SubmissionDetail submissionDetail) {
-    return new ModelAndView("remi/submissiondetails/outlineForMaximumCase/verify")
+    var modelAndView = new ModelAndView("remi/submissiondetails/outlineForMaximumCase/verify")
         .addObject("pageTitle", PAGE_NAME)
         .addObject("form", form)
         .addObject("cancelUrl",
             ReverseRouter.route(on(TaskListController.class)
                 .getTaskList(submissionDetail.getId())))
-        .addObject("backLinkUrl", ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class)
-            .getOutlineForMaximumCaseUpload(submissionDetail.getId(), null)))
         .addObject("geoJsonDataUrl", outlineForMaximumCaseMapService.getMapGeoJsonDataRoute(submissionDetail))
         .addObject("dataMapAttributions", outlineForMaximumCaseMapService.getMapAttributions());
+
+    var outlineFormMaximumCaseUploadBreadcrumb = new BreadcrumbItem(
+        OpportunityTaskListSectionService.OUTLINE_FOR_MAXIMUM_CASE,
+        ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class)
+            .getOutlineForMaximumCaseUpload(submissionDetail.getId(), null)
+        )
+    );
+
+    var breadcrumbs = Breadcrumbs.builder(BREADCRUMB)
+        .addWorkAreaBreadcrumb()
+        .addBreadcrumb(outlineFormMaximumCaseUploadBreadcrumb)
+        .build();
+    BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);
+
+    return modelAndView;
   }
 }

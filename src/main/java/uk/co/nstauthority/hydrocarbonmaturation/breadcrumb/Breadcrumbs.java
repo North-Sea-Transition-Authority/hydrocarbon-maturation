@@ -5,6 +5,9 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.LinkedHashSet;
 import java.util.Set;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 public class Breadcrumbs {
@@ -42,6 +45,26 @@ public class Breadcrumbs {
           new BreadcrumbItem(
               WorkAreaController.WORK_AREA_TITLE,
               ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null))
+          )
+      );
+      return this;
+    }
+
+    public BreadcrumbsBuilder addTaskListBreadcrumb(SubmissionDetail submissionDetail) {
+      breadcrumbs.add(
+          new BreadcrumbItem(
+              TaskListController.PAGE_NAME,
+              ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId()))
+          )
+      );
+      return this;
+    }
+
+    public BreadcrumbsBuilder addReservoirTaskListBreadcrumb(SubmissionDetail submissionDetail) {
+      breadcrumbs.add(
+          new BreadcrumbItem(
+              ReservoirTaskListController.PAGE_TITLE,
+              ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId(), null))
           )
       );
       return this;

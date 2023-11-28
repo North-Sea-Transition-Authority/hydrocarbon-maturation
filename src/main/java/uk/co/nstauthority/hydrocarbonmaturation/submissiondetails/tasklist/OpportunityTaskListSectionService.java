@@ -26,7 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSubmissionService;
 
 @Service
-class OpportunityTaskListSectionService implements TaskListSectionService {
+public class OpportunityTaskListSectionService implements TaskListSectionService {
 
   private final OpportunityDetailsSubmissionService opportunityDetailsSubmissionService;
   private final TrapPropertiesSubmissionService trapPropertiesSubmissionService;
@@ -52,6 +52,8 @@ class OpportunityTaskListSectionService implements TaskListSectionService {
     this.outlineForMaximumCaseSubmissionService = outlineForMaximumCaseSubmissionService;
     this.fieldTrapPropertiesSubmissionService = fieldTrapPropertiesSubmissionService;
   }
+
+  public static final String OUTLINE_FOR_MAXIMUM_CASE = "Upload  for maximum case";
 
   @Override
   public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail) {
@@ -101,7 +103,7 @@ class OpportunityTaskListSectionService implements TaskListSectionService {
       );
 
       listOfItems.add(
-          new TaskListItem("Outline for maximum case",
+          new TaskListItem(OUTLINE_FOR_MAXIMUM_CASE,
               TaskListLabel.notStartedOrComplete(outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail)),
               ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class)
                   .getOutlineForMaximumCaseUpload(submissionDetail.getId(), null)))

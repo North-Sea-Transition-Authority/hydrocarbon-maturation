@@ -24,7 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListService;
 
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/reservoir-submission-details/{reservoirSubmissionDetailId}/well-test")
@@ -39,6 +39,7 @@ public class DrillStemTestResultController {
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   public static final String PAGE_NAME = "Well test results";
+  public static final String BREADCRUMB = "Results";
 
   @Autowired
   public DrillStemTestResultController(DrillStemTestResultFormService drillStemTestResultFormService,
@@ -149,23 +150,19 @@ public class DrillStemTestResultController {
         .addObject("cancelUrl", ReverseRouter.route(on(DrillStemTestSummaryController.class)
             .getDrillStemTestSummaryPage(submissionDetail.getId(), reservoirSubmissionDetail.getId())));
 
-    var breadCrumbs = getBreadcrumbs(reservoirSubmissionDetail);
-    BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadCrumbs);
-    return modelAndView;
-  }
-
-  private Breadcrumbs getBreadcrumbs(ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
-
-    return Breadcrumbs.builder(PAGE_NAME)
+    var wellTestResultsBreadcrumb = new BreadcrumbItem(
+        ReservoirTaskListService.WELL_TEST_RESULTS,
+        ReverseRouter.route(on(DrillStemTestController.class)
+            .getDrillStemTestPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))
+    );
+    var breadcrumbs = Breadcrumbs.builder(BREADCRUMB)
         .addWorkAreaBreadcrumb()
-        .addBreadcrumb(new BreadcrumbItem(
-            TaskListController.PAGE_NAME,
-            ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId()))))
-        .addBreadcrumb(new BreadcrumbItem(
-            DrillStemTestController.PAGE_NAME,
-            ReverseRouter.route(on(DrillStemTestController.class)
-                .getDrillStemTestPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))))
+        .addTaskListBreadcrumb(submissionDetail)
+        .addReservoirTaskListBreadcrumb(submissionDetail)
+        .addBreadcrumb(wellTestResultsBreadcrumb)
         .build();
+    BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);
+
+    return modelAndView;
   }
 }

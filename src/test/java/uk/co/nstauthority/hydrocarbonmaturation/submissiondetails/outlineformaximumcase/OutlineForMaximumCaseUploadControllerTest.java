@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +40,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocu
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = OutlineForMaximumCaseUploadController.class)
 class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionControllerTest {
@@ -178,7 +180,13 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
         entry("cancelUrl",
             ReverseRouter.route(on(TaskListController.class)
                 .getTaskList(submissionDetailId)))
-    )
-    .containsKeys("breadcrumbsMap");
+    );
+
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+    );
   }
 }

@@ -17,6 +17,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import static uk.co.nstauthority.hydrocarbonmaturation.util.NotificationBannerTestUtil.notificationBanner;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.Notificat
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListService;
+import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = DrillStemTestDeleteController.class)
 class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest {
@@ -101,8 +106,24 @@ class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest
                 .deleteDrillStemTestResult(submissionDetail.getId(), reservoirSubmissionDetail.getId(), drillStemTestResult.getId(), null))),
             entry("backToSummaryUrl", ReverseRouter.route(on(DrillStemTestSummaryController.class)
                 .getDrillStemTestSummaryPage(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
-            entry("drillStemTestResultSummaryView", summaryView))
-        .containsKey("breadcrumbsMap");
+            entry("drillStemTestResultSummaryView", summaryView)
+        );
+
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class)
+            .getWorkArea(null)),
+            WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(TaskListController.class)
+            .getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class)
+            .getReservoirTaskList(submissionDetail.getId(), null)),
+            ReservoirTaskListController.PAGE_TITLE),
+        entry(ReverseRouter.route(on(DrillStemTestController.class)
+                .getDrillStemTestPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)),
+            ReservoirTaskListService.WELL_TEST_RESULTS)
+    );
   }
 
   @SecurityTest

@@ -23,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshoreService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.ReviewAndSubmitTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.InternalTeamService;
@@ -96,7 +97,11 @@ public class FieldSubmissionSummaryController {
         .addObject("isRegulatorOrAreaTeamUser", internalTeamService.isRegulatorOrAreaTeamUser())
         .addObject("isOffshore", onshoreOffshoreService.getOnshoreOffshore(submissionDetail) == OnshoreOffshore.OFFSHORE);
 
-    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
+    TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(
+        modelAndView,
+        ReviewAndSubmitTaskListSectionService.REVIEW_SUBMIT_ITEM_NAME,
+        submissionDetail
+    );
 
     return modelAndView;
   }
