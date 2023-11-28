@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 
@@ -16,12 +17,15 @@ public class ReservoirSummaryService {
 
   private final List<SummarySectionService<ReservoirSubmissionDetail>> summarySectionServices;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+  private final ReservoirSubmissionSectionService reservoirSubmissionSectionService;
 
   @Autowired
   public ReservoirSummaryService(List<SummarySectionService<ReservoirSubmissionDetail>> summarySectionServices,
-                                 ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
+                                 ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
+                                 ReservoirSubmissionSectionService reservoirSubmissionSectionService) {
     this.summarySectionServices = summarySectionServices;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
+    this.reservoirSubmissionSectionService = reservoirSubmissionSectionService;
   }
 
   public List<ReservoirSummary> getReservoirSummaries(SubmissionDetail submissionDetail) {
@@ -43,7 +47,14 @@ public class ReservoirSummaryService {
   }
 
   private List<SummarySection> getSummarySections(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    // get a list of the summary section classes we are not interested in
+    var classesOfSectionsToRemove =
+        reservoirSubmissionSectionService.getSummarySectionClassesNotForSelection(reservoirSubmissionDetail);
+
+    // remove the sections we are not interested in and get the summary section
     return summarySectionServices.stream()
+        // if the service class is not in the sections to be removed then keep
+        .filter(service -> !classesOfSectionsToRemove.contains(service.getClass()))
         .map(summarySectionService -> summarySectionService.getSummarySection(reservoirSubmissionDetail))
         .flatMap(Optional::stream)
         .sorted(Comparator.comparing(SummarySection::displayOrder))

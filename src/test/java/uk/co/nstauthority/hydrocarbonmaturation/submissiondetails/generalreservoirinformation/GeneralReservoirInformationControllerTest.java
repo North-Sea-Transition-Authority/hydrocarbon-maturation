@@ -44,6 +44,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSectionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
@@ -121,7 +122,10 @@ class GeneralReservoirInformationControllerTest extends AbstractSubmissionContro
         .contains(
             entry("pageTitle", "Discovery reservoir"),
             entry("isFieldSubmission", false),
-            entry("hydrocarbonsDiscovered", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class))
+            entry("hydrocarbonsDiscovered", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class)),
+            entry("reservoirSubmissionSectionTypeOptions",
+                ReservoirSubmissionSectionType.getReservoirSectionSubmissionTypeOptions()),
+            entry("isCessationOfProduction", submissionDetail.isCessationOfProductionSubmission())
         )
         .doesNotContainKeys("alreadyAddedAssociatedDiscoveryReservoirs", "discoveryReservoirsApiEndpoint", "resourceNames");
 
@@ -167,6 +171,8 @@ class GeneralReservoirInformationControllerTest extends AbstractSubmissionContro
             entry("pageTitle", "Field reservoir"),
             entry("isFieldSubmission", true),
             entry("hydrocarbonsDiscovered", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class)),
+            entry("reservoirSubmissionSectionTypeOptions",
+                ReservoirSubmissionSectionType.getReservoirSectionSubmissionTypeOptions()),
             entry("alreadyAddedAssociatedDiscoveryReservoirs", preselectedAssociatedDiscoveryReservoirs),
             entry("discoveryReservoirsApiEndpoint",
                 SearchSelectorService.route(on(ResourceRestController.class)

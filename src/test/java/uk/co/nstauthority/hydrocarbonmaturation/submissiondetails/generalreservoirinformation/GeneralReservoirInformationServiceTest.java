@@ -1,18 +1,27 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation;
 
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -33,12 +42,19 @@ import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertyPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertyPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirFutureWorksDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirFutureWorksDetailRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSection;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSectionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 
@@ -77,6 +93,12 @@ class GeneralReservoirInformationServiceTest {
 
   @Mock
   private GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService;
+
+  @Mock
+  private ReservoirSubmissionSectionService reservoirSubmissionSectionService;
+
+  @Mock
+  private ReservoirFutureWorksDetailRepository reservoirFutureWorksDetailRepository;
 
   @Captor
   private ArgumentCaptor<ReservoirHydrocarbons> reservoirHydrocarbonsArgumentCaptor;
@@ -269,6 +291,159 @@ class GeneralReservoirInformationServiceTest {
   }
 
   @Test
+  void saveGeneralReservoirInformation_copSubmission_thenNoFutureWorksDetail() {
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_COP);
+
+    var form = new GeneralReservoirInformationForm();
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
+    form.setAssociatedDiscoveryReservoirs(Set.of());
+
+    generalReservoirInformationService.saveGeneralReservoirInformation(form, reservoirSubmissionDetail);
+
+    // check saving
+    verifyNoInteractions(reservoirFutureWorksDetailRepository);
+    verifyNoInteractions(reservoirSubmissionSectionService);
+  }
+
+  @ParameterizedTest
+  @MethodSource({"allNonCopFieldSubmissionTypes"})
+  void saveGeneralReservoirInformation_fieldNonCop_noExistingFutureWorksDetail_answerYes(SubmissionType submissionType) {
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(submissionType);
+
+    var form = new GeneralReservoirInformationForm();
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
+    form.setAssociatedDiscoveryReservoirs(Set.of());
+
+    when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.empty());
+    var reservoirFutureWorksDetailCaptor = ArgumentCaptor.forClass(ReservoirFutureWorksDetail.class);
+
+    generalReservoirInformationService.saveGeneralReservoirInformation(form, reservoirSubmissionDetail);
+
+    // check yes no saved
+    verify(reservoirFutureWorksDetailRepository, times(1))
+        .save(reservoirFutureWorksDetailCaptor.capture());
+    assertThat(reservoirFutureWorksDetailCaptor.getValue())
+        .extracting(
+            ReservoirFutureWorksDetail::getReservoirSubmissionDetail,
+            ReservoirFutureWorksDetail::isReservoirBeingDevelopedUnderFuturePhase
+        ).containsExactly(
+            reservoirSubmissionDetail,
+            form.getIsReservoirBeingDevelopedUnderFuturePhase()
+        );
+    verifyNoMoreInteractions(reservoirFutureWorksDetailRepository);
+
+    // check sections saved
+    verify(reservoirSubmissionSectionService, times(1))
+        .deleteSelectedReservoirSubmissionSectionOptions(reservoirSubmissionDetail);
+    verify(reservoirSubmissionSectionService, times(1))
+        .saveReservoirSubmissionSections(form.getReservoirSubmissionSections(), reservoirSubmissionDetail);
+    verifyNoMoreInteractions(reservoirSubmissionSectionService);
+  }
+
+  @ParameterizedTest
+  @MethodSource("allNonFieldSubmissionTypes")
+  void saveGeneralReservoirInformation_nonField_noExistingFutureWorksDetail(SubmissionType submissionType) {
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(submissionType);
+
+    var form = new GeneralReservoirInformationForm();
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
+    form.setAssociatedDiscoveryReservoirs(Set.of());
+
+    generalReservoirInformationService.saveGeneralReservoirInformation(form, reservoirSubmissionDetail);
+
+    // check saving
+    verifyNoInteractions(reservoirFutureWorksDetailRepository);
+    verifyNoInteractions(reservoirSubmissionSectionService);
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA"}
+  )
+  void saveGeneralReservoirInformation_existingFutureWorksDetail_answerYes(SubmissionType submissionType) {
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(submissionType);
+    var form = new GeneralReservoirInformationForm();
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
+    form.setAssociatedDiscoveryReservoirs(Set.of());
+
+    var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
+    reservoirFutureWorksDetail.setReservoirSubmissionDetail(reservoirSubmissionDetail);
+    reservoirFutureWorksDetail.setReservoirBeingDevelopedUnderFuturePhase(false);
+
+    when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirFutureWorksDetail));
+    var reservoirFutureWorksDetailCaptor = ArgumentCaptor.forClass(ReservoirFutureWorksDetail.class);
+
+    generalReservoirInformationService.saveGeneralReservoirInformation(form, reservoirSubmissionDetail);
+
+    // check yes no saved
+    verify(reservoirFutureWorksDetailRepository, times(1))
+        .save(reservoirFutureWorksDetailCaptor.capture());
+    assertThat(reservoirFutureWorksDetailCaptor.getValue())
+        .extracting(
+            ReservoirFutureWorksDetail::getReservoirSubmissionDetail,
+            ReservoirFutureWorksDetail::isReservoirBeingDevelopedUnderFuturePhase
+        ).containsExactly(
+            reservoirSubmissionDetail,
+            form.getIsReservoirBeingDevelopedUnderFuturePhase()
+        );
+    verifyNoMoreInteractions(reservoirFutureWorksDetailRepository);
+
+    // check sections saved
+    verify(reservoirSubmissionSectionService, times(1))
+        .deleteSelectedReservoirSubmissionSectionOptions(reservoirSubmissionDetail);
+    verify(reservoirSubmissionSectionService, times(1))
+        .saveReservoirSubmissionSections(form.getReservoirSubmissionSections(), reservoirSubmissionDetail);
+    verifyNoMoreInteractions(reservoirSubmissionSectionService);
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA"}
+  )
+  void saveGeneralReservoirInformation_existingFutureWorksDetail_answerNo(SubmissionType submissionType) {
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(submissionType);
+    var form = new GeneralReservoirInformationForm();
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(false);
+    form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
+    form.setAssociatedDiscoveryReservoirs(Set.of());
+
+    var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
+    reservoirFutureWorksDetail.setReservoirSubmissionDetail(reservoirSubmissionDetail);
+
+    when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirFutureWorksDetail));
+    var reservoirFutureWorksDetailCaptor = ArgumentCaptor.forClass(ReservoirFutureWorksDetail.class);
+
+    generalReservoirInformationService.saveGeneralReservoirInformation(form, reservoirSubmissionDetail);
+
+    // check yes no saved
+    verify(reservoirFutureWorksDetailRepository, times(1))
+        .save(reservoirFutureWorksDetailCaptor.capture());
+    assertThat(reservoirFutureWorksDetailCaptor.getValue())
+        .extracting(
+            ReservoirFutureWorksDetail::getReservoirSubmissionDetail,
+            ReservoirFutureWorksDetail::isReservoirBeingDevelopedUnderFuturePhase
+        ).containsExactly(
+            reservoirSubmissionDetail,
+            form.getIsReservoirBeingDevelopedUnderFuturePhase()
+        );
+    verifyNoMoreInteractions(reservoirFutureWorksDetailRepository);
+
+    // check sections saved
+    verify(reservoirSubmissionSectionService, times(1))
+        .deleteSelectedReservoirSubmissionSectionOptions(reservoirSubmissionDetail);
+    verifyNoMoreInteractions(reservoirSubmissionSectionService);
+  }
+
+  @Test
   void getGeneralReservoirInformationForm_hydrocarbonsDiscovered() {
     var reservoirHydrocarbons = new ReservoirHydrocarbons();
     reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
@@ -330,6 +505,63 @@ class GeneralReservoirInformationServiceTest {
         .containsExactly(
             reservoirSubmissionDetail.getReservoir().getName(),
             null
+        );
+  }
+
+  @Test
+  void getGeneralReservoirInformationForm_noFutureWorkDetails() {
+    when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.empty());
+
+    assertThat(generalReservoirInformationService.getGeneralReservoirInformationForm(reservoirSubmissionDetail))
+        .extracting(
+            GeneralReservoirInformationForm::getIsReservoirBeingDevelopedUnderFuturePhase,
+            GeneralReservoirInformationForm::getReservoirSubmissionSections)
+        .containsExactly(
+            null,
+            emptySet()
+        );
+  }
+
+  @Test
+  void getGeneralReservoirInformationForm_futureWorkDetails_answeredNo() {
+    var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
+    reservoirFutureWorksDetail.setReservoirBeingDevelopedUnderFuturePhase(false);
+
+    when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirFutureWorksDetail));
+
+    assertThat(generalReservoirInformationService.getGeneralReservoirInformationForm(reservoirSubmissionDetail))
+        .extracting(
+            GeneralReservoirInformationForm::getIsReservoirBeingDevelopedUnderFuturePhase,
+            GeneralReservoirInformationForm::getReservoirSubmissionSections)
+        .containsExactly(
+            reservoirFutureWorksDetail.isReservoirBeingDevelopedUnderFuturePhase(),
+            emptySet()
+        );
+  }
+
+  @Test
+  void getGeneralReservoirInformationForm_futureWorkDetails_answeredYes() {
+    var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
+    reservoirFutureWorksDetail.setReservoirBeingDevelopedUnderFuturePhase(true);
+
+    when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirFutureWorksDetail));
+
+    var reservoirSection = new ReservoirSubmissionSection();
+    reservoirSection.setReservoirSectionType(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES);
+
+    when(reservoirSubmissionSectionService.getAllReservoirSubmissionSections(reservoirSubmissionDetail))
+        .thenReturn(Set.of(reservoirSection));
+
+    assertThat(generalReservoirInformationService.getGeneralReservoirInformationForm(reservoirSubmissionDetail))
+        .extracting(
+            GeneralReservoirInformationForm::getIsReservoirBeingDevelopedUnderFuturePhase,
+            GeneralReservoirInformationForm::getReservoirSubmissionSections)
+        .containsExactly(
+            reservoirFutureWorksDetail.isReservoirBeingDevelopedUnderFuturePhase(),
+            Set.of(reservoirSection.getReservoirSectionType())
         );
   }
 
@@ -453,5 +685,18 @@ class GeneralReservoirInformationServiceTest {
     when(reservoirLinkService.getReservoirViewFromReservoirSubmissionDetail(discoveryReservoirSubmissionDetail2)).thenReturn(reservoirView2);
     var linkedReservoirViews = generalReservoirInformationService.getLinkedDiscoveryReservoirViewsForField(reservoirSubmissionDetail);
     assertThat(linkedReservoirViews).containsExactly(reservoirView1, reservoirView2);
+  }
+
+  private static Stream<Arguments> allNonFieldSubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(submissionType -> !SubmissionDetailUtil.isFieldSubmission(submissionType))
+        .map(Arguments::of);
+  }
+
+  private static Stream<Arguments> allNonCopFieldSubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(SubmissionDetailUtil::isFieldSubmission)
+        .filter(submissionType -> !submissionType.equals(SubmissionType.CREATE_COP))
+        .map(Arguments::of);
   }
 }

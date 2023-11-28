@@ -82,7 +82,7 @@ class OpportunityTaskListSectionService implements TaskListSectionService {
               && trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail);
       case CREATE_CSR, CREATE_FDP, CREATE_FDPA, CREATE_COP ->
               sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)
-              && trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail);
+              && fieldTrapPropertiesSubmissionService.isSectionSubmittable(submissionDetail);
       case CREATE_FIELD -> throw new ActionNotAllowedException("New fields do not have task lists");
     };
   }

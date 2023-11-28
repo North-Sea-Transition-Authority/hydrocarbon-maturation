@@ -270,7 +270,7 @@ class OpportunityTaskListSectionServiceTest {
   void isSectionSubmittable_whenFieldSubmissionAndSubmittable_assertTrue(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     submissionDetail.setSubmissionType(submissionType);
-    when(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(fieldTrapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
     assertTrue(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail));

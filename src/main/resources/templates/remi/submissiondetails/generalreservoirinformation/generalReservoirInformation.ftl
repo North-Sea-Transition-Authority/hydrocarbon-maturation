@@ -60,6 +60,21 @@
           </#list>
       </@fdsRadio.radioGroup>
 
+      <#if !isCessationOfProduction>
+          <@fdsRadio.radioGroup
+          path="form.isReservoirBeingDevelopedUnderFuturePhase"
+          labelText="Is this reservoir being developed under a future phase of work?"
+          hiddenContent=true>
+              <@fdsRadio.radioYes path="form.isReservoirBeingDevelopedUnderFuturePhase">
+                  <@fdsCheckbox.checkboxes
+                  path="form.reservoirSubmissionSections"
+                  checkboxes=reservoirSubmissionSectionTypeOptions
+                  fieldsetHeadingText="What information are you able to provide for this reservoir at this time?"
+                  />
+              </@fdsRadio.radioYes>
+              <@fdsRadio.radioNo path="form.isReservoirBeingDevelopedUnderFuturePhase"/>
+          </@fdsRadio.radioGroup>
+      </#if>
       <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
   </@fdsForm.htmlForm>
 </@defaultPage>

@@ -10,28 +10,20 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSubmissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSubmissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 
 @Service
 class PostWellDrillTaskListSectionService implements TaskListSectionService {
 
   private final DryWellDetailsSubmissionService dryWellDetailsSubmissionService;
   private final DiscoveryWellDetailsSubmissionService discoveryWellDetailsSubmissionService;
-  private final DrillStemTestSubmissionService drillStemTestSubmissionService;
-  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   @Autowired
   PostWellDrillTaskListSectionService(DryWellDetailsSubmissionService dryWellDetailsSubmissionService,
-                                      DiscoveryWellDetailsSubmissionService discoveryWellDetailsSubmissionService,
-                                      DrillStemTestSubmissionService drillStemTestSubmissionService,
-                                      ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
+                                      DiscoveryWellDetailsSubmissionService discoveryWellDetailsSubmissionService) {
     this.dryWellDetailsSubmissionService = dryWellDetailsSubmissionService;
     this.discoveryWellDetailsSubmissionService = discoveryWellDetailsSubmissionService;
-    this.drillStemTestSubmissionService = drillStemTestSubmissionService;
-    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
 
   @Override
@@ -67,14 +59,10 @@ class PostWellDrillTaskListSectionService implements TaskListSectionService {
 
   @Override
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
-    var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
-        .getExtantReservoirSubmissionDetail(submissionDetail);
-
     if (submissionDetail.isDryWellSubmission()) {
       return dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail);
     } else if (submissionDetail.isDiscoverySubmission()) {
-      return discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail)
-          && drillStemTestSubmissionService.isSectionSubmittable(reservoirSubmissionDetail);
+      return discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail);
     } else {
       return true;
     }

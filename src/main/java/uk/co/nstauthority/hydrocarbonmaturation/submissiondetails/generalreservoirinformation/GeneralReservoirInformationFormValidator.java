@@ -1,12 +1,15 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation;
 
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSectionType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ReservoirSubmissionValidator;
 
 @Service
@@ -25,6 +28,37 @@ public class GeneralReservoirInformationFormValidator implements ReservoirSubmis
         "Enter a reservoir name");
 
     validateUniqueReservoirNames((GeneralReservoirInformationForm) form, errors, reservoirSubmissionDetail);
+
+    validateSectionsAreForHydrocarbonSelected((GeneralReservoirInformationForm) form, errors);
+  }
+
+  private void validateSectionsAreForHydrocarbonSelected(GeneralReservoirInformationForm form,
+                                                         Errors errors) {
+    if (Boolean.TRUE.equals(form.getIsReservoirBeingDevelopedUnderFuturePhase())) {
+      var hydrocarbonsDiscovered = form.getHydrocarbonsDiscovered();
+      var selectedSections = form.getReservoirSubmissionSections();
+
+      if (areOilCaseSelectionsInconsistent(hydrocarbonsDiscovered, selectedSections)
+          || areGasCaseSelectionsInconsistent(hydrocarbonsDiscovered, selectedSections)) {
+        errors.rejectValue(
+            "reservoirSubmissionSections",
+            "reservoirSubmissionSections.invalid",
+            "The information that can be provided must be consistent with the hydrocarbons discovered."
+        );
+      }
+    }
+  }
+
+  private boolean areOilCaseSelectionsInconsistent(HydrocarbonsDiscovered hydrocarbonsDiscovered,
+                                                 Set<ReservoirSubmissionSectionType> selectedSections) {
+    return HydrocarbonsDiscovered.OIL_ONLY.equals(hydrocarbonsDiscovered)
+        && selectedSections.contains(ReservoirSubmissionSectionType.GAS_PROPERTIES);
+  }
+
+  private boolean areGasCaseSelectionsInconsistent(HydrocarbonsDiscovered hydrocarbonsDiscovered,
+                                                 Set<ReservoirSubmissionSectionType> selectedSections) {
+    return HydrocarbonsDiscovered.GAS_ONLY.equals(hydrocarbonsDiscovered)
+        && selectedSections.contains(ReservoirSubmissionSectionType.OIL_PROPERTIES);
   }
 
 
@@ -46,6 +80,15 @@ public class GeneralReservoirInformationFormValidator implements ReservoirSubmis
 
     ValidationUtils.rejectIfEmpty(errors, "hydrocarbonsDiscovered",
         "hydrocarbonsDiscovered.required", "Select the hydrocarbons discovered");
+
+    if (submissionDetail.isFieldSubmission() && !submissionDetail.isCessationOfProductionSubmission()) {
+      ValidationUtils.rejectIfEmpty(errors,
+          "isReservoirBeingDevelopedUnderFuturePhase",
+          "isReservoirBeingDevelopedUnderFuturePhase.required",
+          "Select if this reservoir is being developed under a future phase of work");
+    }
+
+    validateSectionsAreForHydrocarbonSelected((GeneralReservoirInformationForm) form, errors);
   }
 
   private void validateUniqueReservoirNames(GeneralReservoirInformationForm generalReservoirInformationForm,

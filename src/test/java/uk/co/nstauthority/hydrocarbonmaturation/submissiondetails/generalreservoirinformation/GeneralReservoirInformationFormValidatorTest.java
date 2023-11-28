@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelld
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSectionType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -187,6 +188,44 @@ class GeneralReservoirInformationFormValidatorTest {
         );
   }
 
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA"}
+  )
+  void isValid_nonCopField_invalidForm_noFutureWorksAnswer_invalid(SubmissionType submissionType) {
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(submissionType);
+    var form = getInvalidFormNoFutureWorkSelection();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+
+    assertFalse(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL));
+
+    var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(errors)
+        .containsExactly(
+            entry("isReservoirBeingDevelopedUnderFuturePhase", Set.of("isReservoirBeingDevelopedUnderFuturePhase.required"))
+        );
+  }
+
+  @Test
+  void isValid_cop_invalidForm_noFutureWorksAnswer_invalid() {
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_COP);
+
+    var form = getInvalidFormNoFutureWorkSelection();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+
+    assertTrue(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL));
+
+    var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(errors).isEmpty();
+  }
+
   @Test
   void isValid_empty_invalidForm_field_invalid() {
     var form = getInvalidEmptyForm();
@@ -207,10 +246,53 @@ class GeneralReservoirInformationFormValidatorTest {
         );
   }
 
+  @Test
+  void isValid_field_sectionsMatchHydroCarbonCase_thenNoErrors() {
+    var form = getValidForm_field();
+
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
+    form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.OIL_PROPERTIES));
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_CSR);
+
+    assertTrue(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL));
+
+    var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  void isValid_field_sectionsDoNotMatchHydroCarbonCase_thenNoErrors() {
+    var form = getValidForm_field();
+
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.GAS_ONLY);
+    form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.OIL_PROPERTIES));
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(reservoirSubmissionDetail.getSubmissionDetail()))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_CSR);
+
+    assertFalse(generalReservoirInformationFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL));
+
+    var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(errors)
+        .containsExactly(entry("reservoirSubmissionSections", Set.of("reservoirSubmissionSections.invalid")));
+  }
+
   private GeneralReservoirInformationForm getValidForm_nonField() {
     var form = new GeneralReservoirInformationForm();
     form.setReservoirName(reservoirSubmissionDetail.getReservoir().getName());
     form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
     return form;
   }
 
@@ -219,6 +301,8 @@ class GeneralReservoirInformationFormValidatorTest {
     form.setReservoirName(reservoirSubmissionDetail.getReservoir().getName());
     form.setAssociatedDiscoveryReservoirs(Set.of("associatedDiscoveryId"));
     form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
     return form;
   }
 
@@ -227,6 +311,8 @@ class GeneralReservoirInformationFormValidatorTest {
     form.setReservoirName("");
     form.setAssociatedDiscoveryReservoirs(Set.of("associatedDiscoveryId"));
     form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
     return form;
   }
 
@@ -235,6 +321,8 @@ class GeneralReservoirInformationFormValidatorTest {
     form.setReservoirName(reservoirSubmissionDetail.getReservoir().getName());
     form.setAssociatedDiscoveryReservoirs(Set.of());
     form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
     return form;
   }
 
@@ -242,6 +330,8 @@ class GeneralReservoirInformationFormValidatorTest {
     var form = new GeneralReservoirInformationForm();
     form.setReservoirName(reservoirSubmissionDetail.getReservoir().getName());
     form.setAssociatedDiscoveryReservoirs(Set.of("associatedDiscoveryId"));
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
     return form;
   }
 
@@ -249,6 +339,17 @@ class GeneralReservoirInformationFormValidatorTest {
     var form = new GeneralReservoirInformationForm();
     form.setReservoirName("");
     form.setAssociatedDiscoveryReservoirs(Set.of());
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
+    return form;
+  }
+
+  private GeneralReservoirInformationForm getInvalidFormNoFutureWorkSelection() {
+    var form = new GeneralReservoirInformationForm();
+    form.setReservoirName(reservoirSubmissionDetail.getReservoir().getName());
+    form.setAssociatedDiscoveryReservoirs(Set.of("associatedDiscoveryId"));
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(null);
+    form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
     return form;
   }
 }

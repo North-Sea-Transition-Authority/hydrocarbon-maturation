@@ -4,15 +4,18 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
 @Service
-public class DrillStemTestResultsSummaryService {
+public class DrillStemTestResultsSummaryService implements SummarySectionService<ReservoirSubmissionDetail> {
 
   private final DrillStemTestResultPersistenceService drillStemTestResultPersistenceService;
   private final DrillStemTestInitialPersistenceService drillStemTestInitialPersistenceService;
@@ -101,5 +104,11 @@ public class DrillStemTestResultsSummaryService {
     return drillStemTest.getDrillStemTestSummaryOption() != null
         ? drillStemTest.getDrillStemTestSummaryOption().getDisplayName()
         : "";
+  }
+
+  @Override
+  public Optional<SummarySection> getSummarySection(ReservoirSubmissionDetail source) {
+    // TODO HM-816 - add summary section for drill stem test result
+    return Optional.empty();
   }
 }

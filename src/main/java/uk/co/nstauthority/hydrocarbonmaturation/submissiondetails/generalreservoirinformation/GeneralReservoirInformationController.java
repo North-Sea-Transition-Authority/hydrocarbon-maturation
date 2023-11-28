@@ -23,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSectionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -89,7 +90,11 @@ public class GeneralReservoirInformationController {
             "%s reservoir".formatted(isFieldSubmission ? "Field" : "Discovery"))
         .addObject("isFieldSubmission", submissionDetail.isFieldSubmission())
         .addObject("hydrocarbonsDiscovered",
-            DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class));
+            DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class))
+        .addObject("reservoirSubmissionSectionTypeOptions",
+            ReservoirSubmissionSectionType.getReservoirSectionSubmissionTypeOptions())
+        .addObject("isCessationOfProduction", submissionDetail.isCessationOfProductionSubmission());
+
 
     if (isFieldSubmission) {
       modelAndView

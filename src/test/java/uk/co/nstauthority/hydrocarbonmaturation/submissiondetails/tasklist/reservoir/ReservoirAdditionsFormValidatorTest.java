@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,6 +32,9 @@ class ReservoirAdditionsFormValidatorTest {
 
   @Mock
   private List<ReservoirSectionSubmissionService> reservoirSectionSubmissionServices;
+
+  @Mock
+  private ReservoirSubmissionSectionService reservoirSubmissionSectionService;
 
   private ReservoirAdditionsFormValidator reservoirAdditionsFormValidator;
 
@@ -52,12 +56,12 @@ class ReservoirAdditionsFormValidatorTest {
 
     reservoirAdditionsFormValidator = new ReservoirAdditionsFormValidator(
         reservoirSectionSubmissionServices,
-        reservoirSubmissionDetailPersistenceService
-    );
+        reservoirSubmissionDetailPersistenceService,
+        reservoirSubmissionSectionService);
   }
 
   @Test
-  void validate_validForm_allSectionsSubmittable() {
+  void validate_validForm_ignoreNoSections_allSectionsSubmittable() {
     when(reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail))
         .thenReturn(true);
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
@@ -70,7 +74,7 @@ class ReservoirAdditionsFormValidatorTest {
   }
 
   @Test
-  void validate_validForm_notAllSectionsSubmittable() {
+  void validate_validForm_ignoreNoSections_notAllSectionsSubmittable() {
     when(reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail))
         .thenReturn(true);
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
@@ -87,6 +91,22 @@ class ReservoirAdditionsFormValidatorTest {
             DefaultMessageSourceResolvable::getDefaultMessage
         )
         .contains(Tuple.tuple("reservoirs.notSubmittable", "All sections for each reservoir must be completed"));
+  }
+
+  @Test
+  void validate_validForm_notAllSectionsSubmittable_ignoreNotSubmittable_thenValid() {
+    when(reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail))
+        .thenReturn(true);
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(List.of(reservoirSubmissionDetail));
+
+    var mockList = mock(List.class);
+    when(mockList.contains(testSectionSubmissionService.getClass())).thenReturn(true);
+    when(reservoirSubmissionSectionService.getSubmissionServiceClassesNotForSelection(reservoirSubmissionDetail))
+        .thenReturn(mockList);
+
+    assertThat(reservoirAdditionsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL))
+        .isTrue();
   }
 
   @Test

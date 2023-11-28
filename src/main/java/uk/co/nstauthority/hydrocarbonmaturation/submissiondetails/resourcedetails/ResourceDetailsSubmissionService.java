@@ -20,6 +20,10 @@ public class ResourceDetailsSubmissionService implements SectionSubmissionServic
 
   @Override
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
+    if (submissionDetail.isFieldSubmission()) {
+      return true;
+    }
+
     var form = resourceDetailsFormService.getResourceDetailsForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
     bindingResult = resourceDetailsFormService.validate(form, bindingResult,
