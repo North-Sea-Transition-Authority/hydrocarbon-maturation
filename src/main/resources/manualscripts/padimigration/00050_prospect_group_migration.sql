@@ -62,7 +62,8 @@ BEGIN
             FROM remi.padi_resource_groupings prg
             JOIN remi.resource_group_links rgl ON rgl.resource_id = prg.remi_resource_id
             JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = prg.legacy_res_data_id
-            WHERE prdh.stage_choice = '1' --should this take into account stage choice open? There are resource groups where there are multiple rows with stage choice / stage choice open = 1 so what is the correct preferred view?
+            WHERE prdh.stage_choice = '1'
+            AND prg.resource_type = 'PROSPECT'
             ORDER BY prg.legacy_resource_id, prg.remi_resource_id
         )
         LOOP
