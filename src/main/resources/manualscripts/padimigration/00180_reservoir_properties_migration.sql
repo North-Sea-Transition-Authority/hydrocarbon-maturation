@@ -8,7 +8,7 @@ DECLARE
 BEGIN
 
     FOR discovery_reservoir_rec IN (
-        SELECT rsd.id rsd_id, prdd.facies, prdd.connectivity
+        SELECT rsd.id rsd_id, rsd.submission_detail_id sd_id, prdd.facies, prdd.connectivity, prdd.depth_gas_oil_contact
         FROM remi.padi_res_data_disc prdd
         JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = prdd.resdat_id
         JOIN remi.padi_reservoirs pr ON pr.legacy_res_data_id = prdh.resdat_id
@@ -33,6 +33,26 @@ BEGIN
                 discovery_reservoir_rec.facies,
                 discovery_reservoir_rec.connectivity
             );
+
+        END IF;
+
+        IF discovery_reservoir_rec.depth_gas_oil_contact IS NOT NULL THEN
+
+            INSERT INTO remi.probability_distributions (
+                id,
+                submission_detail_id,
+                distribution_type,
+                instance,
+                most_likely_value,
+                reservoir_submission_detail_id
+            ) VALUES (
+                 gen_random_uuid(),
+                 discovery_reservoir_rec.sd_id,
+                 'CUSTOM',
+                 'DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY',
+                 abs(discovery_reservoir_rec.depth_gas_oil_contact),
+                 discovery_reservoir_rec.rsd_id
+             );
 
         END IF;
 

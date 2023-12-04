@@ -86,7 +86,7 @@ BEGIN
                  padi_distribution_type,
                  padi_other_distribution_type,
                  'DEPTH_TO_CREST_PROSPECT',
-                 NULL, -- does min exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_p99) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_p99) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_p90) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_mode) END,
@@ -94,9 +94,9 @@ BEGIN
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_mean) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_p10) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_p01) END,
-                 NULL, -- does max exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_p01) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.depth_to_crest_mean) END, -- most values exist in the mean column, but two items exist in the P50 column
-                 NULL, -- does most likely exist in PaDI,
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_crest_mean) END,
                  volumetric_parameters.depth_to_crest_comment
              );
 
@@ -156,7 +156,7 @@ BEGIN
                  padi_distribution_type,
                  padi_other_distribution_type,
                  'DEPTH_TO_SPILL_POINT_PROSPECT',
-                 NULL, -- does min exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_p99) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_p99) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_p90) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_mode) END,
@@ -164,9 +164,9 @@ BEGIN
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_mean) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_p10) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_p01) END,
-                 NULL, -- does max exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_p01) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.depth_to_spill_mean) END,
-                 NULL, -- does most likely exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_spill_mean) END,
                  volumetric_parameters.depth_to_spill_comment
              );
 
@@ -225,7 +225,7 @@ BEGIN
                  padi_distribution_type,
                  padi_other_distribution_type,
                  'PRODUCTIVE_AREA_PROSPECT',
-                 NULL, -- does min exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_p99) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_p99) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_p90) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_mode) END,
@@ -233,9 +233,9 @@ BEGIN
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_mean) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_p10) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_p01) END,
-                 NULL, -- does max exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_p01) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.area_mean) END,
-                 NULL, -- does most likely exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.area_mean) END,
                  volumetric_parameters.area_comment
              );
 
@@ -245,6 +245,77 @@ BEGIN
         padi_other_distribution_type := NULL;
 
         -- RESERVOIR PROPERTIES
+        -- Depth to hydrocarbon contact
+        IF COALESCE(
+            volumetric_parameters.depth_to_water_p99,
+            volumetric_parameters.depth_to_water_p90,
+            volumetric_parameters.depth_to_water_mode,
+            volumetric_parameters.depth_to_water_p50,
+            volumetric_parameters.depth_to_water_mean,
+            volumetric_parameters.depth_to_water_p10,
+            volumetric_parameters.depth_to_water_p01
+        ) IS NOT NULL THEN
+
+        SELECT
+            CASE volumetric_parameters.depth_to_water_dist
+                WHEN N THEN NORMAL
+                WHEN L THEN LOGNORMAL
+                WHEN B THEN BETA
+                WHEN T THEN TRIANGULAR
+                WHEN R THEN RECTANGULAR
+                WHEN C THEN CONSTANT
+                END
+        INTO padi_distribution_type;
+
+        IF padi_distribution_type IS NULL AND volumetric_parameters.depth_to_water_dist != Z THEN
+            padi_other_distribution_type := volumetric_parameters.depth_to_water_dist;
+        END IF;
+
+        INSERT INTO remi.probability_distributions (
+            id,
+            submission_detail_id,
+            distribution_type,
+            other_distribution_type,
+            instance,
+            min_value,
+            p99,
+            p90,
+            mode_value,
+            p50,
+            mean_value,
+            p10,
+            p1,
+            max_value,
+            constant_value,
+            most_likely_value,
+            comments,
+            reservoir_submission_detail_id
+        ) VALUES (
+             gen_random_uuid(),
+             volumetric_parameters.sd_id,
+             padi_distribution_type,
+             padi_other_distribution_type,
+             'DEPTH_TO_HYDROCARBON_CONTACT_PROSPECT',
+             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_water_p99) END,
+             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_water_p99) END,
+             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_water_p90) END,
+             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_water_mode) END,
+             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_water_p50) END,
+             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_water_mean) END,
+             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_water_p10) END,
+             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_water_p01) END,
+             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_water_p01) END,
+             CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.depth_to_water_mean) END,
+             CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.depth_to_water_mean) END,
+             volumetric_parameters.depth_to_water_comment,
+             volumetric_parameters.rsd_id
+         );
+
+        END IF;
+
+        padi_distribution_type := NULL;
+        padi_other_distribution_type := NULL;
+        
         -- Gross reservoir thickness
         IF COALESCE(
             volumetric_parameters.gross_thick_p99,
@@ -296,7 +367,7 @@ BEGIN
                  padi_distribution_type,
                  padi_other_distribution_type,
                  'GROSS_RESERVOIR_THICKNESS_PROSPECT',
-                 NULL, -- does min exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_p99) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_p99) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_p90) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_mode) END,
@@ -304,9 +375,9 @@ BEGIN
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_mean) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_p10) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_p01) END,
-                 NULL, -- does max exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_p01) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.gross_thick_mean) END,
-                 NULL, -- does most likely exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gross_thick_mean) END,
                  volumetric_parameters.gross_thick_comment,
                  volumetric_parameters.rsd_id
              );
@@ -367,7 +438,7 @@ BEGIN
                  padi_distribution_type,
                  padi_other_distribution_type,
                  'GROSS_ROCK_VOLUME_PROSPECT',
-                 NULL, -- does min exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_p99) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_p99) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_p90) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_mode) END,
@@ -375,9 +446,9 @@ BEGIN
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_mean) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_p10) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_p01) END,
-                 NULL, -- does max exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_p01) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.grv_mean) END,
-                 NULL, -- does most likely exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.grv_mean) END,
                  volumetric_parameters.grv_comment,
                  volumetric_parameters.rsd_id
              );
@@ -438,7 +509,7 @@ BEGIN
                  padi_distribution_type,
                  padi_other_distribution_type,
                  'NET_TO_GROSS_PROSPECT',
-                 NULL, -- does min exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_p99) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_p99) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_p90) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_mode) END,
@@ -446,9 +517,9 @@ BEGIN
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_mean) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_p10) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_p01) END,
-                 NULL, -- does max exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_p01) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.ntg_mean) END,
-                 NULL, -- does most likely exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.ntg_mean) END,
                  volumetric_parameters.ntg_comment,
                  volumetric_parameters.rsd_id
              );
@@ -509,7 +580,7 @@ BEGIN
                  padi_distribution_type,
                  padi_other_distribution_type,
                  'NET_POROSITY_PROSPECT',
-                 NULL, -- does min exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_p99) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_p99) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_p90) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_mode) END,
@@ -517,9 +588,9 @@ BEGIN
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_mean) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_p10) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_p01) END,
-                 NULL, -- does max exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_p01) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.porosity_mean) END,
-                 NULL, -- does most likely exist in PaDI
+                 CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.porosity_mean) END,
                  volumetric_parameters.porosity_comment,
                  volumetric_parameters.rsd_id
              );
@@ -585,7 +656,7 @@ BEGIN
                      WHEN volumetric_parameters.submission_type = 'POST_DRILL_DRY_HOLE' THEN 'AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL'
                      ELSE 'AVERAGE_NET_PAY_THICKNESS_PROSPECT'
                      END,
-                 NULL, -- does min exist in PaDI
+                 CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.net_pay_p99) END,
                  CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.net_pay_p99) END,
                  CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.net_pay_p90) END,
                  CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.net_pay_mode) END,
@@ -593,9 +664,9 @@ BEGIN
                  CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.net_pay_mean) END,
                  CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.net_pay_p10) END,
                  CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.net_pay_p01) END,
-                 NULL, -- does max exist in PaDI
+                 CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.net_pay_p01) END,
                  CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.net_pay_mean) END,
-                 NULL, -- does most likely exist in PaDI
+                 CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.net_pay_mean) END,
                  volumetric_parameters.net_pay_comment,
                  volumetric_parameters.rsd_id
              );
@@ -659,7 +730,7 @@ BEGIN
                      padi_distribution_type,
                      padi_other_distribution_type,
                      'PERCENT_OF_GRV_OIL_BEARING_PROSPECT',
-                     NULL, -- does min exist in PaDI
+                     CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_p99) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_p99) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_p90) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_mode) END,
@@ -667,9 +738,9 @@ BEGIN
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_mean) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_p10) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_p01) END,
-                     NULL, -- does max exist in PaDI
+                     CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_p01) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.grv_perc_oil_mean) END,
-                     NULL, -- does most likely exist in PaDI
+                     CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.grv_perc_oil_mean) END,
                      volumetric_parameters.grv_perc_oil_comment,
                      volumetric_parameters.rsd_id
                  );
@@ -735,7 +806,7 @@ BEGIN
                      padi_distribution_type,
                      padi_other_distribution_type,
                      'GAS_EXPANSION_FACTOR',
-                     NULL, -- does min exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p90) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_mode) END,
@@ -743,9 +814,9 @@ BEGIN
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_mean) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p10) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p01) END,
-                     NULL, -- does max exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p01) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.gef_mean) END,
-                     NULL, -- does most likely exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_mean) END,
                      volumetric_parameters.gef_comment,
                      volumetric_parameters.rsd_id
                  );
@@ -807,7 +878,7 @@ BEGIN
                      padi_distribution_type,
                      padi_other_distribution_type,
                      'GAS_RECOVERY_FACTOR',
-                     NULL, -- does min exist in PaDI
+                     CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_gas_p99) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_gas_p99) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_gas_p90) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_gas_mode) END,
@@ -815,9 +886,9 @@ BEGIN
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_gas_mean) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_gas_p10) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_gas_p01) END,
-                     NULL, -- does max exist in PaDI
+                     CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_gas_p01) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.rf_gas_mean) END,
-                     NULL, -- does most likely exist in PaDI
+                     CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_gas_mean) END,
                      volumetric_parameters.rf_gas_comment,
                      volumetric_parameters.rsd_id
                  );
@@ -878,7 +949,7 @@ BEGIN
                      padi_distribution_type,
                      padi_other_distribution_type,
                      'CONDENSATE_GAS_RATIO_LIFE_OF_FIELD',
-                     NULL, -- does min exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.cgr_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.cgr_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.cgr_p90) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.cgr_mode) END,
@@ -886,9 +957,9 @@ BEGIN
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.cgr_mean) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.cgr_p10) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.cgr_p01) END,
-                     NULL, -- does max exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.cgr_p01) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.cgr_mean) END,
-                     NULL, -- does most likely exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.cgr_mean) END,
                      volumetric_parameters.cgr_comment,
                      volumetric_parameters.rsd_id
                  );
@@ -952,7 +1023,7 @@ BEGIN
                          WHEN volumetric_parameters.hydrocarbon_case IN ('gas', 'condensate') THEN 'GAS_FORMATION_VOLUME_FACTOR_PROSPECT'
                          WHEN volumetric_parameters.hydrocarbon_case = 'oil' THEN 'OIL_FORMATION_VOLUME_FACTOR_PROSPECT'
                          END,
-                     NULL, -- does min exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p90) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_mode) END,
@@ -960,9 +1031,9 @@ BEGIN
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_mean) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p10) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p01) END,
-                     NULL, -- does max exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p01) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.fvf_mean) END,
-                     NULL, -- does most likely exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_mean) END,
                      volumetric_parameters.fvf_comment,
                      volumetric_parameters.rsd_id
                  );
@@ -1024,7 +1095,7 @@ BEGIN
                      padi_distribution_type,
                      padi_other_distribution_type,
                      'OIL_RECOVERY_FACTOR_PROSPECT',
-                     NULL, -- does min exist in PaDI
+                     CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_p99) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_p99) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_p90) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_mode) END,
@@ -1032,9 +1103,9 @@ BEGIN
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_mean) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_p10) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_p01) END,
-                     NULL, -- does max exist in PaDI
+                     CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_p01) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.rf_oil_mean) END,
-                     NULL, -- does most likely exist in PaDI
+                     CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.rf_oil_mean) END,
                      volumetric_parameters.rf_oil_comment,
                      volumetric_parameters.rsd_id
                  );
@@ -1096,7 +1167,7 @@ BEGIN
                      padi_distribution_type,
                      padi_other_distribution_type,
                      'ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD',
-                     NULL, -- does min exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gor_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gor_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gor_p90) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gor_mode) END,
@@ -1104,9 +1175,9 @@ BEGIN
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gor_mean) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gor_p10) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gor_p01) END,
-                     NULL, -- does max exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gor_p01) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.gor_mean) END,
-                     NULL, -- does most likely exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gor_mean) END,
                      volumetric_parameters.gor_comment,
                      volumetric_parameters.rsd_id
                  );
@@ -1171,7 +1242,7 @@ BEGIN
                      padi_distribution_type,
                      padi_other_distribution_type,
                      'MIXED_OIL_FORMATION_VOLUME_FACTOR_PROSPECT',
-                     NULL, -- does min exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p90) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_mode) END,
@@ -1179,9 +1250,9 @@ BEGIN
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_mean) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p10) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p01) END,
-                     NULL, -- does max exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p01) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.fvf_mean) END,
-                     NULL, -- does most likely exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_mean) END,
                      volumetric_parameters.fvf_comment,
                      volumetric_parameters.rsd_id
                  );
@@ -1214,7 +1285,7 @@ BEGIN
                     padi_distribution_type,
                     padi_other_distribution_type,
                     'MIXED_GAS_FORMATION_VOLUME_FACTOR_PROSPECT',
-                    NULL, -- does min exist in PaDI
+                    CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p99) END,
                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p99) END,
                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p90) END,
                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_mode) END,
@@ -1222,9 +1293,9 @@ BEGIN
                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_mean) END,
                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p10) END,
                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p01) END,
-                    NULL, -- does max exist in PaDI
+                    CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_p01) END,
                     CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.fvf_mean) END,
-                    NULL, -- does most likely exist in PaDI
+                    CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.fvf_mean) END,
                     volumetric_parameters.fvf_comment,
                     volumetric_parameters.rsd_id
                 );
@@ -1285,7 +1356,7 @@ BEGIN
                      padi_distribution_type,
                      padi_other_distribution_type,
                      'MIXED_OIL_RECOVERY_FACTOR_PROSPECT',
-                     NULL, -- does min exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_p90) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_mode) END,
@@ -1293,9 +1364,9 @@ BEGIN
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_mean) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_p10) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_p01) END,
-                     NULL, -- does max exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_p01) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.rf_oil_mean) END,
-                     NULL, -- does most likely exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_oil_mean) END,
                      volumetric_parameters.rf_oil_comment,
                      volumetric_parameters.rsd_id
                  );
@@ -1357,7 +1428,7 @@ BEGIN
                      padi_distribution_type,
                      padi_other_distribution_type,
                      'MIXED_ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD',
-                     NULL, -- does min exist in PaDI
+                     CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.gor_p99) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.gor_p99) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.gor_p90) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.gor_mode) END,
@@ -1365,9 +1436,9 @@ BEGIN
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.gor_mean) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.gor_p10) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.gor_p01) END,
-                     NULL, -- does max exist in PaDI
+                     CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.gor_p01) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.gor_mean) END,
-                     NULL, -- does most likely exist in PaDI
+                     CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.gor_mean) END,
                      volumetric_parameters.gor_comment,
                      volumetric_parameters.rsd_id
                  );
@@ -1428,7 +1499,7 @@ BEGIN
                      padi_distribution_type,
                      padi_other_distribution_type,
                      'MIXED_GAS_EXPANSION_FACTOR',
-                     NULL, -- does min exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p90) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_mode) END,
@@ -1436,9 +1507,9 @@ BEGIN
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_mean) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p10) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p01) END,
-                     NULL, -- does max exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_p01) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.gef_mean) END,
-                     NULL, -- does most likely exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.gef_mean) END,
                      volumetric_parameters.gef_comment,
                      volumetric_parameters.rsd_id
                  );
@@ -1499,7 +1570,7 @@ BEGIN
                      padi_distribution_type,
                      padi_other_distribution_type,
                      'MIXED_GAS_RECOVERY_FACTOR',
-                     NULL, -- does min exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_gas_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_gas_p99) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_gas_p90) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_gas_mode) END,
@@ -1507,9 +1578,9 @@ BEGIN
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_gas_mean) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_gas_p10) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_gas_p01) END,
-                     NULL, -- does max exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_gas_p01) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.rf_gas_mean) END,
-                     NULL, -- does most likely exist in PaDI
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(volumetric_parameters.rf_gas_mean) END,
                      volumetric_parameters.rf_gas_comment,
                      volumetric_parameters.rsd_id
                  );
@@ -1571,7 +1642,7 @@ BEGIN
                      padi_distribution_type,
                      padi_other_distribution_type,
                      'MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD',
-                     NULL, -- does min exist in PaDI
+                     CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.cgr_p99) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.cgr_p99) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.cgr_p90) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.cgr_mode) END,
@@ -1579,9 +1650,9 @@ BEGIN
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.cgr_mean) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.cgr_p10) END,
                      CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.cgr_p01) END,
-                     NULL, -- does max exist in PaDI
+                     CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.cgr_p01) END,
                      CASE WHEN padi_distribution_type = CONSTANT THEN abs(volumetric_parameters.cgr_mean) END,
-                     NULL, -- does most likely exist in PaDI
+                     CASE WHEN padi_distribution_type IN (CONSTANT,NOT_CALCULATED) THEN NULL ELSE abs(volumetric_parameters.cgr_mean) END,
                      volumetric_parameters.cgr_comment,
                      volumetric_parameters.rsd_id
                  );
