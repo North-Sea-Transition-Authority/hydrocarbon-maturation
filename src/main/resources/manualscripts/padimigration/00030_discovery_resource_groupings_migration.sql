@@ -39,7 +39,7 @@ BEGIN
         LEFT JOIN remi.padi_multi_reservoir_discoveries pmrd ON pmrd.resdat_id = prdh.resdat_id
         WHERE prdh.opportunity_type = 'Discovery'
         AND prdh.stage_name != 'Relinquishment'
-        AND prdh.stage_name != 'PARS'
+        AND prdh.stage_name != 'PARs'
     )
     LOOP
 

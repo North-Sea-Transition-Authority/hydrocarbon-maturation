@@ -16,14 +16,12 @@ BEGIN
         SELECT
             sd.id sd_id,
             rsd.id rsd_id,
-            pd.id pd_id,
             gco.has_associated_condensate_recoverable_resources gas_associated_condensate,
             mco.has_associated_condensate_recoverable_resources combined_associated_condensate
         FROM remi.resources r
         JOIN remi.submissions s ON s.resource_id = r.id
         JOIN remi.submission_details sd ON sd.submission_id = s.id
         JOIN remi.reservoir_submission_details rsd ON rsd.submission_detail_id = sd.id
-        JOIN remi.probability_distributions pd ON pd.reservoir_submission_detail_id = rsd.id
         LEFT JOIN remi.gas_case_outputs gco ON gco.reservoir_submission_detail_id = rsd.id
         LEFT JOIN remi.mixed_case_outputs mco ON mco.reservoir_submission_detail_id = rsd.id
         WHERE (
@@ -65,7 +63,7 @@ BEGIN
         FOR oil_in_place_rec IN (
             SELECT *
             FROM remi.probability_distributions pd
-            WHERE pd.id = single_reservoir_rec.pd_id
+            WHERE pd.reservoir_submission_detail_id = single_reservoir_rec.rsd_id
             AND pd.instance = 'OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY'
         )
         LOOP
@@ -119,7 +117,7 @@ BEGIN
         FOR oil_recoverable_resources_rec IN (
             SELECT *
             FROM remi.probability_distributions pd
-            WHERE pd.id = single_reservoir_rec.pd_id
+            WHERE pd.reservoir_submission_detail_id = single_reservoir_rec.rsd_id
             AND pd.instance = 'OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY'
         )
         LOOP
@@ -173,8 +171,8 @@ BEGIN
         FOR associated_gas_rec IN (
             SELECT *
             FROM remi.probability_distributions pd
-            WHERE pd.id = single_reservoir_rec.pd_id
-                    AND pd.instance = 'OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY'
+            WHERE pd.reservoir_submission_detail_id = single_reservoir_rec.rsd_id
+            AND pd.instance = 'OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY'
         )
         LOOP
             INSERT INTO remi.probability_distributions (
@@ -227,7 +225,7 @@ BEGIN
         FOR gas_in_place_rec IN (
             SELECT *
             FROM remi.probability_distributions pd
-            WHERE pd.id = single_reservoir_rec.pd_id
+            WHERE pd.reservoir_submission_detail_id = single_reservoir_rec.rsd_id
             AND pd.instance = 'GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY'
         )
         LOOP
@@ -281,7 +279,7 @@ BEGIN
         FOR gas_recoverable_resources_rec IN (
             SELECT *
             FROM remi.probability_distributions pd
-            WHERE pd.id = single_reservoir_rec.pd_id
+            WHERE pd.reservoir_submission_detail_id = single_reservoir_rec.rsd_id
             AND pd.instance = 'GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY'
         )
         LOOP
@@ -335,7 +333,7 @@ BEGIN
         FOR oil_equivalent_rec IN (
             SELECT *
             FROM remi.probability_distributions pd
-            WHERE pd.id = single_reservoir_rec.pd_id
+            WHERE pd.reservoir_submission_detail_id = single_reservoir_rec.rsd_id
             AND pd.instance = 'OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY'
         )
         LOOP
@@ -389,7 +387,7 @@ BEGIN
         FOR associated_condensate_rec IN (
             SELECT *
             FROM remi.probability_distributions pd
-            WHERE pd.id = single_reservoir_rec.pd_id
+            WHERE pd.reservoir_submission_detail_id = single_reservoir_rec.rsd_id
             AND pd.instance = 'OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY'
         )
         LOOP

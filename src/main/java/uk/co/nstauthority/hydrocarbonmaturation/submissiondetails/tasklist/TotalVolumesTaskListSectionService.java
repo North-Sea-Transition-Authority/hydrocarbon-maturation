@@ -70,7 +70,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
 
     var reservoirSubmissionDetails =
         reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
-    if (reservoirSubmissionDetails.isEmpty() || reservoirSubmissionDetails.size() == 1) {
+    if (reservoirSubmissionDetails.size() != 1) {
       return Optional.empty();
     }
 
