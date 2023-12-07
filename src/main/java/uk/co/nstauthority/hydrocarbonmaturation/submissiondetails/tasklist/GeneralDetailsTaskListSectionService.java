@@ -17,6 +17,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.consideringccus.ConsideringCcusController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.consideringccus.ConsideringCcusSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexity.FieldComplexityController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexity.FieldComplexitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesController;
@@ -33,6 +35,7 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
   private final ConsideringCcusSubmissionService consideringCcusSubmissionService;
   private final PermissionService permissionService;
   private final UserDetailService userDetailService;
+  private final FieldComplexitySubmissionService fieldComplexitySubmissionService;
 
   @Autowired
   GeneralDetailsTaskListSectionService(GeneralDetailSubmissionService generalDetailSubmissionService,
@@ -40,13 +43,15 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
                                        RelatedResourcesSubmissionService relatedResourcesSubmissionService,
                                        ConsideringCcusSubmissionService consideringCcusSubmissionService,
                                        PermissionService permissionService,
-                                       UserDetailService userDetailService) {
+                                       UserDetailService userDetailService,
+                                       FieldComplexitySubmissionService fieldComplexitySubmissionService) {
     this.generalDetailSubmissionService = generalDetailSubmissionService;
     this.resourceDetailsSubmissionService = resourceDetailsSubmissionService;
     this.relatedResourcesSubmissionService = relatedResourcesSubmissionService;
     this.consideringCcusSubmissionService = consideringCcusSubmissionService;
     this.permissionService = permissionService;
     this.userDetailService = userDetailService;
+    this.fieldComplexitySubmissionService = fieldComplexitySubmissionService;
   }
 
   @Override
@@ -103,6 +108,12 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
           new TaskListItem(ConsideringCcusController.PAGE_NAME,
               TaskListLabel.notStartedOrComplete(consideringCcusSubmissionService.isSectionSubmittable(submissionDetail)),
               ReverseRouter.route(on(ConsideringCcusController.class).getConsideringCcus(submissionDetail.getId())))
+      );
+
+      listOfItems.add(
+          new TaskListItem(FieldComplexityController.FIELD_COMPLEXITY,
+              TaskListLabel.notStartedOrComplete(fieldComplexitySubmissionService.isSectionSubmittable(submissionDetail)),
+              ReverseRouter.route(on(FieldComplexityController.class).getFieldComplexity(submissionDetail.getId())))
       );
     }
 

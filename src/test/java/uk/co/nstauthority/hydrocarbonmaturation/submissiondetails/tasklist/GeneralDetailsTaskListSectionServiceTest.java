@@ -26,6 +26,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.consideringccus.ConsideringCcusController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.consideringccus.ConsideringCcusSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexity.FieldComplexityController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexity.FieldComplexitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesController;
@@ -49,6 +51,8 @@ class GeneralDetailsTaskListSectionServiceTest {
   private UserDetailService userDetailService;
   @Mock
   private PermissionService permissionService;
+  @Mock
+  private FieldComplexitySubmissionService fieldComplexitySubmissionService;
 
   @InjectMocks
   private GeneralDetailsTaskListSectionService generalDetailsTaskListSectionService;
@@ -354,6 +358,7 @@ class GeneralDetailsTaskListSectionServiceTest {
     submissionDetail.setSubmissionType(submissionType);
 
     when(consideringCcusSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(fieldComplexitySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
     var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
 
@@ -372,7 +377,11 @@ class GeneralDetailsTaskListSectionServiceTest {
                 new TaskListItem(ConsideringCcusController.PAGE_NAME,
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(ConsideringCcusController.class)
-                        .getConsideringCcus(submissionDetail.getId())))
+                        .getConsideringCcus(submissionDetail.getId()))),
+                new TaskListItem(FieldComplexityController.FIELD_COMPLEXITY,
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(on(FieldComplexityController.class)
+                        .getFieldComplexity(submissionDetail.getId())))
             ),
             "General details",
             10
