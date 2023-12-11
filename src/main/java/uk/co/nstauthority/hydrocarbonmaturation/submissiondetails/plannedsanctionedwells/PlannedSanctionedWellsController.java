@@ -72,6 +72,7 @@ public class PlannedSanctionedWellsController {
     var modelAndView = new ModelAndView("remi/submissiondetails/plannedSanctionedWells")
         .addObject("form", form)
         .addObject("pageTitle", PAGE_NAME)
+        .addObject("submissionType", submissionDetail.getSubmissionType())
 
         .addObject("stimulationOptions",
             DisplayableEnumOptionUtil.getDisplayableOptions(StimulationType.class))

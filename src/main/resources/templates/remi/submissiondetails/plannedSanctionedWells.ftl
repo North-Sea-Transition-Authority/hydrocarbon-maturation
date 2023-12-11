@@ -10,6 +10,11 @@ pageHeading=pageTitle
 pageSize=PageSize.TWO_THIRDS_COLUMN
 errorItems=errorList
 breadcrumbsMap=breadcrumbsMap>
+    <#if submissionType == "CREATE_FDPA">
+        <@fdsInsetText.insetText>
+            Only provide information on the planned sanctioned wells related to this FDPA
+        </@fdsInsetText.insetText>
+    </#if>
 
     <@fdsForm.htmlForm>
         <@fdsTextInput.textInput

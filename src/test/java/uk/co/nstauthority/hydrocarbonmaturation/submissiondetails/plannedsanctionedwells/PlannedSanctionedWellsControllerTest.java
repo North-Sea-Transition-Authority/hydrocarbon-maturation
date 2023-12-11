@@ -91,6 +91,7 @@ class PlannedSanctionedWellsControllerTest extends AbstractSubmissionControllerT
     assertThat(modelMap)
         .containsEntry("form", form)
         .containsEntry("pageTitle", PlannedSanctionedWellsController.PAGE_NAME)
+        .containsEntry("submissionType", submissionDetail.getSubmissionType())
         .containsEntry("stimulationOptions", DisplayableEnumOptionUtil.getDisplayableOptions(StimulationType.class))
         .containsEntry("faultOptions", DisplayableEnumOptionUtil.getDisplayableOptions(Fault.class))
         .containsEntry("holeCompletionOptions", DisplayableEnumOptionUtil.getDisplayableOptions(HoleCompletionType.class))
