@@ -12,4 +12,13 @@ public class DecimalInputTestUtil {
   public static DecimalInput getDecimalInput(int input) {
     return DecimalInput.createDecimalInput(BigDecimal.valueOf(input));
   }
+
+  public static Boolean decimalInputEqualsBigDecimal(DecimalInput decimalInput, BigDecimal bigDecimal) {
+    var decimalInputAsBigDecimal = decimalInput.asBigDecimal();
+
+    if(decimalInputAsBigDecimal.isPresent()) {
+      return decimalInputAsBigDecimal.get().compareTo(bigDecimal) == 0;
+    }
+    return null;
+  }
 }

@@ -1,0 +1,52 @@
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedsanctionedwells;
+
+import java.util.UUID;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import org.hibernate.annotations.GenericGenerator;
+
+@Entity
+@Table(name  = "planned_sanctioned_wells_faults")
+public class PswFaults {
+  @Id
+  @GeneratedValue(generator = "uuid")
+  @GenericGenerator(name = "uuid", strategy = "uuid2")
+  private UUID id;
+
+  @ManyToOne
+  @JoinColumn(name = "planned_sanctioned_wells_id")
+  private PlannedSanctionedWells plannedSanctionedWells;
+
+  @Enumerated(EnumType.STRING)
+  private Fault expectedFault;
+
+  public UUID getId() {
+    return id;
+  }
+
+  public void setId(UUID id) {
+    this.id = id;
+  }
+
+  public PlannedSanctionedWells getPlannedSanctionedWells() {
+    return plannedSanctionedWells;
+  }
+
+  public void setPlannedSanctionedWells(PlannedSanctionedWells plannedSanctionedWells) {
+    this.plannedSanctionedWells = plannedSanctionedWells;
+  }
+
+  public Fault getExpectedFault() {
+    return expectedFault;
+  }
+
+  public void setExpectedFault(Fault expectedFault) {
+    this.expectedFault = expectedFault;
+  }
+}

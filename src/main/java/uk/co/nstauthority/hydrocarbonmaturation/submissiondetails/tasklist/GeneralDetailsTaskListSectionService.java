@@ -21,6 +21,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexit
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexity.FieldComplexitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedsanctionedwells.PlannedSanctionedWellsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedsanctionedwells.PlannedSanctionedWellsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsController;
@@ -33,6 +35,7 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
   private final ResourceDetailsSubmissionService resourceDetailsSubmissionService;
   private final RelatedResourcesSubmissionService relatedResourcesSubmissionService;
   private final ConsideringCcusSubmissionService consideringCcusSubmissionService;
+  private final PlannedSanctionedWellsSubmissionService plannedSanctionedWellsSubmissionService;
   private final PermissionService permissionService;
   private final UserDetailService userDetailService;
   private final FieldComplexitySubmissionService fieldComplexitySubmissionService;
@@ -42,6 +45,7 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
                                        ResourceDetailsSubmissionService resourceDetailsSubmissionService,
                                        RelatedResourcesSubmissionService relatedResourcesSubmissionService,
                                        ConsideringCcusSubmissionService consideringCcusSubmissionService,
+                                       PlannedSanctionedWellsSubmissionService plannedSanctionedWellsSubmissionService,
                                        PermissionService permissionService,
                                        UserDetailService userDetailService,
                                        FieldComplexitySubmissionService fieldComplexitySubmissionService) {
@@ -49,6 +53,7 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
     this.resourceDetailsSubmissionService = resourceDetailsSubmissionService;
     this.relatedResourcesSubmissionService = relatedResourcesSubmissionService;
     this.consideringCcusSubmissionService = consideringCcusSubmissionService;
+    this.plannedSanctionedWellsSubmissionService = plannedSanctionedWellsSubmissionService;
     this.permissionService = permissionService;
     this.userDetailService = userDetailService;
     this.fieldComplexitySubmissionService = fieldComplexitySubmissionService;
@@ -115,6 +120,17 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
               TaskListLabel.notStartedOrComplete(fieldComplexitySubmissionService.isSectionSubmittable(submissionDetail)),
               ReverseRouter.route(on(FieldComplexityController.class).getFieldComplexity(submissionDetail.getId())))
       );
+
+      if (submissionDetail.isFieldDevelopmentPlanSubmission() || submissionDetail.isFieldDevelopmentPlanAddendumSubmission()) {
+        listOfItems.add(
+            new TaskListItem(
+                PlannedSanctionedWellsController.PAGE_NAME,
+                TaskListLabel.notStartedOrComplete(
+                    plannedSanctionedWellsSubmissionService.isSectionSubmittable(submissionDetail)),
+                ReverseRouter.route(on(PlannedSanctionedWellsController.class)
+                    .getPlannedSanctionedWells(submissionDetail.getId())))
+        );
+      }
     }
 
     return listOfItems;

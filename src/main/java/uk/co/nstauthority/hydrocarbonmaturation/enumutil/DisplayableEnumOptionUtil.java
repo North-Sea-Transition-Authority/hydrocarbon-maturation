@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.enumutil;
 
-import java.util.Arrays;
+import static java.util.Arrays.stream;
+
 import java.util.Comparator;
 import java.util.Map;
 import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
@@ -14,7 +15,7 @@ public class DisplayableEnumOptionUtil {
   public static Map<String, String> getDisplayableOptions(
       Class<? extends Displayable> displayableOptionEnum
   ) {
-    return Arrays.stream((Displayable[]) displayableOptionEnum.getEnumConstants())
+    return stream((Displayable[]) displayableOptionEnum.getEnumConstants())
         .sorted(Comparator.comparingInt(Displayable::getDisplayOrder))
         .collect(StreamUtil.toLinkedHashMap(
             Displayable::getEnumName,
@@ -25,7 +26,7 @@ public class DisplayableEnumOptionUtil {
   public static Map<String, String> getDisplayableOptionsWithDescription(
       Class<? extends Displayable> displayableOptionEnum
   ) {
-    return Arrays.stream((Displayable[]) displayableOptionEnum.getEnumConstants())
+    return stream((Displayable[]) displayableOptionEnum.getEnumConstants())
         .sorted(Comparator.comparingInt(Displayable::getDisplayOrder))
         .collect(StreamUtil.toLinkedHashMap(
             Displayable::getEnumName,
@@ -38,7 +39,7 @@ public class DisplayableEnumOptionUtil {
   public static Map<String, String> getDisplayableOptionsWithNameAndDescription(
       Class<? extends Displayable> displayableOptionEnum
   ) {
-    return Arrays.stream((Displayable[]) displayableOptionEnum.getEnumConstants())
+    return stream((Displayable[]) displayableOptionEnum.getEnumConstants())
         .sorted(Comparator.comparingInt(Displayable::getDisplayOrder))
         .collect(StreamUtil.toLinkedHashMap(
             Displayable::getEnumName,
@@ -57,7 +58,7 @@ public class DisplayableEnumOptionUtil {
   public static Map<String, Map<String, String>> getDisplayableOptionsWithSeparateNameAndDescription(
       Class<? extends Displayable> displayableOptionEnum
   ) {
-    return Arrays.stream((Displayable[]) displayableOptionEnum.getEnumConstants())
+    return stream((Displayable[]) displayableOptionEnum.getEnumConstants())
         .sorted(Comparator.comparingInt(Displayable::getDisplayOrder))
         .collect(StreamUtil.toLinkedHashMap(
             Displayable::getEnumName,
@@ -75,5 +76,15 @@ public class DisplayableEnumOptionUtil {
     return displayable != null
         ? displayable.getDisplayName()
         : "";
+  }
+
+  /*
+   * Gets the displayable option with the lowest display order
+   */
+  public static Displayable getFirstDisplayable(Class<? extends Displayable> displayableOptionEnum) {
+    return stream(displayableOptionEnum.getEnumConstants())
+        .sorted(Comparator.comparingInt(Displayable::getDisplayOrder))
+        .toList()
+        .get(0);
   }
 }

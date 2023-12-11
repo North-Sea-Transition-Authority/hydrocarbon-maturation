@@ -8,6 +8,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.List;
 import java.util.Set;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -30,6 +31,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexit
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexity.FieldComplexitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedsanctionedwells.PlannedSanctionedWellsController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedsanctionedwells.PlannedSanctionedWellsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsController;
@@ -47,6 +50,8 @@ class GeneralDetailsTaskListSectionServiceTest {
   private ResourceDetailsSubmissionService resourceDetailsSubmissionService;
   @Mock
   private ConsideringCcusSubmissionService consideringCcusSubmissionService;
+  @Mock
+  private PlannedSanctionedWellsSubmissionService plannedSanctionedWellsSubmissionService;
   @Mock
   private UserDetailService userDetailService;
   @Mock
@@ -354,7 +359,7 @@ class GeneralDetailsTaskListSectionServiceTest {
       "CREATE_FDPA",
       "CREATE_COP"},
       mode = EnumSource.Mode.INCLUDE)
-  void getSection_SubmissionTypeIsField_fieldOnlySections(SubmissionType submissionType) {
+  void getSection_SubmissionTypeIsField_allFieldOnlySections(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
 
     when(consideringCcusSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
@@ -364,27 +369,73 @@ class GeneralDetailsTaskListSectionServiceTest {
 
     var section = taskListSectionOptional.get();
 
-    assertThat(section)
+    assertThat(section.items())
         .extracting(
-            TaskListSection::items,
-            TaskListSection::displayName,
-            TaskListSection::displayOrder)
-        .containsExactly(List.of(
-                new TaskListItem("General details",
-                    TaskListLabel.NOT_COMPLETE,
-                    ReverseRouter.route(on(GeneralDetailsController.class)
-                        .getGeneralDetails(submissionDetail.getId(), null))),
-                new TaskListItem(ConsideringCcusController.PAGE_NAME,
-                    TaskListLabel.COMPLETE,
-                    ReverseRouter.route(on(ConsideringCcusController.class)
-                        .getConsideringCcus(submissionDetail.getId()))),
-                new TaskListItem(FieldComplexityController.FIELD_COMPLEXITY,
+            TaskListItem::displayName,
+            TaskListItem::label,
+            TaskListItem::actionUrl)
+        .contains(
+            Tuple.tuple("General details",
+                TaskListLabel.NOT_COMPLETE,
+                ReverseRouter.route(on(GeneralDetailsController.class)
+                    .getGeneralDetails(submissionDetail.getId(), null))),
+            Tuple.tuple(ConsideringCcusController.PAGE_NAME,
+                TaskListLabel.COMPLETE,
+                ReverseRouter.route(on(ConsideringCcusController.class)
+                    .getConsideringCcus(submissionDetail.getId()))),
+            Tuple.tuple(FieldComplexityController.FIELD_COMPLEXITY,
                     TaskListLabel.COMPLETE,
                     ReverseRouter.route(on(FieldComplexityController.class)
                         .getFieldComplexity(submissionDetail.getId())))
-            ),
-            "General details",
-            10
+            );
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {
+      "CREATE_FDP",
+      "CREATE_FDPA"},
+      mode = EnumSource.Mode.INCLUDE)
+  void getSection_SubmissionTypeIsApplicable_PlannedSanctionedWells(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    when(plannedSanctionedWellsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+
+    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
+
+    var section = taskListSectionOptional.get();
+
+    assertThat(section.items())
+        .extracting(
+            TaskListItem::displayName,
+            TaskListItem::label,
+            TaskListItem::actionUrl
+        ).contains(
+            Tuple.tuple(PlannedSanctionedWellsController.PAGE_NAME,
+                TaskListLabel.COMPLETE,
+                ReverseRouter.route(on(PlannedSanctionedWellsController.class)
+                    .getPlannedSanctionedWells(submissionDetail.getId())))
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {
+      "CREATE_FDP",
+      "CREATE_FDPA"},
+      mode = EnumSource.Mode.EXCLUDE)
+  void getSection_SubmissionTypeIsNotApplicable_PlannedSanctionedWells(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
+
+    var section = taskListSectionOptional.get();
+
+    assertThat(section.items()).isNotEmpty();
+
+    assertThat(section.items())
+        .extracting(
+            TaskListItem::displayName
+        ).doesNotContain(
+            PlannedSanctionedWellsController.PAGE_NAME
         );
   }
 }
