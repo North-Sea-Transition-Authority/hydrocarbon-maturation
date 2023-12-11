@@ -31,15 +31,15 @@ public class PlannedSanctionedWellsController {
 
   public static final String PAGE_NAME = "Planned sanctioned wells";
 
-  private final PlannedSanctionedWellsFormService plannedSanctionedWellsFormService;
+  private final PlannedSanctionedWellsService plannedSanctionedWellsService;
   private final SubmissionDetailService submissionDetailService;
   private final PlannedSanctionedWellsFormValidator plannedSanctionedWellsFormValidator;
 
   @Autowired
-  public PlannedSanctionedWellsController(PlannedSanctionedWellsFormService plannedSanctionedWellsFormService,
+  public PlannedSanctionedWellsController(PlannedSanctionedWellsService plannedSanctionedWellsService,
                                           SubmissionDetailService submissionDetailService,
                                           PlannedSanctionedWellsFormValidator plannedSanctionedWellsFormValidator) {
-    this.plannedSanctionedWellsFormService = plannedSanctionedWellsFormService;
+    this.plannedSanctionedWellsService = plannedSanctionedWellsService;
     this.submissionDetailService = submissionDetailService;
     this.plannedSanctionedWellsFormValidator = plannedSanctionedWellsFormValidator;
   }
@@ -48,7 +48,7 @@ public class PlannedSanctionedWellsController {
   public ModelAndView getPlannedSanctionedWells(@PathVariable("submissionDetailId") UUID submissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     return getPlannedSanctionedWellsModelAndView(
-        plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail),
+        plannedSanctionedWellsService.submissionDetailToForm(submissionDetail),
         submissionDetail
     );
   }
@@ -61,7 +61,7 @@ public class PlannedSanctionedWellsController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
 
     if (plannedSanctionedWellsFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
-      // save
+      plannedSanctionedWellsService.savePlannedSanctionedWells(form, submissionDetail);
       return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
     }
     return getPlannedSanctionedWellsModelAndView(form, submissionDetail);

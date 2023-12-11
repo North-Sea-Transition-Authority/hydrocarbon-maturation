@@ -1,6 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.assertSummarySection;
 
@@ -22,9 +27,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedsanctionedwells.PlannedSanctionedWellsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralDetailSummaryServiceTest {
@@ -36,7 +41,8 @@ class GeneralDetailSummaryServiceTest {
   private LicencePersistenceService licencePersistenceService;
   @Mock
   private OnshoreOffshoreService onshoreOffshoreService;
-
+  @Mock
+  private PlannedSanctionedWellsSummaryService plannedSanctionedWellsSummaryService;
   @InjectMocks
   private GeneralDetailSummaryService generalDetailSummaryService;
 
@@ -256,8 +262,8 @@ class GeneralDetailSummaryServiceTest {
   }
 
   @Test
-  void getSummarySection_forField_offshore_notFullyInUkcs() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
+  void getSummarySection_generalDetailsSummary_forField_offshore_notFullyInUkcs() {
+    submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     generalDetail.setResourceLocatedInUkcs(false);
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.valueOf(99));
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
@@ -295,14 +301,13 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.CURRENT_DRIVE_MECHANISM, generalDetail.getCurrentDriveMechanism().getDisplayName()
     );
 
-    var summaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
-    var summaryItem = SummaryItem.withCard(GeneralDetailSummaryService.GENERAL_DETAILS, summaryCard);
-    assertThat(summarySection.summaryItems()).containsExactly(summaryItem);
+    var summaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
+    assertThat(summarySection.summaryItems().get(0).summaryCards()).contains(summaryCard);
   }
 
   @Test
-  void getSummarySection_forField_offshore_fullyInUkcs() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
+  void getSummarySection_generalDetailsSummary_forField_offshore_fullyInUkcs() {
+    submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     generalDetail.setResourceLocatedInUkcs(true);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
@@ -338,14 +343,13 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.CURRENT_DRIVE_MECHANISM, generalDetail.getCurrentDriveMechanism().getDisplayName()
     );
 
-    var summaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
-    var summaryItem = SummaryItem.withCard(GeneralDetailSummaryService.GENERAL_DETAILS, summaryCard);
-    assertThat(summarySection.summaryItems()).containsExactly(summaryItem);
+    var summaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
+    assertThat(summarySection.summaryItems().get(0).summaryCards()).contains(summaryCard);
   }
 
   @Test
-  void getSummarySection_forField_onshore_notFullyInEngland() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
+  void getSummarySection_generalDetailsSummary_forField_onshore_notFullyInEngland() {
+    submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     generalDetail.setResourceLocatedInEngland(false);
     generalDetail.setPercentageLocatedInEngland(BigDecimal.valueOf(99));
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
@@ -383,14 +387,13 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.CURRENT_DRIVE_MECHANISM, generalDetail.getCurrentDriveMechanism().getDisplayName()
     );
 
-    var summaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
-    var summaryItem = SummaryItem.withCard(GeneralDetailSummaryService.GENERAL_DETAILS, summaryCard);
-    assertThat(summarySection.summaryItems()).containsExactly(summaryItem);
+    var summaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
+    assertThat(summarySection.summaryItems().get(0).summaryCards()).contains(summaryCard);
   }
 
   @Test
-  void getSummarySection_forField_onshore_fullyInEngland() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
+  void getSummarySection_generalDetailsSummary_forField_onshore_fullyInEngland() {
+    submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     generalDetail.setResourceLocatedInEngland(true);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
@@ -427,14 +430,13 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.CURRENT_DRIVE_MECHANISM, generalDetail.getCurrentDriveMechanism().getDisplayName()
     );
 
-    var summaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
-    var summaryItem = SummaryItem.withCard(GeneralDetailSummaryService.GENERAL_DETAILS, summaryCard);
-    assertThat(summarySection.summaryItems()).containsExactly(summaryItem);
+    var summaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
+    assertThat(summarySection.summaryItems().get(0).summaryCards()).contains(summaryCard);
   }
 
   @Test
-  void getSummarySection_Cop() {
-    var submissionDetail = SubmissionDetailTestUtils.createNewCopFieldSubmissionDetail();
+  void getSummarySection_generalDetailsSummary_Cop() {
+    submissionDetail = SubmissionDetailTestUtils.createNewCopFieldSubmissionDetail();
     generalDetail.setResourceLocatedInEngland(true);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
@@ -478,9 +480,8 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.CURRENT_DRIVE_MECHANISM, generalDetail.getOtherDriveMechanism()
     );
 
-    var summaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
-    var summaryItem = SummaryItem.withCard(GeneralDetailSummaryService.GENERAL_DETAILS, summaryCard);
-    assertThat(summarySection.summaryItems()).containsExactly(summaryItem);
+    var summaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
+    assertThat(summarySection.summaryItems().get(0).summaryCards()).contains(summaryCard);
   }
 
   @ParameterizedTest
@@ -488,9 +489,13 @@ class GeneralDetailSummaryServiceTest {
       value = SubmissionType.class,
       names = {"CREATE_FDP", "CREATE_FDPA"}
   )
-  void getSummarySection_FdpOrFdpa(SubmissionType submissionType) {
+  void getSummarySection_generalDetailsSummary_FdpOrFdpa(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     generalDetail.setResourceLocatedInEngland(true);
+    when(plannedSanctionedWellsSummaryService.getPlannedSanctionedWellsCard(submissionDetail))
+        .thenReturn(SummaryCard.emptySummaryCard());
+    when(plannedSanctionedWellsSummaryService.getWellTypesSummaryCard(submissionDetail))
+        .thenReturn(SummaryCard.emptySummaryCard());
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
     var licenceRef1 = "Licence 1";
@@ -532,9 +537,70 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.CURRENT_DRIVE_MECHANISM, generalDetail.getOtherDriveMechanism()
     );
 
-    var summaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
-    var summaryItem = SummaryItem.withCard(GeneralDetailSummaryService.GENERAL_DETAILS, summaryCard);
-    assertThat(summarySection.summaryItems()).containsExactly(summaryItem);
+    var summaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
+    assertThat(summarySection.summaryItems().get(0).summaryCards()).contains(summaryCard);
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {
+          "CREATE_FDP",
+          "CREATE_FDPA"})
+  void getSummarySection_assertCards_fdpAndFdpa(SubmissionType submissionType) {
+    submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+    var summaryCard1 = SummaryCard.emptySummaryCard();
+    var summaryCard2 = SummaryCard.emptySummaryCard();
+    var summaryCard3 = SummaryCard.emptySummaryCard();
+    var summaryCard4 = SummaryCard.emptySummaryCard();
+    var summaryCard5 = SummaryCard.emptySummaryCard();
+
+    when(plannedSanctionedWellsSummaryService.getPlannedSanctionedWellsCard(submissionDetail))
+        .thenReturn(summaryCard1);
+    when(plannedSanctionedWellsSummaryService.getWellTypesSummaryCard(submissionDetail))
+        .thenReturn(summaryCard2);
+    when(plannedSanctionedWellsSummaryService.getHoleCompletionTypesSummaryCard(submissionDetail))
+        .thenReturn(summaryCard3);
+    when(plannedSanctionedWellsSummaryService.getPlannedCompletionTypesSummaryCard(submissionDetail))
+        .thenReturn(summaryCard4);
+    when(plannedSanctionedWellsSummaryService.getArtificialLiftMechanismsSummaryCard(submissionDetail))
+        .thenReturn(summaryCard5);
+
+    var summaryCards = generalDetailSummaryService.getSummarySection(submissionDetail).get().summaryItems()
+        .get(0).summaryCards();
+    // 5 from planned sanctioned wells + 1 from general details
+    assertThat(summaryCards)
+        .hasSize(6)
+        .contains(
+            summaryCard1,
+            summaryCard2,
+            summaryCard2,
+            summaryCard3,
+            summaryCard4,
+            summaryCard5
+        );
+
+    verify(plannedSanctionedWellsSummaryService, times(1)).getPlannedSanctionedWellsCard(submissionDetail);
+    verify(plannedSanctionedWellsSummaryService, times(1)).getWellTypesSummaryCard(submissionDetail);
+    verify(plannedSanctionedWellsSummaryService, times(1)).getPlannedCompletionTypesSummaryCard(submissionDetail);
+    verify(plannedSanctionedWellsSummaryService, times(1)).getHoleCompletionTypesSummaryCard(submissionDetail);
+    verify(plannedSanctionedWellsSummaryService, times(1)).getArtificialLiftMechanismsSummaryCard(submissionDetail);
+    verifyNoMoreInteractions(plannedSanctionedWellsSummaryService);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class,
+      names = {"CREATE_CSR", "CREATE_COP"})
+  void getSummarySection_assertCards_fieldNotFdpAndFdpa(SubmissionType submissionType) {
+    submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+
+    var summaryCards = generalDetailSummaryService.getSummarySection(submissionDetail).get().summaryItems()
+        .get(0).summaryCards();
+    assertThat(summaryCards).hasSize(1);
+
+    verify(plannedSanctionedWellsSummaryService, never()).getPlannedSanctionedWellsCard(submissionDetail);
+    verify(plannedSanctionedWellsSummaryService, never()).getWellTypesSummaryCard(submissionDetail);
+    verifyNoInteractions(plannedSanctionedWellsSummaryService);
   }
 
   private QuadrantAndBlock createQuadrantAndBlock(

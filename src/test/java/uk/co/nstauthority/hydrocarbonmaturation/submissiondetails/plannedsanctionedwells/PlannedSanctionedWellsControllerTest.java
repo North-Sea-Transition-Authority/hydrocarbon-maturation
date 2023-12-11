@@ -25,7 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 @ContextConfiguration(classes = PlannedSanctionedWellsController.class)
 class PlannedSanctionedWellsControllerTest extends AbstractSubmissionControllerTest {
   @MockBean
-  private PlannedSanctionedWellsFormService plannedSanctionedWellsFormService;
+  private PlannedSanctionedWellsService plannedSanctionedWellsService;
   @MockBean
   private PlannedSanctionedWellsFormValidator plannedSanctionedWellsFormValidator;
 
@@ -44,7 +44,7 @@ class PlannedSanctionedWellsControllerTest extends AbstractSubmissionControllerT
   void getPlannedSanctionedWells_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
-    when(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail))
+    when(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail))
         .thenReturn(new PlannedSanctionedWellsForm());
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
@@ -76,7 +76,7 @@ class PlannedSanctionedWellsControllerTest extends AbstractSubmissionControllerT
 
   @Test
   void getPlannedSanctionedWellsModelAndView_assertModelProperties() throws Exception {
-    when(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail)).thenReturn(form);
+    when(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail)).thenReturn(form);
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
                     get(ReverseRouter.route(on(PlannedSanctionedWellsController.class)

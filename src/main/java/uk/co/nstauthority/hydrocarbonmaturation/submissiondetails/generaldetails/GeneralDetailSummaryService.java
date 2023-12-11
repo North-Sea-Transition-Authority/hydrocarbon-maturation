@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -7,6 +8,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedsanctionedwells.PlannedSanctionedWellsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
@@ -35,15 +37,19 @@ public class GeneralDetailSummaryService implements SummarySectionService<Submis
   private final LicencePersistenceService licencePersistenceService;
   private final OnshoreOffshoreService onshoreOffshoreService;
 
+  private final PlannedSanctionedWellsSummaryService plannedSanctionedWellsSummaryService;
+
   @Autowired
   public GeneralDetailSummaryService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
                                      QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
                                      LicencePersistenceService licencePersistenceService,
-                                     OnshoreOffshoreService onshoreOffshoreService) {
+                                     OnshoreOffshoreService onshoreOffshoreService,
+                                     PlannedSanctionedWellsSummaryService plannedSanctionedWellsSummaryService) {
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
     this.licencePersistenceService = licencePersistenceService;
     this.onshoreOffshoreService = onshoreOffshoreService;
+    this.plannedSanctionedWellsSummaryService = plannedSanctionedWellsSummaryService;
   }
 
   public GeneralDetailSummaryView getGeneralDetailSummaryFromSubmissionDetail(SubmissionDetail submissionDetail) {
@@ -145,15 +151,31 @@ public class GeneralDetailSummaryService implements SummarySectionService<Submis
     if (!submissionDetail.isFieldSubmission()) {
       return Optional.empty();
     }
-    var summaryItems = List.of(getGeneralDetailsSummary(submissionDetail));
+    var summaryItems = List.of(getSummaryItem(submissionDetail));
     return Optional.of(new SummarySection(GENERAL_DETAIL_SECTION_ORDER, summaryItems, ""));
   }
 
-  private SummaryItem getGeneralDetailsSummary(SubmissionDetail submissionDetail) {
+  private SummaryItem getSummaryItem(SubmissionDetail submissionDetail) {
+    var summaryCards = new ArrayList<SummaryCard>();
+    summaryCards.add(getGeneralDetailsSummaryCard(submissionDetail));
+
+    if (submissionDetail.isFieldDevelopmentPlanAddendumSubmission()
+        || submissionDetail.isFieldDevelopmentPlanSubmission()) {
+      summaryCards.add(plannedSanctionedWellsSummaryService.getPlannedSanctionedWellsCard(submissionDetail));
+      summaryCards.add(plannedSanctionedWellsSummaryService.getWellTypesSummaryCard(submissionDetail));
+      summaryCards.add(plannedSanctionedWellsSummaryService.getHoleCompletionTypesSummaryCard(submissionDetail));
+      summaryCards.add(plannedSanctionedWellsSummaryService.getPlannedCompletionTypesSummaryCard(submissionDetail));
+      summaryCards.add(plannedSanctionedWellsSummaryService.getArtificialLiftMechanismsSummaryCard(submissionDetail));
+    }
+
+    return SummaryItem.withCards(GENERAL_DETAILS, summaryCards);
+  }
+
+  private SummaryCard getGeneralDetailsSummaryCard(SubmissionDetail submissionDetail) {
     var generalDetailOptional = generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail);
 
     if (generalDetailOptional.isEmpty()) {
-      return SummaryItem.withCard(GENERAL_DETAILS, SummaryCard.emptySummaryCard());
+      return SummaryCard.emptySummaryCardWithHeading(GENERAL_DETAILS);
     }
 
     var generalDetail = generalDetailOptional.get();
@@ -188,10 +210,7 @@ public class GeneralDetailSummaryService implements SummarySectionService<Submis
 
     addFieldSummaryValues(submissionDetail, generalDetail, summaryDataView);
 
-    var summaryCard = SummaryCard.simpleSummaryCard(
-        summaryDataView
-    );
-    return SummaryItem.withCard(GENERAL_DETAILS, summaryCard);
+    return SummaryCard.simpleSummaryCardWithHeading(GENERAL_DETAILS, summaryDataView);
   }
 
   private void addFieldSummaryValues(SubmissionDetail submissionDetail,

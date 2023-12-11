@@ -32,6 +32,10 @@
             <#elseif summaryCard.summaryCardType() == "FIELD_PROBABILITY_DISTRIBUTION_SUMMARY">
               <@probabilityDistributionSummary.fieldProbabilityDistributionTable
               probabilityDistributions=summaryCard.summaryData()/>
+            <#elseif summaryCard.summaryCardType() == "TABLE_FIXED_WIDTH_SUMMARY">
+              <@tableSummary.tableFixedWidthSummary
+              summaryTableView=summaryCard.summaryData()
+              summaryHeading=summaryCard.displayName()!""/>
             </#if>
           </#list>
         </@fdsAccordion.accordionSection>

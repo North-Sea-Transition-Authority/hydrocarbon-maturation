@@ -46,7 +46,7 @@ public class PlannedSanctionedWellsForm implements SubmissionForm {
 
   private DecimalInput numberOfWellsExpectedToCrossFaults = new DecimalInput();
 
-  private Set<Fault> expectedFaults;
+  private Set<Fault> expectedFaults = Set.of();
 
   private Boolean anyExpectedLossesFromDrilling;
 

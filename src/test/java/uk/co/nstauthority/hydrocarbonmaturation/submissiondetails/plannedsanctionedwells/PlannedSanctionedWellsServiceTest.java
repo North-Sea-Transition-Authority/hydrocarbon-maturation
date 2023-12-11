@@ -1,6 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedsanctionedwells;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -8,9 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,12 +27,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @ExtendWith(MockitoExtension.class)
-class PlannedSanctionedWellsFormServiceTest {
+class PlannedSanctionedWellsServiceTest {
 
   @Mock
   private PlannedSanctionedWellsRepository plannedSanctionedWellsRepository;
   @Mock
-  private PwsFaultRepository pwsFaultRepository;
+  private PswFaultRepository pswFaultRepository;
   @Mock
   private HoleCompletionTypesRepository holeCompletionTypesRepository;
   @Mock
@@ -33,7 +40,7 @@ class PlannedSanctionedWellsFormServiceTest {
   @Mock
   private ArtificialLiftMechanismsRepository artificialLiftMechanismsRepository;
   @InjectMocks
-  private PlannedSanctionedWellsFormService plannedSanctionedWellsFormService;
+  private PlannedSanctionedWellsService plannedSanctionedWellsService;
 
   private SubmissionDetail submissionDetail;
   private PlannedSanctionedWells plannedSanctionedWells;
@@ -49,7 +56,7 @@ class PlannedSanctionedWellsFormServiceTest {
     when(plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.empty());
 
-    assertThat(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail))
+    assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail))
         .usingRecursiveComparison()
         .isEqualTo(new PlannedSanctionedWellsForm());
   }
@@ -90,7 +97,7 @@ class PlannedSanctionedWellsFormServiceTest {
         .thenReturn(Optional.ofNullable(plannedSanctionedWells));
 
     // check big decimals and decimal inputs have equal values
-    assertThat(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail))
+    assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail))
       .extracting(
           PlannedSanctionedWellsForm::getTotalCapex,
           PlannedSanctionedWellsForm::getTotalNumberOfPlannedSanctionedWells,
@@ -118,7 +125,7 @@ class PlannedSanctionedWellsFormServiceTest {
                 DecimalInput.createDecimalInput(plannedSanctionedWells.getNumberOfWellsExpectedToCrossFaults())
             ));
 
-    assertThat(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail))
+    assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail))
         .extracting(
             PlannedSanctionedWellsForm::getAnyHorizontalWells,
             PlannedSanctionedWellsForm::getAnyHighPressureTemperatureWells,
@@ -160,10 +167,10 @@ class PlannedSanctionedWellsFormServiceTest {
   void submissionDetailToForm_noExisting_pwsFaults() {
     when(plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(plannedSanctionedWells));
-    when(pwsFaultRepository.findAllByPlannedSanctionedWells(plannedSanctionedWells))
+    when(pswFaultRepository.findAllByPlannedSanctionedWells(plannedSanctionedWells))
         .thenReturn(List.of());
 
-    assertThat(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail).getExpectedFaults())
+    assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail).getExpectedFaults())
         .isEmpty();
   }
 
@@ -177,10 +184,10 @@ class PlannedSanctionedWellsFormServiceTest {
     var fault2 = new PswFaults();
     fault2.setExpectedFault(Fault.OVERBURDEN);
 
-    when(pwsFaultRepository.findAllByPlannedSanctionedWells(plannedSanctionedWells))
+    when(pswFaultRepository.findAllByPlannedSanctionedWells(plannedSanctionedWells))
         .thenReturn(List.of(fault1, fault2));
 
-    assertThat(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail).getExpectedFaults())
+    assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail).getExpectedFaults())
         .usingRecursiveComparison()
         .isEqualTo(Set.of(fault1.getExpectedFault(), fault2.getExpectedFault()));
   }
@@ -192,9 +199,9 @@ class PlannedSanctionedWellsFormServiceTest {
     when(holeCompletionTypesRepository.findAllByPlannedSanctionedWells(plannedSanctionedWells))
         .thenReturn(List.of());
 
-    assertThat(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail).getSelectedHoleCompletionTypes())
+    assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail).getSelectedHoleCompletionTypes())
         .isEmpty();
-    assertThat(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail).getNumberOfHoleCompletionTypes())
+    assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail).getNumberOfHoleCompletionTypes())
         .usingRecursiveComparison()
         .isEqualTo(PlannedSanctionedWellsForm.emptyNumberOfHoleCompletionTypes());
   }
@@ -219,7 +226,7 @@ class PlannedSanctionedWellsFormServiceTest {
 
     var expectedSelectedMap = Map.of(holeCompletionTypes1.getHoleCompletionType(), true,
         holeCompletionTypes2.getHoleCompletionType(), true);
-    assertThat(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail).getSelectedHoleCompletionTypes())
+    assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail).getSelectedHoleCompletionTypes())
         .usingRecursiveComparison()
         .isEqualTo(expectedSelectedMap);
 
@@ -229,7 +236,7 @@ class PlannedSanctionedWellsFormServiceTest {
     expectedNumberMap.put(holeCompletionTypes2.getHoleCompletionType(),
         DecimalInput.createDecimalInput(holeCompletionTypes2.getNumberOfWellsWithHoleCompletionType()));
 
-    assertThat(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail).getNumberOfHoleCompletionTypes())
+    assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail).getNumberOfHoleCompletionTypes())
         .usingRecursiveComparison()
         .isEqualTo(expectedNumberMap);
   }
@@ -241,9 +248,9 @@ class PlannedSanctionedWellsFormServiceTest {
     when(plannedCompletionTypesRepository.findAllByPlannedSanctionedWells(plannedSanctionedWells))
         .thenReturn(List.of());
 
-    assertThat(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail).getSelectedHoleCompletionTypes())
+    assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail).getSelectedHoleCompletionTypes())
         .isEmpty();
-    assertThat(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail).getNumberOfHoleCompletionTypes())
+    assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail).getNumberOfHoleCompletionTypes())
         .usingRecursiveComparison()
         .isEqualTo(PlannedSanctionedWellsForm.emptyNumberOfHoleCompletionTypes());
   }
@@ -268,7 +275,7 @@ class PlannedSanctionedWellsFormServiceTest {
 
     var expectedSelectedMap = Map.of(plannedCompletionTypes1.getPlannedCompletionType(), true,
         plannedCompletionTypes2.getPlannedCompletionType(), true);
-    assertThat(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail).getSelectedPlannedCompletionTypes())
+    assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail).getSelectedPlannedCompletionTypes())
         .usingRecursiveComparison()
         .isEqualTo(expectedSelectedMap);
 
@@ -278,7 +285,7 @@ class PlannedSanctionedWellsFormServiceTest {
     expectedNumberMap.put(plannedCompletionTypes2.getPlannedCompletionType(),
         DecimalInput.createDecimalInput(plannedCompletionTypes2.getNumberOfWellsWithPlannedCompletionType()));
 
-    assertThat(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail).getNumberOfPlannedCompletionTypes())
+    assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail).getNumberOfPlannedCompletionTypes())
         .usingRecursiveComparison()
         .isEqualTo(expectedNumberMap);
   }
@@ -298,7 +305,7 @@ class PlannedSanctionedWellsFormServiceTest {
     when(plannedCompletionTypesRepository.findAllByPlannedSanctionedWells(plannedSanctionedWells))
         .thenReturn(plannedCompletionTypeList);
 
-    var plannedSanctionedWellsForm = plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail);
+    var plannedSanctionedWellsForm = plannedSanctionedWellsService.submissionDetailToForm(submissionDetail);
 
     // check selection
     var expectedSelectedMap = Map.of(plannedCompletionTypes1.getPlannedCompletionType(), true);
@@ -327,9 +334,9 @@ class PlannedSanctionedWellsFormServiceTest {
     when(artificialLiftMechanismsRepository.findAllByPlannedSanctionedWells(plannedSanctionedWells))
         .thenReturn(List.of());
 
-    assertThat(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail).getSelectedArtificialLiftMechanisms())
+    assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail).getSelectedArtificialLiftMechanisms())
         .isEmpty();
-    assertThat(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail).getNumberOfArtificialLiftMechanisms())
+    assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail).getNumberOfArtificialLiftMechanisms())
         .usingRecursiveComparison()
         .isEqualTo(PlannedSanctionedWellsForm.emptyNumberOfArtificialLiftMechanisms());
   }
@@ -354,7 +361,7 @@ class PlannedSanctionedWellsFormServiceTest {
 
     var expectedSelectedMap = Map.of(artificialLiftMechanisms1.getArtificialLiftMechanism(), true,
         artificialLiftMechanisms2.getArtificialLiftMechanism(), true);
-    assertThat(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail).getSelectedArtificialLiftMechanisms())
+    assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail).getSelectedArtificialLiftMechanisms())
         .usingRecursiveComparison()
         .isEqualTo(expectedSelectedMap);
 
@@ -364,7 +371,7 @@ class PlannedSanctionedWellsFormServiceTest {
     expectedNumberMap.put(artificialLiftMechanisms2.getArtificialLiftMechanism(),
         DecimalInput.createDecimalInput(artificialLiftMechanisms2.getNumberOfWellsWithArtificialLiftMechanism()));
 
-    assertThat(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail).getNumberOfArtificialLiftMechanisms())
+    assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail).getNumberOfArtificialLiftMechanisms())
         .usingRecursiveComparison()
         .isEqualTo(expectedNumberMap);
   }
@@ -379,12 +386,12 @@ class PlannedSanctionedWellsFormServiceTest {
     artificialLiftMechanisms1.setNumberOfWellsWithArtificialLiftMechanism(BigDecimal.ONE);
     artificialLiftMechanisms1.setOtherArtificialLiftMechanism("My artificial lift mechanism");
 
-    var holeCompletionTypeList = List.of(artificialLiftMechanisms1);
+    var artificialLiftMechanismsList = List.of(artificialLiftMechanisms1);
 
     when(artificialLiftMechanismsRepository.findAllByPlannedSanctionedWells(plannedSanctionedWells))
-        .thenReturn(holeCompletionTypeList);
+        .thenReturn(artificialLiftMechanismsList);
 
-    var plannedSanctionedWellsForm = plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail);
+    var plannedSanctionedWellsForm = plannedSanctionedWellsService.submissionDetailToForm(submissionDetail);
 
     // check selection
     var expectedSelectedMap = Map.of(artificialLiftMechanisms1.getArtificialLiftMechanism(), true);
@@ -404,5 +411,281 @@ class PlannedSanctionedWellsFormServiceTest {
     assertThat(plannedSanctionedWellsForm.getNumberOfArtificialLiftMechanisms())
         .usingRecursiveComparison()
         .isEqualTo(expectedNumberMap);
+  }
+
+  @Test
+  void savePlannedSanctionedWells_assertPlannedSanctionedWells() {
+    when(plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.empty());
+
+    var exampleForm = getExampleForm();
+    var captor = ArgumentCaptor.forClass(PlannedSanctionedWells.class);
+    plannedSanctionedWellsService.savePlannedSanctionedWells(exampleForm, submissionDetail);
+
+    verify(plannedSanctionedWellsRepository, times(1)).save(captor.capture());
+    verifyNoMoreInteractions(plannedSanctionedWellsRepository);
+
+    assertThat(captor.getValue())
+        .usingRecursiveComparison()
+        .ignoringFieldsOfTypes(UUID.class, SubmissionDetail.class)
+        .isEqualTo(getExpectedPlannedPlannedSanctionedWellsForExampleForm());
+  }
+
+  @Test
+  void savePlannedSanctionedWells_assertFaults() {
+    when(plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.empty());
+    when(plannedSanctionedWellsRepository.save(any(PlannedSanctionedWells.class)))
+        .thenReturn(plannedSanctionedWells);
+
+    var exampleForm = getExampleForm();
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<PswFaults>> pswFaultsCaptor = ArgumentCaptor.forClass(List.class);
+
+    plannedSanctionedWellsService.savePlannedSanctionedWells(exampleForm, submissionDetail);
+
+    verify(plannedSanctionedWellsRepository, times(1)).save(any(PlannedSanctionedWells.class));
+    verifyNoMoreInteractions(plannedSanctionedWellsRepository);
+
+    verify(pswFaultRepository, times(1)).deleteAllByPlannedSanctionedWells(any(PlannedSanctionedWells.class));
+    verify(pswFaultRepository, times(1)).saveAll(pswFaultsCaptor.capture());
+
+    assertThat(pswFaultsCaptor.getValue())
+        .extracting(
+            PswFaults::getExpectedFault
+        ).containsExactlyElementsOf(
+            exampleForm.getExpectedFaults()
+        );
+  }
+
+  @Test
+  void savePlannedSanctionedWells_assertHoleCompletionTypes() {
+    var exampleForm = getExampleForm();
+    when(plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.empty());
+    when(plannedSanctionedWellsRepository.save(any(PlannedSanctionedWells.class)))
+        .thenReturn(plannedSanctionedWells);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<HoleCompletionTypes>> holeCompletionTypeCaptor = ArgumentCaptor.forClass(List.class);
+
+    plannedSanctionedWellsService.savePlannedSanctionedWells(exampleForm, submissionDetail);
+
+    verify(plannedSanctionedWellsRepository, times(1)).save(any(PlannedSanctionedWells.class));
+    verifyNoMoreInteractions(plannedSanctionedWellsRepository);
+
+    verify(holeCompletionTypesRepository, times(1)).deleteAllByPlannedSanctionedWells(any(PlannedSanctionedWells.class));
+    verify(holeCompletionTypesRepository, times(1)).saveAll(holeCompletionTypeCaptor.capture());
+
+    assertThat(holeCompletionTypeCaptor.getValue())
+        .extracting(
+            HoleCompletionTypes::getHoleCompletionType,
+            HoleCompletionTypes::getNumberOfWellsWithHoleCompletionType
+        ).contains(
+            Tuple.tuple(HoleCompletionType.OPENED_HOLE, BigDecimal.valueOf(4)),
+            Tuple.tuple(HoleCompletionType.CASED_HOLE, BigDecimal.valueOf(6))
+        );
+  }
+
+  @Test
+  void savePlannedSanctionedWells_assertPlannedCompletionTypes() {
+    var exampleForm = getExampleForm();
+    when(plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.empty());
+    when(plannedSanctionedWellsRepository.save(any(PlannedSanctionedWells.class)))
+        .thenReturn(plannedSanctionedWells);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<PlannedCompletionTypes>> plannedCompletionTypeCaptor = ArgumentCaptor.forClass(List.class);
+
+    plannedSanctionedWellsService.savePlannedSanctionedWells(exampleForm, submissionDetail);
+
+    verify(plannedSanctionedWellsRepository, times(1)).save(any(PlannedSanctionedWells.class));
+    verifyNoMoreInteractions(plannedSanctionedWellsRepository);
+
+    verify(plannedCompletionTypesRepository, times(1)).deleteAllByPlannedSanctionedWells(any(PlannedSanctionedWells.class));
+    verify(plannedCompletionTypesRepository, times(1)).saveAll(plannedCompletionTypeCaptor.capture());
+
+    assertThat(plannedCompletionTypeCaptor.getValue())
+        .extracting(
+            PlannedCompletionTypes::getPlannedCompletionType,
+            PlannedCompletionTypes::getNumberOfWellsWithPlannedCompletionType,
+            PlannedCompletionTypes::getOtherPlannedCompletionType
+        ).contains(
+            Tuple.tuple(PlannedCompletionType.GRAVELPACK, BigDecimal.valueOf(6), null),
+            Tuple.tuple(PlannedCompletionType.OTHER, BigDecimal.valueOf(4), exampleForm.getOtherPlannedCompletionType())
+        );
+  }
+
+  @Test
+  void savePlannedSanctionedWells_assertArtificialLiftMechanisms() {
+    var exampleForm = getExampleForm();
+    when(plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.empty());
+    when(plannedSanctionedWellsRepository.save(any(PlannedSanctionedWells.class)))
+        .thenReturn(plannedSanctionedWells);
+
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<List<ArtificialLiftMechanisms>> artificialLiftMechanismsCaptor =
+        ArgumentCaptor.forClass(List.class);
+
+    plannedSanctionedWellsService.savePlannedSanctionedWells(exampleForm, submissionDetail);
+
+    verify(plannedSanctionedWellsRepository, times(1)).save(any(PlannedSanctionedWells.class));
+    verifyNoMoreInteractions(plannedSanctionedWellsRepository);
+
+    verify(artificialLiftMechanismsRepository, times(1)).deleteAllByPlannedSanctionedWells(any(PlannedSanctionedWells.class));
+    verify(artificialLiftMechanismsRepository, times(1)).saveAll(artificialLiftMechanismsCaptor.capture());
+
+    assertThat(artificialLiftMechanismsCaptor.getValue())
+        .extracting(
+            ArtificialLiftMechanisms::getArtificialLiftMechanism,
+            ArtificialLiftMechanisms::getNumberOfWellsWithArtificialLiftMechanism,
+            ArtificialLiftMechanisms::getOtherArtificialLiftMechanism
+        ).contains(
+            Tuple.tuple(ArtificialLiftMechanism.ELECTRIC_SUBMERSIBLE_PUMP, BigDecimal.valueOf(6), null),
+            Tuple.tuple(ArtificialLiftMechanism.OTHER, BigDecimal.valueOf(4), exampleForm.getOtherArtificialLiftMechanism())
+        );
+  }
+
+  private PlannedSanctionedWellsForm getExampleForm() {
+    var form = new PlannedSanctionedWellsForm();
+
+    form.setTotalCapex(
+        DecimalInput.createDecimalInput(10)
+    );
+    form.setTotalNumberOfPlannedSanctionedWells(
+        DecimalInput.createDecimalInput(10)
+    );
+    form.setNumberOfInjectors(
+        DecimalInput.createDecimalInput(5)
+    );
+    form.setNumberOfProducers(
+        DecimalInput.createDecimalInput(3)
+    );
+    form.setNumberOfMonitors(
+        DecimalInput.createDecimalInput(2)
+    );
+    form.setAnyHorizontalWells(true);
+    form.setNumberOfHorizontalWells(
+        DecimalInput.createDecimalInput(10)
+    );
+    form.setNumberOfHorizontalWellsWithErd(
+        DecimalInput.createDecimalInput(5)
+    );
+    form.setAnyHighPressureTemperatureWells(true);
+    form.setNumberOfHighPressureTemperatureWells(
+        DecimalInput.createDecimalInput(10)
+    );
+    form.setAnyWellsWithinNarrowOrTightPpfgWindow(true);
+    form.setNumberOfWellsWithinNarrowOrTightPpfgWindow(
+        DecimalInput.createDecimalInput(10)
+    );
+    form.setIsManagedPressureDrillingUtilized(true);
+    form.setAnyWellboreStabilityChallenges(true);
+    form.setNumberOfWellboreStabilityChallenges(
+        DecimalInput.createDecimalInput(10)
+    );
+    form.setStabilityChallengesInformation("challenges");
+    form.setNumberOfWellsExpectedToCrossFaults(
+        DecimalInput.createDecimalInput(10)
+    );
+    form.setAnyExpectedLossesFromDrilling(true);
+    form.setWhyLossesExpected("reasons");
+    form.setAnyExpectedDrillingChallenges(true);
+    form.setDrillingChallengesMitigations("mitigations");
+    form.setStimulationTypeRequired(StimulationType.HYDRAULIC_FRACTURING);
+    form.getStimulationTypeDecimalInputHashMap()
+        .put(StimulationType.HYDRAULIC_FRACTURING, DecimalInput.createDecimalInput(5));
+    form.setIsExpectingFormationDamage(true);
+    form.setExpectedFormationDamage("damage");
+    form.setAnyHeavyOil(true);
+    form.setAnySpecialisedDrillingEquipmentRequired(true);
+    form.setSpecialisedDrillingEquipmentRequired("equipment");
+
+    // set faults
+    form.setAnyWellsExpectedToCrossFaults(true);
+    form.setExpectedFaults(Set.of(Fault.RESERVOIR, Fault.OVERBURDEN));
+
+    // set hole completion types
+    form.setSelectedHoleCompletionTypes(Map.of(HoleCompletionType.OPENED_HOLE, true,
+        HoleCompletionType.CASED_HOLE, true));
+    form.setNumberOfHoleCompletionTypes(Map.of(HoleCompletionType.OPENED_HOLE, DecimalInput.createDecimalInput( 4) ,
+        HoleCompletionType.CASED_HOLE, DecimalInput.createDecimalInput( 6)));
+
+    // set planned completion types
+    form.setSelectedPlannedCompletionTypes(Map.of(PlannedCompletionType.GRAVELPACK, true,
+        PlannedCompletionType.OTHER, true));
+    form.setNumberOfPlannedCompletionTypes(Map.of(PlannedCompletionType.GRAVELPACK, DecimalInput.createDecimalInput(6),
+        PlannedCompletionType.OTHER, DecimalInput.createDecimalInput(4)));
+    form.setOtherPlannedCompletionType("My completion type");
+
+    // set artificial lift mechanisms
+    form.setSelectedArtificialLiftMechanisms(Map.of(ArtificialLiftMechanism.ELECTRIC_SUBMERSIBLE_PUMP, true,
+        ArtificialLiftMechanism.OTHER, true));
+    form.setNumberOfArtificialLiftMechanisms(Map.of(ArtificialLiftMechanism.ELECTRIC_SUBMERSIBLE_PUMP, DecimalInput.createDecimalInput(6),
+        ArtificialLiftMechanism.OTHER, DecimalInput.createDecimalInput(4)));
+    form.setOtherArtificialLiftMechanism("My artificial lift mechanism");
+
+    return form;
+  }
+
+  private PlannedSanctionedWells getExpectedPlannedPlannedSanctionedWellsForExampleForm() {
+    var plannedSanctionedWells = new PlannedSanctionedWells();
+
+    plannedSanctionedWells.setTotalCapex(
+        BigDecimal.valueOf(10)
+    );
+    plannedSanctionedWells.setNumberOfPlannedSanctionedWells(
+        BigDecimal.valueOf(10)
+    );
+    plannedSanctionedWells.setNumberOfInjectors(
+        BigDecimal.valueOf(5)
+    );
+    plannedSanctionedWells.setNumberOfProducers(
+        BigDecimal.valueOf(3)
+    );
+    plannedSanctionedWells.setNumberOfMonitors(
+        BigDecimal.valueOf(2)
+    );
+    plannedSanctionedWells.setAnyHorizontalWells(true);
+    plannedSanctionedWells.setNumberOfHorizontalWells(
+        BigDecimal.valueOf(10)
+    );
+    plannedSanctionedWells.setNumberOfHorizontalWellsWithErd(
+        BigDecimal.valueOf(5)
+    );
+    plannedSanctionedWells.setAnyHighPressureTemperatureWells(true);
+    plannedSanctionedWells.setNumberOfHighPressureTemperatureWells(
+        BigDecimal.valueOf(10)
+    );
+    plannedSanctionedWells.setAnyWellsWithinNarrowOrTightPpfgWindow(true);
+    plannedSanctionedWells.setNumberOfWellsWithinNarrowOrTightPpfgWindow(
+        BigDecimal.valueOf(10)
+    );
+    plannedSanctionedWells.setIsManagedPressureDrillingUtilized(true);
+    plannedSanctionedWells.setAnyWellboreStabilityChallenges(true);
+    plannedSanctionedWells.setNumberOfWellboreStabilityChallenges(
+        BigDecimal.valueOf(10)
+    );
+    plannedSanctionedWells.setStabilityChallengesInformation("challenges");
+    plannedSanctionedWells.setAnyWellsExpectedToCrossFaults(true);
+    plannedSanctionedWells.setNumberOfWellsExpectedToCrossFaults(
+        BigDecimal.valueOf(10)
+    );
+    plannedSanctionedWells.setAnyExpectedLossesFromDrilling(true);
+    plannedSanctionedWells.setWhyLossesExpected("reasons");
+    plannedSanctionedWells.setAnyExpectedDrillingChallenges(true);
+    plannedSanctionedWells.setDrillingChallengesMitigations("mitigations");
+    plannedSanctionedWells.setStimulationTypeRequired(StimulationType.HYDRAULIC_FRACTURING);
+    plannedSanctionedWells.setNumberOfWellsRequiringStimulation(BigDecimal.valueOf(5));
+    plannedSanctionedWells.setExpectingFormationDamage(true);
+    plannedSanctionedWells.setExpectedFormationDamage("damage");
+    plannedSanctionedWells.setAnyHeavyOil(true);
+    plannedSanctionedWells.setAnySpecialisedDrillingEquipmentRequired(true);
+    plannedSanctionedWells.setSpecialisedDrillingEquipmentRequired("equipment");
+
+    return plannedSanctionedWells;
   }
 }

@@ -11,13 +11,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 public class PlannedSanctionedWellsSubmissionService implements SectionSubmissionService {
 
   private final PlannedSanctionedWellsFormValidator plannedSanctionedWellsFormValidator;
-  private final PlannedSanctionedWellsFormService plannedSanctionedWellsFormService;
+  private final PlannedSanctionedWellsService plannedSanctionedWellsService;
 
   @Autowired
   public PlannedSanctionedWellsSubmissionService(PlannedSanctionedWellsFormValidator plannedSanctionedWellsFormValidator,
-                                                 PlannedSanctionedWellsFormService plannedSanctionedWellsFormService) {
+                                                 PlannedSanctionedWellsService plannedSanctionedWellsService) {
     this.plannedSanctionedWellsFormValidator = plannedSanctionedWellsFormValidator;
-    this.plannedSanctionedWellsFormService = plannedSanctionedWellsFormService;
+    this.plannedSanctionedWellsService = plannedSanctionedWellsService;
   }
 
   @Override
@@ -27,7 +27,7 @@ public class PlannedSanctionedWellsSubmissionService implements SectionSubmissio
         || submissionDetail.isFieldDevelopmentPlanAddendumSubmission())) {
       return true;
     }
-    var form = plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail);
+    var form = plannedSanctionedWellsService.submissionDetailToForm(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     return plannedSanctionedWellsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
   }

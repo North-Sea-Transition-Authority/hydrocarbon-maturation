@@ -1141,7 +1141,7 @@ class PlannedSanctionedWellsFormValidatorTest {
     validStimulationTypes.put(StimulationType.NO_WELL_STIMULATION, new DecimalInput());
     form.setStimulationTypeDecimalInputHashMap(validStimulationTypes);
     form.setStimulationTypeRequired(StimulationType.NO_WELL_STIMULATION);
-    
+
     form.setIsExpectingFormationDamage(false);
     form.setExpectedFormationDamage(null);
     form.setAnyHeavyOil(false);

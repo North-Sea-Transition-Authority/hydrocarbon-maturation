@@ -79,4 +79,13 @@ public record SummaryCard(
     );
   }
 
+  public static SummaryCard tableFixedWidthSummaryCardWithHeading(String displayName,
+                                                                  SummaryTableView summaryData) {
+    return new SummaryCard(
+        displayName,
+        SummaryCardType.TABLE_FIXED_WIDTH_SUMMARY,
+        summaryData
+    );
+  }
+
 }

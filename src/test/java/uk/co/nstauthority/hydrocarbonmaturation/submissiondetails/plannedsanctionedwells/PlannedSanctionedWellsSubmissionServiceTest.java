@@ -26,7 +26,7 @@ class PlannedSanctionedWellsSubmissionServiceTest {
   private PlannedSanctionedWellsFormValidator plannedSanctionedWellsFormValidator;
 
   @Mock
-  private PlannedSanctionedWellsFormService plannedSanctionedWellsFormService;
+  private PlannedSanctionedWellsService plannedSanctionedWellsService;
 
   @InjectMocks
   private PlannedSanctionedWellsSubmissionService plannedSanctionedWellsSubmissionService;
@@ -43,7 +43,7 @@ class PlannedSanctionedWellsSubmissionServiceTest {
     assertTrue(plannedSanctionedWellsSubmissionService.isSectionSubmittable(submissionDetail));
 
     verifyNoInteractions(plannedSanctionedWellsFormValidator);
-    verifyNoInteractions(plannedSanctionedWellsFormService);
+    verifyNoInteractions(plannedSanctionedWellsService);
   }
 
   @ParameterizedTest
@@ -55,7 +55,7 @@ class PlannedSanctionedWellsSubmissionServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
 
     var form = mock(PlannedSanctionedWellsForm.class);
-    when(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail))
+    when(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail))
         .thenReturn(form);
 
     when(plannedSanctionedWellsFormValidator.isValid(eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
@@ -73,7 +73,7 @@ class PlannedSanctionedWellsSubmissionServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
 
     var form = mock(PlannedSanctionedWellsForm.class);
-    when(plannedSanctionedWellsFormService.submissionDetailToForm(submissionDetail))
+    when(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail))
         .thenReturn(form);
 
     when(plannedSanctionedWellsFormValidator.isValid(eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
