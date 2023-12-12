@@ -540,7 +540,8 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
           ValidationUtils.rejectIfEmptyOrWhitespace(
               errors,
               "otherPlannedCompletionType",
-              "otherPlannedCompletionType.required"
+              "otherPlannedCompletionType.required",
+              "Provide the other planned completion type"
           );
         }
 
@@ -598,7 +599,8 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
           ValidationUtils.rejectIfEmptyOrWhitespace(
               errors,
               "otherArtificialLiftMechanism",
-              "otherArtificialLiftMechanism.required"
+              "otherArtificialLiftMechanism.required",
+              "Provide the other artificial lift mechanism"
           );
         }
 
