@@ -189,7 +189,7 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
         isPositiveWholeNumberAndLessThanMaxValue(
             errors,
             "numberOfHorizontalWellsWithErd.decimalInputValue",
-            "Number fo horizontal wells with extended reach drilling",
+            "Number of horizontal wells with extended reach drilling",
             plannedSanctionedWellsForm.getNumberOfHorizontalWellsWithErd(),
             plannedSanctionedWellsForm.getNumberOfHorizontalWells(),
             validationType
@@ -199,7 +199,7 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
         isPositiveWholeNumberAndLessThanPlannedSanctionedWells(
             errors,
             "numberOfHorizontalWellsWithErd.decimalInputValue",
-            "Number fo horizontal wells with extended reach drilling",
+            "Number of horizontal wells with extended reach drilling",
             plannedSanctionedWellsForm.getNumberOfHorizontalWellsWithErd(),
             validationType
         );
@@ -503,7 +503,7 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
         }
       }
 
-      if (BooleanUtils.isTrue(areAllValidNumeric) && isTotalNumberOfPlannedSanctionedWellsNumeric
+      if (BooleanUtils.isTrue(areAllValidNumeric) && BooleanUtils.isTrue(isTotalNumberOfPlannedSanctionedWellsNumeric)
           && sumOfTypes != totalNumberOfPlannedSanctionedWells.createIntegerOrNull()) {
         errors.rejectValue(
             firstHoleCompletionTypeId,
@@ -560,7 +560,7 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
         }
       }
 
-      if (BooleanUtils.isTrue(areAllValidNumeric) && isTotalNumberOfPlannedSanctionedWellsNumeric
+      if (BooleanUtils.isTrue(areAllValidNumeric) && BooleanUtils.isTrue(isTotalNumberOfPlannedSanctionedWellsNumeric)
           && sumOfTypes != totalNumberOfPlannedSanctionedWells.createIntegerOrNull()) {
         errors.rejectValue(
             firstPlannedCompletionTypeId,
@@ -631,7 +631,7 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
         }
       }
 
-      if (BooleanUtils.isTrue(areAllValidNumeric) && isTotalNumberOfPlannedSanctionedWellsNumeric
+      if (BooleanUtils.isTrue(areAllValidNumeric) && BooleanUtils.isTrue(isTotalNumberOfPlannedSanctionedWellsNumeric)
           && sumOfTypes != totalNumberOfPlannedSanctionedWells.createIntegerOrNull()) {
         errors.rejectValue(
             firstArtificialLiftMechanismId,

@@ -178,7 +178,7 @@ breadcrumbsMap=breadcrumbsMap>
         path="form.stimulationTypeRequired"
         labelText="What type of well stimulation is required?"
         hiddenContent=true>
-            <#assign firstitem=true />
+            <#assign firstItem=true />
             <#list stimulationOptions?keys as key>
                 <@fdsRadio.radioItem
                 path="form.stimulationTypeRequired"
