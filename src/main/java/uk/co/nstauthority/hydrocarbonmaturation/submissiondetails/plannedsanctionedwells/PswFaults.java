@@ -10,10 +10,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.PlannedSanctionedWellsChildEntity;
 
 @Entity
 @Table(name  = "planned_sanctioned_wells_faults")
-public class PswFaults {
+public class PswFaults implements PlannedSanctionedWellsChildEntity {
   @Id
   @GeneratedValue(generator = "uuid")
   @GenericGenerator(name = "uuid", strategy = "uuid2")

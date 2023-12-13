@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTest;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedsanctionedwells.PlannedSanctionedWells;
 
 @Service
 public class SubmissionDuplicationPersistenceService {
@@ -56,6 +57,23 @@ public class SubmissionDuplicationPersistenceService {
 
     newChild.setId(null);
     newChild.setDrillStemTest(parent);
+
+    entityManager.persist(newChild);
+
+    return newChild;
+  }
+
+  @Transactional
+  public <T extends PlannedSanctionedWellsChildEntity> T duplicateChildAndReplaceParent(
+      PlannedSanctionedWells parent,
+      PlannedSanctionedWellsChildEntity oldChild,
+      Class<T> childClass) {
+
+    var newChild = BeanUtils.instantiateClass(childClass);
+    BeanUtils.copyProperties(oldChild, newChild);
+
+    newChild.setId(null);
+    newChild.setPlannedSanctionedWells(parent);
 
     entityManager.persist(newChild);
 
