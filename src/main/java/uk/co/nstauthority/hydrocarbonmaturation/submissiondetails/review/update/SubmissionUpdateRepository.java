@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 
 @Repository
-interface SubmissionUpdateRepository extends CrudRepository<SubmissionUpdate, UUID> {
+public interface SubmissionUpdateRepository extends CrudRepository<SubmissionUpdate, UUID> {
 
   boolean existsBySubmissionAndResolvedFalse(Submission submission);
 

@@ -8,7 +8,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedsanctionedwells.PlannedSanctionedWellsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
@@ -37,19 +36,15 @@ public class GeneralDetailSummaryService implements SummarySectionService<Submis
   private final LicencePersistenceService licencePersistenceService;
   private final OnshoreOffshoreService onshoreOffshoreService;
 
-  private final PlannedSanctionedWellsSummaryService plannedSanctionedWellsSummaryService;
-
   @Autowired
   public GeneralDetailSummaryService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
                                      QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
                                      LicencePersistenceService licencePersistenceService,
-                                     OnshoreOffshoreService onshoreOffshoreService,
-                                     PlannedSanctionedWellsSummaryService plannedSanctionedWellsSummaryService) {
+                                     OnshoreOffshoreService onshoreOffshoreService) {
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
     this.licencePersistenceService = licencePersistenceService;
     this.onshoreOffshoreService = onshoreOffshoreService;
-    this.plannedSanctionedWellsSummaryService = plannedSanctionedWellsSummaryService;
   }
 
   public GeneralDetailSummaryView getGeneralDetailSummaryFromSubmissionDetail(SubmissionDetail submissionDetail) {
@@ -158,15 +153,6 @@ public class GeneralDetailSummaryService implements SummarySectionService<Submis
   private SummaryItem getSummaryItem(SubmissionDetail submissionDetail) {
     var summaryCards = new ArrayList<SummaryCard>();
     summaryCards.add(getGeneralDetailsSummaryCard(submissionDetail));
-
-    if (submissionDetail.isFieldDevelopmentPlanAddendumSubmission()
-        || submissionDetail.isFieldDevelopmentPlanSubmission()) {
-      summaryCards.add(plannedSanctionedWellsSummaryService.getPlannedSanctionedWellsCard(submissionDetail));
-      summaryCards.add(plannedSanctionedWellsSummaryService.getWellTypesSummaryCard(submissionDetail));
-      summaryCards.add(plannedSanctionedWellsSummaryService.getHoleCompletionTypesSummaryCard(submissionDetail));
-      summaryCards.add(plannedSanctionedWellsSummaryService.getPlannedCompletionTypesSummaryCard(submissionDetail));
-      summaryCards.add(plannedSanctionedWellsSummaryService.getArtificialLiftMechanismsSummaryCard(submissionDetail));
-    }
 
     return SummaryItem.withCards(GENERAL_DETAILS, summaryCards);
   }

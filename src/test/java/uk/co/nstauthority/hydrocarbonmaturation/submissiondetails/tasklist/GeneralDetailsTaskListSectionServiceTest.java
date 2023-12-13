@@ -31,8 +31,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexit
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexity.FieldComplexitySubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedsanctionedwells.PlannedSanctionedWellsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedsanctionedwells.PlannedSanctionedWellsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsController;
@@ -50,8 +48,6 @@ class GeneralDetailsTaskListSectionServiceTest {
   private ResourceDetailsSubmissionService resourceDetailsSubmissionService;
   @Mock
   private ConsideringCcusSubmissionService consideringCcusSubmissionService;
-  @Mock
-  private PlannedSanctionedWellsSubmissionService plannedSanctionedWellsSubmissionService;
   @Mock
   private UserDetailService userDetailService;
   @Mock
@@ -388,54 +384,5 @@ class GeneralDetailsTaskListSectionServiceTest {
                     ReverseRouter.route(on(FieldComplexityController.class)
                         .getFieldComplexity(submissionDetail.getId())))
             );
-  }
-
-  @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {
-      "CREATE_FDP",
-      "CREATE_FDPA"},
-      mode = EnumSource.Mode.INCLUDE)
-  void getSection_SubmissionTypeIsApplicable_PlannedSanctionedWells(SubmissionType submissionType) {
-    submissionDetail.setSubmissionType(submissionType);
-
-    when(plannedSanctionedWellsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-
-    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
-
-    var section = taskListSectionOptional.get();
-
-    assertThat(section.items())
-        .extracting(
-            TaskListItem::displayName,
-            TaskListItem::label,
-            TaskListItem::actionUrl
-        ).contains(
-            Tuple.tuple(PlannedSanctionedWellsController.PAGE_NAME,
-                TaskListLabel.COMPLETE,
-                ReverseRouter.route(on(PlannedSanctionedWellsController.class)
-                    .getPlannedSanctionedWells(submissionDetail.getId())))
-        );
-  }
-
-  @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {
-      "CREATE_FDP",
-      "CREATE_FDPA"},
-      mode = EnumSource.Mode.EXCLUDE)
-  void getSection_SubmissionTypeIsNotApplicable_PlannedSanctionedWells(SubmissionType submissionType) {
-    submissionDetail.setSubmissionType(submissionType);
-
-    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
-
-    var section = taskListSectionOptional.get();
-
-    assertThat(section.items()).isNotEmpty();
-
-    assertThat(section.items())
-        .extracting(
-            TaskListItem::displayName
-        ).doesNotContain(
-            PlannedSanctionedWellsController.PAGE_NAME
-        );
   }
 }
