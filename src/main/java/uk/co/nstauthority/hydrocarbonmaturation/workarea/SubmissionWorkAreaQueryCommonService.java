@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
+import static org.jooq.impl.DSL.coalesce;
 import static org.jooq.impl.DSL.field;
 import static org.jooq.impl.DSL.nvl;
 import static org.jooq.impl.DSL.select;
@@ -44,7 +45,9 @@ class SubmissionWorkAreaQueryCommonService {
             SUBMISSION_DETAILS.STATUS,
             nvl(RESOURCE_DETAILS.RESOURCE_NAME, FIELDS.CORRECTED_LEGAL_FIELD_NAME),
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
-            RESOURCE_DETAILS.ORGANISATION_ID,
+            coalesce(
+                RESOURCE_DETAILS.ORGANISATION_ID,
+                FIELDS.RESPONSIBLE_ORGANISATION_ID),
             DSL.arrayAgg(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
@@ -92,7 +95,9 @@ class SubmissionWorkAreaQueryCommonService {
             RESOURCE_DETAILS.RESOURCE_NAME,
             FIELDS.CORRECTED_LEGAL_FIELD_NAME,
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
-            RESOURCE_DETAILS.ORGANISATION_ID,
+            coalesce(
+                RESOURCE_DETAILS.ORGANISATION_ID,
+                FIELDS.RESPONSIBLE_ORGANISATION_ID),
             SUBMISSION_UPDATE.ID,
             SUBMISSION_DETAILS.CORRECTION)
         .orderBy(

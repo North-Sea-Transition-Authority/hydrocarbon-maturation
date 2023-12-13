@@ -8,10 +8,12 @@ import java.time.Instant;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.apache.commons.lang3.BooleanUtils;
+import org.assertj.core.groups.Tuple;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -22,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -148,10 +151,67 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
             licenceId1, licenceId2);
   }
 
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"}
+  )
+  void getSubmissions_whenOneFullFieldSubmission_asIndustryInResponsibleOrganisation_assertAllValues(SubmissionType submissionType) {
+    var responsibleOrganisationIdForSubmission = 46;
+    var userOrgUnits = List.of(responsibleOrganisationIdForSubmission);
+    setUpIndustryTest(userOrgUnits, USER);
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+    submissionDetail.setId(null);
+    submissionDetail.setSubmissionType(submissionType);
+    submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
+    submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
+
+    var createdTimestamp = Instant.now();
+    submissionDetail.setCreatedTimestamp(createdTimestamp);
+
+    var resource = createResource(ResourceType.FIELD, createdTimestamp, entityManager);
+    submissionDetail.getSubmission().setResource(resource);
+    submissionDetail.setSubmission(SubmissionIntegrationTestUtils.createSubmission(resource, entityManager));
+    entityManager.persist(submissionDetail);
+    entityManager.flush();
+
+    var field = new Field();
+    field.setResource(resource);
+    field.setResponsibleOrganisationId(responsibleOrganisationIdForSubmission);
+    entityManager.persist(field);
+    entityManager.flush();
+
+    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER);
+
+    assertThat(results)
+        .extracting(
+            SubmissionWorkAreaQueryResult::getSubmissionDetailId,
+            SubmissionWorkAreaQueryResult::getOrganisationResponsibleId,
+            SubmissionWorkAreaQueryResult::getSubmissionType,
+            SubmissionWorkAreaQueryResult::getStatus
+        ).containsExactly(
+            Tuple.tuple(
+                submissionDetail.getId(),
+                responsibleOrganisationIdForSubmission,
+                submissionType,
+                SubmissionDetailStatus.DRAFT
+            ));
+  }
+
   @NotNull
   private static Resource createResource(Instant createdTimestamp, EntityManager entityManager) {
     var resource = new Resource();
     resource.setType(ResourceType.PROSPECT);
+    resource.setCreatedTimestamp(createdTimestamp);
+    entityManager.persist(resource);
+    entityManager.flush();
+    return resource;
+  }
+
+  @NotNull
+  private static Resource createResource(ResourceType resourceType, Instant createdTimestamp, EntityManager entityManager) {
+    var resource = new Resource();
+    resource.setType(resourceType);
     resource.setCreatedTimestamp(createdTimestamp);
     entityManager.persist(resource);
     entityManager.flush();
