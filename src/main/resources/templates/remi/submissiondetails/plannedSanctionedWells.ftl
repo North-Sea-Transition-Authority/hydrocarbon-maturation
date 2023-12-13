@@ -193,7 +193,7 @@ breadcrumbsMap=breadcrumbsMap>
                         />
                     </#if>
                 </@fdsRadio.radioItem>
-                <#assign firstitem=false />
+                <#assign firstItem=false />
             </#list>
         </@fdsRadio.radioGroup>
 
