@@ -23,12 +23,13 @@ and the operators who have access to specific prospect and discovery data not cr
 
 ## Before import (CSV things to remember)
 
-- Remove single quote characters from end of text columns
+- Edit padi_res_header in Notepad++ to avoid quads and blocks being converted to dates
+- Remove single quote characters from end of text columns using Notepad++ searching for '"
 - Remove blank spaces from data columns where the data should be null
 - Format number cells to remove commas
 - Check where INT/NUMERIC data should be TEXT and vice-versa
 - Convert end of line characters to UNIX using Notepad++
-- Clean up licence list in tblResDataHeader to be a CSV of licences
+- Replace &amp; with &
 
 ## Considerations
 
