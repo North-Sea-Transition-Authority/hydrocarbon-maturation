@@ -86,12 +86,28 @@ SELECT pwm.padi_resdat_id, pwm.padi_resource_id, pwm.well_registration_no
 FROM remi.padi_well_mapping pwm
 ORDER BY 1;
 
-SELECT *
+-- After running company diff check, manually update any which fall into this where possible
+SELECT pom.*
 FROM remi.padi_operator_mapping pom
 WHERE pom.agreed_match IS NULL
 AND source_table IS NULL
-AND padi_name IN (
-    SELECT pom2.agreed_match
+AND UPPER(padi_name) NOT IN (
+    SELECT UPPER(pom2.agreed_match)
     FROM remi.padi_operator_mapping pom2
     WHERE pom2.agreed_match IS NOT NULL
 );
+
+-- Extract for any missing company matches
+SELECT prdh.resource_id, prdh.company
+FROM remi.padi_operator_mapping pom
+JOIN remi.padi_res_data_header prdh ON prdh.company = pom.padi_name
+WHERE pom.agreed_match IS NULL
+AND source_table IS NULL
+AND UPPER(padi_name) NOT IN (
+    SELECT UPPER(pom2.agreed_match)
+    FROM remi.padi_operator_mapping pom2
+    WHERE pom2.agreed_match IS NOT NULL
+);
+
+SELECT *
+FROM remi.padi_operator_mapping;
