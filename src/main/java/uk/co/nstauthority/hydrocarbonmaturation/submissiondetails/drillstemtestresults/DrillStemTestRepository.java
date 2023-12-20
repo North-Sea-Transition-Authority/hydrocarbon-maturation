@@ -10,4 +10,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 interface DrillStemTestRepository extends CrudRepository<DrillStemTest, UUID> {
 
   Optional<DrillStemTest> findByReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail);
+
+  void deleteAllByReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail);
 }

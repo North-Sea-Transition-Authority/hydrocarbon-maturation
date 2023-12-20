@@ -50,6 +50,11 @@ class DrillStemTestInitialPersistenceService {
     return drillStemTest;
   }
 
+  @Transactional
+  public void deleteDrillStemTest(DrillStemTest drillStemTest) {
+    drillStemTestRepository.delete(drillStemTest);
+  }
+
   Optional<DrillStemTest> getDrillStemTestByReservoirSubmissionDetail(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
     return drillStemTestRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail);

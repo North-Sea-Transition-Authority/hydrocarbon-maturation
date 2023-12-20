@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -243,6 +244,20 @@ class DrillStemTestResultPersistenceServiceTest {
     drillStemTestResultPersistenceService.deleteDrillStemTestResult(drillStemTestResult);
 
     verify(drillStemTestResultRepository, times(1)).delete(drillStemTestResult);
+  }
+
+  @Test
+  void deleteDrillStemAndAllResults_verifyMethodCalls() {
+    var drillStemTest = mock(DrillStemTest.class);
+    when(drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.ofNullable(drillStemTest));
+
+    drillStemTestResultPersistenceService.deleteDrillStemTestAndAllResults(reservoirSubmissionDetail);
+
+    verify(drillStemTestResultRepository, times(1)).deleteAllByDrillStemTest(drillStemTest);
+    verify(drillStemTestInitialPersistenceService, times(1))
+        .deleteDrillStemTest(drillStemTest);
+    verifyNoMoreInteractions(drillStemTestResultRepository, drillStemTestInitialPersistenceService);
   }
 
   public static DrillStemTestResultForm getFilledDrillStemTestResultForm() {

@@ -5,7 +5,9 @@ import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
-interface PermeabilityDetailRepository extends CrudRepository<PermeabilityDetail, UUID> {
+public interface PermeabilityDetailRepository extends CrudRepository<PermeabilityDetail, UUID> {
 
   Optional<PermeabilityDetail> findByReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail);
+
+  void deleteAllByReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail);
 }

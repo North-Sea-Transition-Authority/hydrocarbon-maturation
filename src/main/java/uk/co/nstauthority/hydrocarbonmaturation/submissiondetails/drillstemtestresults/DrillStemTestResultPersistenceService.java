@@ -10,7 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundExce
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class DrillStemTestResultPersistenceService {
+public class DrillStemTestResultPersistenceService {
 
   private final DrillStemTestResultRepository drillStemTestResultRepository;
   private final DrillStemTestInitialPersistenceService drillStemTestInitialPersistenceService;
@@ -81,5 +81,19 @@ class DrillStemTestResultPersistenceService {
   @Transactional
   public void deleteDrillStemTestResult(DrillStemTestResult drillStemTestResult) {
     drillStemTestResultRepository.delete(drillStemTestResult);
+  }
+
+  @Transactional
+  public void deleteDrillStemTestAndAllResults(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(reservoirSubmissionDetail)
+        .ifPresent(
+            drillStemTest -> {
+              // delete all the test results
+              drillStemTestResultRepository.deleteAllByDrillStemTest(drillStemTest);
+
+              // delete the test
+              drillStemTestInitialPersistenceService.deleteDrillStemTest(drillStemTest);
+            }
+        );
   }
 }
