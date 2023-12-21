@@ -112,7 +112,7 @@
     </#local>
 
     <#assign REMI_FOOTER>
-      <@fdsFooter.footer wrapperWidth=wrapperWidth footerMetaContent=footerMetaContent metaLinks=true/>
+        <@fdsNstaFooter.nstaFooter metaLinks=true footerMetaContent=footerMetaContent/>
     </#assign>
 
     <#assign serviceHeader>

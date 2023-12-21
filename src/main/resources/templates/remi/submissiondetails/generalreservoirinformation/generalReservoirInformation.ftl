@@ -60,7 +60,7 @@
           </#list>
       </@fdsRadio.radioGroup>
 
-      <#if !isCessationOfProduction>
+      <#if isFieldSubmission && !isCessationOfProduction>
           <@fdsRadio.radioGroup
           path="form.isReservoirBeingDevelopedUnderFuturePhase"
           labelText="Is this reservoir being developed under a future phase of work?"

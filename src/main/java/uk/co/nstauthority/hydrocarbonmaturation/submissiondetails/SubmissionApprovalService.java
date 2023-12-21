@@ -8,6 +8,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
@@ -23,6 +24,7 @@ public class SubmissionApprovalService {
   private final ResponsibleTeamService responsibleTeamService;
   private final AreaTeamService areaTeamService;
   private final ReservoirTotalsCleanAndCopyService reservoirTotalsCleanAndCopyService;
+  private final ReservoirSubmissionSectionService reservoirSubmissionSectionService;
 
   @Autowired
   public SubmissionApprovalService(
@@ -32,7 +34,8 @@ public class SubmissionApprovalService {
       SubmissionEmailService submissionEmailService,
       SubmissionUpdateService submissionUpdateService,
       ResponsibleTeamService responsibleTeamService,
-      AreaTeamService areaTeamService, ReservoirTotalsCleanAndCopyService reservoirTotalsCleanAndCopyService) {
+      AreaTeamService areaTeamService, ReservoirTotalsCleanAndCopyService reservoirTotalsCleanAndCopyService,
+      ReservoirSubmissionSectionService reservoirSubmissionSectionService) {
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
     this.regulatorTeamService = regulatorTeamService;
     this.userDetailService = userDetailService;
@@ -41,11 +44,17 @@ public class SubmissionApprovalService {
     this.responsibleTeamService = responsibleTeamService;
     this.areaTeamService = areaTeamService;
     this.reservoirTotalsCleanAndCopyService = reservoirTotalsCleanAndCopyService;
+    this.reservoirSubmissionSectionService = reservoirSubmissionSectionService;
   }
 
   @Transactional
   public void submitSubmission(SubmissionDetail submissionDetail) {
     reservoirTotalsCleanAndCopyService.cleanAndCopyVolumetricTotals(submissionDetail);
+
+    // remove any saved data for reservoir sections not needed, selected in reservoir under future phase of work question
+    if (submissionDetail.isFieldSubmission()) {
+      reservoirSubmissionSectionService.cleanReservoirSubmissionSections(submissionDetail);
+    }
 
     // corrections will already have submission and approval details stored, just need to set the status
     if (BooleanUtils.isTrue(submissionDetail.isCorrection())) {

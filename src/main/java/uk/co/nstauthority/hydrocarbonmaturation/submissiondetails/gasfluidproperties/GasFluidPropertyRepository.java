@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Repository
-interface GasFluidPropertyRepository extends CrudRepository<GasFluidProperty, UUID> {
+public interface GasFluidPropertyRepository extends CrudRepository<GasFluidProperty, UUID> {
 
   Optional<GasFluidProperty> findByReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail);
 

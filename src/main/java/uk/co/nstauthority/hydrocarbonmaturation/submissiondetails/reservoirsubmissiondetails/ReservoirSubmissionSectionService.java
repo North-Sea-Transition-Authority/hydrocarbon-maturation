@@ -8,18 +8,48 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirSectionSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestResultPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertyRepository;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalfluidproperties.GeneralFluidPropertyRepository;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertyRepository;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.permeability.PermeabilityDetailRepository;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties.ReservoirPropertiesRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 
 @Service
 public class ReservoirSubmissionSectionService {
   private final ReservoirSubmissionSectionRepository reservoirSubmissionSectionRepository;
   private final ReservoirFutureWorksDetailRepository reservoirFutureWorksDetailRepository;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+
+  private final PermeabilityDetailRepository permeabilityDetailRepository;
+  private final ReservoirPropertiesRepository reservoirPropertiesRepository;
+  private final GeneralFluidPropertyRepository generalFluidPropertyRepository;
+  private final GasFluidPropertyRepository gasFluidPropertyRepository;
+  private final OilFluidPropertyRepository oilFluidPropertyRepository;
+  private final DrillStemTestResultPersistenceService drillStemTestResultPersistenceService;
 
   @Autowired
-  public ReservoirSubmissionSectionService(ReservoirSubmissionSectionRepository reservoirSubmissionSectionRepository,
-                                           ReservoirFutureWorksDetailRepository reservoirFutureWorksDetailRepository) {
+  public ReservoirSubmissionSectionService(
+      ReservoirSubmissionSectionRepository reservoirSubmissionSectionRepository,
+      ReservoirFutureWorksDetailRepository reservoirFutureWorksDetailRepository,
+      ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
+      PermeabilityDetailRepository permeabilityDetailRepository,
+      ReservoirPropertiesRepository reservoirPropertiesRepository,
+      GeneralFluidPropertyRepository generalFluidPropertyRepository,
+      GasFluidPropertyRepository gasFluidPropertyRepository,
+      OilFluidPropertyRepository oilFluidPropertyRepository,
+      DrillStemTestResultPersistenceService drillStemTestResultPersistenceService) {
     this.reservoirSubmissionSectionRepository = reservoirSubmissionSectionRepository;
     this.reservoirFutureWorksDetailRepository = reservoirFutureWorksDetailRepository;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
+    this.permeabilityDetailRepository = permeabilityDetailRepository;
+    this.reservoirPropertiesRepository = reservoirPropertiesRepository;
+    this.generalFluidPropertyRepository = generalFluidPropertyRepository;
+    this.gasFluidPropertyRepository = gasFluidPropertyRepository;
+    this.oilFluidPropertyRepository = oilFluidPropertyRepository;
+    this.drillStemTestResultPersistenceService = drillStemTestResultPersistenceService;
   }
 
   public Set<ReservoirSubmissionSection> getAllReservoirSubmissionSections(ReservoirSubmissionDetail reservoirSubmissionDetail) {
@@ -94,5 +124,39 @@ public class ReservoirSubmissionSectionService {
         .filter(sectionType -> !requiredSections.contains(sectionType))
         .map(ReservoirSubmissionSectionType::getSubmissionClass)
         .toList();
+  }
+
+  @Transactional
+  public void cleanReservoirSubmissionSections(SubmissionDetail submissionDetail) {
+    reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail)
+        .forEach(
+            reservoirSubmissionDetail -> {
+              var selectedSections = getRequiredReservoirSubmissionSections(reservoirSubmissionDetail);
+              cleanAllNonSelectedSections(selectedSections, reservoirSubmissionDetail);
+            }
+        );
+  }
+
+  private void cleanAllNonSelectedSections(Set<ReservoirSubmissionSectionType> selectedSections,
+                                           ReservoirSubmissionDetail reservoirSubmissionDetail) {
+
+    if (!selectedSections.contains(ReservoirSubmissionSectionType.PERMEABILITY)) {
+      permeabilityDetailRepository.deleteAllByReservoirSubmissionDetail(reservoirSubmissionDetail);
+    }
+    if (!selectedSections.contains(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES)) {
+      reservoirPropertiesRepository.deleteAllByReservoirSubmissionDetail(reservoirSubmissionDetail);
+    }
+    if (!selectedSections.contains(ReservoirSubmissionSectionType.GENERAL_FLUID_PROPERTIES)) {
+      generalFluidPropertyRepository.deleteAllByReservoirSubmissionDetail(reservoirSubmissionDetail);
+    }
+    if (!selectedSections.contains(ReservoirSubmissionSectionType.GAS_PROPERTIES)) {
+      gasFluidPropertyRepository.deleteAllByReservoirSubmissionDetail(reservoirSubmissionDetail);
+    }
+    if (!selectedSections.contains(ReservoirSubmissionSectionType.OIL_PROPERTIES)) {
+      oilFluidPropertyRepository.deleteAllByReservoirSubmissionDetail(reservoirSubmissionDetail);
+    }
+    if (!selectedSections.contains(ReservoirSubmissionSectionType.DRILL_STEM_TEST)) {
+      drillStemTestResultPersistenceService.deleteDrillStemTestAndAllResults(reservoirSubmissionDetail);
+    }
   }
 }

@@ -6,14 +6,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -24,6 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
@@ -49,6 +55,8 @@ class SubmissionApprovalServiceTest {
   private AreaTeamService areaTeamService;
   @Mock
   private ReservoirTotalsCleanAndCopyService reservoirTotalsCleanAndCopyService;
+  @Mock
+  private ReservoirSubmissionSectionService reservoirSubmissionSectionService;
   @InjectMocks
   private SubmissionApprovalService submissionApprovalService;
 
@@ -128,6 +136,25 @@ class SubmissionApprovalServiceTest {
       verifyNoInteractions(submissionEmailService);
       verifyNoInteractions(submissionUpdateService);
     }
+
+    @ParameterizedTest
+    @MethodSource("allFieldSubmissionTypes")
+    void whenFieldSubmission_thenVerifyCallsToCleanReservoirData(SubmissionType submissionType) {
+      submissionDetail.setSubmissionType(submissionType);
+
+      submissionApprovalService.submitSubmission(submissionDetail);
+
+      verify(reservoirTotalsCleanAndCopyService, times(1)).cleanAndCopyVolumetricTotals(submissionDetail);
+      verify(reservoirSubmissionSectionService, times(1)).cleanReservoirSubmissionSections(submissionDetail);
+      verifyNoMoreInteractions(reservoirTotalsCleanAndCopyService, reservoirSubmissionSectionService);
+    }
+
+    private static Stream<Arguments> allFieldSubmissionTypes() {
+      return Arrays.stream(SubmissionType.values())
+          .filter(SubmissionDetailUtil::isFieldSubmission)
+          .filter(submissionType -> submissionType != SubmissionType.CREATE_FIELD)
+          .map(Arguments::of);
+    }
   }
 
   @Nested
@@ -190,5 +217,4 @@ class SubmissionApprovalServiceTest {
       assertThat(submissionApprovalService.canApproveSubmission(submissionDetail)).isFalse();
     }
   }
-
 }

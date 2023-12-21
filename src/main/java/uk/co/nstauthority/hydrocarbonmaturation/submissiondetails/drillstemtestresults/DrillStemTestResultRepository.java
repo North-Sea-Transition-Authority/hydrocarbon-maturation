@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 interface DrillStemTestResultRepository extends CrudRepository<DrillStemTestResult, UUID> {
 
   List<DrillStemTestResult> findAllByDrillStemTest(DrillStemTest drillStemTest);
+
+  void deleteAllByDrillStemTest(DrillStemTest drillStemTest);
 }
