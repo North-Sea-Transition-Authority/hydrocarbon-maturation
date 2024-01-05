@@ -83,21 +83,6 @@ class FieldPersistenceServiceTest {
     }
 
     @Test
-    void statusAutomaticallySet() {
-
-      var result = underTest.createNewField(form, resource);
-      assertThat(result)
-          .extracting(
-              Field::getResource,
-              Field::getFieldStatus
-          )
-          .containsExactly(
-              resource,
-              FieldStatus.STATUS_200
-          );
-    }
-
-    @Test
     void onshoreSelected_GeographicalAreaAndTeamTypeAutomaticallySet() {
       form.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
 
@@ -147,7 +132,6 @@ class FieldPersistenceServiceTest {
     void associatedDiscoveriesSet() {
       form.setAssociatedDiscoveries(List.of(ASSOCIATED_DISCOVERY_ID.toString()));
 
-
       var discovery = new Resource();
       var submission = new Submission();
       submission.setResource(discovery);
@@ -167,7 +151,6 @@ class FieldPersistenceServiceTest {
       assertThat(result)
           .extracting(
               Field::getResource,
-              Field::getFieldStatus,
               Field::getLegalFieldName,
               Field::getCorrectedLegalFieldName,
               Field::getCommonNameForField,
@@ -179,7 +162,6 @@ class FieldPersistenceServiceTest {
           )
           .containsExactly(
               resource,
-              FieldStatus.STATUS_200,
               LEGAL_NAME,
               CORRECTED_LEGAL_NAME,
               COMMON_NAME,

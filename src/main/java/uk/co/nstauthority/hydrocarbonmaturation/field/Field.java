@@ -25,9 +25,6 @@ public class Field {
   @ManyToOne
   private Resource resource;
 
-  @Enumerated(EnumType.STRING)
-  private FieldStatus fieldStatus;
-
   private String legalFieldName;
 
   private String correctedLegalFieldName;
@@ -68,14 +65,6 @@ public class Field {
 
   public void setResource(Resource resource) {
     this.resource = resource;
-  }
-
-  public FieldStatus getFieldStatus() {
-    return fieldStatus;
-  }
-
-  public void setFieldStatus(FieldStatus fieldStatus) {
-    this.fieldStatus = fieldStatus;
   }
 
   public String getLegalFieldName() {

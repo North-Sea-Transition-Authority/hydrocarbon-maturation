@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 
 @Repository
-interface FieldRepository extends CrudRepository<Field, Integer> {
+public interface FieldRepository extends CrudRepository<Field, Integer> {
   List<Field> findByDeterminationStatusAndCorrectedLegalFieldNameContainingIgnoreCase(DeterminationStatus determinationStatus,
                                                                                       String fieldName);
 

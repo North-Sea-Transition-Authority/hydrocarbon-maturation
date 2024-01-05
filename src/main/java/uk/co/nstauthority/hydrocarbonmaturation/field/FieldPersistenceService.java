@@ -43,7 +43,6 @@ public class FieldPersistenceService {
     var field = new Field();
 
     field.setResource(resource);
-    field.setFieldStatus(FieldStatus.STATUS_200);
 
     field.setLegalFieldName(form.getLegalFieldName());
     field.setCorrectedLegalFieldName(form.getCorrectedLegalFieldName());
@@ -81,12 +80,13 @@ public class FieldPersistenceService {
     field.setFieldNumber(form.getFieldNumber().createIntegerOrNull());
     field.setInfrastructureHost(form.getInfrastructureHost());
 
+    fieldRepository.save(field);
+
     regulatorManagedInformationPersistenceService.saveResponsibleTeamAndGeographicAreaByResource(
         resource,
         responsibleTeamType,
         geographicalArea
     );
-    fieldRepository.save(field);
 
     form.getAssociatedDiscoveries()
         .stream()

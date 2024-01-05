@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +39,9 @@ class FieldQueryServiceTest {
 
   @Mock
   private FieldPersistenceService fieldPersistenceService;
+
+  @Mock
+  private FieldStatusService fieldStatusService;
 
   @Mock
   private SubmissionDetailService submissionDetailService;
@@ -75,7 +79,8 @@ class FieldQueryServiceTest {
       var resource1 = new Resource();
       var field1 = new Field();
       field1.setFieldIdentifier(24);
-      field1.setFieldStatus(FieldStatus.STATUS_200);
+      when(fieldStatusService.getMostRecentFieldStatus(field1))
+          .thenReturn(Optional.of(FieldStatus.STATUS_200));
       field1.setResource(resource1);
       field1.setCorrectedLegalFieldName("legalFieldName");
       var submissionDetail1 = new SubmissionDetail();
@@ -84,7 +89,8 @@ class FieldQueryServiceTest {
       var resource2 = new Resource();
       var field2 = new Field();
       field2.setFieldIdentifier(42);
-      field2.setFieldStatus(FieldStatus.STATUS_200);
+      when(fieldStatusService.getMostRecentFieldStatus(field2))
+          .thenReturn(Optional.of(FieldStatus.STATUS_200));
       field2.setResource(resource2);
       field2.setCorrectedLegalFieldName("alphabeticalLegalFieldName");
       var submissionDetail2 = new SubmissionDetail();
@@ -113,7 +119,8 @@ class FieldQueryServiceTest {
       var resource1 = new Resource();
       var field1 = new Field();
       field1.setFieldIdentifier(24);
-      field1.setFieldStatus(FieldStatus.STATUS_200);
+      when(fieldStatusService.getMostRecentFieldStatus(field1))
+          .thenReturn(Optional.of(FieldStatus.STATUS_200));
       field1.setResource(resource1);
       field1.setCorrectedLegalFieldName("legalFieldName1");
       var submissionDetail1 = new SubmissionDetail();
@@ -122,7 +129,8 @@ class FieldQueryServiceTest {
       var resource2 = new Resource();
       var field2 = new Field();
       field2.setFieldIdentifier(42);
-      field2.setFieldStatus(FieldStatus.STATUS_300);
+      when(fieldStatusService.getMostRecentFieldStatus(field2))
+          .thenReturn(Optional.of(FieldStatus.STATUS_300));
       field2.setResource(resource2);
       field2.setCorrectedLegalFieldName("legalFieldName2");
       var submissionDetail2 = new SubmissionDetail();
@@ -131,7 +139,8 @@ class FieldQueryServiceTest {
       var resource3 = new Resource();
       var field3 = new Field();
       field3.setFieldIdentifier(48);
-      field3.setFieldStatus(FieldStatus.STATUS_400);
+      when(fieldStatusService.getMostRecentFieldStatus(field3))
+          .thenReturn(Optional.of(FieldStatus.STATUS_400));
       field3.setResource(resource3);
       field3.setCorrectedLegalFieldName("legalFieldName3");
       var submissionDetail3 = new SubmissionDetail();
@@ -140,7 +149,8 @@ class FieldQueryServiceTest {
       var resource4 = new Resource();
       var field4 = new Field();
       field4.setFieldIdentifier(84);
-      field4.setFieldStatus(FieldStatus.STATUS_500);
+      when(fieldStatusService.getMostRecentFieldStatus(field4))
+          .thenReturn(Optional.of(FieldStatus.STATUS_500));
       field4.setResource(resource4);
       field4.setCorrectedLegalFieldName("legalFieldName4");
       var submissionDetail4 = new SubmissionDetail();
@@ -169,7 +179,8 @@ class FieldQueryServiceTest {
       var resource1 = new Resource();
       var field1 = new Field();
       field1.setFieldIdentifier(24);
-      field1.setFieldStatus(FieldStatus.STATUS_600);
+      when(fieldStatusService.getMostRecentFieldStatus(field1))
+          .thenReturn(Optional.of(FieldStatus.STATUS_600));
       field1.setResource(resource1);
       field1.setCorrectedLegalFieldName("legalFieldName1");
       var submissionDetail1 = new SubmissionDetail();
@@ -178,7 +189,8 @@ class FieldQueryServiceTest {
       var resource2 = new Resource();
       var field2 = new Field();
       field2.setFieldIdentifier(42);
-      field2.setFieldStatus(FieldStatus.STATUS_700);
+      when(fieldStatusService.getMostRecentFieldStatus(field2))
+          .thenReturn(Optional.of(FieldStatus.STATUS_700));
       field2.setResource(resource2);
       field2.setCorrectedLegalFieldName("legalFieldName2");
       var submissionDetail2 = new SubmissionDetail();
@@ -187,7 +199,8 @@ class FieldQueryServiceTest {
       var resource3 = new Resource();
       var field3 = new Field();
       field3.setFieldIdentifier(48);
-      field3.setFieldStatus(FieldStatus.STATUS_799);
+      when(fieldStatusService.getMostRecentFieldStatus(field3))
+          .thenReturn(Optional.of(FieldStatus.STATUS_799));
       field3.setResource(resource3);
       field3.setCorrectedLegalFieldName("legalFieldName3");
       var submissionDetail3 = new SubmissionDetail();
@@ -196,7 +209,8 @@ class FieldQueryServiceTest {
       var resource4 = new Resource();
       var field4 = new Field();
       field4.setFieldIdentifier(84);
-      field4.setFieldStatus(FieldStatus.STATUS_800);
+      when(fieldStatusService.getMostRecentFieldStatus(field4))
+          .thenReturn(Optional.of(FieldStatus.STATUS_800));
       field4.setResource(resource4);
       field4.setCorrectedLegalFieldName("legalFieldName4");
       var submissionDetail4 = new SubmissionDetail();
@@ -205,7 +219,8 @@ class FieldQueryServiceTest {
       var resource5 = new Resource();
       var field5 = new Field();
       field5.setFieldIdentifier(96);
-      field5.setFieldStatus(FieldStatus.STATUS_899);
+      when(fieldStatusService.getMostRecentFieldStatus(field5))
+          .thenReturn(Optional.of(FieldStatus.STATUS_899));
       field5.setResource(resource5);
       field5.setCorrectedLegalFieldName("legalFieldName5");
       var submissionDetail5 = new SubmissionDetail();
@@ -214,7 +229,8 @@ class FieldQueryServiceTest {
       var resource6 = new Resource();
       var field6 = new Field();
       field6.setFieldIdentifier(168);
-      field6.setFieldStatus(FieldStatus.STATUS_900);
+      when(fieldStatusService.getMostRecentFieldStatus(field6))
+          .thenReturn(Optional.of(FieldStatus.STATUS_900));
       field6.setResource(resource6);
       field6.setCorrectedLegalFieldName("legalFieldName6");
       var submissionDetail6 = new SubmissionDetail();
@@ -245,7 +261,8 @@ class FieldQueryServiceTest {
       var resource1 = new Resource();
       var field1 = new Field();
       field1.setFieldIdentifier(24);
-      field1.setFieldStatus(FieldStatus.STATUS_700);
+      when(fieldStatusService.getMostRecentFieldStatus(field1))
+          .thenReturn(Optional.of(FieldStatus.STATUS_700));
       field1.setResource(resource1);
       field1.setCorrectedLegalFieldName("legalFieldName1");
       var submissionDetail1 = new SubmissionDetail();
@@ -254,7 +271,8 @@ class FieldQueryServiceTest {
       var resource2 = new Resource();
       var field2 = new Field();
       field2.setFieldIdentifier(42);
-      field2.setFieldStatus(FieldStatus.STATUS_799);
+      when(fieldStatusService.getMostRecentFieldStatus(field2))
+          .thenReturn(Optional.of(FieldStatus.STATUS_799));
       field2.setResource(resource2);
       field2.setCorrectedLegalFieldName("legalFieldName2");
       var submissionDetail2 = new SubmissionDetail();
@@ -263,7 +281,8 @@ class FieldQueryServiceTest {
       var resource3 = new Resource();
       var field3 = new Field();
       field3.setFieldIdentifier(48);
-      field3.setFieldStatus(FieldStatus.STATUS_800);
+      when(fieldStatusService.getMostRecentFieldStatus(field3))
+          .thenReturn(Optional.of(FieldStatus.STATUS_800));
       field3.setResource(resource3);
       field3.setCorrectedLegalFieldName("legalFieldName3");
       var submissionDetail3 = new SubmissionDetail();
@@ -272,7 +291,8 @@ class FieldQueryServiceTest {
       var resource4 = new Resource();
       var field4 = new Field();
       field4.setFieldIdentifier(84);
-      field4.setFieldStatus(FieldStatus.STATUS_899);
+      when(fieldStatusService.getMostRecentFieldStatus(field4))
+          .thenReturn(Optional.of(FieldStatus.STATUS_899));
       field4.setResource(resource4);
       field4.setCorrectedLegalFieldName("legalFieldName4");
       var submissionDetail4 = new SubmissionDetail();
@@ -281,7 +301,8 @@ class FieldQueryServiceTest {
       var resource5 = new Resource();
       var field5 = new Field();
       field5.setFieldIdentifier(96);
-      field5.setFieldStatus(FieldStatus.STATUS_900);
+      when(fieldStatusService.getMostRecentFieldStatus(field5))
+          .thenReturn(Optional.of(FieldStatus.STATUS_900));
       field5.setResource(resource5);
       field5.setCorrectedLegalFieldName("legalFieldName5");
       var submissionDetail5 = new SubmissionDetail();
@@ -314,7 +335,6 @@ class FieldQueryServiceTest {
       var resource1 = new Resource();
       var field1 = new Field();
       field1.setFieldIdentifier(24);
-      field1.setFieldStatus(FieldStatus.STATUS_200);
       field1.setResource(resource1);
       field1.setCorrectedLegalFieldName("legalFieldName");
 
@@ -336,7 +356,8 @@ class FieldQueryServiceTest {
       var resource = new Resource();
       var field = new Field();
       field.setFieldIdentifier(24);
-      field.setFieldStatus(fieldStatus);
+      when(fieldStatusService.getMostRecentFieldStatus(field))
+          .thenReturn(Optional.of(fieldStatus));
       field.setResource(resource);
       field.setCorrectedLegalFieldName("legalFieldName");
 
@@ -361,7 +382,8 @@ class FieldQueryServiceTest {
       var resource = new Resource();
       var field = new Field();
       field.setFieldIdentifier(24);
-      field.setFieldStatus(FieldStatus.STATUS_200);
+      when(fieldStatusService.getMostRecentFieldStatus(field))
+          .thenReturn(Optional.of(FieldStatus.STATUS_200));
       field.setResource(resource);
       field.setCorrectedLegalFieldName("legalFieldName");
       var submissionDetail = new SubmissionDetail();
@@ -387,7 +409,8 @@ class FieldQueryServiceTest {
       var resource1 = new Resource();
       var field1 = new Field();
       field1.setFieldIdentifier(24);
-      field1.setFieldStatus(FieldStatus.STATUS_200);
+      when(fieldStatusService.getMostRecentFieldStatus(field1))
+          .thenReturn(Optional.of(FieldStatus.STATUS_200));
       field1.setResource(resource1);
       field1.setCorrectedLegalFieldName("legalFieldName");
       var regulatorManagedInformation1 = new RegulatorManagedInformation();
@@ -400,7 +423,8 @@ class FieldQueryServiceTest {
       var resource2 = new Resource();
       var field2 = new Field();
       field2.setFieldIdentifier(42);
-      field2.setFieldStatus(FieldStatus.STATUS_200);
+      when(fieldStatusService.getMostRecentFieldStatus(field2))
+          .thenReturn(Optional.of(FieldStatus.STATUS_200));
       field2.setResource(resource2);
       field2.setCorrectedLegalFieldName("alphabeticalLegalFieldName");
       var submissionDetail2 = new SubmissionDetail();
@@ -431,7 +455,8 @@ class FieldQueryServiceTest {
       var resource1 = new Resource();
       var field1 = new Field();
       field1.setFieldIdentifier(24);
-      field1.setFieldStatus(FieldStatus.STATUS_200);
+      when(fieldStatusService.getMostRecentFieldStatus(field1))
+          .thenReturn(Optional.of(FieldStatus.STATUS_200));
       field1.setResource(resource1);
       field1.setCorrectedLegalFieldName("legalFieldName");
       field1.setResponsibleOrganisationId(24);
@@ -441,7 +466,8 @@ class FieldQueryServiceTest {
       var resource2 = new Resource();
       var field2 = new Field();
       field2.setFieldIdentifier(42);
-      field2.setFieldStatus(FieldStatus.STATUS_200);
+      when(fieldStatusService.getMostRecentFieldStatus(field2))
+          .thenReturn(Optional.of(FieldStatus.STATUS_200));
       field2.setResource(resource2);
       field2.setCorrectedLegalFieldName("alphabeticalLegalFieldName");
       var submissionDetail2 = new SubmissionDetail();

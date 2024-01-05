@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.indus
 public class FieldQueryService {
 
   private final FieldPersistenceService fieldPersistenceService;
+  private final FieldStatusService fieldStatusService;
   private final SubmissionDetailService submissionDetailService;
   private final AreaTeamService areaTeamService;
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
@@ -31,6 +32,7 @@ public class FieldQueryService {
 
   @Autowired
   public FieldQueryService(FieldPersistenceService fieldPersistenceService,
+                           FieldStatusService fieldStatusService,
                            SubmissionDetailService submissionDetailService,
                            AreaTeamService areaTeamService,
                            RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
@@ -38,6 +40,7 @@ public class FieldQueryService {
                            IndustryTeamService industryTeamService,
                            IndustryTeamMemberService industryTeamMemberService) {
     this.fieldPersistenceService = fieldPersistenceService;
+    this.fieldStatusService = fieldStatusService;
     this.submissionDetailService = submissionDetailService;
     this.areaTeamService = areaTeamService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
@@ -75,7 +78,12 @@ public class FieldQueryService {
     // Filters out fields with an incorrect status or with other preventing submissions
     return fields
         .stream()
-        .filter(field -> allowedStatuses.contains(field.getFieldStatus()))
+        .filter(
+            field -> {
+              var mostRecentStatus = fieldStatusService.getMostRecentFieldStatus(field);
+              // status hasn't been set yet, so exclude
+              return mostRecentStatus.filter(allowedStatuses::contains).isPresent();
+            })
         .filter(field -> filterFieldByUser(field, user))
         .filter(field -> filterFieldBySubmissions(field.getResource()))
         .map(this::getFieldViewFromField)

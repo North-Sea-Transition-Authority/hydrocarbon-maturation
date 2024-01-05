@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -27,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSubmissionStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSectionService;
@@ -41,6 +43,8 @@ class SubmissionApprovalServiceTest {
 
   @Mock
   private SubmissionDetailPersistenceService submissionDetailPersistenceService;
+  @Mock
+  private FieldSubmissionStatusService fieldSubmissionStatusService;
   @Mock
   private RegulatorTeamService regulatorTeamService;
   @Mock
@@ -68,6 +72,35 @@ class SubmissionApprovalServiceTest {
     @BeforeEach
     void setup() {
       submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = SubmissionType.class,
+        names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"}
+    )
+    void whenFieldSubmission_thenVerifyFieldStatusUpdate(SubmissionType submissionType) {
+      submissionDetail.setSubmissionType(submissionType);
+      submissionDetail.setCorrection(false);
+
+      submissionApprovalService.submitSubmission(submissionDetail);
+
+      verify(fieldSubmissionStatusService, times(1)).updateFieldStatusForSubmission(submissionDetail);
+      verifyNoMoreInteractions(fieldSubmissionStatusService);
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = SubmissionType.class,
+        names = {"CREATE_FIELD", "CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"},
+        mode = EnumSource.Mode.EXCLUDE
+    )
+    void whenNotFieldSubmission_thenVerifyNoFieldStatusUpdate(SubmissionType submissionType) {
+      submissionDetail.setSubmissionType(submissionType);
+
+      submissionApprovalService.submitSubmission(submissionDetail);
+
+      verifyNoInteractions(fieldSubmissionStatusService);
     }
 
     @Test
@@ -138,6 +171,44 @@ class SubmissionApprovalServiceTest {
     }
 
     @ParameterizedTest
+    @EnumSource(
+        value = SubmissionType.class,
+        names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"}
+    )
+    void andCanAutoApprove_whenFieldSubmission_verifyFieldStatusUpdate(SubmissionType submissionType) {
+      var isRegulatorUser = true;
+
+      submissionDetail.setSubmissionType(submissionType);
+
+      when(userDetailService.getUserDetail()).thenReturn(USER);
+      when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(isRegulatorUser);
+
+      submissionApprovalService.submitSubmission(submissionDetail);
+
+      verify(fieldSubmissionStatusService, times(1)).updateFieldStatusForAcceptance(submissionDetail);
+      verifyNoMoreInteractions(fieldSubmissionStatusService);
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = SubmissionType.class,
+        names = {"CREATE_FIELD", "CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"},
+        mode = EnumSource.Mode.EXCLUDE
+    )
+    void andCanAutoApprove_whenNotFieldSubmission_verifyNoFieldStatusUpdate(SubmissionType submissionType) {
+      var isRegulatorUser = true;
+
+      submissionDetail.setSubmissionType(submissionType);
+
+      when(userDetailService.getUserDetail()).thenReturn(USER);
+      when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(isRegulatorUser);
+
+      submissionApprovalService.submitSubmission(submissionDetail);
+
+      verifyNoInteractions(fieldSubmissionStatusService);
+    }
+
+    @ParameterizedTest
     @MethodSource("allFieldSubmissionTypes")
     void whenFieldSubmission_thenVerifyCallsToCleanReservoirData(SubmissionType submissionType) {
       submissionDetail.setSubmissionType(submissionType);
@@ -187,6 +258,41 @@ class SubmissionApprovalServiceTest {
               .formatted(USER.wuaId()));
       verifyNoInteractions(submissionDetailPersistenceService);
       verifyNoInteractions(submissionEmailService);
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = SubmissionType.class,
+        names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"}
+    )
+    void approveSubmission_canApproveAndFieldSubmission_thenVerifyFieldStatusUpdate(SubmissionType submissionType) {
+      when(userDetailService.getUserDetail()).thenReturn(USER);
+      when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
+          .thenReturn(true);
+      submissionDetail.setSubmissionType(submissionType);
+
+      submissionApprovalService.approveSubmissionOrThrow(submissionDetail);
+
+      verify(fieldSubmissionStatusService, times(1)).updateFieldStatusForAcceptance(submissionDetail);
+      verifyNoMoreInteractions(fieldSubmissionStatusService);
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = SubmissionType.class,
+        names = {"CREATE_FIELD", "CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"},
+        mode = EnumSource.Mode.EXCLUDE
+    )
+    void approveSubmission_canApproveAndNotFieldSubmission_thenVerifyNoFieldStatusUpdate(SubmissionType submissionType) {
+      when(userDetailService.getUserDetail()).thenReturn(USER);
+      when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
+          .thenReturn(true);
+
+      submissionDetail.setSubmissionType(submissionType);
+
+      submissionApprovalService.approveSubmissionOrThrow(submissionDetail);
+
+      verifyNoInteractions(fieldSubmissionStatusService);
     }
 
     @Test

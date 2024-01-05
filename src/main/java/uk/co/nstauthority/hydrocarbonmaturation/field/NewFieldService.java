@@ -33,13 +33,17 @@ class NewFieldService {
   private final SearchSelectorService searchSelectorService;
   private final SubmissionResourceService submissionResourceService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
+  private final FieldStatusService fieldStatusService;
 
   @Autowired
   NewFieldService(NewFieldFormValidator newFieldFormValidator,
                   FieldPersistenceService fieldPersistenceService,
-                  ResourceService resourceService, OrganisationUnitQueryService organisationUnitQueryService,
-                  SearchSelectorService searchSelectorService, SubmissionResourceService submissionResourceService,
-                  ResourceDetailsPersistenceService resourceDetailsPersistenceService) {
+                  ResourceService resourceService,
+                  OrganisationUnitQueryService organisationUnitQueryService,
+                  SearchSelectorService searchSelectorService,
+                  SubmissionResourceService submissionResourceService,
+                  ResourceDetailsPersistenceService resourceDetailsPersistenceService,
+                  FieldStatusService fieldStatusService) {
     this.newFieldFormValidator = newFieldFormValidator;
     this.fieldPersistenceService = fieldPersistenceService;
     this.resourceService = resourceService;
@@ -47,6 +51,7 @@ class NewFieldService {
     this.searchSelectorService = searchSelectorService;
     this.submissionResourceService = submissionResourceService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
+    this.fieldStatusService = fieldStatusService;
   }
 
   BindingResult validate(NewFieldForm form, BindingResult bindingResult) {
@@ -58,7 +63,10 @@ class NewFieldService {
   public Field createNewField(NewFieldForm form) {
     var resource = resourceService.createResource(ResourceType.FIELD);
 
-    return fieldPersistenceService.createNewField(form, resource);
+    var newField = fieldPersistenceService.createNewField(form, resource);
+    fieldStatusService.setMostRecentFieldStatus(newField, FieldStatus.STATUS_200);
+
+    return newField;
   }
 
   Map<String, String> getResponsibleTeamTypeDisplayableOptions() {

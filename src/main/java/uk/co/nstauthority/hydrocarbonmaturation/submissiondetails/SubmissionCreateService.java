@@ -329,7 +329,7 @@ public class SubmissionCreateService {
 
   private void createReservoirSubmissionDetailsWithTypeChecks(SubmissionDetail newSubmissionDetail,
                                                               SubmissionDetail oldSubmissionDetail) {
-    if (newSubmissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY || newSubmissionDetail.isFieldSubmission()) {
+    if (newSubmissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY) {
       throw new ActionNotAllowedException(
           "Cannot create a reservoir submission detail for a create discovery or field submission");
     }

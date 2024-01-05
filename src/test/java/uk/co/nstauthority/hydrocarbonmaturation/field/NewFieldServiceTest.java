@@ -2,6 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -42,6 +44,8 @@ class NewFieldServiceTest {
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   @Mock
   private SubmissionResourceService submissionResourceService;
+  @Mock
+  private FieldStatusService fieldStatusService;
   @InjectMocks
   private NewFieldService underTest;
   @Mock
@@ -58,9 +62,13 @@ class NewFieldServiceTest {
     void verifyMethodCalls() {
       when(resourceService.createResource(ResourceType.FIELD)).thenReturn(resource);
 
+      var newField = mock(Field.class);
+      when(fieldPersistenceService.createNewField(form, resource)).thenReturn(newField);
+
       underTest.createNewField(form);
 
       verify(fieldPersistenceService).createNewField(form, resource);
+      verify(fieldStatusService, times(1)).setMostRecentFieldStatus(newField, FieldStatus.STATUS_200);
     }
   }
 

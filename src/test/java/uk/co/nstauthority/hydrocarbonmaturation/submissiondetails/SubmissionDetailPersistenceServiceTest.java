@@ -38,8 +38,6 @@ class SubmissionDetailPersistenceServiceTest {
   @Mock
   private SubmissionDetailRepository submissionDetailRepository;
   @Mock
-  private Clock clock;
-  @Mock
   private UserDetailService userDetailService;
   @Mock
   private ResourceGroupService resourceGroupService;

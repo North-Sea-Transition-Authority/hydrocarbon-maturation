@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSubmissionStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSectionService;
@@ -25,6 +26,7 @@ public class SubmissionApprovalService {
   private final AreaTeamService areaTeamService;
   private final ReservoirTotalsCleanAndCopyService reservoirTotalsCleanAndCopyService;
   private final ReservoirSubmissionSectionService reservoirSubmissionSectionService;
+  private final FieldSubmissionStatusService fieldSubmissionStatusService;
 
   @Autowired
   public SubmissionApprovalService(
@@ -35,7 +37,8 @@ public class SubmissionApprovalService {
       SubmissionUpdateService submissionUpdateService,
       ResponsibleTeamService responsibleTeamService,
       AreaTeamService areaTeamService, ReservoirTotalsCleanAndCopyService reservoirTotalsCleanAndCopyService,
-      ReservoirSubmissionSectionService reservoirSubmissionSectionService) {
+      ReservoirSubmissionSectionService reservoirSubmissionSectionService,
+      FieldSubmissionStatusService fieldSubmissionStatusService) {
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
     this.regulatorTeamService = regulatorTeamService;
     this.userDetailService = userDetailService;
@@ -45,6 +48,7 @@ public class SubmissionApprovalService {
     this.areaTeamService = areaTeamService;
     this.reservoirTotalsCleanAndCopyService = reservoirTotalsCleanAndCopyService;
     this.reservoirSubmissionSectionService = reservoirSubmissionSectionService;
+    this.fieldSubmissionStatusService = fieldSubmissionStatusService;
   }
 
   @Transactional
@@ -69,8 +73,14 @@ public class SubmissionApprovalService {
 
       if (canAutoApproveSubmission()) {
         submissionDetailPersistenceService.approveSubmission(submissionDetail);
+        if (submissionDetail.isFieldSubmission()) {
+          fieldSubmissionStatusService.updateFieldStatusForAcceptance(submissionDetail);
+        }
       } else {
         submissionEmailService.sendSubmittedSubmissionEmails(submissionDetail);
+        if (submissionDetail.isFieldSubmission()) {
+          fieldSubmissionStatusService.updateFieldStatusForSubmission(submissionDetail);
+        }
       }
     }
 
@@ -80,6 +90,9 @@ public class SubmissionApprovalService {
   public void approveSubmissionOrThrow(SubmissionDetail submissionDetail) {
     if (canApproveSubmission(submissionDetail)) {
       submissionDetailPersistenceService.approveSubmission(submissionDetail);
+      if (submissionDetail.isFieldSubmission()) {
+        fieldSubmissionStatusService.updateFieldStatusForAcceptance(submissionDetail);
+      }
 
       submissionEmailService.sendSubmissionApprovalEmail(submissionDetail);
     } else {
