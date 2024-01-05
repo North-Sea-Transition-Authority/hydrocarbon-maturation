@@ -36,9 +36,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevo
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverycominbedcasevolumetrictotals.DiscoveryCombinedCaseVolTotalsDupService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverycominbedcasevolumetrictotals.DiscoveryCombinedCaseVolTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 
 @ExtendWith(MockitoExtension.class)
 class DiscoveryCombinedCaseVolTotalsDupServiceTest {
@@ -56,7 +56,7 @@ class DiscoveryCombinedCaseVolTotalsDupServiceTest {
   private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   @Mock
-  private TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
+  private VolumetricTotalsService volumetricTotalsService;
 
   @InjectMocks
   private DiscoveryCombinedCaseVolTotalsDupService discoveryCombinedCaseVolTotalsDupService;
@@ -71,7 +71,7 @@ class DiscoveryCombinedCaseVolTotalsDupServiceTest {
     when(discoveryCombinedCaseVolTotalsService.getCombinedCaseVolumetricTotal(oldSubmissionDetail))
         .thenReturn(Optional.of(combinedCaseTotal));
 
-    when(totalVolumesTaskListSectionService.isCombinedCase(anyList())).thenReturn(true);
+    when(volumetricTotalsService.isCombinedCase(anyList())).thenReturn(true);
 
     discoveryCombinedCaseVolTotalsDupService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
@@ -92,7 +92,7 @@ class DiscoveryCombinedCaseVolTotalsDupServiceTest {
     whenGetAllProbabilityDistributionsForInstances(oldSubmissionDetail)
         .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
 
-    when(totalVolumesTaskListSectionService.isCombinedCase(anyList())).thenReturn(true);
+    when(volumetricTotalsService.isCombinedCase(anyList())).thenReturn(true);
 
     discoveryCombinedCaseVolTotalsDupService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
@@ -115,7 +115,7 @@ class DiscoveryCombinedCaseVolTotalsDupServiceTest {
     whenGetAllProbabilityDistributionsForInstances(oldSubmissionDetail)
         .thenReturn(Collections.emptyList());
 
-    when(totalVolumesTaskListSectionService.isCombinedCase(anyList())).thenReturn(true);
+    when(volumetricTotalsService.isCombinedCase(anyList())).thenReturn(true);
 
     discoveryCombinedCaseVolTotalsDupService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
@@ -160,7 +160,7 @@ class DiscoveryCombinedCaseVolTotalsDupServiceTest {
     when(reservoirSubmissionDetailPersistenceService
         .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail)
     ).thenReturn(reservoirSubmissionDetails);
-    when(totalVolumesTaskListSectionService.isCombinedCase(reservoirSubmissionDetails))
+    when(volumetricTotalsService.isCombinedCase(reservoirSubmissionDetails))
         .thenReturn(false);
 
     discoveryCombinedCaseVolTotalsDupService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);

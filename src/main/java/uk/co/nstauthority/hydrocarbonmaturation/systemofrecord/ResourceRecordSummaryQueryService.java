@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
+import static org.jooq.impl.DSL.coalesce;
 import static org.jooq.impl.DSL.select;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELDS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
@@ -37,38 +39,51 @@ class ResourceRecordSummaryQueryService {
     return context.select(
             SUBMISSION_DETAILS.ID,
             RESOURCES.TYPE,
-            RESOURCE_DETAILS.RESOURCE_NAME,
+            coalesce(
+                RESOURCE_DETAILS.RESOURCE_NAME,
+                FIELDS.CORRECTED_LEGAL_FIELD_NAME),
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
-            RESOURCE_DETAILS.ORGANISATION_ID,
+            coalesce(
+                RESOURCE_DETAILS.ORGANISATION_ID,
+                FIELDS.RESPONSIBLE_ORGANISATION_ID),
             REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM,
             DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull())
         )
-        .from(RESOURCES
-          .leftJoin(REGULATOR_MANAGED_INFORMATION).on(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID.eq(RESOURCES.ID))
-          .join(SUBMISSIONS).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
-          .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
+        .from(SUBMISSIONS
+            .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
+            // Joins the relevant submission detail to the submission.
+            .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
                 select(SD_2.ID)
-                    .from(SUBMISSIONS_2
-                        .join(SD_2).on(SUBMISSIONS_2.ID.eq(SD_2.SUBMISSION_ID))
-                        .and(SD_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name())))
-                    .where(SUBMISSIONS_2.ID.eq(SUBMISSIONS.ID))
+                    .from(SUBMISSIONS_2.join(SD_2)
+                        .on(SD_2.SUBMISSION_ID.eq(SUBMISSIONS_2.ID)
+                            .and(SD_2.STATUS.in(SubmissionDetailStatus.ACCEPTED.name()))))
+                    .where(SD_2.SUBMISSION_ID.eq(SUBMISSIONS.ID))
                     .orderBy(SD_2.VERSION_NUMBER.desc())
-                    .limit(1)
-            ))
-          .join(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
-          .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
-          .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
-          .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID)))
-        .where(RESOURCES.ID.eq(resourceId).and(SUBMISSIONS.WITHDRAWN.isNull()))
+                    .limit(1)))
+            .leftJoin(RESOURCE_DETAILS)
+            .on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+            .leftJoin(GENERAL_DETAILS)
+            .on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+            .leftJoin(GENERAL_DETAILS_LICENCES)
+            .on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID))
+            .leftJoin(TRAP_PROPERTIES)
+            .on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+            .leftJoin(REGULATOR_MANAGED_INFORMATION)
+            .on(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID.eq(RESOURCES.ID))
+            .leftJoin(FIELDS)
+            .on(FIELDS.RESOURCE_ID.eq(RESOURCES.ID))
+        .where(RESOURCES.ID.eq(resourceId).and(SUBMISSIONS.WITHDRAWN.isNull())))
         .groupBy(List.of(
-            RESOURCES.ID,
             SUBMISSION_DETAILS.ID,
-            GENERAL_DETAILS.ID,
-            TRAP_PROPERTIES.ID,
-            RESOURCE_DETAILS.ID,
-            REGULATOR_MANAGED_INFORMATION.ID
+            RESOURCES.TYPE,
+            RESOURCE_DETAILS.RESOURCE_NAME,
+            FIELDS.CORRECTED_LEGAL_FIELD_NAME,
+            TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
+            RESOURCE_DETAILS.ORGANISATION_ID,
+            FIELDS.RESPONSIBLE_ORGANISATION_ID,
+            REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM
         ))
         .orderBy(SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP.desc().nullsLast())
         .limit(1)

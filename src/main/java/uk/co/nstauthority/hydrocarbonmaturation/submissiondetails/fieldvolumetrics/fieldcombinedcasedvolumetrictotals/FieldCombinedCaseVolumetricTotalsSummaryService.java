@@ -11,8 +11,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotal;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotalsRepository;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
@@ -25,19 +25,19 @@ public class FieldCombinedCaseVolumetricTotalsSummaryService implements SummaryS
 
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
-  private final TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
+  private final VolumetricTotalsService volumetricTotalsService;
   private final CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository;
 
   @Autowired
   public FieldCombinedCaseVolumetricTotalsSummaryService(
       ProbabilityDistributionSummaryService probabilityDistributionSummaryService,
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
-      TotalVolumesTaskListSectionService totalVolumesTaskListSectionService,
+      VolumetricTotalsService volumetricTotalsService,
       CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository) {
 
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
-    this.totalVolumesTaskListSectionService = totalVolumesTaskListSectionService;
+    this.volumetricTotalsService = volumetricTotalsService;
     this.combinedCaseVolumetricTotalsRepository = combinedCaseVolumetricTotalsRepository;
   }
 
@@ -46,7 +46,7 @@ public class FieldCombinedCaseVolumetricTotalsSummaryService implements SummaryS
     var reservoirSubmissionDetails =
         reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
     if (!submissionDetail.isFieldSubmission()
-        || !totalVolumesTaskListSectionService.isCombinedCase(reservoirSubmissionDetails)) {
+        || !volumetricTotalsService.isCombinedCase(reservoirSubmissionDetails)) {
       return Optional.empty();
     }
     var summaryItems = List.of(getResourcesAndReservesSummary(submissionDetail));

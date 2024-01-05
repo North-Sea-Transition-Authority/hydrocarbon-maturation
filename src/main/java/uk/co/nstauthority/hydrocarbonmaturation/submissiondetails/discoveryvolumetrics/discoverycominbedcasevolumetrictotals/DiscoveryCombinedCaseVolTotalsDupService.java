@@ -11,8 +11,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotal;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 
 @Service
 public class DiscoveryCombinedCaseVolTotalsDupService implements SubmissionSectionDuplicationService {
@@ -20,7 +20,7 @@ public class DiscoveryCombinedCaseVolTotalsDupService implements SubmissionSecti
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
-  private final TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
+  private final VolumetricTotalsService volumetricTotalsService;
 
   @Autowired
   DiscoveryCombinedCaseVolTotalsDupService(
@@ -28,13 +28,13 @@ public class DiscoveryCombinedCaseVolTotalsDupService implements SubmissionSecti
       ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
       SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService,
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
-      TotalVolumesTaskListSectionService totalVolumesTaskListSectionService) {
+      VolumetricTotalsService volumetricTotalsService) {
 
     this.discoveryCombinedCaseVolTotalsService = discoveryCombinedCaseVolTotalsService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
-    this.totalVolumesTaskListSectionService = totalVolumesTaskListSectionService;
+    this.volumetricTotalsService = volumetricTotalsService;
   }
 
   @Override
@@ -44,7 +44,7 @@ public class DiscoveryCombinedCaseVolTotalsDupService implements SubmissionSecti
     var reservoirSubmissionDetails = reservoirSubmissionDetailPersistenceService
         .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail);
     if (!newSubmissionDetail.isDiscoverySubmission()
-        || !totalVolumesTaskListSectionService.isCombinedCase(reservoirSubmissionDetails)) {
+        || !volumetricTotalsService.isCombinedCase(reservoirSubmissionDetails)) {
       return;
     }
 

@@ -11,6 +11,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotal;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotalsRepository;
 
 @Service
@@ -18,22 +19,26 @@ public class FieldGasCaseVolumetricTotalsDuplicationService implements Submissio
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
   private final GasCaseVolumetricTotalsRepository gasCaseVolumetricTotalsRepository;
+  private final VolumetricTotalsService volumetricTotalsService;
 
   @Autowired
   public FieldGasCaseVolumetricTotalsDuplicationService(
       ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
       SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService,
-      GasCaseVolumetricTotalsRepository gasCaseVolumetricTotalsRepository) {
+      GasCaseVolumetricTotalsRepository gasCaseVolumetricTotalsRepository,
+      VolumetricTotalsService volumetricTotalsService) {
 
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
     this.gasCaseVolumetricTotalsRepository = gasCaseVolumetricTotalsRepository;
+    this.volumetricTotalsService = volumetricTotalsService;
   }
 
 
   @Override
   public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
-    if (!newSubmissionDetail.isFieldSubmission()) {
+    if (!newSubmissionDetail.isFieldSubmission()
+        || !volumetricTotalsService.isGasCaseOnly(oldSubmissionDetail)) {
       return;
     }
 

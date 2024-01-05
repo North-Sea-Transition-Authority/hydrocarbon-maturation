@@ -94,7 +94,7 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
         RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn(RESOURCE_NAME);
-    when(submissionDetailService.getSubmissionTypeName(submissionDetail))
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
         .thenReturn(submissionDetail.getSubmissionType().getTypeName());
     mockMvc.perform(
             get(ReverseRouter.route(on(RequestUpdateController.class)
@@ -128,7 +128,7 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
         .thenReturn(true);
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn(RESOURCE_NAME);
-    when(submissionDetailService.getSubmissionTypeName(submissionDetail))
+    when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail))
         .thenReturn(TYPE_NAME);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -141,7 +141,7 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
     assertThat(modelMap)
         .contains(
             entry("submissionType", submissionDetail.getSubmissionType()),
-            entry("pageName", "Are you sure you want to request an update for this %s?".formatted(TYPE_NAME.toLowerCase())),
+            entry("pageName", "Are you sure you want to request an update for this %s?".formatted(TYPE_NAME)),
             entry("resourceName", RESOURCE_NAME),
             entry("actionUrl", ReverseRouter.route(on(RequestUpdateController.class)
                 .requestUpdate(SUBMISSION_DETAIL_ID, null, null, null))),
@@ -165,7 +165,7 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
     when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail)).thenReturn(true);
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn(RESOURCE_NAME);
-    when(submissionDetailService.getSubmissionTypeName(submissionDetail))
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
         .thenReturn(TYPE_NAME);
     when(submissionUpdateService.validate(any(), any()))
         .thenReturn(ReverseRouter.emptyBindingResult());
@@ -188,7 +188,7 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
         RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     when(submissionUpdateService.validate(any(), any()))
         .thenReturn(ReverseRouter.emptyBindingResult());
-    when(submissionDetailService.getSubmissionTypeName(submissionDetail))
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
         .thenReturn(submissionDetail.getSubmissionType().getTypeName());
     when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail))
         .thenReturn(false);

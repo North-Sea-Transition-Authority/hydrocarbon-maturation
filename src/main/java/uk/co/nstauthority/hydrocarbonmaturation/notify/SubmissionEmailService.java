@@ -163,8 +163,6 @@ public class SubmissionEmailService {
   private void addCommonSubmissionPersonalisations(Map<String, String> personalisations,
                                                    SubmissionDetail submissionDetail,
                                                    String licencesString) {
-    var submissionType = submissionDetail.getSubmissionType();
-
     if (!licencesString.isEmpty()) {
       personalisations.put(LICENCES, licencesString + ":");
     } else {
@@ -174,8 +172,8 @@ public class SubmissionEmailService {
         serviceBrandingConfigurationProperties.getServiceConfigurationProperties().mnemonic());
     personalisations.put(RESOURCE_NAME_WITH_QUAD_BLOCK,
         submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail));
-    personalisations.put(SUBMISSION_TYPE, submissionType.getTypeName().toLowerCase());
-    personalisations.put(SUBMISSION_TYPE_CAPITALISED, submissionDetail.getSubmissionType().getTypeName());
+    personalisations.put(SUBMISSION_TYPE, submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail));
+    personalisations.put(SUBMISSION_TYPE_CAPITALISED, submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail));
   }
 
   private void sendEmailToRecipients(EmailProperties emailProperties, List<EnergyPortalUserDto> recipients) {

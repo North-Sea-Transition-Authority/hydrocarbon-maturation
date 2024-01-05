@@ -57,7 +57,7 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
         .thenReturn(submissionDetail);
     var prospectName = "pros123";
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
-    when(submissionDetailService.getSubmissionTypeName(submissionDetail)).thenReturn(submissionDetail.getSubmissionType().getTypeName());
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail)).thenReturn(submissionDetail.getSubmissionType().getTypeName());
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     var taskListSections = List.of(
@@ -131,7 +131,7 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
     submissionDetail.setVersionNumber(2);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
-    when(submissionDetailService.getSubmissionTypeName(submissionDetail)).thenReturn(submissionDetail.getSubmissionType().getTypeName());
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail)).thenReturn(submissionDetail.getSubmissionType().getTypeName());
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     when(taskListService.getAllSections(submissionDetail))
@@ -165,7 +165,7 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
     submissionDetail.setVersionNumber(2);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
-    when(submissionDetailService.getSubmissionTypeName(submissionDetail)).thenReturn(submissionDetail.getSubmissionType().getTypeName());
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail)).thenReturn(submissionDetail.getSubmissionType().getTypeName());
 
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
@@ -195,7 +195,7 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
     submissionDetail.setCorrection(true);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
-    when(submissionDetailService.getSubmissionTypeName(submissionDetail)).thenReturn(submissionDetail.getSubmissionType().getTypeName());
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail)).thenReturn(submissionDetail.getSubmissionType().getTypeName());
 
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 

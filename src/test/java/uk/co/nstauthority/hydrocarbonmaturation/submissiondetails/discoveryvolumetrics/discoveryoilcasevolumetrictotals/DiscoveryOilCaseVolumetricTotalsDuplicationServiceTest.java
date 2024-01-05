@@ -32,9 +32,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 
 @ExtendWith(MockitoExtension.class)
 class DiscoveryOilCaseVolumetricTotalsDuplicationServiceTest {
@@ -49,7 +49,7 @@ class DiscoveryOilCaseVolumetricTotalsDuplicationServiceTest {
   private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   @Mock
-  private TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
+  private VolumetricTotalsService volumetricTotalsService;
 
   @InjectMocks
   private DiscoveryOilCaseVolumetricTotalsDuplicationService discoveryOilCaseVolumetricTotalsDuplicationService;
@@ -64,7 +64,7 @@ class DiscoveryOilCaseVolumetricTotalsDuplicationServiceTest {
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
     whenGetAllProbabilityDistributionsForInstances(oldSubmissionDetail)
         .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
-    when(totalVolumesTaskListSectionService.isOilCaseOnly(anyList()))
+    when(volumetricTotalsService.isOilCaseOnly(anyList()))
         .thenReturn(true);
 
     discoveryOilCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
@@ -87,7 +87,7 @@ class DiscoveryOilCaseVolumetricTotalsDuplicationServiceTest {
 
     whenGetAllProbabilityDistributionsForInstances(oldSubmissionDetail)
         .thenReturn(Collections.emptyList());
-    when(totalVolumesTaskListSectionService.isOilCaseOnly(anyList()))
+    when(volumetricTotalsService.isOilCaseOnly(anyList()))
         .thenReturn(true);
 
     discoveryOilCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
@@ -118,7 +118,7 @@ class DiscoveryOilCaseVolumetricTotalsDuplicationServiceTest {
     when(reservoirSubmissionDetailPersistenceService
         .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail)
     ).thenReturn(reservoirSubmissionDetails);
-    when(totalVolumesTaskListSectionService.isOilCaseOnly(anyList()))
+    when(volumetricTotalsService.isOilCaseOnly(anyList()))
         .thenReturn(false);
 
     discoveryOilCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);

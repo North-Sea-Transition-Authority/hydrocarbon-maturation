@@ -9,7 +9,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
@@ -22,17 +21,17 @@ public class FieldOilCaseVolumetricTotalsSummaryService implements SummarySectio
   public static final int TOTAL_OIL_VOLUMETRICS_ORDER = 20;
 
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
-  private final TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
+  private final VolumetricTotalsService volumetricTotalsService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   @Autowired
   public FieldOilCaseVolumetricTotalsSummaryService(
       ProbabilityDistributionSummaryService probabilityDistributionSummaryService,
-      TotalVolumesTaskListSectionService totalVolumesTaskListSectionService,
+      VolumetricTotalsService volumetricTotalsService,
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
 
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
-    this.totalVolumesTaskListSectionService = totalVolumesTaskListSectionService;
+    this.volumetricTotalsService = volumetricTotalsService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
 
@@ -40,7 +39,7 @@ public class FieldOilCaseVolumetricTotalsSummaryService implements SummarySectio
   public Optional<SummarySection> getSummarySection(SubmissionDetail submissionDetail) {
     var reservoirSubmissionDetails =
         reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
-    if (!submissionDetail.isFieldSubmission() || !totalVolumesTaskListSectionService.isOilCaseOnly(reservoirSubmissionDetails)) {
+    if (!submissionDetail.isFieldSubmission() || !volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails)) {
       return Optional.empty();
     }
     var summaryItems = List.of(getResourcesAndReservesSummary(submissionDetail));

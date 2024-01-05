@@ -106,8 +106,26 @@ public class SubmissionDetailService {
         .toList();
   }
 
-  public String getSubmissionTypeName(SubmissionDetail submissionDetail) {
-    return submissionDetail.getSubmissionType().getTypeName();
+  public String getSubmissionTypeNameWithAcronym(SubmissionDetail submissionDetail) {
+    var submissionType = submissionDetail.getSubmissionType();
+    return getSubmissionTypeNameWithAcronym(submissionType);
+  }
+
+  public String getSubmissionTypeNameWithAcronym(SubmissionType submissionType) {
+    return submissionType.getAcronym() == null
+        ? "%s".formatted(submissionType.getTypeName())
+        : "%s (%s)".formatted(submissionType.getTypeName(), submissionType.getAcronym());
+  }
+
+  public String getSubmissionTypeNameLowercaseWithAcronym(SubmissionDetail submissionDetail) {
+    var submissionType = submissionDetail.getSubmissionType();
+    return getSubmissionTypeNameLowercaseWithAcronym(submissionType);
+  }
+
+  public String getSubmissionTypeNameLowercaseWithAcronym(SubmissionType submissionType) {
+    return submissionType.getAcronym() == null
+        ? "%s".formatted(submissionType.getTypeName().toLowerCase())
+        : "%s (%s)".formatted(submissionType.getTypeName().toLowerCase(), submissionType.getAcronym());
   }
 
   public SubmissionDetail getSubmissionDetailByResourceDetailOrThrow(UUID resourceDetailId) {

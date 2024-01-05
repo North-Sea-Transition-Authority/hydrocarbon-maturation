@@ -43,7 +43,7 @@ class WorkAreaItemService {
         WorkAreaItemType.SUBMISSION,
         getHeadingText(submissionWorkAreaQueryResult),
         String.format("%s%s",
-            submissionWorkAreaQueryResult.getSubmissionType().getTypeName(),
+            submissionDetailService.getSubmissionTypeNameWithAcronym(submissionWorkAreaQueryResult.getSubmissionType()),
             submissionWorkAreaQueryResult.isCorrection() ? " - correction" : ""),
         getActionUrl(submissionWorkAreaQueryResult),
         getWorkAreaItemModelProperties(submissionWorkAreaQueryResult));

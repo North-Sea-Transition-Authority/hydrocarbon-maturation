@@ -88,16 +88,16 @@ public class ApproveSubmissionController {
 
   private String getPageName(SubmissionDetail submissionDetail) {
     return "Are you sure you want to accept this %s?"
-        .formatted(submissionDetailService.getSubmissionTypeName(submissionDetail).toLowerCase());
+        .formatted(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail));
   }
 
   private void approvedSubmissionNotificationBanner(SubmissionDetail submissionDetail,
                                                     RedirectAttributes redirectAttributes) {
     var banner = NotificationBanner.builder()
-        .withTitle("%s submission accepted".formatted(submissionDetailService.getSubmissionTypeName(submissionDetail)))
+        .withTitle("%s submission accepted".formatted(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail)))
         .withBannerType(NotificationBannerType.SUCCESS)
         .withContent("%s - %s has been accepted and applied to the system of record."
-            .formatted(submissionDetail.getSubmission().getResource().getType().getDisplayName(),
+            .formatted(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail),
                 submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail)))
         .build();
 

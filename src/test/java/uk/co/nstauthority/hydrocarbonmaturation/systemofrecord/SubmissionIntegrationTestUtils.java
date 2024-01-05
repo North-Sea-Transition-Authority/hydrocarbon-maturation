@@ -8,6 +8,7 @@ import javax.persistence.EntityManager;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -124,6 +125,21 @@ public class SubmissionIntegrationTestUtils {
     entityManager.flush();
 
     return resourceDetail;
+  }
+
+  public static Field createField(Resource resource,
+                                  String correctedLegalFieldName,
+                                  int responsibleOrganisationId,
+                                  EntityManager entityManager) {
+    var field = new Field();
+    field.setResource(resource);
+    field.setCorrectedLegalFieldName(correctedLegalFieldName);
+    field.setResponsibleOrganisationId(responsibleOrganisationId);
+
+    entityManager.persist(field);
+    entityManager.flush();
+
+    return field;
   }
 
   public static Resource createResource(EntityManager entityManager, ResourceType prospect) {

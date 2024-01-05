@@ -11,26 +11,31 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevo
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotalsRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
 
 @Service
 public class FieldCombinedCaseVolumetricTotalsDuplicationService implements SubmissionSectionDuplicationService {
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
   private final CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository;
+  private final VolumetricTotalsService volumetricTotalsService;
 
   public FieldCombinedCaseVolumetricTotalsDuplicationService(
       ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
       SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService,
-      CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository) {
+      CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository,
+      VolumetricTotalsService volumetricTotalsService) {
 
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
     this.combinedCaseVolumetricTotalsRepository = combinedCaseVolumetricTotalsRepository;
+    this.volumetricTotalsService = volumetricTotalsService;
   }
 
   @Override
   public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
-    if (!newSubmissionDetail.isFieldSubmission()) {
+    if (!newSubmissionDetail.isFieldSubmission()
+        || !volumetricTotalsService.isCombinedCase(oldSubmissionDetail)) {
       return;
     }
 

@@ -90,7 +90,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
         RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn("name");
-    when(submissionDetailService.getSubmissionTypeName(submissionDetail))
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
         .thenReturn(submissionDetail.getSubmissionType().getTypeName());
     setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
 
@@ -126,7 +126,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn(expectedName);
     var expectedTypeName = "Type name";
-    when(submissionDetailService.getSubmissionTypeName(submissionDetail))
+    when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail))
         .thenReturn(expectedTypeName);
     setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
 
@@ -139,7 +139,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
     assertThat(modelMap)
         .contains(
             entry("submissionType", submissionDetail.getSubmissionType()),
-            entry("pageName", "Are you sure you want to withdraw this %s?".formatted(expectedTypeName.toLowerCase())),
+            entry("pageName", "Are you sure you want to withdraw this %s?".formatted(expectedTypeName)),
             entry("resourceName", expectedName),
             entry("actionUrl", ReverseRouter.route(on(WithdrawSubmissionController.class)
                 .withdrawSubmission(SUBMISSION_DETAIL_ID, null, null, null))),
@@ -165,7 +165,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn(expectedName);
     var expectedTypeName = "Type name";
-    when(submissionDetailService.getSubmissionTypeName(submissionDetail))
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
         .thenReturn(expectedTypeName);
     when(withdrawSubmissionService.validate(any(), any()))
         .thenReturn(ReverseRouter.emptyBindingResult());
@@ -192,7 +192,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
         RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     when(withdrawSubmissionService.validate(any(), any()))
         .thenReturn(ReverseRouter.emptyBindingResult());
-    when(submissionDetailService.getSubmissionTypeName(submissionDetail))
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
         .thenReturn(submissionDetail.getSubmissionType().getTypeName());
     setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
 

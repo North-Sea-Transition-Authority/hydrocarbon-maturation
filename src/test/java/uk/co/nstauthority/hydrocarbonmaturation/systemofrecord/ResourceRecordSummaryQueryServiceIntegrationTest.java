@@ -134,6 +134,33 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
         );
   }
 
+  @Test
+  void getResourceRecord_WhenFieldSubmission_returnsResourceRecordWithFieldInformation() {
+    var resource = buildResource();
+    var submissionNotWithdrawn = SubmissionIntegrationTestUtils.createSubmission(resource, null, entityManager);
+    var submissionDetail = buildSubmissionDetail(resource, SubmissionType.CREATE_CSR);
+    submissionDetail.setSubmission(submissionNotWithdrawn);
+    var resourceName = "The resource name A";
+    var organisationId = 46;
+    createGeneralDetail(submissionDetail);
+    var field = SubmissionIntegrationTestUtils
+        .createField(resource, resourceName, organisationId, entityManager);
+
+    var result = resourceRecordSummaryQueryService.getResourceRecord(resource.getId());
+
+    assertThat(result)
+        .isPresent()
+        .get()
+        .extracting(
+            ResourceRecordSummaryQueryResult::getResourceName,
+            ResourceRecordSummaryQueryResult::getOrganisationResponsibleId
+        )
+        .containsExactly(
+            field.getCorrectedLegalFieldName(),
+            field.getResponsibleOrganisationId()
+        );
+  }
+
   private Licence createLicence(int id, String ref, GeneralDetail generalDetails) {
 
     return SubmissionIntegrationTestUtils.createLicence(id, ref, generalDetails, entityManager);

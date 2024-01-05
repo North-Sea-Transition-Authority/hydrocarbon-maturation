@@ -145,6 +145,12 @@ class SubmissionEmailServiceTest {
       var generalDetail = mock(GeneralDetail.class);
       when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(SUBMISSION_DETAIL))
           .thenReturn(Optional.of(generalDetail));
+      var submissionTypeLowercaseWithAcronym = "submission type";
+      when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(SUBMISSION_DETAIL))
+          .thenReturn(submissionTypeLowercaseWithAcronym);
+      var submissionTypeWithAcronym = "Submission Type With Acronym";
+      when(submissionDetailService.getSubmissionTypeNameWithAcronym(SUBMISSION_DETAIL))
+          .thenReturn(submissionTypeWithAcronym);
 
       var licence = new Licence();
       licence.setLicenceReference("A2");
@@ -170,8 +176,8 @@ class SubmissionEmailServiceTest {
             Map.of(
                 "RESOURCE_NAME_WITH_QUAD_BLOCK", expectedName,
                 "LICENCES", expectedLicencesString,
-                "SUBMISSION_TYPE_CAPITALISED", SUBMISSION_DETAIL.getSubmissionType().getTypeName(),
-                "SUBMISSION_TYPE", SUBMISSION_DETAIL.getSubmissionType().getTypeName().toLowerCase(),
+                "SUBMISSION_TYPE_CAPITALISED", submissionTypeWithAcronym,
+                "SUBMISSION_TYPE", submissionTypeLowercaseWithAcronym,
                 "SYSTEM_OF_RECORD_RESOURCE_URL", expectedRemiSystemOfRecordUrl,
                 "RECIPIENT_NAME", "Bob The builder",
                 "SERVICE_NAME_MNEMONIC", SERVICE_NAME,
@@ -208,6 +214,12 @@ class SubmissionEmailServiceTest {
     var expectedRemiSystemOfRecordUrl = SERVICE_URL +
         ReverseRouter.route(on(ViewResourceRecordController.class)
             .showResourceRecord(resourceWithRandomUUID.getId()));
+    var submissionTypeLowercaseWithAcronym = "submission type";
+    when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(SUBMISSION_DETAIL))
+        .thenReturn(submissionTypeLowercaseWithAcronym);
+    var submissionTypeWithAcronym = "Submission Type With Acronym";
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(SUBMISSION_DETAIL))
+        .thenReturn(submissionTypeWithAcronym);
 
     submissionEmailService.sendSubmissionApprovalEmail(SUBMISSION_DETAIL);
 
@@ -222,8 +234,8 @@ class SubmissionEmailServiceTest {
             Map.of(
                 "RESOURCE_NAME_WITH_QUAD_BLOCK", expectedName,
                 "LICENCES", expectedLicencesString,
-                "SUBMISSION_TYPE_CAPITALISED", SUBMISSION_DETAIL.getSubmissionType().getTypeName(),
-                "SUBMISSION_TYPE", SUBMISSION_DETAIL.getSubmissionType().getTypeName().toLowerCase(),
+                "SUBMISSION_TYPE_CAPITALISED", submissionTypeWithAcronym,
+                "SUBMISSION_TYPE", submissionTypeLowercaseWithAcronym,
                 "SYSTEM_OF_RECORD_RESOURCE_URL", expectedRemiSystemOfRecordUrl,
                 "RECIPIENT_NAME", "Jonathan Joestar",
                 "SERVICE_NAME_MNEMONIC", SERVICE_NAME,
@@ -327,6 +339,13 @@ class SubmissionEmailServiceTest {
       var expectedReviewSubmissionUrl = SERVICE_URL +
           ReverseRouter.route(on(ReviewSubmissionController.class)
               .showReviewPage(SUBMISSION_DETAIL.getSubmission().getResource().getId()));
+      var submissionTypeLowercaseWithAcronym = "submission type";
+      when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(SUBMISSION_DETAIL))
+          .thenReturn(submissionTypeLowercaseWithAcronym);
+      var submissionTypeWithAcronym = "Submission Type With Acronym";
+      when(submissionDetailService.getSubmissionTypeNameWithAcronym(SUBMISSION_DETAIL))
+          .thenReturn(submissionTypeWithAcronym);
+
       submissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
 
       verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient1.emailAddress()));
@@ -341,8 +360,8 @@ class SubmissionEmailServiceTest {
               Map.of(
                   "RESOURCE_NAME_WITH_QUAD_BLOCK", expectedName,
                   "LICENCES", expectedLicencesString,
-                  "SUBMISSION_TYPE", SUBMISSION_DETAIL.getSubmissionType().getTypeName().toLowerCase(),
-                  "SUBMISSION_TYPE_CAPITALISED", SUBMISSION_DETAIL.getSubmissionType().getTypeName(),
+                  "SUBMISSION_TYPE", submissionTypeLowercaseWithAcronym,
+                  "SUBMISSION_TYPE_CAPITALISED", submissionTypeWithAcronym,
                   "REVIEW_PAGE_URL", expectedReviewSubmissionUrl,
                   "LICENCES_WITHOUT_LEADING_COLON", expectedLicencesStringWithoutColon,
                   "RECIPIENT_NAME", "Bob Johnson",
@@ -387,6 +406,12 @@ class SubmissionEmailServiceTest {
       var expectedReviewSubmissionUrl = SERVICE_URL +
           ReverseRouter.route(on(ReviewSubmissionController.class)
               .showReviewPage(SUBMISSION_DETAIL.getSubmission().getResource().getId()));
+      var submissionTypeLowercaseWithAcronym = "submission type";
+      when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(SUBMISSION_DETAIL))
+          .thenReturn(submissionTypeLowercaseWithAcronym);
+      var submissionTypeWithAcronym = "Submission Type With Acronym";
+      when(submissionDetailService.getSubmissionTypeNameWithAcronym(SUBMISSION_DETAIL))
+          .thenReturn(submissionTypeWithAcronym);
 
       submissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
 
@@ -402,8 +427,8 @@ class SubmissionEmailServiceTest {
               Map.of(
                   "RESOURCE_NAME_WITH_QUAD_BLOCK", expectedName,
                   "LICENCES", expectedLicencesString,
-                  "SUBMISSION_TYPE", SUBMISSION_DETAIL.getSubmissionType().getTypeName().toLowerCase(),
-                  "SUBMISSION_TYPE_CAPITALISED", SUBMISSION_DETAIL.getSubmissionType().getTypeName(),
+                  "SUBMISSION_TYPE", submissionTypeLowercaseWithAcronym,
+                  "SUBMISSION_TYPE_CAPITALISED", submissionTypeWithAcronym,
                   "REVIEW_PAGE_URL", expectedReviewSubmissionUrl,
                   "LICENCES_WITHOUT_LEADING_COLON", expectedLicencesStringWithoutColon,
                   "RECIPIENT_NAME", "Bob Johnson",
@@ -477,6 +502,12 @@ class SubmissionEmailServiceTest {
       licence2.setLicenceReference("A6");
       when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail))
           .thenReturn(List.of(licence, licence2));
+      var submissionTypeLowercaseWithAcronym = "submission type";
+      when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(SUBMISSION_DETAIL))
+          .thenReturn(submissionTypeLowercaseWithAcronym);
+      var submissionTypeWithAcronym = "Submission Type With Acronym";
+      when(submissionDetailService.getSubmissionTypeNameWithAcronym(SUBMISSION_DETAIL))
+          .thenReturn(submissionTypeWithAcronym);
 
       submissionEmailService.sendSubmissionWithdrawalEmail(SUBMISSION_DETAIL);
 
@@ -491,8 +522,8 @@ class SubmissionEmailServiceTest {
               Map.of(
                   "RESOURCE_NAME_WITH_QUAD_BLOCK", expectedName,
                   "LICENCES", expectedLicencesString,
-                  "SUBMISSION_TYPE_CAPITALISED", SUBMISSION_DETAIL.getSubmissionType().getTypeName(),
-                  "SUBMISSION_TYPE", SUBMISSION_DETAIL.getSubmissionType().getTypeName().toLowerCase(),
+                  "SUBMISSION_TYPE_CAPITALISED", submissionTypeWithAcronym,
+                  "SUBMISSION_TYPE", submissionTypeLowercaseWithAcronym,
                   "RECIPIENT_NAME", "Bob The builder",
                   "SERVICE_NAME_MNEMONIC", SERVICE_NAME,
                   "REGULATOR_ORGANISATION_NAME", REGULATOR_ORGANISATION_NAME,
@@ -529,6 +560,12 @@ class SubmissionEmailServiceTest {
           .thenReturn(Optional.of(generalDetail));
       when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail))
           .thenReturn(List.of());
+      var submissionTypeLowercaseWithAcronym = "submission type";
+      when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(SUBMISSION_DETAIL))
+          .thenReturn(submissionTypeLowercaseWithAcronym);
+      var submissionTypeWithAcronym = "Submission Type With Acronym";
+      when(submissionDetailService.getSubmissionTypeNameWithAcronym(SUBMISSION_DETAIL))
+          .thenReturn(submissionTypeWithAcronym);
 
       submissionEmailService.sendSubmissionWithdrawalEmail(SUBMISSION_DETAIL);
 
@@ -543,8 +580,8 @@ class SubmissionEmailServiceTest {
               Map.of(
                   "RESOURCE_NAME_WITH_QUAD_BLOCK", expectedName,
                   "LICENCES", expectedLicencesString,
-                  "SUBMISSION_TYPE_CAPITALISED", SUBMISSION_DETAIL.getSubmissionType().getTypeName(),
-                  "SUBMISSION_TYPE", SUBMISSION_DETAIL.getSubmissionType().getTypeName().toLowerCase(),
+                  "SUBMISSION_TYPE_CAPITALISED", submissionTypeWithAcronym,
+                  "SUBMISSION_TYPE", submissionTypeLowercaseWithAcronym,
                   "RECIPIENT_NAME", "Jonathan Joestar",
                   "SERVICE_NAME_MNEMONIC", SERVICE_NAME,
                   "REGULATOR_ORGANISATION_NAME", REGULATOR_ORGANISATION_NAME,
@@ -606,6 +643,12 @@ class SubmissionEmailServiceTest {
           .withSurname(SUBMITTER_SURNAME_1)
           .withEmailAddress(SUBMITTER_EMAIL_1)
           .build();
+      var submissionTypeLowercaseWithAcronym = "submission type";
+      when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(SUBMISSION_DETAIL))
+          .thenReturn(submissionTypeLowercaseWithAcronym);
+      var submissionTypeWithAcronym = "Submission Type With Acronym";
+      when(submissionDetailService.getSubmissionTypeNameWithAcronym(SUBMISSION_DETAIL))
+          .thenReturn(submissionTypeWithAcronym);
 
       when(energyPortalUserService.findByWuaIds(List.of(
           WebUserAccountId.valueOf(SUBMITTER_WUA_ID_1.toString()))))
@@ -651,8 +694,8 @@ class SubmissionEmailServiceTest {
                   "RECIPIENT_NAME", "%s %s".formatted(SUBMITTER_FORENAME_1, SUBMITTER_SURNAME_1),
                   "RESOURCE_NAME_WITH_QUAD_BLOCK", expectedName,
                   "REVIEW_PAGE_URL", expectedReviewSubmissionUrl,
-                  "SUBMISSION_TYPE_CAPITALISED", SUBMISSION_DETAIL.getSubmissionType().getTypeName(),
-                  "SUBMISSION_TYPE", SUBMISSION_DETAIL.getSubmissionType().getTypeName().toLowerCase(),
+                  "SUBMISSION_TYPE_CAPITALISED", submissionTypeWithAcronym,
+                  "SUBMISSION_TYPE", submissionTypeLowercaseWithAcronym,
                   "SERVICE_NAME_MNEMONIC", SERVICE_NAME,
                   "REGULATOR_ORGANISATION_NAME", REGULATOR_ORGANISATION_NAME,
                   "TEST_EMAIL", "no"

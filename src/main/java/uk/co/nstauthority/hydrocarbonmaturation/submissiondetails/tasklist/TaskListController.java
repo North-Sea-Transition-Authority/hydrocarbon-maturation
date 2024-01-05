@@ -57,7 +57,7 @@ public class TaskListController {
     }
     var modelAndView = new ModelAndView("remi/submissiondetails/tasklist/taskList")
         .addObject("taskListSections", sections)
-        .addObject("submissionTypeName", submissionDetailService.getSubmissionTypeName(submissionDetail))
+        .addObject("submissionTypeName", submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
         .addObject("resourceName", submissionResourceService.getResourceNameOrDefault(submissionDetail))
         .addObject("deleteLinkText", deleteLinkText)
         .addObject("deleteSubmissionUrl",

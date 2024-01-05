@@ -3,6 +3,8 @@
 <#import './_prospectSubmissionSummary.ftl' as prospectSubmissionSummary>
 <#import './_dryWellSubmissionSummary.ftl' as dryWellSubmissionSummary>
 <#import './_discoverySubmissionSummary.ftl' as discoverySubmissionSummary>
+<#import '../../summary/_submissionSummary.ftl' as sectionsSubmissionSummary>
+<#import '../../summary/_reservoirSummary.ftl' as reservoirSummary>
 
 <#-- @ftlvariable name="generalDetailsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView" -->
 <#-- @ftlvariable name="opportunityDetailsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryView" -->
@@ -34,6 +36,7 @@
 <#-- @ftlvariable name="drillStemTestSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryView" -->
 <#-- @ftlvariable name="discoveryWellDetailsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryView" -->
 <#-- @ftlvariable name="reservoirSummaries" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummary>" -->
+<#-- @ftlvariable name="accordionId" type="String" -->
 
 <#macro submissionSummary submissionType>
     <#if submissionType == "CREATE_PROSPECT" || submissionType == "PROSPECT_UPDATE" || submissionType== "RELINQUISHMENT_PROSPECT">
@@ -90,5 +93,12 @@
         oilCaseVolumetricTotalsSummaryView=oilCaseVolumetricTotalsSummaryView!""
         gasCaseVolumetricTotalsSummaryView=gasCaseVolumetricTotalsSummaryView!""
         reservoirSummaries=reservoirSummaries/>
+    <#elseif submissionType == "CREATE_CSR"
+    || submissionType == "CREATE_FDP"
+    || submissionType == "CREATE_FDPA"
+    || submissionType == "CREATE_COP">
+      <@sectionsSubmissionSummary.submissionSummary accordionId>
+        <@reservoirSummary.reservoirSummary reservoirSummaries=reservoirSummaries/>
+      </@sectionsSubmissionSummary.submissionSummary>
     </#if>
 </#macro>

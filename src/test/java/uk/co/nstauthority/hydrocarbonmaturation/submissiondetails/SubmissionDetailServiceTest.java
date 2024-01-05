@@ -204,9 +204,21 @@ class SubmissionDetailServiceTest {
   }
 
   @Test
-  void getSubmissionTypeName_assertReturn() {
-    assertThat(submissionDetailService.getSubmissionTypeName(submissionDetail))
+  void getSubmissionTypeNameWithAcronym_fromSubmissionDetail_assertReturn() {
+    assertThat(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
         .isEqualTo(SubmissionType.PROSPECT_UPDATE.getTypeName());
+  }
+
+  @Test
+  void getSubmissionTypeNameWithAcronym_fromSubmissionTypeWithAcronym_assertReturn() {
+    assertThat(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.CREATE_COP))
+        .isEqualTo("Cessation of Production notification (CoP)");
+  }
+
+  @Test
+  void getSubmissionTypeNameWithAcronym_fromSubmissionTypeWithNoAcronym_assertReturn() {
+    assertThat(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.PROSPECT_UPDATE))
+        .isEqualTo("Prospect update");
   }
 
   @Test
@@ -312,5 +324,26 @@ class SubmissionDetailServiceTest {
     submissionDetailService.openCorrectionExists(statuses, resource);
     verify(submissionDetailRepository, times(1))
         .existsSubmissionDetailByCorrectionTrueAndStatusInAndSubmission_Resource(statuses, resource);
+  }
+
+  @Test
+  void getSubmissionTypeNameLowercaseWithAcronym_typeWithUpperCaseAcronym() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
+    assertThat(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym((submissionDetail)))
+        .isEqualTo("concept select report (CSR)");
+  }
+
+  @Test
+  void getSubmissionTypeNameLowercaseWithAcronym_typeWithNoAcronym() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    assertThat(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym((submissionDetail)))
+        .isEqualTo("post-drill discovery");
+  }
+
+  @Test
+  void getSubmissionTypeNameLowercaseWithAcronym_typeWithNonAllUpperCaseAcronym() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_COP);
+    assertThat(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym((submissionDetail)))
+        .isEqualTo("cessation of production notification (CoP)");
   }
 }

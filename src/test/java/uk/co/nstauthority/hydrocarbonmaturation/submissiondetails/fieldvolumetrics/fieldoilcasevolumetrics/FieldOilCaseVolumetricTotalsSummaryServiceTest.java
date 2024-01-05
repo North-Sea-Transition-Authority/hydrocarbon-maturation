@@ -18,7 +18,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 
@@ -29,7 +28,7 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
     private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
 
     @Mock
-    private TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
+    private VolumetricTotalsService volumetricTotalsService;
 
     @Mock
     private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
@@ -53,7 +52,7 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
             .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail)
         ).thenReturn(reservoirSubmissionDetails);
 
-        when(totalVolumesTaskListSectionService.isOilCaseOnly(reservoirSubmissionDetails))
+        when(volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails))
             .thenReturn(false);
 
         assertThat(fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail))
@@ -69,7 +68,7 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
             .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail)
         ).thenReturn(reservoirSubmissionDetails);
 
-        when(totalVolumesTaskListSectionService.isOilCaseOnly(reservoirSubmissionDetails))
+        when(volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails))
             .thenReturn(true);
 
         var emptyProbabilitySummaryView = ProbabilityDistributionSummaryView.empty("");

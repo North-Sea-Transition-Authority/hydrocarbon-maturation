@@ -86,6 +86,11 @@ class WorkAreaItemServiceTest {
     when(submissionDetailDisplayService.getLicencesForDisplay(List.of(LICENCE_ID_1, LICENCE_ID_2)))
         .thenReturn(List.of());
 
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.CREATE_PROSPECT))
+        .thenReturn("Prospect create");
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.PROSPECT_UPDATE))
+        .thenReturn("Prospect update");
+
     var result = workAreaItemService.getWorkAreaItems(USER);
 
     assertThat(result)
@@ -127,6 +132,8 @@ class WorkAreaItemServiceTest {
   @Test
   void getWorkAreaItems_oneItemReturned_whenOrganisationAndLicencesFound() {
 
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.CREATE_PROSPECT))
+        .thenReturn("Prospect create");
     when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(operatorSubmissionWorkAreaQueryService);
     when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
@@ -172,6 +179,8 @@ class WorkAreaItemServiceTest {
         .withResourceName(providedName)
         .build();
 
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.CREATE_PROSPECT))
+        .thenReturn("Prospect create");
     when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(operatorSubmissionWorkAreaQueryService);
     when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
@@ -208,6 +217,8 @@ class WorkAreaItemServiceTest {
 
   @Test
   void getWorkAreaItems_oneItemReturned_whenOrganisationWithoutNameFound() {
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.CREATE_PROSPECT))
+        .thenReturn("Prospect create");
     when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(operatorSubmissionWorkAreaQueryService);
     when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
@@ -241,6 +252,8 @@ class WorkAreaItemServiceTest {
 
   @Test
   void getWorkAreaItems_oneItemReturned_whenOrganisationWithoutNameAndNumberFound() {
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.CREATE_PROSPECT))
+        .thenReturn("Prospect create");
     when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(responsibleTeamSubmissionWorkAreaQueryService);
     when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER)).thenReturn(List.of(
@@ -326,6 +339,8 @@ class WorkAreaItemServiceTest {
         .builder()
         .withStatus(SubmissionDetailStatus.SUBMITTED.name())
         .build();
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.CREATE_PROSPECT))
+        .thenReturn("Prospect create");
     when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(responsibleTeamSubmissionWorkAreaQueryService);
     when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
@@ -395,6 +410,8 @@ class WorkAreaItemServiceTest {
         .withCorrection(true)
         .build();
     var queryResults = List.of(workAreaItem);
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.CREATE_PROSPECT))
+        .thenReturn("Prospect create");
     when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(operatorSubmissionWorkAreaQueryService);
     when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))

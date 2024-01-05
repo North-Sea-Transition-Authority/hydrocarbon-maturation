@@ -23,10 +23,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotal;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotalsRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 
@@ -40,7 +40,7 @@ class FieldGasCaseVolumetricTotalsSummaryServiceTest {
   private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   @Mock
-  private TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
+  private VolumetricTotalsService volumetricTotalsService;
 
   @Mock
   private GasCaseVolumetricTotalsRepository gasCaseVolumetricTotalsRepository;
@@ -58,7 +58,7 @@ class FieldGasCaseVolumetricTotalsSummaryServiceTest {
   @Test
   void getSummarySection_notApplicableHydrocarbon_thenEmpty() {
     var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
-    when(totalVolumesTaskListSectionService.isGasCaseOnly(anyList()))
+    when(volumetricTotalsService.isGasCaseOnly(anyList()))
         .thenReturn(false);
     assertThat(fieldGasCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail))
         .isEmpty();
@@ -68,7 +68,7 @@ class FieldGasCaseVolumetricTotalsSummaryServiceTest {
   void getSummarySection_validForm_assertStructure() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_COP);
 
-    when(totalVolumesTaskListSectionService.isGasCaseOnly(anyList()))
+    when(volumetricTotalsService.isGasCaseOnly(anyList()))
         .thenReturn(true);
 
     var probabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
@@ -130,7 +130,7 @@ class FieldGasCaseVolumetricTotalsSummaryServiceTest {
             eq(submissionDetail),
             eq(null)
         )).thenReturn(List.of(probabilitySummaryView));
-    when(totalVolumesTaskListSectionService.isGasCaseOnly(anyList()))
+    when(volumetricTotalsService.isGasCaseOnly(anyList()))
         .thenReturn(true);
 
     var combinedCaseVolumetricTotal = mock(GasCaseVolumetricTotal.class);
@@ -175,7 +175,7 @@ class FieldGasCaseVolumetricTotalsSummaryServiceTest {
             eq(submissionDetail),
             eq(null)
         )).thenReturn(List.of(probabilitySummaryView));
-    when(totalVolumesTaskListSectionService.isGasCaseOnly(anyList()))
+    when(volumetricTotalsService.isGasCaseOnly(anyList()))
         .thenReturn(true);
 
     var combinedCaseVolumetricTotal = mock(GasCaseVolumetricTotal.class);

@@ -103,7 +103,7 @@ public class RequestUpdateController {
 
   private String getPageName(SubmissionDetail submissionDetail) {
     return "Are you sure you want to request an update for this %s?"
-        .formatted(submissionDetailService.getSubmissionTypeName(submissionDetail).toLowerCase());
+        .formatted(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail));
   }
 
   private void requestUpdateSubmissionNotificationBanner(SubmissionDetail submissionDetail,

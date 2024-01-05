@@ -28,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolum
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
@@ -75,6 +76,8 @@ class SubmissionSummaryModelServiceTest {
   private SubmissionResourceService submissionResourceService;
   @Mock
   private TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
+  @Mock
+  private VolumetricTotalsService volumetricTotalsService;
 
   @InjectMocks
   private SubmissionSummaryModelService submissionSummaryModelService;
@@ -365,9 +368,9 @@ class SubmissionSummaryModelServiceTest {
     var reservoirSubmissionDetails = List.of(ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail));
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(totalVolumesTaskListSectionService.isOilCaseOnly(reservoirSubmissionDetails)).thenReturn(true);
-    when(totalVolumesTaskListSectionService.isGasCaseOnly(reservoirSubmissionDetails)).thenReturn(true);
-    when(totalVolumesTaskListSectionService.isCombinedCase(reservoirSubmissionDetails)).thenReturn(true);
+    when(volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails)).thenReturn(true);
+    when(volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails)).thenReturn(true);
+    when(volumetricTotalsService.isCombinedCase(reservoirSubmissionDetails)).thenReturn(true);
     when(discoverySummaryService.getOilCaseVolumetricTotalsFromSubmissionDetail(submissionDetail)).thenReturn(discoveryOilCaseVolumetricTotalsSummaryView);
     when(discoverySummaryService.getGasCaseVolumetricTotalsFromSubmissionDetail(submissionDetail)).thenReturn(discoveryGasCaseVolumetricTotalsSummaryView);
     var modelAndView =

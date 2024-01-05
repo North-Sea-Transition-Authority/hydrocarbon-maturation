@@ -98,16 +98,17 @@ public class WithdrawSubmissionController {
 
   private String getPageName(SubmissionDetail submissionDetail) {
     return "Are you sure you want to withdraw this %s?"
-        .formatted(submissionDetailService.getSubmissionTypeName(submissionDetail).toLowerCase());
+        .formatted(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail));
   }
 
   private void withdrawSubmissionNotificationBanner(SubmissionDetail submissionDetail,
                                                     RedirectAttributes redirectAttributes) {
     var banner = NotificationBanner.builder()
-        .withTitle("%s submission withdrawn".formatted(submissionDetailService.getSubmissionTypeName(submissionDetail)))
+        .withTitle("%s submission withdrawn".formatted(
+            submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail)))
         .withBannerType(NotificationBannerType.SUCCESS)
         .withContent("%s - %s has been withdrawn."
-            .formatted(submissionDetail.getSubmission().getResource().getType().getDisplayName(),
+            .formatted(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail),
                 submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail)))
         .build();
 

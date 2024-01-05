@@ -59,13 +59,17 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
   void setUp() {
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID)).thenReturn(submissionDetail);
-    when(submissionDetailService.getSubmissionTypeName(submissionDetail)).thenReturn(submissionDetail.getSubmissionType().getTypeName());
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail)).thenReturn(submissionDetail.getSubmissionType().getTypeName());
   }
 
   @SecurityTest
   void showDeleteConfirmationPage_assertStatusOk() throws Exception {
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+
+    when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail))
+        .thenReturn("test");
+
     mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
             SUBMISSION_DETAIL_ID)))
             .with(user(USER)))
@@ -110,6 +114,9 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(RESOURCE_NAME);
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
 
+    when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail))
+        .thenReturn("test");
+
     var modelMap = Objects.requireNonNull(mockMvc.perform(get(
             ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
                 SUBMISSION_DETAIL_ID)))
@@ -135,6 +142,9 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(RESOURCE_NAME);
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
 
+    when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail))
+        .thenReturn("test");
+
     var modelMap = Objects.requireNonNull(mockMvc.perform(get(
             ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
                 SUBMISSION_DETAIL_ID)))
@@ -153,6 +163,9 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(RESOURCE_NAME);
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
 
+    when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail))
+        .thenReturn("test");
+
     var modelMap = Objects.requireNonNull(mockMvc.perform(get(
             ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
                 SUBMISSION_DETAIL_ID)))
@@ -170,7 +183,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
     submissionDetail.setVersionNumber(1);
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail))
         .thenReturn(RESOURCE_NAME);
-    when(submissionDetailService.getSubmissionTypeName(submissionDetail))
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
         .thenReturn(TYPE_NAME);
 
     var flashMap = mockMvc.perform(
@@ -198,7 +211,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
     submissionDetail.setVersionNumber(2);
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail))
         .thenReturn(RESOURCE_NAME);
-    when(submissionDetailService.getSubmissionTypeName(submissionDetail))
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
         .thenReturn(TYPE_NAME);
 
     var flashMap = mockMvc.perform(
@@ -226,7 +239,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
     submissionDetail.setCorrection(true);
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail))
         .thenReturn(RESOURCE_NAME);
-    when(submissionDetailService.getSubmissionTypeName(submissionDetail))
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
         .thenReturn(TYPE_NAME);
 
     var flashMap = mockMvc.perform(

@@ -40,6 +40,9 @@ class FieldOilCaseVolumetricTotalsDuplicationServiceTest {
     @Mock
     private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
 
+    @Mock
+    private VolumetricTotalsService volumetricTotalsService;
+
     @InjectMocks
     private FieldOilCaseVolumetricTotalsDuplicationService fieldOilCaseVolumetricTotalsDuplicationService;
 
@@ -48,6 +51,8 @@ class FieldOilCaseVolumetricTotalsDuplicationServiceTest {
     void duplicateSection_ProbabilityDistributionsExist_DoesDuplicate(SubmissionType submissionType) {
         var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
         var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+        when(volumetricTotalsService.isOilCaseOnly(oldSubmissionDetail)).thenReturn(true);
 
         var probabilityDistribution1 = mock(ProbabilityDistribution.class);
         var probabilityDistribution2 = mock(ProbabilityDistribution.class);
@@ -72,6 +77,8 @@ class FieldOilCaseVolumetricTotalsDuplicationServiceTest {
         var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
         var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
+        when(volumetricTotalsService.isOilCaseOnly(oldSubmissionDetail)).thenReturn(true);
+
         whenGetAllProbabilityDistributionsForInstances(oldSubmissionDetail)
                 .thenReturn(Collections.emptyList());
 
@@ -90,6 +97,19 @@ class FieldOilCaseVolumetricTotalsDuplicationServiceTest {
 
         verify(submissionDuplicationPersistenceService, never())
                 .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+    }
+
+    @Test
+    void duplicateReservoirSection_NotAllOilCaseOnlyReservoirs_DoesNotDuplicate() {
+        var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_FDP);
+        var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_FDP);
+
+        when(volumetricTotalsService.isOilCaseOnly(oldSubmissionDetail)).thenReturn(false);
+
+        fieldOilCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+        verify(submissionDuplicationPersistenceService, never())
+            .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
     }
 
     private OngoingStubbing<List<ProbabilityDistribution>> whenGetAllProbabilityDistributionsForInstances(

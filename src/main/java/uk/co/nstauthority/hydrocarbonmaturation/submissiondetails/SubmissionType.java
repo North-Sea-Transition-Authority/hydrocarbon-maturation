@@ -85,8 +85,9 @@ public enum SubmissionType implements Displayable {
       90
   ),
   CREATE_CSR(
-      "Concept Select Report (CSR)",
+      "Concept Select Report",
       "Provide a concept select report (CSR)",
+      "CSR",
       Set.of(ResourceType.FIELD),
       Set.of(RolePermission.INDUSTRY_SUBMIT, RolePermission.ONSHORE_AREA_TEAM_MEMBER,
           RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
@@ -94,8 +95,9 @@ public enum SubmissionType implements Displayable {
       100
   ),
   CREATE_FDP(
-      "Field Development Plan (FDP)",
+      "Field Development Plan",
       "Provide a field development plan (FDP)",
+      "FDP",
       Set.of(ResourceType.FIELD),
       Set.of(RolePermission.INDUSTRY_SUBMIT, RolePermission.ONSHORE_AREA_TEAM_MEMBER,
           RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
@@ -103,17 +105,19 @@ public enum SubmissionType implements Displayable {
       110
   ),
   CREATE_FDPA(
-      "Field Development Plan Addendum  (FDPA)",
-          "Provide a field development plan addendum  (FDPA)",
+      "Field Development Plan Addendum",
+      "Provide a field development plan addendum (FDPA)",
+      "FDPA",
       Set.of(ResourceType.FIELD),
       Set.of(RolePermission.INDUSTRY_SUBMIT, RolePermission.ONSHORE_AREA_TEAM_MEMBER,
-  RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
+          RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
       "Only the final plan agreed with NSTA should be provided",
       120
-      ),
+  ),
   CREATE_COP(
-      "Cessation of Production notification (CoP)",
+      "Cessation of Production notification",
       "Advise of cessation of production (CoP)",
+      "CoP",
       Set.of(ResourceType.FIELD),
       Set.of(RolePermission.INDUSTRY_SUBMIT, RolePermission.ONSHORE_AREA_TEAM_MEMBER,
           RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
@@ -123,15 +127,37 @@ public enum SubmissionType implements Displayable {
 
   private final String typeName;
   private final String displayName;
+  private final String acronym;
   private final Set<ResourceType> resourceTypes;
   private final Set<RolePermission> permissions;
   private final String hintText;
   private final int displayOrder;
 
-  SubmissionType(String typeName, String displayName, Set<ResourceType> resourceTypes, Set<RolePermission> permissions,
-                 String hintText, int displayOrder) {
+  SubmissionType(String typeName,
+                 String displayName,
+                 String acronym,
+                 Set<ResourceType> resourceTypes,
+                 Set<RolePermission> permissions,
+                 String hintText,
+                 int displayOrder) {
     this.typeName = typeName;
     this.displayName = displayName;
+    this.acronym = acronym;
+    this.resourceTypes = resourceTypes;
+    this.permissions = permissions;
+    this.hintText = hintText;
+    this.displayOrder = displayOrder;
+  }
+
+  SubmissionType(String typeName,
+                 String displayName,
+                 Set<ResourceType> resourceTypes,
+                 Set<RolePermission> permissions,
+                 String hintText,
+                 int displayOrder) {
+    this.typeName = typeName;
+    this.displayName = displayName;
+    this.acronym = null;
     this.resourceTypes = resourceTypes;
     this.permissions = permissions;
     this.hintText = hintText;
@@ -152,6 +178,10 @@ public enum SubmissionType implements Displayable {
   @Override
   public String getDisplayName() {
     return this.displayName;
+  }
+
+  public String getAcronym() {
+    return acronym;
   }
 
   @Override
@@ -175,4 +205,5 @@ public enum SubmissionType implements Displayable {
   public String getHintText() {
     return hintText;
   }
+
 }

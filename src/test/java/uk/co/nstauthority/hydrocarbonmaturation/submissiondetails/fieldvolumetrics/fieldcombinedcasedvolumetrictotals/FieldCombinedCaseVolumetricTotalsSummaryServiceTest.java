@@ -28,8 +28,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotal;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotalsRepository;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 
@@ -42,7 +42,7 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
   private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   @Mock
-  private TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
+  private VolumetricTotalsService volumetricTotalsService;
 
   @Mock
   private CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository;
@@ -60,7 +60,7 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
   @Test
   void getSummarySection_notApplicableHydrocarbon_thenEmpty() {
     var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
-    when(totalVolumesTaskListSectionService.isCombinedCase(anyList()))
+    when(volumetricTotalsService.isCombinedCase(anyList()))
         .thenReturn(false);
     assertThat(fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail))
         .isEmpty();
@@ -77,7 +77,7 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
             eq(submissionDetail),
             eq(null)
         )).thenReturn(List.of(probabilitySummaryView));
-    when(totalVolumesTaskListSectionService.isCombinedCase(anyList()))
+    when(volumetricTotalsService.isCombinedCase(anyList()))
         .thenReturn(true);
 
     assertThat(fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail)).isPresent();
@@ -131,7 +131,7 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
             eq(submissionDetail),
             eq(null)
         )).thenReturn(List.of(probabilitySummaryView));
-    when(totalVolumesTaskListSectionService.isCombinedCase(anyList()))
+    when(volumetricTotalsService.isCombinedCase(anyList()))
         .thenReturn(true);
 
     var resourceOnlyInstances = List.of(
@@ -167,7 +167,7 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
             eq(submissionDetail),
             eq(null)
         )).thenReturn(List.of(probabilitySummaryView));
-    when(totalVolumesTaskListSectionService.isCombinedCase(anyList()))
+    when(volumetricTotalsService.isCombinedCase(anyList()))
         .thenReturn(true);
 
     var resourceAndReserveInstances = List.of(
@@ -212,7 +212,7 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
             eq(submissionDetail),
             eq(null)
         )).thenReturn(List.of(probabilitySummaryView));
-    when(totalVolumesTaskListSectionService.isCombinedCase(anyList()))
+    when(volumetricTotalsService.isCombinedCase(anyList()))
         .thenReturn(true);
 
     var combinedCaseVolumetricTotal = mock(CombinedCaseVolumetricTotal.class);
@@ -261,7 +261,7 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
             eq(submissionDetail),
             eq(null)
         )).thenReturn(List.of(probabilitySummaryView));
-    when(totalVolumesTaskListSectionService.isCombinedCase(anyList()))
+    when(volumetricTotalsService.isCombinedCase(anyList()))
         .thenReturn(true);
 
     var combinedCaseVolumetricTotal = mock(CombinedCaseVolumetricTotal.class);

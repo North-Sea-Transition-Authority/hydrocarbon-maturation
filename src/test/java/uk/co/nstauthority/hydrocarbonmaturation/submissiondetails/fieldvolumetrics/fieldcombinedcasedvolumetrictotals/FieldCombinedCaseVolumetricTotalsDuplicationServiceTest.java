@@ -35,6 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotal;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotalsRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
 
 @ExtendWith(MockitoExtension.class)
 class FieldCombinedCaseVolumetricTotalsDuplicationServiceTest {
@@ -47,6 +48,9 @@ class FieldCombinedCaseVolumetricTotalsDuplicationServiceTest {
   @Mock
   private CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository;
 
+  @Mock
+  private VolumetricTotalsService volumetricTotalsService;
+
   @InjectMocks
   private FieldCombinedCaseVolumetricTotalsDuplicationService fieldCombinedCaseVolumetricTotalsDuplicationService;
 
@@ -55,6 +59,8 @@ class FieldCombinedCaseVolumetricTotalsDuplicationServiceTest {
   void duplicateSection_TotalsExist_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    when(volumetricTotalsService.isCombinedCase(oldSubmissionDetail)).thenReturn(true);
 
     var combinedCaseTotal = mock(CombinedCaseVolumetricTotal.class);
     when(combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(oldSubmissionDetail))
@@ -74,6 +80,8 @@ class FieldCombinedCaseVolumetricTotalsDuplicationServiceTest {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
+    when(volumetricTotalsService.isCombinedCase(oldSubmissionDetail)).thenReturn(true);
+
     var combinedCaseTotal = mock(CombinedCaseVolumetricTotal.class);
     when(combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(oldSubmissionDetail))
         .thenReturn(Optional.empty());
@@ -90,9 +98,30 @@ class FieldCombinedCaseVolumetricTotalsDuplicationServiceTest {
 
   @ParameterizedTest
   @MethodSource("allFieldSubmissionTypes")
-  void duplicateSection_ProbabilityDistributionsExist_DoesDuplicate(SubmissionType submissionType) {
+  void duplicateSection_NotCombinedCaseSubmission_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    when(volumetricTotalsService.isCombinedCase(oldSubmissionDetail)).thenReturn(false);
+
+    fieldCombinedCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    verify(submissionDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(
+            any(SubmissionDetail.class),
+            any(CombinedCaseVolumetricTotal.class),
+            any()
+        );
+  }
+
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
+  void duplicateSection_ProbabilityDistributionsExist_DoesDuplicate(SubmissionType submissionType) {
+
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    when(volumetricTotalsService.isCombinedCase(oldSubmissionDetail)).thenReturn(true);
 
     var probabilityDistribution1 = mock(ProbabilityDistribution.class);
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
@@ -116,6 +145,8 @@ class FieldCombinedCaseVolumetricTotalsDuplicationServiceTest {
   void duplicateSection_ProbabilityDistributionsDoNotExist_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    when(volumetricTotalsService.isCombinedCase(oldSubmissionDetail)).thenReturn(true);
 
     whenGetAllProbabilityDistributionsForInstances(oldSubmissionDetail)
         .thenReturn(Collections.emptyList());

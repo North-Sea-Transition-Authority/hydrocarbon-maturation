@@ -34,6 +34,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotal;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotal;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotalsRepository;
 
@@ -49,6 +50,9 @@ class FieldGasCaseVolumetricTotalsDuplicationServiceTest {
   @Mock
   private GasCaseVolumetricTotalsRepository gasCaseVolumetricTotalsRepository;
 
+  @Mock
+  private VolumetricTotalsService volumetricTotalsService;
+
   @InjectMocks
   private FieldGasCaseVolumetricTotalsDuplicationService fieldGasCaseVolumetricTotalsDuplicationService;
 
@@ -57,6 +61,8 @@ class FieldGasCaseVolumetricTotalsDuplicationServiceTest {
   void duplicateSection_TotalsExist_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    when(volumetricTotalsService.isGasCaseOnly(oldSubmissionDetail)).thenReturn(true);
 
     var gasCaseVolumetricTotal = mock(GasCaseVolumetricTotal.class);
     when(gasCaseVolumetricTotalsRepository.findBySubmissionDetail(oldSubmissionDetail))
@@ -76,6 +82,8 @@ class FieldGasCaseVolumetricTotalsDuplicationServiceTest {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
+    when(volumetricTotalsService.isGasCaseOnly(oldSubmissionDetail)).thenReturn(true);
+
     var gasCaseVolumetricTotal = mock(GasCaseVolumetricTotal.class);
     when(gasCaseVolumetricTotalsRepository.findBySubmissionDetail(oldSubmissionDetail))
         .thenReturn(Optional.empty());
@@ -92,9 +100,29 @@ class FieldGasCaseVolumetricTotalsDuplicationServiceTest {
 
   @ParameterizedTest
   @MethodSource("allFieldSubmissionTypes")
+  void duplicateSection_NotAllGasCaseReservoirs_DoesNotDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    when(volumetricTotalsService.isGasCaseOnly(oldSubmissionDetail)).thenReturn(false);
+
+    fieldGasCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    verify(submissionDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(
+            any(SubmissionDetail.class),
+            any(GasCaseVolumetricTotal.class),
+            any()
+        );
+  }
+
+  @ParameterizedTest
+  @MethodSource("allFieldSubmissionTypes")
   void duplicateSection_ProbabilityDistributionsExist_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    when(volumetricTotalsService.isGasCaseOnly(oldSubmissionDetail)).thenReturn(true);
 
     var probabilityDistribution1 = mock(ProbabilityDistribution.class);
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
@@ -118,6 +146,8 @@ class FieldGasCaseVolumetricTotalsDuplicationServiceTest {
   void duplicateSection_ProbabilityDistributionsDoNotExist_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    when(volumetricTotalsService.isGasCaseOnly(oldSubmissionDetail)).thenReturn(true);
 
     whenGetAllProbabilityDistributionsForInstances(oldSubmissionDetail)
         .thenReturn(Collections.emptyList());

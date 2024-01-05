@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 
+import static org.jooq.impl.DSL.coalesce;
 import static org.jooq.impl.DSL.select;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELDS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
@@ -38,9 +40,13 @@ class SubmissionRecordSummaryQueryService {
             SUBMISSION_DETAILS.ID,
             SUBMISSION_DETAILS.SUBMISSION_TYPE,
             RESOURCES.TYPE,
-            RESOURCE_DETAILS.RESOURCE_NAME,
+            coalesce(
+                RESOURCE_DETAILS.RESOURCE_NAME,
+                FIELDS.CORRECTED_LEGAL_FIELD_NAME),
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
-            RESOURCE_DETAILS.ORGANISATION_ID,
+            coalesce(
+                RESOURCE_DETAILS.ORGANISATION_ID,
+                FIELDS.RESPONSIBLE_ORGANISATION_ID),
             REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM,
             DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
@@ -60,10 +66,11 @@ class SubmissionRecordSummaryQueryService {
                     .orderBy(SD_2.ACCEPTED_TIMESTAMP.desc().nullsLast(), SD_2.VERSION_NUMBER.desc())
                     .limit(1)))
             .leftJoin(REGULATOR_MANAGED_INFORMATION).on(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID.eq(RESOURCES.ID))
-            .join(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+            .leftJoin(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
-            .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID)))
+            .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID))
+            .leftJoin(FIELDS).on(FIELDS.RESOURCE_ID.eq(RESOURCES.ID)))
         .where(RESOURCES.ID.eq(resourceId)
             .and(SUBMISSION_DETAILS.STATUS.in(
                 SubmissionDetailStatus.SUBMITTED.name(),
@@ -72,9 +79,12 @@ class SubmissionRecordSummaryQueryService {
         .groupBy(List.of(
             RESOURCES.ID,
             SUBMISSION_DETAILS.ID,
+            RESOURCE_DETAILS.RESOURCE_NAME,
+            FIELDS.CORRECTED_LEGAL_FIELD_NAME,
             GENERAL_DETAILS.ID,
             TRAP_PROPERTIES.ID,
             RESOURCE_DETAILS.ID,
+            FIELDS.FIELD_IDENTIFIER,
             REGULATOR_MANAGED_INFORMATION.ID
         ))
         .orderBy(SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP.desc())

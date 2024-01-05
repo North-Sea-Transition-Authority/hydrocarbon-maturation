@@ -10,8 +10,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 
 @Service
 public class DiscoveryOilCaseVolumetricTotalsDuplicationService implements SubmissionSectionDuplicationService {
@@ -19,18 +19,18 @@ public class DiscoveryOilCaseVolumetricTotalsDuplicationService implements Submi
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
-  private final TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
+  private final VolumetricTotalsService volumetricTotalsService;
 
   @Autowired
   public DiscoveryOilCaseVolumetricTotalsDuplicationService(
       ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
       SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService,
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
-      TotalVolumesTaskListSectionService totalVolumesTaskListSectionService) {
+      VolumetricTotalsService volumetricTotalsService) {
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
-    this.totalVolumesTaskListSectionService = totalVolumesTaskListSectionService;
+    this.volumetricTotalsService = volumetricTotalsService;
   }
 
 
@@ -42,7 +42,7 @@ public class DiscoveryOilCaseVolumetricTotalsDuplicationService implements Submi
     var reservoirSubmissionDetails = reservoirSubmissionDetailPersistenceService
         .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail);
     if (!newSubmissionDetail.isDiscoverySubmission()
-        || !totalVolumesTaskListSectionService.isOilCaseOnly(reservoirSubmissionDetails)) {
+        || !volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails)) {
       return;
     }
 

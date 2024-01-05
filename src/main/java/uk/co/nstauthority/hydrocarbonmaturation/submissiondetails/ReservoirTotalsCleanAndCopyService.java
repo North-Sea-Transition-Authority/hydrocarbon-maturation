@@ -12,6 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolum
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverymixedcasevolumetrics.DiscoveryMixedCaseVolumetricsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldcombinedcasedvolumetrictotals.FieldCombinedCaseVolumetricTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldgascasevolumetrics.FieldGasCaseVolumetricTotalsService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotal;
@@ -19,7 +20,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservo
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 
 @Service
 public class ReservoirTotalsCleanAndCopyService {
@@ -31,7 +31,7 @@ public class ReservoirTotalsCleanAndCopyService {
   private final GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService;
   private final DiscoveryMixedCaseVolumetricsPersistenceService discoveryMixedCaseVolumetricsPersistenceService;
   private final DiscoveryCombinedCaseVolTotalsService discoveryCombinedCaseVolTotalsService;
-  private final TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
+  private final VolumetricTotalsService volumetricTotalsService;
   private final FieldGasCaseVolumetricTotalsService fieldGasCaseVolumetricTotalsService;
   private final FieldCombinedCaseVolumetricTotalsService fieldCombinedCaseVolumetricTotalsService;
 
@@ -44,7 +44,7 @@ public class ReservoirTotalsCleanAndCopyService {
       GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService,
       DiscoveryMixedCaseVolumetricsPersistenceService discoveryMixedCaseVolumetricsPersistenceService,
       DiscoveryCombinedCaseVolTotalsService discoveryCombinedCaseVolTotalsService,
-      TotalVolumesTaskListSectionService totalVolumesTaskListSectionService,
+      VolumetricTotalsService volumetricTotalsService,
       FieldGasCaseVolumetricTotalsService fieldGasCaseVolumetricTotalsService,
       FieldCombinedCaseVolumetricTotalsService fieldCombinedCaseVolumetricTotalsService) {
 
@@ -55,7 +55,7 @@ public class ReservoirTotalsCleanAndCopyService {
     this.gasCaseOutputsPersistenceService = gasCaseOutputsPersistenceService;
     this.discoveryMixedCaseVolumetricsPersistenceService = discoveryMixedCaseVolumetricsPersistenceService;
     this.discoveryCombinedCaseVolTotalsService = discoveryCombinedCaseVolTotalsService;
-    this.totalVolumesTaskListSectionService = totalVolumesTaskListSectionService;
+    this.volumetricTotalsService = volumetricTotalsService;
     this.fieldGasCaseVolumetricTotalsService = fieldGasCaseVolumetricTotalsService;
     this.fieldCombinedCaseVolumetricTotalsService = fieldCombinedCaseVolumetricTotalsService;
   }
@@ -95,11 +95,11 @@ public class ReservoirTotalsCleanAndCopyService {
       var reservoirSubmissionDetail = reservoirSubmissionDetails.get(0);
       copyOilField(reservoirSubmissionDetail, submissionDetail);
       copyGasField(reservoirSubmissionDetail, submissionDetail);
-    }  else if (totalVolumesTaskListSectionService.isGasCaseOnly(reservoirSubmissionDetails)) {
+    }  else if (volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails)) {
       // if gas only, clean any oil totals saved
       deleteOilOnlyFieldTotals(submissionDetail);
       fieldCombinedCaseVolumetricTotalsService.deleteCombinedCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
-    } else if (totalVolumesTaskListSectionService.isOilCaseOnly(reservoirSubmissionDetails)) {
+    } else if (volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails)) {
       // if oil only, clean any gas and combined totals saved
       deleteGasOnlyFieldTotals(submissionDetail);
       fieldGasCaseVolumetricTotalsService.deleteGasCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
@@ -135,10 +135,10 @@ public class ReservoirTotalsCleanAndCopyService {
       copyOilDiscovery(reservoirSubmissionDetail, submissionDetail);
       copyGasDiscovery(reservoirSubmissionDetail, submissionDetail);
       copyCommonDiscovery(reservoirSubmissionDetail, submissionDetail);
-    }  else if (totalVolumesTaskListSectionService.isGasCaseOnly(reservoirSubmissionDetails)) {
+    }  else if (volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails)) {
       // if gas only, clean any oil totals saved
       deleteOilOnlyDiscoveryTotals(submissionDetail);
-    } else if (totalVolumesTaskListSectionService.isOilCaseOnly(reservoirSubmissionDetails)) {
+    } else if (volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails)) {
       // if oil only, clean any gas totals saved
       deleteGasOnlyDiscoveryTotals(submissionDetail);
     }

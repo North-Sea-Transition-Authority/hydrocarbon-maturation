@@ -92,7 +92,7 @@ public class DeleteSubmissionController {
   }
 
   private String getPageName(SubmissionDetail submissionDetail) {
-    var submissionTypeName = submissionDetailService.getSubmissionTypeName(submissionDetail);
+    var submissionTypeName = submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail);
     return String.format("Are you sure you want to delete this %s%s?",
         submissionDetail.isFieldSubmission() ? submissionTypeName : submissionTypeName.toLowerCase(),
         BooleanUtils.isTrue(submissionDetail.isCorrection()) ? " correction" : ""
@@ -116,9 +116,9 @@ public class DeleteSubmissionController {
     return NotificationBanner.builder()
         .withBannerType(NotificationBannerType.SUCCESS)
         .withContent(bannerContent
-            .formatted(submissionDetailService.getSubmissionTypeName(submissionDetail),
+            .formatted(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail),
                 submissionResourceService.getResourceNameOrDefault(submissionDetail)))
-        .withTitle(bannerTitle.formatted(submissionDetailService.getSubmissionTypeName(submissionDetail)))
+        .withTitle(bannerTitle.formatted(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail)))
         .build();
   }
 }
