@@ -35,6 +35,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -72,6 +74,11 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
     when(outlineForMaximumCaseFormService.getAllowedExtensions()).thenReturn(OutlineForMaximumCaseUploadFormService.ALLOWED_EXTENSIONS);
     when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE, OutlineForMaximumCaseUploadFormService.ALLOWED_EXTENSIONS))
         .thenReturn(fileUploadTemplate);
+
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail))
+        .thenReturn(resourceDetail);
 
   }
 
@@ -179,7 +186,8 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
         entry("pageTitle", OutlineForMaximumCaseUploadController.PAGE_NAME),
         entry("cancelUrl",
             ReverseRouter.route(on(TaskListController.class)
-                .getTaskList(submissionDetailId)))
+                .getTaskList(submissionDetailId))),
+        entry("isOffshore", true)
     );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

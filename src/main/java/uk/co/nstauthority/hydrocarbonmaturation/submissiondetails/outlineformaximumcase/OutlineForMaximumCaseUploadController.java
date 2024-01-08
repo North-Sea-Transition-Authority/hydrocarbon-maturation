@@ -21,6 +21,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.OpportunityTaskListSectionService;
@@ -41,18 +43,21 @@ public class OutlineForMaximumCaseUploadController {
   private final OutlineForMaximumCaseUploadFormService outlineForMaximumCaseFormService;
   private final OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
   private final SupportingDocumentService supportingDocumentService;
+  private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
   @Autowired
   public OutlineForMaximumCaseUploadController(ControllerHelperService controllerHelperService,
                                                SubmissionDetailService submissionDetailService,
                                                OutlineForMaximumCaseUploadFormService outlineForMaximumCaseFormService,
                                                OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService,
-                                               SupportingDocumentService supportingDocumentService) {
+                                               SupportingDocumentService supportingDocumentService,
+                                               ResourceDetailsPersistenceService resourceDetailsPersistenceService) {
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.outlineForMaximumCaseFormService = outlineForMaximumCaseFormService;
     this.outlineForMaximumCasePersistenceService = outlineForMaximumCasePersistenceService;
     this.supportingDocumentService = supportingDocumentService;
+    this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
   }
 
   @GetMapping
@@ -87,6 +92,8 @@ public class OutlineForMaximumCaseUploadController {
 
   private ModelAndView getOutlineForMaximumCaseModelAndView(OutlineForMaximumCaseUploadForm form,
                                                             SubmissionDetail submissionDetail) {
+    var resourceDetail = resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail);
+
     var modelAndView = new ModelAndView("remi/submissiondetails/outlineForMaximumCase/upload")
         .addObject("pageTitle", PAGE_NAME)
         .addObject("form", form)
@@ -98,7 +105,8 @@ public class OutlineForMaximumCaseUploadController {
             SupportingDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE,
             outlineForMaximumCaseFormService.getAllowedExtensions())
         )
-        .addObject("outlineForMaximumCaseUploads", outlineForMaximumCaseFormService.getOutlineForMaximumCaseUploads(form));
+        .addObject("outlineForMaximumCaseUploads", outlineForMaximumCaseFormService.getOutlineForMaximumCaseUploads(form))
+        .addObject("isOffshore", resourceDetail.getOnshoreOffshore() == OnshoreOffshore.OFFSHORE);
 
     return TaskListBreadcrumbUtil
         .addTaskListAndWorkAreaToModelAndView(

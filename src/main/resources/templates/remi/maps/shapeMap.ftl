@@ -23,6 +23,7 @@
       data-module="shape-map"
       data-geojson-url="${geoJsonDataUrl}"
       data-map-attributions="${dataMapAttributions}"
+      data-shape-name="${shapeName}"
       data-show-field-determination-boundaries-layer="${showFieldDeterminationBoundariesLayer?string}"
       data-show-quad-blocks-layer="${showQuadBlocksLayer?string}"
       data-show-licence-blocks-layer="${showLicenceBlocksLayer?string}"
@@ -36,7 +37,7 @@
           <div class="shape-map__legend-item"><span class="shape-map__legend-box" id="license-blocks-legend"></span>Licence blocks</div>
         </#if>
         <#if showFieldDeterminationBoundariesLayer>
-          <div class="shape-map__legend-item"><span class="shape-map__legend-box" id="field-determination-boundaries-legend"></span>Field determination boundaries</div>
+          <div class="shape-map__legend-item"><span class="shape-map__legend-box" id="field-determination-boundaries-legend"></span>Field boundaries</div>
         </#if>
         <#if showFieldBlobsLayer>
           <div class="shape-map__legend-item"><span class="shape-map__legend-box" id="gas-fields-legend"></span>Gas fields</div>

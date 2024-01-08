@@ -8,6 +8,7 @@ import View from 'ol/View';
 import {Fill, Stroke, Style, Text} from 'ol/style';
 import proj4 from 'proj4';
 import {register} from 'ol/proj/proj4';
+import {ZoomToExtent} from 'ol/control.js';
 
 export default class ShapeMap {
 
@@ -15,6 +16,7 @@ export default class ShapeMap {
     this.module = module;
     this.geoJsonDataUrl = this.module.getAttribute("data-geojson-url");
     this.mapAttributions = this.module.getAttribute("data-map-attributions");
+    this.shapeName = this.module.getAttribute("data-shape-name");
     this.showFieldDeterminationBoundariesLayer = this.module.getAttribute("data-show-field-determination-boundaries-layer") === 'true';
     this.showQuadBlocksLayer = this.module.getAttribute("data-show-quad-blocks-layer") === 'true';
     this.showLicenceBlocksLayer = this.module.getAttribute("data-show-licence-blocks-layer") === 'true';
@@ -30,7 +32,7 @@ export default class ShapeMap {
     let oilFieldBlobFillColour = '#35a978';
     let condensateFieldBlobFillColour = '#e1955f';
     let fieldBlobStrokeColour = 'rgba(0, 0, 0, 0)';
-    let shapeFillColour = '#eeeeee';
+    let shapeFillColour = '#800080';
     let shapeStrokeColour = '#319FD3';
 
     this.fieldDeterminationBoundariesStyle = ShapeMap._getStyle(fieldDeterminationBoundariesFillColour, fieldDeterminationBoundariesStrokeColour, 0.5);
@@ -42,8 +44,11 @@ export default class ShapeMap {
       {name: "COND", fillColour: condensateFieldBlobFillColour, strokeColour: fieldBlobStrokeColour, strokeWidth: 0}
     ];
     this.shapeStyle = ShapeMap._getStyle(shapeFillColour, shapeStrokeColour, 1);
+    this.shapeStyle.getText().setText(this.shapeName);
+    this.shapeStyle.getText().setOverflow(true);
 
-    this.module.getElementsByClassName("shape-map__legend-box").forEach(box => {
+    let legendBox = this.module.getElementsByClassName("shape-map__legend-box");
+    Array.from(legendBox).forEach(box => {
       switch (box.id) {
         case "quad-blocks-legend":
           box.style.backgroundColor = quadBlockFillColour;
@@ -94,10 +99,18 @@ export default class ShapeMap {
     layers.push(shapeLayer);
 
     const map = this.createMap(layers);
+    const shapeName = this.shapeName;
 
     shapeLayer.getSource().once('change', function(e){
       if (e.target.getState() === 'ready') {
         ShapeMap._fitMapToExtentOfLayer(map, shapeLayer);
+        map.getControls().extend([
+          new ZoomToExtent({
+            extent: shapeLayer.getSource().getExtent(),
+            label: '\u26ef',
+            tipLabel: 'Refocus to ' + shapeName,
+          }),
+        ])
       }
     });
 
