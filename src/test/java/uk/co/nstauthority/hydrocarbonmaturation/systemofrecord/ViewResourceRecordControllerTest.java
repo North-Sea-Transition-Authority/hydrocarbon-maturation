@@ -152,8 +152,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen(null)),
-            SearchResourceRecordsController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null)),
+            SearchProspectAndDiscoveryRecordsController.PAGE_TITLE)
     );
   }
 
@@ -193,8 +193,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen(null)),
-            SearchResourceRecordsController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null)),
+            SearchProspectAndDiscoveryRecordsController.PAGE_TITLE)
     );
   }
 
@@ -255,8 +255,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen(null)),
-            SearchResourceRecordsController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null)),
+            SearchProspectAndDiscoveryRecordsController.PAGE_TITLE)
     );
   }
 

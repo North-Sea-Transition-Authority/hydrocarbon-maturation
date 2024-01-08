@@ -27,12 +27,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Controller
-@RequestMapping("/search-resource-records")
+@RequestMapping("/search-resource-records/prospects-and-discoveries")
 @AccessibleByServiceUsers
 @SessionAttributes({"searchSystemOfRecordFilter"})
-public class SearchResourceRecordsController {
+public class SearchProspectAndDiscoveryRecordsController {
 
-  public static final String PAGE_TITLE = "Search resource records";
+  public static final String PAGE_TITLE = "Search prospect and discovery records";
   private final SearchResourceRecordsService searchResourceRecordsService;
   private final ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory;
   private final RegulatorTeamService regulatorTeamService;
@@ -40,10 +40,10 @@ public class SearchResourceRecordsController {
   private final AreaTeamService areaTeamService;
 
   @Autowired
-  public SearchResourceRecordsController(SearchResourceRecordsService searchResourceRecordsService,
-                                         ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory,
-                                         RegulatorTeamService regulatorTeamService,
-                                         UserDetailService userDetailService, AreaTeamService areaTeamService) {
+  public SearchProspectAndDiscoveryRecordsController(SearchResourceRecordsService searchResourceRecordsService,
+                                                     ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory,
+                                                     RegulatorTeamService regulatorTeamService,
+                                                     UserDetailService userDetailService, AreaTeamService areaTeamService) {
     this.searchResourceRecordsService = searchResourceRecordsService;
     this.resourceRecordQueryServiceFactory = resourceRecordQueryServiceFactory;
     this.regulatorTeamService = regulatorTeamService;
@@ -76,7 +76,7 @@ public class SearchResourceRecordsController {
       SessionStatus sessionStatus) {
     sessionStatus.setComplete();
     filter.clearFilter();
-    return ReverseRouter.redirect(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen(null));
+    return ReverseRouter.redirect(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null));
   }
 
   @PostMapping
@@ -84,7 +84,7 @@ public class SearchResourceRecordsController {
       @ModelAttribute("searchSystemOfRecordFilter") SearchResourceRecordsFilter filter,
       @ModelAttribute("form") SearchResourceRecordsForm form) {
     filter.update(form);
-    return ReverseRouter.redirect(on(SearchResourceRecordsController.class)
+    return ReverseRouter.redirect(on(SearchProspectAndDiscoveryRecordsController.class)
         .showSearchResourceRecordsScreen(null));
   }
 
@@ -100,12 +100,12 @@ public class SearchResourceRecordsController {
                                        List<ResourceRecordSearchResultItem> resourceRecordSearchResults,
                                        FiltersAdded filtersAdded,
                                        boolean isRegulatorOrAreaTeamUser) {
-    return new ModelAndView("remi/systemofrecord/searchResourceRecords")
+    return new ModelAndView("remi/systemofrecord/searchPropsectAndDiscoveryRecords")
         .addObject("form", form)
         .addObject("isRegulatorOrAreaTeamUser", isRegulatorOrAreaTeamUser)
         .addObject("pageTitle", PAGE_TITLE)
         .addObject("filtersAdded", filtersAdded.isHasFilters())
-        .addObject("clearFilterUrl", ReverseRouter.route(on(SearchResourceRecordsController.class)
+        .addObject("clearFilterUrl", ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
             .clearSearchResourceRecordFilter(null, null)))
         .addObject("resourceRecordSearchResultItems", resourceRecordSearchResults)
         .addObject("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)

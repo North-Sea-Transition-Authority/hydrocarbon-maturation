@@ -43,7 +43,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
-import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchResourceRecordsController;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchProspectAndDiscoveryRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -197,8 +197,8 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
 
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
-            entry(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen(null)),
-                SearchResourceRecordsController.PAGE_TITLE),
+            entry(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null)),
+                SearchProspectAndDiscoveryRecordsController.PAGE_TITLE),
             entry(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)),
                 resourceName)
     );

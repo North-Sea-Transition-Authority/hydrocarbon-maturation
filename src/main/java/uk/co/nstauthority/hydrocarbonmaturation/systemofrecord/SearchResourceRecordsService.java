@@ -21,7 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionReso
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 
 @Service
-class SearchResourceRecordsService {
+public class SearchResourceRecordsService {
   private final SubmissionDetailDisplayService submissionDetailDisplayService;
   private final SearchSelectorService searchSelectorService;
   private final SubmissionResourceService submissionResourceService;
