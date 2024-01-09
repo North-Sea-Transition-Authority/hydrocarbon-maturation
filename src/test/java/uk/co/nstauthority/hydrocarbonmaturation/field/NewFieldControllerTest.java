@@ -44,7 +44,7 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getNewFieldPage_whenNoPermission_assertForbidden() throws Exception {
-    var form = new NewFieldForm();
+    var form = new FieldForm();
     when(permissionService.hasPermission(USER, Set.of(RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
@@ -59,7 +59,7 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getNewFieldPage_assertModelProperties() throws Exception {
-    var form = new NewFieldForm();
+    var form = new FieldForm();
 
     var preselectedOrganisation = Map.of("25", "Shell Gas");
     when(newFieldService.getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
@@ -97,7 +97,7 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
     assertThat(modelMap)
         .contains(
             entry("backLinkUrl", ReverseRouter.route(on(StartFieldController.class).getStartPage())),
-            entry("actionUrl", ReverseRouter.route(on(NewFieldController.class).createField(null, null, null))),
+            entry("pageTitle", NewFieldController.PAGE_NAME),
             entry("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null))),
             entry("responsibleOrganisation", preselectedOrganisation),
             entry("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore()),
@@ -106,14 +106,15 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
             entry("determinationStatus", DisplayableEnumOptionUtil.getDisplayableOptions(DeterminationStatus.class)),
             entry("parentDeterminedFieldEndpoint", SearchSelectorService.route(on(DeterminedFieldRestController.class).searchDeterminedFields(null))),
             entry("parentDeterminedField", parentDeterminedField),
-            entry("alreadyAddedAssociatedDiscoveries", alreadyAddedDiscovery)
+            entry("alreadyAddedAssociatedDiscoveries", alreadyAddedDiscovery),
+            entry("cancelUrl", ReverseRouter.route(on(StartFieldController.class).getStartPage()))
         );
   }
 
   @Test
   void saveResourceDetailsPage_whenInValidForm_assertStatusOk() throws Exception {
-    var form = new NewFieldForm();
-    var bindingResult = new BeanPropertyBindingResult(NewFieldForm.class, "form");
+    var form = new FieldForm();
+    var bindingResult = new BeanPropertyBindingResult(FieldForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
     when(newFieldService.validate(any(), any())).thenReturn(bindingResult);
     mockMvc.perform(
@@ -128,12 +129,12 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void saveResourceDetails_whenValidForm_assertSaveAndRedirect() throws Exception {
-    var form = new NewFieldForm();
-    var bindingResult = new BeanPropertyBindingResult(NewFieldForm.class, "form");
+    var form = new FieldForm();
+    var bindingResult = new BeanPropertyBindingResult(FieldForm.class, "form");
     when(newFieldService.validate(any(), any())).thenReturn(bindingResult);
 
     var field = new Field();
-    when(newFieldService.createNewField(any(NewFieldForm.class))).thenReturn(field);
+    when(newFieldService.createNewField(any(FieldForm.class))).thenReturn(field);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(NewFieldController.class)
@@ -143,6 +144,6 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null))));
 
-    verify(newFieldService, times(1)).createNewField(any(NewFieldForm.class));
+    verify(newFieldService, times(1)).createNewField(any(FieldForm.class));
   }
 }

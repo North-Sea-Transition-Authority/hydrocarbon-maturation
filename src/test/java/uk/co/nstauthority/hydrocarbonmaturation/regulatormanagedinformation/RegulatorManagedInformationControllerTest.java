@@ -25,6 +25,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
@@ -41,6 +43,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUt
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchProspectAndDiscoveryRecordsController;
@@ -63,6 +66,9 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
 
   @MockBean
   private ResourceSupportingDocumentService resourceSupportingDocumentService;
+
+  @MockBean
+  private ResponsibleTeamService responsibleTeamService;
 
   private RegulatorManagedInformationForm form;
   private BindingResult bindingResult;
@@ -92,7 +98,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
 
     mockMvc.perform(
             get(ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                .getRegulatorManagedInformationPage(resourceId, null)))
+                .getRegulatorManagedInformationPage(resourceId)))
                 .with(user(USER)))
         .andExpect(status().isNotFound());
   }
@@ -122,12 +128,12 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(true);
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
-    when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
+    when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource))
         .thenReturn(Optional.empty());
 
     mockMvc.perform(
                 get(ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                    .getRegulatorManagedInformationPage(resourceId, null)))
+                    .getRegulatorManagedInformationPage(resourceId)))
                     .with(user(USER)))
             .andExpect(status().isForbidden());
   }
@@ -140,7 +146,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(true);
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
-    when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
+    when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource))
         .thenReturn(Optional.empty());
 
     mockMvc.perform(
@@ -151,8 +157,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .andExpect(status().isForbidden());
   }
 
-  @SecurityTest
-  @SuppressWarnings("unchecked")
+  @Test
   void getRegulatorManagedInformationPage_prospect_assertModelProperties() throws Exception {
     var prospectResource = resource;
     prospectResource.setType(ResourceType.PROSPECT);
@@ -167,14 +172,14 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     var resourceName = "Sample name";
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn(resourceName);
-    when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(prospectResource))
+    when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(prospectResource))
         .thenReturn(Optional.of(submissionDetail));
     when(regulatorManagedInformationFormService.getRegulatorManagedInformationForm(prospectResource))
         .thenReturn(form);
     when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(false);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
                 get(ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                    .getRegulatorManagedInformationPage(resourceId, null)))
+                    .getRegulatorManagedInformationPage(resourceId)))
                     .with(user(USER)))
             .andExpect(status().isOk())
             .andExpect(view().name("remi/review/regulatorManagedInformation"))
@@ -185,23 +190,13 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     assertThat(modelMap)
         .contains(
             entry("geographicalAreas", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class)),
-            entry("cancelUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
-                .showResourceRecord(resourceId))),
+            entry("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
+                .showReviewPage(resource.getId()))),
             entry("isResourceBeingRelinquished", false),
             entry("canUpdateResponsibleTeam", false)
         )
         .containsKeys("breadcrumbsMap")
         .doesNotContainKeys("relinquishmentReportTemplate", "relinquishmentReportUploads", "responsibleTeamTypes");
-
-    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
-
-    assertThat(breadcrumbsMap.entrySet())
-        .containsExactly(
-            entry(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null)),
-                SearchProspectAndDiscoveryRecordsController.PAGE_TITLE),
-            entry(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)),
-                resourceName)
-    );
   }
 
   @SecurityTest
@@ -219,14 +214,14 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     var resourceName = "Sample name";
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn(resourceName);
-    when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(discoveryResource))
+    when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(discoveryResource))
         .thenReturn(Optional.of(submissionDetail));
     when(regulatorManagedInformationFormService.getRegulatorManagedInformationForm(discoveryResource))
         .thenReturn(form);
     when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
                 get(ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                    .getRegulatorManagedInformationPage(resourceId, null)))
+                    .getRegulatorManagedInformationPage(resourceId)))
                     .with(user(USER)))
             .andExpect(status().isOk())
             .andExpect(view().name("remi/review/regulatorManagedInformation"))
@@ -238,6 +233,107 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .contains(
             entry("canUpdateResponsibleTeam", true),
             entry("responsibleTeamTypes", DisplayableEnumOptionUtil.getDisplayableOptions(ResponsibleTeamType.class))
+        ).containsKey("breadcrumbsMap");
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = ResourceType.class,
+      names = {"DISCOVERY", "PROSPECT"}
+  )
+  void getRegulatorManagedInformationPage_submissionAccepted_assertBreadcrumbsAndCancelUrl(ResourceType resourceType) throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
+
+    var resourceForAccepted = resource;
+    resourceForAccepted.setType(resourceType);
+    when(permissionService.hasPermission(USER, Set.of(
+        RolePermission.EXPLORATION, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+        .thenReturn(true);
+    when(resourceService.getResourceById(resourceId))
+        .thenReturn(Optional.of(resourceForAccepted));
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resourceForAccepted))
+        .thenReturn(Optional.of(submissionDetail));
+    var resourceName = "Sample name";
+    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+        .thenReturn(resourceName);
+    when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resourceForAccepted))
+        .thenReturn(Optional.of(submissionDetail));
+    when(regulatorManagedInformationFormService.getRegulatorManagedInformationForm(resourceForAccepted))
+        .thenReturn(form);
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+                get(ReverseRouter.route(on(RegulatorManagedInformationController.class)
+                    .getRegulatorManagedInformationPage(resourceId)))
+                    .with(user(USER)))
+            .andReturn()
+            .getModelAndView())
+        .getModelMap();
+
+    var cancelUrl = modelMap.get("cancelUrl");
+    assertThat(cancelUrl).isEqualTo(
+        ReverseRouter.route(on(ViewResourceRecordController.class)
+            .showResourceRecord(resource.getId()))
+    );
+
+    @SuppressWarnings("unchecked")
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+    assertThat(breadcrumbsMap.entrySet())
+        .containsExactly(
+            entry(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null)),
+                SearchProspectAndDiscoveryRecordsController.PAGE_TITLE),
+            entry(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)),
+                resourceName)
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = ResourceType.class,
+      names = {"DISCOVERY", "PROSPECT"}
+  )
+  void getRegulatorManagedInformationPage_submissionSubmitted_assertBreadcrumbsAndCancelUrl(ResourceType resourceType) throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+
+    var resourceForAccepted = resource;
+    resourceForAccepted.setType(resourceType);
+    when(permissionService.hasPermission(USER, Set.of(
+        RolePermission.EXPLORATION, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+        .thenReturn(true);
+    when(resourceService.getResourceById(resourceId))
+        .thenReturn(Optional.of(resourceForAccepted));
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resourceForAccepted))
+        .thenReturn(Optional.of(submissionDetail));
+    var resourceName = "Sample name";
+    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+        .thenReturn(resourceName);
+    when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resourceForAccepted))
+        .thenReturn(Optional.of(submissionDetail));
+    when(regulatorManagedInformationFormService.getRegulatorManagedInformationForm(resourceForAccepted))
+        .thenReturn(form);
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+                get(ReverseRouter.route(on(RegulatorManagedInformationController.class)
+                    .getRegulatorManagedInformationPage(resourceId)))
+                    .with(user(USER)))
+            .andReturn()
+            .getModelAndView())
+        .getModelMap();
+
+    var cancelUrl = (String) modelMap.get("cancelUrl");
+    assertThat(cancelUrl).isEqualTo(
+        ReverseRouter.route(on(ReviewSubmissionController.class)
+            .showReviewPage(resource.getId()))
+    );
+
+    @SuppressWarnings("unchecked")
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+    assertThat(breadcrumbsMap.entrySet())
+        .containsExactly(
+            entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
+                WorkAreaController.WORK_AREA_TITLE),
+            entry(cancelUrl, resourceName)
         );
   }
 
@@ -250,13 +346,18 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
 
     mockMvc.perform(
             get(ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                .getRegulatorManagedInformationPage(resourceId, null)))
+                .getRegulatorManagedInformationPage(resourceId)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
-  @SecurityTest
-  void saveRegulatorManagedInformation_assertRedirect() throws Exception {
+  @Test
+  void saveRegulatorManagedInformation_submittedSubmission_assertRedirect() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    var reviewSubmissionUrl = ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resource.getId()));
+
+    when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail))
+        .thenReturn(true);
     when(permissionService.hasPermission(USER, Set.of(
         RolePermission.EXPLORATION, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
@@ -273,7 +374,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
     when(regulatorManagedInformationFormService.validate(any(), any(), eq(true), eq(true)))
         .thenReturn(bindingResult);
-    when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
+    when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource))
         .thenReturn(Optional.of(submissionDetail));
     when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(resource))
@@ -285,8 +386,124 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(ViewResourceRecordController.class)
-            .showResourceRecord(resourceId))));
+        .andExpect(redirectedUrl(reviewSubmissionUrl));
+  }
+
+  @Test
+  void saveRegulatorManagedInformation_submittedSubmission_changedPermissions_assertRedirect() throws Exception {
+    when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail))
+        .thenReturn(false);
+
+    submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    var workAreaUrl = ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null));
+
+    when(permissionService.hasPermission(USER, Set.of(
+        RolePermission.EXPLORATION, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+        .thenReturn(true);
+    when(resourceService.getResourceById(resourceId))
+        .thenReturn(Optional.of(resource));
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
+        .thenReturn(Optional.of(submissionDetail));
+    when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(
+        submissionDetail.getSubmission().getResource()))
+        .thenReturn(true);
+    when(resourceSupportingDocumentService.buildFileUploadTemplate(resourceId, ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
+        .thenReturn(fileUploadTemplate);
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
+    when(regulatorManagedInformationFormService.validate(any(), any(), eq(true), eq(true)))
+        .thenReturn(bindingResult);
+    when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource))
+        .thenReturn(Optional.of(submissionDetail));
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(resource))
+        .thenReturn(new RegulatorManagedInformation());
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(RegulatorManagedInformationController.class)
+                .saveRegulatorManagedInformation(resourceId, null, null, null, null)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(workAreaUrl));
+  }
+
+  @Test
+  void saveRegulatorManagedInformation_acceptedSubmission_assertRedirect() throws Exception {
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
+    var viewResourceRecordUrl = ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId()));
+
+    when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail))
+        .thenReturn(true);
+    when(permissionService.hasPermission(USER, Set.of(
+        RolePermission.EXPLORATION, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+        .thenReturn(true);
+    when(resourceService.getResourceById(resourceId))
+        .thenReturn(Optional.of(resource));
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
+        .thenReturn(Optional.of(submissionDetail));
+    when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(
+        submissionDetail.getSubmission().getResource()))
+        .thenReturn(true);
+    when(resourceSupportingDocumentService.buildFileUploadTemplate(resourceId, ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
+        .thenReturn(fileUploadTemplate);
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
+    when(regulatorManagedInformationFormService.validate(any(), any(), eq(true), eq(true)))
+        .thenReturn(bindingResult);
+    when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource))
+        .thenReturn(Optional.of(submissionDetail));
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(resource))
+        .thenReturn(new RegulatorManagedInformation());
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(RegulatorManagedInformationController.class)
+                .saveRegulatorManagedInformation(resourceId, null, null, null, null)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(viewResourceRecordUrl));
+  }
+
+  @Test
+  void saveRegulatorManagedInformation_acceptedSubmission_changedPermissions_assertRedirect() throws Exception {
+    when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail)).thenReturn(false);
+
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
+    var viewResourceRecordUrl = ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId()));
+
+    when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail))
+        .thenReturn(true);
+    when(permissionService.hasPermission(USER, Set.of(
+        RolePermission.EXPLORATION, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+        .thenReturn(true);
+    when(resourceService.getResourceById(resourceId))
+        .thenReturn(Optional.of(resource));
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
+        .thenReturn(Optional.of(submissionDetail));
+    when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(
+        submissionDetail.getSubmission().getResource()))
+        .thenReturn(true);
+    when(resourceSupportingDocumentService.buildFileUploadTemplate(resourceId, ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
+        .thenReturn(fileUploadTemplate);
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
+    when(regulatorManagedInformationFormService.validate(any(), any(), eq(true), eq(true)))
+        .thenReturn(bindingResult);
+    when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource))
+        .thenReturn(Optional.of(submissionDetail));
+    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(resource))
+        .thenReturn(new RegulatorManagedInformation());
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(RegulatorManagedInformationController.class)
+                .saveRegulatorManagedInformation(resourceId, null, null, null, null)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(viewResourceRecordUrl));
   }
 
   @SecurityTest
@@ -322,14 +539,14 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(fileUploadList);
     when(regulatorManagedInformationFormService.getRegulatorManagedInformationForm(resource))
         .thenReturn(form);
-    when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
+    when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource))
         .thenReturn(Optional.of(submissionDetail));
     when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(false);
 
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                .getRegulatorManagedInformationPage(resourceId, SUBMISSION_DETAIL_ID)))
+                .getRegulatorManagedInformationPage(resourceId)))
                 .with(user(USER)))
         .andExpect(status().isOk())
         .andReturn()
@@ -352,136 +569,5 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         entry(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resourceId)),
             resourceName)
     );
-  }
-
-  @Test
-  void saveRegulatorManagedInformation_whenSubmissionDetailIdProvided_assertRedirect() throws Exception {
-    when(resourceService.getResourceById(resourceId))
-        .thenReturn(Optional.of(resource));
-    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
-        .thenReturn(Optional.of(submissionDetail));
-    when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(
-        submissionDetail.getSubmission().getResource()))
-        .thenReturn(false);
-    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(false);
-    when(regulatorManagedInformationFormService.validate(any(), any(), eq(false), eq(false)))
-        .thenReturn(bindingResult);
-    when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
-        .thenReturn(Optional.of(submissionDetail));
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(resource))
-        .thenReturn(new RegulatorManagedInformation());
-
-    mockMvc.perform(
-            post(ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                .saveRegulatorManagedInformation(resourceId, SUBMISSION_DETAIL_ID, null, null, null)))
-                .with(user(USER))
-                .with(csrf()))
-        .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(ReviewSubmissionController.class)
-            .showReviewPage(resourceId))));
-  }
-
-  @Test
-  void saveRegulatorManagedInformation_whenSubmissionDetailIdProvided_updatedResponsibleTeam_assertRedirectToWorkArea()
-      throws Exception {
-    when(resourceService.getResourceById(resourceId))
-        .thenReturn(Optional.of(resource));
-    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
-        .thenReturn(Optional.of(submissionDetail));
-    when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(
-        submissionDetail.getSubmission().getResource()))
-        .thenReturn(false);
-    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
-    when(regulatorManagedInformationFormService.validate(any(), any(), eq(false), eq(true)))
-        .thenReturn(bindingResult);
-    when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
-        .thenReturn(Optional.of(submissionDetail));
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(resource))
-        .thenReturn(new RegulatorManagedInformation());
-
-    mockMvc.perform(
-            post(ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                .saveRegulatorManagedInformation(resourceId, SUBMISSION_DETAIL_ID, null, null, null)))
-                .with(user(USER))
-                .with(csrf())
-                .param("responsibleTeamType", ResponsibleTeamType.ONSHORE.name())
-                .param("geographicalArea", GeographicalArea.ONSHORE.name()))
-        .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null))));
-  }
-
-  @Test
-  void saveRegulatorManagedInformation_whenSubmissionDetailIdProvidedAndResponsibleTeamUpdated_assertRedirect() throws Exception {
-    when(resourceService.getResourceById(resourceId))
-        .thenReturn(Optional.of(resource));
-    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
-        .thenReturn(Optional.of(submissionDetail));
-    when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(
-        submissionDetail.getSubmission().getResource()))
-        .thenReturn(false);
-    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
-    when(regulatorManagedInformationFormService.validate(any(), any(), eq(false), eq(true)))
-        .thenReturn(bindingResult);
-    when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
-        .thenReturn(Optional.of(submissionDetail));
-    var resourceName = "The Resource (25/5)";
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
-        .thenReturn(resourceName);
-    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(resource))
-        .thenReturn(new RegulatorManagedInformation());
-
-    var form = new RegulatorManagedInformationForm();
-    form.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
-    mockMvc.perform(
-            post(ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                .saveRegulatorManagedInformation(resourceId, SUBMISSION_DETAIL_ID, form, null, null)))
-                .with(user(USER))
-                .with(csrf()))
-        .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(ReviewSubmissionController.class)
-            .showReviewPage(resourceId))));
-  }
-
-
-
-  @Test
-  void saveRegulatorManagedInformation_whenWrongSubmissionDetailForBreadcrumbsIdProvided_assertStatus() throws Exception{
-    when(resourceService.getResourceById(resourceId))
-        .thenReturn(Optional.of(resource));
-    when(submissionDetailService.getSubmissionDetail(SUBMISSION_DETAIL_ID))
-        .thenReturn(Optional.empty());
-    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(false);
-    when(regulatorManagedInformationFormService.validate(any(), any(), eq(false), eq(false)))
-        .thenReturn(bindingResult);
-    when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
-        .thenReturn(Optional.of(submissionDetail));
-
-    mockMvc.perform(
-            post(ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                .saveRegulatorManagedInformation(resourceId, SUBMISSION_DETAIL_ID, null, null, null)))
-                .with(user(USER))
-                .with(csrf()))
-        .andExpect(status().isNotFound());
-  }
-
-  @Test
-  void saveRegulatorManagedInformation_whenNoSubmissionDetailIdAndNoLatestApprovedSubmission_assertStatus() throws Exception{
-    when(resourceService.getResourceById(resourceId))
-        .thenReturn(Optional.of(resource));
-    when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
-        .thenReturn(Optional.empty());
-    when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(false);
-    when(regulatorManagedInformationFormService.validate(any(), any(), eq(false), eq(false)))
-        .thenReturn(bindingResult);
-    when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
-        .thenReturn(Optional.of(submissionDetail));
-
-    mockMvc.perform(
-            post(ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                .saveRegulatorManagedInformation(resourceId, null, null, null, null)))
-                .with(user(USER))
-                .with(csrf()))
-        .andExpect(status().isNotFound());
   }
 }

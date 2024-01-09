@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
@@ -106,7 +107,7 @@ public class ReviewSubmissionController {
               .formatted(submissionDetailId));
     }
 
-    var latestSubmission = submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource)
+    var latestSubmission = submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource)
         .orElseThrow(() ->
             new RemiEntityNotFoundException("Could not find latest submitted or accepted submission for resource %s"
                 .formatted(resourceId)));
@@ -203,7 +204,7 @@ public class ReviewSubmissionController {
     var resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
             .formatted(resourceId)));
-    return modelAndView
+    modelAndView
         .addObject("regulatorManagedInformationSummaryView",
             regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
         .addObject("resourceGroupsSummaryView",
@@ -215,12 +216,23 @@ public class ReviewSubmissionController {
         .addObject("approveUrl",
             ReverseRouter.route(on(ApproveSubmissionController.class)
                 .showApproveConfirmationPage(selectedSubmissionDetail.getId())))
-        .addObject("regulatorManagedInformationUrl",
-            ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                .getRegulatorManagedInformationPage(
-                    resourceId, selectedSubmissionDetail.getId())))
         .addObject("withdrawUrl",
             ReverseRouter.route(on(WithdrawSubmissionController.class)
                 .showWithdrawConfirmationPage(selectedSubmissionDetail.getId())));
+
+    if (selectedSubmissionDetail.isFieldSubmission()) {
+      modelAndView
+          .addObject("regulatorManagedInformationUrl",
+              ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
+                  .getRegulatorManagedInformationPage(resourceId, null)));
+    } else {
+      modelAndView
+          .addObject("regulatorManagedInformationUrl",
+              ReverseRouter.route(on(RegulatorManagedInformationController.class)
+                  .getRegulatorManagedInformationPage(
+                      resourceId)));
+    }
+
+    return modelAndView;
   }
 }

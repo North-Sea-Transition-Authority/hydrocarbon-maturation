@@ -82,21 +82,6 @@ class SubmissionDetailServiceTest {
   }
 
   @Test
-  void getApprovedOrSubmittedSubmissionDetailByResource() {
-    var resource = new Resource();
-    var submissionDetail = new SubmissionDetail();
-    when(submissionPersistenceService.getSubmissionsByResource(resource))
-        .thenReturn(submissionList);
-    when(submissionDetailRepository.findFirstBySubmissionInAndStatusInOrderByVersionNumberDesc(
-        submissionList,
-        List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)
-    )).thenReturn(Optional.of(submissionDetail));
-
-    assertThat(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
-        .contains(submissionDetail);
-  }
-
-  @Test
   void isLatestSubmissionForResourceRelinquishment_whenReturnedSubmissionDetail_assertTrue() {
     when(submissionPersistenceService.getSubmissionsByResource(submissionDetail.getSubmission().getResource()))
         .thenReturn(submissionList);
@@ -345,5 +330,45 @@ class SubmissionDetailServiceTest {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_COP);
     assertThat(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym((submissionDetail)))
         .isEqualTo("cessation of production notification (CoP)");
+  }
+
+  @Test
+  void getLatestSubmittedSubmissionDetailForResource_noSubmissions_thenReturnEmpty() {
+    var resource  = new Resource();
+    resource.setType(ResourceType.FIELD);
+
+    List<Submission> submissions  = List.of();
+    when(submissionPersistenceService.getSubmissionsByResource(resource))
+        .thenReturn(submissions);
+    when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
+        submissions,
+        SubmissionType.getSubmissionTypesForResourceType(resource.getType()),
+        List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)
+    )).thenReturn(Optional.empty());
+
+    assertThat(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource))
+        .isEmpty();
+  }
+
+  @Test
+  void getLatestSubmittedSubmissionDetailForResource_withSubmittedDetail_thenReturnMostRecentDetail() {
+    var resource  = new Resource();
+    resource.setType(ResourceType.FIELD);
+
+    List<Submission> submissions  = List.of(new Submission());
+
+    when(submissionPersistenceService.getSubmissionsByResource(resource))
+        .thenReturn(submissions);
+
+    var mostRecentSubmissionDetail = new SubmissionDetail();
+    when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
+        submissions,
+        SubmissionType.getSubmissionTypesForResourceType(resource.getType()),
+        List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)
+    )).thenReturn(Optional.of(mostRecentSubmissionDetail));
+
+    assertThat(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource))
+        .isPresent()
+        .contains(mostRecentSubmissionDetail);
   }
 }

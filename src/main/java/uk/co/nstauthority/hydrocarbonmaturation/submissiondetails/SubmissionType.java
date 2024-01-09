@@ -164,7 +164,7 @@ public enum SubmissionType implements Displayable {
     this.displayOrder = displayOrder;
   }
 
-  static List<SubmissionType> getSubmissionTypesForResourceType(ResourceType resourceType) {
+  public static List<SubmissionType> getSubmissionTypesForResourceType(ResourceType resourceType) {
     return Arrays.stream(SubmissionType.values())
         .filter(submissionType -> submissionType.resourceTypes.contains(resourceType))
         .sorted(Comparator.comparingInt(Displayable::getDisplayOrder))

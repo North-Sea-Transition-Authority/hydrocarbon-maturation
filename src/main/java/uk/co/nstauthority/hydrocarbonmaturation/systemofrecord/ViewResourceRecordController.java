@@ -139,8 +139,8 @@ public class ViewResourceRecordController {
       modelAndView
           .addObject("regulatorManagedInformationUrl",
               ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                  .getRegulatorManagedInformationPage(resourceId,
-                      null)))
+                  .getRegulatorManagedInformationPage(resourceId
+                  )))
           .addObject("resourceGroupUrl",
               ReverseRouter.route(on(ResourceGroupController.class)
                   .getResourceGroupPage(resourceId, null)));

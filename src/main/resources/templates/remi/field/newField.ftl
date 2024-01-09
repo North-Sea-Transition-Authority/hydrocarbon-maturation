@@ -1,6 +1,5 @@
 <#include '../layout/layout.ftl'>
 
-<#assign pageTitle = "Create a new field" />
 <#-- @ftlvariable name="backLinkUrl" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
@@ -9,10 +8,10 @@
   htmlTitle=pageTitle
   pageHeading=pageTitle
   pageSize=PageSize.TWO_THIRDS_COLUMN
-  backLinkUrl=springUrl(backLinkUrl)
-  errorItems=errorList>
+  errorItems=errorList
+  breadcrumbsMap=breadcrumbsMap>
 
-  <@fdsForm.htmlForm actionUrl=springUrl(actionUrl)>
+  <@fdsForm.htmlForm>
     <@fdsTextInput.textInput path="form.legalFieldName"
       labelText="Legal field name"
       hintText="This is the determined field name agreed with the Secretary of State"
@@ -140,6 +139,6 @@
       primaryButtonText="Save and continue"
       secondaryLinkText="Cancel"
       linkSecondaryAction=true
-      linkSecondaryActionUrl="${springUrl(backLinkUrl)}"/>
+      linkSecondaryActionUrl="${springUrl(cancelUrl)}"/>
   </@fdsForm.htmlForm>
 </@defaultPage>

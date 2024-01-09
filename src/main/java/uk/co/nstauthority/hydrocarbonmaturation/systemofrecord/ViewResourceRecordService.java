@@ -116,6 +116,9 @@ public class ViewResourceRecordService {
   }
 
   private boolean isResourceIsAssociatedWithAnExtantLicence(ResourceRecordSummaryView resourceRecord) {
+    if (resourceRecord.licenceIds() == null) {
+      return false;
+    }
     var extantLicences = licenceQueryService.getExtantLicencesByIds(NumberUtil.toListOfStrings(resourceRecord.licenceIds()));
     return !extantLicences.isEmpty();
   }

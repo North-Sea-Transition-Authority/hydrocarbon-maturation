@@ -25,7 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetail
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @Service
-class NewFieldService {
+public class NewFieldService {
   private final NewFieldFormValidator newFieldFormValidator;
   private final FieldPersistenceService fieldPersistenceService;
   private final ResourceService resourceService;
@@ -54,22 +54,22 @@ class NewFieldService {
     this.fieldStatusService = fieldStatusService;
   }
 
-  BindingResult validate(NewFieldForm form, BindingResult bindingResult) {
+  BindingResult validate(FieldForm form, BindingResult bindingResult) {
     newFieldFormValidator.validate(form, bindingResult);
     return bindingResult;
   }
 
   @Transactional
-  public Field createNewField(NewFieldForm form) {
+  public Field createNewField(FieldForm form) {
     var resource = resourceService.createResource(ResourceType.FIELD);
 
-    var newField = fieldPersistenceService.createNewField(form, resource);
+    var newField = fieldPersistenceService.saveFieldFromFieldForm(form, resource);
     fieldStatusService.setMostRecentFieldStatus(newField, FieldStatus.STATUS_200);
 
     return newField;
   }
 
-  Map<String, String> getResponsibleTeamTypeDisplayableOptions() {
+  public Map<String, String> getResponsibleTeamTypeDisplayableOptions() {
     var options = DisplayableEnumOptionUtil.getDisplayableOptions(ResponsibleTeamType.class);
 
     var offshoreTeams = Set.of(
@@ -89,7 +89,7 @@ class NewFieldService {
     return options;
   }
 
-  Map<String, String> getGeographicalAreaDisplayableOptions() {
+  public Map<String, String> getGeographicalAreaDisplayableOptions() {
     var options = DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class);
 
     options.remove(GeographicalArea.ONSHORE.getEnumName());
@@ -97,7 +97,7 @@ class NewFieldService {
     return options;
   }
 
-  Map<String, String> getPreSelectedOrganisationUnit(String responsibleOrganisationId) {
+  public Map<String, String> getPreSelectedOrganisationUnit(String responsibleOrganisationId) {
     if (StringUtils.isBlank(responsibleOrganisationId)) {
       return Map.of();
     }

@@ -241,7 +241,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("canManageRegulatorManagementInfo", true),
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                    .getRegulatorManagedInformationPage(resourceId, null))),
+                    .getRegulatorManagedInformationPage(resourceId))),
             entry("resourceGroupUrl",
                 ReverseRouter.route(on(ResourceGroupController.class)
                     .getResourceGroupPage(resourceId, null))),

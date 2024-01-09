@@ -21,6 +21,8 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.ModelAndView;
@@ -34,6 +36,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
@@ -140,7 +143,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
         .thenReturn(Optional.of(resource));
     when(responsibleTeamService.isInResponsibleTeam(USER, submissionRecordSummaryView.responsibleTeamType())).thenReturn(false);
     var latestSubmission = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
-    when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
+    when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource))
         .thenReturn(Optional.of(latestSubmission));
     var submissionUpdate = new SubmissionUpdate();
     submissionUpdate.setResolved(false);
@@ -280,7 +283,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(
-                        resourceId, submissionDetail.getId()))),
+                        resourceId))),
             entry("requestUpdateUrl", ReverseRouter.route(on(RequestUpdateController.class)
                 .showRequestUpdateConfirmationPage(submissionDetail.getId()))),
             entry("canRequestUpdate", false),
@@ -292,6 +295,93 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
             entry("isInResponsibleTeam", true),
             entry("updateRequested", false),
             entry("isIndustrySubmitter", false)
+        );
+
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
+            WorkAreaController.WORK_AREA_TITLE)
+    );
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"CREATE_FIELD", "CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"},
+      mode = EnumSource.Mode.EXCLUDE)
+  @SuppressWarnings("unchecked")
+  void showSubmissionModelAndView_whenIsRegulator_nonFieldSubmission_assertModelPropertiesAndVerifyAddRegulatorAttributes(SubmissionType submissionType) throws Exception {
+    submissionDetail.setSubmissionType(submissionType);
+    when(reviewSubmissionService.canViewSubmission(submissionRecordSummaryView, USER, submissionDetail)).thenReturn(true);
+    when(reviewSubmissionService.canReviewSubmission(submissionRecordSummaryView, USER, submissionDetail))
+        .thenReturn(true);
+    when(resourceService.getResourceById(resourceId))
+        .thenReturn(Optional.of(resource));
+    var regulatorSummary = RegulatorManagedInformationSummaryView.empty(false);
+    when(regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(any()))
+        .thenReturn(regulatorSummary);
+    var resourceGroupSummary = new ResourceGroupSummaryView(List.of(), ResourceType.PROSPECT, "");
+    when(resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
+        .thenReturn(resourceGroupSummary);
+    var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(submissionDetail));
+    mockModelAndViewCreation(submissionDetail, queryResult);
+    when(responsibleTeamService.isInResponsibleTeam(USER, submissionRecordSummaryView.responsibleTeamType())).thenReturn(true);
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resourceId)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("regulatorManagedInformationUrl",
+                ReverseRouter.route(on(RegulatorManagedInformationController.class)
+                    .getRegulatorManagedInformationPage(
+                        resourceId)))
+        );
+
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
+            WorkAreaController.WORK_AREA_TITLE)
+    );
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"CREATE_FIELD", "CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"},
+      mode = EnumSource.Mode.INCLUDE)
+  @SuppressWarnings("unchecked")
+  void showSubmissionModelAndView_whenIsRegulator_fieldSubmission_assertModelPropertiesAndVerifyAddRegulatorAttributes(SubmissionType submissionType) throws Exception {
+    submissionDetail.setSubmissionType(submissionType);
+    when(reviewSubmissionService.canViewSubmission(submissionRecordSummaryView, USER, submissionDetail)).thenReturn(true);
+    when(reviewSubmissionService.canReviewSubmission(submissionRecordSummaryView, USER, submissionDetail))
+        .thenReturn(true);
+    when(resourceService.getResourceById(resourceId))
+        .thenReturn(Optional.of(resource));
+    var regulatorSummary = RegulatorManagedInformationSummaryView.empty(false);
+    when(regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(any()))
+        .thenReturn(regulatorSummary);
+    var resourceGroupSummary = new ResourceGroupSummaryView(List.of(), ResourceType.PROSPECT, "");
+    when(resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
+        .thenReturn(resourceGroupSummary);
+    var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(submissionDetail));
+    mockModelAndViewCreation(submissionDetail, queryResult);
+    when(responsibleTeamService.isInResponsibleTeam(USER, submissionRecordSummaryView.responsibleTeamType())).thenReturn(true);
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resourceId)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("regulatorManagedInformationUrl",
+                ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
+                    .getRegulatorManagedInformationPage(resourceId, null)))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -358,7 +448,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     var submissionDetailId = UUID.randomUUID();
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
-    when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
+    when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource))
         .thenReturn(Optional.empty());
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
@@ -380,7 +470,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
     var latestSubmission = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
-    when(submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource))
+    when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource))
         .thenReturn(Optional.of(latestSubmission));
     when(reviewSubmissionService.canViewSubmission(submissionRecordSummaryView, USER, latestSubmission))
         .thenReturn(false);
