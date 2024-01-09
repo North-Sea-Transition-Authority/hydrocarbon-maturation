@@ -53,13 +53,6 @@ public class SubmissionDetailService {
     );
   }
 
-  public Optional<SubmissionDetail> getApprovedOrSubmittedSubmissionDetailByResource(Resource resource) {
-    return submissionDetailRepository.findFirstBySubmissionInAndStatusInOrderByVersionNumberDesc(
-        submissionPersistenceService.getSubmissionsByResource(resource),
-        List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)
-    );
-  }
-
   public Optional<SubmissionDetail> getLatestApprovedDiscoverySubmissionDetailForResource(Resource resource) {
     // Finds the latest approved discovery (update or create) submission that is approved for the resource.
     return submissionDetailRepository
@@ -87,6 +80,13 @@ public class SubmissionDetailService {
             submissionPersistenceService.getSubmissionsByResource(resource),
             submissionTypes,
             SubmissionDetailStatus.ACCEPTED);
+  }
+
+  public Optional<SubmissionDetail> getMostRecentlySubmittedSubmissionDetailForResource(Resource resource) {
+    return getMostRecentlySubmittedDetailForResourceWithSubmissionTypes(
+        resource,
+        SubmissionType.getSubmissionTypesForResourceType(resource.getType())
+    );
   }
 
   public SubmissionDetail getSubmissionDetailForIdOrError(UUID id) {
@@ -133,11 +133,9 @@ public class SubmissionDetailService {
   }
 
   public boolean isLatestSubmissionForResourceRelinquishment(Resource resource) {
-    return submissionDetailRepository
-        .findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
-            submissionPersistenceService.getSubmissionsByResource(resource),
-            List.of(SubmissionType.RELINQUISHMENT_DISCOVERY, SubmissionType.RELINQUISHMENT_PROSPECT),
-            List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED))
+    return getMostRecentlySubmittedDetailForResourceWithSubmissionTypes(
+        resource,
+        List.of(SubmissionType.RELINQUISHMENT_DISCOVERY, SubmissionType.RELINQUISHMENT_PROSPECT))
         .isPresent();
   }
 
@@ -184,6 +182,23 @@ public class SubmissionDetailService {
   public boolean openCorrectionExists(Set<SubmissionDetailStatus> statuses, Resource resource) {
     return submissionDetailRepository.existsSubmissionDetailByCorrectionTrueAndStatusInAndSubmission_Resource(
         statuses, resource
+    );
+  }
+
+  /*
+   * Find the submissionDetail that was submitted most recently for a given resource
+   * The most recently submitted submission may either be SUBMITTED or ACCEPTED
+   * @param resource  the resource which we want to check  the submissionDetails of
+   * @param submissionTypes the allowed submissionTypes for the desired  submissionDetail
+   * @return the submissionDetail most recently submitted or empty if there has not yet been one
+   */
+  private Optional<SubmissionDetail> getMostRecentlySubmittedDetailForResourceWithSubmissionTypes(
+      Resource resource,
+      List<SubmissionType>  submissionTypes) {
+    return submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
+        submissionPersistenceService.getSubmissionsByResource(resource),
+        submissionTypes,
+        List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)
     );
   }
 }

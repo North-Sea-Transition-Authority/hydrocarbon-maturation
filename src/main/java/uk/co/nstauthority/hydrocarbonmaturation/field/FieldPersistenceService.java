@@ -39,8 +39,8 @@ public class FieldPersistenceService {
   }
 
   @Transactional
-  public Field createNewField(NewFieldForm form, Resource resource) {
-    var field = new Field();
+  public Field saveFieldFromFieldForm(FieldForm form, Resource resource) {
+    var field = fieldRepository.findByResource(resource).orElse(new Field());
 
     field.setResource(resource);
 
@@ -88,6 +88,7 @@ public class FieldPersistenceService {
         geographicalArea
     );
 
+    resourceLinkService.clearAllExistingLinksForField(field.getResource());
     form.getAssociatedDiscoveries()
         .stream()
         .map(resourceDetailId ->

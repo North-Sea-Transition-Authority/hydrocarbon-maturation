@@ -26,7 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchResourceRecordsController;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchProspectAndDiscoveryRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
@@ -122,8 +122,8 @@ public class ResourceGroupController {
         .showResourceRecord(resource.getId()));
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(pageName)
         .addBreadcrumb(
-            SearchResourceRecordsController.PAGE_TITLE,
-            ReverseRouter.route(on(SearchResourceRecordsController.class).searchResourceRecords(null, null)))
+            SearchProspectAndDiscoveryRecordsController.PAGE_TITLE,
+            ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).searchResourceRecords(null, null)))
         .addBreadcrumb(resourceName, cancelUrl)
         .build();
     BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);

@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 
-enum DeterminationStatus implements Displayable {
+public enum DeterminationStatus implements Displayable {
   DETERMINED("Determined", 10),
   UNDETERMINED("Undetermined", 20),
   SUB_AREA_OF_DETERMINED_FIELD("Sub area of a determined field", 30),

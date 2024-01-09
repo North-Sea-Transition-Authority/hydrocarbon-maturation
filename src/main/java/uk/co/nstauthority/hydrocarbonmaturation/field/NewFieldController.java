@@ -32,6 +32,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
     RolePermission.ONSHORE_AREA_TEAM_MEMBER})
 class NewFieldController {
 
+  public static final String PAGE_NAME = "Create a new field";
+
   private final NewFieldService newFieldService;
   private final ControllerHelperService controllerHelperService;
 
@@ -43,12 +45,12 @@ class NewFieldController {
   }
 
   @GetMapping
-  public ModelAndView getNewFieldPage(@ModelAttribute("form") NewFieldForm form) {
+  public ModelAndView getNewFieldPage(@ModelAttribute("form") FieldForm form) {
     return getNewFieldPageModelAndView(form);
   }
 
   @PostMapping
-  public ModelAndView createField(@Valid @ModelAttribute("form") NewFieldForm form,
+  public ModelAndView createField(@Valid @ModelAttribute("form") FieldForm form,
                                   BindingResult bindingResult,
                                   RedirectAttributes redirectAttributes) {
     bindingResult = newFieldService.validate(form, bindingResult);
@@ -64,11 +66,11 @@ class NewFieldController {
     );
   }
 
-  private ModelAndView getNewFieldPageModelAndView(NewFieldForm form) {
+  private ModelAndView getNewFieldPageModelAndView(FieldForm form) {
     return new ModelAndView("remi/field/newField")
         .addObject("form", form)
         .addObject("backLinkUrl", ReverseRouter.route(on(StartFieldController.class).getStartPage()))
-        .addObject("actionUrl", ReverseRouter.route(on(NewFieldController.class).createField(null, null, null)))
+        .addObject("pageTitle", PAGE_NAME)
         .addObject("organisationUnitEndpoint",
             SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null)))
         .addObject("responsibleOrganisation", newFieldService
@@ -85,6 +87,7 @@ class NewFieldController {
             .getPreSelectedAssociatedDiscoveriesMap(form.getAssociatedDiscoveries()))
         .addObject("discoveriesApiEndpoint",
             SearchSelectorService.route(on(ResourceRestController.class)
-                .searchDiscoveriesNotInGroupOrPreferredView(null)));
+                .searchDiscoveriesNotInGroupOrPreferredView(null)))
+        .addObject("cancelUrl", ReverseRouter.route(on(StartFieldController.class).getStartPage()));
   }
 }

@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
+import static org.jooq.impl.DSL.coalesce;
 import static org.jooq.impl.DSL.select;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELDS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.OPPORTUNITY_DETAILS;
@@ -50,9 +52,9 @@ class ResourceQueryCommonService {
             RESOURCES.ID,
             SUBMISSION_DETAILS.ID,
             RESOURCES.TYPE,
-            RESOURCE_DETAILS.RESOURCE_NAME,
+            coalesce(RESOURCE_DETAILS.RESOURCE_NAME, FIELDS.CORRECTED_LEGAL_FIELD_NAME),
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
-            RESOURCE_DETAILS.ORGANISATION_ID,
+            coalesce(RESOURCE_DETAILS.ORGANISATION_ID, FIELDS.RESPONSIBLE_ORGANISATION_ID),
             DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
@@ -76,7 +78,8 @@ class ResourceQueryCommonService {
           .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
           .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID))
           .leftJoin(REGULATOR_MANAGED_INFORMATION).on(RESOURCES.ID.eq(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID))
-          .leftJoin(OPPORTUNITY_DETAILS).on(OPPORTUNITY_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID)))
+          .leftJoin(OPPORTUNITY_DETAILS).on(OPPORTUNITY_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+          .leftJoin(FIELDS).on(FIELDS.RESOURCE_ID.equals(RESOURCES.ID)))
         .where(conditionList)
         .groupBy(
             RESOURCES.ID,
@@ -84,7 +87,8 @@ class ResourceQueryCommonService {
             GENERAL_DETAILS.ID,
             TRAP_PROPERTIES.ID,
             RESOURCE_DETAILS.ID,
-            REGULATOR_MANAGED_INFORMATION.ID
+            REGULATOR_MANAGED_INFORMATION.ID,
+            FIELDS.FIELD_IDENTIFIER
         )
         .having(aggregateConditionList)
         .orderBy(SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP.desc().nullsLast(),

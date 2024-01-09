@@ -15,7 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 
 @ExtendWith(MockitoExtension.class)
-class NewFieldFormValidatorTest {
+class FieldFormValidatorTest {
 
   @InjectMocks
   private NewFieldFormValidator underTest;
@@ -87,13 +87,13 @@ class NewFieldFormValidatorTest {
         );
   }
 
-  private NewFieldForm getEmptyForm() {
-    var form = new NewFieldForm();
+  private FieldForm getEmptyForm() {
+    var form = new FieldForm();
     form.setFieldNumber(new DecimalInput());
     return form;
   }
 
-  private NewFieldForm getValidForm() {
+  private FieldForm getValidForm() {
     var form = getEmptyForm();
     form.setLegalFieldName("legal name field");
     form.setCommonNameForField("common name for field");

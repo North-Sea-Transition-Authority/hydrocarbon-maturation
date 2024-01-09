@@ -204,6 +204,15 @@ class ViewResourceRecordServiceTest {
 
         assertThat(result).isFalse();
       }
+
+      @Test
+      void AndResourceHasNullExtantLicence_ThenFalse() {
+        when(industryTeamMemberService.isMemberOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID)).thenReturn(false);
+
+        var result = underTest.canViewResource(RESOURCE_RECORD, USER_DETAIL);
+
+        assertThat(result).isFalse();
+      }
     }
   }
 

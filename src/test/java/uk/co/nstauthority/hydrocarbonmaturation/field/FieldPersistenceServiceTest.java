@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -49,7 +50,7 @@ class FieldPersistenceServiceTest {
 
   @Nested
   class WhenCreatingNewField {
-    private NewFieldForm form;
+    private FieldForm form;
     @Mock
     private Resource resource;
     private final String LEGAL_NAME = "legal name";
@@ -68,7 +69,7 @@ class FieldPersistenceServiceTest {
 
     @BeforeEach
     void setup() {
-      form = new NewFieldForm();
+      form = new FieldForm();
       form.setLegalFieldName(LEGAL_NAME);
       form.setCorrectedLegalFieldName(CORRECTED_LEGAL_NAME);
       form.setCommonNameForField(COMMON_NAME);
@@ -84,9 +85,10 @@ class FieldPersistenceServiceTest {
 
     @Test
     void onshoreSelected_GeographicalAreaAndTeamTypeAutomaticallySet() {
+      when(fieldRepository.findByResource(resource)).thenReturn(Optional.empty());
       form.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
 
-      var result = underTest.createNewField(form, resource);
+      var result = underTest.saveFieldFromFieldForm(form, resource);
 
       verify(regulatorManagedInformationPersistenceService).saveResponsibleTeamAndGeographicAreaByResource(resource, ResponsibleTeamType.ONSHORE, GeographicalArea.ONSHORE);
       assertThat(result.getOnshoreOffshore()).isEqualTo(OnshoreOffshore.ONSHORE);
@@ -94,6 +96,7 @@ class FieldPersistenceServiceTest {
 
     @Test
     void responsibleOrganisationFound() {
+      when(fieldRepository.findByResource(resource)).thenReturn(Optional.empty());
       var organisationUnit = OrganisationUnit.newBuilder()
           .organisationUnitId(Integer.valueOf(RESPONSIBLE_ORGANISATION_ID))
           .name(RESPONSIBLE_ORGANISATION_NAME)
@@ -101,7 +104,7 @@ class FieldPersistenceServiceTest {
           .build();
       when(organisationUnitQueryService.findOrganisationUnit(anyInt())).thenReturn(Optional.ofNullable(organisationUnit));
 
-      var result = underTest.createNewField(form, resource);
+      var result = underTest.saveFieldFromFieldForm(form, resource);
       assertThat(result)
           .extracting(
               Field::getResponsibleOrganisationId,
@@ -117,19 +120,21 @@ class FieldPersistenceServiceTest {
 
     @Test
     void parentFieldSet() {
+      when(fieldRepository.findByResource(resource)).thenReturn(Optional.empty());
       var parentDeterminedField = 1;
       var field = mock(Field.class);
       form.setDeterminationStatus(DeterminationStatus.SUB_AREA_OF_DETERMINED_FIELD);
       form.setParentDeterminedField(String.valueOf(parentDeterminedField));
       when(fieldRepository.findById(parentDeterminedField)).thenReturn(Optional.ofNullable(field));
 
-      var result = underTest.createNewField(form, resource);
+      var result = underTest.saveFieldFromFieldForm(form, resource);
       assertThat(result.getParentDeterminedField())
           .isEqualTo(field);
     }
 
     @Test
     void associatedDiscoveriesSet() {
+      when(fieldRepository.findByResource(resource)).thenReturn(Optional.empty());
       form.setAssociatedDiscoveries(List.of(ASSOCIATED_DISCOVERY_ID.toString()));
 
       var discovery = new Resource();
@@ -140,14 +145,15 @@ class FieldPersistenceServiceTest {
       when(submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(ASSOCIATED_DISCOVERY_ID))
           .thenReturn(submissionDetail);
 
-      var field = underTest.createNewField(form, discovery);
+      var field = underTest.saveFieldFromFieldForm(form, resource);
       verify(resourceLinkService).createNewDiscoveryFieldResourceLink(discovery, field.getResource());
     }
 
     @Test
     void formValuesSetInField() {
+      when(fieldRepository.findByResource(resource)).thenReturn(Optional.empty());
 
-      var result = underTest.createNewField(form, resource);
+      var result = underTest.saveFieldFromFieldForm(form, resource);
       assertThat(result)
           .extracting(
               Field::getResource,

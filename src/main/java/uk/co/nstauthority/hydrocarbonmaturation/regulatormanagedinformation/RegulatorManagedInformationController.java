@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
@@ -30,15 +31,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.Notificat
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
-import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchResourceRecordsController;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchProspectAndDiscoveryRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Controller
-@RequestMapping("/{resourceId}/regulator-managed-information{submissionDetailId}")
+@RequestMapping("review/resource/{resourceId}/regulator-managed-information/")
 @HasPermission(permissions = {
     RolePermission.EXPLORATION,
     RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
@@ -53,6 +55,7 @@ public class RegulatorManagedInformationController {
   private final SubmissionResourceService submissionResourceService;
   private final ResourceService resourceService;
   private final ResourceSupportingDocumentService resourceSupportingDocumentService;
+  private final ResponsibleTeamService responsibleTeamService;
 
   @Autowired
   public RegulatorManagedInformationController(
@@ -62,7 +65,8 @@ public class RegulatorManagedInformationController {
       SubmissionDetailService submissionDetailService,
       SubmissionResourceService submissionResourceService,
       ResourceService resourceService,
-      ResourceSupportingDocumentService resourceSupportingDocumentService) {
+      ResourceSupportingDocumentService resourceSupportingDocumentService,
+      ResponsibleTeamService responsibleTeamService) {
     this.regulatorManagedInformationFormService = regulatorManagedInformationFormService;
     this.controllerHelperService = controllerHelperService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
@@ -70,18 +74,17 @@ public class RegulatorManagedInformationController {
     this.submissionResourceService = submissionResourceService;
     this.resourceService = resourceService;
     this.resourceSupportingDocumentService = resourceSupportingDocumentService;
+    this.responsibleTeamService = responsibleTeamService;
   }
 
   @GetMapping
-  public ModelAndView getRegulatorManagedInformationPage(@PathVariable("resourceId") UUID resourceId,
-                                                         @PathVariable(value = "submissionDetailId", required = false)
-                                                         UUID submissionDetailId) {
+  public ModelAndView getRegulatorManagedInformationPage(@PathVariable("resourceId") UUID resourceId) {
     var resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() ->
             new RemiEntityNotFoundException("Could not find resource with id %s"
                 .formatted(resourceId.toString())));
 
-    var submissionDetail = submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource);
+    var submissionDetail = submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource);
     if (submissionDetail.isEmpty()) {
       //if there is no approved or submitted submission for the resource regulator cannot set regulator managed information
       throw new ResponseStatusException(
@@ -97,63 +100,65 @@ public class RegulatorManagedInformationController {
         .getRelinquishmentReportUploads(regulatorManagedInformationForm);
 
     return getRegulatorManagedInformationModelAndView(
-        regulatorManagedInformationForm, resource, submissionDetailId, isResourceBeingRelinquished, relinquishmentReportUploads);
+        regulatorManagedInformationForm, resource, isResourceBeingRelinquished, relinquishmentReportUploads);
   }
 
   @PostMapping
   public ModelAndView saveRegulatorManagedInformation(@PathVariable("resourceId") UUID resourceId,
-                                                      @PathVariable(value = "submissionDetailId", required = false)
-                                                      UUID submissionDetailId,
                                                       @ModelAttribute("form") RegulatorManagedInformationForm form,
                                                       BindingResult bindingResult,
-                                                      RedirectAttributes redirectAttributes) {
+                                                      RedirectAttributes redirectAttributes,
+                                                      ServiceUserDetail serviceUserDetail) {
     var resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() ->
             new RemiEntityNotFoundException("Could not find resource with id %s"
-                .formatted(resourceId.toString())));
-    var submissionDetail = submissionDetailService.getApprovedOrSubmittedSubmissionDetailByResource(resource);
+                .formatted(resourceId.toString()))
+        );
+
+    //if there is no approved or submitted submission for the resource regulator cannot set regulator managed information
+    var submissionDetail = submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource)
+        .orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.FORBIDDEN, "Did not find an accepted or submitted submission for resource %s "
+            .formatted(resource.getId().toString()))
+        );
     var isResourceBeingRelinquished = submissionDetailService.isLatestSubmissionForResourceRelinquishment(resource);
     var relinquishmentReportUploads = regulatorManagedInformationFormService.getRelinquishmentReportUploads(form);
-    if (submissionDetail.isEmpty()) {
-      //if there is no approved or submitted submission for the resource regulator cannot set regulator managed information
-      throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN, "Did not find an accepted or submitted submission for resource %s "
-          .formatted(resource.getId().toString()));
-    }
+
     var isResponsibleTeamBeingUpdated = regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource);
     bindingResult = regulatorManagedInformationFormService
         .validate(form, bindingResult, isResourceBeingRelinquished, isResponsibleTeamBeingUpdated);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getRegulatorManagedInformationModelAndView(
-            form, resource, submissionDetailId, isResourceBeingRelinquished, relinquishmentReportUploads),
+            form, resource, isResourceBeingRelinquished, relinquishmentReportUploads),
         () -> {
-          var originalResponsibleTeamType = regulatorManagedInformationPersistenceService
-              .getRegulatorManagedInformationByResourceOrThrow(resource).getResponsibleTeamType();
           regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(form, resource);
-          if (submissionDetailId != null) {
-            var responsibleTeamTypeNotUpdated = form.getResponsibleTeamType() == originalResponsibleTeamType;
-            if (responsibleTeamTypeNotUpdated) {
-              return ReverseRouter.redirect(on(ReviewSubmissionController.class).showReviewPage(resourceId));
+
+          var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail);
+
+          NotificationBannerUtil.addSuccessNotification(redirectAttributes,
+              "Success",
+              "The regulator managed information has been updated for the resource %s".formatted(resourceName));
+
+          var isInResponsibleTeam = responsibleTeamService.isInResponsibleTeam(serviceUserDetail, submissionDetail);
+          if (SubmissionDetailStatus.SUBMITTED.equals(submissionDetail.getStatus())) {
+            // status is SUBMITTED
+            if (isInResponsibleTeam) {
+              return ReverseRouter.redirect(on(ReviewSubmissionController.class).showReviewPage(resource.getId()));
             } else {
-              var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail.get());
-
-              NotificationBannerUtil.addSuccessNotification(redirectAttributes,
-                  "Success",
-                  "The regulator managed information has been updated for the resource %s".formatted(resourceName));
-
+              // if they have updated the permissions the above redirects will throw forbidden so instead go to work area
               return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea(null));
             }
-          } else {
-            return ReverseRouter.redirect(on(ViewResourceRecordController.class).showResourceRecord(resourceId));
           }
+
+          // submission status was accepted so   shoow in system of record
+          return ReverseRouter.redirect(on(ViewResourceRecordController.class).showResourceRecord(resource.getId()));
         }
     );
   }
 
   private ModelAndView getRegulatorManagedInformationModelAndView(RegulatorManagedInformationForm form,
                                                                   Resource resource,
-                                                                  UUID submissionDetailId,
                                                                   boolean isResourceBeingRelinquished,
                                                                   List<UploadedFileView> relinquishmentReportUploads) {
     var modelAndView = new ModelAndView("remi/review/regulatorManagedInformation")
@@ -178,41 +183,42 @@ public class RegulatorManagedInformationController {
           .addObject("responsibleTeamTypes", DisplayableEnumOptionUtil
               .getDisplayableOptions(ResponsibleTeamType.class));
     }
-    addBreadcrumbsAndCancelUrl(modelAndView, resource, submissionDetailId);
+    addBreadcrumbsAndCancelUrl(modelAndView, resource);
 
     return modelAndView;
   }
 
-  private void addBreadcrumbsAndCancelUrl(ModelAndView modelAndView, Resource resource, UUID submissionDetailId) {
-    Breadcrumbs breadcrumbs;
+  private void addBreadcrumbsAndCancelUrl(ModelAndView modelAndView, Resource resource) {
+    var submissionOnResource = submissionDetailService
+        .getMostRecentlySubmittedSubmissionDetailForResource(resource)
+        .orElseThrow(() ->
+            new RemiEntityNotFoundException("Could not find find an accepted or submitted submission for resource %s"
+                .formatted(resource.getId())));
+
     String cancelUrl;
-    if (submissionDetailId != null) {
-      cancelUrl = ReverseRouter.route(on(ReviewSubmissionController.class)
-          .showReviewPage(resource.getId()));
-      breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
-          .addWorkAreaBreadcrumb()
-          .addBreadcrumb(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(
-                  submissionDetailService.getSubmissionDetail(submissionDetailId)
-                      .orElseThrow(() ->
-                          new RemiEntityNotFoundException("Could not find resource with id %s"
-                              .formatted(resource.getId())))), cancelUrl)
-          .build();
-    } else {
-      var submissionOnResource = submissionDetailService
-          .getLatestApprovedSubmissionDetailForResource(resource)
-          .orElseThrow(() ->
-              new RemiEntityNotFoundException("Could not find find an accepted submission for resource %s"
-                  .formatted(resource.getId())));
+    Breadcrumbs breadcrumbs;
+    if (submissionOnResource.getStatus().equals(SubmissionDetailStatus.ACCEPTED)) {
+      // then breadcrumbs go to system of record
       cancelUrl = ReverseRouter.route(on(ViewResourceRecordController.class)
           .showResourceRecord(resource.getId()));
       breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
           .addBreadcrumb(
-              SearchResourceRecordsController.PAGE_TITLE,
-              ReverseRouter.route(on(SearchResourceRecordsController.class).searchResourceRecords(null, null)))
+              SearchProspectAndDiscoveryRecordsController.PAGE_TITLE,
+              ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).searchResourceRecords(null, null)))
+          .addBreadcrumb(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionOnResource),
+              cancelUrl)
+          .build();
+    } else {
+      // then breadcrumbs go to work area
+      cancelUrl = ReverseRouter.route(on(ReviewSubmissionController.class)
+          .showReviewPage(resource.getId()));
+      breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
+          .addWorkAreaBreadcrumb()
           .addBreadcrumb(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionOnResource),
               cancelUrl)
           .build();
     }
+
     modelAndView.addObject("cancelUrl", cancelUrl);
 
     BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);

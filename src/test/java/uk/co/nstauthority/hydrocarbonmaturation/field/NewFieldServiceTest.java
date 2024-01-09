@@ -54,7 +54,7 @@ class NewFieldServiceTest {
   @Nested
   class WhenCreatingNewField {
     @Mock
-    private NewFieldForm form;
+    private FieldForm form;
     @Mock
     private Resource resource;
 
@@ -63,11 +63,11 @@ class NewFieldServiceTest {
       when(resourceService.createResource(ResourceType.FIELD)).thenReturn(resource);
 
       var newField = mock(Field.class);
-      when(fieldPersistenceService.createNewField(form, resource)).thenReturn(newField);
+      when(fieldPersistenceService.saveFieldFromFieldForm(form, resource)).thenReturn(newField);
 
       underTest.createNewField(form);
 
-      verify(fieldPersistenceService).createNewField(form, resource);
+      verify(fieldPersistenceService).saveFieldFromFieldForm(form, resource);
       verify(fieldStatusService, times(1)).setMostRecentFieldStatus(newField, FieldStatus.STATUS_200);
     }
   }

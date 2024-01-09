@@ -10,16 +10,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
 
 @Service
-class NewFieldFormValidator implements Validator {
+public class NewFieldFormValidator implements Validator {
 
   @Override
   public boolean supports(Class<?> clazz) {
-    return NewFieldForm.class.equals(clazz);
+    return FieldForm.class.equals(clazz);
   }
 
   @Override
   public void validate(Object target, Errors errors) {
-    var form = (NewFieldForm) target;
+    var form = (FieldForm) target;
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "legalFieldName", "legalFieldName.required", "Enter the legal field name");
 

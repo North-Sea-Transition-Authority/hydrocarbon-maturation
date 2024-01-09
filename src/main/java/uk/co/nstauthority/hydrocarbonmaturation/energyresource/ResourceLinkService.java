@@ -31,6 +31,11 @@ public class ResourceLinkService {
     resourceLinksRepository.save(resourceLink);
   }
 
+  @Transactional
+  public void clearAllExistingLinksForField(Resource field) {
+    resourceLinksRepository.deleteAllByFieldResource(field);
+  }
+
   public List<ResourceLink> getResourceLinksByProspect(Resource prospect) {
     return resourceLinksRepository.findAllByProspectResource(prospect);
   }

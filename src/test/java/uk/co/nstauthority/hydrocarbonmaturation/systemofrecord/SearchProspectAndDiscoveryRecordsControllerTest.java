@@ -38,8 +38,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 
-@ContextConfiguration(classes = SearchResourceRecordsController.class)
-class SearchResourceRecordsControllerTest extends AbstractControllerTest {
+@ContextConfiguration(classes = SearchProspectAndDiscoveryRecordsController.class)
+class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractControllerTest {
 
   private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
 
@@ -51,29 +51,29 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
   @SecurityTest
   void showSearchResourceRecordsScreen_NoUser_assertStatusUnauthorized() throws Exception {
     mockMvc.perform(
-            get(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen(null))))
+            get(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null))))
         .andExpect(status().isUnauthorized());
   }
 
   @Test
   void searchResourceRecords_whenRegulator_assertStatusOk() throws Exception {
     mockMvc.perform(
-            post(ReverseRouter.route(on(SearchResourceRecordsController.class).searchResourceRecords(null, null)))
+            post(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).searchResourceRecords(null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(SearchResourceRecordsController.class)
+        .andExpect(redirectedUrl(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
             .showSearchResourceRecordsScreen(null))));
   }
 
   @Test
   void searchResourceRecords_whenOperator_assertStatusOk() throws Exception {
     mockMvc.perform(
-            post(ReverseRouter.route(on(SearchResourceRecordsController.class).searchResourceRecords(null, null)))
+            post(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).searchResourceRecords(null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(SearchResourceRecordsController.class)
+        .andExpect(redirectedUrl(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
             .showSearchResourceRecordsScreen(null))));
   }
 
@@ -83,7 +83,7 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
     when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
     when(areaTeamService.isAreaUser(USER)).thenReturn(false);
     mockMvc.perform(
-            get(ReverseRouter.route(on(SearchResourceRecordsController.class)
+            get(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
                 .showSearchResourceRecordsScreen(null)))
                 .with(user(USER)))
         .andExpect(status().isOk());
@@ -97,7 +97,7 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
     when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
         .thenReturn(operatorQueryService);
     mockMvc.perform(
-            get(ReverseRouter.route(on(SearchResourceRecordsController.class)
+            get(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
                 .showSearchResourceRecordsScreen(null)))
                 .with(user(USER))
                 .flashAttr("searchSystemOfRecordFilter", getFullFilter(true)))
@@ -111,12 +111,12 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
   void clearSearchResourceRecordFilter_verifyFilterDefaultsSet() throws Exception {
     var filter = getFullFilter(true);
     mockMvc.perform(
-            get(ReverseRouter.route(on(SearchResourceRecordsController.class)
+            get(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
                 .clearSearchResourceRecordFilter(null, null)))
                 .with(user(USER))
                 .flashAttr("searchSystemOfRecordFilter", filter))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(SearchResourceRecordsController.class)
+        .andExpect(redirectedUrl(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
             .showSearchResourceRecordsScreen(null))));
 
     assertThat(filter)
@@ -150,7 +150,7 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
   void showSearchResourceRecordsScreenModelAndView_whenRegulator_assertModelProperties() throws Exception {
     when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(SearchResourceRecordsController.class).showSearchResourceRecordsScreen(null)))
+            get(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -158,10 +158,10 @@ class SearchResourceRecordsControllerTest extends AbstractControllerTest {
     assertEquals(SearchResourceRecordsForm.class, modelMap.get("form").getClass());
     assertThat(modelMap)
         .contains(
-            entry("pageTitle", SearchResourceRecordsController.PAGE_TITLE),
+            entry("pageTitle", SearchProspectAndDiscoveryRecordsController.PAGE_TITLE),
             entry("filtersAdded", false),
             entry("isRegulatorOrAreaTeamUser", true),
-            entry("clearFilterUrl", ReverseRouter.route(on(SearchResourceRecordsController.class)
+            entry("clearFilterUrl", ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
                 .clearSearchResourceRecordFilter(null, null))),
             entry("resourceRecordSearchResultItems", Collections.emptyList()),
             entry("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
