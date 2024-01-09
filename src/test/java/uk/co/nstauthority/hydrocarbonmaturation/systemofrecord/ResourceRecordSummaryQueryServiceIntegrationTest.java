@@ -84,13 +84,13 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
         .isPresent()
         .get()
         .extracting(
-            ResourceRecordSummaryQueryResult::getSubmissionDetailId,
-            ResourceRecordSummaryQueryResult::getCentreOfInterestQuadBlock,
-            ResourceRecordSummaryQueryResult::getOrganisationResponsibleId,
-            ResourceRecordSummaryQueryResult::getResourceName,
-            ResourceRecordSummaryQueryResult::getResourceType,
-            ResourceRecordSummaryQueryResult::getResponsibleTeam,
-            ResourceRecordSummaryQueryResult::getLicencesTheResourceIsOn
+            ResourceRecordSummaryQueryResult::submissionDetailId,
+            ResourceRecordSummaryQueryResult::centreOfInterestQuadBlock,
+            ResourceRecordSummaryQueryResult::organisationResponsibleId,
+            ResourceRecordSummaryQueryResult::resourceName,
+            ResourceRecordSummaryQueryResult::resourceType,
+            ResourceRecordSummaryQueryResult::responsibleTeam,
+            ResourceRecordSummaryQueryResult::licencesTheResourceIsOn
         )
         .containsExactly(
             submissionDetail2.getId(),
@@ -127,7 +127,7 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
         .isPresent()
         .get()
         .extracting(
-            ResourceRecordSummaryQueryResult::getSubmissionDetailId
+            ResourceRecordSummaryQueryResult::submissionDetailId
         )
         .isEqualTo(
             submissionDetail1.getId()
@@ -152,8 +152,8 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
         .isPresent()
         .get()
         .extracting(
-            ResourceRecordSummaryQueryResult::getResourceName,
-            ResourceRecordSummaryQueryResult::getOrganisationResponsibleId
+            ResourceRecordSummaryQueryResult::resourceName,
+            ResourceRecordSummaryQueryResult::organisationResponsibleId
         )
         .containsExactly(
             field.getCorrectedLegalFieldName(),

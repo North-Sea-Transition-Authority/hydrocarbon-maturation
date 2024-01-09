@@ -82,7 +82,6 @@ public class SubmissionDetailService {
   public Optional<SubmissionDetail> getLatestApprovedSubmissionDetailForResourceAndSubmissionTypes(
       Resource resource,
       List<SubmissionType> submissionTypes) {
-    // Finds the latest approved discovery (update or create) submission that is approved for the resource.
     return submissionDetailRepository
         .findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(
             submissionPersistenceService.getSubmissionsByResource(resource),

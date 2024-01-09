@@ -81,7 +81,7 @@ class ViewResourceRecordServiceTest {
     @Test
     void andResourceExists_ThenMapsQueryResultToView() {
       var submissionDetailId = UUID.randomUUID();
-      var resourceType = ResourceType.PROSPECT.name();
+      var resourceType = ResourceType.PROSPECT;
       var resourceName = "RESOURCE_NAME";
       var centreOfInterestQuadBlock = "CENTRE_OF_INTEREST_QUAD_BLOCK";
       var responsibleTeamType = ResponsibleTeamType.EXPLORATION;
@@ -94,7 +94,7 @@ class ViewResourceRecordServiceTest {
           resourceName,
           centreOfInterestQuadBlock,
           organisationResponsibleId,
-          responsibleTeamType.name(),
+          responsibleTeamType,
           licencesTheResourceIsOn
       );
 

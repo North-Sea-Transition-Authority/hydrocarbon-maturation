@@ -55,11 +55,11 @@ public class ViewResourceRecordService {
   public ResourceRecordSummaryView getResourceRecordOrThrow(UUID resourceId) {
     return resourceRecordSummaryQueryService.getResourceRecord(resourceId)
         .map(resourceRecordSummaryQueryResult -> new ResourceRecordSummaryView(
-                resourceRecordSummaryQueryResult.getSubmissionDetailId(),
+                resourceRecordSummaryQueryResult.submissionDetailId(),
                 getResourceNameAndCentreOfInterest(resourceRecordSummaryQueryResult),
-                resourceRecordSummaryQueryResult.getOrganisationResponsibleId(),
+                resourceRecordSummaryQueryResult.organisationResponsibleId(),
                 getOrganisationResponsible(resourceRecordSummaryQueryResult),
-                resourceRecordSummaryQueryResult.getLicencesTheResourceIsOn(),
+                resourceRecordSummaryQueryResult.licencesTheResourceIsOn(),
                 getLicences(resourceRecordSummaryQueryResult),
                 getResponsibleTeam(resourceRecordSummaryQueryResult)
             )
@@ -69,22 +69,22 @@ public class ViewResourceRecordService {
 
   private String getResourceNameAndCentreOfInterest(ResourceRecordSummaryQueryResult resourceRecordSummaryQueryResult) {
     return submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(
-        resourceRecordSummaryQueryResult.getResourceName(),
-        resourceRecordSummaryQueryResult.getCentreOfInterestQuadBlock()
+        resourceRecordSummaryQueryResult.resourceName(),
+        resourceRecordSummaryQueryResult.centreOfInterestQuadBlock()
     );
   }
 
   private List<String> getLicences(ResourceRecordSummaryQueryResult resourceRecordSummaryQueryResult) {
-    return submissionDetailDisplayService.getLicencesForDisplay(resourceRecordSummaryQueryResult.getLicencesTheResourceIsOn());
+    return submissionDetailDisplayService.getLicencesForDisplay(resourceRecordSummaryQueryResult.licencesTheResourceIsOn());
   }
 
   private String getOrganisationResponsible(ResourceRecordSummaryQueryResult resourceRecordSummaryQueryResult) {
     return submissionDetailDisplayService.getOrganisationResponsibleDisplay(
-        resourceRecordSummaryQueryResult.getOrganisationResponsibleId());
+        resourceRecordSummaryQueryResult.organisationResponsibleId());
   }
 
   private static ResponsibleTeamType getResponsibleTeam(ResourceRecordSummaryQueryResult resourceRecordSummaryQueryResult) {
-    return resourceRecordSummaryQueryResult.getResponsibleTeam();
+    return resourceRecordSummaryQueryResult.responsibleTeam();
   }
 
   public boolean canViewSubmissionDetail(SubmissionDetail selectedSubmissionDetail, Resource resource) {
