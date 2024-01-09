@@ -79,7 +79,7 @@ public class ViewResourceRecordService {
   }
 
   private String getOrganisationResponsible(ResourceRecordSummaryQueryResult resourceRecordSummaryQueryResult) {
-    return submissionDetailDisplayService.getOrganisationResponsibleDisplay(
+    return submissionDetailDisplayService.getOrganisationResponsibleDisplayById(
         resourceRecordSummaryQueryResult.organisationResponsibleId());
   }
 

@@ -180,7 +180,7 @@ public class ReviewSubmissionService {
   }
 
   private String getOrganisationResponsible(SubmissionRecordSummaryQueryResult submissionRecordSummaryQueryResult) {
-    return submissionDetailDisplayService.getOrganisationResponsibleDisplay(
+    return submissionDetailDisplayService.getOrganisationResponsibleDisplayById(
         submissionRecordSummaryQueryResult.getOrganisationResponsibleId());
   }
 

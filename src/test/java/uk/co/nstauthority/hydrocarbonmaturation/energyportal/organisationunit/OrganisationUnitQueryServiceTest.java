@@ -123,9 +123,9 @@ class OrganisationUnitQueryServiceTest {
 
     assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName))
         .extracting(
-            OrganisationUnitDto::getOrganisationUnitId,
-            OrganisationUnitDto::getOrganisationUnitName,
-            OrganisationUnitDto::getCompanyHouseNumber,
+            OrganisationUnitDto::organisationUnitId,
+            OrganisationUnitDto::organisationUnitName,
+            OrganisationUnitDto::companyHouseNumber,
             OrganisationUnitDto::getSelectionText,
             OrganisationUnitDto::getSelectionId
         ).containsExactly(
@@ -167,9 +167,9 @@ class OrganisationUnitQueryServiceTest {
 
     assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName))
         .extracting(
-            OrganisationUnitDto::getOrganisationUnitId,
-            OrganisationUnitDto::getOrganisationUnitName,
-            OrganisationUnitDto::getCompanyHouseNumber,
+            OrganisationUnitDto::organisationUnitId,
+            OrganisationUnitDto::organisationUnitName,
+            OrganisationUnitDto::companyHouseNumber,
             OrganisationUnitDto::getSelectionText,
             OrganisationUnitDto::getSelectionId
         ).containsExactly(
@@ -207,9 +207,9 @@ class OrganisationUnitQueryServiceTest {
 
     assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName))
         .extracting(
-            OrganisationUnitDto::getOrganisationUnitId,
-            OrganisationUnitDto::getOrganisationUnitName,
-            OrganisationUnitDto::getCompanyHouseNumber,
+            OrganisationUnitDto::organisationUnitId,
+            OrganisationUnitDto::organisationUnitName,
+            OrganisationUnitDto::companyHouseNumber,
             OrganisationUnitDto::getSelectionText,
             OrganisationUnitDto::getSelectionId
         ).containsExactly(
@@ -242,9 +242,9 @@ class OrganisationUnitQueryServiceTest {
 
     assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName))
         .extracting(
-            OrganisationUnitDto::getOrganisationUnitId,
-            OrganisationUnitDto::getOrganisationUnitName,
-            OrganisationUnitDto::getCompanyHouseNumber,
+            OrganisationUnitDto::organisationUnitId,
+            OrganisationUnitDto::organisationUnitName,
+            OrganisationUnitDto::companyHouseNumber,
             OrganisationUnitDto::getSelectionText,
             OrganisationUnitDto::getSelectionId
         ).containsExactly(
@@ -383,15 +383,15 @@ class OrganisationUnitQueryServiceTest {
 
     var expectedOrganisationUnit = organisationUnitQueryService.findOrganisationUnit(ORGANISATION_UNIT_ID);
     assertThat(expectedOrganisationUnit)
-        .map(OrganisationUnit::getOrganisationUnitId)
+        .map(OrganisationUnitDto::organisationUnitId)
         .hasValue(ORGANISATION_UNIT_ID);
 
     assertThat(expectedOrganisationUnit)
-        .map(OrganisationUnit::getRegisteredNumber)
+        .map(OrganisationUnitDto::companyHouseNumber)
         .hasValue(ORGANISATION_COMPANY_NUMBER);
 
     assertThat(expectedOrganisationUnit)
-        .map(OrganisationUnit::getName)
+        .map(OrganisationUnitDto::organisationUnitName)
         .hasValue(ORGANISATION_UNIT_NAME);
   }
 

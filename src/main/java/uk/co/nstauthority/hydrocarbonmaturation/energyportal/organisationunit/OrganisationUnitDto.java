@@ -1,35 +1,17 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit;
 
+import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectable;
 
-class OrganisationUnitDto implements SearchSelectable {
-  private Integer organisationUnitId;
+public record OrganisationUnitDto(Integer organisationUnitId,
+                                  String organisationUnitName,
+                                  String companyHouseNumber) implements SearchSelectable {
 
-  private String organisationUnitName;
-  private String companyHouseNumber;
-
-  public Integer getOrganisationUnitId() {
-    return organisationUnitId;
-  }
-
-  public void setOrganisationUnitId(Integer organisationUnitId) {
-    this.organisationUnitId = organisationUnitId;
-  }
-
-  public String getOrganisationUnitName() {
+  public String getDisplayText() {
+    if (companyHouseNumber != null) {
+      return "%s (%s)".formatted(organisationUnitName, companyHouseNumber);
+    }
     return organisationUnitName;
-  }
-
-  public void setOrganisationUnitName(String organisationUnitName) {
-    this.organisationUnitName = organisationUnitName;
-  }
-
-  public String getCompanyHouseNumber() {
-    return companyHouseNumber;
-  }
-
-  public void setCompanyHouseNumber(String companyHouseNumber) {
-    this.companyHouseNumber = companyHouseNumber;
   }
 
   @Override
@@ -39,9 +21,14 @@ class OrganisationUnitDto implements SearchSelectable {
 
   @Override
   public String getSelectionText() {
-    if (companyHouseNumber != null) {
-      return "%s (%s)".formatted(organisationUnitName, companyHouseNumber);
-    }
-    return organisationUnitName;
+    return getDisplayText();
+  }
+
+  public static OrganisationUnitDto fromOrganisationUnit(OrganisationUnit organisationUnit) {
+    return new OrganisationUnitDto(
+        organisationUnit.getOrganisationUnitId(),
+        organisationUnit.getName(),
+        organisationUnit.getRegisteredNumber()
+    );
   }
 }

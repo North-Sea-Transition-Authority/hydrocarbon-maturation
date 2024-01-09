@@ -47,9 +47,9 @@ public class ResourceDetailsPersistenceService {
     } else {
       var organisationUnit = organisationUnitQueryService.findOrganisationUnit(Integer.valueOf(organisationId));
       organisationUnit.ifPresent(unit -> {
-        resourceDetails.setOrganisationName(unit.getName());
-        resourceDetails.setOrganisationId(unit.getOrganisationUnitId());
-        resourceDetails.setOrganisationRegisteredNumber(unit.getRegisteredNumber());
+        resourceDetails.setOrganisationName(unit.organisationUnitName());
+        resourceDetails.setOrganisationId(unit.organisationUnitId());
+        resourceDetails.setOrganisationRegisteredNumber(unit.companyHouseNumber());
       });
     }
     resourceDetailsRepository.save(resourceDetails);
@@ -73,9 +73,9 @@ public class ResourceDetailsPersistenceService {
       var organisationUnit = organisationUnitQueryService.findOrganisationUnit(
           Integer.valueOf(form.getResponsibleOrganisationId()));
       organisationUnit.ifPresent(unit -> {
-        resourceDetail.setOrganisationName(unit.getName());
-        resourceDetail.setOrganisationId(unit.getOrganisationUnitId());
-        resourceDetail.setOrganisationRegisteredNumber(unit.getRegisteredNumber());
+        resourceDetail.setOrganisationName(unit.organisationUnitName());
+        resourceDetail.setOrganisationId(unit.organisationUnitId());
+        resourceDetail.setOrganisationRegisteredNumber(unit.companyHouseNumber());
       });
     }
 
@@ -109,8 +109,8 @@ public class ResourceDetailsPersistenceService {
           if (resourceDetail.getOrganisationId() != null) {
             organisationUnitQueryService.findOrganisationUnit(resourceDetail.getOrganisationId())
                 .ifPresent(organisationUnit -> {
-                  resourceDetail.setOrganisationName(organisationUnit.getName());
-                  resourceDetail.setOrganisationRegisteredNumber(organisationUnit.getRegisteredNumber());
+                  resourceDetail.setOrganisationName(organisationUnit.organisationUnitName());
+                  resourceDetail.setOrganisationRegisteredNumber(organisationUnit.companyHouseNumber());
                   resourceDetailsRepository.save(resourceDetail);
                 });
           }

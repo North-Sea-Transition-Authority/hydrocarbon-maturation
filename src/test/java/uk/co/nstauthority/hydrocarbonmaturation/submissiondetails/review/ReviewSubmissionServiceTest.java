@@ -115,7 +115,7 @@ class ReviewSubmissionServiceTest {
           .thenReturn(licencesForDisplay);
 
       var organisationResponsibleDisplay = "ORG";
-      when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(organisationResponsibleId))
+      when(submissionDetailDisplayService.getOrganisationResponsibleDisplayById(organisationResponsibleId))
           .thenReturn(organisationResponsibleDisplay);
 
       var result = reviewSubmissionService.getSubmissionRecordOrThrow(SUBMISSION_ID);

@@ -51,10 +51,10 @@ public class FieldPersistenceService {
     Optional.ofNullable(form.getResponsibleOrganisationId())
         .map(Integer::valueOf)
         .flatMap(organisationUnitQueryService::findOrganisationUnit)
-        .ifPresent(organisationUnit -> {
-          field.setResponsibleOrganisationId(organisationUnit.getOrganisationUnitId());
-          field.setOrganisationName(organisationUnit.getName());
-          field.setOrganisationRegisteredNumber(organisationUnit.getRegisteredNumber());
+        .ifPresent(organisationUnitDto -> {
+          field.setResponsibleOrganisationId(organisationUnitDto.organisationUnitId());
+          field.setOrganisationName(organisationUnitDto.organisationUnitName());
+          field.setOrganisationRegisteredNumber(organisationUnitDto.companyHouseNumber());
         });
 
     field.setOnshoreOffshore(form.getOnshoreOffshore());
