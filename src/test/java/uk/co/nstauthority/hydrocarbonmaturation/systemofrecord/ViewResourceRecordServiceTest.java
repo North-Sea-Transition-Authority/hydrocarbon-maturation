@@ -24,7 +24,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -54,6 +56,8 @@ class ViewResourceRecordServiceTest {
   private SubmissionDetailService submissionDetailService;
   @Mock
   private AreaTeamService areaTeamService;
+  @Mock
+  private FieldDisplayService fieldDisplayService;
 
   @InjectMocks
   private ViewResourceRecordService underTest;
@@ -87,6 +91,8 @@ class ViewResourceRecordServiceTest {
       var responsibleTeamType = ResponsibleTeamType.EXPLORATION;
       var licencesTheResourceIsOn = List.of(2, 3);
       var organisationResponsibleId = 1;
+      var parentFieldId = 8001;
+      var fieldStatus = FieldStatus.STATUS_200;
 
       var resourceRecordSummaryQueryResult = new ResourceRecordSummaryQueryResult(
           submissionDetailId,
@@ -95,8 +101,9 @@ class ViewResourceRecordServiceTest {
           centreOfInterestQuadBlock,
           organisationResponsibleId,
           responsibleTeamType,
-          licencesTheResourceIsOn
-      );
+          licencesTheResourceIsOn,
+          parentFieldId,
+          fieldStatus);
 
       when(resourceRecordSummaryQueryService.getResourceRecord(RESOURCE_ID))
           .thenReturn(Optional.of(resourceRecordSummaryQueryResult));

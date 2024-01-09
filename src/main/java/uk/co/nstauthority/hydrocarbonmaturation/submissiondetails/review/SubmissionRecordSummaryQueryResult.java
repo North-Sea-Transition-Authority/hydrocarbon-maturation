@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 import java.util.List;
 import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
@@ -16,6 +17,8 @@ class SubmissionRecordSummaryQueryResult {
   private final Integer organisationResponsibleId;
   private final ResponsibleTeamType responsibleTeam;
   private final List<Integer> licencesTheResourceIsOn;
+  private final Integer parentFieldId;
+  private final FieldStatus fieldStatus;
 
   SubmissionRecordSummaryQueryResult(UUID submissionDetailId,
                                      String submissionType,
@@ -24,7 +27,9 @@ class SubmissionRecordSummaryQueryResult {
                                      String centreOfInterestQuadBlock,
                                      Integer organisationResponsibleId,
                                      String responsibleTeam,
-                                     List<Integer> licencesTheResourceIsOn) {
+                                     List<Integer> licencesTheResourceIsOn,
+                                     Integer parentFieldId,
+                                     FieldStatus fieldStatus) {
     this.submissionDetailId = submissionDetailId;
     this.submissionType = SubmissionType.valueOf(submissionType);
     this.resourceType = ResourceType.valueOf(resourceType);
@@ -33,6 +38,8 @@ class SubmissionRecordSummaryQueryResult {
     this.organisationResponsibleId = organisationResponsibleId;
     this.responsibleTeam = ResponsibleTeamType.fromName(responsibleTeam);
     this.licencesTheResourceIsOn = licencesTheResourceIsOn;
+    this.parentFieldId = parentFieldId;
+    this.fieldStatus = fieldStatus;
   }
 
   UUID getSubmissionDetailId() {
@@ -65,5 +72,13 @@ class SubmissionRecordSummaryQueryResult {
 
   List<Integer> getLicencesTheResourceIsOn() {
     return licencesTheResourceIsOn;
+  }
+
+  public Integer getParentFieldId() {
+    return parentFieldId;
+  }
+
+  public FieldStatus getFieldStatus() {
+    return fieldStatus;
   }
 }

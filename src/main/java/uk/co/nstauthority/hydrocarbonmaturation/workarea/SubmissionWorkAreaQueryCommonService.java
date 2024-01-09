@@ -1,7 +1,9 @@
 package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
+import static org.jooq.impl.DSL.and;
 import static org.jooq.impl.DSL.coalesce;
 import static org.jooq.impl.DSL.field;
+import static org.jooq.impl.DSL.max;
 import static org.jooq.impl.DSL.nvl;
 import static org.jooq.impl.DSL.select;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELDS;
@@ -21,6 +23,7 @@ import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.FieldStatusHistory;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submissions;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -30,6 +33,9 @@ class SubmissionWorkAreaQueryCommonService {
   private static final SubmissionDetails SD_2 = SUBMISSION_DETAILS.as("sd2");
   private static final Submissions SUBMISSIONS_2 = SUBMISSIONS.as("s2");
 
+  private static final FieldStatusHistory FSH = FieldStatusHistory.FIELD_STATUS_HISTORY.as("fsh");
+  private static final FieldStatusHistory FSH_2 = FieldStatusHistory.FIELD_STATUS_HISTORY.as("fsh2");
+
   private final DSLContext context;
 
   @Autowired
@@ -38,8 +44,8 @@ class SubmissionWorkAreaQueryCommonService {
   }
 
   List<SubmissionWorkAreaQueryResult> getWorkAreaQueryResults(List<Condition> conditions) {
-    return context
-        .select(
+
+    return context.select(
             SUBMISSION_DETAILS.ID,
             SUBMISSION_DETAILS.SUBMISSION_TYPE,
             SUBMISSION_DETAILS.STATUS,
@@ -54,7 +60,9 @@ class SubmissionWorkAreaQueryCommonService {
             //true if update has been requested and not resolved
             field(SUBMISSION_UPDATE.SUBMISSION_ID.eq(SUBMISSION_DETAILS.SUBMISSION_ID)
                 .and(SUBMISSION_UPDATE.RESOLVED.isFalse())),
-            SUBMISSION_DETAILS.CORRECTION
+            SUBMISSION_DETAILS.CORRECTION,
+            FIELDS.PARENT_DETERMINED_FIELD_ID,
+            max(FSH.FIELD_STATUS)
         )
         .from(SUBMISSIONS
                 .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
@@ -88,6 +96,14 @@ class SubmissionWorkAreaQueryCommonService {
             .on(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID.eq(RESOURCES.ID))
             .leftJoin(FIELDS)
             .on(FIELDS.RESOURCE_ID.eq(RESOURCES.ID))
+            .leftJoin(FSH)
+            .on(and(
+                FSH.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER),
+                FSH.STATUS_DATE.eq(
+                    select(max(FSH_2.STATUS_DATE))
+                        .from(FSH_2)
+                        .where(FSH_2.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
+                )))
         .where(conditions))
         .groupBy(
             SUBMISSIONS.ID,
@@ -99,7 +115,9 @@ class SubmissionWorkAreaQueryCommonService {
                 RESOURCE_DETAILS.ORGANISATION_ID,
                 FIELDS.RESPONSIBLE_ORGANISATION_ID),
             SUBMISSION_UPDATE.ID,
-            SUBMISSION_DETAILS.CORRECTION)
+            SUBMISSION_DETAILS.CORRECTION,
+            FIELDS.FIELD_IDENTIFIER,
+            FSH.FIELD_IDENTIFIER)
         .orderBy(
             SUBMISSION_UPDATE.RESOLVED.desc().nullsLast(),
             SUBMISSION_UPDATE.REQUESTED_TIMESTAMP.desc().nullsLast(),

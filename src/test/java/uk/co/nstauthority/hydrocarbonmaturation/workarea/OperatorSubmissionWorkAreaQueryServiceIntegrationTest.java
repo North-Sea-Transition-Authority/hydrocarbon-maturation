@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.apache.commons.lang3.BooleanUtils;
@@ -24,7 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -165,6 +166,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     submissionDetail.setSubmissionType(submissionType);
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
+    submissionDetail.setCorrection(false);
 
     var createdTimestamp = Instant.now();
     submissionDetail.setCreatedTimestamp(createdTimestamp);
@@ -175,27 +177,74 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persist(submissionDetail);
     entityManager.flush();
 
-    var field = new Field();
-    field.setResource(resource);
-    field.setResponsibleOrganisationId(responsibleOrganisationIdForSubmission);
-    entityManager.persist(field);
+    var generalDetails = new GeneralDetail();
+    generalDetails.setSubmissionDetail(submissionDetail);
+    entityManager.persist(generalDetails);
     entityManager.flush();
+
+    var trapProperty = new TrapProperty();
+    trapProperty.setSubmissionDetail(submissionDetail);
+    trapProperty.setCentreOfInterestQuadrantBlock("25/12");
+    entityManager.persist(trapProperty);
+    entityManager.flush();
+
+    var licence = new Licence();
+    var licenceId1 = 953;
+    licence.setLicenceId(licenceId1);
+    licence.setLicenceReference("AL10");
+    licence.setGeneralDetail(generalDetails);
+    var licence2 = new Licence();
+    var licenceId2 = 951;
+    licence2.setLicenceId(licenceId2);
+    licence2.setLicenceReference("AL6");
+    licence2.setGeneralDetail(generalDetails);
+    entityManager.persist(licence);
+    entityManager.flush();
+    entityManager.persist(licence2);
+    entityManager.flush();
+
+    var fieldName = "Field name";
+    var field = SubmissionIntegrationTestUtils
+        .createFieldWithParent(resource, fieldName, responsibleOrganisationIdForSubmission, entityManager
+    );
+
+    var today = Instant.now();
+    var yesterday = today.minus(1, ChronoUnit.DAYS);
+    var oldFieldStatusHistory = SubmissionIntegrationTestUtils
+        .createFieldStatusHistory(field, FieldStatus.STATUS_200, yesterday, entityManager);
+    var newestFieldStatusHistory = SubmissionIntegrationTestUtils
+        .createFieldStatusHistory(field, FieldStatus.STATUS_300, today, entityManager);
 
     var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER);
 
     assertThat(results)
         .extracting(
             SubmissionWorkAreaQueryResult::getSubmissionDetailId,
-            SubmissionWorkAreaQueryResult::getOrganisationResponsibleId,
             SubmissionWorkAreaQueryResult::getSubmissionType,
-            SubmissionWorkAreaQueryResult::getStatus
+            SubmissionWorkAreaQueryResult::getStatus,
+            SubmissionWorkAreaQueryResult::getResourceName,
+            SubmissionWorkAreaQueryResult::getCentreOfInterestQuadBlock,
+            SubmissionWorkAreaQueryResult::getOrganisationResponsibleId,
+            SubmissionWorkAreaQueryResult::isCorrection,
+            SubmissionWorkAreaQueryResult::getParentFieldId,
+            SubmissionWorkAreaQueryResult::getFieldStatus
         ).containsExactly(
             Tuple.tuple(
                 submissionDetail.getId(),
+                submissionDetail.getSubmissionType(),
+                submissionDetail.getStatus(),
+                field.getCorrectedLegalFieldName(),
+                trapProperty.getCentreOfInterestQuadrantBlock(),
                 responsibleOrganisationIdForSubmission,
-                submissionType,
-                SubmissionDetailStatus.DRAFT
+                submissionDetail.isCorrection(),
+                field.getParentDeterminedField().getFieldIdentifier(),
+                newestFieldStatusHistory.getFieldStatus()
             ));
+
+    assertThat(results.get(0)
+        .getLicencesTheResourceIsOn())
+        .containsExactlyInAnyOrder(
+            licenceId1, licenceId2);
   }
 
   @NotNull

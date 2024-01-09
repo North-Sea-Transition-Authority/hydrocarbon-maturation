@@ -11,6 +11,8 @@ public record ResourceRecordSummaryView(
     String organisationResponsible,
     List<Integer> licenceIds,
     List<String> licences,
-    ResponsibleTeamType responsibleTeam
+    ResponsibleTeamType responsibleTeam,
+    String parentFieldName,
+    String fieldStatus
 ) {
 }

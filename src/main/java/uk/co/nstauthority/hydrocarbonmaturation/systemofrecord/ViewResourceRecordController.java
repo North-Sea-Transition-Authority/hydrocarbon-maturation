@@ -174,6 +174,7 @@ public class ViewResourceRecordController {
         .addObject("form", form)
         .addObject("resourceRecord", resourceRecord)
         .addObject("submissionType", submissionDetailSelected.getSubmissionType())
+        .addObject("isFieldSubmission", submissionDetailSelected.isFieldSubmission())
         .addObject("resourceType", submissionDetailSelected
             .getSubmission().getResource().getType().getDisplayName())
         .addObject("canManageRegulatorManagementInfo", isInResponsibleTeam)

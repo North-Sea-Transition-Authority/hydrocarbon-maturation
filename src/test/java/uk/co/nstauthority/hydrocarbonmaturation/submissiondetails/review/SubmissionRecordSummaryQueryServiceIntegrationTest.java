@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.apache.commons.lang3.BooleanUtils;
@@ -15,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.FieldStatusHistory;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -44,7 +48,7 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
 
   @Test
   void getSubmissionRecord_WhenTwoSubmissionRecords_ReturnsSubmissionRecordQueried() {
-    var otherResource = buildResource();
+    var otherResource = buildPropsectResource();
     var otherSubmission = buildSubmissionDetail(otherResource, SubmissionType.CREATE_PROSPECT);
     var organisationId1 = 46;
     var generalDetails1 = createGeneralDetail(otherSubmission);
@@ -60,7 +64,7 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
     createLicence(951, "AL10", generalDetails1);
     createLicence(953, "AL6", generalDetails1);
 
-    var resourceForQueriedSubmission = buildResource();
+    var resourceForQueriedSubmission = buildPropsectResource();
     buildResponsibleTeam(resourceForQueriedSubmission, ResponsibleTeamType.EXPLORATION);
     var queriedSubmissionDetail = buildSubmissionDetail(resourceForQueriedSubmission, SubmissionType.CREATE_PROSPECT);
     var resourceToBeQueried = "The resource name B - to be queried";
@@ -111,7 +115,7 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
 
   @Test
   void getSubmissionRecord_WhenTwoSubmissions_ReturnsLatestSubmitted() {
-    var resourceForQueriedSubmission = buildResource();
+    var resourceForQueriedSubmission = buildPropsectResource();
     buildResponsibleTeam(resourceForQueriedSubmission, ResponsibleTeamType.EXPLORATION);
     var latestSubmittedSubmissionDetail = buildSubmissionDetail(resourceForQueriedSubmission, SubmissionType.CREATE_PROSPECT);
     latestSubmittedSubmissionDetail.setSubmittedTimestamp(Instant.now());
@@ -135,8 +139,87 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
   }
 
   @Test
+  void getSubmissionRecord_WhenFieldSubmission_AssertFieldInformationPresent() {
+    var resourceForQueriedSubmission = buildFieldResource();
+    buildResponsibleTeam(resourceForQueriedSubmission, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
+    var latestSubmittedSubmissionDetail = buildSubmissionDetail(resourceForQueriedSubmission, SubmissionType.CREATE_CSR);
+    latestSubmittedSubmissionDetail.setSubmittedTimestamp(Instant.now());
+    var field = createField(resourceForQueriedSubmission, 51);
+    var mostRecentFieldStatusHistory = buildFieldStatusHistory(field);
+
+    var result = submissionRecordSummaryQueryService
+        .getSubmissionRecord(latestSubmittedSubmissionDetail.getSubmission().getResource().getId());
+
+    assertThat(result)
+        .isPresent()
+        .get()
+        .extracting(
+            SubmissionRecordSummaryQueryResult::getParentFieldId,
+            SubmissionRecordSummaryQueryResult::getFieldStatus
+        )
+        .containsExactly(
+            field.getParentDeterminedField().getFieldIdentifier(),
+            mostRecentFieldStatusHistory.getFieldStatus()
+        );
+  }
+
+  @Test
+  void getSubmissionRecord_WhenFieldSubmission_WithMultipleFieldStatusesOnSameDate_ReturnsHighestStatus() {
+    var resourceForQueriedSubmission = buildFieldResource();
+    buildResponsibleTeam(resourceForQueriedSubmission, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
+    var latestSubmittedSubmissionDetail = buildSubmissionDetail(resourceForQueriedSubmission, SubmissionType.CREATE_CSR);
+    latestSubmittedSubmissionDetail.setSubmittedTimestamp(Instant.now());
+    var field = createField(resourceForQueriedSubmission, 51);
+    var fixedInstant = Instant.now();
+    var lowestFieldStatusHistory = SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_200, fixedInstant, entityManager);
+    var hihestFieldStatusHistory = SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_300, fixedInstant, entityManager);
+
+    var result = submissionRecordSummaryQueryService
+        .getSubmissionRecord(latestSubmittedSubmissionDetail.getSubmission().getResource().getId());
+
+    assertThat(result)
+        .isPresent()
+        .get()
+        .extracting(
+            SubmissionRecordSummaryQueryResult::getParentFieldId,
+            SubmissionRecordSummaryQueryResult::getFieldStatus
+        )
+        .containsExactly(
+            field.getParentDeterminedField().getFieldIdentifier(),
+            hihestFieldStatusHistory.getFieldStatus()
+        );
+  }
+
+  @Test
+  void getSubmissionRecord_WhenFieldSubmission_WithMultipleFieldStatusesOnDifferentDate_ReturnsMostRecentStatus() {
+    var resourceForQueriedSubmission = buildFieldResource();
+    buildResponsibleTeam(resourceForQueriedSubmission, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
+    var latestSubmittedSubmissionDetail = buildSubmissionDetail(resourceForQueriedSubmission, SubmissionType.CREATE_CSR);
+    latestSubmittedSubmissionDetail.setSubmittedTimestamp(Instant.now());
+    var field = createField(resourceForQueriedSubmission, 51);
+    var fixedInstant = Instant.now();
+    var latestFieldStatusHistory = SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_200, fixedInstant.plus(1, ChronoUnit.DAYS), entityManager);
+    var earliestFieldStatusHistory = SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_300, fixedInstant, entityManager);
+
+    var result = submissionRecordSummaryQueryService
+        .getSubmissionRecord(latestSubmittedSubmissionDetail.getSubmission().getResource().getId());
+
+    assertThat(result)
+        .isPresent()
+        .get()
+        .extracting(
+            SubmissionRecordSummaryQueryResult::getParentFieldId,
+            SubmissionRecordSummaryQueryResult::getFieldStatus
+        )
+        .containsExactly(
+            field.getParentDeterminedField().getFieldIdentifier(),
+            latestFieldStatusHistory.getFieldStatus()
+        );
+  }
+
+  @Test
   void getSubmissionRecord_WhenTwoSubmissionDetailsOnOneSubmission_returnHighestVersion() {
-    var resourceForQueriedSubmission = buildResource();
+    var resourceForQueriedSubmission = buildPropsectResource();
     buildResponsibleTeam(resourceForQueriedSubmission, ResponsibleTeamType.EXPLORATION);
     var firstSubmissionDetail = buildSubmissionDetail(resourceForQueriedSubmission, SubmissionType.CREATE_PROSPECT);
     firstSubmissionDetail.setSubmittedTimestamp(Instant.now());
@@ -168,7 +251,7 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
       withdrawn = null;
     }
 
-    var resourceForQueriedSubmission = buildResource();
+    var resourceForQueriedSubmission = buildPropsectResource();
     buildResponsibleTeam(resourceForQueriedSubmission, ResponsibleTeamType.EXPLORATION);
     var parentSubmission =
         SubmissionIntegrationTestUtils.createSubmission(resourceForQueriedSubmission, withdrawn, entityManager);
@@ -246,9 +329,18 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
     return SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, resourceName, organisationId, entityManager);
   }
 
-  private Resource buildResource() {
+  private Field createField(Resource resource, Integer responsibleOrganisationNumber) {
+    return SubmissionIntegrationTestUtils.createFieldWithParent(resource, "legal name", responsibleOrganisationNumber, entityManager);
+  }
+
+  private Resource buildPropsectResource() {
 
     return SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.PROSPECT);
+  }
+
+  private Resource buildFieldResource() {
+
+    return SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
   }
 
   private RegulatorManagedInformation buildResponsibleTeam(Resource resource, ResponsibleTeamType responsibleTeamType) {
@@ -260,5 +352,22 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
   private SubmissionDetail buildSubmissionDetail(Resource resource, SubmissionType submissionType) {
     var submission = SubmissionTestUtils.createSubmissionForIntegrationTest(resource, entityManager);
     return SubmissionIntegrationTestUtils.createSubmissionDetail(submission, submissionType, entityManager);
+  }
+
+  private FieldStatusHistory buildFieldStatusHistory(Field field) {
+    var fixedInstant = Instant.now();
+    SubmissionIntegrationTestUtils.createFieldStatusHistory(field, 
+        FieldStatus.STATUS_200,
+        fixedInstant,
+        entityManager);
+    SubmissionIntegrationTestUtils.createFieldStatusHistory(field,
+        FieldStatus.STATUS_300, 
+        fixedInstant.plus(1, ChronoUnit.DAYS), 
+        entityManager);
+    return SubmissionIntegrationTestUtils.createFieldStatusHistory(
+        field, 
+        FieldStatus.STATUS_400, 
+        fixedInstant.plus(2, ChronoUnit.DAYS), 
+        entityManager);
   }
 }

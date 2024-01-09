@@ -17,8 +17,13 @@
   <#if workAreaItems?has_content>
     <@fdsResultList.resultList resultCountSuffix="submission" resultCount=workAreaItems?size>
       <#list workAreaItems as workAreaItem>
+        <#assign modelProperties = workAreaItem.modelProperties().properties />
         <#if workAreaItem.type() == "SUBMISSION">
-          <@submissionWorkAreaItem.submissionWorkAreaItem workAreaItem=workAreaItem/>
+          <#if modelProperties["isFieldResource"]>
+            <@submissionWorkAreaItem.fieldSubmissionWorkAreaItem workAreaItem=workAreaItem/>
+          <#else>
+            <@submissionWorkAreaItem.submissionWorkAreaItem workAreaItem=workAreaItem/>
+          </#if>
         </#if>
       </#list>
     </@fdsResultList.resultList>

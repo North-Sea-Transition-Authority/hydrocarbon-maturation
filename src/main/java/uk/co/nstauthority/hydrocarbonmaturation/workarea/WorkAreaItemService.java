@@ -12,7 +12,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -25,6 +27,7 @@ class WorkAreaItemService {
   private final SubmissionWorkAreaServiceFactory submissionWorkAreaServiceFactory;
   private final SubmissionDetailDisplayService submissionDetailDisplayService;
   private final SubmissionDetailService submissionDetailService;
+  private final FieldDisplayService fieldDisplayService;
   private final OrganisationUnitQueryService organisationUnitQueryService;
   private final LicenceQueryService licenceQueryService;
 
@@ -33,10 +36,12 @@ class WorkAreaItemService {
   WorkAreaItemService(SubmissionWorkAreaServiceFactory submissionWorkAreaServiceFactory,
                       SubmissionDetailDisplayService submissionDetailDisplayService,
                       SubmissionDetailService submissionDetailService,
+                      FieldDisplayService fieldDisplayService,
                       OrganisationUnitQueryService organisationUnitQueryService, LicenceQueryService licenceQueryService) {
     this.submissionWorkAreaServiceFactory = submissionWorkAreaServiceFactory;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.submissionDetailService = submissionDetailService;
+    this.fieldDisplayService = fieldDisplayService;
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.licenceQueryService = licenceQueryService;
   }
@@ -116,6 +121,9 @@ class WorkAreaItemService {
                                                                      Map<Integer, LicenceView> licenceMap) {
     var organisationResponsibleId = submissionWorkAreaQueryResult.getOrganisationResponsibleId();
     var licencesTheResourceIsOn = submissionWorkAreaQueryResult.getLicencesTheResourceIsOn();
+    var fieldStatus = submissionWorkAreaQueryResult.getFieldStatus() != null
+        ? submissionWorkAreaQueryResult.getFieldStatus().getDisplayName()
+        : "";
 
     var organisationResponsibleDisplay =
         submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(organisationUnitMap, organisationResponsibleId);
@@ -125,6 +133,12 @@ class WorkAreaItemService {
         .addProperty("organisationResponsible", organisationResponsibleDisplay)
         .addProperty("licences", licencesForDisplay)
         .addProperty("submissionStatus", submissionWorkAreaQueryResult.getStatus().getDisplayName())
-        .addProperty("updateRequested", submissionWorkAreaQueryResult.isUpdateRequested());
+        .addProperty("updateRequested", submissionWorkAreaQueryResult.isUpdateRequested())
+        .addProperty("submissionType", submissionWorkAreaQueryResult.getSubmissionType())
+        .addProperty("isFieldResource",
+            submissionWorkAreaQueryResult.getSubmissionType().getResourceTypes().contains(ResourceType.FIELD))
+        .addProperty("parentFieldName",
+            fieldDisplayService.getParentFieldNameOrNoneFound(submissionWorkAreaQueryResult.getParentFieldId()))
+        .addProperty("fieldStatus", fieldStatus);
   }
 }

@@ -28,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -53,6 +54,8 @@ class WorkAreaItemServiceTest {
 
   @Mock
   private SubmissionDetailService submissionDetailService;
+  @Mock
+  private FieldDisplayService fieldDisplayService;
 
   @Mock
   private OrganisationUnitQueryService organisationUnitQueryService;
@@ -122,7 +125,7 @@ class WorkAreaItemServiceTest {
             WorkAreaItem::headingText,
             WorkAreaItem::captionText,
             WorkAreaItem::actionUrl)
-        .containsExactly(
+        .contains(
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
@@ -139,14 +142,14 @@ class WorkAreaItemServiceTest {
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"),
             entry("updateRequested", false));
 
     assertThat(result.get(1).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"),
@@ -178,7 +181,7 @@ class WorkAreaItemServiceTest {
             WorkAreaItem::headingText,
             WorkAreaItem::captionText,
             WorkAreaItem::actionUrl)
-        .containsExactly(
+        .contains(
             WorkAreaItemType.SUBMISSION,
             "resource name (25/5)",
             "Prospect create",
@@ -186,7 +189,7 @@ class WorkAreaItemServiceTest {
                 .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId())));
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
             entry("organisationResponsible", "organisation (1)"),
             entry("licences", List.of(licence1.getName(), licence2.getName())),
             entry("submissionStatus", "Draft"),
@@ -222,7 +225,7 @@ class WorkAreaItemServiceTest {
             WorkAreaItem::headingText,
             WorkAreaItem::captionText,
             WorkAreaItem::actionUrl)
-        .containsExactly(
+        .contains(
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 providedName,
@@ -232,7 +235,8 @@ class WorkAreaItemServiceTest {
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
+            entry("isFieldResource", false),
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"),
@@ -257,7 +261,7 @@ class WorkAreaItemServiceTest {
             WorkAreaItem::headingText,
             WorkAreaItem::captionText,
             WorkAreaItem::actionUrl)
-        .containsExactly(
+        .contains(
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
@@ -267,7 +271,7 @@ class WorkAreaItemServiceTest {
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"),
@@ -292,7 +296,7 @@ class WorkAreaItemServiceTest {
             WorkAreaItem::headingText,
             WorkAreaItem::captionText,
             WorkAreaItem::actionUrl)
-        .containsExactly(
+        .contains(
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
@@ -302,7 +306,8 @@ class WorkAreaItemServiceTest {
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
+            entry("isFieldResource", false),
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"),
@@ -326,7 +331,8 @@ class WorkAreaItemServiceTest {
     var result = workAreaItemService.getWorkAreaItems(USER);
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
+            entry("isFieldResource", false),
             entry("organisationResponsible", organisationName),
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"),
@@ -350,7 +356,8 @@ class WorkAreaItemServiceTest {
     var result = workAreaItemService.getWorkAreaItems(USER);
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
+            entry("isFieldResource", false),
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"),
@@ -358,7 +365,7 @@ class WorkAreaItemServiceTest {
   }
 
   @Test
-  void getWorkAreaItems_oneItemReturned_whenSubmitted_assertReviewActionUrlAndOtherValues() {
+  void getWorkAreaItems_oneProspectItemReturned_whenSubmitted_assertReviewActionUrlAndOtherValues() {
     var queryResultInSubmitted = SubmissionWorkAreaQueryResultTestUtil
         .builder()
         .withStatus(SubmissionDetailStatus.SUBMITTED.name())
@@ -381,7 +388,7 @@ class WorkAreaItemServiceTest {
             WorkAreaItem::headingText,
             WorkAreaItem::captionText,
             WorkAreaItem::actionUrl)
-        .containsExactly(
+        .contains(
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
@@ -391,7 +398,8 @@ class WorkAreaItemServiceTest {
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
+            entry("isFieldResource", false),
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
             entry("submissionStatus", "Submitted"),
@@ -428,6 +436,102 @@ class WorkAreaItemServiceTest {
     }
   }
 
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
+  void getWorkAreaItemsOneItemReturned_whenFieldSubmission_isSubmitted_assertFieldContextInformation(SubmissionType submissionType) {
+    var queryResultInSubmitted = SubmissionWorkAreaQueryResultTestUtil
+        .builder()
+        .withStatus(SubmissionDetailStatus.ACCEPTED.name())
+        .withSubmissionType(submissionType.getEnumName())
+        .build();
+    var submissionTypeName ="submission type";
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionType))
+        .thenReturn(submissionTypeName);
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
+        .thenReturn(responsibleTeamSubmissionWorkAreaQueryService);
+    when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
+        .thenReturn(List.of(queryResultInSubmitted));
+    var responsibleOrganisation = "Not provided";
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(eq(ORGANISATION_UNIT_MAP), anyInt()))
+        .thenReturn(responsibleOrganisation);
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(queryResultInSubmitted.getSubmissionDetailId()))
+        .thenReturn(submissionDetail);
+    var parentFieldName = "parent";
+    when(fieldDisplayService.getParentFieldNameOrNoneFound(queryResultInSubmitted.getParentFieldId()))
+        .thenReturn(parentFieldName);
+    var expectedHeading = queryResultInSubmitted.getResourceName() + " (" + queryResultInSubmitted.getCentreOfInterestQuadBlock() +")";
+    var result = workAreaItemService.getWorkAreaItems(USER);
+    assertThat(result)
+        .extracting(WorkAreaItem::type,
+            WorkAreaItem::headingText,
+            WorkAreaItem::captionText,
+            WorkAreaItem::actionUrl)
+        .contains(
+            tuple(
+                WorkAreaItemType.SUBMISSION,
+                expectedHeading,
+                submissionTypeName,
+                ReverseRouter.route(on(ReviewSubmissionController.class)
+                    .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
+        );
+
+    assertThat(result.get(0).modelProperties().getProperties())
+        .contains(
+            entry("isFieldResource", true),
+            entry("organisationResponsible", responsibleOrganisation),
+            entry("parentFieldName", parentFieldName),
+            entry("fieldStatus", queryResultInSubmitted.getFieldStatus().getDisplayName()));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
+  void getWorkAreaItemsOneItemReturned_whenFieldSubmission_isAccepted_assertFieldContextInformation(SubmissionType submissionType) {
+    var queryResultInSubmitted = SubmissionWorkAreaQueryResultTestUtil
+        .builder()
+        .withStatus(SubmissionDetailStatus.SUBMITTED.name())
+        .withSubmissionType(submissionType.getEnumName())
+        .build();
+    var submissionTypeName ="submission type";
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionType))
+        .thenReturn(submissionTypeName);
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
+        .thenReturn(responsibleTeamSubmissionWorkAreaQueryService);
+    when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
+        .thenReturn(List.of(queryResultInSubmitted));
+    var responsibleOrganisation = "Not provided";
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(eq(ORGANISATION_UNIT_MAP), anyInt()))
+        .thenReturn(responsibleOrganisation);
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(queryResultInSubmitted.getSubmissionDetailId()))
+        .thenReturn(submissionDetail);
+    var parentFieldName = "parent";
+    when(fieldDisplayService.getParentFieldNameOrNoneFound(queryResultInSubmitted.getParentFieldId()))
+        .thenReturn(parentFieldName);
+    var expectedHeading = queryResultInSubmitted.getResourceName() + " (" + queryResultInSubmitted.getCentreOfInterestQuadBlock() +")";
+    var result = workAreaItemService.getWorkAreaItems(USER);
+    assertThat(result)
+        .extracting(WorkAreaItem::type,
+            WorkAreaItem::headingText,
+            WorkAreaItem::captionText,
+            WorkAreaItem::actionUrl)
+        .contains(
+            tuple(
+                WorkAreaItemType.SUBMISSION,
+                expectedHeading,
+                submissionTypeName,
+                ReverseRouter.route(on(ReviewSubmissionController.class)
+                    .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
+        );
+
+    assertThat(result.get(0).modelProperties().getProperties())
+        .contains(
+            entry("isFieldResource", true),
+            entry("organisationResponsible", responsibleOrganisation),
+            entry("parentFieldName", parentFieldName),
+            entry("fieldStatus", queryResultInSubmitted.getFieldStatus().getDisplayName()));
+  }
+
   @Test
   void getWorkAreaItems_whenCorrection() {
     var workAreaItem = SubmissionWorkAreaQueryResultTestUtil.builder()
@@ -452,7 +556,7 @@ class WorkAreaItemServiceTest {
             WorkAreaItem::headingText,
             WorkAreaItem::captionText,
             WorkAreaItem::actionUrl)
-        .containsExactly(
+        .contains(
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
@@ -463,7 +567,7 @@ class WorkAreaItemServiceTest {
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"),

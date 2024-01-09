@@ -37,16 +37,23 @@
   breadcrumbsMap=breadcrumbsMap>
 
   <@fdsDataItems.dataItem>
-      <@fdsDataItems.dataValues key="Responsible team" value="${submissionRecord.responsibleTeam()}"/>
-      <@fdsDataItems.dataValues key="Responsible organisation" value="${submissionRecord.organisationResponsible()}"/>
-      <#assign licencesDisplay>
-          <#if submissionRecord.licences()?has_content>
-              <#list submissionRecord.licences() as licence>
-                  ${licence}<#if licence?has_next>,</#if>
-              </#list>
-          </#if>
-      </#assign>
-      <@fdsDataItems.dataValues key="Licenses" value="${licencesDisplay}"/>
+      <#if isFieldSubmission>
+          <@fdsDataItems.dataValues key="Field status" value="${submissionRecord.fieldStatus()}"/>
+          <@fdsDataItems.dataValues key="Responsible organisation" value="${submissionRecord.organisationResponsible()}"/>
+          <@fdsDataItems.dataValues key="Responsible team" value="${submissionRecord.responsibleTeam()}"/>
+          <@fdsDataItems.dataValues key="Parent field" value="${submissionRecord.parentFieldName()}"/>
+      <#else>
+          <@fdsDataItems.dataValues key="Responsible team" value="${submissionRecord.responsibleTeam()}"/>
+          <@fdsDataItems.dataValues key="Responsible organisation" value="${submissionRecord.organisationResponsible()}"/>
+          <#assign licencesDisplay>
+              <#if submissionRecord.licences()?has_content>
+                  <#list submissionRecord.licences() as licence>
+                      ${licence}<#if licence?has_next>,</#if>
+                  </#list>
+              </#if>
+          </#assign>
+          <@fdsDataItems.dataValues key="Licenses" value="${licencesDisplay}"/>
+      </#if>
   </@fdsDataItems.dataItem>
     <#if updateRequested>
       <#assign submissionUpdateDetails>

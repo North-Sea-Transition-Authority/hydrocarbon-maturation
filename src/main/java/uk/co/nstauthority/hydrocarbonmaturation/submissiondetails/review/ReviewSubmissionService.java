@@ -13,6 +13,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkServi
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -38,6 +39,7 @@ public class ReviewSubmissionService {
   private final SubmissionUpdateService submissionUpdateService;
   private final ResourceLinkService resourceLinkService;
   private final ResponsibleTeamService responsibleTeamService;
+  private final FieldDisplayService fieldDisplayService;
 
   @Autowired
   ReviewSubmissionService(SubmissionRecordSummaryQueryService submissionRecordSummaryQueryService,
@@ -48,7 +50,8 @@ public class ReviewSubmissionService {
                           ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                           SubmissionUpdateService submissionUpdateService,
                           ResourceLinkService resourceLinkService,
-                          ResponsibleTeamService responsibleTeamService) {
+                          ResponsibleTeamService responsibleTeamService,
+                          FieldDisplayService fieldDisplayService) {
     this.submissionRecordSummaryQueryService = submissionRecordSummaryQueryService;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.regulatorTeamService = regulatorTeamService;
@@ -58,20 +61,26 @@ public class ReviewSubmissionService {
     this.submissionUpdateService = submissionUpdateService;
     this.resourceLinkService = resourceLinkService;
     this.responsibleTeamService = responsibleTeamService;
+    this.fieldDisplayService = fieldDisplayService;
   }
 
   public SubmissionRecordSummaryView getSubmissionRecordOrThrow(UUID resourceId) {
     return submissionRecordSummaryQueryService.getSubmissionRecord(resourceId)
         .map(submissionRecordSummaryQueryResult -> new SubmissionRecordSummaryView(
-            submissionRecordSummaryQueryResult.getSubmissionDetailId(),
-            submissionRecordSummaryQueryResult.getSubmissionType(),
-            getResourceNameAndCentreOfInterest(submissionRecordSummaryQueryResult),
-            submissionRecordSummaryQueryResult.getOrganisationResponsibleId(),
-            getOrganisationResponsible(submissionRecordSummaryQueryResult),
-            submissionRecordSummaryQueryResult.getLicencesTheResourceIsOn(),
-            getLicences(submissionRecordSummaryQueryResult),
-            getResponsibleTeam(submissionRecordSummaryQueryResult),
-            submissionRecordSummaryQueryResult.getResponsibleTeam()
+                submissionRecordSummaryQueryResult.getSubmissionDetailId(),
+                submissionRecordSummaryQueryResult.getSubmissionType(),
+                getResourceNameAndCentreOfInterest(submissionRecordSummaryQueryResult),
+                submissionRecordSummaryQueryResult.getOrganisationResponsibleId(),
+                getOrganisationResponsible(submissionRecordSummaryQueryResult),
+                submissionRecordSummaryQueryResult.getLicencesTheResourceIsOn(),
+                getLicences(submissionRecordSummaryQueryResult),
+                getResponsibleTeam(submissionRecordSummaryQueryResult),
+                submissionRecordSummaryQueryResult.getResponsibleTeam(),
+                fieldDisplayService.getParentFieldNameOrNoneFound(
+                    submissionRecordSummaryQueryResult.getParentFieldId()),
+                submissionRecordSummaryQueryResult.getFieldStatus() != null
+                    ? submissionRecordSummaryQueryResult.getFieldStatus().getDisplayName()
+                    : null
             )
         )
         .orElseThrow(() -> new RemiEntityNotFoundException("Submission record not found for resource ID %s"

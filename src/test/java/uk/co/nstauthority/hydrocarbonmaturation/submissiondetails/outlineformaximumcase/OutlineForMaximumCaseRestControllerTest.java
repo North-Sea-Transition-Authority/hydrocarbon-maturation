@@ -35,7 +35,7 @@ class OutlineForMaximumCaseRestControllerTest extends AbstractSubmissionControll
 
   public static final ResourceRecordSummaryView resourceRecordSummaryView = new ResourceRecordSummaryView(UUID.randomUUID(),
       "resource_name_and_centre_of_interest", 1369, "organisation_responsible", List.of(1020), List.of("licences"),
-      ResponsibleTeamType.EXPLORATION);
+      ResponsibleTeamType.EXPLORATION, "parent name", "field status");
 
   @BeforeEach
   void setUp() {

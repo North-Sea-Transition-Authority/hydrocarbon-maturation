@@ -21,22 +21,29 @@
 <#assign pageTitle = "${resourceRecord.resourceNameAndCentreOfInterest()}" />
 
 <@defaultPage
-  htmlTitle=pageTitle
-  pageHeading=pageTitle
-  pageSize=PageSize.FULL_WIDTH
-  breadcrumbsMap=breadcrumbsMap>
+htmlTitle=pageTitle
+pageHeading=pageTitle
+pageSize=PageSize.FULL_WIDTH
+breadcrumbsMap=breadcrumbsMap>
 
   <@fdsDataItems.dataItem>
-    <@fdsDataItems.dataValues key="Responsible team" value="${resourceRecord.responsibleTeam().displayName}"/>
-    <@fdsDataItems.dataValues key="Responsible organisation" value="${resourceRecord.organisationResponsible()}"/>
-    <#assign licencesDisplay>
+    <#if isFieldSubmission>
+      <@fdsDataItems.dataValues key="Field status" value="${resourceRecord.fieldStatus()}"/>
+      <@fdsDataItems.dataValues key="Responsible organisation" value="${resourceRecord.organisationResponsible()}"/>
+      <@fdsDataItems.dataValues key="Responsible team" value="${resourceRecord.responsibleTeam().displayName}"/>
+      <@fdsDataItems.dataValues key="Parent field" value="${resourceRecord.parentFieldName()}"/>
+    <#else>
+      <@fdsDataItems.dataValues key="Responsible team" value="${resourceRecord.responsibleTeam().displayName}"/>
+      <@fdsDataItems.dataValues key="Responsible organisation" value="${resourceRecord.organisationResponsible()}"/>
+      <#assign licencesDisplay>
         <#if resourceRecord.licences()?has_content>
-            <#list resourceRecord.licences() as licence>
-                ${licence}<#if licence?has_next>,</#if>
-            </#list>
+          <#list resourceRecord.licences() as licence>
+            ${licence}<#if licence?has_next>,</#if>
+          </#list>
         </#if>
-    </#assign>
-    <@fdsDataItems.dataValues key="Licenses" value="${licencesDisplay}"/>
+      </#assign>
+      <@fdsDataItems.dataValues key="Licenses" value="${licencesDisplay}"/>
+    </#if>
   </@fdsDataItems.dataItem>
   <#if canManageRegulatorManagementInfo>
     <@fdsAction.buttonGroup>
