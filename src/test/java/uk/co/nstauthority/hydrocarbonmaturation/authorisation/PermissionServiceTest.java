@@ -12,8 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
@@ -22,7 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamR
 @ExtendWith(MockitoExtension.class)
 class PermissionServiceTest {
 
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private TeamMemberService teamMemberService;

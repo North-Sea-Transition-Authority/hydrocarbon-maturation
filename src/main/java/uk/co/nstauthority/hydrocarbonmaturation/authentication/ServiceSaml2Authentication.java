@@ -10,9 +10,9 @@ class ServiceSaml2Authentication extends AbstractAuthenticationToken {
 
   @Serial
   private static final long serialVersionUID = 4671397789349743401L;
-  private final ServiceUserDetail principal;
+  private final User principal;
 
-  ServiceSaml2Authentication(ServiceUserDetail principal, Collection<? extends GrantedAuthority> authorities) {
+  ServiceSaml2Authentication(User principal, Collection<? extends GrantedAuthority> authorities) {
     super(authorities);
     this.principal = principal;
     setAuthenticated(true);

@@ -3,7 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.discovery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -19,19 +19,19 @@ class StartDiscoveryService {
   private final SubmissionCreateService submissionCreateService;
   private final StartDiscoveryFormValidator startDiscoveryFormValidator;
   private final ResourceDetailsFormValidator resourceDetailsFormValidator;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final RegulatorTeamService regulatorTeamService;
 
   @Autowired
   StartDiscoveryService(SubmissionCreateService submissionCreateService,
                         StartDiscoveryFormValidator startDiscoveryFormValidator,
                         ResourceDetailsFormValidator resourceDetailsFormValidator,
-                        UserDetailService userDetailService,
+                        UserService userService,
                         RegulatorTeamService regulatorTeamService) {
     this.submissionCreateService = submissionCreateService;
     this.startDiscoveryFormValidator = startDiscoveryFormValidator;
     this.resourceDetailsFormValidator = resourceDetailsFormValidator;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.regulatorTeamService = regulatorTeamService;
   }
 
@@ -47,7 +47,7 @@ class StartDiscoveryService {
     resourceDetailsFormValidator.validate(form, bindingResult,
         new ResourceDetailsFormValidatorHints(
             ValidationType.FULL,
-            regulatorTeamService.isRegulatorUser(userDetailService.getUserDetail()),
+            regulatorTeamService.isRegulatorUser(userService.getUser()),
             ResourceType.DISCOVERY,
             null)
     );

@@ -4,14 +4,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserDetailService {
+public class UserService {
 
-  public ServiceUserDetail getUserDetail() {
+  public User getUser() {
     if (SecurityContextHolder.getContext().getAuthentication() instanceof ServiceSaml2Authentication authentication) {
-      if (authentication.getPrincipal() instanceof ServiceUserDetail serviceUserDetail) {
-        return serviceUserDetail;
+      if (authentication.getPrincipal() instanceof User user) {
+        return user;
       } else {
-        throw new InvalidAuthenticationException("ServiceUserDetails not found in ServiceSaml2Authentication principal");
+        throw new InvalidAuthenticationException("User not found in ServiceSaml2Authentication principal");
       }
     } else {
       throw new InvalidAuthenticationException("ServiceSaml2Authentication not found in authentication context");
@@ -19,7 +19,7 @@ public class UserDetailService {
   }
 
   public Integer getUserWuaId() {
-    var user = getUserDetail();
+    var user = getUser();
     return user.wuaId().intValue();
   }
 }

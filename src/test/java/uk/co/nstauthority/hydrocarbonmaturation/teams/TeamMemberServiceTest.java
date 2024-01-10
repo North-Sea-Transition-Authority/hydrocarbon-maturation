@@ -16,7 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore.NorthernOffshoreAreaTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.onshore.OnshoreAreaTeamRole;
@@ -74,7 +74,7 @@ class TeamMemberServiceTest {
 
   @Test
   void isMemberOfTeam_whenMember_thenTrue() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var teamId = new TeamId(UUID.randomUUID());
 
     when(teamMemberRoleRepository.existsByWuaIdAndTeam_Uuid(user.wuaId(), teamId.uuid())).thenReturn(true);
@@ -84,7 +84,7 @@ class TeamMemberServiceTest {
 
   @Test
   void isMemberOfTeam_whenNotMember_thenFalse() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var teamId = new TeamId(UUID.randomUUID());
 
     when(teamMemberRoleRepository.existsByWuaIdAndTeam_Uuid(user.wuaId(), teamId.uuid())).thenReturn(false);
@@ -94,7 +94,7 @@ class TeamMemberServiceTest {
 
   @Test
   void isMemberOfTeamWithAnyRoleOf_whenMemberWithRole_thenTrue() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var teamId = new TeamId(UUID.randomUUID());
     var roles = Set.of("ROLE_NAME");
 
@@ -106,7 +106,7 @@ class TeamMemberServiceTest {
 
   @Test
   void isMemberOfTeamWithAnyRoleOf_whenNotMemberWithRole_thenFalse() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var teamId = new TeamId(UUID.randomUUID());
     var roles = Set.of("ROLE_NAME");
 
@@ -303,7 +303,7 @@ class TeamMemberServiceTest {
   @Test
   void getUserAsTeamMembers_whenUserIsNotInTeam_thenNoResults() {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     when(teamMemberRoleRepository.findAllByWuaId(user.wuaId())).thenReturn(List.of());
 
     var result = teamMemberService.getUserAsTeamMembers(user);
@@ -314,7 +314,7 @@ class TeamMemberServiceTest {
   @Test
   void getUserAsTeamMembers_whenUserIsInTeam_thenCorrectlyMapped() {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var team = TeamTestUtil.Builder().build();
     var teamMemberRole = TeamMemberRoleTestUtil.Builder()
         .withTeam(team)

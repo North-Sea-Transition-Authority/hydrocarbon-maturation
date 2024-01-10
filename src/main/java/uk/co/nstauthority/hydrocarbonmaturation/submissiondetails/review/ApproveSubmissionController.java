@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsLatestExtantSubmissionDetailVersion;
@@ -46,19 +46,19 @@ public class ApproveSubmissionController {
   private final SubmissionResourceService submissionResourceService;
   private final SubmissionSummaryModelService submissionSummaryModelService;
   private final SubmissionApprovalService submissionApprovalService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
 
   @Autowired
   public ApproveSubmissionController(SubmissionDetailService submissionDetailService,
                                      SubmissionResourceService submissionResourceService,
                                      SubmissionSummaryModelService submissionSummaryModelService,
                                      SubmissionApprovalService submissionApprovalService,
-                                     UserDetailService userDetailService) {
+                                     UserService userService) {
     this.submissionDetailService = submissionDetailService;
     this.submissionResourceService = submissionResourceService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionApprovalService = submissionApprovalService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
   }
 
   @GetMapping
@@ -68,7 +68,7 @@ public class ApproveSubmissionController {
     if (!submissionApprovalService.canApproveSubmission(submissionDetail)) {
       throw new ResponseStatusException(
           HttpStatus.FORBIDDEN, "Submission cannot be accepted by user with ID %s "
-          .formatted(userDetailService.getUserWuaId()));
+          .formatted(userService.getUserWuaId()));
     }
 
     return getApproveConfirmationModelAndView(submissionDetail);

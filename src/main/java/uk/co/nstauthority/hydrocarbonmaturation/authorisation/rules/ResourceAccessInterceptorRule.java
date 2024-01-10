@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -30,9 +30,9 @@ public class ResourceAccessInterceptorRule implements SubmissionInterceptorSecur
   public SecurityRuleResult check(Object annotation,
                                   HttpServletRequest request,
                                   HttpServletResponse response,
-                                  ServiceUserDetail userDetails,
+                                  User users,
                                   SubmissionDetail submissionDetail) {
     return resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy()
-        .hasRequiredResourceAccessPermissions(userDetails, submissionDetail);
+        .hasRequiredResourceAccessPermissions(users, submissionDetail);
   }
 }

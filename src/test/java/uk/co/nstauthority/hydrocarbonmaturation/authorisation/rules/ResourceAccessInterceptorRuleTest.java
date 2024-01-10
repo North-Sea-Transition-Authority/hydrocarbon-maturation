@@ -12,7 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
@@ -46,7 +46,7 @@ class ResourceAccessInterceptorRuleTest {
   void check_whenRegulator_whenRegulatorRuleFail_assertRuleFailForbidden() {
     var mockRequest = mock(HttpServletRequest.class);
     var mockResponse = mock(HttpServletResponse.class);
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var regulatorManagedInformation = new RegulatorManagedInformation();
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
@@ -71,7 +71,7 @@ class ResourceAccessInterceptorRuleTest {
   void check_whenOperator_whenOperatorRuleFail_assertRuleFailForbidden() {
     var mockRequest = mock(HttpServletRequest.class);
     var mockResponse = mock(HttpServletResponse.class);
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var regulatorManagedInformation = new RegulatorManagedInformation();
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
@@ -96,7 +96,7 @@ class ResourceAccessInterceptorRuleTest {
   void check_whenRegulator_whenRegulatorRulePass_assertRulePass() {
     var mockRequest = mock(HttpServletRequest.class);
     var mockResponse = mock(HttpServletResponse.class);
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var responsibleTeam = new RegulatorManagedInformation();
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
@@ -120,7 +120,7 @@ class ResourceAccessInterceptorRuleTest {
   void check_whenOperator_whenOperatorRulePass_assertRulePass() {
     var mockRequest = mock(HttpServletRequest.class);
     var mockResponse = mock(HttpServletResponse.class);
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var regulatorManagedInformation = new RegulatorManagedInformation();
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);

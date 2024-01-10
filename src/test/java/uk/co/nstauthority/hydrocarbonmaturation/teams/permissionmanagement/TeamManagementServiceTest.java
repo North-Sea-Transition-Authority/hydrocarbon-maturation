@@ -10,7 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
@@ -28,7 +28,7 @@ class TeamManagementServiceTest {
 
   @Test
   void getTeamsThatUserHasAccessTo_IndustryAccessManagerInRegulatorTeam_ReturnAllTeam() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     when(regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER)).thenReturn(true);
     teamManagementService.getTeamsThatUserHasAccessTo(user);
     verify(teamService).getAllTeamOfTypes(Set.of(TeamType.INDUSTRY, TeamType.REGULATOR));
@@ -36,14 +36,14 @@ class TeamManagementServiceTest {
 
   @Test
   void getTeamsThatUserHasAccessTo_NotIndustryAccessManagerInRegulatorTeam_ReturnOnlyTeamsMemberOf() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     teamManagementService.getTeamsThatUserHasAccessTo(user);
     verify(teamService).getTeamsThatUserBelongsTo(user);
   }
 
   @Test
   void isIndustryAccessManagerInRegulatorTeam_InTeamAndIsIndustryAccessManager() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     when(regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER)).thenReturn(true);
     var industryAccessManagerInRegulatorTeam = teamManagementService.isIndustryAccessManagerInRegulatorTeam(user);
 
@@ -52,7 +52,7 @@ class TeamManagementServiceTest {
 
   @Test
   void isIndustryAccessManagerInRegulatorTeam_InTeamButNotIndustryAccessManager() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     when(regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER)).thenReturn(false);
     var industryAccessManagerInRegulatorTeam = teamManagementService.isIndustryAccessManagerInRegulatorTeam(user);
 
@@ -61,7 +61,7 @@ class TeamManagementServiceTest {
 
   @Test
   void isIndustryAccessManagerInRegulatorTeam_NotRegulator() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var industryAccessManagerInRegulatorTeam = teamManagementService.isIndustryAccessManagerInRegulatorTeam(user);
 
     assertThat(industryAccessManagerInRegulatorTeam).isFalse();

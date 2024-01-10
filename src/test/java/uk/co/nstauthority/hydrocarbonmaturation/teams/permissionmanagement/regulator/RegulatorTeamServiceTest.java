@@ -17,8 +17,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDtoTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
@@ -34,7 +34,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 @ExtendWith(MockitoExtension.class)
 class RegulatorTeamServiceTest {
 
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private TeamService teamService;

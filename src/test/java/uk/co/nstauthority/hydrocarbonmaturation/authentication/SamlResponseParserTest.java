@@ -45,13 +45,13 @@ class SamlResponseParserTest {
     var samlResponse = createResponse(attributes);
 
     var authentication = samlResponseParser.parseSamlResponse(samlResponse);
-    var userDetails = (ServiceUserDetail) authentication.getPrincipal();
+    var users = (User) authentication.getPrincipal();
 
-    assertThat(userDetails.wuaId()).isEqualTo(1L);
-    assertThat(userDetails.personId()).isEqualTo(2L);
-    assertThat(userDetails.forename()).isEqualTo("Forename");
-    assertThat(userDetails.surname()).isEqualTo("Surname");
-    assertThat(userDetails.emailAddress()).isEqualTo("email@address.com");
+    assertThat(users.wuaId()).isEqualTo(1L);
+    assertThat(users.personId()).isEqualTo(2L);
+    assertThat(users.forename()).isEqualTo("Forename");
+    assertThat(users.surname()).isEqualTo("Surname");
+    assertThat(users.emailAddress()).isEqualTo("email@address.com");
     assertThat(authentication.getAuthorities())
         .extracting(GrantedAuthority::getAuthority)
         .containsExactly(
@@ -163,10 +163,10 @@ class SamlResponseParserTest {
         .withProxyWuaId("2")
         .build();
     var samlResponse = createResponse(attributes);
-    assertThat((ServiceUserDetail) samlResponseParser.parseSamlResponse(samlResponse).getPrincipal())
+    assertThat((User) samlResponseParser.parseSamlResponse(samlResponse).getPrincipal())
         .extracting(
-            ServiceUserDetail::proxyUsername,
-            ServiceUserDetail::proxyWuaId)
+            User::proxyUsername,
+            User::proxyWuaId)
         .containsExactly(
             "user",
             2L
@@ -180,10 +180,10 @@ class SamlResponseParserTest {
         .withProxyWuaId(null)
         .build();
     var samlResponse = createResponse(attributes);
-    assertThat((ServiceUserDetail) samlResponseParser.parseSamlResponse(samlResponse).getPrincipal())
+    assertThat((User) samlResponseParser.parseSamlResponse(samlResponse).getPrincipal())
         .extracting(
-            ServiceUserDetail::proxyUsername,
-            ServiceUserDetail::proxyWuaId)
+            User::proxyUsername,
+            User::proxyWuaId)
         .containsExactly("", null);
   }
 

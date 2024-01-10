@@ -26,8 +26,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.multipart.MultipartFile;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
@@ -38,7 +38,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 @ContextConfiguration(classes = SubmissionSupportingDocumentsController.class)
 class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionControllerTest {
 
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
 
   @MockBean
   SupportingDocumentService supportingDocumentService;

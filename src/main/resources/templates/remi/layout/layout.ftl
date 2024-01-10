@@ -10,7 +10,7 @@
 <#-- @ftlvariable name="accessibilityStatementUrl" type="String" -->
 <#-- @ftlvariable name="singleErrorMessage" type="String" -->
 <#-- @ftlvariable name="contactInformationUrl" type="String" -->
-<#-- @ftlvariable name="loggedInUser" type="uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail" -->
+<#-- @ftlvariable name="loggedInUser" type="uk.co.nstauthority.hydrocarbonmaturation.authentication.User" -->
 <#-- @ftlvariable name="flash" type="uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner" -->
 
 <#assign SERVICE_NAME = serviceBranding.name() />

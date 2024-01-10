@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamView;
@@ -26,18 +26,18 @@ public class TeamManagementController {
   public static final String NEW_INDUSTRY_TEAM_FORM_URL =
       ReverseRouter.route(on(NewIndustryTeamController.class).renderNewIndustryTeamForm(null));
   private final TeamManagementService teamManagementService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
 
   @Autowired
   TeamManagementController(TeamManagementService teamManagementService,
-                           UserDetailService userDetailService) {
+                           UserService userService) {
     this.teamManagementService = teamManagementService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
   }
 
   @GetMapping
   public ModelAndView renderTeamListOrRedirect() {
-    var user = userDetailService.getUserDetail();
+    var user = userService.getUser();
 
     var teams = teamManagementService.getTeamsThatUserHasAccessTo(user);
     var teamMap = new TreeMap<>(teams.stream().collect(Collectors.groupingBy(TeamView::teamType)));

@@ -6,7 +6,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
@@ -20,23 +20,23 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamR
 public class AreaTeamManagementControllerHelperService {
 
   private final TeamMemberViewService teamMemberViewService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final PermissionService permissionService;
   private final TeamService teamService;
 
   @Autowired
   public AreaTeamManagementControllerHelperService(TeamMemberViewService teamMemberViewService,
-                                                   UserDetailService userDetailService,
+                                                   UserService userService,
                                                    PermissionService permissionService, TeamService teamService) {
     this.teamMemberViewService = teamMemberViewService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.permissionService = permissionService;
     this.teamService = teamService;
   }
 
   public ModelAndView renderMemberList(Team team, Set<RolePermission> managerRolePermissions, String addTeamMemberUrl,
                                        TeamRole[] teamRoles) {
-    var user = userDetailService.getUserDetail();
+    var user = userService.getUser();
 
     var modelAndView = new ModelAndView("remi/permissionmanagement/teamMembers")
         .addObject("pageTitle", "Manage %s".formatted(team.getDisplayName()))

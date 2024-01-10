@@ -17,7 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
@@ -46,7 +46,7 @@ class SouthernOffshoreAreaTeamManagementControllerTest extends AbstractControlle
 
   @SecurityTest
   void renderMemberList_whenNotMemberOfTeam_thenForbidden() throws Exception {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.SOUTHERN_OFFSHORE_AREA)
@@ -72,7 +72,7 @@ class SouthernOffshoreAreaTeamManagementControllerTest extends AbstractControlle
   void renderMemberList_whenMemberOfTeam_thenOk(
       SouthernOffshoreAreaTeamRole southernOffshoreAreaTeamRole) throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.SOUTHERN_OFFSHORE_AREA)
@@ -106,7 +106,7 @@ class SouthernOffshoreAreaTeamManagementControllerTest extends AbstractControlle
   @SecurityTest
   void renderMemberList_whenNoTeamFound_thenNotFound() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.SOUTHERN_OFFSHORE_AREA)

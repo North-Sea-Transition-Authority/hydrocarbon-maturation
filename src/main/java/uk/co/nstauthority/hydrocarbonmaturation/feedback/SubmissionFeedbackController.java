@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
@@ -32,17 +32,17 @@ public class SubmissionFeedbackController {
 
   private final RemiFeedbackService remiFeedbackService;
   private final ControllerHelperService controllerHelperService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final SubmissionDetailService submissionDetailService;
 
   @Autowired
   public SubmissionFeedbackController(RemiFeedbackService remiFeedbackService,
                                       ControllerHelperService controllerHelperService,
-                                      UserDetailService userDetailService,
+                                      UserService userService,
                                       SubmissionDetailService submissionDetailService) {
     this.remiFeedbackService = remiFeedbackService;
     this.controllerHelperService = controllerHelperService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.submissionDetailService = submissionDetailService;
   }
 
@@ -64,7 +64,7 @@ public class SubmissionFeedbackController {
         bindingResult,
         getFeedbackModelAndView(form, submissionDetail),
         () -> {
-          remiFeedbackService.saveFeedback(submissionDetail, form, userDetailService.getUserDetail());
+          remiFeedbackService.saveFeedback(submissionDetail, form, userService.getUser());
           NotificationBannerUtil.addSuccessNotification(
               redirectAttributes, "Success", "Your feedback has been submitted");
           return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea(null));

@@ -16,8 +16,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticationUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailIntegrationTestUtils;
@@ -43,7 +43,7 @@ class TaskListEnforceUniqueValuesTest {
   private List<TaskListSectionService> taskListSectionServices;
 
   @Autowired
-  private UserDetailService userDetailService;
+  private UserService userService;
 
   @Autowired
   private EntityManager entityManager;
@@ -190,7 +190,7 @@ class TaskListEnforceUniqueValuesTest {
 
   private void setUpTest(Set<TeamRole> userRoles) {
     // Setup user
-    var user = ServiceUserDetailTestUtil.Builder()
+    var user = UserTestUtil.Builder()
         .withWuaId(1000L)
         .build();
 

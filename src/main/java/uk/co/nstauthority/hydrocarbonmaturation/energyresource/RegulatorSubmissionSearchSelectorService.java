@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
 import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -13,14 +13,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetail
 class RegulatorSubmissionSearchSelectorService implements SubmissionSearchSelectorStrategy {
 
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final ResponsibleTeamService responsibleTeamService;
 
   RegulatorSubmissionSearchSelectorService(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
-                                           UserDetailService userDetailService,
+                                           UserService userService,
                                            ResponsibleTeamService responsibleTeamService) {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.responsibleTeamService = responsibleTeamService;
   }
 
@@ -37,7 +37,7 @@ class RegulatorSubmissionSearchSelectorService implements SubmissionSearchSelect
       return true;
     }
 
-    var userDetail = userDetailService.getUserDetail();
-    return responsibleTeamService.isInResponsibleTeam(userDetail, submissionDetail);
+    var user = userService.getUser();
+    return responsibleTeamService.isInResponsibleTeam(user, submissionDetail);
   }
 }

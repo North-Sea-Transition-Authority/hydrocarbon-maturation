@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
@@ -23,11 +23,11 @@ public class TeamManagementService {
     this.teamService = teamService;
   }
 
-  public boolean isIndustryAccessManagerInRegulatorTeam(ServiceUserDetail user) {
+  public boolean isIndustryAccessManagerInRegulatorTeam(User user) {
     return regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.INDUSTRY_ACCESS_MANAGER);
   }
 
-  List<TeamView> getTeamsThatUserHasAccessTo(ServiceUserDetail user) {
+  List<TeamView> getTeamsThatUserHasAccessTo(User user) {
     if (isIndustryAccessManagerInRegulatorTeam(user)) {
       return teamsToTeamViews(teamService.getAllTeamOfTypes(Set.of(TeamType.REGULATOR, TeamType.INDUSTRY)));
     }

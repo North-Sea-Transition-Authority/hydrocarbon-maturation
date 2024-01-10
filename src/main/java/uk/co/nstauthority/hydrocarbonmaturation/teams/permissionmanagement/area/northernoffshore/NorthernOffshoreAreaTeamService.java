@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
@@ -45,11 +45,11 @@ public class NorthernOffshoreAreaTeamService {
     teamMemberRoleService.addUserTeamRoles(team, userToAdd, rolesAsStrings);
   }
 
-  public boolean isNorthernOffshoreAreaUser(ServiceUserDetail user) {
+  public boolean isNorthernOffshoreAreaUser(User user) {
     return getNorthernOffshoreAreaTeamForUser(user).isPresent();
   }
 
-  public boolean isNorthernOffshoreTeamMember(ServiceUserDetail user) {
+  public boolean isNorthernOffshoreTeamMember(User user) {
     return getNorthernOffshoreAreaTeamForUser(user)
         .map(team -> teamMemberService.isMemberOfTeamWithAnyRoleOf(
             team.toTeamId(),
@@ -68,7 +68,7 @@ public class NorthernOffshoreAreaTeamService {
     return energyPortalUserService.findByWuaIds(northernOffshoreTeamMemberWuaIds);
   }
 
-  private Optional<Team> getNorthernOffshoreAreaTeamForUser(ServiceUserDetail user) {
+  private Optional<Team> getNorthernOffshoreAreaTeamForUser(User user) {
     return teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.NORTHERN_OFFSHORE_AREA)
         .stream()
         .findFirst();

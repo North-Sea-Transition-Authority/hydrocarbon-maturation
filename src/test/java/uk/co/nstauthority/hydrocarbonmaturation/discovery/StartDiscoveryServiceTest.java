@@ -15,12 +15,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsFormValidatorHints;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,7 +39,7 @@ class StartDiscoveryServiceTest {
   private RegulatorTeamService regulatorTeamService;
 
   @Mock
-  private UserDetailService userDetailService;
+  private UserService userService;
 
   @InjectMocks
   private StartDiscoveryService startDiscoveryService;

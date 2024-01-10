@@ -12,7 +12,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.server.ResponseStatusException;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.AbstractHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
@@ -26,15 +26,15 @@ public class AccessibleByRegulatorUsersInterceptor extends AbstractHandlerInterc
       AccessibleByRegulatorUsers.class
   );
 
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final RegulatorTeamService regulatorTeamService;
   private final AreaTeamService areaTeamService;
 
   @Autowired
-  public AccessibleByRegulatorUsersInterceptor(UserDetailService userDetailService,
+  public AccessibleByRegulatorUsersInterceptor(UserService userService,
                                                RegulatorTeamService regulatorTeamService,
                                                AreaTeamService areaTeamService) {
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.regulatorTeamService = regulatorTeamService;
     this.areaTeamService = areaTeamService;
   }
@@ -48,7 +48,7 @@ public class AccessibleByRegulatorUsersInterceptor extends AbstractHandlerInterc
         && hasAnnotations(handlerMethod, SUPPORTED_SECURITY_ANNOTATIONS)
     ) {
 
-      var user = userDetailService.getUserDetail();
+      var user = userService.getUser();
 
       if (!(regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user))) {
 

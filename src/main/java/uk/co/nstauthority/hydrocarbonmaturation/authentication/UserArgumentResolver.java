@@ -9,18 +9,18 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 @Component
-public class ServiceUserDetailArgumentResolver implements HandlerMethodArgumentResolver {
+public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 
-  private final UserDetailService userDetailService;
+  private final UserService userService;
 
   @Autowired
-  public ServiceUserDetailArgumentResolver(UserDetailService userDetailService) {
-    this.userDetailService = userDetailService;
+  public UserArgumentResolver(UserService userService) {
+    this.userService = userService;
   }
 
   @Override
   public boolean supportsParameter(MethodParameter parameter) {
-    return parameter.getParameterType().equals(ServiceUserDetail.class);
+    return parameter.getParameterType().equals(User.class);
   }
 
   @Override
@@ -28,6 +28,6 @@ public class ServiceUserDetailArgumentResolver implements HandlerMethodArgumentR
                                 ModelAndViewContainer mavContainer,
                                 NativeWebRequest webRequest,
                                 WebDataBinderFactory binderFactory) {
-    return userDetailService.getUserDetail();
+    return userService.getUser();
   }
 }

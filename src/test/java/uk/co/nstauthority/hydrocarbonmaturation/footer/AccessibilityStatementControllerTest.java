@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.RealSecurityAbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.configuration.AccessibilityStatementConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.configuration.AccessibilityStatementConfigurationProperties;
@@ -28,7 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSuppor
     TechnicalSupportConfigurationProperties.class,
     AccessibilityStatementConfigurationProperties.class})
 class AccessibilityStatementControllerTest extends RealSecurityAbstractControllerTest {
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Autowired
   private TechnicalSupportConfiguration technicalSupportConfiguration;

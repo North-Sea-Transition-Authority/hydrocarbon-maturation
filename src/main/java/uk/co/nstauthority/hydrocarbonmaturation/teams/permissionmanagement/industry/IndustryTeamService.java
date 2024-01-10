@@ -11,7 +11,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
@@ -41,15 +41,15 @@ public class IndustryTeamService {
     this.organisationGroupQueryService = organisationGroupQueryService;
   }
 
-  public boolean isAccessManager(TeamId teamId, ServiceUserDetail user) {
+  public boolean isAccessManager(TeamId teamId, User user) {
     return teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.ACCESS_MANAGER.name()));
   }
 
-  public boolean isSubmitter(TeamId teamId, ServiceUserDetail user) {
+  public boolean isSubmitter(TeamId teamId, User user) {
     return teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, user, Set.of(IndustryTeamRole.SUBMITTER.name()));
   }
 
-  public boolean isSubmitter(ServiceUserDetail user) {
+  public boolean isSubmitter(User user) {
     return getIndustryTeamForUser(user)
         .map(team -> teamMemberService.isMemberOfTeamWithAnyRoleOf(
             team.toTeamId(),
@@ -68,12 +68,12 @@ public class IndustryTeamService {
     teamMemberRoleService.addUserTeamRoles(team, userToAdd, rolesAsStrings);
   }
 
-  public boolean isSubmitterForOrganisationGroups(ServiceUserDetail user, List<Integer> organisationGroupIds) {
+  public boolean isSubmitterForOrganisationGroups(User user, List<Integer> organisationGroupIds) {
 
     return isTeamMemberForOrganisationGroups(organisationGroupIds, team -> isSubmitter(team.toTeamId(), user));
   }
 
-  boolean isTeamMemberForOrganisationGroups(ServiceUserDetail user, List<Integer> organisationGroupIds) {
+  boolean isTeamMemberForOrganisationGroups(User user, List<Integer> organisationGroupIds) {
 
     return isTeamMemberForOrganisationGroups(
         organisationGroupIds,
@@ -102,12 +102,12 @@ public class IndustryTeamService {
     return teamService.getTeamByOrganisationGroupId(organisationGroupId);
   }
 
-  public List<Integer> getOrganisationGroupIdsForUser(ServiceUserDetail user) {
+  public List<Integer> getOrganisationGroupIdsForUser(User user) {
     return teamService.getOrganisationGroupsUserIsTeamMemberOf(user);
   }
 
-  public List<Integer> getOrganisationUnitIdsForUser(ServiceUserDetail userDetail) {
-    return organisationGroupQueryService.getOrganisationGroupsByIds(getOrganisationGroupIdsForUser(userDetail))
+  public List<Integer> getOrganisationUnitIdsForUser(User user) {
+    return organisationGroupQueryService.getOrganisationGroupsByIds(getOrganisationGroupIdsForUser(user))
         .stream()
         .flatMap(organisationGroup -> {
           if (organisationGroup.getOrganisationUnits() == null) {
@@ -121,7 +121,7 @@ public class IndustryTeamService {
         .toList();
   }
 
-  public List<Integer> getOrganisationUnitIdsForUserWithIndustryTeamRoles(ServiceUserDetail user,
+  public List<Integer> getOrganisationUnitIdsForUserWithIndustryTeamRoles(User user,
                                                                           Set<IndustryTeamRole> industryTeamRoles) {
     var organisationGroupIdsForUser = getOrganisationGroupIdsWhereUserHasTeamRole(
         user, industryTeamRoles);
@@ -157,7 +157,7 @@ public class IndustryTeamService {
         .toList();
   }
 
-  private List<Integer> getOrganisationGroupIdsWhereUserHasTeamRole(ServiceUserDetail user,
+  private List<Integer> getOrganisationGroupIdsWhereUserHasTeamRole(User user,
                                                                     Set<IndustryTeamRole> roles) {
     var rolesAsStrings = getRolesAsStrings(roles);
     return getOrganisationGroupIdsForUser(user)
@@ -178,7 +178,7 @@ public class IndustryTeamService {
         .collect(Collectors.toSet());
   }
 
-  private Optional<Team> getIndustryTeamForUser(ServiceUserDetail user) {
+  private Optional<Team> getIndustryTeamForUser(User user) {
     return teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.INDUSTRY)
         .stream()
         .findFirst();

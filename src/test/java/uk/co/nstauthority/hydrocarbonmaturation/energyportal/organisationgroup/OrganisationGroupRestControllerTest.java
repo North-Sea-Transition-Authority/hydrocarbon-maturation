@@ -10,7 +10,7 @@ import java.util.List;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -26,7 +26,7 @@ class OrganisationGroupRestControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void getOrganisationGroupSearchResults_thenOk() throws Exception {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var groupList = List.of(
         OrganisationGroupTestUtil.createOrganisationGroupDto(1, "Royal Dutch Shell"),
         OrganisationGroupTestUtil.createOrganisationGroupDto(2, "Shell")

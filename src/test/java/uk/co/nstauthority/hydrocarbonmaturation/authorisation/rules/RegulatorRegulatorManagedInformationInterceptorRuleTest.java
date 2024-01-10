@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsRegulatorInResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
@@ -44,7 +44,7 @@ class RegulatorRegulatorManagedInformationInterceptorRuleTest {
   void check_whenIsRegulatorInResponsibleTeam_assertRulePass() {
     var mockRequest = mock(HttpServletRequest.class);
     var mockResponse = mock(HttpServletResponse.class);
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
@@ -68,7 +68,7 @@ class RegulatorRegulatorManagedInformationInterceptorRuleTest {
   void check_whenIsNotInResponsibleTeam_assertRuleFailForbidden() {
     var mockRequest = mock(HttpServletRequest.class);
     var mockResponse = mock(HttpServletResponse.class);
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
@@ -93,7 +93,7 @@ class RegulatorRegulatorManagedInformationInterceptorRuleTest {
   void check_whenTeamTypeDoesNotMatchPermissionAndNotInResponsibleTeam_assertRuleFailForbidden() {
     var mockRequest = mock(HttpServletRequest.class);
     var mockResponse = mock(HttpServletResponse.class);
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);

@@ -28,9 +28,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
@@ -65,7 +65,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
 class SubmissionCreateServiceTest {
 
   private static final ResourceDetailsForm RESOURCE_DETAILS_FORM = new ResourceDetailsForm();
-  private final static ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private final static User USER = UserTestUtil.Builder().build();
 
   @Mock
   private ResourceService resourceService;
@@ -92,7 +92,7 @@ class SubmissionCreateServiceTest {
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @Mock
-  private UserDetailService userDetailService;
+  private UserService userService;
 
   @Mock
   private OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
@@ -410,7 +410,7 @@ class SubmissionCreateServiceTest {
   @ParameterizedTest
   @MethodSource("calculateGetResourceTypeOptionsForUserConditionArguments")
   void getResourceTypeOptionsForUser(boolean isSubmitter, boolean isExploration, boolean isAreaTeamMember) {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(industryTeamService.isSubmitter(USER)).thenReturn(isSubmitter);
     when(regulatorTeamService.isExploration(USER)).thenReturn(isExploration);
     when(areaTeamService.isAreaTeamMember(USER)).thenReturn(isAreaTeamMember);

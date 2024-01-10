@@ -22,8 +22,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -32,7 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @ContextConfiguration(classes = FeedbackController.class)
 class FeedbackControllerTest extends AbstractControllerTest {
 
-  private final static ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private final static User USER = UserTestUtil.Builder().build();
 
   @MockBean
   private RemiFeedbackService remiFeedbackService;

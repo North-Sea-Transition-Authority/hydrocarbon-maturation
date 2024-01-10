@@ -22,7 +22,7 @@ import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticationUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
@@ -417,7 +417,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   }
 
   private void setUpIndustryTest(Set<TeamRole> userRoles, List<Integer> userOrgUnitIds) {
-    var user = ServiceUserDetailTestUtil.Builder()
+    var user = UserTestUtil.Builder()
         .withWuaId(1000L)
         .build();
 

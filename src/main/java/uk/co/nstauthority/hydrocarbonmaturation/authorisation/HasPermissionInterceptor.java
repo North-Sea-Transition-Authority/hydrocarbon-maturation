@@ -14,7 +14,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.server.ResponseStatusException;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.AbstractHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
@@ -27,13 +27,13 @@ public class HasPermissionInterceptor extends AbstractHandlerInterceptor {
       HasPermission.class
   );
 
-  private final UserDetailService userDetailService;
+  private final UserService userService;
 
   private final PermissionService permissionService;
 
   @Autowired
-  public HasPermissionInterceptor(UserDetailService userDetailService, PermissionService permissionService) {
-    this.userDetailService = userDetailService;
+  public HasPermissionInterceptor(UserService userService, PermissionService permissionService) {
+    this.userService = userService;
     this.permissionService = permissionService;
   }
 
@@ -50,7 +50,7 @@ public class HasPermissionInterceptor extends AbstractHandlerInterceptor {
           ((HasPermission) getAnnotation(handlerMethod, HasPermission.class)).permissions()
       );
 
-      var user = userDetailService.getUserDetail();
+      var user = userService.getUser();
 
       if (!permissionService.hasPermission(user, requiredPermissions)) {
 

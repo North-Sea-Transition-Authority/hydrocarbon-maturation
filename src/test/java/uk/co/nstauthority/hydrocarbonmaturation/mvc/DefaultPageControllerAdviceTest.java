@@ -19,8 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.IncludeServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
@@ -48,14 +48,14 @@ class DefaultPageControllerAdviceTest {
   protected MockMvc mockMvc;
 
   @MockBean
-  protected UserDetailService userDetailService;
+  protected UserService userService;
 
   @Test
   void addDefaultModelAttributes_verifyDefaultAttributes() throws Exception {
 
-    doCallRealMethod().when(userDetailService).getUserDetail();
+    doCallRealMethod().when(userService).getUser();
 
-    var loggedInUser = ServiceUserDetailTestUtil.Builder().build();
+    var loggedInUser = UserTestUtil.Builder().build();
 
     var modelAndView = mockMvc.perform(
         get(ReverseRouter.route(on(TestController.class).testEndpoint()))

@@ -21,8 +21,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDtoTestUtil;
@@ -40,7 +40,7 @@ class IndustryTeamServiceTest {
 
   private final static Integer ORGANISATION_GROUP_ID = 1;
   private final static Integer ORGANISATION_UNIT_ID = 5;
-  private final static ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private final static User USER = UserTestUtil.Builder().build();
 
   @Mock
   private TeamService teamService;

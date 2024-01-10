@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberTestUtil;
@@ -27,7 +27,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
 @ContextConfiguration(classes = HasTeamPermissionInterceptorTest.TestController.class)
 class HasTeamPermissionInterceptorTest extends AbstractControllerTest {
 
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
 
   @SecurityTest
   void noSecurity() throws Exception {

@@ -19,8 +19,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
@@ -51,7 +51,7 @@ class RegulatorRemoveMemberControllerTest extends AbstractControllerTest {
   private Team regulatorTeam;
   private WebUserAccountId wuaId;
 
-  private ServiceUserDetail loggedInUser;
+  private User loggedInUser;
 
   @BeforeEach
   void setUp() {
@@ -62,7 +62,7 @@ class RegulatorRemoveMemberControllerTest extends AbstractControllerTest {
 
     wuaId = new WebUserAccountId(Math.abs(new Random().nextLong()));
 
-    loggedInUser = ServiceUserDetailTestUtil.Builder()
+    loggedInUser = UserTestUtil.Builder()
         .withWuaId(wuaId.id())
         .build();
   }

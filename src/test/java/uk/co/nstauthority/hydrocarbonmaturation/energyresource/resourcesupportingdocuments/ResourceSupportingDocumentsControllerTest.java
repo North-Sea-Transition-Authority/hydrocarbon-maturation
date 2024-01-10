@@ -28,8 +28,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.multipart.MultipartFile;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
@@ -42,7 +42,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 @ContextConfiguration(classes = ResourceSupportingDocumentsController.class)
 class ResourceSupportingDocumentsControllerTest extends AbstractSubmissionControllerTest {
 
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
 
   @MockBean
   ResourceSupportingDocumentService resourceSupportingDocumentService;

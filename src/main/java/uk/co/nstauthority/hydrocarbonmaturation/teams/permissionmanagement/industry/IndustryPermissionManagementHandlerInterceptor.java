@@ -14,8 +14,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.server.ResponseStatusException;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IndustryRolesAllowed;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.AbstractHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
@@ -33,13 +33,13 @@ public class IndustryPermissionManagementHandlerInterceptor extends AbstractHand
 
   private final TeamMemberService teamMemberService;
 
-  private final UserDetailService userDetailService;
+  private final UserService userService;
 
   @Autowired
   public IndustryPermissionManagementHandlerInterceptor(TeamMemberService teamMemberService,
-                                                         UserDetailService userDetailService) {
+                                                         UserService userService) {
     this.teamMemberService = teamMemberService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
   }
 
   @Override
@@ -53,7 +53,7 @@ public class IndustryPermissionManagementHandlerInterceptor extends AbstractHand
 
       var teamId = PermissionManagementHandlerInterceptor.extractTeamIdFromRequest(request, handlerMethod);
 
-      var user = userDetailService.getUserDetail();
+      var user = userService.getUser();
 
       if (hasAnnotation(handlerMethod, IndustryRolesAllowed.class)) {
         checkIsMemberOfTeamWithIndustryRole(teamId, user, getIndustryTeamRoles(handlerMethod));
@@ -67,7 +67,7 @@ public class IndustryPermissionManagementHandlerInterceptor extends AbstractHand
     return getAnnotationTyped(handlerMethod, IndustryRolesAllowed.class).roles();
   }
 
-  private void checkIsMemberOfTeamWithIndustryRole(TeamId teamId, ServiceUserDetail user, IndustryTeamRole[] roles) {
+  private void checkIsMemberOfTeamWithIndustryRole(TeamId teamId, User user, IndustryTeamRole[] roles) {
     var roleNames = Arrays.stream((roles))
         .map(IndustryTeamRole::name)
         .collect(Collectors.toSet());

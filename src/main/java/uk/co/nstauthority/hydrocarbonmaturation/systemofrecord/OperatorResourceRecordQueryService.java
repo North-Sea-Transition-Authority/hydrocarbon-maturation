@@ -12,7 +12,7 @@ import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamRole;
@@ -22,18 +22,18 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 @Service
 class OperatorResourceRecordQueryService implements ResourceRecordQueryServiceStrategy {
 
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final IndustryTeamService industryTeamService;
   private final LicenceQueryService licenceQueryService;
   private final DSLContext context;
   private final ResourceQueryCommonService resourceQueryCommonService;
 
-  OperatorResourceRecordQueryService(UserDetailService userDetailService,
+  OperatorResourceRecordQueryService(UserService userService,
                                      IndustryTeamService industryTeamService,
                                      LicenceQueryService licenceQueryService,
                                      DSLContext context,
                                      ResourceQueryCommonService resourceQueryCommonService) {
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.industryTeamService = industryTeamService;
     this.licenceQueryService = licenceQueryService;
     this.context = context;
@@ -42,7 +42,7 @@ class OperatorResourceRecordQueryService implements ResourceRecordQueryServiceSt
 
   @Override
   public List<ResourceRecordQueryResult> getResourceRecordSearchResults(SearchResourceRecordsForm form) {
-    var user = userDetailService.getUserDetail();
+    var user = userService.getUser();
     var userOrgUnitIds = industryTeamService.getOrganisationUnitIdsForUserWithIndustryTeamRoles(
           user, Set.of(IndustryTeamRole.SUBMITTER, IndustryTeamRole.VIEWER));
     return resourceQueryCommonService.getResourceRecordQueryResults(

@@ -20,8 +20,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
@@ -150,7 +150,7 @@ class ReviewSubmissionServiceTest {
     private static final Integer ORGANISATION_UNIT_ID = 1;
     private final SubmissionRecordSummaryView SUBMISSION_RECORD = SubmissionIntegrationTestUtils
         .emptySubmissionRecordSummaryView(UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.CREATE_PROSPECT);
-    private final ServiceUserDetail USER_DETAIL = ServiceUserDetailTestUtil.Builder().build();
+    private final User USER_DETAIL = UserTestUtil.Builder().build();
 
     @BeforeEach
     void setUp() {
@@ -272,7 +272,7 @@ class ReviewSubmissionServiceTest {
 
     private final SubmissionRecordSummaryView explorationResponsibleTeamSubmissionRecord =
         createSubmissionRecordWithResponsibleTeam(ResponsibleTeamType.EXPLORATION);
-    private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+    private static final User USER = UserTestUtil.Builder().build();
 
     @Test
     void whenIsInResponsibleTeam() {
@@ -418,7 +418,7 @@ class ReviewSubmissionServiceTest {
     private static final Integer ORGANISATION_UNIT_ID = 1;
     private static final Integer LATEST_ACCEPTED_ORG_UNIT_ID = 5;
 
-    private final ServiceUserDetail USER_DETAIL = ServiceUserDetailTestUtil.Builder().build();
+    private final User USER_DETAIL = UserTestUtil.Builder().build();
 
     private SubmissionDetail latestApprovedSubmissionDetail;
 

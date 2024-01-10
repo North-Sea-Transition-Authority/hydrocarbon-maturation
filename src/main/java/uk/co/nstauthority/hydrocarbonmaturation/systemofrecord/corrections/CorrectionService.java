@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -59,7 +59,7 @@ public class CorrectionService {
    * @param resource the resource we want to start a correction on
    * @return true if a correction can be started
    */
-  public boolean canStartCorrection(Resource resource, ServiceUserDetail user) {
+  public boolean canStartCorrection(Resource resource, User user) {
     var regulatorManagedInformation = regulatorManagedInformationPersistenceService
         .getRegulatorManagedInformationByResource(resource);
 
@@ -79,7 +79,7 @@ public class CorrectionService {
     return !submissionDetailService.openCorrectionExists(Set.of(SubmissionDetailStatus.DRAFT), resource);
   }
 
-  ModelAndView startCorrectionForTypeAndRedirect(CorrectionForm form, ServiceUserDetail user) {
+  ModelAndView startCorrectionForTypeAndRedirect(CorrectionForm form, User user) {
     return switch (form.getCorrectionType()) {
       case HISTORIC_UPDATE -> createMissingUpdateAndRedirect(
           UUID.fromString(form.getSubmissionIdForMissingUpdate()),
@@ -111,7 +111,7 @@ public class CorrectionService {
   }
 
   @Transactional
-  public ModelAndView createSubmissionCorrectionAndRedirect(UUID submissionDetailId, ServiceUserDetail user) {
+  public ModelAndView createSubmissionCorrectionAndRedirect(UUID submissionDetailId, User user) {
     var previousSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var correctionSubmissionDetail = submissionCreateService.createCorrectionSubmissionDetail(
         previousSubmissionDetail, user
@@ -130,7 +130,7 @@ public class CorrectionService {
                                                     String day,
                                                     String month,
                                                     String year,
-                                                    ServiceUserDetail user) {
+                                                    User user) {
     var previousSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var correctionSubmissionDetail = submissionCreateService.createCorrectionSubmissionDetail(
         previousSubmissionDetail,
@@ -151,7 +151,7 @@ public class CorrectionService {
                                                      String day,
                                                      String month,
                                                      String year,
-                                                     ServiceUserDetail user) {
+                                                     User user) {
     var previousSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var resource = previousSubmissionDetail.getSubmission().getResource();
     var submission = submissionPersistenceService.createSubmission(resource);
@@ -184,18 +184,18 @@ public class CorrectionService {
                                       String day,
                                       String month,
                                       String year,
-                                      ServiceUserDetail serviceUserDetail) {
+                                      User user) {
     var approvedDate = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(day))
         .atStartOfDay(ZoneId.systemDefault()).toInstant();
     submissionDetail.setSubmittedTimestamp(approvedDate);
-    submissionDetail.setSubmittedByWuaId(serviceUserDetail.wuaId().intValue());
+    submissionDetail.setSubmittedByWuaId(user.wuaId().intValue());
     submissionDetail.setAcceptedTimestamp(approvedDate);
-    submissionDetail.setAcceptedByWuaId(serviceUserDetail.wuaId().intValue());
+    submissionDetail.setAcceptedByWuaId(user.wuaId().intValue());
   }
 
-  private void setCorrectionDetails(SubmissionDetail submissionDetail, ServiceUserDetail serviceUserDetail) {
+  private void setCorrectionDetails(SubmissionDetail submissionDetail, User user) {
     submissionDetail.setCorrection(true);
-    submissionDetail.setCorrectionByWuaId(serviceUserDetail.wuaId().intValue());
+    submissionDetail.setCorrectionByWuaId(user.wuaId().intValue());
     submissionDetail.setCorrectionTimestamp(Instant.now());
     submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
   }

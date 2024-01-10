@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsLatestExtantSubmissionDetailVersion;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -36,13 +36,13 @@ public class SubmissionDetailVersionInterceptorRule implements SubmissionInterce
 
   @Override
   public SecurityRuleResult check(Object annotation, HttpServletRequest request, HttpServletResponse response,
-                                  ServiceUserDetail userDetails, SubmissionDetail submissionDetail) {
+                                  User users, SubmissionDetail submissionDetail) {
     if (submissionDetail.getVersionNumber() == 1 && submissionDetail.getStatus() == SubmissionDetailStatus.DRAFT) {
       // can always access the initial draft version (as long as other rules pass)
       return SecurityRuleResult.continueAsNormal();
     } else if (BooleanUtils.isTrue(submissionDetail.getSubmission().isWithdrawn())) {
       LOGGER.warn("User {} attempted to access submission detail {} which is for a withdrawn submission {}",
-          userDetails.wuaId(), submissionDetail.getId(), submissionDetail.getSubmission().getId());
+          users.wuaId(), submissionDetail.getId(), submissionDetail.getSubmission().getId());
       return SecurityRuleResult.checkFailedWithStatus(HttpStatus.FORBIDDEN);
     }
 
@@ -50,7 +50,7 @@ public class SubmissionDetailVersionInterceptorRule implements SubmissionInterce
       return SecurityRuleResult.continueAsNormal();
     } else {
       LOGGER.warn("User {} attempted to access submission detail {} which is not the latest extant version of the submission {}",
-          userDetails.wuaId(), submissionDetail.getId(), submissionDetail.getSubmission().getId());
+          users.wuaId(), submissionDetail.getId(), submissionDetail.getSubmission().getId());
       return SecurityRuleResult.checkFailedWithStatus(HttpStatus.FORBIDDEN);
     }
   }

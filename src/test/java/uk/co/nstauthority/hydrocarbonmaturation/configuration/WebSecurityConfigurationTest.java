@@ -19,7 +19,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.EnergyPortalConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -43,7 +43,7 @@ class WebSecurityConfigurationTest {
 
     var idpAccessGrantedAuthority = new SimpleGrantedAuthority(energyPortalAccessApiConfiguration.privilegeName());
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     mockMvc.perform(get(ReverseRouter.route(on(WebSecurityConfigurationTestController.class).testEndpoint()))
             .with(user(user, Set.of(idpAccessGrantedAuthority)))
@@ -56,7 +56,7 @@ class WebSecurityConfigurationTest {
 
     Set<GrantedAuthority> emptyGrantedAuthorityCollection = Set.of();
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     mockMvc.perform(get(ReverseRouter.route(on(WebSecurityConfigurationTestController.class).testEndpoint()))
             .with(user(user, emptyGrantedAuthorityCollection))
@@ -69,7 +69,7 @@ class WebSecurityConfigurationTest {
 
     var idpAccessGrantedAuthority = new SimpleGrantedAuthority(energyPortalAccessApiConfiguration.privilegeName());
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     mockMvc.perform(post("/logout")
             .with(user(user, Set.of(idpAccessGrantedAuthority)))

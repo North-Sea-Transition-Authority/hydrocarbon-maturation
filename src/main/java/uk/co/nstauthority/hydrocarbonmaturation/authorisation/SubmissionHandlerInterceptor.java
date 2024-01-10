@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.HandlerMapping;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionInterceptorSecurityRule;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.AbstractHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -27,15 +27,15 @@ public class SubmissionHandlerInterceptor extends AbstractHandlerInterceptor {
   private static final Logger LOGGER = LoggerFactory.getLogger(SubmissionHandlerInterceptor.class);
 
   private final SubmissionDetailService submissionDetailService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final List<SubmissionInterceptorSecurityRule> securityRules;
 
   @Autowired
   public SubmissionHandlerInterceptor(SubmissionDetailService submissionDetailService,
-                                      UserDetailService userDetailService,
+                                      UserService userService,
                                       List<SubmissionInterceptorSecurityRule> securityRules) {
     this.submissionDetailService = submissionDetailService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.securityRules = securityRules
         .stream()
         .sorted(Comparator.comparingInt(r -> EndpointInterceptorOrder.orderForSubmission(r.getClass())))
@@ -62,7 +62,7 @@ public class SubmissionHandlerInterceptor extends AbstractHandlerInterceptor {
       return true;
     }
 
-    var userDetails = userDetailService.getUserDetail();
+    var users = userService.getUser();
     var submissionDetailId = pathVariables.get("submissionDetailId");
 
     if (submissionDetailId == null) {
@@ -87,7 +87,7 @@ public class SubmissionHandlerInterceptor extends AbstractHandlerInterceptor {
           annotationObject,
           request,
           response,
-          userDetails,
+          users,
           submissionDetail.get()
       );
 

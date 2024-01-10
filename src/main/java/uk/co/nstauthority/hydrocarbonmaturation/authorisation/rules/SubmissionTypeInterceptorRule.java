@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
@@ -28,7 +28,7 @@ public class SubmissionTypeInterceptorRule implements SubmissionInterceptorSecur
   public SecurityRuleResult check(Object annotation,
                                   HttpServletRequest request,
                                   HttpServletResponse response,
-                                  ServiceUserDetail userDetails,
+                                  User users,
                                   SubmissionDetail submissionDetail) {
     var hasSubmissionType = (HasSubmissionType) annotation;
     var submissionTypes = hasSubmissionType.submissionTypes();
@@ -48,7 +48,7 @@ public class SubmissionTypeInterceptorRule implements SubmissionInterceptorSecur
     var submissionDetailId = submissionDetail.getId();
 
     LOGGER.warn("User {} attempted to access submission {} form page unavailable for the current submission type: {} ",
-        userDetails.wuaId(),
+        users.wuaId(),
         submissionDetailId,
         submissionDetail.getSubmissionType().getTypeName());
 

@@ -18,8 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
@@ -37,7 +37,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
 @ExtendWith(MockitoExtension.class)
 class ViewResourceRecordServiceTest {
 
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
   @Mock
   private ResourceRecordSummaryQueryService resourceRecordSummaryQueryService;
   @Mock
@@ -143,7 +143,7 @@ class ViewResourceRecordServiceTest {
     private static final Integer ORGANISATION_UNIT_ID = 1;
     private final ResourceRecordSummaryView RESOURCE_RECORD = SubmissionIntegrationTestUtils.emptyResourceRecordSummaryView(
         UUID.randomUUID(), ORGANISATION_UNIT_ID);
-    private final ServiceUserDetail USER_DETAIL = ServiceUserDetailTestUtil.Builder().build();
+    private final User USER_DETAIL = UserTestUtil.Builder().build();
 
     @ParameterizedTest
     @CsvSource(value = { "true, true",

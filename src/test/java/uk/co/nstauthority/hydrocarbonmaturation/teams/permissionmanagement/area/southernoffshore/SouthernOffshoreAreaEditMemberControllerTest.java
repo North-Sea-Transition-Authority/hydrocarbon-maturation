@@ -21,8 +21,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
@@ -54,8 +54,8 @@ class SouthernOffshoreAreaEditMemberControllerTest extends AbstractControllerTes
 
   private Team areaTeam;
   private TeamView teamView;
-  private ServiceUserDetail accessManager;
-  private ServiceUserDetail nonAccessManager;
+  private User accessManager;
+  private User nonAccessManager;
 
   private static final Map<String, String> ROLE_MAP = DisplayableEnumOptionUtil.getDisplayableOptionsWithDescription(
       SouthernOffshoreAreaTeamRole.class);
@@ -67,10 +67,10 @@ class SouthernOffshoreAreaEditMemberControllerTest extends AbstractControllerTes
         .withTeamType(TeamType.SOUTHERN_OFFSHORE_AREA)
         .build();
     teamView = TeamTestUtil.createTeamView(areaTeam);
-    accessManager = ServiceUserDetailTestUtil.Builder()
+    accessManager = UserTestUtil.Builder()
         .withWuaId(new Random().nextLong())
         .build();
-    nonAccessManager = ServiceUserDetailTestUtil.Builder()
+    nonAccessManager = UserTestUtil.Builder()
         .withWuaId(new Random().nextLong())
         .build();
   }

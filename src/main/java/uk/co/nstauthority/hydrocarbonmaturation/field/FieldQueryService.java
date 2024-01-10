@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
@@ -49,7 +49,7 @@ public class FieldQueryService {
     this.industryTeamMemberService = industryTeamMemberService;
   }
 
-  public List<FieldView> getFieldByNameForSubmissionType(String name, SubmissionType submissionType, ServiceUserDetail user) {
+  public List<FieldView> getFieldByNameForSubmissionType(String name, SubmissionType submissionType, User user) {
     //gets every field by name
     var fields = fieldPersistenceService.getFieldsByCorrectedLegalName(name);
 
@@ -97,7 +97,7 @@ public class FieldQueryService {
    * @param field The field to be checked if the user has permission to select it
    * @return True if the user can select the field
    */
-  private boolean filterFieldByUser(Field field, ServiceUserDetail user) {
+  private boolean filterFieldByUser(Field field, User user) {
     if (areaTeamService.isAreaTeamMember(user)) {
       var responsibleTeamType = regulatorManagedInformationPersistenceService
           .getRegulatorManagedInformationByResourceOrThrow(field.getResource())

@@ -16,8 +16,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDtoTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
@@ -48,7 +48,7 @@ class NorthernOffshoreAreaTeamServiceTest {
   @SpyBean
   private NorthernOffshoreAreaTeamService northernOffshoreAreaTeamService;
 
-  private final ServiceUserDetail user = ServiceUserDetailTestUtil.Builder().build();
+  private final User user = UserTestUtil.Builder().build();
 
   @Test
   void getTeam_whenMatch_thenReturnTeam() {

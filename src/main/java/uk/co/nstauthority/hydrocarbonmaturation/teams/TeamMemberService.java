@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore.NorthernOffshoreAreaTeamRole;
@@ -57,15 +57,15 @@ public class TeamMemberService {
     return new TeamView(team.toTeamId(), team.getTeamType(), team.getDisplayName());
   }
 
-  public boolean isMemberOfTeam(TeamId teamId, ServiceUserDetail user) {
+  public boolean isMemberOfTeam(TeamId teamId, User user) {
     return teamMemberRoleRepository.existsByWuaIdAndTeam_Uuid(user.wuaId(), teamId.uuid());
   }
 
-  public boolean isMemberOfTeamWithAnyRoleOf(TeamId teamId, ServiceUserDetail user, Set<String> roles) {
+  public boolean isMemberOfTeamWithAnyRoleOf(TeamId teamId, User user, Set<String> roles) {
     return teamMemberRoleRepository.existsByWuaIdAndTeam_UuidAndRoleIn(user.wuaId(), teamId.uuid(), roles);
   }
 
-  public List<TeamMember> getUserAsTeamMembers(ServiceUserDetail user) {
+  public List<TeamMember> getUserAsTeamMembers(User user) {
     var teamRoleMap = teamMemberRoleRepository.findAllByWuaId(user.wuaId())
         .stream()
         .collect(Collectors.groupingBy(TeamMemberRole::getTeam));

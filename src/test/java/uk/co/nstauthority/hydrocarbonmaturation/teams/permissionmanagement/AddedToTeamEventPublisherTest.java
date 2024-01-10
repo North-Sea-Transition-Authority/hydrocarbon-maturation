@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
 
@@ -32,7 +32,7 @@ class AddedToTeamEventPublisherTest {
     var teamId = new TeamId(UUID.randomUUID());
     var addedWebUserAccountId = new WebUserAccountId(123);
     var rolesGranted = Set.of("ROLE_1", "ROLE_2");
-    var instigatingUser = ServiceUserDetailTestUtil.Builder().build();
+    var instigatingUser = UserTestUtil.Builder().build();
 
     var addedToTeamEventCaptor = ArgumentCaptor.forClass(AddedToTeamEvent.class);
 

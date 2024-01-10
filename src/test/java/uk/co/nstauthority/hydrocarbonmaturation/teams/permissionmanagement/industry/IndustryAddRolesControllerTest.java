@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
@@ -61,13 +61,13 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
 
   @BeforeEach
   void setUp() {
-    doCallRealMethod().when(userDetailService).getUserDetail();
+    doCallRealMethod().when(userService).getUser();
   }
 
   @SecurityTest
   void renderAddTeamMemberRoles_whenAccessManager_thenOk() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -98,7 +98,7 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
   @SecurityTest
   void renderAddTeamMember_whenRegulatorIndustryAccessManager_thenOk() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
@@ -128,7 +128,7 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
   @SecurityTest
   void renderAddTeamMemberRoles_whenNotAccessManager_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -155,7 +155,7 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
   @Test
   void renderAddTeamMemberRoles_whenNotIndustryTeam_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
@@ -182,7 +182,7 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
   @Test
   void renderAddTeamMemberRoles_whenNoEnergyPortalUser_thenNotFound() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -214,7 +214,7 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
   @MethodSource("getEnergyPortalUserThatShouldResultInBadRequest")
   void renderAddTeamMemberRoles_whenEnergyPortalUserNotValid_thenBadRequest(EnergyPortalUserDto energyPortalUser) throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -245,7 +245,7 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
   @Test
   void renderAddTeamMemberRoles_assertModelProperties() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -289,7 +289,7 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
   @Test
   void saveAddTeamMemberRoles_whenNotAccessManager_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -318,7 +318,7 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
   @Test
   void saveAddTeamMemberRoles_whenAccessManager_thenOk() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -350,7 +350,7 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
   @Test
   void saveAddTeamMemberRoles_whenRegulatorIndustryAccessManager_thenOk() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
@@ -381,7 +381,7 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
   @Test
   void saveAddTeamMemberRoles_whenNotIndustryTeam_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
@@ -410,7 +410,7 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
   @Test
   void saveAddTeamMemberRoles_whenEnergyPortalUserNotFound_thenNotFound() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -444,7 +444,7 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
   @MethodSource("getEnergyPortalUserThatShouldResultInBadRequest")
   void saveAddTeamMemberRoles_whenEnergyPortalUserNotValid_thenBadRequest(EnergyPortalUserDto energyPortalUser) throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -477,7 +477,7 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
   @Test
   void saveAddTeamMemberRoles_whenInvalidTeamMemberRolesForm_thenStayOnFormPage() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -512,7 +512,7 @@ class IndustryAddRolesControllerTest extends AbstractControllerTest {
   @Test
   void saveAddTeamMemberRoles_whenValidTeamMemberRolesForm_thenRedirectionToMembersPage() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)

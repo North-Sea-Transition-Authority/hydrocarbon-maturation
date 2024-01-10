@@ -24,7 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.HandlerMapping;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionInterceptorSecurityRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionStatusInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -40,7 +40,7 @@ class SubmissionHandlerInterceptorTest {
   private SubmissionDetailService submissionDetailService;
 
   @Mock
-  private UserDetailService userDetailService;
+  private UserService userService;
 
   @Mock
   private HttpServletRequest request;
@@ -66,7 +66,7 @@ class SubmissionHandlerInterceptorTest {
 
     this.submissionHandlerInterceptor = new SubmissionHandlerInterceptor(
         submissionDetailService,
-        userDetailService,
+        userService,
         securityRules
     );
 

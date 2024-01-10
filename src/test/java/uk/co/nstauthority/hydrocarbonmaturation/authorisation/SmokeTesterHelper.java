@@ -16,8 +16,8 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 
 public abstract class SmokeTesterHelper<T> {
 
@@ -25,7 +25,7 @@ public abstract class SmokeTesterHelper<T> {
 
   private final Set<TestableEndpoint> testableEndpoints = new HashSet<>();
 
-  private ServiceUserDetail userToTestWith = ServiceUserDetailTestUtil.Builder().build();
+  private User userToTestWith = UserTestUtil.Builder().build();
 
   private final MultiValueMap<String, String> bodyParams = new LinkedMultiValueMap<>();
 
@@ -34,7 +34,7 @@ public abstract class SmokeTesterHelper<T> {
   }
 
   @SuppressWarnings("unchecked")
-  public T withUser(ServiceUserDetail user) {
+  public T withUser(User user) {
     this.userToTestWith = user;
     return (T) this;
   }

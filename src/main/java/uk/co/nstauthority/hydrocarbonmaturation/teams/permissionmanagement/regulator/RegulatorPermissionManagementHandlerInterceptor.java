@@ -14,8 +14,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.server.ResponseStatusException;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.RegulatorRolesAllowed;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.AbstractHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
@@ -31,13 +31,13 @@ public class RegulatorPermissionManagementHandlerInterceptor extends AbstractHan
 
   private final TeamMemberService teamMemberService;
 
-  private final UserDetailService userDetailService;
+  private final UserService userService;
 
   @Autowired
   public RegulatorPermissionManagementHandlerInterceptor(TeamMemberService teamMemberService,
-                                                         UserDetailService userDetailService) {
+                                                         UserService userService) {
     this.teamMemberService = teamMemberService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
   }
 
   @Override
@@ -51,7 +51,7 @@ public class RegulatorPermissionManagementHandlerInterceptor extends AbstractHan
 
       var teamId = PermissionManagementHandlerInterceptor.extractTeamIdFromRequest(request, handlerMethod);
 
-      var user = userDetailService.getUserDetail();
+      var user = userService.getUser();
 
       if (hasAnnotation(handlerMethod, RegulatorRolesAllowed.class)) {
         checkIsMemberOfTeamWithRole(
@@ -65,7 +65,7 @@ public class RegulatorPermissionManagementHandlerInterceptor extends AbstractHan
     return true;
   }
 
-  private void checkIsMemberOfTeamWithRole(TeamId teamId, ServiceUserDetail user, RegulatorTeamRole[] roles) {
+  private void checkIsMemberOfTeamWithRole(TeamId teamId, User user, RegulatorTeamRole[] roles) {
 
     var roleNames = Arrays.stream(roles)
         .map(RegulatorTeamRole::name)

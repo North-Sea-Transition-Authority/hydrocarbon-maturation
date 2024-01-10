@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ResourceAccessInterceptorStrategy;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
@@ -29,7 +29,7 @@ public class RegulatorResourceAccessInterceptorRule implements ResourceAccessInt
   }
 
   @Override
-  public SecurityRuleResult hasRequiredResourceAccessPermissions(ServiceUserDetail userDetails,
+  public SecurityRuleResult hasRequiredResourceAccessPermissions(User users,
                                                                  SubmissionDetail submissionDetail) {
 
     var responsibleTeamType = regulatorManagedInformationPersistenceService
@@ -38,11 +38,11 @@ public class RegulatorResourceAccessInterceptorRule implements ResourceAccessInt
     var permissionRequired = responsibleTeamType.getRolePermissions();
 
     if (isNotDraftIndustrySubmission(submissionDetail)
-        && permissionService.hasPermission(userDetails, permissionRequired)) {
+        && permissionService.hasPermission(users, permissionRequired)) {
       return SecurityRuleResult.continueAsNormal();
     }
 
-    var userId = userDetails.wuaId();
+    var userId = users.wuaId();
     var submissionDetailId = submissionDetail.getId();
 
     LOGGER.warn("User {} attempted to access submission {} with expected regulator role {}.",

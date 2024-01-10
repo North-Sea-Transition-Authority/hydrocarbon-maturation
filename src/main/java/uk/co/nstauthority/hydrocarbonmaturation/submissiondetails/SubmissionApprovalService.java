@@ -4,7 +4,7 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSubmissionStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
@@ -19,7 +19,7 @@ public class SubmissionApprovalService {
 
   private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
   private final RegulatorTeamService regulatorTeamService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final SubmissionEmailService submissionEmailService;
   private final SubmissionUpdateService submissionUpdateService;
   private final ResponsibleTeamService responsibleTeamService;
@@ -32,7 +32,7 @@ public class SubmissionApprovalService {
   public SubmissionApprovalService(
       SubmissionDetailPersistenceService submissionDetailPersistenceService,
       RegulatorTeamService regulatorTeamService,
-      UserDetailService userDetailService,
+      UserService userService,
       SubmissionEmailService submissionEmailService,
       SubmissionUpdateService submissionUpdateService,
       ResponsibleTeamService responsibleTeamService,
@@ -41,7 +41,7 @@ public class SubmissionApprovalService {
       FieldSubmissionStatusService fieldSubmissionStatusService) {
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
     this.regulatorTeamService = regulatorTeamService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.submissionEmailService = submissionEmailService;
     this.submissionUpdateService = submissionUpdateService;
     this.responsibleTeamService = responsibleTeamService;
@@ -97,19 +97,19 @@ public class SubmissionApprovalService {
       submissionEmailService.sendSubmissionApprovalEmail(submissionDetail);
     } else {
       throw new ActionNotAllowedException("Submission cannot be accepted by user with ID %s"
-          .formatted(userDetailService.getUserWuaId()));
+          .formatted(userService.getUserWuaId()));
     }
   }
 
   public boolean canApproveSubmission(SubmissionDetail submissionDetail) {
     return responsibleTeamService
-        .isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail)
+        .isInResponsibleTeam(userService.getUser(), submissionDetail)
         && !submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission());
   }
 
   private boolean canAutoApproveSubmission() {
-    var userDetail = userDetailService.getUserDetail();
-    return regulatorTeamService.isRegulatorUser(userDetail) || areaTeamService.isAreaUser(userDetail);
+    var user = userService.getUser();
+    return regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user);
   }
 
 }

@@ -19,7 +19,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -53,7 +53,7 @@ class RegulatorTeamManagementControllerTest extends AbstractControllerTest {
   @SecurityTest
   void renderMemberListRedirect_whenNoAccessToRegulatorTeam_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     when(regulatorTeamService.getRegulatorTeamForUser(user)).thenReturn(Optional.empty());
 
@@ -66,7 +66,7 @@ class RegulatorTeamManagementControllerTest extends AbstractControllerTest {
   @Test
   void renderMemberListRedirect_whenAccessToRegulatorTeam_thenRedirectionToTeamIdEndpoint() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -93,7 +93,7 @@ class RegulatorTeamManagementControllerTest extends AbstractControllerTest {
   @Test
   void renderMemberList_whenNotMemberOfTeam_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var teamId = new TeamId(UUID.randomUUID());
 
@@ -108,7 +108,7 @@ class RegulatorTeamManagementControllerTest extends AbstractControllerTest {
   @Test
   void renderMemberList_whenMemberOfTeam_thenOk() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
@@ -128,7 +128,7 @@ class RegulatorTeamManagementControllerTest extends AbstractControllerTest {
   @Test
   void renderMemberList_whenNoTeamFound_thenNotFound() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var teamId = new TeamId(UUID.randomUUID());
 
@@ -144,7 +144,7 @@ class RegulatorTeamManagementControllerTest extends AbstractControllerTest {
   @Test
   void renderMemberList_whenNotAccessManager_assertModelProperties() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
@@ -180,7 +180,7 @@ class RegulatorTeamManagementControllerTest extends AbstractControllerTest {
   @Test
   void renderMemberList_whenAccessManager_assertModelProperties() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
@@ -229,7 +229,7 @@ class RegulatorTeamManagementControllerTest extends AbstractControllerTest {
   @Test
   void renderMemberList_whenIndustryManager_assertModelProperties() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
@@ -42,7 +42,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   @SecurityTest
   void renderTeamListOrRedirect_whenNoAccess_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     when(teamManagementService.getTeamsThatUserHasAccessTo(user)).thenReturn(Collections.emptyList());
 
     mockMvc.perform(
@@ -54,7 +54,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   @Test
   void renderTeamListOrRedirect_whenAccessToIndustryTeam_thenOK_assertProperties() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var team1 = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
         .build();
@@ -78,7 +78,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   @Test
   void renderTeamListOrRedirect_whenAccessToSingleIndustryTeam_thenRedirect() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var team1 = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
         .build();
@@ -96,7 +96,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   @Test
   void renderTeamListOrRedirect_whenAccessToRegulatorTeam_thenRedirect() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var team1 = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
         .build();
@@ -114,7 +114,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   @Test
   void renderTeamListOrRedirect_whenAccessToSingleIndustryTeam_andIsIndustryAccessManagerInRegularTeam_thenOk() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var team1 = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
         .build();
@@ -135,7 +135,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   @Test
   void renderTeamListOrRedirect_whenRegulatorAndIndustryAccessManager_thenOk() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var team1 = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
         .build();

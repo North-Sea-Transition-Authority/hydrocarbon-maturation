@@ -10,8 +10,8 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
@@ -19,7 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
 class InternalTeamServiceTest {
 
   @Mock
-  private UserDetailService userDetailService;
+  private UserService userService;
 
   @Mock
   private RegulatorTeamService regulatorTeamService;
@@ -35,8 +35,8 @@ class InternalTeamServiceTest {
       "true, false",
       "false, true"})
   void isRegulator_verifyMethodCall(boolean isRegulatorUser, boolean isAreaUser) {
-    var user = ServiceUserDetailTestUtil.Builder().build();
-    when(userDetailService.getUserDetail()).thenReturn(user);
+    var user = UserTestUtil.Builder().build();
+    when(userService.getUser()).thenReturn(user);
     when(regulatorTeamService.isRegulatorUser(user)).thenReturn(isRegulatorUser);
     if (!isRegulatorUser) {
       when(areaTeamService.isAreaUser(user)).thenReturn(isAreaUser);

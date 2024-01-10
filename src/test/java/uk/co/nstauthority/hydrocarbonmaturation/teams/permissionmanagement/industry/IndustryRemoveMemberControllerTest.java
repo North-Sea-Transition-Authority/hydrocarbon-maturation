@@ -15,8 +15,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
@@ -47,8 +47,8 @@ class IndustryRemoveMemberControllerTest extends AbstractControllerTest {
   private Team industryTeam;
   private TeamView teamView;
 
-  private ServiceUserDetail accessManager;
-  private ServiceUserDetail nonAccessManager;
+  private User accessManager;
+  private User nonAccessManager;
 
   @BeforeEach
   void setUp() {
@@ -58,10 +58,10 @@ class IndustryRemoveMemberControllerTest extends AbstractControllerTest {
         .build();
 
     teamView = TeamTestUtil.createTeamView(industryTeam);
-    accessManager = ServiceUserDetailTestUtil.Builder()
+    accessManager = UserTestUtil.Builder()
         .withWuaId(new Random().nextLong())
         .build();
-    nonAccessManager = ServiceUserDetailTestUtil.Builder()
+    nonAccessManager = UserTestUtil.Builder()
         .withWuaId(new Random().nextLong())
         .build();
   }

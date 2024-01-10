@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
@@ -55,7 +55,7 @@ public class ReservoirListController {
 
   @GetMapping
   public ModelAndView getReservoirs(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                    ServiceUserDetail user) {
+                                    User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     if (reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail)) {
       return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(
@@ -69,7 +69,7 @@ public class ReservoirListController {
   public ModelAndView saveReservoirs(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                      @ModelAttribute("form") ReservoirListForm form,
                                      BindingResult bindingResult,
-                                     ServiceUserDetail user) {
+                                     User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     if (!reservoirListValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL)) {
       var modelAndView = getReservoirsModelAndView(submissionDetail, form);

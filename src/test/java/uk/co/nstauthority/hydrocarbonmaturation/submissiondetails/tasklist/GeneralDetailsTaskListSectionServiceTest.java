@@ -16,9 +16,9 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -39,7 +39,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 
 @ExtendWith(MockitoExtension.class)
 class GeneralDetailsTaskListSectionServiceTest {
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
   @Mock
   private GeneralDetailSubmissionService generalDetailSubmissionService;
   @Mock
@@ -49,7 +49,7 @@ class GeneralDetailsTaskListSectionServiceTest {
   @Mock
   private ConsideringCcusSubmissionService consideringCcusSubmissionService;
   @Mock
-  private UserDetailService userDetailService;
+  private UserService userService;
   @Mock
   private PermissionService permissionService;
   @Mock
@@ -113,7 +113,7 @@ class GeneralDetailsTaskListSectionServiceTest {
   void getSection_SubmissionTypeIsCreateProspect_ShowRelatedProspects(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
 
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
 
     var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
@@ -153,7 +153,7 @@ class GeneralDetailsTaskListSectionServiceTest {
   void getSection_whenInitialSubmissionAndHasPermission_whenDiscovery_ShowRelatedDiscoveries(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
     submissionDetail.getSubmission().getResource().setType(ResourceType.DISCOVERY);
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
 
     var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
@@ -193,7 +193,7 @@ class GeneralDetailsTaskListSectionServiceTest {
   void getSection_whenCorrection_dontShowRelatedResources(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
     submissionDetail.setCorrection(true);
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
 
     var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
@@ -229,7 +229,7 @@ class GeneralDetailsTaskListSectionServiceTest {
   void getSection_SubmissionTypeIsCreateProspectAndUserDoesNotHaveCorrectRole_ShowRelatedProspects(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
 
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(false);
 
     var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
@@ -283,7 +283,7 @@ class GeneralDetailsTaskListSectionServiceTest {
     when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
 
     when(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
@@ -299,7 +299,7 @@ class GeneralDetailsTaskListSectionServiceTest {
     when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(false);
 
     assertTrue(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
@@ -313,7 +313,7 @@ class GeneralDetailsTaskListSectionServiceTest {
     when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
 
     when(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
@@ -329,7 +329,7 @@ class GeneralDetailsTaskListSectionServiceTest {
     when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
 
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
 
     assertTrue(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
@@ -342,7 +342,7 @@ class GeneralDetailsTaskListSectionServiceTest {
     submissionDetail.setCorrection(true);
     when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
 
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
 
     assertFalse(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));

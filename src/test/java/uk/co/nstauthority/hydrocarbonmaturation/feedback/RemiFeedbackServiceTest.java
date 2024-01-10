@@ -27,8 +27,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import uk.co.fivium.feedbackmanagementservice.client.CannotSendFeedbackException;
 import uk.co.fivium.feedbackmanagementservice.client.FeedbackClientService;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.FeedbackEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -40,7 +40,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 @DirtiesContext
 class RemiFeedbackServiceTest {
 
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
   private static final SubmissionDetail SUBMISSION_DETAIL = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   private static final Instant CURRENT_INSTANT = Instant.now();
   private static final String CONTEXT_PATH = "/remi";

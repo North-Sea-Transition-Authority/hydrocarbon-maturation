@@ -3,7 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore.NorthernOffshoreAreaTeamService;
@@ -33,22 +33,22 @@ public class ResponsibleTeamService {
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
   }
 
-  public boolean isInResponsibleTeam(ServiceUserDetail userDetail, SubmissionDetail submissionDetail) {
+  public boolean isInResponsibleTeam(User user, SubmissionDetail submissionDetail) {
     var regulatorManagedInformation = regulatorManagedInformationPersistenceService
         .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource());
 
-    return isInResponsibleTeam(userDetail, regulatorManagedInformation.getResponsibleTeamType());
+    return isInResponsibleTeam(user, regulatorManagedInformation.getResponsibleTeamType());
   }
 
-  public boolean isInResponsibleTeam(ServiceUserDetail userDetail, ResponsibleTeamType responsibleTeamType) {
+  public boolean isInResponsibleTeam(User user, ResponsibleTeamType responsibleTeamType) {
     return switch (responsibleTeamType) {
-      case EXPLORATION -> regulatorTeamService.isRegulatorTeamRole(userDetail, RegulatorTeamRole.EXPLORATION);
+      case EXPLORATION -> regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.EXPLORATION);
       case NORTHERN_NORTH_SEA_WEST_OF_SHETLAND -> northernOffshoreAreaTeamService
-          .isNorthernOffshoreTeamMember(userDetail);
+          .isNorthernOffshoreTeamMember(user);
       case CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA -> southernOffshoreAreaTeamService
-          .isSouthernOffshoreTeamMember(userDetail);
+          .isSouthernOffshoreTeamMember(user);
       case ONSHORE -> onshoreAreaTeamService
-          .isOnshoreTeamMember(userDetail);
+          .isOnshoreTeamMember(user);
     };
   }
 
@@ -63,22 +63,22 @@ public class ResponsibleTeamService {
     };
   }
 
-  public List<ResponsibleTeamType> getResponsibleTeamTypesForUser(ServiceUserDetail userDetail) {
+  public List<ResponsibleTeamType> getResponsibleTeamTypesForUser(User user) {
     var responsibleTeamTypeList = new ArrayList<ResponsibleTeamType>();
 
-    if (regulatorTeamService.isRegulatorTeamRole(userDetail, RegulatorTeamRole.EXPLORATION)) {
+    if (regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.EXPLORATION)) {
       responsibleTeamTypeList.add(ResponsibleTeamType.EXPLORATION);
     }
 
-    if (northernOffshoreAreaTeamService.isNorthernOffshoreTeamMember(userDetail)) {
+    if (northernOffshoreAreaTeamService.isNorthernOffshoreTeamMember(user)) {
       responsibleTeamTypeList.add(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
     }
 
-    if (southernOffshoreAreaTeamService.isSouthernOffshoreTeamMember(userDetail)) {
+    if (southernOffshoreAreaTeamService.isSouthernOffshoreTeamMember(user)) {
       responsibleTeamTypeList.add(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
     }
 
-    if (onshoreAreaTeamService.isOnshoreTeamMember(userDetail)) {
+    if (onshoreAreaTeamService.isOnshoreTeamMember(user)) {
       responsibleTeamTypeList.add(ResponsibleTeamType.ONSHORE);
     }
 

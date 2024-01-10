@@ -18,7 +18,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -58,7 +58,7 @@ class IndustryTeamManagementControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void renderMemberList_whenNotMemberOfTeam_thenForbidden() throws Exception {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -83,7 +83,7 @@ class IndustryTeamManagementControllerTest extends AbstractControllerTest {
   @EnumSource(value = IndustryTeamRole.class)
   void renderMemberList_whenMemberOfTeam_thenOk(IndustryTeamRole industryTeamRole) throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -108,7 +108,7 @@ class IndustryTeamManagementControllerTest extends AbstractControllerTest {
   @SecurityTest
   void renderMemberList_whenNoTeamFound_thenNotFound() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -133,7 +133,7 @@ class IndustryTeamManagementControllerTest extends AbstractControllerTest {
   @Test
   void renderMemberList_whenNotAccessManager_assertModelProperties() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -172,7 +172,7 @@ class IndustryTeamManagementControllerTest extends AbstractControllerTest {
   @Test
   void renderMemberList_whenAccessManager_assertModelProperties() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -227,7 +227,7 @@ class IndustryTeamManagementControllerTest extends AbstractControllerTest {
   @Test
   void renderMemberList_whenIndustryManager_assertModelProperties() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)

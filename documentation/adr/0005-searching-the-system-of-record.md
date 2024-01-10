@@ -85,7 +85,7 @@ class ResourceQueryService {
   }
 
   private List<Condition> getAuthorisationConditions() {
-    var user = userDetailService.getUserDetail();
+    var user = userService.getUser();
 
     // add conditions limiting results to resources the industry user is authorised for
 

@@ -8,7 +8,7 @@ import java.util.List;
 import org.jooq.Condition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
@@ -27,18 +27,18 @@ class ResponsibleTeamSubmissionWorkAreaQueryService implements SubmissionWorkAre
   }
 
   @Override
-  public List<SubmissionWorkAreaQueryResult> getWorkAreaSubmissionItems(ServiceUserDetail user) {
+  public List<SubmissionWorkAreaQueryResult> getWorkAreaSubmissionItems(User user) {
     return submissionWorkAreaQueryCommonService.getWorkAreaQueryResults(getConditions(user));
   }
 
-  private List<Condition> getConditions(ServiceUserDetail user) {
+  private List<Condition> getConditions(User user) {
     var submissionTeamMembershipCondition = getConditionForResponsibleTeam(user);
     var workAreaVisibleSubmissionStatuses = submissionWorkAreaQueryCommonService.getVisibleSubmissions();
 
     return List.of(submissionTeamMembershipCondition, workAreaVisibleSubmissionStatuses);
   }
 
-  private Condition getConditionForResponsibleTeam(ServiceUserDetail user) {
+  private Condition getConditionForResponsibleTeam(User user) {
     var responsibleTeamTypeList = responsibleTeamService.getResponsibleTeamTypesForUser(user)
         .stream().map(Enum::name).toList();
 

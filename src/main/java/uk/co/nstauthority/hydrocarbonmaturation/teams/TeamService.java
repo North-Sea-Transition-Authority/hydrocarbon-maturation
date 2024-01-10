@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 
 @Service
 public class TeamService {
@@ -28,7 +28,7 @@ public class TeamService {
     return teamRepository.findById(teamId.uuid());
   }
 
-  public List<Team> getTeamsOfTypeThatUserBelongsTo(ServiceUserDetail user, TeamType teamType) {
+  public List<Team> getTeamsOfTypeThatUserBelongsTo(User user, TeamType teamType) {
     return teamRepository.findAllTeamsOfTypeThatUserIsMemberOf(user.wuaId(), teamType);
   }
 
@@ -36,14 +36,14 @@ public class TeamService {
     return teamRepository.findAllByTeamType(TeamType.REGULATOR);
   }
 
-  public List<Team> getTeamsThatUserBelongsTo(ServiceUserDetail user) {
+  public List<Team> getTeamsThatUserBelongsTo(User user) {
     return teamMemberRoleRepository.findAllByWuaId(user.wuaId()).stream()
         .map(TeamMemberRole::getTeam)
         .distinct()
         .toList();
   }
 
-  public boolean isUserInMultipleTeams(ServiceUserDetail user) {
+  public boolean isUserInMultipleTeams(User user) {
     return getTeamsThatUserBelongsTo(user).size() > 1;
   }
 
@@ -55,7 +55,7 @@ public class TeamService {
     return teamRepository.findByOrganisationGroupId(organisationGroupId);
   }
 
-  public List<Integer> getOrganisationGroupsUserIsTeamMemberOf(ServiceUserDetail user) {
+  public List<Integer> getOrganisationGroupsUserIsTeamMemberOf(User user) {
     return teamMemberRoleRepository.findAllByWuaId(user.wuaId())
         .stream()
         .map(teamMemberRole -> teamMemberRole.getTeam().getOrganisationGroupId())

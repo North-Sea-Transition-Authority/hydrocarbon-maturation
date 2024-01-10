@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
@@ -79,7 +79,7 @@ public class ReviewSubmissionService {
   }
 
   boolean canViewSubmission(SubmissionRecordSummaryView submissionRecord,
-                            ServiceUserDetail user,
+                            User user,
                             SubmissionDetail submissionDetail) {
     if (!submissionDetail.isApprovedOrSubmittedSubmission()) {
       return false;
@@ -100,24 +100,24 @@ public class ReviewSubmissionService {
   }
 
   boolean canUpdateSubmission(SubmissionRecordSummaryView submissionRecord,
-                              ServiceUserDetail userDetail,
+                              User user,
                               SubmissionDetail submissionDetail) {
     if (submissionRecord.submissionType() == SubmissionType.CREATE_PROSPECT
         || submissionRecord.submissionType() == SubmissionType.CREATE_DISCOVERY) {
       //when there is no latest approved submission on resource, checks the current submission
       var organisationUnitId = submissionRecord.responsibleOrganisationId();
-      return industryTeamMemberService.isSubmitterOfOrganisationUnit(userDetail, organisationUnitId);
+      return industryTeamMemberService.isSubmitterOfOrganisationUnit(user, organisationUnitId);
     } else {
-      return isSubmitterForResponsibleOrgOnLatestApprovedSubmissionOnResource(userDetail, submissionDetail);
+      return isSubmitterForResponsibleOrgOnLatestApprovedSubmissionOnResource(user, submissionDetail);
     }
   }
 
   boolean canReviewSubmission(SubmissionRecordSummaryView submissionRecord,
-                              ServiceUserDetail userDetail,
+                              User user,
                               SubmissionDetail currentSubmission) {
     return currentSubmission.getStatus() == SubmissionDetailStatus.SUBMITTED
         && (ResponsibleTeamType.EXPLORATION.equals(submissionRecord.responsibleTeamType())
-        && regulatorTeamService.isRegulatorTeamRole(userDetail, RegulatorTeamRole.EXPLORATION));
+        && regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.EXPLORATION));
   }
 
   boolean canRequestUpdateOnSubmissionDetail(SubmissionDetail submissionDetail) {
@@ -148,7 +148,7 @@ public class ReviewSubmissionService {
   }
 
   private boolean isSubmitterForResponsibleOrgOnLatestApprovedSubmissionOnResource(
-      ServiceUserDetail user, SubmissionDetail submissionDetail) {
+      User user, SubmissionDetail submissionDetail) {
     return submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail)
         .flatMap(resourceDetailsPersistenceService::getResourceDetailBySubmissionDetail)
         .map(resourceDetail -> industryTeamMemberService
@@ -157,7 +157,7 @@ public class ReviewSubmissionService {
   }
 
   private boolean isResponsibleOrganisationMemberOnLatestApprovedSubmissionOnResource(
-      ServiceUserDetail user, SubmissionDetail submissionDetail) {
+      User user, SubmissionDetail submissionDetail) {
     return submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail)
         .map(latestSubmissionDetail ->
           resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestSubmissionDetail)

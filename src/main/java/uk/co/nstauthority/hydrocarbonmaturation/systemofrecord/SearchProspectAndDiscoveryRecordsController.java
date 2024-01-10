@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
@@ -36,18 +36,18 @@ public class SearchProspectAndDiscoveryRecordsController {
   private final SearchResourceRecordsService searchResourceRecordsService;
   private final ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory;
   private final RegulatorTeamService regulatorTeamService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final AreaTeamService areaTeamService;
 
   @Autowired
   public SearchProspectAndDiscoveryRecordsController(SearchResourceRecordsService searchResourceRecordsService,
                                                      ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory,
                                                      RegulatorTeamService regulatorTeamService,
-                                                     UserDetailService userDetailService, AreaTeamService areaTeamService) {
+                                                     UserService userService, AreaTeamService areaTeamService) {
     this.searchResourceRecordsService = searchResourceRecordsService;
     this.resourceRecordQueryServiceFactory = resourceRecordQueryServiceFactory;
     this.regulatorTeamService = regulatorTeamService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.areaTeamService = areaTeamService;
   }
 
@@ -134,7 +134,7 @@ public class SearchProspectAndDiscoveryRecordsController {
   }
 
   private boolean isRegulatorOrAreaTeamUser() {
-    var userDetail = userDetailService.getUserDetail();
-    return regulatorTeamService.isRegulatorUser(userDetail) || areaTeamService.isAreaUser(userDetail);
+    var user = userService.getUser();
+    return regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user);
   }
 }

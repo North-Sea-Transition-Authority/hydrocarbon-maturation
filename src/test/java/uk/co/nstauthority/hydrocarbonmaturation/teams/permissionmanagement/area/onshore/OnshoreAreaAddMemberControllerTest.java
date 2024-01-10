@@ -22,7 +22,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
@@ -61,7 +61,7 @@ class OnshoreAreaAddMemberControllerTest extends AbstractControllerTest {
   @SecurityTest
   void renderAddTeamMember_whenNotAccessManager_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.ONSHORE_AREA)
@@ -85,7 +85,7 @@ class OnshoreAreaAddMemberControllerTest extends AbstractControllerTest {
   @SecurityTest
   void renderAddTeamMember_whenAccessManager_thenOk() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.ONSHORE_AREA)
@@ -120,7 +120,7 @@ class OnshoreAreaAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void renderAddTeamMember_whenNoTeamFound_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var teamId = new TeamId(UUID.randomUUID());
 
     var teamMember = TeamMemberTestUtil.Builder()
@@ -142,7 +142,7 @@ class OnshoreAreaAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void renderAddTeamMember_whenTeamIdIsNotAreaTeam_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
@@ -166,7 +166,7 @@ class OnshoreAreaAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void addMemberToTeamSubmission_whenTeamIdNotAreaType_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
@@ -192,7 +192,7 @@ class OnshoreAreaAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void addMemberToTeamSubmission_whenNotAccessManager_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.ONSHORE_AREA)
@@ -218,7 +218,7 @@ class OnshoreAreaAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void addMemberToTeamSubmission_whenAccessManager_thenOk() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.ONSHORE_AREA)

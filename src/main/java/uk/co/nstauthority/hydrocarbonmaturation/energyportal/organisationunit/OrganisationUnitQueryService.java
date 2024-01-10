@@ -17,7 +17,7 @@ import uk.co.fivium.energyportalapi.generated.client.OrganisationUnitProjectionR
 import uk.co.fivium.energyportalapi.generated.client.OrganisationUnitsProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -40,7 +40,7 @@ public class OrganisationUnitQueryService {
 
   private final OrganisationApi organisationApi;
   private final EnergyPortalApiWrapper energyPortalApiWrapper;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final IndustryTeamService industryTeamService;
   private final RegulatorTeamService regulatorTeamService;
   private final OrganisationGroupQueryService organisationGroupQueryService;
@@ -50,7 +50,7 @@ public class OrganisationUnitQueryService {
   @Autowired
   public OrganisationUnitQueryService(OrganisationApi organisationApi,
                                       EnergyPortalApiWrapper energyPortalApiWrapper,
-                                      UserDetailService userDetailService,
+                                      UserService userService,
                                       IndustryTeamService industryTeamService,
                                       RegulatorTeamService regulatorTeamService,
                                       OrganisationGroupQueryService organisationGroupQueryService,
@@ -58,7 +58,7 @@ public class OrganisationUnitQueryService {
                                       AreaTeamService areaTeamService) {
     this.organisationApi = organisationApi;
     this.energyPortalApiWrapper = energyPortalApiWrapper;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.industryTeamService = industryTeamService;
     this.regulatorTeamService = regulatorTeamService;
     this.organisationGroupQueryService = organisationGroupQueryService;
@@ -67,7 +67,7 @@ public class OrganisationUnitQueryService {
   }
 
   public List<OrganisationUnitDto> getOrganisationSearchableResults(String organisationName) {
-    var user = userDetailService.getUserDetail();
+    var user = userService.getUser();
     var isRegulatorUser = regulatorTeamService.isRegulatorUser(user);
     var isAreaUser = areaTeamService.isAreaUser(user);
 

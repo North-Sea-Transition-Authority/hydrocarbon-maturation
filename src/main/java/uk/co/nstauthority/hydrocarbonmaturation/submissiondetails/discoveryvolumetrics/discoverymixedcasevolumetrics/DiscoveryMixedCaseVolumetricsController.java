@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
@@ -74,7 +74,7 @@ public class DiscoveryMixedCaseVolumetricsController {
                                            @Valid @ModelAttribute("form") MixedCaseOutputsForm form,
                                            BindingResult bindingResult,
                                            ValidationType validationType,
-                                           ServiceUserDetail user) {
+                                           User user) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     if (!discoveryMixedCaseVolumetricsFormValidator.isValid(

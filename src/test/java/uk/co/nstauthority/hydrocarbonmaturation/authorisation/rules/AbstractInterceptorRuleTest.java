@@ -12,7 +12,7 @@ import org.junit.platform.commons.util.AnnotationUtils;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,7 +27,7 @@ abstract class AbstractInterceptorRuleTest {
   protected HttpServletResponse response;
 
   @Autowired
-  protected ServiceUserDetail userDetails;
+  protected User users;
 
   @Mock
   protected SubmissionDetail submissionDetail;

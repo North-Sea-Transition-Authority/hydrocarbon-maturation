@@ -12,7 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -39,7 +39,7 @@ class OperatorResourceAccessInterceptorRuleTest {
 
   @Test
   void hasRequiredTeamMembershipPermissions_whenIsIndustrySubmitterInResponsibleTeam_assertRulePass() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
 
@@ -59,7 +59,7 @@ class OperatorResourceAccessInterceptorRuleTest {
 
   @Test
   void hasRequiredTeamMembershipPermissions_whenIsIndustrySubmitterInResponsibleTeam_fieldSubmission_assertRulePass() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
 
@@ -79,7 +79,7 @@ class OperatorResourceAccessInterceptorRuleTest {
 
   @Test
   void hasRequiredTeamMembershipPermissions_whenIsNotIndustrySubmitterInResponsibleTeam_assertRuleFail() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
 
@@ -101,7 +101,7 @@ class OperatorResourceAccessInterceptorRuleTest {
 
   @Test
   void hasRequiredTeamMembershipPermissions_whenSubmissionIsNotIndustry_assertRuleFailForbidden() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
 

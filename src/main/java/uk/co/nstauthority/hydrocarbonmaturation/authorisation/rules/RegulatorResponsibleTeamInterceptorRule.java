@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsRegulatorInResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
@@ -40,15 +40,15 @@ public class RegulatorResponsibleTeamInterceptorRule implements SubmissionInterc
   public SecurityRuleResult check(Object annotation,
                                   HttpServletRequest request,
                                   HttpServletResponse response,
-                                  ServiceUserDetail userDetails,
+                                  User users,
                                   SubmissionDetail submissionDetail) {
     var responsibleTeam = regulatorManagedInformationPersistenceService
         .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource());
     var permissionsRequired = responsibleTeam.getResponsibleTeamType().getRolePermissions();
-    if (permissionService.hasPermission(userDetails, permissionsRequired)) {
+    if (permissionService.hasPermission(users, permissionsRequired)) {
       return SecurityRuleResult.continueAsNormal();
     } else {
-      var userId = userDetails.wuaId();
+      var userId = users.wuaId();
       var submissionDetailId = submissionDetail.getId();
 
       LOGGER.warn("User {} attempted to access submission {} " + "without expected regulator team role {}.",

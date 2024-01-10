@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
@@ -18,17 +18,17 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.indus
 class OperatorSubmissionSearchSelectorService implements SubmissionSearchSelectorStrategy {
 
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final IndustryTeamService industryTeamService;
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
   @Autowired
   OperatorSubmissionSearchSelectorService(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
-                                          UserDetailService userDetailService,
+                                          UserService userService,
                                           IndustryTeamService industryTeamService,
                                           GeneralDetailsPersistenceService generalDetailsPersistenceService) {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.industryTeamService = industryTeamService;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
   }
@@ -36,7 +36,7 @@ class OperatorSubmissionSearchSelectorService implements SubmissionSearchSelecto
   @Override
   public Stream<ResourceDetail> getResourceDetailsForSubmissionsWithTeam(Stream<SubmissionDetail> submissionDetailStream,
                                                                          SubmissionType submissionType) {
-    var user = userDetailService.getUserDetail();
+    var user = userService.getUser();
     var orgUnitsWhereUserSubmitter = industryTeamService
         .getOrganisationUnitIdsForUserWithIndustryTeamRoles(user, Set.of(IndustryTeamRole.SUBMITTER));
     //Gets the list of resource views for prospects to be displayed in a search selector

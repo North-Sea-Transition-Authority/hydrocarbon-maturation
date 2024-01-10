@@ -15,8 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticationUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -50,7 +50,7 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
 
   private static final Integer VERSION_NUMBER_INITIAL = 1;
   private static final Integer VERSION_NUMBER_UPDATE = 2;
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder()
+  private static final User USER = UserTestUtil.Builder()
       .withWuaId(1000L)
       .build();
 
@@ -906,7 +906,7 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
     return submissionDetail;
   }
 
-  private void setUpUserTest(Set<TeamRole> userRoles, TeamType teamType, ServiceUserDetail user) {
+  private void setUpUserTest(Set<TeamRole> userRoles, TeamType teamType, User user) {
 
     // Ensure user is treated as currently logged in
     SamlAuthenticationUtil.Builder()

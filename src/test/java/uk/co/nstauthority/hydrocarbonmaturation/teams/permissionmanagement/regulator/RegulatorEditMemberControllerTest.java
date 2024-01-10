@@ -20,8 +20,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MvcResult;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
@@ -51,8 +51,8 @@ class RegulatorEditMemberControllerTest extends AbstractControllerTest {
 
   private Team regulatorTeam;
   private TeamView teamView;
-  private ServiceUserDetail accessManager;
-  private ServiceUserDetail nonAccessManager;
+  private User accessManager;
+  private User nonAccessManager;
 
   @BeforeEach
   void setUp() {
@@ -60,10 +60,10 @@ class RegulatorEditMemberControllerTest extends AbstractControllerTest {
         .withTeamType(TeamType.REGULATOR)
         .build();
     teamView = TeamTestUtil.createTeamView(regulatorTeam);
-    accessManager = ServiceUserDetailTestUtil.Builder()
+    accessManager = UserTestUtil.Builder()
         .withWuaId(new Random().nextLong())
         .build();
-    nonAccessManager = ServiceUserDetailTestUtil.Builder()
+    nonAccessManager = UserTestUtil.Builder()
         .withWuaId(new Random().nextLong())
         .build();
   }

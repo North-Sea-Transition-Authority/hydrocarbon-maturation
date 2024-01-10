@@ -11,9 +11,9 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -24,13 +24,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetail
 @ExtendWith(MockitoExtension.class)
 class RegulatorSubmissionSearchSelectorServiceTest {
 
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
   @Mock
-  private UserDetailService userDetailService;
+  private UserService userService;
 
   @Mock
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
@@ -44,7 +44,7 @@ class RegulatorSubmissionSearchSelectorServiceTest {
   @ParameterizedTest
   @EnumSource(SubmissionType.class)
   void getResourceDetailsForSubmissions_whenInResponsibleTeam_assertReturn(SubmissionType submissionType) {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
 
     var submissionDetail1 = new SubmissionDetail();
     var submissionDetail2 = new SubmissionDetail();
@@ -77,7 +77,7 @@ class RegulatorSubmissionSearchSelectorServiceTest {
   @ParameterizedTest
   @EnumSource(SubmissionType.class)
   void getResourceDetailsForSubmissions_whenNotInResponsibleTeam_assertEmpty(SubmissionType submissionType) {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
 
     var submissionDetail = new SubmissionDetail();
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);

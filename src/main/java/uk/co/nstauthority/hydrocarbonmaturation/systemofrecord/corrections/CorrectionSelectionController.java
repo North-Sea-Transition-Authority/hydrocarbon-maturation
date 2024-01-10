@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
@@ -51,7 +51,7 @@ public class CorrectionSelectionController {
   }
 
   @GetMapping
-  public ModelAndView startCorrection(@PathVariable("resourceId") UUID resourceId, ServiceUserDetail user) {
+  public ModelAndView startCorrection(@PathVariable("resourceId") UUID resourceId, User user) {
     var resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
             .formatted(resourceId)));
@@ -70,7 +70,7 @@ public class CorrectionSelectionController {
   public ModelAndView startCorrection(@PathVariable("resourceId") UUID resourceId,
                                       @ModelAttribute("form") CorrectionForm form,
                                       BindingResult bindingResult,
-                                      ServiceUserDetail user) {
+                                      User user) {
     var resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
             .formatted(resourceId)));

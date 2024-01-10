@@ -7,8 +7,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberTestUtil;
@@ -31,14 +31,14 @@ public class HasPermissionSecurityTestUtil {
 
     private Set<RolePermission> requiredPermissions = new HashSet<>();
 
-    private ServiceUserDetail userToTestWith = ServiceUserDetailTestUtil.Builder().build();
+    private User userToTestWith = UserTestUtil.Builder().build();
 
     public SmokeTester(MockMvc mockMvc, TeamMemberService teamMemberService) {
       super(mockMvc);
       this.teamMemberService = teamMemberService;
     }
 
-    public SmokeTester withUser(ServiceUserDetail user) {
+    public SmokeTester withUser(User user) {
       this.userToTestWith = user;
       return this;
     }

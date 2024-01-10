@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.northernoffshore.NorthernOffshoreAreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.onshore.OnshoreAreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.southernoffshore.SouthernOffshoreAreaTeamService;
@@ -23,15 +23,15 @@ public class AreaTeamService {
     this.onshoreAreaTeamService = onshoreAreaTeamService;
   }
 
-  public boolean isAreaUser(ServiceUserDetail userDetail) {
-    return northernOffshoreAreaTeamService.isNorthernOffshoreAreaUser(userDetail)
-        || southernOffshoreAreaTeamService.isSouthernOffshoreAreaUser(userDetail)
-        || onshoreAreaTeamService.isOnshoreAreaUser(userDetail);
+  public boolean isAreaUser(User user) {
+    return northernOffshoreAreaTeamService.isNorthernOffshoreAreaUser(user)
+        || southernOffshoreAreaTeamService.isSouthernOffshoreAreaUser(user)
+        || onshoreAreaTeamService.isOnshoreAreaUser(user);
   }
 
-  public boolean isAreaTeamMember(ServiceUserDetail userDetail) {
-    return northernOffshoreAreaTeamService.isNorthernOffshoreTeamMember(userDetail)
-        || southernOffshoreAreaTeamService.isSouthernOffshoreTeamMember(userDetail)
-        || onshoreAreaTeamService.isOnshoreTeamMember(userDetail);
+  public boolean isAreaTeamMember(User user) {
+    return northernOffshoreAreaTeamService.isNorthernOffshoreTeamMember(user)
+        || southernOffshoreAreaTeamService.isSouthernOffshoreTeamMember(user)
+        || onshoreAreaTeamService.isOnshoreTeamMember(user);
   }
 }

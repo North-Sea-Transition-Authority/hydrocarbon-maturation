@@ -18,9 +18,9 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
@@ -32,13 +32,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
 class SubmissionDetailPersistenceServiceTest {
 
   private final static Long USER_WUA_ID = 5L;
-  private final static ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().withWuaId(USER_WUA_ID).build();
+  private final static User USER = UserTestUtil.Builder().withWuaId(USER_WUA_ID).build();
   private static final Instant INSTANT = Instant.now();
 
   @Mock
   private SubmissionDetailRepository submissionDetailRepository;
   @Mock
-  private UserDetailService userDetailService;
+  private UserService userService;
   @Mock
   private ResourceGroupService resourceGroupService;
   @Mock
@@ -52,13 +52,14 @@ class SubmissionDetailPersistenceServiceTest {
   @BeforeEach
   void setUp() {
     var clock = Clock.fixed(Instant.from(INSTANT), ZoneId.systemDefault());
-    submissionDetailPersistenceService = new SubmissionDetailPersistenceService(submissionDetailRepository, clock, userDetailService, resourceGroupService,
+    submissionDetailPersistenceService = new SubmissionDetailPersistenceService(submissionDetailRepository, clock,
+        userService, resourceGroupService,
         regulatorTeamService, resourceDetailsPersistenceService, areaTeamService);
   }
 
   @Test
   void createInitialSubmissionDetail_whenRegulator() {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
     var submissionType = SubmissionType.CREATE_PROSPECT;
     var submission = new Submission();
@@ -78,7 +79,7 @@ class SubmissionDetailPersistenceServiceTest {
 
   @Test
   void createInitialSubmissionDetail_whenArea() {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
     when(areaTeamService.isAreaUser(USER)).thenReturn(true);
     var submissionType = SubmissionType.CREATE_PROSPECT;
@@ -99,7 +100,7 @@ class SubmissionDetailPersistenceServiceTest {
 
   @Test
   void createInitialSubmissionDetail_whenIndustry() {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
     when(areaTeamService.isAreaUser(USER)).thenReturn(false);
     var submissionType = SubmissionType.CREATE_PROSPECT;
@@ -121,7 +122,7 @@ class SubmissionDetailPersistenceServiceTest {
   @Test
   void completeSubmission_assertSubmittedBy() {
     var submissionDetail = new SubmissionDetail();
-    when(userDetailService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
+    when(userService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
 
     submissionDetailPersistenceService.submitSubmission(submissionDetail);
 
@@ -144,7 +145,7 @@ class SubmissionDetailPersistenceServiceTest {
   void approveSubmission_whenSubmissionType_assertApprovedByAndCreateResourceGroupLink(SubmissionType submissionType) {
     var submissionDetail = new SubmissionDetail();
     submissionDetail.setSubmissionType(submissionType);
-    when(userDetailService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
+    when(userService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
     submissionDetailPersistenceService.approveSubmission(submissionDetail);
 
     assertThat(submissionDetail)
@@ -199,7 +200,7 @@ class SubmissionDetailPersistenceServiceTest {
     parentSubmissionDetail.setSubmittedTimestamp(INSTANT);
     parentSubmissionDetail.setSubmission(submission);
 
-    when(userDetailService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
+    when(userService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
 
     var updateSubmissionDetail = submissionDetailPersistenceService.createUpdateSubmissionDetail(parentSubmissionDetail);
 
@@ -256,7 +257,7 @@ class SubmissionDetailPersistenceServiceTest {
     parentSubmissionDetail.setSubmittedTimestamp(INSTANT);
     parentSubmissionDetail.setSubmission(submission);
 
-    when(userDetailService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
+    when(userService.getUserWuaId()).thenReturn(USER_WUA_ID.intValue());
 
     var correctionSubmissionDetail = submissionDetailPersistenceService.createCorrectionSubmissionDetail(
         parentSubmissionDetail,

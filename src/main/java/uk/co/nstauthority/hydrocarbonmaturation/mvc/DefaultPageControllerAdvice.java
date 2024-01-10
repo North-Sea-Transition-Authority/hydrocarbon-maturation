@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.InvalidAuthenticationException;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.feedback.FeedbackController;
 import uk.co.nstauthority.hydrocarbonmaturation.footer.AccessibilityStatementController;
@@ -30,17 +30,17 @@ public class DefaultPageControllerAdvice {
   private final ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties;
   private final TopNavigationService topNavigationService;
   private final TechnicalSupportConfiguration technicalSupportConfiguration;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
 
   @Autowired
   DefaultPageControllerAdvice(ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties,
                               TopNavigationService topNavigationService,
                               TechnicalSupportConfiguration technicalSupportConfiguration,
-                              UserDetailService userDetailService) {
+                              UserService userService) {
     this.serviceBrandingConfigurationProperties = serviceBrandingConfigurationProperties;
     this.topNavigationService = topNavigationService;
     this.technicalSupportConfiguration = technicalSupportConfiguration;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
   }
 
   @ModelAttribute
@@ -96,7 +96,7 @@ public class DefaultPageControllerAdvice {
 
   private void addUser(Model model) {
     try {
-      model.addAttribute("loggedInUser", userDetailService.getUserDetail());
+      model.addAttribute("loggedInUser", userService.getUser());
     } catch (InvalidAuthenticationException e) {
       LOGGER.warn("Could not get logged in user", e);
     }

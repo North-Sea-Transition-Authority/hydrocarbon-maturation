@@ -12,7 +12,7 @@ import uk.co.fivium.digital.energyportalteamaccesslibrary.team.EnergyPortalAcces
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.InstigatingWebUserAccountId;
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.ResourceType;
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.TargetWebUserAccountId;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
@@ -28,7 +28,7 @@ public class TeamMemberRoleService {
 
   private final AddedToTeamEventPublisher addedToTeamEventPublisher;
 
-  private final UserDetailService userDetailService;
+  private final UserService userService;
 
   private final RemovedFromTeamEventPublisher removedFromTeamEventPublisher;
 
@@ -39,13 +39,13 @@ public class TeamMemberRoleService {
   @Autowired
   public TeamMemberRoleService(TeamMemberRoleRepository teamMemberRoleRepository,
                                AddedToTeamEventPublisher addedToTeamEventPublisher,
-                               UserDetailService userDetailService,
+                               UserService userService,
                                RemovedFromTeamEventPublisher removedFromTeamEventPublisher,
                                EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration,
                                EnergyPortalAccessService energyPortalAccessService) {
     this.teamMemberRoleRepository = teamMemberRoleRepository;
     this.addedToTeamEventPublisher = addedToTeamEventPublisher;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.removedFromTeamEventPublisher = removedFromTeamEventPublisher;
     this.energyPortalAccessApiConfiguration = energyPortalAccessApiConfiguration;
     this.energyPortalAccessService = energyPortalAccessService;
@@ -54,7 +54,7 @@ public class TeamMemberRoleService {
   @Transactional
   public void addUserTeamRoles(Team team, EnergyPortalUserDto userToAdd, Set<String> roles) {
     var targetUser = new WebUserAccountId(userToAdd.webUserAccountId());
-    var instigationUser = new WebUserAccountId(userDetailService.getUserDetail().wuaId());
+    var instigationUser = new WebUserAccountId(userService.getUser().wuaId());
     updateUserTeamRoles(team, new WebUserAccountId(userToAdd.webUserAccountId()), roles);
 
     var resourceType = energyPortalAccessApiConfiguration.resourceType();
@@ -100,7 +100,7 @@ public class TeamMemberRoleService {
   @Transactional
   public void removeMemberFromTeam(Team team, TeamMember teamMember) {
     var removedUserId = new WebUserAccountId(teamMember.wuaId().id());
-    var instigationUser = new WebUserAccountId(userDetailService.getUserDetail().wuaId());
+    var instigationUser = new WebUserAccountId(userService.getUser().wuaId());
     teamMemberRoleRepository.deleteAllByTeamAndWuaId(team, removedUserId.id());
 
     var resourceType = energyPortalAccessApiConfiguration.resourceType();

@@ -5,8 +5,8 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
@@ -45,7 +45,7 @@ public class SubmissionCreateService {
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
   private final SubmissionPersistenceService submissionPersistenceService;
   private final RegulatorTeamService regulatorTeamService;
@@ -63,7 +63,7 @@ public class SubmissionCreateService {
                                  RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
                                  ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                                  OpportunityDetailsPersistenceService opportunityDetailsPersistenceService,
-                                 UserDetailService userDetailService,
+                                 UserService userService,
                                  SubmissionDetailPersistenceService submissionDetailPersistenceService,
                                  SubmissionPersistenceService submissionPersistenceService,
                                  RegulatorTeamService regulatorTeamService, AreaTeamService areaTeamService,
@@ -78,7 +78,7 @@ public class SubmissionCreateService {
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.opportunityDetailsPersistenceService = opportunityDetailsPersistenceService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
     this.submissionPersistenceService = submissionPersistenceService;
     this.regulatorTeamService = regulatorTeamService;
@@ -243,7 +243,7 @@ public class SubmissionCreateService {
   }
 
   @Transactional
-  public SubmissionDetail createCorrectionSubmissionDetail(SubmissionDetail previousSubmissionDetail, ServiceUserDetail user) {
+  public SubmissionDetail createCorrectionSubmissionDetail(SubmissionDetail previousSubmissionDetail, User user) {
     var correctionSubmissionDetail = submissionDetailPersistenceService.createCorrectionSubmissionDetail(
         previousSubmissionDetail,
         user
@@ -305,12 +305,12 @@ public class SubmissionCreateService {
   }
 
   public Map<String, String> getResourceTypeOptionsForUser() {
-    var userDetail = userDetailService.getUserDetail();
+    var user = userService.getUser();
     var resourceTypeOptions = ResourceType.getResourceTypes();
 
-    var isNotIndustrySubmitter = !industryTeamService.isSubmitter(userDetail);
-    var isNotExplorationTeam = !regulatorTeamService.isExploration(userDetail);
-    var isNotAreaTeamMember = !areaTeamService.isAreaTeamMember(userDetail);
+    var isNotIndustrySubmitter = !industryTeamService.isSubmitter(user);
+    var isNotExplorationTeam = !regulatorTeamService.isExploration(user);
+    var isNotAreaTeamMember = !areaTeamService.isAreaTeamMember(user);
 
     if (isNotIndustrySubmitter && isNotExplorationTeam) {
       resourceTypeOptions.remove(ResourceType.PROSPECT.name());

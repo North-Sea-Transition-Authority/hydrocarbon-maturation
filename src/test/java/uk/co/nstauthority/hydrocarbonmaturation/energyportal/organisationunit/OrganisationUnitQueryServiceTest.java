@@ -19,9 +19,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.client.organisation.OrganisationApi;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
@@ -37,7 +37,7 @@ class OrganisationUnitQueryServiceTest {
       "name",
       "mnemonic"
   );
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
   private static final Integer ORGANISATION_UNIT_ID = 1;
   private static final String ORGANISATION_UNIT_NAME = "Fivium";
   private static final String ORGANISATION_COMPANY_NUMBER = "15";
@@ -46,7 +46,7 @@ class OrganisationUnitQueryServiceTest {
   private static OrganisationApi organisationApi;
 
   @Mock
-  private UserDetailService userDetailService;
+  private UserService userService;
 
   @Mock
   private IndustryTeamService industryTeamService;
@@ -69,7 +69,7 @@ class OrganisationUnitQueryServiceTest {
     organisationUnitQueryService = new OrganisationUnitQueryService(
         organisationApi,
         new EnergyPortalApiWrapper(serviceConfigurationProperties),
-        userDetailService,
+        userService,
         industryTeamService,
         regulatorTeamService,
         organisationGroupQueryService,
@@ -81,7 +81,7 @@ class OrganisationUnitQueryServiceTest {
   @Test
   void getOrganisationUnits_whenNotRegulator_whenNoOrganisationsFound() {
     var organisationName = "name";
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(industryTeamService.getOrganisationGroupIdsForUser(USER))
         .thenReturn(List.of());
     when(regulatorTeamService.isRegulatorUser(USER))
@@ -94,7 +94,7 @@ class OrganisationUnitQueryServiceTest {
   @Test
   void getOrganisationUnits_whenNotRegulator_whenInTeam_whenNoOrganisationUnitsFound() {
     var organisationName = "name";
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(industryTeamService.getOrganisationGroupIdsForUser(USER))
         .thenReturn(List.of(1,2));
     when(regulatorTeamService.isRegulatorUser(USER))
@@ -111,7 +111,7 @@ class OrganisationUnitQueryServiceTest {
     var organisationName = "name";
     var organisationUnit = OrganisationUnitTestUtil.Builder().build();
     var filter = OrganisationUnitQueryService.ORGANISATION_UNITS_PROJECTION_ROOT;
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(regulatorTeamService.isRegulatorUser(USER))
         .thenReturn(true);
     when(organisationApi.searchOrganisationUnits(
@@ -155,7 +155,7 @@ class OrganisationUnitQueryServiceTest {
         .build();
 
     var filter = OrganisationUnitQueryService.ORGANISATION_UNITS_PROJECTION_ROOT;
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(regulatorTeamService.isRegulatorUser(USER))
         .thenReturn(true);
     when(organisationApi.searchOrganisationUnits(
@@ -197,7 +197,7 @@ class OrganisationUnitQueryServiceTest {
         .withIsDuplicate(true)
         .build();
     organisationGroup.setOrganisationUnits(List.of(organisationUnit, organisationUnit2));
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(industryTeamService.getOrganisationGroupIdsForUser(USER))
         .thenReturn(List.of(1));
     when(regulatorTeamService.isRegulatorUser(USER))
@@ -232,7 +232,7 @@ class OrganisationUnitQueryServiceTest {
         .withOrganisationName("name")
         .build();
     organisationGroup.setOrganisationUnits(List.of(organisationUnit));
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(industryTeamService.getOrganisationGroupIdsForUser(USER))
         .thenReturn(List.of(1));
     when(regulatorTeamService.isRegulatorUser(USER))
@@ -267,7 +267,7 @@ class OrganisationUnitQueryServiceTest {
         .withOrganisationName("wrong")
         .build();
     organisationGroup.setOrganisationUnits(List.of(organisationUnit));
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(industryTeamService.getOrganisationGroupIdsForUser(USER))
         .thenReturn(List.of(1));
     when(regulatorTeamService.isRegulatorUser(USER))

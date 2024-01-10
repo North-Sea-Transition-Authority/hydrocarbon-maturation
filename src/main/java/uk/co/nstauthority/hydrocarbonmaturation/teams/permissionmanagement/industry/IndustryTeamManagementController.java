@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasTeamPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -33,7 +33,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamM
 public class IndustryTeamManagementController extends AbstractIndustryPermissionManagement {
 
   private final TeamMemberViewService teamMemberViewService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final PermissionService permissionService;
   private final TeamService teamService;
   private final TeamManagementService teamManagementService;
@@ -41,12 +41,12 @@ public class IndustryTeamManagementController extends AbstractIndustryPermission
   @Autowired
   IndustryTeamManagementController(TeamMemberViewService teamMemberViewService,
                                    IndustryTeamService industryTeamService,
-                                   UserDetailService userDetailService,
+                                   UserService userService,
                                    PermissionService permissionService,
                                    TeamService teamService, TeamManagementService teamManagementService) {
     super(industryTeamService);
     this.teamMemberViewService = teamMemberViewService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.permissionService = permissionService;
     this.teamService = teamService;
     this.teamManagementService = teamManagementService;
@@ -54,7 +54,7 @@ public class IndustryTeamManagementController extends AbstractIndustryPermission
 
   @GetMapping("/{teamId}")
   public ModelAndView renderMemberList(@PathVariable("teamId") TeamId teamId) {
-    var user = userDetailService.getUserDetail();
+    var user = userService.getUser();
 
     var team = getIndustryTeam(teamId);
     var modelAndView = new ModelAndView("remi/permissionmanagement/teamMembers")

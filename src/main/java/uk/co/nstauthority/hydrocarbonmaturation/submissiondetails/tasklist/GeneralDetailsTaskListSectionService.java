@@ -9,7 +9,7 @@ import java.util.Set;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -34,7 +34,7 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
   private final RelatedResourcesSubmissionService relatedResourcesSubmissionService;
   private final ConsideringCcusSubmissionService consideringCcusSubmissionService;
   private final PermissionService permissionService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final FieldComplexitySubmissionService fieldComplexitySubmissionService;
 
   @Autowired
@@ -43,14 +43,14 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
                                        RelatedResourcesSubmissionService relatedResourcesSubmissionService,
                                        ConsideringCcusSubmissionService consideringCcusSubmissionService,
                                        PermissionService permissionService,
-                                       UserDetailService userDetailService,
+                                       UserService userService,
                                        FieldComplexitySubmissionService fieldComplexitySubmissionService) {
     this.generalDetailSubmissionService = generalDetailSubmissionService;
     this.resourceDetailsSubmissionService = resourceDetailsSubmissionService;
     this.relatedResourcesSubmissionService = relatedResourcesSubmissionService;
     this.consideringCcusSubmissionService = consideringCcusSubmissionService;
     this.permissionService = permissionService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.fieldComplexitySubmissionService = fieldComplexitySubmissionService;
   }
 
@@ -126,7 +126,7 @@ class GeneralDetailsTaskListSectionService implements TaskListSectionService {
         || submissionType == SubmissionType.CREATE_DISCOVERY
         || submissionType == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT;
     return isInitialResourceSubmission
-        && permissionService.hasPermission(userDetailService.getUserDetail(), Set.of(RolePermission.EXPLORATION))
+        && permissionService.hasPermission(userService.getUser(), Set.of(RolePermission.EXPLORATION))
         && BooleanUtils.isNotTrue(submissionDetail.isCorrection());
   }
 }

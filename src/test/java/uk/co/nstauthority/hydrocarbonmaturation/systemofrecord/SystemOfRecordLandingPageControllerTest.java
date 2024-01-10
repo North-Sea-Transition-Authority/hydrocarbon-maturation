@@ -10,14 +10,14 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
 @ContextConfiguration(classes = SystemOfRecordLandingPageController.class)
 class SystemOfRecordLandingPageControllerTest extends AbstractControllerTest {
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
 
   @SecurityTest
   void getLandingPage_noUser_assertStatusUnauthorized() throws Exception {

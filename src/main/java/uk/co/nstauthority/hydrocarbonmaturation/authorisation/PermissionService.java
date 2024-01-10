@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMember;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
@@ -21,7 +21,7 @@ public class PermissionService {
     this.teamMemberService = teamMemberService;
   }
 
-  public boolean hasPermission(ServiceUserDetail user, Set<RolePermission> requiredPermissions) {
+  public boolean hasPermission(User user, Set<RolePermission> requiredPermissions) {
 
     var teamMembers = teamMemberService.getUserAsTeamMembers(user);
 

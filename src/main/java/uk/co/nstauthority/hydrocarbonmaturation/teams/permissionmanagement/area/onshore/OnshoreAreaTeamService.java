@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
@@ -45,11 +45,11 @@ public class OnshoreAreaTeamService {
     teamMemberRoleService.addUserTeamRoles(team, userToAdd, rolesAsStrings);
   }
 
-  public boolean isOnshoreAreaUser(ServiceUserDetail user) {
+  public boolean isOnshoreAreaUser(User user) {
     return getOnshoreAreaTeamForUser(user).isPresent();
   }
 
-  public boolean isOnshoreTeamMember(ServiceUserDetail user) {
+  public boolean isOnshoreTeamMember(User user) {
     return getOnshoreAreaTeamForUser(user)
         .map(team -> teamMemberService.isMemberOfTeamWithAnyRoleOf(
             team.toTeamId(),
@@ -68,7 +68,7 @@ public class OnshoreAreaTeamService {
     return energyPortalUserService.findByWuaIds(onshoreTeamMemberWuaIds);
   }
 
-  private Optional<Team> getOnshoreAreaTeamForUser(ServiceUserDetail user) {
+  private Optional<Team> getOnshoreAreaTeamForUser(User user) {
     return teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.ONSHORE_AREA)
         .stream()
         .findFirst();

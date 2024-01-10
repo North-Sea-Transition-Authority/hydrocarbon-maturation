@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.indu
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 
 @Service
@@ -18,13 +18,13 @@ public class IndustryTeamMemberService {
     this.organisationUnitQueryService = organisationUnitQueryService;
   }
 
-  public boolean isMemberOfOrganisationUnit(ServiceUserDetail userDetail, Integer organisationUnitId) {
+  public boolean isMemberOfOrganisationUnit(User user, Integer organisationUnitId) {
     var organisationGroups = organisationUnitQueryService.findOrganisationGroupIdsByUnitId(organisationUnitId);
-    return industryTeamService.isTeamMemberForOrganisationGroups(userDetail, organisationGroups);
+    return industryTeamService.isTeamMemberForOrganisationGroups(user, organisationGroups);
   }
 
-  public boolean isSubmitterOfOrganisationUnit(ServiceUserDetail userDetail, Integer organisationUnitId) {
+  public boolean isSubmitterOfOrganisationUnit(User user, Integer organisationUnitId) {
     var organisationGroups = organisationUnitQueryService.findOrganisationGroupIdsByUnitId(organisationUnitId);
-    return industryTeamService.isSubmitterForOrganisationGroups(userDetail, organisationGroups);
+    return industryTeamService.isSubmitterForOrganisationGroups(user, organisationGroups);
   }
 }

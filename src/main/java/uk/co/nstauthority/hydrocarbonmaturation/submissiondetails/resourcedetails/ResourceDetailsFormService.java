@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -23,7 +23,7 @@ class ResourceDetailsFormService implements SubmissionFormService {
   private final OrganisationUnitQueryService organisationUnitQueryService;
   private final SubmissionDetailService submissionDetailService;
   private final RegulatorTeamService regulatorTeamService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
 
   @Autowired
   ResourceDetailsFormService(ResourceDetailsFormValidator resourceDetailsFormValidator,
@@ -31,13 +31,13 @@ class ResourceDetailsFormService implements SubmissionFormService {
                              OrganisationUnitQueryService organisationUnitQueryService,
                              SubmissionDetailService submissionDetailService,
                              RegulatorTeamService regulatorTeamService,
-                             UserDetailService userDetailService) {
+                             UserService userService) {
     this.resourceDetailsFormValidator = resourceDetailsFormValidator;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.submissionDetailService = submissionDetailService;
     this.regulatorTeamService = regulatorTeamService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
   }
 
   ResourceDetailsForm getResourceDetailsForm(SubmissionDetail submissionDetail) {
@@ -78,7 +78,7 @@ class ResourceDetailsFormService implements SubmissionFormService {
 
   private ResourceDetailsFormValidatorHints getValidationHints(SubmissionDetail submissionDetail,
                                                                ValidationType validationType) {
-    var isRegulator = regulatorTeamService.isRegulatorUser(userDetailService.getUserDetail());
+    var isRegulator = regulatorTeamService.isRegulatorUser(userService.getUser());
     if (submissionDetail.isFirstSubmission()) {
       return new ResourceDetailsFormValidatorHints(
           validationType,

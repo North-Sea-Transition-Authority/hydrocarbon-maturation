@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
@@ -108,7 +108,7 @@ public class RegulatorManagedInformationController {
                                                       @ModelAttribute("form") RegulatorManagedInformationForm form,
                                                       BindingResult bindingResult,
                                                       RedirectAttributes redirectAttributes,
-                                                      ServiceUserDetail serviceUserDetail) {
+                                                      User user) {
     var resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() ->
             new RemiEntityNotFoundException("Could not find resource with id %s"
@@ -140,7 +140,7 @@ public class RegulatorManagedInformationController {
               "Success",
               "The regulator managed information has been updated for the resource %s".formatted(resourceName));
 
-          var isInResponsibleTeam = responsibleTeamService.isInResponsibleTeam(serviceUserDetail, submissionDetail);
+          var isInResponsibleTeam = responsibleTeamService.isInResponsibleTeam(user, submissionDetail);
           if (SubmissionDetailStatus.SUBMITTED.equals(submissionDetail.getStatus())) {
             // status is SUBMITTED
             if (isInResponsibleTeam) {

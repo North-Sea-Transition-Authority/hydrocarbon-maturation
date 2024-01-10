@@ -20,7 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 @WebMvcTest
 @ContextConfiguration(classes = {
     AuthenticationControllerTest.TestAuthenticationController.class,
-    UserDetailService.class
+    UserService.class
 })
 class AuthenticationControllerTest extends AbstractSubmissionControllerTest {
 
@@ -28,16 +28,16 @@ class AuthenticationControllerTest extends AbstractSubmissionControllerTest {
   @RequestMapping("/auth")
   static class TestAuthenticationController {
 
-    private final UserDetailService userDetailService;
+    private final UserService userService;
 
     @Autowired
-    TestAuthenticationController(UserDetailService userDetailService) {
-      this.userDetailService = userDetailService;
+    TestAuthenticationController(UserService userService) {
+      this.userService = userService;
     }
 
     @GetMapping("/secured")
     public ModelAndView renderSecured() {
-      return new ModelAndView().addObject("user", userDetailService.getUserDetail());
+      return new ModelAndView().addObject("user", userService.getUser());
     }
 
   }
@@ -51,7 +51,7 @@ class AuthenticationControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void authorisedRequest() throws Exception {
-    var expectedUser = ServiceUserDetailTestUtil.Builder()
+    var expectedUser = UserTestUtil.Builder()
         .withWuaId(100L)
         .build();
 
@@ -64,8 +64,8 @@ class AuthenticationControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(modelAndView).isNotNull();
 
-    assertThat((ServiceUserDetail) modelAndView.getModel().get("user"))
-        .extracting(ServiceUserDetail::wuaId)
+    assertThat((User) modelAndView.getModel().get("user"))
+        .extracting(User::wuaId)
         .isEqualTo(expectedUser.wuaId());
   }
 

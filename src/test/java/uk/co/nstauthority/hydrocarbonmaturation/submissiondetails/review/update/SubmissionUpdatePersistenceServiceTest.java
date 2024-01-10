@@ -18,9 +18,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
@@ -37,7 +37,7 @@ class SubmissionUpdatePersistenceServiceTest {
   @Mock
   private SubmissionUpdateRepository submissionUpdateRepository;
   @Mock
-  private UserDetailService userDetailService;
+  private UserService userService;
   @Mock
   private Clock clock;
   @Mock
@@ -52,14 +52,14 @@ class SubmissionUpdatePersistenceServiceTest {
   @Nested
   class WhenRequestingUpdate {
     private static final String UPDATE_REASON = "Reason for update here";
-    private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+    private static final User USER = UserTestUtil.Builder().build();
     private static final Instant REQUESTED_TIMESTAMP = Instant.parse("2022-12-03T10:15:30.00Z");
     private SubmissionDetail submissionDetail;
     private RequestUpdateForm form;
 
     @BeforeEach
     void setup() {
-      when(userDetailService.getUserDetail()).thenReturn(USER);
+      when(userService.getUser()).thenReturn(USER);
       when(clock.instant()).thenReturn(REQUESTED_TIMESTAMP);
       submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
       form = new RequestUpdateForm();
@@ -215,7 +215,7 @@ class SubmissionUpdatePersistenceServiceTest {
 
       when(clock.instant())
           .thenReturn(RESOLVED_TIMESTAMP);
-      when(userDetailService.getUserWuaId())
+      when(userService.getUserWuaId())
           .thenReturn(RESOLVED_BY_WUA_ID);
 
       underTest.resolveUpdate(submissionUpdate);
@@ -249,7 +249,7 @@ class SubmissionUpdatePersistenceServiceTest {
 
       when(clock.instant())
           .thenReturn(RESOLVED_TIMESTAMP);
-      when(userDetailService.getUserWuaId())
+      when(userService.getUserWuaId())
           .thenReturn(RESOLVED_BY_WUA_ID);
 
       underTest.resolveUpdate(submissionUpdate);

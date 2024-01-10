@@ -12,10 +12,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailArgumentResolver;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserArgumentResolver;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorUsersInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasTeamPermissionInterceptor;
@@ -53,7 +53,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnica
     HasTeamPermissionInterceptor.class,
     PermissionService.class,
     SubmissionStatusInterceptorRule.class,
-    ServiceUserDetailArgumentResolver.class,
+    UserArgumentResolver.class,
     ValidationTypeArgumentResolver.class,
     ErrorSummaryHandlerInterceptor.class
 })
@@ -74,7 +74,7 @@ public abstract class AbstractControllerTest {
   protected TeamService teamService;
 
   @MockBean
-  protected UserDetailService userDetailService;
+  protected UserService userService;
 
   @MockBean
   protected SubmissionDetailService submissionDetailService;
@@ -91,12 +91,12 @@ public abstract class AbstractControllerTest {
   @Autowired
   protected ControllerHelperService controllerHelperService;
 
-  protected ServiceUserDetail user;
+  protected User user;
 
   @BeforeEach
   void setupAbstractControllerTest() {
-    doCallRealMethod().when(userDetailService).getUserDetail();
-    user = ServiceUserDetailTestUtil.Builder().build();
+    doCallRealMethod().when(userService).getUser();
+    user = UserTestUtil.Builder().build();
   }
 
   @TestConfiguration
@@ -115,9 +115,9 @@ public abstract class AbstractControllerTest {
     @Bean
     public SubmissionHandlerInterceptor submissionHandlerInterceptor(
         SubmissionDetailService submissionDetailService,
-        UserDetailService userDetailService,
+        UserService userService,
         List<SubmissionInterceptorSecurityRule> securityRules) {
-      return new SubmissionHandlerInterceptor(submissionDetailService, userDetailService, securityRules);
+      return new SubmissionHandlerInterceptor(submissionDetailService, userService, securityRules);
     }
   }
 }

@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
@@ -39,7 +39,7 @@ public class RegulatorTeamService {
     this.energyPortalUserService = energyPortalUserService;
   }
 
-  public Optional<Team> getRegulatorTeamForUser(ServiceUserDetail user) {
+  public Optional<Team> getRegulatorTeamForUser(User user) {
     return teamService.getTeamsOfTypeThatUserBelongsTo(user, TeamType.REGULATOR)
         .stream()
         .findFirst();
@@ -54,11 +54,11 @@ public class RegulatorTeamService {
         .toList();
   }
 
-  public boolean isRegulatorUser(ServiceUserDetail user) {
+  public boolean isRegulatorUser(User user) {
     return getRegulatorTeamForUser(user).isPresent();
   }
 
-  public boolean isRegulatorTeamRole(ServiceUserDetail user, RegulatorTeamRole regulatorTeamRole) {
+  public boolean isRegulatorTeamRole(User user, RegulatorTeamRole regulatorTeamRole) {
     return getRegulatorTeamForUser(user)
         .map(team -> teamMemberService.isMemberOfTeamWithAnyRoleOf(
             team.toTeamId(),
@@ -67,8 +67,8 @@ public class RegulatorTeamService {
         .orElse(false);
   }
 
-  public boolean isExploration(ServiceUserDetail userDetail) {
-    return isRegulatorTeamRole(userDetail, RegulatorTeamRole.EXPLORATION);
+  public boolean isExploration(User user) {
+    return isRegulatorTeamRole(user, RegulatorTeamRole.EXPLORATION);
   }
 
   public List<EnergyPortalUserDto> getExplorationTeamEnergyPortalUsers() {

@@ -12,7 +12,7 @@ import java.util.List;
 import org.jooq.Condition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Fields;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.ResourceDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Resources;
@@ -43,19 +43,19 @@ class OperatorSubmissionWorkAreaQueryService implements SubmissionWorkAreaQueryS
   }
 
   @Override
-  public List<SubmissionWorkAreaQueryResult> getWorkAreaSubmissionItems(ServiceUserDetail user) {
+  public List<SubmissionWorkAreaQueryResult> getWorkAreaSubmissionItems(User user) {
     return submissionWorkAreaQueryCommonService.getWorkAreaQueryResults(getOperatorConditions(user));
   }
 
-  private List<Condition> getOperatorConditions(ServiceUserDetail userDetail) {
-    var submissionTeamMembershipCondition = getSubmissionForResponsibleOrganisation(userDetail);
+  private List<Condition> getOperatorConditions(User user) {
+    var submissionTeamMembershipCondition = getSubmissionForResponsibleOrganisation(user);
     var workAreaVisibleSubmissionStatuses = submissionWorkAreaQueryCommonService.getVisibleSubmissions();
 
     return List.of(submissionTeamMembershipCondition, workAreaVisibleSubmissionStatuses);
   }
 
-  private Condition getSubmissionForResponsibleOrganisation(ServiceUserDetail userDetail) {
-    var userOrgUnits = industryTeamService.getOrganisationUnitIdsForUser(userDetail);
+  private Condition getSubmissionForResponsibleOrganisation(User user) {
+    var userOrgUnits = industryTeamService.getOrganisationUnitIdsForUser(user);
     return isIndustrySubmissionCondition()
         .and(isLatestApprovedSubmissionInUserResponsibleTeamCondition(userOrgUnits)
             .or(isInitialIndustrySubmissionInUserResponsibleTeamCondition(userOrgUnits)));

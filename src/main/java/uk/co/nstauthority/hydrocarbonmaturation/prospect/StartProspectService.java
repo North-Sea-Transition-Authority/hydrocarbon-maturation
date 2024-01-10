@@ -3,7 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.prospect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -17,15 +17,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 class StartProspectService {
 
   private final SubmissionCreateService submissionCreateService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final RegulatorTeamService regulatorTeamService;
   private final ResourceDetailsFormValidator resourceDetailsFormValidator;
 
   @Autowired
-  StartProspectService(SubmissionCreateService submissionCreateService, UserDetailService userDetailService,
+  StartProspectService(SubmissionCreateService submissionCreateService, UserService userService,
                        RegulatorTeamService regulatorTeamService, ResourceDetailsFormValidator resourceDetailsFormValidator) {
     this.submissionCreateService = submissionCreateService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.regulatorTeamService = regulatorTeamService;
     this.resourceDetailsFormValidator = resourceDetailsFormValidator;
   }
@@ -38,7 +38,7 @@ class StartProspectService {
     resourceDetailsFormValidator.validate(form, bindingResult,
         new ResourceDetailsFormValidatorHints(
             ValidationType.FULL,
-            regulatorTeamService.isRegulatorUser(userDetailService.getUserDetail()),
+            regulatorTeamService.isRegulatorUser(userService.getUser()),
             ResourceType.PROSPECT,
             null)
     );

@@ -18,8 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
@@ -58,7 +58,7 @@ class WorkAreaItemServiceTest {
   private final Integer LICENCE_ID_1 = 1;
   private final Integer LICENCE_ID_2 = 2;
   private final Integer ORGANISATION_ID = 5;
-  private final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private final User USER = UserTestUtil.Builder().build();
 
   @BeforeEach
   void setUp() {

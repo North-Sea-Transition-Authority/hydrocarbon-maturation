@@ -20,8 +20,8 @@ import uk.co.fivium.digital.energyportalteamaccesslibrary.team.EnergyPortalAcces
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.InstigatingWebUserAccountId;
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.ResourceType;
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.TargetWebUserAccountId;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.access.EnergyPortalAccessApiConfigurationUtil;
@@ -40,7 +40,7 @@ class TeamMemberRoleServiceTest {
   private AddedToTeamEventPublisher addedToTeamEventPublisher;
 
   @Mock
-  private UserDetailService userDetailService;
+  private UserService userService;
 
   @Captor
   private ArgumentCaptor<List<TeamMemberRole>> teamMemberRoleCaptor;
@@ -70,7 +70,7 @@ class TeamMemberRoleServiceTest {
     teamMemberRoleService = new TeamMemberRoleService(
         teamMemberRoleRepository,
         addedToTeamEventPublisher,
-        userDetailService,
+        userService,
         removedFromTeamEventPublisher,
         energyPortalAccessApiConfiguration,
         energyPortalAccessService
@@ -88,11 +88,11 @@ class TeamMemberRoleServiceTest {
 
     var role = "ROLE_NAME";
 
-    var instigatingUser = ServiceUserDetailTestUtil.Builder()
+    var instigatingUser = UserTestUtil.Builder()
         .withWuaId(200L)
         .build();
 
-    when(userDetailService.getUserDetail()).thenReturn(instigatingUser);
+    when(userService.getUser()).thenReturn(instigatingUser);
 
     teamMemberRoleService.addUserTeamRoles(team, userToAdd, Set.of(role));
 
@@ -186,11 +186,11 @@ class TeamMemberRoleServiceTest {
 
     var teamMember = TeamMemberTestUtil.Builder().withWebUserAccountId(removedUser.webUserAccountId()).build();
 
-    var instigatingUser = ServiceUserDetailTestUtil.Builder()
+    var instigatingUser = UserTestUtil.Builder()
         .withWuaId(200L)
         .build();
 
-    when(userDetailService.getUserDetail()).thenReturn(instigatingUser);
+    when(userService.getUser()).thenReturn(instigatingUser);
     when(teamMemberRoleRepository.existsByWuaId(removedUser.webUserAccountId())).thenReturn(false);
 
     teamMemberRoleService.removeMemberFromTeam(team, teamMember);
@@ -227,11 +227,11 @@ class TeamMemberRoleServiceTest {
 
     var teamMember = TeamMemberTestUtil.Builder().withWebUserAccountId(removedUser.webUserAccountId()).build();
 
-    var instigatingUser = ServiceUserDetailTestUtil.Builder()
+    var instigatingUser = UserTestUtil.Builder()
         .withWuaId(200L)
         .build();
 
-    when(userDetailService.getUserDetail()).thenReturn(instigatingUser);
+    when(userService.getUser()).thenReturn(instigatingUser);
     when(teamMemberRoleRepository.existsByWuaId(teamMember.wuaId().id())).thenReturn(true);
 
     teamMemberRoleService.removeMemberFromTeam(team, teamMember);

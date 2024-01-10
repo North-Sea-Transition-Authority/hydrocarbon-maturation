@@ -15,8 +15,8 @@ import org.junit.jupiter.api.TestInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorUsersInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
@@ -107,7 +107,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
   @Autowired
   protected ControllerHelperService controllerHelperService;
 
-  protected static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  protected static final User USER = UserTestUtil.Builder().build();
 
   protected static final UUID SUBMISSION_DETAIL_ID = UUID.randomUUID();
   protected SubmissionDetail submissionDetail;
@@ -116,7 +116,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
 
   @BeforeEach
   void setUp(TestInfo testInfo) {
-    doCallRealMethod().when(userDetailService).getUserDetail();
+    doCallRealMethod().when(userService).getUser();
     submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT,
         SUBMISSION_DETAIL_ID);
     submissionDetail.setAcceptedTimestamp(Instant.now());
@@ -142,7 +142,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
     }
   }
 
-  protected void setUpWhenUserIsResponsibleOrganisation_passSecurity(ServiceUserDetail user) {
+  protected void setUpWhenUserIsResponsibleOrganisation_passSecurity(User user) {
     when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
         .thenReturn(operatorTeamMembershipInterceptorRule);
     var responsibleTeam = new RegulatorManagedInformation();
@@ -161,7 +161,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         .thenReturn(List.of(1));
   }
 
-  protected void setUpWhenUserIsResponsibleOrganisation_passSecurity(ServiceUserDetail user, SubmissionDetail submissionDetail) {
+  protected void setUpWhenUserIsResponsibleOrganisation_passSecurity(User user, SubmissionDetail submissionDetail) {
     when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
         .thenReturn(operatorTeamMembershipInterceptorRule);
     var responsibleTeam = new RegulatorManagedInformation();
@@ -180,7 +180,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
             .thenReturn(List.of(1));
   }
 
-  protected void setUpWhenUserIsResponsibleOrganisation_field_passSecurity(ServiceUserDetail user, SubmissionDetail submissionDetail) {
+  protected void setUpWhenUserIsResponsibleOrganisation_field_passSecurity(User user, SubmissionDetail submissionDetail) {
     when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
             .thenReturn(operatorTeamMembershipInterceptorRule);
     var responsibleTeam = new RegulatorManagedInformation();
@@ -216,7 +216,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         .thenReturn(true);
   }
 
-  protected void setUpWhenUserIsResponsibleTeam_forField_passSecurity(ServiceUserDetail user, SubmissionDetail submissionDetail) {
+  protected void setUpWhenUserIsResponsibleTeam_forField_passSecurity(User user, SubmissionDetail submissionDetail) {
     when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
         .thenReturn(regulatorTeamMembershipInterceptorRule);
     var regulatorManagedInformation = new RegulatorManagedInformation();
@@ -230,7 +230,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         .thenReturn(true);
   }
 
-  protected void setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(ServiceUserDetail user) {
+  protected void setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(User user) {
     when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
         .thenReturn(operatorTeamMembershipInterceptorRule);
     var responsibleTeam = new RegulatorManagedInformation();
@@ -251,7 +251,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         .thenReturn(false);
   }
 
-  protected void setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(ServiceUserDetail user, SubmissionDetail submissionDetail) {
+  protected void setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(User user, SubmissionDetail submissionDetail) {
     when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
         .thenReturn(operatorTeamMembershipInterceptorRule);
     var responsibleTeam = new RegulatorManagedInformation();
@@ -272,7 +272,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
         .thenReturn(false);
   }
 
-  protected void setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_field_failSecurity(ServiceUserDetail user, SubmissionDetail submissionDetail) {
+  protected void setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_field_failSecurity(User user, SubmissionDetail submissionDetail) {
     when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
             .thenReturn(operatorTeamMembershipInterceptorRule);
     var responsibleTeam = new RegulatorManagedInformation();

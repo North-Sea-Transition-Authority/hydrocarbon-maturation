@@ -8,7 +8,7 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 
 @Service
@@ -16,14 +16,14 @@ public class SubmissionPersistenceService {
 
   private final SubmissionRepository submissionRepository;
   private final Clock clock;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
 
   @Autowired
   SubmissionPersistenceService(SubmissionRepository submissionRepository, Clock clock,
-                               UserDetailService userDetailService) {
+                               UserService userService) {
     this.submissionRepository = submissionRepository;
     this.clock = clock;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
   }
 
   public Optional<Submission> getSubmissionById(UUID id) {
@@ -48,7 +48,7 @@ public class SubmissionPersistenceService {
   @Transactional
   public Submission withdrawSubmission(Submission submission, String withdrawalReason) {
     submission.setWithdrawnTimestamp(clock.instant());
-    submission.setWithdrawnByWuaId(userDetailService.getUserWuaId());
+    submission.setWithdrawnByWuaId(userService.getUserWuaId());
     submission.setWithdrawalReason(withdrawalReason);
     submission.setWithdrawn(true);
     submissionRepository.save(submission);

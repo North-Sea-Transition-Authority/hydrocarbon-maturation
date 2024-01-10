@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 
 @ExtendWith(MockitoExtension.class)
 class TeamServiceTest {
@@ -57,7 +57,7 @@ class TeamServiceTest {
   @ParameterizedTest
   @EnumSource(value = TeamType.class)
   void getTeamsOfTypeThatUserBelongsTo_whenUserIsNotMember_thenNoTeamsReturned(TeamType teamType) {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     when(teamRepository.findAllTeamsOfTypeThatUserIsMemberOf(user.wuaId(), teamType)).thenReturn(List.of());
 
     var result = teamService.getTeamsOfTypeThatUserBelongsTo(user, teamType);
@@ -69,7 +69,7 @@ class TeamServiceTest {
   @ParameterizedTest
   @EnumSource(value = TeamType.class)
   void getTeamsOfTypeThatUserBelongsTo_whenUserIsMember_thenTeamsReturned(TeamType teamType) {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var team = new Team();
 
     when(teamRepository.findAllTeamsOfTypeThatUserIsMemberOf(user.wuaId(), teamType)).thenReturn(List.of(team));
@@ -82,7 +82,7 @@ class TeamServiceTest {
 
   @Test
   void getTeamsThatUserBelongsTo() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = new Team(UUID.randomUUID());
     var teamMemberRole1 = new TeamMemberRole(UUID.randomUUID());
@@ -99,7 +99,7 @@ class TeamServiceTest {
 
   @Test
   void isUserInMultipleTeams_UserIsInOneTeam() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = new Team(UUID.randomUUID());
     var teamMemberRole1 = new TeamMemberRole(UUID.randomUUID());
@@ -116,7 +116,7 @@ class TeamServiceTest {
 
   @Test
   void isUserInMultipleTeams_UserIsInTwoTeam() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team1 = new Team(UUID.randomUUID());
     var teamMemberRole1 = new TeamMemberRole(UUID.randomUUID());
@@ -134,7 +134,7 @@ class TeamServiceTest {
 
   @Test
   void getOrganisationGroupsUserIsTeamMemberOf_assertReturn() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var teamMemberRole = new TeamMemberRole();
     var team = new Team();
     team.setOrganisationGroupId(1);

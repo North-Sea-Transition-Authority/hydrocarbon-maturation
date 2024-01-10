@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
@@ -89,7 +89,7 @@ class SubmissionQueryService {
         .toList();
   }
 
-  public List<ResourceView> getLatestResourceSubmissionsByName(String name, ServiceUserDetail user) {
+  public List<ResourceView> getLatestResourceSubmissionsByName(String name, User user) {
     // Get every resource by name
     return submissionResourceService.getResourcesByName(name).stream()
         // remove any prospects that are linked to a discovery
@@ -134,7 +134,7 @@ class SubmissionQueryService {
     return new ResourceView(resourceDetail.getId(), resourceDisplayName);
   }
 
-  private boolean filterResourceByUser(Resource resource, ServiceUserDetail userDetails) {
+  private boolean filterResourceByUser(Resource resource, User users) {
     if (internalTeamService.isRegulatorOrAreaTeamUser()) {
       return true;
     }
@@ -143,7 +143,7 @@ class SubmissionQueryService {
         .map(submissionDetail -> resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail).getOrganisationId())
         .orElse(null);
     var userSubmitterOrgUnits = industryTeamService
-        .getOrganisationUnitIdsForUser(userDetails);
+        .getOrganisationUnitIdsForUser(users);
 
     return (responsibleOrganisationId != null && userSubmitterOrgUnits.contains(responsibleOrganisationId));
   }

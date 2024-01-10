@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsMemberOfTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
@@ -30,7 +30,7 @@ public class RegulatorTeamManagementController extends AbstractRegulatorPermissi
 
   private final TeamMemberViewService teamMemberViewService;
   private final RegulatorTeamService regulatorTeamService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final CustomerConfigurationProperties customerConfigurationProperties;
   private final TeamMemberService teamMemberService;
   private final TeamService teamService;
@@ -39,14 +39,14 @@ public class RegulatorTeamManagementController extends AbstractRegulatorPermissi
   @Autowired
   RegulatorTeamManagementController(TeamMemberViewService teamMemberViewService,
                                     RegulatorTeamService regulatorTeamService,
-                                    UserDetailService userDetailService,
+                                    UserService userService,
                                     CustomerConfigurationProperties customerConfigurationProperties,
                                     TeamMemberService teamMemberService,
                                     TeamService teamService, TeamManagementService teamManagementService) {
     super(regulatorTeamService);
     this.teamMemberViewService = teamMemberViewService;
     this.regulatorTeamService = regulatorTeamService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.customerConfigurationProperties = customerConfigurationProperties;
     this.teamMemberService = teamMemberService;
     this.teamService = teamService;
@@ -56,10 +56,10 @@ public class RegulatorTeamManagementController extends AbstractRegulatorPermissi
   @GetMapping
   public ModelAndView renderMemberListRedirect() {
 
-    var team = regulatorTeamService.getRegulatorTeamForUser(userDetailService.getUserDetail())
+    var team = regulatorTeamService.getRegulatorTeamForUser(userService.getUser())
         .orElseThrow(() -> new ResponseStatusException(
             HttpStatus.FORBIDDEN,
-            "User with ID %s is not a member of regulator team".formatted(userDetailService.getUserDetail())
+            "User with ID %s is not a member of regulator team".formatted(userService.getUser())
         ));
 
     return ReverseRouter.redirect(on(RegulatorTeamManagementController.class)
@@ -72,7 +72,7 @@ public class RegulatorTeamManagementController extends AbstractRegulatorPermissi
 
     var team = getRegulatorTeam(teamId);
 
-    var user = userDetailService.getUserDetail();
+    var user = userService.getUser();
 
     var modelAndView = new ModelAndView("remi/permissionmanagement/teamMembers")
         .addObject("pageTitle", "Manage %s".formatted(customerConfigurationProperties.mnemonic()))

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -68,7 +68,7 @@ public class ResourceRestController {
 
   @GetMapping("/resources")
   public RestSearchResult searchResources(@RequestParam("term") String searchTerm,
-                                          ServiceUserDetail user) {
+                                          User user) {
     return searchSelectorService.search(
         searchTerm,
         submissionQueryService.getLatestResourceSubmissionsByName(searchTerm, user)
@@ -78,7 +78,7 @@ public class ResourceRestController {
   @GetMapping("field/{submissionType}")
   public RestSearchResult searchFields(@RequestParam("term") String searchTerm,
                                        @PathVariable("submissionType") SubmissionType submissionType,
-                                       ServiceUserDetail user) {
+                                       User user) {
     return searchSelectorService.search(
         searchTerm,
         fieldQueryService.getFieldByNameForSubmissionType(

@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -27,7 +27,7 @@ public class SubmissionStatusInterceptorRule implements SubmissionInterceptorSec
   public SecurityRuleResult check(Object annotation,
                                   HttpServletRequest request,
                                   HttpServletResponse response,
-                                  ServiceUserDetail userDetails,
+                                  User users,
                                   SubmissionDetail submissionDetail) {
     var expectedStatuses = ((HasSubmissionStatus) annotation).statuses();
     var expectedStatusList = CollectionUtils.arrayToList(expectedStatuses);
@@ -37,7 +37,7 @@ public class SubmissionStatusInterceptorRule implements SubmissionInterceptorSec
       return SecurityRuleResult.continueAsNormal();
     }
 
-    var userId = userDetails.wuaId();
+    var userId = users.wuaId();
     var submissionDetailId = submissionDetail.getId();
 
     LOGGER.warn("User {} attempted to access submission {} with status {}. Expected status(s) {}",

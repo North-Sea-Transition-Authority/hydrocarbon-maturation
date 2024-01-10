@@ -11,16 +11,16 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @ExtendWith(MockitoExtension.class)
 class ResourceAccessInterceptorFactoryTest {
 
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private RegulatorResourceAccessInterceptorRule regulatorTeamMembershipInterceptorRule;
@@ -29,7 +29,7 @@ class ResourceAccessInterceptorFactoryTest {
   private OperatorResourceAccessInterceptorRule operatorTeamMembershipInterceptorRule;
 
   @Mock
-  private UserDetailService userDetailService;
+  private UserService userService;
 
   @Mock
   private RegulatorTeamService regulatorTeamService;
@@ -42,7 +42,7 @@ class ResourceAccessInterceptorFactoryTest {
 
   @BeforeEach
   void setUp() {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
   }
 
   @ParameterizedTest

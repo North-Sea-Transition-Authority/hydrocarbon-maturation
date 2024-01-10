@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
@@ -25,7 +25,7 @@ class SubmissionWorkAreaServiceFactory {
     this.areaTeamService = areaTeamService;
   }
 
-  SubmissionWorkAreaQueryStrategy getWorkAreaServiceStrategy(ServiceUserDetail user) {
+  SubmissionWorkAreaQueryStrategy getWorkAreaServiceStrategy(User user) {
     if (regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user)) {
       return responsibleTeamSubmissionWorkAreaQueryService;
     } else {

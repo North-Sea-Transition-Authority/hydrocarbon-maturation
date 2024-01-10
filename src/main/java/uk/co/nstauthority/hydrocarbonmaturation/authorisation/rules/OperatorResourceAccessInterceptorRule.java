@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ResourceAccessInterceptorStrategy;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
@@ -36,17 +36,17 @@ public class OperatorResourceAccessInterceptorRule implements ResourceAccessInte
   }
 
   @Override
-  public SecurityRuleResult hasRequiredResourceAccessPermissions(ServiceUserDetail userDetails,
+  public SecurityRuleResult hasRequiredResourceAccessPermissions(User users,
                                                                  SubmissionDetail submissionDetail) {
     var responsibleOrganisationId = getResponsibleOrganisationId(submissionDetail);
     var userSubmitterOrgUnits = industryTeamService
-        .getOrganisationUnitIdsForUserWithIndustryTeamRoles(userDetails, Set.of(IndustryTeamRole.SUBMITTER));
+        .getOrganisationUnitIdsForUserWithIndustryTeamRoles(users, Set.of(IndustryTeamRole.SUBMITTER));
     if (isIndustrySubmissionOrSubmittedAndUserHasSubmitterRole(
         submissionDetail, userSubmitterOrgUnits, responsibleOrganisationId)) {
       return SecurityRuleResult.continueAsNormal();
     }
 
-    var userId = userDetails.wuaId();
+    var userId = users.wuaId();
     var submissionDetailId = submissionDetail.getId();
 
     LOGGER.warn("User {} attempted to access submission {} with responsible organisation id {}. " +

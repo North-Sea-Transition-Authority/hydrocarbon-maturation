@@ -15,9 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
@@ -30,12 +30,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenc
 @ExtendWith(MockitoExtension.class)
 class WithdrawSubmissionServiceTest {
 
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private SubmissionPersistenceService submissionPersistenceService;
   @Mock
-  private UserDetailService userDetailService;
+  private UserService userService;
   @Mock
   private SubmissionEmailService submissionEmailService;
   @Mock
@@ -57,8 +57,8 @@ class WithdrawSubmissionServiceTest {
 
   @Test
   void withdrawSubmission_verifyMethodCalls_whenCanWithdraw() {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
-    when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
+    when(userService.getUser()).thenReturn(USER);
+    when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
         .thenReturn(true);
     when(submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission()))
         .thenReturn(false);
@@ -72,7 +72,7 @@ class WithdrawSubmissionServiceTest {
 
   @Test
   void withdrawSubmission_verifyNoMethodCalls_whenCannotwithdraw() {
-    when(userDetailService.getUserWuaId()).thenReturn(1);
+    when(userService.getUserWuaId()).thenReturn(1);
     var form = new WithdrawSubmissionForm();
 
     assertThatThrownBy(() -> underTest.withdrawSubmissionOrThrow(submissionDetail, form))
@@ -86,8 +86,8 @@ class WithdrawSubmissionServiceTest {
 
   @Test
   void canWithdrawSubmission_whenRegulator_inResponsibleTeam() {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
-    when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
+    when(userService.getUser()).thenReturn(USER);
+    when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
         .thenReturn(true);
     when(submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission()))
         .thenReturn(false);
@@ -96,8 +96,8 @@ class WithdrawSubmissionServiceTest {
 
   @Test
   void canWithdrawSubmission_whenRegulator_inResponsibleTeam_hasUnresolvedUpdate_assertFalse() {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
-    when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
+    when(userService.getUser()).thenReturn(USER);
+    when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
         .thenReturn(true);
     when(submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission()))
         .thenReturn(true);
@@ -114,8 +114,8 @@ class WithdrawSubmissionServiceTest {
 
   @Test
   void canWithdrawSubmission_whenRegulator_notInResponsibleTeam() {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
-    when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
+    when(userService.getUser()).thenReturn(USER);
+    when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
         .thenReturn(false);
 
     assertThat(underTest.canWithdrawSubmission(submissionDetail)).isFalse();

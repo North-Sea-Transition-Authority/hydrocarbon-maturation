@@ -18,7 +18,7 @@ import java.util.Set;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
@@ -45,7 +45,7 @@ public class NewIndustryTeamControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void renderNewTeamForm_authorisedUser_isOk() throws Exception {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     when(permissionService.hasPermission(user, Set.of(RolePermission.REGULATOR_MANAGE_ALL_ORGANISATIONS))).thenReturn(true);
     mockMvc.perform(
             get(ReverseRouter.route(on(NewIndustryTeamController.class).renderNewIndustryTeamForm(new NewTeamForm())))
@@ -57,7 +57,7 @@ public class NewIndustryTeamControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void addNewIndustryTeam_FormValidates_RedirectToTeamMemberList() throws Exception {
-    var user = ServiceUserDetailTestUtil.Builder().withWuaId(100L).build();
+    var user = UserTestUtil.Builder().withWuaId(100L).build();
     when(permissionService.hasPermission(user, Set.of(RolePermission.REGULATOR_MANAGE_ALL_ORGANISATIONS))).thenReturn(true);
 
     var organisationGroupId = 10000;
@@ -85,7 +85,7 @@ public class NewIndustryTeamControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void addNewIndustryTeam_FormValidatesGroupDoesntExist_RedirectToTeamMemberList() throws Exception {
-    var user = ServiceUserDetailTestUtil.Builder().withWuaId(100L).build();
+    var user = UserTestUtil.Builder().withWuaId(100L).build();
     when(permissionService.hasPermission(user, Set.of(RolePermission.REGULATOR_MANAGE_ALL_ORGANISATIONS))).thenReturn(true);
 
     var organisationGroupId = 10000;

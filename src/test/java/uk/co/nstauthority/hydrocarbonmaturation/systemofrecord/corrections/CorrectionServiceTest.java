@@ -25,8 +25,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -73,7 +73,7 @@ class CorrectionServiceTest {
   private CorrectionService correctionService;
 
   private Resource resource;
-  private ServiceUserDetail user;
+  private User user;
 
   @BeforeEach
   void setUp() {
@@ -86,7 +86,7 @@ class CorrectionServiceTest {
         submissionDetailPersistenceService);
 
     resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
-    user = ServiceUserDetailTestUtil.Builder().build();
+    user = UserTestUtil.Builder().build();
   }
 
   @Test

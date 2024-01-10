@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
@@ -26,15 +26,15 @@ public class FeedbackController {
 
   private final RemiFeedbackService remiFeedbackService;
   private final ControllerHelperService controllerHelperService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
 
   @Autowired
   public FeedbackController(RemiFeedbackService remiFeedbackService,
                             ControllerHelperService controllerHelperService,
-                            UserDetailService userDetailService) {
+                            UserService userService) {
     this.remiFeedbackService = remiFeedbackService;
     this.controllerHelperService = controllerHelperService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
   }
 
   @GetMapping
@@ -52,7 +52,7 @@ public class FeedbackController {
         bindingResult,
         getFeedbackModelAndView(form),
         () -> {
-          remiFeedbackService.saveFeedback(form, userDetailService.getUserDetail());
+          remiFeedbackService.saveFeedback(form, userService.getUser());
           NotificationBannerUtil.addSuccessNotification(
               redirectAttributes, "Success", "Your feedback has been submitted");
           return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea(null));

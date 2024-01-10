@@ -21,9 +21,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -40,7 +40,7 @@ class SubmissionUpdateServiceTest {
   @Mock
   private ResponsibleTeamService responsibleTeamService;
   @Mock
-  private UserDetailService userDetailService;
+  private UserService userService;
 
   @InjectMocks
   private SubmissionUpdateService underTest;
@@ -65,7 +65,7 @@ class SubmissionUpdateServiceTest {
 
     private SubmissionDetail submissionDetail;
     private SubmissionUpdate submissionUpdate;
-    private static final ServiceUserDetail userDetail = ServiceUserDetailTestUtil.Builder().build();
+    private static final User user = UserTestUtil.Builder().build();
 
     @BeforeEach
     void setup() {
@@ -78,8 +78,8 @@ class SubmissionUpdateServiceTest {
     void AndSubmissionUpdateResolvedAndSubmitted_assertTrue() {
       submissionUpdate.setResolved(true);
 
-      when(userDetailService.getUserDetail()).thenReturn(userDetail);
-      when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
+      when(userService.getUser()).thenReturn(user);
+      when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
           .thenReturn(true);
 
       when(submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
@@ -94,8 +94,8 @@ class SubmissionUpdateServiceTest {
     void AndSubmissionUpdateNotResolvedAndSubmitted_assertTrue() {
       submissionUpdate.setResolved(false);
 
-      when(userDetailService.getUserDetail()).thenReturn(userDetail);
-      when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
+      when(userService.getUser()).thenReturn(user);
+      when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
           .thenReturn(true);
 
       when(submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
@@ -110,8 +110,8 @@ class SubmissionUpdateServiceTest {
     void AndSubmissionUpdateNullResolvedAndSubmitted_assertTrue() {
       submissionUpdate.setResolved(null);
 
-      when(userDetailService.getUserDetail()).thenReturn(userDetail);
-      when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
+      when(userService.getUser()).thenReturn(user);
+      when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
           .thenReturn(true);
 
       when(submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
@@ -126,8 +126,8 @@ class SubmissionUpdateServiceTest {
     void AndSubmissionUpdateResolvedAndSubmitted_andNotInResponsibleTeam_assertFalse() {
       submissionUpdate.setResolved(true);
 
-      when(userDetailService.getUserDetail()).thenReturn(userDetail);
-      when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
+      when(userService.getUser()).thenReturn(user);
+      when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
           .thenReturn(false);
 
       var result = underTest.canRequestUpdateOnSubmission(submissionDetail);
@@ -148,8 +148,8 @@ class SubmissionUpdateServiceTest {
 
     @Test
     void AndNotFoundUpdateAndSubmittedStatus_assertTrue() {
-      when(userDetailService.getUserDetail()).thenReturn(userDetail);
-      when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
+      when(userService.getUser()).thenReturn(user);
+      when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
           .thenReturn(true);
 
       when(submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission()))

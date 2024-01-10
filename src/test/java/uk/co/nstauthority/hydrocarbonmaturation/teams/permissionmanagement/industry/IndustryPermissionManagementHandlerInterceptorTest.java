@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IndustryRolesAllowed;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
 
@@ -28,7 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
 })
 class IndustryPermissionManagementHandlerInterceptorTest extends AbstractControllerTest {
 
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
 
   private static final IndustryTeamRole EXAMPLE_ROLE = IndustryTeamRole.ACCESS_MANAGER;
 

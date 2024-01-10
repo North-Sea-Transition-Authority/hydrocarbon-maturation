@@ -21,7 +21,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.EnergyPortalConfiguration;
@@ -61,7 +61,7 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
   @SecurityTest
   void renderAddTeamMember_whenNotAccessManager_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -85,7 +85,7 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
   @SecurityTest
   void renderAddTeamMember_whenAccessManager_thenOk() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -110,7 +110,7 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
   @SecurityTest
   void renderAddTeamMember_whenRegulatorIndustryAccessManager_thenOk() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
@@ -134,7 +134,7 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void renderAddTeamMember_whenNoTeamFound_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var teamId = new TeamId(UUID.randomUUID());
 
     var teamMember = TeamMemberTestUtil.Builder()
@@ -156,7 +156,7 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void renderAddTeamMember_whenTeamIdIsNotIndustryTeam_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
@@ -180,7 +180,7 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void renderAddTeamMember_assertModelProperties() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -218,7 +218,7 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void addMemberToTeamSubmission_whenTeamIdNotIndustryType_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
@@ -244,7 +244,7 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void addMemberToTeamSubmission_whenNotAccessManager_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -270,7 +270,7 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void addMemberToTeamSubmission_whenAccessManager_thenOk() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -299,7 +299,7 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void addMemberToTeamSubmission_whenInvalidForm_thenUserStaysOnFormPage() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
@@ -329,7 +329,7 @@ class IndustryAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void addMemberToTeamSubmission_whenValidForm_thenUserTakenToRolesSelection() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)

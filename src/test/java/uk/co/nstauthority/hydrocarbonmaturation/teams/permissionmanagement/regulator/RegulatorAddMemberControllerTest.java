@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator;
 
-import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -20,7 +19,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -30,7 +28,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.EnergyPortalConfiguration;
@@ -67,7 +65,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @SecurityTest
   void renderAddTeamMember_whenNotAccessManager_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
@@ -87,7 +85,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @SecurityTest
   void renderAddTeamMember_whenAccessManager_thenOk() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
@@ -109,7 +107,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void renderAddTeamMember_whenNoTeamFound_thenNotFound() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var teamId = new TeamId(UUID.randomUUID());
 
@@ -127,7 +125,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void renderAddTeamMember_whenTeamIdIsNotRegulatorTeam_then404() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -148,7 +146,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void renderAddTeamMember_assertModelProperties() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.REGULATOR)
@@ -184,7 +182,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void addMemberToTeamSubmission_whenTeamIdNotRegulatorType_thenNotFound() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -207,7 +205,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void addMemberToTeamSubmission_whenNotAccessManager_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -228,7 +226,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void addMemberToTeamSubmission_whenAccessManager_thenOk() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -252,7 +250,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void addMemberToTeamSubmission_whenInvalidForm_thenUserStaysOnFormPage() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -278,7 +276,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void addMemberToTeamSubmission_whenValidForm_thenUserTakenToRolesSelection() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -311,7 +309,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void renderAddTeamMemberRoles_whenAccessManager_thenOk() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -338,7 +336,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void renderAddTeamMemberRoles_whenNotAccessManager_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -360,7 +358,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void renderAddTeamMemberRoles_whenNotRegulatorTeam_thenNotFound() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -384,7 +382,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void renderAddTeamMemberRoles_whenNoEnergyPortalUser_thenNotFound() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -412,7 +410,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @MethodSource("getEnergyPortalUserThatShouldResultInBadRequest")
   void renderAddTeamMemberRoles_whenEnergyPortalUserNotValid_thenBadRequest(EnergyPortalUserDto energyPortalUser) throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -439,7 +437,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void renderAddTeamMemberRoles_assertModelProperties() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -479,7 +477,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void saveAddTeamMemberRoles_whenNotAccessManager_thenForbidden() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -503,7 +501,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void saveAddTeamMemberRoles_whenAccessManager_thenOk() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -532,7 +530,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void saveAddTeamMemberRoles_whenNotRegulatorTeam_thenNotFound() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -557,7 +555,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void saveAddTeamMemberRoles_whenEnergyPortalUserNotFound_thenNotFound() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -587,7 +585,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @MethodSource("getEnergyPortalUserThatShouldResultInBadRequest")
   void saveAddTeamMemberRoles_whenEnergyPortalUserNotValid_thenBadRequest(EnergyPortalUserDto energyPortalUser) throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -616,7 +614,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void saveAddTeamMemberRoles_whenInvalidTeamMemberRolesForm_thenStayOnFormPage() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();
@@ -647,7 +645,7 @@ class RegulatorAddMemberControllerTest extends AbstractControllerTest {
   @Test
   void saveAddTeamMemberRoles_whenValidTeamMemberRolesForm_thenRedirectionToMembersPage() throws Exception {
 
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
 
     var team = TeamTestUtil.Builder()
         .build();

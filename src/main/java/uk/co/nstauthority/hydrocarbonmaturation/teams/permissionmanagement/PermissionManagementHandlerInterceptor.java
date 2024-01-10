@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.HandlerMapping;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsMemberOfTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.AbstractHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
@@ -31,13 +31,13 @@ public class PermissionManagementHandlerInterceptor extends AbstractHandlerInter
   );
 
   private final TeamMemberService teamMemberService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
 
   @Autowired
   public PermissionManagementHandlerInterceptor(TeamMemberService teamMemberService,
-                                                UserDetailService userDetailService) {
+                                                UserService userService) {
     this.teamMemberService = teamMemberService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
   }
 
   @Override
@@ -51,7 +51,7 @@ public class PermissionManagementHandlerInterceptor extends AbstractHandlerInter
 
       var teamId = extractTeamIdFromRequest(request, handlerMethod);
 
-      var user = userDetailService.getUserDetail();
+      var user = userService.getUser();
 
       if (hasAnnotation(handlerMethod, IsMemberOfTeam.class)) {
         checkIsMemberOfTeam(teamId, user);
@@ -78,7 +78,7 @@ public class PermissionManagementHandlerInterceptor extends AbstractHandlerInter
     return TeamId.valueOf(pathVariables.get(teamIdParameter.get().getName()));
   }
 
-  private void checkIsMemberOfTeam(TeamId teamId, ServiceUserDetail user) {
+  private void checkIsMemberOfTeam(TeamId teamId, User user) {
     if (!teamMemberService.isMemberOfTeam(teamId, user)) {
       var errorMessage = "User with ID %s is not a member of team with ID %s".formatted(user.wuaId(), teamId.uuid());
       LOGGER.warn(errorMessage);

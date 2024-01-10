@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
@@ -45,7 +45,7 @@ public class ReviewSubmissionController {
   private final ReviewSubmissionService reviewSubmissionService;
   private final SubmissionSummaryModelService submissionSummaryModelService;
   private final SubmissionDetailService submissionDetailService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final SubmissionHistoryQueryService submissionHistoryQueryService;
   private final RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
   private final ResourceService resourceService;
@@ -56,7 +56,7 @@ public class ReviewSubmissionController {
   public ReviewSubmissionController(ReviewSubmissionService reviewSubmissionService,
                                     SubmissionSummaryModelService submissionSummaryModelService,
                                     SubmissionDetailService submissionDetailService,
-                                    UserDetailService userDetailService,
+                                    UserService userService,
                                     SubmissionHistoryQueryService submissionHistoryQueryService,
                                     RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
                                     ResourceService resourceService,
@@ -65,7 +65,7 @@ public class ReviewSubmissionController {
     this.reviewSubmissionService = reviewSubmissionService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.submissionHistoryQueryService = submissionHistoryQueryService;
     this.regulatorManagedInformationSummaryService = regulatorManagedInformationSummaryService;
     this.resourceService = resourceService;
@@ -76,18 +76,18 @@ public class ReviewSubmissionController {
   @GetMapping
   public ModelAndView showReviewPage(@PathVariable("resourceId") UUID resourceId) {
     var submissionRecord = reviewSubmissionService.getSubmissionRecordOrThrow(resourceId);
-    var userDetail = userDetailService.getUserDetail();
+    var user = userService.getUser();
 
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(
         submissionRecord.submissionDetailId());
 
-    if (!reviewSubmissionService.canViewSubmission(submissionRecord, userDetail, submissionDetail)) {
+    if (!reviewSubmissionService.canViewSubmission(submissionRecord, user, submissionDetail)) {
       throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN, "Submission cannot be reviewed by user with ID %s ".formatted(userDetail.wuaId()));
+          HttpStatus.FORBIDDEN, "Submission cannot be reviewed by user with ID %s ".formatted(user.wuaId()));
     }
     var form = new SubmissionSearchSelectorForm();
     form.setSelectedSubmissionId(submissionRecord.submissionDetailId().toString());
-    return getModelAndView(submissionRecord, userDetail, submissionDetail, form, resourceId);
+    return getModelAndView(submissionRecord, user, submissionDetail, form, resourceId);
   }
 
   @GetMapping("submission-details/{submissionDetailId}")
@@ -113,15 +113,15 @@ public class ReviewSubmissionController {
                 .formatted(resourceId)));
 
     var submissionRecord = reviewSubmissionService.getSubmissionRecordOrThrow(resourceId);
-    var userDetail = userDetailService.getUserDetail();
+    var user = userService.getUser();
 
-    if (!reviewSubmissionService.canViewSubmission(submissionRecord, userDetail, latestSubmission)) {
+    if (!reviewSubmissionService.canViewSubmission(submissionRecord, user, latestSubmission)) {
       throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN, "Submission cannot be viewed by user with ID %s ".formatted(userDetail.wuaId()));
+          HttpStatus.FORBIDDEN, "Submission cannot be viewed by user with ID %s ".formatted(user.wuaId()));
     }
 
     form.setSelectedSubmissionId(submissionDetailId.toString());
-    return getModelAndView(submissionRecord, userDetail, selectedSubmission, form, resourceId);
+    return getModelAndView(submissionRecord, user, selectedSubmission, form, resourceId);
   }
 
   @PostMapping
@@ -132,7 +132,7 @@ public class ReviewSubmissionController {
   }
 
   private ModelAndView getModelAndView(SubmissionRecordSummaryView submissionRecord,
-                                       ServiceUserDetail userDetail,
+                                       User user,
                                        SubmissionDetail submissionDetail,
                                        SubmissionSearchSelectorForm form,
                                        UUID resourceId) {
@@ -158,7 +158,7 @@ public class ReviewSubmissionController {
     BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);
 
     var isInResponsibleTeam = responsibleTeamService
-        .isInResponsibleTeam(userDetail, submissionRecord.responsibleTeamType());
+        .isInResponsibleTeam(user, submissionRecord.responsibleTeamType());
     var optionalSubmissionDetailUpdate = reviewSubmissionService.getUpdateSubmissionDetailBySubmission(
         submissionDetail.getSubmission());
     if (isInResponsibleTeam) {
@@ -166,7 +166,7 @@ public class ReviewSubmissionController {
     }
 
     var isIndustrySubmitter = reviewSubmissionService
-        .canUpdateSubmission(submissionRecord, userDetail, submissionDetail);
+        .canUpdateSubmission(submissionRecord, user, submissionDetail);
     if (isIndustrySubmitter) {
       var updateSubmissionUrl = optionalSubmissionDetailUpdate
           .map(detail -> ReverseRouter.route(on(TaskListController.class)

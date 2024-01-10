@@ -26,7 +26,7 @@ public class SamlResponseParser {
     var email = getNonEmptyAttribute(parsedAttributes, EnergyPortalSamlAttribute.EMAIL_ADDRESS);
     var proxyWuaId = parsedAttributes.get(EnergyPortalSamlAttribute.PROXY_USER_WUA_ID.getAttributeName());
     var proxyUserName = parsedAttributes.get(EnergyPortalSamlAttribute.PROXY_USER_NAME.getAttributeName());
-    var userDetail = new ServiceUserDetail(
+    var user = new User(
         Long.parseLong(wuaId),
         Long.parseLong(personId),
         forename,
@@ -41,7 +41,7 @@ public class SamlResponseParser {
         .map(SimpleGrantedAuthority::new)
         .toList();
 
-    return new ServiceSaml2Authentication(userDetail, grantedAuthorities);
+    return new ServiceSaml2Authentication(user, grantedAuthorities);
   }
 
   private String getNonEmptyAttribute(Map<String, String> parsedAttributes, EnergyPortalSamlAttribute samlAttribute) {

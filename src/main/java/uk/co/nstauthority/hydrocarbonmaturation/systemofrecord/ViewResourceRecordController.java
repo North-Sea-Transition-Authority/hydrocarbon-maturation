@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupController;
@@ -37,7 +37,7 @@ public class ViewResourceRecordController {
   private final ViewResourceRecordService viewResourceRecordService;
   private final SubmissionSummaryModelService submissionSummaryModelService;
   private final SubmissionDetailService submissionDetailService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final SubmissionHistoryQueryService submissionHistoryQueryService;
   private final RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
   private final ResourceGroupSummaryService resourceGroupSummaryService;
@@ -49,7 +49,7 @@ public class ViewResourceRecordController {
   public ViewResourceRecordController(ViewResourceRecordService viewResourceRecordService,
                                       SubmissionSummaryModelService submissionSummaryModelService,
                                       SubmissionDetailService submissionDetailService,
-                                      UserDetailService userDetailService,
+                                      UserService userService,
                                       SubmissionHistoryQueryService submissionHistoryQueryService,
                                       RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
                                       ResourceGroupSummaryService resourceGroupSummaryService,
@@ -59,7 +59,7 @@ public class ViewResourceRecordController {
     this.viewResourceRecordService = viewResourceRecordService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.submissionHistoryQueryService = submissionHistoryQueryService;
     this.regulatorManagedInformationSummaryService = regulatorManagedInformationSummaryService;
     this.resourceGroupSummaryService = resourceGroupSummaryService;
@@ -71,17 +71,17 @@ public class ViewResourceRecordController {
   @GetMapping
   public ModelAndView showResourceRecord(@PathVariable("resourceId") UUID resourceId) {
     var resourceRecord = viewResourceRecordService.getResourceRecordOrThrow(resourceId);
-    var userDetail = userDetailService.getUserDetail();
+    var user = userService.getUser();
 
-    if (!viewResourceRecordService.canViewResource(resourceRecord, userDetail)) {
+    if (!viewResourceRecordService.canViewResource(resourceRecord, user)) {
       throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN, "Resource cannot be viewed by user with ID %s ".formatted(userDetail.wuaId()));
+          HttpStatus.FORBIDDEN, "Resource cannot be viewed by user with ID %s ".formatted(user.wuaId()));
     }
 
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(resourceRecord.submissionDetailId());
     var form = new SubmissionSearchSelectorForm();
     form.setSelectedSubmissionId(submissionDetail.getId().toString());
-    return getModelAndView(resourceRecord, submissionDetail, userDetail, form, resourceId);
+    return getModelAndView(resourceRecord, submissionDetail, user, form, resourceId);
   }
 
   @PostMapping
@@ -97,20 +97,20 @@ public class ViewResourceRecordController {
                                             @ModelAttribute("form") SubmissionSearchSelectorForm form) {
     var selectedSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var resourceRecord = viewResourceRecordService.getResourceRecordOrThrow(resourceId);
-    var userDetail = userDetailService.getUserDetail();
+    var user = userService.getUser();
 
-    if (!viewResourceRecordService.canViewResource(resourceRecord, userDetail)) {
+    if (!viewResourceRecordService.canViewResource(resourceRecord, user)) {
       throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN, "Resource cannot be viewed by user with ID %s ".formatted(userDetail.wuaId()));
+          HttpStatus.FORBIDDEN, "Resource cannot be viewed by user with ID %s ".formatted(user.wuaId()));
     }
 
     form.setSelectedSubmissionId(submissionDetailId.toString());
-    return getModelAndView(resourceRecord, selectedSubmissionDetail, userDetail, form, resourceId);
+    return getModelAndView(resourceRecord, selectedSubmissionDetail, user, form, resourceId);
   }
 
   private ModelAndView getModelAndView(ResourceRecordSummaryView resourceRecord,
                                        SubmissionDetail submissionDetailSelected,
-                                       ServiceUserDetail userDetail,
+                                       User user,
                                        SubmissionSearchSelectorForm form,
                                        UUID resourceId) {
     var resource = resourceService.getResourceById(resourceId)
@@ -134,7 +134,7 @@ public class ViewResourceRecordController {
         modelAndView, resourceRecord.resourceNameAndCentreOfInterest());
 
     var isInResponsibleTeam = responsibleTeamService
-        .isInResponsibleTeam(userDetail, resourceRecord.responsibleTeam());
+        .isInResponsibleTeam(user, resourceRecord.responsibleTeam());
     if (isInResponsibleTeam) {
       modelAndView
           .addObject("regulatorManagedInformationUrl",
@@ -156,7 +156,7 @@ public class ViewResourceRecordController {
         ReverseRouter.route(on(ViewResourceRecordController.class).viewSubmission(resourceId, null))
     );
 
-    var canViewRegulatorManagementInfo = viewResourceRecordService.isRegulatorOrAreaTeamUser(userDetail);
+    var canViewRegulatorManagementInfo = viewResourceRecordService.isRegulatorOrAreaTeamUser(user);
     if (canViewRegulatorManagementInfo) {
       modelAndView
           .addObject("resourceGroupsSummaryView",
@@ -165,7 +165,7 @@ public class ViewResourceRecordController {
               regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource));
     }
 
-    if (correctionService.canStartCorrection(resource, userDetail)) {
+    if (correctionService.canStartCorrection(resource, user)) {
       modelAndView.addObject("correctionUrl",
           ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resourceId, null)));
     }

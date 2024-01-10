@@ -11,7 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberTestUtil;
 
@@ -28,7 +28,7 @@ class RemovedFromTeamEventPublisherTest {
   void publish_verifyEventPublished() {
 
     var removedTeamMember = TeamMemberTestUtil.Builder().build();
-    var instigatingUser = ServiceUserDetailTestUtil.Builder().build();
+    var instigatingUser = UserTestUtil.Builder().build();
 
     var eventArgumentCaptor = ArgumentCaptor.forClass(RemovedFromTeamEvent.class);
 

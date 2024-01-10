@@ -14,9 +14,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
@@ -26,19 +26,19 @@ class SubmissionTypeSelectServiceTest {
 
   private static SubmissionTypeSelectFormValidator submissionTypeSelectFormValidator;
   private static SubmissionTypeSelectService submissionTypeSelectService;
-  private static UserDetailService userDetailService;
+  private static UserService userService;
   private static PermissionService permissionService;
 
 
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
 
   @BeforeAll
   static void setup() {
     submissionTypeSelectFormValidator = mock(SubmissionTypeSelectFormValidator.class);
-    userDetailService = mock(UserDetailService.class);
+    userService = mock(UserService.class);
     permissionService = mock(PermissionService.class);
     submissionTypeSelectService = new SubmissionTypeSelectService(submissionTypeSelectFormValidator,
-        userDetailService, permissionService);
+        userService, permissionService);
   }
 
   @Test
@@ -52,7 +52,7 @@ class SubmissionTypeSelectServiceTest {
 
   @Test
   void getSubmissionTypeOptions_discovery_allPermissions() {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(permissionService.hasPermission(eq(USER), any())).thenReturn(true);
 
     assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY))
@@ -65,7 +65,7 @@ class SubmissionTypeSelectServiceTest {
 
   @Test
   void getSubmissionTypeOptions_prospect_allPermissions() {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(permissionService.hasPermission(eq(USER), any())).thenReturn(true);
 
     assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT))
@@ -79,7 +79,7 @@ class SubmissionTypeSelectServiceTest {
 
   @Test
   void getSubmissionTypeOptions_discovery_onlyAreaTeamPermissions() {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(false);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
@@ -95,7 +95,7 @@ class SubmissionTypeSelectServiceTest {
 
   @Test
   void getSubmissionTypeOptions_field_allPermissions() {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(permissionService.hasPermission(eq(USER), any())).thenReturn(true);
 
     assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.FIELD))
@@ -109,7 +109,7 @@ class SubmissionTypeSelectServiceTest {
 
   @Test
   void getSubmissionTypeOptions_field_onlyIndustrySubmit() {
-    when(userDetailService.getUserDetail()).thenReturn(USER);
+    when(userService.getUser()).thenReturn(USER);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
         RolePermission.ONSHORE_AREA_TEAM_MEMBER, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER)))

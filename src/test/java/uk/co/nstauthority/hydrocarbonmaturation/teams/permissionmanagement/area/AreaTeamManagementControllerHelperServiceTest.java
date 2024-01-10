@@ -12,9 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -37,7 +37,7 @@ class AreaTeamManagementControllerHelperServiceTest {
   private TeamMemberViewService teamMemberViewService;
 
   @Mock
-  private UserDetailService userDetailService;
+  private UserService userService;
 
   @Mock
   private PermissionService permissionService;
@@ -53,14 +53,14 @@ class AreaTeamManagementControllerHelperServiceTest {
   private final TeamView teamView = new TeamView(new TeamId(UUID.randomUUID()), TeamType.REGULATOR, "team");
   private final TeamMemberView teamMemberView = new TeamMemberView(wuaId, teamView, "title", "a", "b", "email", "0", Set.of());
   private final String addTeamMemberUrl = "addTeamMemberUrl";
-  private final ServiceUserDetail user = ServiceUserDetailTestUtil.Builder().build();
+  private final User user = UserTestUtil.Builder().build();
   private final TeamRole[] teamRoles = {NorthernOffshoreAreaTeamRole.NORTHERN_OFFSHORE_AREA_MANAGE_TEAM, OnshoreAreaTeamRole.ONSHORE_AREA_MANAGE_TEAM};
 
   @Test
   void renderMemberList_inOneTeam_notAccessManagerPermission() {
     team.setDisplayName("team");
 
-    when(userDetailService.getUserDetail()).thenReturn(user);
+    when(userService.getUser()).thenReturn(user);
     when(teamMemberViewService.getTeamMemberViewsForTeam(team)).thenReturn(List.of(teamMemberView));
     when(teamService.isUserInMultipleTeams(user)).thenReturn(false);
     when(permissionService.hasPermission(user, Set.of())).thenReturn(false);
@@ -80,7 +80,7 @@ class AreaTeamManagementControllerHelperServiceTest {
   @Test
   void renderMemberList_inMultipleTeams_accessManagerPermission() {
 
-    when(userDetailService.getUserDetail()).thenReturn(user);
+    when(userService.getUser()).thenReturn(user);
     when(teamMemberViewService.getTeamMemberViewsForTeam(team)).thenReturn(List.of(teamMemberView));
     when(teamService.isUserInMultipleTeams(user)).thenReturn(true);
     when(permissionService.hasPermission(user, Set.of())).thenReturn(true);

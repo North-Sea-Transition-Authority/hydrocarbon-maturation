@@ -24,9 +24,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSubmissionStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
@@ -39,7 +39,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
 @ExtendWith(MockitoExtension.class)
 class SubmissionApprovalServiceTest {
 
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private SubmissionDetailPersistenceService submissionDetailPersistenceService;
@@ -48,7 +48,7 @@ class SubmissionApprovalServiceTest {
   @Mock
   private RegulatorTeamService regulatorTeamService;
   @Mock
-  private UserDetailService userDetailService;
+  private UserService userService;
   @Mock
   private SubmissionEmailService submissionEmailService;
   @Mock
@@ -106,7 +106,7 @@ class SubmissionApprovalServiceTest {
     @Test
     void whenVersionNumberGreaterThanOne_thenVerifyUpdateResolved() {
       submissionDetail.setVersionNumber(2);
-      when(userDetailService.getUserDetail()).thenReturn(USER);
+      when(userService.getUser()).thenReturn(USER);
       when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
       when(areaTeamService.isAreaUser(USER)).thenReturn(false);
 
@@ -137,7 +137,7 @@ class SubmissionApprovalServiceTest {
     @Test
     void andCanNotAutoApprove_ThenVerifyCallToSubmit() {
       submissionDetail.setVersionNumber(1);
-      when(userDetailService.getUserDetail()).thenReturn(USER);
+      when(userService.getUser()).thenReturn(USER);
       when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
       when(areaTeamService.isAreaUser(USER)).thenReturn(false);
 
@@ -155,7 +155,7 @@ class SubmissionApprovalServiceTest {
                          "true, false",
                          "false, true"})
     void andCanAutoApprove_ThenVerifyCallsToSubmitAndApprove(boolean isRegulatorUser, boolean isAreaUser) {
-      when(userDetailService.getUserDetail()).thenReturn(USER);
+      when(userService.getUser()).thenReturn(USER);
       when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(isRegulatorUser);
       if (!isRegulatorUser) {
         when(areaTeamService.isAreaUser(USER)).thenReturn(isAreaUser);
@@ -180,7 +180,7 @@ class SubmissionApprovalServiceTest {
 
       submissionDetail.setSubmissionType(submissionType);
 
-      when(userDetailService.getUserDetail()).thenReturn(USER);
+      when(userService.getUser()).thenReturn(USER);
       when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(isRegulatorUser);
 
       submissionApprovalService.submitSubmission(submissionDetail);
@@ -200,7 +200,7 @@ class SubmissionApprovalServiceTest {
 
       submissionDetail.setSubmissionType(submissionType);
 
-      when(userDetailService.getUserDetail()).thenReturn(USER);
+      when(userService.getUser()).thenReturn(USER);
       when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(isRegulatorUser);
 
       submissionApprovalService.submitSubmission(submissionDetail);
@@ -241,8 +241,8 @@ class SubmissionApprovalServiceTest {
 
     @Test
     void approveSubmission_verifyMethodCalls_whenCanApprove() {
-      when(userDetailService.getUserDetail()).thenReturn(USER);
-      when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
+      when(userService.getUser()).thenReturn(USER);
+      when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
           .thenReturn(true);
       submissionApprovalService.approveSubmissionOrThrow(submissionDetail);
       verify(submissionDetailPersistenceService).approveSubmission(submissionDetail);
@@ -251,7 +251,7 @@ class SubmissionApprovalServiceTest {
 
     @Test
     void approveSubmission_verifyNoMethodCalls_whenCannotApprove() {
-      when(userDetailService.getUserWuaId()).thenReturn(1);
+      when(userService.getUserWuaId()).thenReturn(1);
       assertThatThrownBy(() -> submissionApprovalService.approveSubmissionOrThrow(submissionDetail))
           .isExactlyInstanceOf(ActionNotAllowedException.class)
           .hasMessage("Submission cannot be accepted by user with ID %s"
@@ -266,8 +266,8 @@ class SubmissionApprovalServiceTest {
         names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"}
     )
     void approveSubmission_canApproveAndFieldSubmission_thenVerifyFieldStatusUpdate(SubmissionType submissionType) {
-      when(userDetailService.getUserDetail()).thenReturn(USER);
-      when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
+      when(userService.getUser()).thenReturn(USER);
+      when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
           .thenReturn(true);
       submissionDetail.setSubmissionType(submissionType);
 
@@ -284,8 +284,8 @@ class SubmissionApprovalServiceTest {
         mode = EnumSource.Mode.EXCLUDE
     )
     void approveSubmission_canApproveAndNotFieldSubmission_thenVerifyNoFieldStatusUpdate(SubmissionType submissionType) {
-      when(userDetailService.getUserDetail()).thenReturn(USER);
-      when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
+      when(userService.getUser()).thenReturn(USER);
+      when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
           .thenReturn(true);
 
       submissionDetail.setSubmissionType(submissionType);
@@ -297,8 +297,8 @@ class SubmissionApprovalServiceTest {
 
     @Test
     void canApproveSubmission_whenRegulator_inResponsibleTeam() {
-      when(userDetailService.getUserDetail()).thenReturn(USER);
-      when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
+      when(userService.getUser()).thenReturn(USER);
+      when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
           .thenReturn(true);
 
       assertThat(submissionApprovalService.canApproveSubmission(submissionDetail)).isTrue();
@@ -306,8 +306,8 @@ class SubmissionApprovalServiceTest {
 
     @Test
     void canApproveSubmission_whenRegulator_notInResponsibleTeam() {
-      when(userDetailService.getUserDetail()).thenReturn(USER);
-      when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
+      when(userService.getUser()).thenReturn(USER);
+      when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
           .thenReturn(false);
 
       assertThat(submissionApprovalService.canApproveSubmission(submissionDetail)).isFalse();
@@ -315,8 +315,8 @@ class SubmissionApprovalServiceTest {
 
     @Test
     void canApproveSubmission_whenRegulator_inResponsibleTeam_hasUnresolvedUpdate_assertFalse() {
-      when(userDetailService.getUserDetail()).thenReturn(USER);
-      when(responsibleTeamService.isInResponsibleTeam(userDetailService.getUserDetail(), submissionDetail))
+      when(userService.getUser()).thenReturn(USER);
+      when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
           .thenReturn(true);
       when(submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission()))
           .thenReturn(true);

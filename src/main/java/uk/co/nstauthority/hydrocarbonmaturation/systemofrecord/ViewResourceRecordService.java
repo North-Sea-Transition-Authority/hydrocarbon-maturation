@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
@@ -98,7 +98,7 @@ public class ViewResourceRecordService {
             selectedSubmissionDetail, Set.of(SubmissionDetailStatus.ACCEPTED));
   }
 
-  public boolean canViewResource(ResourceRecordSummaryView resourceRecord, ServiceUserDetail user) {
+  public boolean canViewResource(ResourceRecordSummaryView resourceRecord, User user) {
     if (isRegulatorOrAreaTeamUser(user)) {
       return true;
     }
@@ -111,7 +111,7 @@ public class ViewResourceRecordService {
     return memberOfOrganisationUnit && resourceIsAssociatedWithAnExtantLicence;
   }
 
-  public boolean isRegulatorOrAreaTeamUser(ServiceUserDetail user) {
+  public boolean isRegulatorOrAreaTeamUser(User user) {
     return regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user);
   }
 

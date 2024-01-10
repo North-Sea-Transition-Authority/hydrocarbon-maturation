@@ -8,7 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -33,7 +33,7 @@ public class WorkAreaController {
   }
 
   @GetMapping
-  public ModelAndView getWorkArea(ServiceUserDetail user) {
+  public ModelAndView getWorkArea(User user) {
     return new ModelAndView("remi/workarea/workArea")
         .addObject("startSubmissionUrl",
             ReverseRouter.route(on(StartSubmissionController.class).getSubmissionType()))

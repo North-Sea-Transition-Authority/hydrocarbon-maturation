@@ -10,7 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
@@ -34,7 +34,7 @@ class RegulatorResourceAccessInterceptorRuleTest {
 
   @Test
   void hasRequiredTeamMembershipPermissions_whenInResponsibleTeam_assertRulePass() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var regulatorManagedInformation = new RegulatorManagedInformation();
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
@@ -53,7 +53,7 @@ class RegulatorResourceAccessInterceptorRuleTest {
 
   @Test
   void hasRequiredTeamMembershipPermissions_whenInResponsibleTeamAndIndustrySubmissionInDraft_assertRuleFailForbidden() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var regulatorManagedInformation = new RegulatorManagedInformation();
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
@@ -70,7 +70,7 @@ class RegulatorResourceAccessInterceptorRuleTest {
 
   @Test
   void hasRequiredTeamMembershipPermissions_whenNotInResponsibleTeam_assertRuleFailForbidden() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var regulatorManagedInformation = new RegulatorManagedInformation();
     submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
@@ -87,7 +87,7 @@ class RegulatorResourceAccessInterceptorRuleTest {
 
   @Test
   void hasRequiredTeamMembershipPermissions_whenInResponsibleTeamAndIndustrySubmissionInSubmitted_assertRulePass() {
-    var user = ServiceUserDetailTestUtil.Builder().build();
+    var user = UserTestUtil.Builder().build();
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     var regulatorManagedInformation = new RegulatorManagedInformation();

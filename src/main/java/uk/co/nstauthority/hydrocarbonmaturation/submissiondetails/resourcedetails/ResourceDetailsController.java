@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
@@ -44,7 +44,7 @@ public class ResourceDetailsController {
   private final ControllerHelperService controllerHelperService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final ResourceDetailsFormService resourceDetailsFormService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final RegulatorTeamService regulatorTeamService;
   private final SubmissionDetailService submissionDetailService;
   private final AreaTeamService areaTeamService;
@@ -53,12 +53,12 @@ public class ResourceDetailsController {
   public ResourceDetailsController(ControllerHelperService controllerHelperService,
                                    ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                                    ResourceDetailsFormService resourceDetailsFormService,
-                                   UserDetailService userDetailService, RegulatorTeamService regulatorTeamService,
+                                   UserService userService, RegulatorTeamService regulatorTeamService,
                                    SubmissionDetailService submissionDetailService, AreaTeamService areaTeamService) {
     this.controllerHelperService = controllerHelperService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.resourceDetailsFormService = resourceDetailsFormService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.regulatorTeamService = regulatorTeamService;
     this.submissionDetailService = submissionDetailService;
     this.areaTeamService = areaTeamService;
@@ -105,7 +105,7 @@ public class ResourceDetailsController {
   }
 
   private boolean isRegulatorOrAreaTeamUser() {
-    var userDetail = userDetailService.getUserDetail();
-    return regulatorTeamService.isRegulatorUser(userDetail) || areaTeamService.isAreaUser(userDetail);
+    var user = userService.getUser();
+    return regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user);
   }
 }

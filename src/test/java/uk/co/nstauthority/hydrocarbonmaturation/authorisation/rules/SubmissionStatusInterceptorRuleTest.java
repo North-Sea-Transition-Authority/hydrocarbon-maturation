@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 
@@ -35,7 +35,7 @@ class SubmissionStatusInterceptorRuleTest extends AbstractInterceptorRuleTest {
         annotation,
         request,
         response,
-        ServiceUserDetailTestUtil.Builder().build(),
+        UserTestUtil.Builder().build(),
         submissionDetail
     );
 
@@ -55,7 +55,7 @@ class SubmissionStatusInterceptorRuleTest extends AbstractInterceptorRuleTest {
         annotation,
         request,
         response,
-        ServiceUserDetailTestUtil.Builder().build(),
+        UserTestUtil.Builder().build(),
         submissionDetail
     );
 
@@ -75,7 +75,7 @@ class SubmissionStatusInterceptorRuleTest extends AbstractInterceptorRuleTest {
         annotation,
         request,
         response,
-        ServiceUserDetailTestUtil.Builder().build(),
+        UserTestUtil.Builder().build(),
         submissionDetail
     );
 

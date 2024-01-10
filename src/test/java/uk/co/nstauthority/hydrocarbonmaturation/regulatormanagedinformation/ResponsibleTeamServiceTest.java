@@ -12,8 +12,8 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDtoTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
@@ -46,7 +46,7 @@ class ResponsibleTeamServiceTest {
   @InjectMocks
   private ResponsibleTeamService responsibleTeamService;
 
-  private final ServiceUserDetail userDetail = ServiceUserDetailTestUtil.Builder().build();
+  private final User user = UserTestUtil.Builder().build();
   private final EnergyPortalUserDto energyPortalUserDto = EnergyPortalUserDtoTestUtil.Builder().build();
 
   @ParameterizedTest
@@ -64,20 +64,20 @@ class ResponsibleTeamServiceTest {
         .thenReturn(regulatorManagedInformation);
 
     switch (responsibleTeamType) {
-      case EXPLORATION -> when(regulatorTeamService.isRegulatorTeamRole(userDetail, RegulatorTeamRole.EXPLORATION))
+      case EXPLORATION -> when(regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.EXPLORATION))
           .thenReturn(true);
       case NORTHERN_NORTH_SEA_WEST_OF_SHETLAND -> when(northernOffshoreAreaTeamService
-          .isNorthernOffshoreTeamMember(userDetail))
+          .isNorthernOffshoreTeamMember(user))
           .thenReturn(true);
       case CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA -> when(southernOffshoreAreaTeamService
-          .isSouthernOffshoreTeamMember(userDetail))
+          .isSouthernOffshoreTeamMember(user))
           .thenReturn(true);
       case ONSHORE -> when(onshoreAreaTeamService
-          .isOnshoreTeamMember(userDetail))
+          .isOnshoreTeamMember(user))
           .thenReturn(true);
     }
 
-    assertThat(responsibleTeamService.isInResponsibleTeam(userDetail, submissionDetail)).isTrue();
+    assertThat(responsibleTeamService.isInResponsibleTeam(user, submissionDetail)).isTrue();
   }
 
   @ParameterizedTest
@@ -85,20 +85,20 @@ class ResponsibleTeamServiceTest {
   void isInResponsibleTeam(ResponsibleTeamType responsibleTeamType) {
 
     switch (responsibleTeamType) {
-      case EXPLORATION -> when(regulatorTeamService.isRegulatorTeamRole(userDetail, RegulatorTeamRole.EXPLORATION))
+      case EXPLORATION -> when(regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.EXPLORATION))
           .thenReturn(true);
       case NORTHERN_NORTH_SEA_WEST_OF_SHETLAND -> when(northernOffshoreAreaTeamService
-          .isNorthernOffshoreTeamMember(userDetail))
+          .isNorthernOffshoreTeamMember(user))
           .thenReturn(true);
       case CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA -> when(southernOffshoreAreaTeamService
-          .isSouthernOffshoreTeamMember(userDetail))
+          .isSouthernOffshoreTeamMember(user))
           .thenReturn(true);
       case ONSHORE -> when(onshoreAreaTeamService
-          .isOnshoreTeamMember(userDetail))
+          .isOnshoreTeamMember(user))
           .thenReturn(true);
     }
 
-    assertThat(responsibleTeamService.isInResponsibleTeam(userDetail, responsibleTeamType)).isTrue();
+    assertThat(responsibleTeamService.isInResponsibleTeam(user, responsibleTeamType)).isTrue();
   }
 
   @ParameterizedTest
@@ -124,23 +124,23 @@ class ResponsibleTeamServiceTest {
 
   @Test
   void getResponsibleTeamTypesForUser_all() {
-    when(regulatorTeamService.isRegulatorTeamRole(userDetail, RegulatorTeamRole.EXPLORATION)).thenReturn(true);
-    when(northernOffshoreAreaTeamService.isNorthernOffshoreTeamMember(userDetail)).thenReturn(true);
-    when(southernOffshoreAreaTeamService.isSouthernOffshoreTeamMember(userDetail)).thenReturn(true);
-    when(onshoreAreaTeamService.isOnshoreTeamMember(userDetail)).thenReturn(true);
+    when(regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.EXPLORATION)).thenReturn(true);
+    when(northernOffshoreAreaTeamService.isNorthernOffshoreTeamMember(user)).thenReturn(true);
+    when(southernOffshoreAreaTeamService.isSouthernOffshoreTeamMember(user)).thenReturn(true);
+    when(onshoreAreaTeamService.isOnshoreTeamMember(user)).thenReturn(true);
 
-    assertThat(responsibleTeamService.getResponsibleTeamTypesForUser(userDetail)).containsExactly(
+    assertThat(responsibleTeamService.getResponsibleTeamTypesForUser(user)).containsExactly(
         ResponsibleTeamType.EXPLORATION, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND,
         ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA, ResponsibleTeamType.ONSHORE);
   }
 
   @Test
   void getResponsibleTeamTypesForUser_none() {
-    when(regulatorTeamService.isRegulatorTeamRole(userDetail, RegulatorTeamRole.EXPLORATION)).thenReturn(false);
-    when(northernOffshoreAreaTeamService.isNorthernOffshoreTeamMember(userDetail)).thenReturn(false);
-    when(southernOffshoreAreaTeamService.isSouthernOffshoreTeamMember(userDetail)).thenReturn(false);
-    when(onshoreAreaTeamService.isOnshoreTeamMember(userDetail)).thenReturn(false);
+    when(regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.EXPLORATION)).thenReturn(false);
+    when(northernOffshoreAreaTeamService.isNorthernOffshoreTeamMember(user)).thenReturn(false);
+    when(southernOffshoreAreaTeamService.isSouthernOffshoreTeamMember(user)).thenReturn(false);
+    when(onshoreAreaTeamService.isOnshoreTeamMember(user)).thenReturn(false);
 
-    assertThat(responsibleTeamService.getResponsibleTeamTypesForUser(userDetail)).isEmpty();
+    assertThat(responsibleTeamService.getResponsibleTeamTypesForUser(user)).isEmpty();
   }
 }

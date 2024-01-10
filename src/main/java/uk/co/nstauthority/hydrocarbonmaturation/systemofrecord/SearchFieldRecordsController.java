@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -25,18 +25,18 @@ public class SearchFieldRecordsController {
   public static final String PAGE_TITLE = "Search field records";
   private final SearchResourceRecordsService searchResourceRecordsService;
   private final ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final RegulatorTeamService regulatorTeamService;
   private final AreaTeamService areaTeamService;
 
   public SearchFieldRecordsController(SearchResourceRecordsService searchResourceRecordsService,
                                       ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory,
-                                      UserDetailService userDetailService,
+                                      UserService userService,
                                       RegulatorTeamService regulatorTeamService,
                                       AreaTeamService areaTeamService) {
     this.searchResourceRecordsService = searchResourceRecordsService;
     this.resourceRecordQueryServiceFactory = resourceRecordQueryServiceFactory;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.regulatorTeamService = regulatorTeamService;
     this.areaTeamService = areaTeamService;
   }
@@ -94,7 +94,7 @@ public class SearchFieldRecordsController {
   }
 
   private boolean isRegulatorOrAreaTeamUser() {
-    var userDetail = userDetailService.getUserDetail();
-    return regulatorTeamService.isRegulatorUser(userDetail) || areaTeamService.isAreaUser(userDetail);
+    var user = userService.getUser();
+    return regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user);
   }
 }

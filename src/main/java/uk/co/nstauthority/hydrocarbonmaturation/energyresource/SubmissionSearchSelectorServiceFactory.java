@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
@@ -11,25 +11,25 @@ class SubmissionSearchSelectorServiceFactory {
 
   private final RegulatorSubmissionSearchSelectorService regulatorSubmissionSearchSelectorService;
   private final OperatorSubmissionSearchSelectorService operatorSubmissionSearchSelectorService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final RegulatorTeamService regulatorTeamService;
   private final AreaTeamService areaTeamService;
 
   @Autowired
   SubmissionSearchSelectorServiceFactory(RegulatorSubmissionSearchSelectorService regulatorSubmissionSearchSelectorService,
                                          OperatorSubmissionSearchSelectorService operatorSubmissionSearchSelectorService,
-                                         UserDetailService userDetailService,
+                                         UserService userService,
                                          RegulatorTeamService regulatorTeamService,
                                          AreaTeamService areaTeamService) {
     this.regulatorSubmissionSearchSelectorService = regulatorSubmissionSearchSelectorService;
     this.operatorSubmissionSearchSelectorService = operatorSubmissionSearchSelectorService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.regulatorTeamService = regulatorTeamService;
     this.areaTeamService = areaTeamService;
   }
 
   SubmissionSearchSelectorStrategy getSubmissionSearchSelectorStrategy() {
-    var user = userDetailService.getUserDetail();
+    var user = userService.getUser();
     if (regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user)) {
       return regulatorSubmissionSearchSelectorService;
     } else {

@@ -15,7 +15,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.server.ResponseStatusException;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.AbstractHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMember;
@@ -31,12 +31,12 @@ public class HasTeamPermissionInterceptor extends AbstractHandlerInterceptor {
   );
 
   private final TeamMemberService teamMemberService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
 
   @Autowired
-  public HasTeamPermissionInterceptor(TeamMemberService teamMemberService, UserDetailService userDetailService) {
+  public HasTeamPermissionInterceptor(TeamMemberService teamMemberService, UserService userService) {
     this.teamMemberService = teamMemberService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
   }
 
   @Override
@@ -51,7 +51,7 @@ public class HasTeamPermissionInterceptor extends AbstractHandlerInterceptor {
 
       verifyAtLeastOnePermissionExpected(hasTeamPermissionAnnotation, request);
 
-      var user = userDetailService.getUserDetail();
+      var user = userService.getUser();
       var userAsTeamMembers = teamMemberService.getUserAsTeamMembers(user);
       var teamMemberPermissions = getAllPermissions(userAsTeamMembers);
 

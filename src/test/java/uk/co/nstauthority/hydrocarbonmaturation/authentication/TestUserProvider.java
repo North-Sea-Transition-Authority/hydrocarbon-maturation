@@ -14,15 +14,15 @@ public class TestUserProvider {
     throw new IllegalUtilClassInstantiationException(this.getClass());
   }
 
-  public static RequestPostProcessor user(ServiceUserDetail serviceUserDetail) {
-    return user(serviceUserDetail, Collections.emptySet());
+  public static RequestPostProcessor user(User user) {
+    return user(user, Collections.emptySet());
   }
 
-  public static RequestPostProcessor user(ServiceUserDetail serviceUserDetail,
+  public static RequestPostProcessor user(User user,
                                           Collection<GrantedAuthority> authorities) {
 
     var authentication = SamlAuthenticationUtil.Builder()
-        .withUser(serviceUserDetail)
+        .withUser(user)
         .withGrantedAuthorities(authorities)
         .build();
 

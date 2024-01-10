@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.fivium.feedbackmanagementservice.client.CannotSendFeedbackException;
 import uk.co.fivium.feedbackmanagementservice.client.FeedbackClientService;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.FeedbackEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.utils.RemiAbsoluteUrlUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -41,26 +41,26 @@ class RemiFeedbackService {
     return bindingResult;
   }
 
-  public void saveFeedback(FeedbackForm form, ServiceUserDetail userDetail) {
+  public void saveFeedback(FeedbackForm form, User user) {
     var feedback = new Feedback();
-    sendFeedback(feedback, form, userDetail);
+    sendFeedback(feedback, form, user);
   }
 
-  public void saveFeedback(SubmissionDetail submissionDetail, FeedbackForm form, ServiceUserDetail userDetail) {
+  public void saveFeedback(SubmissionDetail submissionDetail, FeedbackForm form, User user) {
     var feedback = new Feedback();
     feedback.setTransactionId(submissionDetail.getId().toString());
     feedback.setTransactionReference(
         submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail));
     feedback.setTransactionLink(getTransactionLink(submissionDetail));
-    sendFeedback(feedback, form, userDetail);
+    sendFeedback(feedback, form, user);
   }
 
-  private void sendFeedback(Feedback feedback, FeedbackForm form, ServiceUserDetail userDetail) {
+  private void sendFeedback(Feedback feedback, FeedbackForm form, User user) {
     feedback.setServiceRating(form.getServiceRating().name());
     feedback.setComment(form.getFeedback());
     feedback.setGivenDatetime(clock.instant());
-    feedback.setSubmitterEmail(userDetail.emailAddress());
-    feedback.setSubmitterName("%s %s".formatted(userDetail.forename(), userDetail.surname()));
+    feedback.setSubmitterEmail(user.emailAddress());
+    feedback.setSubmitterName("%s %s".formatted(user.forename(), user.surname()));
     try {
       feedbackClientService.saveFeedback(feedback);
     } catch (CannotSendFeedbackException e) {

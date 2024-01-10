@@ -14,8 +14,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchItem;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
@@ -27,7 +27,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 @ContextConfiguration(classes = ResourceRestController.class)
 class ResourceRestControllerTest extends AbstractControllerTest {
 
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
 
   @MockBean
   private SearchSelectorService searchSelectorService;

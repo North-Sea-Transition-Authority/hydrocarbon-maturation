@@ -12,8 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsLatestExtantSubmissionDetailVersion;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -21,7 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionDetailVersionInterceptorRuleTest extends AbstractInterceptorRuleTest{
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder().build();
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private SubmissionDetailService submissionDetailService;
@@ -48,7 +48,7 @@ class SubmissionDetailVersionInterceptorRuleTest extends AbstractInterceptorRule
         IsLatestExtantSubmissionDetailVersion.class,
         request,
         response,
-        ServiceUserDetailTestUtil.Builder().build(),
+        UserTestUtil.Builder().build(),
         submissionDetail
     );
 
@@ -66,7 +66,7 @@ class SubmissionDetailVersionInterceptorRuleTest extends AbstractInterceptorRule
         IsLatestExtantSubmissionDetailVersion.class,
         request,
         response,
-        ServiceUserDetailTestUtil.Builder().build(),
+        UserTestUtil.Builder().build(),
         submissionDetail
     );
 
@@ -86,7 +86,7 @@ class SubmissionDetailVersionInterceptorRuleTest extends AbstractInterceptorRule
         IsLatestExtantSubmissionDetailVersion.class,
         request,
         response,
-        ServiceUserDetailTestUtil.Builder().build(),
+        UserTestUtil.Builder().build(),
         submissionDetail
     );
 
@@ -106,7 +106,7 @@ class SubmissionDetailVersionInterceptorRuleTest extends AbstractInterceptorRule
         IsLatestExtantSubmissionDetailVersion.class,
         request,
         response,
-        ServiceUserDetailTestUtil.Builder().build(),
+        UserTestUtil.Builder().build(),
         submissionDetail
     );
 
@@ -126,7 +126,7 @@ class SubmissionDetailVersionInterceptorRuleTest extends AbstractInterceptorRule
         IsLatestExtantSubmissionDetailVersion.class,
         request,
         response,
-        ServiceUserDetailTestUtil.Builder().build(),
+        UserTestUtil.Builder().build(),
         submissionDetail
     );
 
@@ -143,7 +143,7 @@ class SubmissionDetailVersionInterceptorRuleTest extends AbstractInterceptorRule
         IsLatestExtantSubmissionDetailVersion.class,
         request,
         response,
-        ServiceUserDetailTestUtil.Builder().build(),
+        UserTestUtil.Builder().build(),
         submissionDetail
     );
 
@@ -163,7 +163,7 @@ class SubmissionDetailVersionInterceptorRuleTest extends AbstractInterceptorRule
         IsLatestExtantSubmissionDetailVersion.class,
         request,
         response,
-        ServiceUserDetailTestUtil.Builder().build(),
+        UserTestUtil.Builder().build(),
         submissionDetail
     );
 

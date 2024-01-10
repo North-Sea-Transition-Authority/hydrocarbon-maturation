@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
@@ -50,7 +50,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 public class FieldRegulatorManagedInformationController {
   public static final String PAGE_NAME = "Regulator managed information";
 
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final ResponsibleTeamService responsibleTeamService;
   private final ResourceService resourceService;
   private final NewFieldService newFieldService;
@@ -60,13 +60,13 @@ public class FieldRegulatorManagedInformationController {
 
   @Autowired
   public FieldRegulatorManagedInformationController(
-      UserDetailService userDetailService,
+      UserService userService,
       ResponsibleTeamService responsibleTeamService, ResourceService resourceService,
       NewFieldService newFieldService,
       SubmissionResourceService submissionResourceService,
       SubmissionDetailService submissionDetailService,
       FieldRegulatorManagedInformationService fieldRegulatorManagedInformationService) {
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.responsibleTeamService = responsibleTeamService;
     this.resourceService = resourceService;
     this.newFieldService = newFieldService;
@@ -77,7 +77,7 @@ public class FieldRegulatorManagedInformationController {
 
   @GetMapping
   public ModelAndView getRegulatorManagedInformationPage(@PathVariable("resourceId") UUID resourceId,
-                                                         ServiceUserDetail serviceUserDetail) {
+                                                         User user) {
     var resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() ->
             new RemiEntityNotFoundException("Could not find resource with id %s"
@@ -91,12 +91,12 @@ public class FieldRegulatorManagedInformationController {
                 .formatted(resource.getId().toString()))
         );
 
-    var isInResponsibleTeam = responsibleTeamService.isInResponsibleTeam(serviceUserDetail, submissionDetail);
+    var isInResponsibleTeam = responsibleTeamService.isInResponsibleTeam(user, submissionDetail);
     if (!isInResponsibleTeam) {
       throw new ResponseStatusException(
           HttpStatus.FORBIDDEN,
           "User with id %s is not in the responsible team for resource with id %s"
-              .formatted(serviceUserDetail.wuaId(), resourceId));
+              .formatted(user.wuaId(), resourceId));
     }
 
     return getFieldRegulatorManagedInformationModelAndView(
@@ -132,9 +132,9 @@ public class FieldRegulatorManagedInformationController {
           "Success",
           "The regulator managed information has been updated for the resource %s".formatted(resourceName));
 
-      var userDetail = userDetailService.getUserDetail();
+      var user = userService.getUser();
       var isInResponsibleTeam =
-          responsibleTeamService.isInResponsibleTeam(userDetail, latestAcceptedOrSubmittedSubmissionDetail);
+          responsibleTeamService.isInResponsibleTeam(user, latestAcceptedOrSubmittedSubmissionDetail);
 
       if (SubmissionDetailStatus.SUBMITTED.equals(latestAcceptedOrSubmittedSubmissionDetail.getStatus())) {
         if (isInResponsibleTeam) {

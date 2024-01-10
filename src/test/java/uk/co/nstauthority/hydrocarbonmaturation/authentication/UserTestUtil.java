@@ -2,9 +2,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.authentication;
 
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
 
-public class ServiceUserDetailTestUtil {
+public class UserTestUtil {
 
-  private ServiceUserDetailTestUtil() {
+  private UserTestUtil() {
     throw new IllegalUtilClassInstantiationException(this.getClass());
   }
 
@@ -24,8 +24,8 @@ public class ServiceUserDetailTestUtil {
     private String proxyUsername = "proxyUsername";
     private Long proxyWuaId = 3L;
 
-    public ServiceUserDetail build() {
-      return new ServiceUserDetail(wuaId, personId, forename, surname, emailAddress, proxyWuaId, proxyUsername);
+    public User build() {
+      return new User(wuaId, personId, forename, surname, emailAddress, proxyWuaId, proxyUsername);
     }
 
     public Builder withWuaId(Long wuaId) {

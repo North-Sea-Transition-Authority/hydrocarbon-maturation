@@ -4,7 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 
@@ -12,14 +12,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 public class SubmissionTypeSelectService {
 
   private final SubmissionTypeSelectFormValidator submissionTypeSelectFormValidator;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final PermissionService permissionService;
 
   @Autowired
   public SubmissionTypeSelectService(SubmissionTypeSelectFormValidator submissionTypeSelectFormValidator,
-                                     UserDetailService userDetailService, PermissionService permissionService) {
+                                     UserService userService, PermissionService permissionService) {
     this.submissionTypeSelectFormValidator = submissionTypeSelectFormValidator;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.permissionService = permissionService;
   }
 
@@ -29,9 +29,9 @@ public class SubmissionTypeSelectService {
   }
 
   public List<SubmissionType> getSubmissionTypeOptions(ResourceType resourceType) {
-    var userDetail = userDetailService.getUserDetail();
+    var user = userService.getUser();
     return SubmissionType.getSubmissionTypesForResourceType(resourceType).stream()
-        .filter(submissionType -> permissionService.hasPermission(userDetail, submissionType.getPermissions()))
+        .filter(submissionType -> permissionService.hasPermission(user, submissionType.getPermissions()))
         .toList();
   }
 }

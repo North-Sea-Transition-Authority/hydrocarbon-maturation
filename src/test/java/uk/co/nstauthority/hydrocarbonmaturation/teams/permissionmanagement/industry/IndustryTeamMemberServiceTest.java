@@ -10,8 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,7 +26,7 @@ class IndustryTeamMemberServiceTest {
   @InjectMocks
   private IndustryTeamMemberService underTest;
 
-  private ServiceUserDetail userDetail = ServiceUserDetailTestUtil.Builder().build();
+  private User user = UserTestUtil.Builder().build();
 
   private List<Integer> ORGANISATION_GROUP_IDS = List.of(1,2);
 
@@ -37,10 +37,10 @@ class IndustryTeamMemberServiceTest {
     void isMemberOfOrganisationUnit_whenTrue() {
       when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(ORGANISATION_UNIT_ID))
           .thenReturn(ORGANISATION_GROUP_IDS);
-      when(industryTeamService.isTeamMemberForOrganisationGroups(userDetail, ORGANISATION_GROUP_IDS))
+      when(industryTeamService.isTeamMemberForOrganisationGroups(user, ORGANISATION_GROUP_IDS))
           .thenReturn(true);
 
-      assertThat(underTest.isMemberOfOrganisationUnit(userDetail, ORGANISATION_UNIT_ID))
+      assertThat(underTest.isMemberOfOrganisationUnit(user, ORGANISATION_UNIT_ID))
           .isTrue();
     }
 
@@ -48,10 +48,10 @@ class IndustryTeamMemberServiceTest {
     void isMemberOfOrganisationUnit_whenFalse() {
       when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(ORGANISATION_UNIT_ID))
           .thenReturn(ORGANISATION_GROUP_IDS);
-      when(industryTeamService.isTeamMemberForOrganisationGroups(userDetail, ORGANISATION_GROUP_IDS))
+      when(industryTeamService.isTeamMemberForOrganisationGroups(user, ORGANISATION_GROUP_IDS))
           .thenReturn(false);
 
-      assertThat(underTest.isMemberOfOrganisationUnit(userDetail, ORGANISATION_UNIT_ID))
+      assertThat(underTest.isMemberOfOrganisationUnit(user, ORGANISATION_UNIT_ID))
           .isFalse();
     }
   }
@@ -63,10 +63,10 @@ class IndustryTeamMemberServiceTest {
     void isSubmitterOfOrganisationUnit_whenTrue() {
       when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(ORGANISATION_UNIT_ID))
           .thenReturn(ORGANISATION_GROUP_IDS);
-      when(industryTeamService.isSubmitterForOrganisationGroups(userDetail, ORGANISATION_GROUP_IDS))
+      when(industryTeamService.isSubmitterForOrganisationGroups(user, ORGANISATION_GROUP_IDS))
           .thenReturn(true);
 
-      assertThat(underTest.isSubmitterOfOrganisationUnit(userDetail, ORGANISATION_UNIT_ID))
+      assertThat(underTest.isSubmitterOfOrganisationUnit(user, ORGANISATION_UNIT_ID))
           .isTrue();
     }
 
@@ -74,10 +74,10 @@ class IndustryTeamMemberServiceTest {
     void isSubmitterOfOrganisationUnit_whenFalse() {
       when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(ORGANISATION_UNIT_ID))
           .thenReturn(ORGANISATION_GROUP_IDS);
-      when(industryTeamService.isSubmitterForOrganisationGroups(userDetail, ORGANISATION_GROUP_IDS))
+      when(industryTeamService.isSubmitterForOrganisationGroups(user, ORGANISATION_GROUP_IDS))
           .thenReturn(false);
 
-      assertThat(underTest.isSubmitterOfOrganisationUnit(userDetail, ORGANISATION_UNIT_ID))
+      assertThat(underTest.isSubmitterOfOrganisationUnit(user, ORGANISATION_UNIT_ID))
           .isFalse();
     }
   }

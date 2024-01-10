@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
@@ -33,18 +33,18 @@ public class NewProspectController {
 
   private final ControllerHelperService controllerHelperService;
   private final StartProspectService startProspectService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
   private final RegulatorTeamService regulatorTeamService;
   private final AreaTeamService areaTeamService;
 
   @Autowired
   public NewProspectController(ControllerHelperService controllerHelperService,
                                StartProspectService startProspectService,
-                               UserDetailService userDetailService,
+                               UserService userService,
                                RegulatorTeamService regulatorTeamService, AreaTeamService areaTeamService) {
     this.controllerHelperService = controllerHelperService;
     this.startProspectService = startProspectService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
     this.regulatorTeamService = regulatorTeamService;
     this.areaTeamService = areaTeamService;
   }
@@ -82,7 +82,7 @@ public class NewProspectController {
   }
 
   private boolean isRegulatorOrAreaTeamUser() {
-    var userDetail = userDetailService.getUserDetail();
-    return regulatorTeamService.isRegulatorUser(userDetail) || areaTeamService.isAreaUser(userDetail);
+    var user = userService.getUser();
+    return regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user);
   }
 }

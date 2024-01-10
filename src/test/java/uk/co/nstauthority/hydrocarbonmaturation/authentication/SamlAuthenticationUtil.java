@@ -23,7 +23,7 @@ public class SamlAuthenticationUtil {
     private Builder() {
     }
 
-    private ServiceUserDetail serviceUserDetail = ServiceUserDetailTestUtil.Builder().build();
+    private User user = UserTestUtil.Builder().build();
     private final Collection<GrantedAuthority> grantedAuthorities = new HashSet<>();
 
     public void setSecurityContext() {
@@ -32,7 +32,7 @@ public class SamlAuthenticationUtil {
     }
 
     public ServiceSaml2Authentication build() {
-      return new ServiceSaml2Authentication(serviceUserDetail, grantedAuthorities);
+      return new ServiceSaml2Authentication(user, grantedAuthorities);
     }
 
     public Builder withGrantedAuthorities(Collection<GrantedAuthority> grantedAuthorities) {
@@ -50,8 +50,8 @@ public class SamlAuthenticationUtil {
       return this;
     }
 
-    public Builder withUser(ServiceUserDetail serviceUserDetail) {
-      this.serviceUserDetail = serviceUserDetail;
+    public Builder withUser(User user) {
+      this.user = user;
       return this;
     }
   }

@@ -20,8 +20,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticationUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceUserDetailTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
@@ -47,7 +47,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.indus
 @IntegrationTest
 class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
 
-  private static final ServiceUserDetail USER = ServiceUserDetailTestUtil.Builder()
+  private static final User USER = UserTestUtil.Builder()
       .withWuaId(2000L)
       .build();
 
@@ -512,7 +512,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.flush();
   }
 
-  private void setUpIndustryTest(List<Integer> userResponsibleOrganisationUnitIds, ServiceUserDetail user) {
+  private void setUpIndustryTest(List<Integer> userResponsibleOrganisationUnitIds, User user) {
     // Ensure user is treated as currently logged in
     SamlAuthenticationUtil.Builder()
         .withUser(user)

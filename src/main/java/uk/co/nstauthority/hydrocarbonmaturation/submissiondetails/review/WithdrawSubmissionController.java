@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsLatestExtantSubmissionDetailVersion;
@@ -49,7 +49,7 @@ public class WithdrawSubmissionController {
   private final SubmissionSummaryModelService submissionSummaryModelService;
   private final WithdrawSubmissionService withdrawSubmissionService;
   private final ControllerHelperService controllerHelperService;
-  private final UserDetailService userDetailService;
+  private final UserService userService;
 
   @Autowired
   public WithdrawSubmissionController(SubmissionDetailService submissionDetailService,
@@ -57,13 +57,13 @@ public class WithdrawSubmissionController {
                                       SubmissionSummaryModelService submissionSummaryModelService,
                                       WithdrawSubmissionService withdrawSubmissionService,
                                       ControllerHelperService controllerHelperService,
-                                      UserDetailService userDetailService) {
+                                      UserService userService) {
     this.submissionDetailService = submissionDetailService;
     this.submissionResourceService = submissionResourceService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.withdrawSubmissionService = withdrawSubmissionService;
     this.controllerHelperService = controllerHelperService;
-    this.userDetailService = userDetailService;
+    this.userService = userService;
   }
 
   @GetMapping
@@ -73,7 +73,7 @@ public class WithdrawSubmissionController {
     if (!withdrawSubmissionService.canWithdrawSubmission(submissionDetail)) {
       throw new ResponseStatusException(
           HttpStatus.FORBIDDEN, "Submission cannot be withdrawn by user with ID %s "
-          .formatted(userDetailService.getUserWuaId()));
+          .formatted(userService.getUserWuaId()));
     }
 
     return getWithdrawConfirmationModelAndView(submissionDetail, new WithdrawSubmissionForm());
