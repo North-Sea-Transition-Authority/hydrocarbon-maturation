@@ -1,16 +1,18 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.enumutil.EnumUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 
 @Service
 public class SubmissionDetailDisplayService {
@@ -29,19 +31,28 @@ public class SubmissionDetailDisplayService {
     return responsibleTeamType.getDisplayName();
   }
 
-  public String getOrganisationResponsibleDisplay(Integer organisationResponsibleId) {
+  public String getOrganisationResponsibleDisplayById(Integer organisationResponsibleId) {
     if (organisationResponsibleId == null) {
       return NOT_PROVIDED;
     }
 
-    return organisationUnitQueryService.findOrganisationUnit(organisationResponsibleId)
-        .flatMap(organisationUnit -> {
-          if (organisationUnit.getRegisteredNumber() != null && organisationUnit.getName() != null) {
-            return Optional.of(organisationUnit.getName() + " (" + organisationUnit.getRegisteredNumber() + ")");
-          }
+    var organisationUnitDto = organisationUnitQueryService.findOrganisationUnit(organisationResponsibleId)
+        .orElse(null);
 
-          return Optional.ofNullable(organisationUnit.getName());
-        })
+    return getOrganisationResponsibleDisplay(organisationUnitDto);
+  }
+
+  private String getOrganisationResponsibleDisplay(@Nullable OrganisationUnitDto organisationUnitDto) {
+    return Optional.ofNullable(organisationUnitDto)
+        .map(OrganisationUnitDto::getDisplayText)
+        .orElse(NOT_PROVIDED);
+  }
+
+  public String getOrganisationResponsibleDisplayFromMap(Map<Integer, OrganisationUnitDto> organisationUnitMap,
+                                                         Integer organisationResponsibleId) {
+    return Optional.ofNullable(organisationResponsibleId)
+        .map(organisationUnitMap::get)
+        .map(this::getOrganisationResponsibleDisplay)
         .orElse(NOT_PROVIDED);
   }
 
@@ -55,6 +66,18 @@ public class SubmissionDetailDisplayService {
         .toList();
 
     return licenceQueryService.getLicencesByIds(licences).stream()
+        .map(LicenceView::licenceRef)
+        .toList();
+  }
+
+  public List<String> getLicencesForDisplayFromMap(Map<Integer, LicenceView> licencesMap, List<Integer> licencesTheResourceIsOn) {
+    if (CollectionUtils.isEmpty(licencesTheResourceIsOn)) {
+      return List.of(NOT_PROVIDED);
+    }
+
+    return licencesTheResourceIsOn.stream()
+        .map(licencesMap::get)
+        .filter(Objects::nonNull)
         .map(LicenceView::licenceRef)
         .toList();
   }

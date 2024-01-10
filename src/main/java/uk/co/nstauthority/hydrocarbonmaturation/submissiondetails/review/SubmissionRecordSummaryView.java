@@ -14,6 +14,8 @@ public record SubmissionRecordSummaryView(
     List<Integer> licenceIds,
     List<String> licences,
     String responsibleTeam,
-    ResponsibleTeamType responsibleTeamType
+    ResponsibleTeamType responsibleTeamType,
+    String parentFieldName,
+    String fieldStatus
 ) {
 }

@@ -123,20 +123,22 @@ class LicenceQueryServiceTest {
 
   @Test
   void getLicencesByRefsOrIds_whenLicencesFound() {
+    var idList = List.of(licenceId, 2);
+
     var licence = LicenceTestUtil.Builder()
         .withLicenceId(licenceId)
         .withLicenceRef(licenceRef)
         .build();
-    var filter = LicenceQueryService.LICENCE_PROJECTION_ROOT;
-    when(licenceApi.findLicence(
-        eq(licenceId),
+    var filter = LicenceQueryService.LICENCES_PROJECTION_ROOT;
+    when(licenceApi.searchLicencesById(
+        eq(idList),
         eq(filter),
         any(),
         any()
-    )).thenReturn(Optional.of(licence));
+    )).thenReturn(List.of(licence));
 
     var expectedLicence = licenceQueryService
-        .getLicencesByIds(List.of(licenceId.toString(), "2"));
+        .getLicencesByIds(idList.stream().map(String::valueOf).toList());
 
     assertThat(expectedLicence)
         .extracting(
@@ -163,7 +165,7 @@ class LicenceQueryServiceTest {
     )).thenReturn(Optional.of(licence));
 
     var expectedLicence = licenceQueryService
-        .getLicenceById(licenceId.toString());
+        .getLicenceById(licenceId);
 
     assertThat(expectedLicence.get())
         .extracting(

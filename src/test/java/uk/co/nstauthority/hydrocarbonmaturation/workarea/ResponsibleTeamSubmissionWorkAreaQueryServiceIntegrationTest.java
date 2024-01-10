@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTestUtils.createSubmissionForIntegrationTest;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import javax.persistence.EntityManager;
 import org.jooq.DSLContext;
@@ -20,7 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -29,11 +30,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.Licence;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapProperty;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
@@ -592,12 +593,14 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
     submissionDetail.setId(null);
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
+
     var resource = createResource(ResourceType.FIELD);
-    var field = new Field();
+
+    var responsibleOrganisationId = 2425;
     var fieldName = "Field name";
-    field.setCorrectedLegalFieldName(fieldName);
-    field.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    field.setResource(resource);
+    var field = SubmissionIntegrationTestUtils
+        .createFieldWithParent(resource, fieldName, responsibleOrganisationId, entityManager);
+
     var responsibleTeam = new RegulatorManagedInformation();
     responsibleTeam.setResource(resource);
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
@@ -609,13 +612,8 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
     submissionDetail.getSubmission().setResource(resource);
     var submission = createSubmissionForIntegrationTest(resource, entityManager);
     submissionDetail.setSubmission(submission);
+    submissionDetail.setCorrection(false);
     entityManager.persist(submissionDetail);
-    entityManager.flush();
-
-    var resourceDetail = new ResourceDetail();
-    resourceDetail.setSubmissionDetail(submissionDetail);
-    resourceDetail.setOrganisationId(46);
-    entityManager.persist(resourceDetail);
     entityManager.flush();
 
     var generalDetails = new GeneralDetail();
@@ -623,6 +621,12 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persist(generalDetails);
     entityManager.flush();
     entityManager.persist(field);
+    entityManager.flush();
+
+    var trapProperty = new TrapProperty();
+    trapProperty.setSubmissionDetail(submissionDetail);
+    trapProperty.setCentreOfInterestQuadrantBlock("25/12");
+    entityManager.persist(trapProperty);
     entityManager.flush();
 
     var licence = new Licence();
@@ -640,6 +644,13 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persist(licence2);
     entityManager.flush();
 
+    var today = Instant.now();
+    var yesterday = today.minus(1, ChronoUnit.DAYS);
+    var oldFieldStatusHistory = SubmissionIntegrationTestUtils
+        .createFieldStatusHistory(field, FieldStatus.STATUS_200, yesterday, entityManager);
+    var newestFieldStatusHistory = SubmissionIntegrationTestUtils
+        .createFieldStatusHistory(field, FieldStatus.STATUS_300, today, entityManager);
+
     var results = responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER);
 
     assertThat(results.get(0))
@@ -650,17 +661,19 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
             SubmissionWorkAreaQueryResult::getResourceName,
             SubmissionWorkAreaQueryResult::getSubmissionType,
             SubmissionWorkAreaQueryResult::getStatus,
-            SubmissionWorkAreaQueryResult::isUpdateRequested,
-            SubmissionWorkAreaQueryResult::isCorrection)
+            SubmissionWorkAreaQueryResult::isCorrection,
+            SubmissionWorkAreaQueryResult::getParentFieldId,
+            SubmissionWorkAreaQueryResult::getFieldStatus)
         .containsExactly(
             submissionDetail.getId(),
-            null,
-            46,
+            trapProperty.getCentreOfInterestQuadrantBlock(),
+            responsibleOrganisationId,
             fieldName,
             SubmissionType.CREATE_CSR,
             SubmissionDetailStatus.DRAFT,
-            false,
-            false
+            submissionDetail.isCorrection(),
+            field.getParentDeterminedField().getFieldIdentifier(),
+            newestFieldStatusHistory.getFieldStatus()
         );
 
     assertThat(results.get(0)

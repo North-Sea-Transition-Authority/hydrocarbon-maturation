@@ -93,7 +93,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     resourceId = resource.getId();
     submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT, resource);
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
-    submissionRecordSummaryView = SubmissionIntegrationTestUtils.emptySubmissionRecordSummaryView(
+    submissionRecordSummaryView = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
         UUID.randomUUID(), 1, SubmissionType.CREATE_PROSPECT);
     when(reviewSubmissionService.getSubmissionRecordOrThrow(resourceId)).thenReturn(submissionRecordSummaryView);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionRecordSummaryView.submissionDetailId()))
@@ -175,6 +175,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
                 .viewSubmission(otherSubmissionOnResource.getSubmission().getResource().getId(), null))),
             entry("resourceType", otherSubmissionOnResource.getSubmission().getResource().getType().getDisplayName()),
             entry("submissionType", otherSubmissionOnResource.getSubmissionType()),
+            entry("isFieldSubmission", submissionDetail.isFieldSubmission()),
             entry("updateSubmissionUrl", ReverseRouter.route(on(StartUpdateController.class)
                 .showStartUpdatePage(otherSubmissionOnResource.getId()))),
             entry("updateStarted", false),
@@ -234,6 +235,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
             entry("submissionRecord", submissionRecordSummaryView),
             entry("canReview", false),
             entry("submissionType", submissionDetail.getSubmissionType()),
+            entry("isFieldSubmission", submissionDetail.isFieldSubmission()),
             entry("isInResponsibleTeam", false),
             entry("updateStarted", true),
             entry("updateSubmissionUrl", ReverseRouter.route(on(TaskListController.class)
@@ -288,6 +290,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
                 .showRequestUpdateConfirmationPage(submissionDetail.getId()))),
             entry("canRequestUpdate", false),
             entry("submissionType", submissionDetail.getSubmissionType()),
+            entry("isFieldSubmission", submissionDetail.isFieldSubmission()),
             entry("regulatorManagedInformationSummaryView", regulatorSummary),
             entry("resourceGroupsSummaryView", resourceGroupSummary),
             entry("withdrawUrl", ReverseRouter.route(on(WithdrawSubmissionController.class)
@@ -411,6 +414,42 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
             entry("updateRequested", true),
             entry("submissionUpdateReason", SUBMISSION_UPDATE_REASON),
             entry("isIndustrySubmitter", false)
+        );
+  }
+
+  @Test
+  void showSubmissionModelAndView_whenFieldSubmission_assertUpdateModelProperties() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
+
+    when(reviewSubmissionService.canViewSubmission(submissionRecordSummaryView, USER, submissionDetail)).thenReturn(true);
+    mockModelAndViewCreation(submissionDetail, List.of());
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resourceId)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("isFieldSubmission", true)
+        );
+  }
+
+  @Test
+  void showSubmissionModelAndView_whenNonFieldSubmission_assertUpdateModelProperties() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+
+    when(reviewSubmissionService.canViewSubmission(submissionRecordSummaryView, USER, submissionDetail)).thenReturn(true);
+    mockModelAndViewCreation(submissionDetail, List.of());
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resourceId)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("isFieldSubmission", false)
         );
   }
 

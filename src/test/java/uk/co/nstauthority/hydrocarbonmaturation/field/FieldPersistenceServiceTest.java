@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -19,8 +18,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
@@ -97,12 +96,13 @@ class FieldPersistenceServiceTest {
     @Test
     void responsibleOrganisationFound() {
       when(fieldRepository.findByResource(resource)).thenReturn(Optional.empty());
-      var organisationUnit = OrganisationUnit.newBuilder()
-          .organisationUnitId(Integer.valueOf(RESPONSIBLE_ORGANISATION_ID))
-          .name(RESPONSIBLE_ORGANISATION_NAME)
-          .registeredNumber(REGISTERED_NUMBER)
-          .build();
-      when(organisationUnitQueryService.findOrganisationUnit(anyInt())).thenReturn(Optional.ofNullable(organisationUnit));
+      var organisationUnitDto = new OrganisationUnitDto(
+          Integer.valueOf(RESPONSIBLE_ORGANISATION_ID),
+          RESPONSIBLE_ORGANISATION_NAME,
+          REGISTERED_NUMBER
+      );
+
+      when(organisationUnitQueryService.findOrganisationUnit(Integer.valueOf(RESPONSIBLE_ORGANISATION_ID))).thenReturn(Optional.of(organisationUnitDto));
 
       var result = underTest.saveFieldFromFieldForm(form, resource);
       assertThat(result)

@@ -3,7 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -24,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -51,11 +52,11 @@ class SearchResourceRecordsServiceTest {
   @Mock
   private LicenceQueryService licenceQueryService;
   @Mock
+  private OrganisationUnitQueryService organisationUnitQueryService;
+  @Mock
   private SubmissionDetailService submissionDetailService;
   @InjectMocks
   private SearchResourceRecordsService underTest;
-  @Mock
-  private OrganisationUnitQueryService organisationUnitQueryService;
 
   @Test
   void getOpportunityTypes() {
@@ -82,46 +83,48 @@ class SearchResourceRecordsServiceTest {
 
   @Nested
   class WhenGettingResourceRecordSearchResults {
-
+    private final LicenceView EXTANT_LICENCE_1 = buildLicenceView(1, "L1", LicenceStatus.EXTANT);
+    private final LicenceView EXTANT_LICENCE_2 = buildLicenceView(2, "L2", LicenceStatus.EXTANT);
+    private final LicenceView NOT_EXTANT_LICENCE_2 = buildLicenceView(3, "F1", LicenceStatus.EXPIRED);
+    private final LicenceView NOT_EXTANT_LICENCE_3 = buildLicenceView(4, "F2", LicenceStatus.EXPIRED);
+    private final Map<Integer, LicenceView> LICENCE_MAP = Map.of(
+        1, EXTANT_LICENCE_1,
+        2, EXTANT_LICENCE_2,
+        3, NOT_EXTANT_LICENCE_2,
+        4, NOT_EXTANT_LICENCE_3
+    );
+    private final int ORGANISATION_ID_1 = 1;
+    private final int ORGANISATION_ID_2 = 2;
+    private final Map<Integer, OrganisationUnitDto> ORGANISATION_UNIT_MAP = Map.of(
+        ORGANISATION_ID_1, new OrganisationUnitDto(ORGANISATION_ID_1, "Org A", null),
+        ORGANISATION_ID_2, new OrganisationUnitDto(ORGANISATION_ID_2, "Org B", null)
+    );
     @Mock
     private SearchResourceRecordsForm form;
 
+    @BeforeEach
+    void setUp() {
+      when(organisationUnitQueryService.getOrganisationUnitMapByIds(anyList())).thenReturn(ORGANISATION_UNIT_MAP);
+      when(licenceQueryService.getLicenceMapByIds(anyList())).thenReturn(LICENCE_MAP);
+    }
+
     @Test
     void buildsResourceRecordSearchResultItem_AssertAllReturnedAndItemsAreBuiltCorrectly() {
-      var extantLicenceView1 = LicenceViewTestUtil.Builder()
-          .withLicenceId(1)
-          .withLicenceRef("L1")
-          .withLicenceStatus(LicenceStatus.EXTANT)
-          .build();
-      var extantLicenceView2 = LicenceViewTestUtil.Builder()
-          .withLicenceId(2)
-          .withLicenceRef("L2")
-          .withLicenceStatus(LicenceStatus.EXTANT)
-          .build();
-      var allExtantLicenceViews = List.of(extantLicenceView1, extantLicenceView2);
-      var result1 =
-          buildAndMockResourceRecordQueryResult(
-              "resource-name1", "1/12", 1, "Org A",
-              List.of(extantLicenceView1.licenceId(), extantLicenceView2.licenceId()),
-              List.of(extantLicenceView1.licenceRef(), extantLicenceView2.licenceRef()),
-              ResponsibleTeamType.EXPLORATION);
-      var notExtantLicenceView2 = LicenceViewTestUtil.Builder()
-          .withLicenceId(3)
-          .withLicenceRef("F1")
-          .withLicenceStatus(LicenceStatus.EXPIRED)
-          .build();
-      var notExtantLicenceView3 = LicenceViewTestUtil.Builder()
-          .withLicenceId(4)
-          .withLicenceRef("F2")
-          .withLicenceStatus(LicenceStatus.EXPIRED)
-          .build();
-      var allNotExtantLicenceViews = List.of(notExtantLicenceView2, notExtantLicenceView3);
 
-      var result2 =
-          buildAndMockResourceRecordQueryResult("resource-name2", null, 2,
-              "Org B", List.of(notExtantLicenceView2.licenceId(), notExtantLicenceView3.licenceId()),
-              List.of(notExtantLicenceView2.licenceRef(), notExtantLicenceView3.licenceRef()),
-              ResponsibleTeamType.EXPLORATION);
+      var result1 = buildAndMockResourceRecordQueryResult(
+        "resource-name1", "1/12",
+        ORGANISATION_ID_1, "Org A",
+        List.of(EXTANT_LICENCE_1.licenceId(), EXTANT_LICENCE_2.licenceId()),
+        List.of(EXTANT_LICENCE_1.licenceRef(), EXTANT_LICENCE_2.licenceRef()),
+        ResponsibleTeamType.EXPLORATION
+      );
+      var result2 = buildAndMockResourceRecordQueryResult(
+          "resource-name2", null,
+        ORGANISATION_ID_2, "Org B",
+        List.of(NOT_EXTANT_LICENCE_2.licenceId(), NOT_EXTANT_LICENCE_3.licenceId()),
+        List.of(NOT_EXTANT_LICENCE_2.licenceRef(), NOT_EXTANT_LICENCE_3.licenceRef()),
+        ResponsibleTeamType.EXPLORATION
+      );
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form))
           .thenReturn(List.of(result1, result2));
 
@@ -132,8 +135,7 @@ class SearchResourceRecordsServiceTest {
       when(submissionDetailService.getSubmissionDetail(result2.getSubmissionDetailId()))
           .thenReturn(Optional.of(submissionDetailRelinquishment));
 
-      var results = underTest.getResourceRecordSearchResults(
-          form, resourceRecordQueryServiceStrategy);
+      var results = underTest.getResourceRecordSearchResults(form, resourceRecordQueryServiceStrategy);
 
       assertThat(results)
           .extracting(
@@ -181,8 +183,10 @@ class SearchResourceRecordsServiceTest {
                                                                             List<Integer> licencesTheResourceIsOn,
                                                                             List<String> licencesDisplayed,
                                                                             ResponsibleTeamType responsibleTeam) {
-      when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(organisationResponsibleId)).thenReturn(orgName);
-      when(submissionDetailDisplayService.getLicencesForDisplay(licencesTheResourceIsOn)).thenReturn(licencesDisplayed);
+      when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, organisationResponsibleId))
+          .thenReturn(orgName);
+      when(submissionDetailDisplayService.getLicencesForDisplayFromMap(LICENCE_MAP, licencesTheResourceIsOn))
+          .thenReturn(licencesDisplayed);
       when(submissionDetailDisplayService.getTeamResponsibleDisplay(responsibleTeam)).thenReturn(responsibleTeam.getDisplayName());
       if (centreOfInterest != null) {
         when(submissionDetailDisplayService
@@ -204,6 +208,14 @@ class SearchResourceRecordsServiceTest {
           responsibleTeam);
     }
 
+  }
+
+  private static LicenceView buildLicenceView(int id, String ref, LicenceStatus status) {
+    return LicenceViewTestUtil.Builder()
+        .withLicenceId(id)
+        .withLicenceRef(ref)
+        .withLicenceStatus(status)
+        .build();
   }
 
   @Test
@@ -294,7 +306,7 @@ class SearchResourceRecordsServiceTest {
       form.setLicenceId(id);
       var expectedMap = Map.of("key", "value");
       var licenceView = new LicenceView("ref", Integer.parseInt(id), LicenceStatus.EXTANT);
-      when(licenceQueryService.getLicenceById(id))
+      when(licenceQueryService.getLicenceById(Integer.valueOf(id)))
           .thenReturn(Optional.of(licenceView));
       when(searchSelectorService.buildPrePopulatedSelection(id, "ref"))
           .thenReturn(expectedMap);

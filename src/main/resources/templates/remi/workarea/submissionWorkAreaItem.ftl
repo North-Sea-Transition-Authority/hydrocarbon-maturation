@@ -16,8 +16,8 @@
       captionHeadingText=workAreaItem.captionText()!""
       linkHeadingUrl=springUrl(workAreaItem.actionUrl())
       linkHeadingText=workAreaItem.headingText()
-      itemTag=updateRequestedTag>
-
+      itemTag=updateRequestedTag
+    >
     <@fdsResultList.resultListDataItem>
       <@fdsResultList.resultListDataValue
         key="Status"
@@ -35,6 +35,35 @@
       <@fdsResultList.resultListDataValue
         key="Licences"
         value=licencesDisplay/>
+    </@fdsResultList.resultListDataItem>
+  </@fdsResultList.resultListItem>
+</#macro>
+
+<#macro fieldSubmissionWorkAreaItem workAreaItem>
+  <#assign modelProperties = workAreaItem.modelProperties().properties />
+  <#assign updateRequestedTag>
+    <#if modelProperties["updateRequested"]>
+      <@fdsResultList.resultListTag
+      tagText="Update requested"
+      tagClass="govuk-tag--blue govuk-tag--float-right"/>
+    </#if>
+  </#assign>
+  <@fdsResultList.resultListItem
+  captionHeadingText=workAreaItem.captionText()!""
+  linkHeadingUrl=springUrl(workAreaItem.actionUrl())
+  linkHeadingText=workAreaItem.headingText()
+  itemTag=updateRequestedTag
+  >
+    <@fdsResultList.resultListDataItem>
+      <@fdsResultList.resultListDataValue
+      key="Field status"
+      value=modelProperties["fieldStatus"]/>
+      <@fdsResultList.resultListDataValue
+      key="Responsible organisation"
+      value=modelProperties["organisationResponsible"]/>
+      <@fdsResultList.resultListDataValue
+      key="Parent field"
+      value=modelProperties["parentFieldName"]!""/>
     </@fdsResultList.resultListDataItem>
   </@fdsResultList.resultListItem>
 </#macro>

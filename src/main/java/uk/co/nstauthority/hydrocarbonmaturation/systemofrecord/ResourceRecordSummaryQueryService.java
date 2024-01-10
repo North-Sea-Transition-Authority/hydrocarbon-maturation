@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
+import static org.jooq.impl.DSL.and;
 import static org.jooq.impl.DSL.coalesce;
+import static org.jooq.impl.DSL.max;
 import static org.jooq.impl.DSL.select;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELDS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
@@ -19,15 +21,19 @@ import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.FieldStatusHistory;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submissions;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 
 @Service
 class ResourceRecordSummaryQueryService {
-
   private static final SubmissionDetails SD_2 = SUBMISSION_DETAILS.as("sd2");
   private static final Submissions SUBMISSIONS_2 = SUBMISSIONS.as("s2");
+
+  private static final FieldStatusHistory FIELD_STATUS_HISTORY = FieldStatusHistory.FIELD_STATUS_HISTORY.as("fsh");
+  private static final FieldStatusHistory FSH_2 = FieldStatusHistory.FIELD_STATUS_HISTORY.as("fsh2");
+
   private final DSLContext context;
 
   @Autowired
@@ -49,7 +55,9 @@ class ResourceRecordSummaryQueryService {
             REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM,
             DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
-                .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull())
+                .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
+            FIELDS.PARENT_DETERMINED_FIELD_ID,
+            max(FIELD_STATUS_HISTORY.FIELD_STATUS)
         )
         .from(SUBMISSIONS
             .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
@@ -74,7 +82,15 @@ class ResourceRecordSummaryQueryService {
             .on(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID.eq(RESOURCES.ID))
             .leftJoin(FIELDS)
             .on(FIELDS.RESOURCE_ID.eq(RESOURCES.ID))
-        .where(RESOURCES.ID.eq(resourceId).and(SUBMISSIONS.WITHDRAWN.isNull())))
+            .leftJoin(FIELD_STATUS_HISTORY)
+            .on(and(
+                FIELD_STATUS_HISTORY.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER),
+                FIELD_STATUS_HISTORY.STATUS_DATE.eq(
+                    select(max(FSH_2.STATUS_DATE))
+                        .from(FSH_2)
+                        .where(FSH_2.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
+                ))))
+        .where(RESOURCES.ID.eq(resourceId).and(SUBMISSIONS.WITHDRAWN.isNull()))
         .groupBy(List.of(
             SUBMISSION_DETAILS.ID,
             RESOURCES.TYPE,
@@ -83,7 +99,9 @@ class ResourceRecordSummaryQueryService {
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
             RESOURCE_DETAILS.ORGANISATION_ID,
             FIELDS.RESPONSIBLE_ORGANISATION_ID,
-            REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM
+            REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM,
+            FIELDS.FIELD_IDENTIFIER,
+            FIELD_STATUS_HISTORY.FIELD_IDENTIFIER
         ))
         .orderBy(SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP.desc().nullsLast())
         .limit(1)

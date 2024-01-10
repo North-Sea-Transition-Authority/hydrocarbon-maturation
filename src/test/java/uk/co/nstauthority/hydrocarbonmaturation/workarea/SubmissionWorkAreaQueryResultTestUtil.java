@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 import java.util.List;
 import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 
 class SubmissionWorkAreaQueryResultTestUtil {
 
@@ -25,6 +26,8 @@ class SubmissionWorkAreaQueryResultTestUtil {
     private List<Integer> licencesTheResourceIsOn = List.of(1,2);
     private Boolean updateRequested = false;
     private Boolean isCorrection = false;
+    private Integer parentFieldId = 8001;
+    private FieldStatus fieldStatus = FieldStatus.STATUS_300;
 
     private Builder() {
     }
@@ -79,7 +82,7 @@ class SubmissionWorkAreaQueryResultTestUtil {
       return new SubmissionWorkAreaQueryResult(submissionDetailId, submissionType, status,
           resourceName, centreOfInterestQuadBlock, organisationResponsibleId,
           licencesTheResourceIsOn, updateRequested,
-          isCorrection);
+          isCorrection, parentFieldId, fieldStatus);
     }
   }
 

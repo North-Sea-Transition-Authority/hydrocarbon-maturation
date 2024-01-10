@@ -12,6 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -32,6 +33,7 @@ public class ViewResourceRecordService {
   private final ResourceLinkService resourceLinkService;
   private final SubmissionDetailService submissionDetailService;
   private final AreaTeamService areaTeamService;
+  private final FieldDisplayService fieldDisplayService;
 
   @Autowired
   ViewResourceRecordService(ResourceRecordSummaryQueryService resourceRecordSummaryQueryService,
@@ -41,7 +43,8 @@ public class ViewResourceRecordService {
                             LicenceQueryService licenceQueryService,
                             ResourceLinkService resourceLinkService,
                             SubmissionDetailService submissionDetailService,
-                            AreaTeamService areaTeamService) {
+                            AreaTeamService areaTeamService,
+                            FieldDisplayService fieldDisplayService) {
     this.resourceRecordSummaryQueryService = resourceRecordSummaryQueryService;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.regulatorTeamService = regulatorTeamService;
@@ -50,6 +53,7 @@ public class ViewResourceRecordService {
     this.resourceLinkService = resourceLinkService;
     this.submissionDetailService = submissionDetailService;
     this.areaTeamService = areaTeamService;
+    this.fieldDisplayService = fieldDisplayService;
   }
 
   public ResourceRecordSummaryView getResourceRecordOrThrow(UUID resourceId) {
@@ -61,7 +65,11 @@ public class ViewResourceRecordService {
                 getOrganisationResponsible(resourceRecordSummaryQueryResult),
                 resourceRecordSummaryQueryResult.licencesTheResourceIsOn(),
                 getLicences(resourceRecordSummaryQueryResult),
-                getResponsibleTeam(resourceRecordSummaryQueryResult)
+                getResponsibleTeam(resourceRecordSummaryQueryResult),
+                fieldDisplayService.getParentFieldNameOrNoneFound(resourceRecordSummaryQueryResult.parentFieldId()),
+                resourceRecordSummaryQueryResult.fieldStatus() != null
+                    ? resourceRecordSummaryQueryResult.fieldStatus().getDisplayName()
+                    : null
             )
         )
         .orElseThrow(() -> new RemiEntityNotFoundException("Resource record not found for resource ID %s".formatted(resourceId)));
@@ -79,7 +87,7 @@ public class ViewResourceRecordService {
   }
 
   private String getOrganisationResponsible(ResourceRecordSummaryQueryResult resourceRecordSummaryQueryResult) {
-    return submissionDetailDisplayService.getOrganisationResponsibleDisplay(
+    return submissionDetailDisplayService.getOrganisationResponsibleDisplayById(
         resourceRecordSummaryQueryResult.organisationResponsibleId());
   }
 

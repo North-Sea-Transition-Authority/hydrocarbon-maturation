@@ -5,11 +5,14 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
@@ -45,8 +48,33 @@ public class SearchResourceRecordsService {
 
   List<ResourceRecordSearchResultItem> getResourceRecordSearchResults(SearchResourceRecordsForm form,
                                                                       ResourceRecordQueryServiceStrategy queryServiceStrategy) {
-    return queryServiceStrategy.getResourceRecordSearchResults(form).stream()
-        .map(this::buildResourceRecordSearchResultItem)
+    var resourceRecordSearchResults = queryServiceStrategy.getResourceRecordSearchResults(form);
+
+    var organisationUnitIds = getOrganisationUnitIdsFromResults(resourceRecordSearchResults);
+    var organisationUnitMap = organisationUnitQueryService.getOrganisationUnitMapByIds(organisationUnitIds);
+
+    var licences = getLicencesFromResults(resourceRecordSearchResults);
+    var licenceMap = licenceQueryService.getLicenceMapByIds(licences);
+
+    return resourceRecordSearchResults.stream()
+        .map(result -> buildResourceRecordSearchResultItem(result, organisationUnitMap, licenceMap))
+        .toList();
+  }
+
+  private List<Integer> getOrganisationUnitIdsFromResults(List<ResourceRecordQueryResult> resourceRecordSearchResults) {
+    return resourceRecordSearchResults.stream()
+        .map(ResourceRecordQueryResult::getOrganisationResponsibleId)
+        .filter(Objects::nonNull)
+        .distinct()
+        .toList();
+  }
+
+  private List<Integer> getLicencesFromResults(List<ResourceRecordQueryResult> resourceRecordSearchResults) {
+    return resourceRecordSearchResults.stream()
+        .map(ResourceRecordQueryResult::getLicencesTheResourceIsOn)
+        .filter(Objects::nonNull)
+        .flatMap(List::stream)
+        .distinct()
         .toList();
   }
 
@@ -59,7 +87,7 @@ public class SearchResourceRecordsService {
     if (ObjectUtils.isEmpty(licenceId)) {
       return Map.of();
     }
-    return licenceQueryService.getLicenceById(licenceId)
+    return licenceQueryService.getLicenceById(Integer.valueOf(licenceId))
         .map(licence ->
             searchSelectorService.buildPrePopulatedSelection(
                 licenceId,
@@ -102,13 +130,15 @@ public class SearchResourceRecordsService {
   }
 
   private ResourceRecordSearchResultItem buildResourceRecordSearchResultItem(
-      ResourceRecordQueryResult resourceRecordQueryResult) {
+      ResourceRecordQueryResult resourceRecordQueryResult,
+      Map<Integer, OrganisationUnitDto> organisationUnitMap,
+      Map<Integer, LicenceView> licenceMap) {
 
     return new ResourceRecordSearchResultItem(
         getHeadingText(resourceRecordQueryResult),
         getCaptionText(resourceRecordQueryResult),
         getActionUrl(resourceRecordQueryResult),
-        getResultItemModelProperties(resourceRecordQueryResult));
+        getResultItemModelProperties(resourceRecordQueryResult, organisationUnitMap, licenceMap));
   }
 
   private String getHeadingText(ResourceRecordQueryResult resourceRecordQueryResult) {
@@ -132,17 +162,23 @@ public class SearchResourceRecordsService {
   }
 
   private ResourceRecordSearchResultItemModelProperties getResultItemModelProperties(
-      ResourceRecordQueryResult resourceRecordQueryResult) {
+      ResourceRecordQueryResult resourceRecordQueryResult,
+      Map<Integer, OrganisationUnitDto> organisationUnitMap,
+      Map<Integer, LicenceView> licenceMap) {
+
+    var responsibleTeam = resourceRecordQueryResult.getResponsibleTeam();
+    var organisationResponsibleId = resourceRecordQueryResult.getOrganisationResponsibleId();
+    var licencesTheResourceIsOn = resourceRecordQueryResult.getLicencesTheResourceIsOn();
+
+    var organisationResponsibleDisplay =
+        submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(organisationUnitMap, organisationResponsibleId);
+    var licencesForDisplay = submissionDetailDisplayService.getLicencesForDisplayFromMap(licenceMap, licencesTheResourceIsOn);
+    var teamResponsibleDisplay = submissionDetailDisplayService.getTeamResponsibleDisplay(responsibleTeam);
+
     return new ResourceRecordSearchResultItemModelProperties()
-        .addProperty("teamResponsible",
-            submissionDetailDisplayService.getTeamResponsibleDisplay(
-                resourceRecordQueryResult.getResponsibleTeam()
-            ))
-        .addProperty("organisationResponsible",
-            submissionDetailDisplayService.getOrganisationResponsibleDisplay(
-                resourceRecordQueryResult.getOrganisationResponsibleId()))
-        .addProperty("licences",
-            submissionDetailDisplayService.getLicencesForDisplay(resourceRecordQueryResult.getLicencesTheResourceIsOn()));
+        .addProperty("teamResponsible", teamResponsibleDisplay)
+        .addProperty("organisationResponsible", organisationResponsibleDisplay)
+        .addProperty("licences", licencesForDisplay);
   }
 
   public Map<String, String> getOpportunityTypes() {

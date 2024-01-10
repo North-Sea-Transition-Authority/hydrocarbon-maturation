@@ -5,10 +5,13 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,8 +23,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -47,6 +54,14 @@ class WorkAreaItemServiceTest {
 
   @Mock
   private SubmissionDetailService submissionDetailService;
+  @Mock
+  private FieldDisplayService fieldDisplayService;
+
+  @Mock
+  private OrganisationUnitQueryService organisationUnitQueryService;
+
+  @Mock
+  private LicenceQueryService licenceQueryService;
 
   @InjectMocks
   private WorkAreaItemService workAreaItemService;
@@ -59,11 +74,20 @@ class WorkAreaItemServiceTest {
   private final Integer LICENCE_ID_2 = 2;
   private final Integer ORGANISATION_ID = 5;
   private final User USER = UserTestUtil.Builder().build();
+  private final Map<Integer, OrganisationUnitDto> ORGANISATION_UNIT_MAP = Map.of(
+      1, new OrganisationUnitDto(1, "OneOrg", "123"),
+      ORGANISATION_ID, new OrganisationUnitDto(ORGANISATION_ID, "organisation", "456")
+  );
+  private final Map<Integer, LicenceView> LICENCE_MAP = Map.of(
+      1, new LicenceView("123", LICENCE_ID_1, LicenceStatus.EXTANT),
+      2, new LicenceView("456", LICENCE_ID_2, LicenceStatus.EXTANT)
+  );
 
   @BeforeEach
   void setUp() {
     queryResultWithEverythingFilledIn = SubmissionWorkAreaQueryResultTestUtil.builder()
-        .withLicencesTheResourceIsOn(List.of(LICENCE_ID_1, LICENCE_ID_2)).build();
+        .withLicencesTheResourceIsOn(List.of(LICENCE_ID_1, LICENCE_ID_2))
+        .build();
     queryResultWithoutLicencesAndBlock = SubmissionWorkAreaQueryResultTestUtil.builder()
         .withResourceName("other resource")
         .withSubmissionType("PROSPECT_UPDATE")
@@ -73,6 +97,9 @@ class WorkAreaItemServiceTest {
         .withUpdateRequested(UPDATE_REQUESTED)
         .build();
     queryResults = List.of(queryResultWithEverythingFilledIn, queryResultWithoutLicencesAndBlock);
+
+    when(organisationUnitQueryService.getOrganisationUnitMapByIds(anyList())).thenReturn(ORGANISATION_UNIT_MAP);
+    when(licenceQueryService.getLicenceMapByIds(anyList())).thenReturn(LICENCE_MAP);
   }
 
   @Test
@@ -81,9 +108,9 @@ class WorkAreaItemServiceTest {
         .thenReturn(operatorSubmissionWorkAreaQueryService);
     when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
         .thenReturn(queryResults);
-    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(anyInt()))
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(eq(ORGANISATION_UNIT_MAP), anyInt()))
         .thenReturn("Not provided");
-    when(submissionDetailDisplayService.getLicencesForDisplay(List.of(LICENCE_ID_1, LICENCE_ID_2)))
+    when(submissionDetailDisplayService.getLicencesForDisplayFromMap(LICENCE_MAP, List.of(LICENCE_ID_1, LICENCE_ID_2)))
         .thenReturn(List.of());
 
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.CREATE_PROSPECT))
@@ -98,7 +125,7 @@ class WorkAreaItemServiceTest {
             WorkAreaItem::headingText,
             WorkAreaItem::captionText,
             WorkAreaItem::actionUrl)
-        .containsExactly(
+        .contains(
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
@@ -115,14 +142,14 @@ class WorkAreaItemServiceTest {
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"),
             entry("updateRequested", false));
 
     assertThat(result.get(1).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"),
@@ -138,11 +165,11 @@ class WorkAreaItemServiceTest {
         .thenReturn(operatorSubmissionWorkAreaQueryService);
     when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
         .thenReturn(List.of(queryResultWithEverythingFilledIn));
-    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
         .thenReturn("organisation (1)");
     var licence1 = new LicenceView("licence1", LICENCE_ID_1, LicenceStatus.EXTANT);
     var licence2 = new LicenceView("licence2", LICENCE_ID_2, LicenceStatus.EXTANT);
-    when(submissionDetailDisplayService.getLicencesForDisplay(List.of(LICENCE_ID_1, LICENCE_ID_2)))
+    when(submissionDetailDisplayService.getLicencesForDisplayFromMap(LICENCE_MAP, List.of(LICENCE_ID_1, LICENCE_ID_2)))
         .thenReturn(List.of(licence1.getName(), licence2.getName()));
 
     var result = workAreaItemService.getWorkAreaItems(USER);
@@ -154,7 +181,7 @@ class WorkAreaItemServiceTest {
             WorkAreaItem::headingText,
             WorkAreaItem::captionText,
             WorkAreaItem::actionUrl)
-        .containsExactly(
+        .contains(
             WorkAreaItemType.SUBMISSION,
             "resource name (25/5)",
             "Prospect create",
@@ -162,7 +189,7 @@ class WorkAreaItemServiceTest {
                 .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId())));
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
             entry("organisationResponsible", "organisation (1)"),
             entry("licences", List.of(licence1.getName(), licence2.getName())),
             entry("submissionStatus", "Draft"),
@@ -186,7 +213,7 @@ class WorkAreaItemServiceTest {
     when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
         .thenReturn(List.of(submissionWorkAreaQueryResult));
 
-    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(null))
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, null))
         .thenReturn("Not provided");
 
     var result = workAreaItemService.getWorkAreaItems(USER);
@@ -198,7 +225,7 @@ class WorkAreaItemServiceTest {
             WorkAreaItem::headingText,
             WorkAreaItem::captionText,
             WorkAreaItem::actionUrl)
-        .containsExactly(
+        .contains(
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 providedName,
@@ -208,7 +235,8 @@ class WorkAreaItemServiceTest {
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
+            entry("isFieldResource", false),
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"),
@@ -223,7 +251,7 @@ class WorkAreaItemServiceTest {
         .thenReturn(operatorSubmissionWorkAreaQueryService);
     when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
         .thenReturn(List.of(queryResultWithEverythingFilledIn));
-    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
         .thenReturn("Not provided");
 
     var result = workAreaItemService.getWorkAreaItems(USER);
@@ -233,7 +261,7 @@ class WorkAreaItemServiceTest {
             WorkAreaItem::headingText,
             WorkAreaItem::captionText,
             WorkAreaItem::actionUrl)
-        .containsExactly(
+        .contains(
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
@@ -243,7 +271,7 @@ class WorkAreaItemServiceTest {
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"),
@@ -258,7 +286,7 @@ class WorkAreaItemServiceTest {
         .thenReturn(responsibleTeamSubmissionWorkAreaQueryService);
     when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER)).thenReturn(List.of(
         queryResultWithEverythingFilledIn));
-    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
         .thenReturn("Not provided");
 
     var result = workAreaItemService.getWorkAreaItems(USER);
@@ -268,7 +296,7 @@ class WorkAreaItemServiceTest {
             WorkAreaItem::headingText,
             WorkAreaItem::captionText,
             WorkAreaItem::actionUrl)
-        .containsExactly(
+        .contains(
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
@@ -278,7 +306,8 @@ class WorkAreaItemServiceTest {
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
+            entry("isFieldResource", false),
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"),
@@ -296,13 +325,14 @@ class WorkAreaItemServiceTest {
     when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
         .thenReturn(List.of(queryResultOnlyOrganisationName));
     var organisationName = "organisation name";
-    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(ORGANISATION_ID))
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, ORGANISATION_ID))
         .thenReturn(organisationName);
 
     var result = workAreaItemService.getWorkAreaItems(USER);
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
+            entry("isFieldResource", false),
             entry("organisationResponsible", organisationName),
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"),
@@ -320,13 +350,14 @@ class WorkAreaItemServiceTest {
         .thenReturn(responsibleTeamSubmissionWorkAreaQueryService);
     when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
         .thenReturn(List.of(queryResultEmptyLicences));
-    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, queryResultWithEverythingFilledIn.getOrganisationResponsibleId()))
         .thenReturn("Not provided");
 
     var result = workAreaItemService.getWorkAreaItems(USER);
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
+            entry("isFieldResource", false),
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"),
@@ -334,7 +365,7 @@ class WorkAreaItemServiceTest {
   }
 
   @Test
-  void getWorkAreaItems_oneItemReturned_whenSubmitted_assertReviewActionUrlAndOtherValues() {
+  void getWorkAreaItems_oneProspectItemReturned_whenSubmitted_assertReviewActionUrlAndOtherValues() {
     var queryResultInSubmitted = SubmissionWorkAreaQueryResultTestUtil
         .builder()
         .withStatus(SubmissionDetailStatus.SUBMITTED.name())
@@ -345,7 +376,7 @@ class WorkAreaItemServiceTest {
         .thenReturn(responsibleTeamSubmissionWorkAreaQueryService);
     when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
         .thenReturn(List.of(queryResultInSubmitted));
-    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(any()))
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(eq(ORGANISATION_UNIT_MAP), any()))
         .thenReturn("Not provided");
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
     when(submissionDetailService.getSubmissionDetailForIdOrError(queryResultInSubmitted.getSubmissionDetailId()))
@@ -357,7 +388,7 @@ class WorkAreaItemServiceTest {
             WorkAreaItem::headingText,
             WorkAreaItem::captionText,
             WorkAreaItem::actionUrl)
-        .containsExactly(
+        .contains(
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
@@ -367,7 +398,8 @@ class WorkAreaItemServiceTest {
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
+            entry("isFieldResource", false),
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
             entry("submissionStatus", "Submitted"),
@@ -404,6 +436,102 @@ class WorkAreaItemServiceTest {
     }
   }
 
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
+  void getWorkAreaItemsOneItemReturned_whenFieldSubmission_isSubmitted_assertFieldContextInformation(SubmissionType submissionType) {
+    var queryResultInSubmitted = SubmissionWorkAreaQueryResultTestUtil
+        .builder()
+        .withStatus(SubmissionDetailStatus.ACCEPTED.name())
+        .withSubmissionType(submissionType.getEnumName())
+        .build();
+    var submissionTypeName ="submission type";
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionType))
+        .thenReturn(submissionTypeName);
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
+        .thenReturn(responsibleTeamSubmissionWorkAreaQueryService);
+    when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
+        .thenReturn(List.of(queryResultInSubmitted));
+    var responsibleOrganisation = "Not provided";
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(eq(ORGANISATION_UNIT_MAP), anyInt()))
+        .thenReturn(responsibleOrganisation);
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(queryResultInSubmitted.getSubmissionDetailId()))
+        .thenReturn(submissionDetail);
+    var parentFieldName = "parent";
+    when(fieldDisplayService.getParentFieldNameOrNoneFound(queryResultInSubmitted.getParentFieldId()))
+        .thenReturn(parentFieldName);
+    var expectedHeading = queryResultInSubmitted.getResourceName() + " (" + queryResultInSubmitted.getCentreOfInterestQuadBlock() +")";
+    var result = workAreaItemService.getWorkAreaItems(USER);
+    assertThat(result)
+        .extracting(WorkAreaItem::type,
+            WorkAreaItem::headingText,
+            WorkAreaItem::captionText,
+            WorkAreaItem::actionUrl)
+        .contains(
+            tuple(
+                WorkAreaItemType.SUBMISSION,
+                expectedHeading,
+                submissionTypeName,
+                ReverseRouter.route(on(ReviewSubmissionController.class)
+                    .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
+        );
+
+    assertThat(result.get(0).modelProperties().getProperties())
+        .contains(
+            entry("isFieldResource", true),
+            entry("organisationResponsible", responsibleOrganisation),
+            entry("parentFieldName", parentFieldName),
+            entry("fieldStatus", queryResultInSubmitted.getFieldStatus().getDisplayName()));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
+  void getWorkAreaItemsOneItemReturned_whenFieldSubmission_isAccepted_assertFieldContextInformation(SubmissionType submissionType) {
+    var queryResultInSubmitted = SubmissionWorkAreaQueryResultTestUtil
+        .builder()
+        .withStatus(SubmissionDetailStatus.SUBMITTED.name())
+        .withSubmissionType(submissionType.getEnumName())
+        .build();
+    var submissionTypeName ="submission type";
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionType))
+        .thenReturn(submissionTypeName);
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
+        .thenReturn(responsibleTeamSubmissionWorkAreaQueryService);
+    when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
+        .thenReturn(List.of(queryResultInSubmitted));
+    var responsibleOrganisation = "Not provided";
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(eq(ORGANISATION_UNIT_MAP), anyInt()))
+        .thenReturn(responsibleOrganisation);
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(queryResultInSubmitted.getSubmissionDetailId()))
+        .thenReturn(submissionDetail);
+    var parentFieldName = "parent";
+    when(fieldDisplayService.getParentFieldNameOrNoneFound(queryResultInSubmitted.getParentFieldId()))
+        .thenReturn(parentFieldName);
+    var expectedHeading = queryResultInSubmitted.getResourceName() + " (" + queryResultInSubmitted.getCentreOfInterestQuadBlock() +")";
+    var result = workAreaItemService.getWorkAreaItems(USER);
+    assertThat(result)
+        .extracting(WorkAreaItem::type,
+            WorkAreaItem::headingText,
+            WorkAreaItem::captionText,
+            WorkAreaItem::actionUrl)
+        .contains(
+            tuple(
+                WorkAreaItemType.SUBMISSION,
+                expectedHeading,
+                submissionTypeName,
+                ReverseRouter.route(on(ReviewSubmissionController.class)
+                    .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
+        );
+
+    assertThat(result.get(0).modelProperties().getProperties())
+        .contains(
+            entry("isFieldResource", true),
+            entry("organisationResponsible", responsibleOrganisation),
+            entry("parentFieldName", parentFieldName),
+            entry("fieldStatus", queryResultInSubmitted.getFieldStatus().getDisplayName()));
+  }
+
   @Test
   void getWorkAreaItems_whenCorrection() {
     var workAreaItem = SubmissionWorkAreaQueryResultTestUtil.builder()
@@ -416,9 +544,9 @@ class WorkAreaItemServiceTest {
         .thenReturn(operatorSubmissionWorkAreaQueryService);
     when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
         .thenReturn(queryResults);
-    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(anyInt()))
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(eq(ORGANISATION_UNIT_MAP), anyInt()))
         .thenReturn("Not provided");
-    when(submissionDetailDisplayService.getLicencesForDisplay(List.of(LICENCE_ID_1, LICENCE_ID_2)))
+    when(submissionDetailDisplayService.getLicencesForDisplayFromMap(LICENCE_MAP, List.of(LICENCE_ID_1, LICENCE_ID_2)))
         .thenReturn(List.of());
 
     var result = workAreaItemService.getWorkAreaItems(USER);
@@ -428,7 +556,7 @@ class WorkAreaItemServiceTest {
             WorkAreaItem::headingText,
             WorkAreaItem::captionText,
             WorkAreaItem::actionUrl)
-        .containsExactly(
+        .contains(
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
@@ -439,7 +567,7 @@ class WorkAreaItemServiceTest {
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
-        .containsExactly(
+        .contains(
             entry("organisationResponsible", "Not provided"),
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"),

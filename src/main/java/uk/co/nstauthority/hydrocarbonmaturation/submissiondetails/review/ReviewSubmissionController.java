@@ -192,8 +192,9 @@ public class ReviewSubmissionController {
         .addObject("form", form)
         .addObject("submissionRecord", submissionRecord)
         .addObject("submissionType", submissionDetail.getSubmissionType())
-        .addObject("canReview", submissionDetail.getStatus() == SubmissionDetailStatus.SUBMITTED
-            && isInResponsibleTeam)
+        .addObject("canReview",
+            submissionDetail.getStatus() == SubmissionDetailStatus.SUBMITTED && isInResponsibleTeam)
+        .addObject("isFieldSubmission", submissionDetail.isFieldSubmission())
         .addObject("resourceType", submissionDetail.getSubmission().getResource().getType().getDisplayName())
         .addObject("isInResponsibleTeam", isInResponsibleTeam)
         .addObject("isIndustrySubmitter", isIndustrySubmitter);

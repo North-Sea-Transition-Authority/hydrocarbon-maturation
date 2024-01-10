@@ -18,8 +18,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -60,7 +60,7 @@ class ResourceDetailsPersistenceServiceTest {
     var submissionDetail = new SubmissionDetail();
     var resourceForm = new ResourceDetailsForm();
     var captor = ArgumentCaptor.forClass(ResourceDetail.class);
-    var organisationUnit = OrganisationUnitTestUtil.Builder().build();
+    var organisationUnit = new OrganisationUnitDto(null, null, null);
     when(organisationUnitQueryService.findOrganisationUnit(1))
         .thenReturn(Optional.of(organisationUnit));
     resourceForm.setResourceName("name");
@@ -81,9 +81,9 @@ class ResourceDetailsPersistenceServiceTest {
         .containsExactly(
             submissionDetail,
             resourceForm.getResourceName(),
-            organisationUnit.getOrganisationUnitId(),
-            organisationUnit.getName(),
-            organisationUnit.getRegisteredNumber(),
+            organisationUnit.organisationUnitId(),
+            organisationUnit.organisationUnitName(),
+            organisationUnit.companyHouseNumber(),
             resourceForm.getOnshoreOffshore());
   }
 
@@ -92,7 +92,7 @@ class ResourceDetailsPersistenceServiceTest {
     var submissionDetail = new SubmissionDetail();
     var resourceForm = new ResourceDetailsForm();
     var captor = ArgumentCaptor.forClass(ResourceDetail.class);
-    var organisationUnit = OrganisationUnitTestUtil.Builder().build();
+    var organisationUnit = new OrganisationUnitDto(null, null, null);
     when(organisationUnitQueryService.findOrganisationUnit(1))
         .thenReturn(Optional.of(organisationUnit));
     resourceForm.setResourceName("name");
@@ -113,9 +113,9 @@ class ResourceDetailsPersistenceServiceTest {
         .containsExactly(
             submissionDetail,
             resourceForm.getResourceName(),
-            organisationUnit.getOrganisationUnitId(),
-            organisationUnit.getName(),
-            organisationUnit.getRegisteredNumber(),
+            organisationUnit.organisationUnitId(),
+            organisationUnit.organisationUnitName(),
+            organisationUnit.companyHouseNumber(),
             resourceForm.getOnshoreOffshore());
   }
 
@@ -316,11 +316,14 @@ class ResourceDetailsPersistenceServiceTest {
     var captor = ArgumentCaptor.forClass(ResourceDetail.class);
     when(resourceDetailsRepository.findBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(resourceDetails));
+    var organisationUnitDto = new OrganisationUnitDto(
+        1,
+        "New name",
+        "25"
+    );
+
     when(organisationUnitQueryService.findOrganisationUnit(resourceDetails.getOrganisationId()))
-        .thenReturn(Optional.of(OrganisationUnitTestUtil.Builder()
-            .withOrganisationNumber("25")
-            .withOrganisationName("New name")
-            .build()));
+        .thenReturn(Optional.of(organisationUnitDto));
     resourceDetailsPersistenceService.updateOrganisationName(submissionDetail);
     verify(resourceDetailsRepository, times(1))
         .save(captor.capture());

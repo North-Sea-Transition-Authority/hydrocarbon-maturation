@@ -2,6 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.jooq.DSLContext;
@@ -11,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -144,7 +147,9 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
     var organisationId = 46;
     createGeneralDetail(submissionDetail);
     var field = SubmissionIntegrationTestUtils
-        .createField(resource, resourceName, organisationId, entityManager);
+        .createFieldWithParent(resource, resourceName, organisationId, entityManager);
+    var fieldStatusHistory =
+        SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_300, Instant.now(), entityManager);
 
     var result = resourceRecordSummaryQueryService.getResourceRecord(resource.getId());
 
@@ -153,11 +158,69 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
         .get()
         .extracting(
             ResourceRecordSummaryQueryResult::resourceName,
-            ResourceRecordSummaryQueryResult::organisationResponsibleId
+            ResourceRecordSummaryQueryResult::organisationResponsibleId,
+            ResourceRecordSummaryQueryResult::parentFieldId,
+            ResourceRecordSummaryQueryResult::fieldStatus
         )
         .containsExactly(
             field.getCorrectedLegalFieldName(),
-            field.getResponsibleOrganisationId()
+            field.getResponsibleOrganisationId(),
+            field.getParentDeterminedField().getFieldIdentifier(),
+            fieldStatusHistory.getFieldStatus()
+        );
+  }
+
+  @Test
+  void getResourceRecord_WhenFieldSubmission_multipleFieldStatusesOnSameDay_returnsHighestStatus() {
+    var resource = buildResource();
+    var submissionNotWithdrawn = SubmissionIntegrationTestUtils.createSubmission(resource, null, entityManager);
+    var submissionDetail1 = buildSubmissionDetail(resource, SubmissionType.CREATE_CSR);
+    submissionDetail1.setSubmission(submissionNotWithdrawn);
+    var resourceName = "The resource name A";
+    var organisationId = 46;
+    createGeneralDetail(submissionDetail1);
+    var field = SubmissionIntegrationTestUtils.createFieldWithParent(resource, resourceName, organisationId, entityManager);
+    var fixedInstant = Instant.now();
+    var lowestFieldStatusHistory =
+        SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_200, fixedInstant, entityManager);
+    var highestFieldStatusHistory =
+        SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_300, fixedInstant, entityManager);
+
+    var result = resourceRecordSummaryQueryService.getResourceRecord(resource.getId());
+
+    assertThat(result)
+        .isPresent();
+
+    assertThat(result.get().fieldStatus())
+        .isEqualTo(
+            highestFieldStatusHistory.getFieldStatus()
+        );
+  }
+
+  @Test
+  void getResourceRecord_WhenFieldSubmission_multipleFieldStatusesOnDifferentDates_returnsMostRecent() {
+    var resource = buildResource();
+    var submissionNotWithdrawn = SubmissionIntegrationTestUtils.createSubmission(resource, null, entityManager);
+    var submissionDetail1 = buildSubmissionDetail(resource, SubmissionType.CREATE_CSR);
+    submissionDetail1.setSubmission(submissionNotWithdrawn);
+    var resourceName = "The resource name A";
+    var organisationId = 46;
+    createGeneralDetail(submissionDetail1);
+    var field = SubmissionIntegrationTestUtils.createFieldWithParent(resource, resourceName, organisationId,  entityManager);
+    var fixedInstant = Instant.now();
+    var latestFieldStatusHistory =
+        SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_200, fixedInstant.plus(1, ChronoUnit.DAYS), entityManager);
+    var earliestFieldStatusHistory =
+        SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_300, fixedInstant, entityManager);
+
+    var result = resourceRecordSummaryQueryService.getResourceRecord(resource.getId());
+
+    assertThat(result)
+        .isPresent();
+
+    assertThat(result.get().fieldStatus())
+        .isEqualTo(
+            latestFieldStatusHistory.getFieldStatus()
         );
   }
 

@@ -1,7 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.fivium.energyportalapi.client.licence.licence.LicenceApi;
@@ -47,12 +51,20 @@ public class LicenceQueryService {
   }
 
   public List<LicenceView> getLicencesByIds(List<String> searchIdStrings) {
-    return searchIdStrings.stream()
-        .map(id -> findLicence(Integer.parseInt(id)))
-        .flatMap(Optional::stream)
+    var searchIds = searchIdStrings.stream()
+        .map(Integer::parseInt)
         .distinct()
+        .toList();
+
+    return findLicencesByIds(searchIds).stream()
         .sorted(new LicenceViewByReferenceComparator())
         .toList();
+  }
+
+  public Map<Integer, LicenceView> getLicenceMapByIds(List<Integer> licences) {
+    return findLicencesByIds(licences).stream()
+        .filter(Objects::nonNull)
+        .collect(Collectors.toMap(LicenceView::licenceId, Function.identity()));
   }
 
   public List<LicenceView> getExtantLicencesByIds(List<String> searchIdStrings) {
@@ -65,8 +77,8 @@ public class LicenceQueryService {
         .toList();
   }
 
-  public Optional<LicenceView> getLicenceById(String licenceId) {
-    return findLicence(Integer.parseInt(licenceId));
+  public Optional<LicenceView> getLicenceById(Integer licenceId) {
+    return findLicence(licenceId);
   }
 
   public static boolean isLicenceStatusValid(LicenceStatus licenceStatus) {
@@ -81,6 +93,18 @@ public class LicenceQueryService {
             requestPurpose,
             logCorrelationId)))
         .map(item -> new LicenceView(item.getLicenceRef(), item.getId(), item.getLicenceStatus()));
+  }
+
+  private List<LicenceView> findLicencesByIds(List<Integer> licenceIds) {
+    return energyPortalApiWrapper.makeRequest(((logCorrelationId, requestPurpose) ->
+            licenceApi.searchLicencesById(
+                licenceIds,
+                LICENCES_PROJECTION_ROOT,
+                requestPurpose,
+                logCorrelationId)))
+        .stream()
+        .map(item -> new LicenceView(item.getLicenceRef(), item.getId(), item.getLicenceStatus()))
+        .toList();
   }
 
   private LicenceView getLicenceView(Licence licence) {

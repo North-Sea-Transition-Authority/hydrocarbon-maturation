@@ -143,6 +143,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(otherSubmissionOnResource.getSubmission().getResource().getId(), null))),
+            entry("isFieldSubmission", submissionDetail.isFieldSubmission()),
             entry("resourceType", otherSubmissionOnResource.getSubmission().getResource().getType().getDisplayName()),
             entry("resourceRecord", resourceRecordSummaryView),
             entry("submissionType", otherSubmissionOnResource.getSubmissionType()),
@@ -186,6 +187,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .contains(
             entry("resourceRecord", resourceRecordSummaryView),
             entry("submissionType", submissionDetail.getSubmissionType()),
+            entry("isFieldSubmission", submissionDetail.isFieldSubmission()),
             entry("canManageRegulatorManagementInfo", false),
             entry("canViewRegulatorManagementInfo", false)
         ).doesNotContainKeys("regulatorManagedInformationSummaryView", "resourceGroupsSummaryView");
@@ -238,6 +240,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("resourceType", submissionDetail.getSubmission().getResource().getType().getDisplayName()),
             entry("resourceRecord", resourceRecordSummaryView),
             entry("submissionType", submissionDetail.getSubmissionType()),
+            entry("isFieldSubmission", submissionDetail.isFieldSubmission()),
             entry("canManageRegulatorManagementInfo", true),
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)

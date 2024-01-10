@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -89,7 +92,7 @@ public class OrganisationUnitQueryService {
     return searchSelectorService.buildPrePopulatedSelection(String.valueOf(organisationUnitId), key);
   }
 
-  public Optional<OrganisationUnit> findOrganisationUnit(Integer organisationUnitId) {
+  public Optional<OrganisationUnitDto> findOrganisationUnit(Integer organisationUnitId) {
 
     return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
         organisationApi.findOrganisationUnit(
@@ -97,22 +100,32 @@ public class OrganisationUnitQueryService {
             ORGANISATION_UNIT_PROJECTION_ROOT,
             requestPurpose,
             logCorrelationId)
-    );
+    )
+    .map(OrganisationUnitDto::fromOrganisationUnit);
   }
 
-  public String getOrganisationUnitNameAndNumberByIdOrEmpty(Integer organisationUnitId) {
-    if (organisationUnitId == null) {
-      return "";
-    }
-    return findOrganisationUnit(organisationUnitId)
-        .map(organisationUnit -> {
-          if (organisationUnit.getRegisteredNumber() == null) {
-            return organisationUnit.getName();
-          }
+  public List<OrganisationUnitDto> getOrganisationUnitsByIds(List<Integer> organisationUnitIds) {
+    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
+        organisationApi.getOrganisationUnitsByIds(
+            organisationUnitIds,
+            ORGANISATION_UNITS_PROJECTION_ROOT,
+            requestPurpose,
+            logCorrelationId
+        )).stream()
+        .map(OrganisationUnitDto::fromOrganisationUnit)
+        .toList();
+  }
 
-          return "%s (%s)"
-              .formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber());
-        })
+  public Map<Integer, OrganisationUnitDto> getOrganisationUnitMapByIds(List<Integer> organisationUnitIds) {
+    return getOrganisationUnitsByIds(organisationUnitIds).stream()
+        .filter(Objects::nonNull)
+        .collect(Collectors.toMap(OrganisationUnitDto::organisationUnitId, Function.identity()));
+  }
+
+  public String getOrganisationUnitNameAndNumberByIdOrEmpty(@Nullable Integer organisationUnitId) {
+    return Optional.ofNullable(organisationUnitId)
+        .flatMap(this::findOrganisationUnit)
+        .map(OrganisationUnitDto::getDisplayText)
         .orElse("");
   }
 
@@ -146,8 +159,8 @@ public class OrganisationUnitQueryService {
             logCorrelationId)
             .stream()
             .filter(unit -> !BooleanUtils.isTrue(unit.getIsDuplicate()))
-            .map(this::fromOrganisationUnit)
-            .sorted(Comparator.comparing(OrganisationUnitDto::getOrganisationUnitName))
+            .map(OrganisationUnitDto::fromOrganisationUnit)
+            .sorted(Comparator.comparing(OrganisationUnitDto::organisationUnitName))
             .toList());
   }
 
@@ -169,13 +182,12 @@ public class OrganisationUnitQueryService {
       return List.of();
     }
 
-    return getOrganisationUnitsByGroups(
-        organisationGroupQueryService.getOrganisationGroupsByIds(organisationGroupIds))
+    return getOrganisationUnitsByGroups(organisationGroupQueryService.getOrganisationGroupsByIds(organisationGroupIds))
         .stream()
         .filter(organisationUnit -> !BooleanUtils.isTrue(organisationUnit.getIsDuplicate())
             && organisationUnit.getName().toLowerCase().contains(organisationName.toLowerCase()))
-        .map(this::fromOrganisationUnit)
-        .sorted(Comparator.comparing(OrganisationUnitDto::getOrganisationUnitName))
+        .map(OrganisationUnitDto::fromOrganisationUnit)
+        .sorted(Comparator.comparing(OrganisationUnitDto::organisationUnitName))
         .toList();
   }
 
@@ -193,11 +205,5 @@ public class OrganisationUnitQueryService {
         .toList();
   }
 
-  private OrganisationUnitDto fromOrganisationUnit(OrganisationUnit organisationUnit) {
-    var organisationUnitDto = new OrganisationUnitDto();
-    organisationUnitDto.setOrganisationUnitId(organisationUnit.getOrganisationUnitId());
-    organisationUnitDto.setOrganisationUnitName(organisationUnit.getName());
-    organisationUnitDto.setCompanyHouseNumber(organisationUnit.getRegisteredNumber());
-    return organisationUnitDto;
-  }
+
 }

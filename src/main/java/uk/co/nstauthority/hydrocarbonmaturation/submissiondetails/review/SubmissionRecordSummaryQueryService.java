@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 
+import static org.jooq.impl.DSL.and;
 import static org.jooq.impl.DSL.coalesce;
+import static org.jooq.impl.DSL.max;
 import static org.jooq.impl.DSL.select;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELDS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
@@ -19,6 +21,7 @@ import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.FieldStatusHistory;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submissions;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -27,6 +30,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 class SubmissionRecordSummaryQueryService {
   private static final SubmissionDetails SD_2 = SUBMISSION_DETAILS.as("sd2");
   private static final Submissions SUBMISSIONS_2 = SUBMISSIONS.as("s2");
+
+  private static final FieldStatusHistory FIELD_STATUS_HISTORY = FieldStatusHistory.FIELD_STATUS_HISTORY.as("fsh");
+  private static final FieldStatusHistory FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS =
+      FieldStatusHistory.FIELD_STATUS_HISTORY.as("fsh2");
 
   private final DSLContext context;
 
@@ -50,7 +57,9 @@ class SubmissionRecordSummaryQueryService {
             REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM,
             DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
-                .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull())
+                .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
+            FIELDS.PARENT_DETERMINED_FIELD_ID,
+            max(FIELD_STATUS_HISTORY.FIELD_STATUS)
         )
         .from(SUBMISSIONS
             .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
@@ -70,12 +79,20 @@ class SubmissionRecordSummaryQueryService {
             .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID))
-            .leftJoin(FIELDS).on(FIELDS.RESOURCE_ID.eq(RESOURCES.ID)))
+            .leftJoin(FIELDS).on(FIELDS.RESOURCE_ID.eq(RESOURCES.ID))
+            .leftJoin(FIELD_STATUS_HISTORY)
+            .on(and(
+                FIELD_STATUS_HISTORY.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER),
+                FIELD_STATUS_HISTORY.STATUS_DATE.eq(
+                    select(max(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS.STATUS_DATE))
+                        .from(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS)
+                        .where(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
+                ))))
         .where(RESOURCES.ID.eq(resourceId)
-            .and(SUBMISSION_DETAILS.STATUS.in(
-                SubmissionDetailStatus.SUBMITTED.name(),
-                SubmissionDetailStatus.ACCEPTED.name()))
-            .and(SUBMISSIONS.WITHDRAWN.isNull()))
+        .and(SUBMISSION_DETAILS.STATUS.in(
+            SubmissionDetailStatus.SUBMITTED.name(),
+            SubmissionDetailStatus.ACCEPTED.name()))
+        .and(SUBMISSIONS.WITHDRAWN.isNull()))
         .groupBy(List.of(
             RESOURCES.ID,
             SUBMISSION_DETAILS.ID,
@@ -85,7 +102,8 @@ class SubmissionRecordSummaryQueryService {
             TRAP_PROPERTIES.ID,
             RESOURCE_DETAILS.ID,
             FIELDS.FIELD_IDENTIFIER,
-            REGULATOR_MANAGED_INFORMATION.ID
+            REGULATOR_MANAGED_INFORMATION.ID,
+            FIELD_STATUS_HISTORY.FIELD_IDENTIFIER
         ))
         .orderBy(SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP.desc())
         .limit(1)

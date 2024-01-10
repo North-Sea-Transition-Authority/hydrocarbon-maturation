@@ -9,6 +9,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.FieldStatusHistory;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -27,15 +29,25 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 public class SubmissionIntegrationTestUtils {
 
   public static ResourceRecordSummaryView emptyResourceRecordSummaryView(UUID submissionDetailId, int responsibleOrganisationId) {
-    return new ResourceRecordSummaryView(submissionDetailId, "", responsibleOrganisationId, "", List.of(), List.of(), null);
+    return new ResourceRecordSummaryView(
+        submissionDetailId,
+        "",
+        responsibleOrganisationId,
+        "",
+        List.of(),
+        List.of(),
+        null,
+        null,
+        null);
   }
 
-  public static SubmissionRecordSummaryView emptySubmissionRecordSummaryView(UUID submissionDetailId,
-                                                                             int responsibleOrganisationId,
-                                                                             SubmissionType submissionType) {
+  public static SubmissionRecordSummaryView emptyDiscoveryOrProspectSubmissionRecordSummaryView(UUID submissionDetailId,
+                                                                                                int responsibleOrganisationId,
+                                                                                                SubmissionType submissionType) {
     return new SubmissionRecordSummaryView(submissionDetailId, submissionType, "",
         responsibleOrganisationId, "", List.of(1),
-        List.of("1"), ResponsibleTeamType.EXPLORATION.getDisplayName(), ResponsibleTeamType.EXPLORATION);
+        List.of("1"), ResponsibleTeamType.EXPLORATION.getDisplayName(), ResponsibleTeamType.EXPLORATION,
+        null, null);
   }
 
   public static SubmissionQuerySearchRecord getSubmissionQuerySearchRecord(SubmissionDetail submissionDetail) {
@@ -127,14 +139,26 @@ public class SubmissionIntegrationTestUtils {
     return resourceDetail;
   }
 
-  public static Field createField(Resource resource,
-                                  String correctedLegalFieldName,
-                                  int responsibleOrganisationId,
-                                  EntityManager entityManager) {
+  public static Field createFieldWithParent(Resource resource,
+                                            String correctedLegalFieldName,
+                                            int responsibleOrganisationId,
+                                            EntityManager entityManager) {
+    var parentResource = createResource(entityManager, ResourceType.FIELD);
+    entityManager.persist(parentResource);
+    entityManager.flush();
+
+    var parentField = new Field();
+    parentField.setResource(parentResource);
+    parentField.setCorrectedLegalFieldName("Parent name");
+
+    entityManager.persist(parentField);
+    entityManager.flush();
+
     var field = new Field();
     field.setResource(resource);
     field.setCorrectedLegalFieldName(correctedLegalFieldName);
     field.setResponsibleOrganisationId(responsibleOrganisationId);
+    field.setParentDeterminedField(parentField);
 
     entityManager.persist(field);
     entityManager.flush();
@@ -201,5 +225,18 @@ public class SubmissionIntegrationTestUtils {
     entityManager.persist(submission);
     entityManager.flush();
     return submission;
+  }
+
+  public static FieldStatusHistory createFieldStatusHistory(Field field,
+                                                            FieldStatus status,
+                                                            Instant statusDate,
+                                                            EntityManager entityManager) {
+    var fieldStatusHistory = new FieldStatusHistory();
+    fieldStatusHistory.setField(field);
+    fieldStatusHistory.setFieldStatus(status);
+    fieldStatusHistory.setStatusDate(statusDate);
+    entityManager.persist(fieldStatusHistory);
+    entityManager.flush();
+    return fieldStatusHistory;
   }
 }

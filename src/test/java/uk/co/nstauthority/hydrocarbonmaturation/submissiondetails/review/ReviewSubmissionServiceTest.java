@@ -24,8 +24,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -73,6 +75,9 @@ class ReviewSubmissionServiceTest {
   @Mock
   private ResponsibleTeamService responsibleTeamService;
 
+  @Mock
+  private FieldDisplayService fieldDisplayService;
+
   @InjectMocks
   private ReviewSubmissionService reviewSubmissionService;
 
@@ -83,7 +88,7 @@ class ReviewSubmissionServiceTest {
     private final UUID SUBMISSION_ID = UUID.randomUUID();
 
     @Test
-    void andSubmissionExists_ThenMapsQueryResultToView() {
+    void andSubmissionExists_Prospect_ThenMapsQueryResultToView() {
       var submissionDetailId = UUID.randomUUID();
       var resourceType = ResourceType.PROSPECT.name();
       var resourceName = "RESOURCE_NAME";
@@ -100,8 +105,9 @@ class ReviewSubmissionServiceTest {
           centreOfInterestQuadBlock,
           organisationResponsibleId,
           responsibleTeamType.name(),
-          licencesTheResourceIsOn
-      );
+          licencesTheResourceIsOn,
+          null,
+          null);
 
       when(submissionRecordSummaryQueryService.getSubmissionRecord(SUBMISSION_ID))
           .thenReturn(Optional.of(submissionRecord));
@@ -115,7 +121,7 @@ class ReviewSubmissionServiceTest {
           .thenReturn(licencesForDisplay);
 
       var organisationResponsibleDisplay = "ORG";
-      when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(organisationResponsibleId))
+      when(submissionDetailDisplayService.getOrganisationResponsibleDisplayById(organisationResponsibleId))
           .thenReturn(organisationResponsibleDisplay);
 
       var result = reviewSubmissionService.getSubmissionRecordOrThrow(SUBMISSION_ID);
@@ -129,7 +135,9 @@ class ReviewSubmissionServiceTest {
               SubmissionRecordSummaryView::organisationResponsible,
               SubmissionRecordSummaryView::licenceIds,
               SubmissionRecordSummaryView::licences,
-              SubmissionRecordSummaryView::responsibleTeam
+              SubmissionRecordSummaryView::responsibleTeam,
+              SubmissionRecordSummaryView::parentFieldName,
+              SubmissionRecordSummaryView::fieldStatus
           )
           .containsExactly(
               submissionDetailId,
@@ -139,7 +147,81 @@ class ReviewSubmissionServiceTest {
               organisationResponsibleDisplay,
               licencesTheResourceIsOn,
               licencesForDisplay,
-              responsibleTeamType.getDisplayName()
+              responsibleTeamType.getDisplayName(),
+              null,
+              null
+          );
+    }
+
+    @Test
+    void andSubmissionExists_Field_ThenMapsQueryResultToView() {
+      var submissionDetailId = UUID.randomUUID();
+      var resourceType = ResourceType.FIELD.name();
+      var resourceName = "RESOURCE_NAME";
+      var centreOfInterestQuadBlock = "CENTRE_OF_INTEREST_QUAD_BLOCK";
+      var responsibleTeamType = ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND;
+      var licencesTheResourceIsOn = List.of(2, 3);
+      var organisationResponsibleId = 1;
+      var parentFieldId = 8000;
+      var fieldStatus = FieldStatus.STATUS_300;
+
+      var submissionRecord = new SubmissionRecordSummaryQueryResult(
+          submissionDetailId,
+          SubmissionType.CREATE_CSR.name(),
+          resourceType,
+          resourceName,
+          centreOfInterestQuadBlock,
+          organisationResponsibleId,
+          responsibleTeamType.name(),
+          licencesTheResourceIsOn,
+          parentFieldId,
+          fieldStatus);
+
+      when(submissionRecordSummaryQueryService.getSubmissionRecord(SUBMISSION_ID))
+          .thenReturn(Optional.of(submissionRecord));
+
+      var resourceNameAndCentreOfInterestBlockDisplay = "RESOURCE_NAME (CENTRE_OF_INTEREST_QUAD_BLOCK)";
+      when(submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(resourceName, centreOfInterestQuadBlock))
+          .thenReturn(resourceNameAndCentreOfInterestBlockDisplay);
+
+      var licencesForDisplay = List.of("2", "3");
+      when(submissionDetailDisplayService.getLicencesForDisplay(licencesTheResourceIsOn))
+          .thenReturn(licencesForDisplay);
+
+      var organisationResponsibleDisplay = "ORG";
+      when(submissionDetailDisplayService.getOrganisationResponsibleDisplayById(organisationResponsibleId))
+          .thenReturn(organisationResponsibleDisplay);
+
+      var parentFieldName = "PARENT_NAME";
+      when(fieldDisplayService.getParentFieldNameOrNoneFound(parentFieldId))
+          .thenReturn(parentFieldName);
+
+      var result = reviewSubmissionService.getSubmissionRecordOrThrow(SUBMISSION_ID);
+
+      assertThat(result)
+          .extracting(
+              SubmissionRecordSummaryView::submissionDetailId,
+              SubmissionRecordSummaryView::submissionType,
+              SubmissionRecordSummaryView::resourceNameAndCentreOfInterest,
+              SubmissionRecordSummaryView::responsibleOrganisationId,
+              SubmissionRecordSummaryView::organisationResponsible,
+              SubmissionRecordSummaryView::licenceIds,
+              SubmissionRecordSummaryView::licences,
+              SubmissionRecordSummaryView::responsibleTeam,
+              SubmissionRecordSummaryView::parentFieldName,
+              SubmissionRecordSummaryView::fieldStatus
+          )
+          .containsExactly(
+              submissionDetailId,
+              SubmissionType.CREATE_CSR,
+              resourceNameAndCentreOfInterestBlockDisplay,
+              organisationResponsibleId,
+              organisationResponsibleDisplay,
+              licencesTheResourceIsOn,
+              licencesForDisplay,
+              responsibleTeamType.getDisplayName(),
+              parentFieldName,
+              fieldStatus.getDisplayName()
           );
     }
   }
@@ -149,7 +231,7 @@ class ReviewSubmissionServiceTest {
 
     private static final Integer ORGANISATION_UNIT_ID = 1;
     private final SubmissionRecordSummaryView SUBMISSION_RECORD = SubmissionIntegrationTestUtils
-        .emptySubmissionRecordSummaryView(UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.CREATE_PROSPECT);
+        .emptyDiscoveryOrProspectSubmissionRecordSummaryView(UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.CREATE_PROSPECT);
     private final User USER_DETAIL = UserTestUtil.Builder().build();
 
     @BeforeEach
@@ -216,7 +298,7 @@ class ReviewSubmissionServiceTest {
       @Nested
       class AndIsNotFirstSubmissionOnResource {
         private final SubmissionRecordSummaryView UPDATE_SUBMISSION_RECORD = SubmissionIntegrationTestUtils
-            .emptySubmissionRecordSummaryView(UUID.randomUUID(), 1, SubmissionType.PROSPECT_UPDATE);
+            .emptyDiscoveryOrProspectSubmissionRecordSummaryView(UUID.randomUUID(), 1, SubmissionType.PROSPECT_UPDATE);
 
         private final SubmissionDetail latestApprovedSubmission = new SubmissionDetail();
         private final ResourceDetail latestApprovedResourceDetail = new ResourceDetail();
@@ -271,7 +353,7 @@ class ReviewSubmissionServiceTest {
   class WhenCheckingCanReviewSubmission {
 
     private final SubmissionRecordSummaryView explorationResponsibleTeamSubmissionRecord =
-        createSubmissionRecordWithResponsibleTeam(ResponsibleTeamType.EXPLORATION);
+        createProspectSubmissionRecordWithResponsibleTeam(ResponsibleTeamType.EXPLORATION);
     private static final User USER = UserTestUtil.Builder().build();
 
     @Test
@@ -297,7 +379,7 @@ class ReviewSubmissionServiceTest {
     @EnumSource(value = ResponsibleTeamType.class, names = {"EXPLORATION"}, mode = EnumSource.Mode.EXCLUDE)
     void whenIsNotExplorationResponsibleTeamType(ResponsibleTeamType responsibleTeamType) {
       var notExplorationTeamResponsibleRecord =
-          createSubmissionRecordWithResponsibleTeam(responsibleTeamType);
+          createProspectSubmissionRecordWithResponsibleTeam(responsibleTeamType);
       submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
 
       assertThat(reviewSubmissionService.canReviewSubmission(notExplorationTeamResponsibleRecord, USER, submissionDetail))
@@ -308,18 +390,18 @@ class ReviewSubmissionServiceTest {
     @ParameterizedTest
     @EnumSource(value = SubmissionDetailStatus.class, names = {"SUBMITTED"}, mode = EnumSource.Mode.EXCLUDE)
     void whenStatusIsNotSubmitted(SubmissionDetailStatus status) {
-      var explorationResponsibleTeam = createSubmissionRecordWithResponsibleTeam(ResponsibleTeamType.EXPLORATION);
+      var explorationResponsibleTeam = createProspectSubmissionRecordWithResponsibleTeam(ResponsibleTeamType.EXPLORATION);
       submissionDetail.setStatus(status);
 
       assertThat(reviewSubmissionService.canReviewSubmission(explorationResponsibleTeam, USER, submissionDetail))
           .isFalse();
     }
 
-    private SubmissionRecordSummaryView createSubmissionRecordWithResponsibleTeam(ResponsibleTeamType responsibleTeamType) {
+    private SubmissionRecordSummaryView createProspectSubmissionRecordWithResponsibleTeam(ResponsibleTeamType responsibleTeamType) {
       return new SubmissionRecordSummaryView(submissionDetail.getId(), SubmissionType.CREATE_PROSPECT,
           "", 1, "",
           List.of(1), List.of("1"), responsibleTeamType.getDisplayName(),
-          responsibleTeamType);
+          responsibleTeamType, null, null);
     }
   }
 
@@ -433,7 +515,7 @@ class ReviewSubmissionServiceTest {
         mode = EnumSource.Mode.INCLUDE,
         names = {"CREATE_PROSPECT", "CREATE_DISCOVERY"})
     void WhenInitialSubmission_whenSubmitter(SubmissionType submissionType) {
-      var submissionRecord = SubmissionIntegrationTestUtils.emptySubmissionRecordSummaryView(
+      var submissionRecord = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
           UUID.randomUUID(), ORGANISATION_UNIT_ID, submissionType);
 
       when(industryTeamMemberService.isSubmitterOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID))
@@ -450,7 +532,7 @@ class ReviewSubmissionServiceTest {
         mode = EnumSource.Mode.INCLUDE,
         names = {"CREATE_PROSPECT", "CREATE_DISCOVERY"})
     void WhenInitialSubmission_whenNotSubmitter(SubmissionType submissionType) {
-      var submissionRecord = SubmissionIntegrationTestUtils.emptySubmissionRecordSummaryView(
+      var submissionRecord = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
           UUID.randomUUID(), ORGANISATION_UNIT_ID, submissionType);
 
       when(industryTeamMemberService.isSubmitterOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID))
@@ -463,7 +545,7 @@ class ReviewSubmissionServiceTest {
 
     @Test
     void WhenNotInitialSubmission_whenFoundLatestApproved_andWhenNotSubmitter() {
-      var submissionRecord = SubmissionIntegrationTestUtils.emptySubmissionRecordSummaryView(
+      var submissionRecord = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
           UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
       var resourceDetail = new ResourceDetail();
       resourceDetail.setOrganisationId(LATEST_ACCEPTED_ORG_UNIT_ID);
@@ -481,7 +563,7 @@ class ReviewSubmissionServiceTest {
 
     @Test
     void WhenNotInitialSubmission_whenFoundLatestApproved_andWhenSubmitter() {
-      var submissionRecord = SubmissionIntegrationTestUtils.emptySubmissionRecordSummaryView(
+      var submissionRecord = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
           UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
       var resourceDetail = new ResourceDetail();
       resourceDetail.setOrganisationId(LATEST_ACCEPTED_ORG_UNIT_ID);
@@ -499,7 +581,7 @@ class ReviewSubmissionServiceTest {
 
     @Test
     void WhenNotInitialSubmission_whenDidNotFindLatestApproved() {
-      var submissionRecord = SubmissionIntegrationTestUtils.emptySubmissionRecordSummaryView(
+      var submissionRecord = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
           UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
       when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
           .thenReturn(Optional.empty());
@@ -511,7 +593,7 @@ class ReviewSubmissionServiceTest {
 
     @Test
     void WhenNotInitialSubmission_whenDidNotFindResourceDetails() {
-      var submissionRecord = SubmissionIntegrationTestUtils.emptySubmissionRecordSummaryView(
+      var submissionRecord = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
           UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
 
       when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
