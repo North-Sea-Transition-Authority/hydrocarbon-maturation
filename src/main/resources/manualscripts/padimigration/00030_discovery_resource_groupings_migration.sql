@@ -1,29 +1,11 @@
 DO $$
 DECLARE
 
-    multi_reservoir_rec RECORD;
     discovery_rec RECORD;
     resource_rec RECORD;
     remi_res_id UUID;
 
 BEGIN
-
-    -- Set legacy resdat_id based on name, resource id, and reference as not provided in data extract for multi reservoirs
---     FOR multi_reservoir_rec IN (
---         SELECT prdh.resdat_id, prdh.resource_id, pmrd.resource_stage_name, pmrd.reference
---         FROM remi.padi_multi_reservoir_discoveries pmrd
---         JOIN remi.padi_res_data_header prdh ON prdh.name_alternative = pmrd.resource_stage_name AND pmrd.resource_id = prdh.resource_id AND prdh.reference = pmrd.reference
---         GROUP BY prdh.resdat_id, prdh.resource_id, pmrd.resource_stage_name, pmrd.reference
---     )
---     LOOP
---
---         UPDATE remi.padi_multi_reservoir_discoveries
---         SET resdat_id = multi_reservoir_rec.resdat_id
---         WHERE resource_id = multi_reservoir_rec.resource_id
---         AND resource_stage_name = multi_reservoir_rec.resource_stage_name
---         AND reference = multi_reservoir_rec.reference;
---
---     END LOOP;
 
     -- Create discovery groupings based on the PaDI resource and the agreed organisation names
     -- Reliquishments will be created separately for discoveries
