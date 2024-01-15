@@ -7,14 +7,17 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -49,7 +52,7 @@ class TrapPropertiesDuplicationServiceTest {
   private TrapPropertiesDuplicationService trapPropertiesDuplicationService;
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class)
+  @MethodSource("allNonFieldSubmissionTypes")
   void duplicateSubmissionSection_TrapPropertyExists_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
@@ -65,7 +68,7 @@ class TrapPropertiesDuplicationServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class)
+  @MethodSource("allNonFieldSubmissionTypes")
   void duplicateSubmissionSection_TrapPropertyDoesNotExist_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
@@ -80,7 +83,19 @@ class TrapPropertiesDuplicationServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class)
+  @MethodSource("allFieldSubmissionTypes")
+  void duplicateSubmissionSection_FieldSubmission_DoesNotDuplicate(SubmissionType submissionType) {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
+
+    trapPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    verify(submissionDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(TrapProperty.class), eq(TrapProperty.class));
+  }
+
+  @ParameterizedTest
+  @MethodSource("allNonFieldSubmissionTypes")
   void duplicateSubmissionSection_SupportingDocumentsExist_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
@@ -100,7 +115,7 @@ class TrapPropertiesDuplicationServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class)
+  @MethodSource("allNonFieldSubmissionTypes")
   void duplicateSubmissionSection_SupportingDocumentsDoNotExist_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
@@ -116,7 +131,7 @@ class TrapPropertiesDuplicationServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class)
+  @MethodSource("allNonFieldSubmissionTypes")
   void duplicateSubmissionSection_ProbabilityDistributionsExist_DoesDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
@@ -135,7 +150,7 @@ class TrapPropertiesDuplicationServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class)
+  @MethodSource("allNonFieldSubmissionTypes")
   void duplicateSubmissionSection_ProbabilityDistributionsDoNotExist_DoesNotDuplicate(SubmissionType submissionType) {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
@@ -182,5 +197,19 @@ class TrapPropertiesDuplicationServiceTest {
     return when(
         probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(eq(oldSubmissionDetail),
             any()));
+  }
+
+  private static Stream<Arguments> allFieldSubmissionTypes() {
+    return SubmissionType.getSubmissionTypesForResourceType(ResourceType.FIELD)
+        .stream()
+        .map(Arguments::of);
+  }
+
+  private static Stream<Arguments> allNonFieldSubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(submissionType ->
+            !SubmissionType.getSubmissionTypesForResourceType(ResourceType.FIELD)
+                .contains(submissionType))
+        .map(Arguments::of);
   }
 }

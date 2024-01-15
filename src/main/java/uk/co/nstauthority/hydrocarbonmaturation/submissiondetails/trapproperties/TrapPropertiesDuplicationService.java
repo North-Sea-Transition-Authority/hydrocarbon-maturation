@@ -38,6 +38,11 @@ class TrapPropertiesDuplicationService implements SubmissionSectionDuplicationSe
   @Override
   @Transactional
   public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
+    if (oldSubmissionDetail.isFieldSubmission()) {
+      // field submissions must use FieldTrapPropertiesDuplicationService only
+      return;
+    }
+
     trapPropertiesPersistenceService.getTrapProperty(oldSubmissionDetail)
         .ifPresent(trapProperty ->
             submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newSubmissionDetail, trapProperty,
