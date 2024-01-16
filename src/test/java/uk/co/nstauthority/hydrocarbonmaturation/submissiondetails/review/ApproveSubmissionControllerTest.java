@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -19,6 +20,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,12 +31,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.util.NestedServletException;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSubmissionStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
@@ -51,6 +57,9 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private SubmissionSummaryModelService submissionSummaryModelService;
+
+  @MockBean
+  private FieldSubmissionStatusService fieldSubmissionStatusService;
 
   @BeforeEach
   void setUp() {
@@ -118,7 +127,9 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
   }
 
   @Test
-  void showApproveConfirmationPageModelAndView_assertModelProperties() throws Exception {
+  void showApproveConfirmationPageModelAndView_nonFieldSubmission_assertModelProperties() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
+
     when(submissionApprovalService.canApproveSubmission(submissionDetail)).thenReturn(true);
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
         RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
@@ -138,6 +149,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
         .andReturn()
         .getModelAndView()).getModelMap();
 
+
     assertThat(modelMap)
         .contains(
             entry("submissionType", submissionDetail.getSubmissionType()),
@@ -146,7 +158,59 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
             entry("actionUrl", ReverseRouter.route(on(ApproveSubmissionController.class)
                 .approveSubmission(SUBMISSION_DETAIL_ID, null))),
             entry("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId()))),
+            entry("isFieldSubmission", false)
+        ).doesNotContainKey("fieldStatusAfterAccept");
+
+    @SuppressWarnings(value="unchecked")
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
+            WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(ReviewSubmissionController.class)
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId())),
+            expectedName)
+    );
+  }
+
+  @Test
+  void showApproveConfirmationPageModelAndView_fieldSubmission_assertModelProperties() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
+    when(submissionApprovalService.canApproveSubmission(submissionDetail)).thenReturn(true);
+    when(permissionService.hasPermission(USER, Set.of(
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
+    var expectedName = "Res name 123";
+    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+        .thenReturn(expectedName);
+    var expectedTypeName = "Type name";
+    when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail))
+        .thenReturn(expectedTypeName);
+    setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
+
+    when(fieldSubmissionStatusService.getNewStatusForAcceptance(submissionDetail))
+        .thenReturn(Optional.of(FieldStatus.STATUS_400));
+
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(ApproveSubmissionController.class).showApproveConfirmationPage(
+                SUBMISSION_DETAIL_ID)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+
+    assertThat(modelMap)
+        .contains(
+            entry("submissionType", submissionDetail.getSubmissionType()),
+            entry("pageName", "Are you sure you want to accept this %s?".formatted(expectedTypeName)),
+            entry("resourceName", expectedName),
+            entry("actionUrl", ReverseRouter.route(on(ApproveSubmissionController.class)
+                .approveSubmission(SUBMISSION_DETAIL_ID, null))),
+            entry("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId()))),
+            entry("isFieldSubmission", true),
+            entry("fieldStatusAfterAccept", FieldStatus.STATUS_400.getDisplayName())
         );
 
     @SuppressWarnings(value="unchecked")
@@ -159,6 +223,31 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
                 .showReviewPage(submissionDetail.getSubmission().getResource().getId())),
             expectedName)
     );
+  }
+
+  @Test
+  void showApproveConfirmationPageModelAndView_fieldSubmission_noNextFieldStatus_assertThrowsNoSuchElementException() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_FIELD);
+    when(submissionApprovalService.canApproveSubmission(submissionDetail)).thenReturn(true);
+    when(permissionService.hasPermission(USER, Set.of(
+        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
+        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
+    var expectedName = "Res name 123";
+    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+        .thenReturn(expectedName);
+    var expectedTypeName = "Type name";
+    when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail))
+        .thenReturn(expectedTypeName);
+    setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
+
+    assertThrows(
+        NestedServletException.class,
+        () -> mockMvc.perform(
+            get(ReverseRouter.route(on(ApproveSubmissionController.class)
+                .showApproveConfirmationPage(SUBMISSION_DETAIL_ID)))
+                .with(user(USER)))
+    ).getMessage().contains("Cannot accept the submissionDetail with id %s because the field status can not be updated"
+        .formatted(submissionDetail.getId()));
   }
 
   @SecurityTest

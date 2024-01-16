@@ -152,13 +152,14 @@ class FieldSubmissionStatusServiceTest {
     assertThat(captor.getValue()).isEqualTo(expectedNewStatus);
   }
 
+
   @ParameterizedTest
   @EnumSource(
       value = SubmissionType.class,
       names = {"CREATE_CSR", "CREATE_FDP", "CREATE_COP"},
       mode = EnumSource.Mode.EXCLUDE
   )
-  void updateFieldStatusForAcceptance_anyOtherStatus_assertNoStatusUpdate(SubmissionType submissionType) {
+  void updateFieldStatusForAcceptance_anyOtherSubmissionTypes_assertNoStatusUpdate(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
 
     when(fieldRepository.findByResource(submissionDetail.getSubmission().getResource()))

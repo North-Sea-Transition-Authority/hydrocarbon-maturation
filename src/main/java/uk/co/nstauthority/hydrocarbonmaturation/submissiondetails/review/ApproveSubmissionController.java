@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import javax.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsLatestExtantSubm
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSubmissionStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -47,18 +50,21 @@ public class ApproveSubmissionController {
   private final SubmissionSummaryModelService submissionSummaryModelService;
   private final SubmissionApprovalService submissionApprovalService;
   private final UserService userService;
+  private final FieldSubmissionStatusService fieldSubmissionStatusService;
 
   @Autowired
   public ApproveSubmissionController(SubmissionDetailService submissionDetailService,
                                      SubmissionResourceService submissionResourceService,
                                      SubmissionSummaryModelService submissionSummaryModelService,
                                      SubmissionApprovalService submissionApprovalService,
-                                     UserService userService) {
+                                     UserService userService,
+                                     FieldSubmissionStatusService fieldSubmissionStatusService) {
     this.submissionDetailService = submissionDetailService;
     this.submissionResourceService = submissionResourceService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionApprovalService = submissionApprovalService;
     this.userService = userService;
+    this.fieldSubmissionStatusService = fieldSubmissionStatusService;
   }
 
   @GetMapping
@@ -112,6 +118,7 @@ public class ApproveSubmissionController {
     );
 
     var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail);
+    var isFieldSubmission = submissionDetail.isFieldSubmission();
 
     modelAndView
         .addObject("pageName", pageName)
@@ -122,7 +129,18 @@ public class ApproveSubmissionController {
                 .approveSubmission(submissionDetail.getId(), null)))
         .addObject("cancelUrl",
             ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(submissionDetail.getSubmission().getResource().getId())));
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
+        .addObject("isFieldSubmission", isFieldSubmission);
+
+    if (isFieldSubmission)  {
+      var fieldStatusAfterAccept = fieldSubmissionStatusService.getNewStatusForAcceptance(submissionDetail)
+          .map(FieldStatus::getDisplayName)
+          .orElseThrow(() -> new NoSuchElementException(
+              "Cannot accept the submissionDetail with id %s because the field status can not be updated"
+              .formatted(submissionDetail.getId())));
+
+      modelAndView.addObject("fieldStatusAfterAccept", fieldStatusAfterAccept);
+    }
 
     ReviewPageBreadcrumbUtil
         .addWorkAreaAndManagementPageToModelAndView(modelAndView, pageName, resourceName, submissionDetail);

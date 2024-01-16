@@ -1,5 +1,6 @@
 <#include '../layout/layout.ftl'>
 <#import '../submissiondetails/summary/_submissionSummary.ftl' as submissionSummary>
+<#import '_reviewAcceptSubmissionBanner.ftl' as banner>
 
 <#-- @ftlvariable name="pageName" type="String" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
@@ -16,6 +17,11 @@
   wrapperWidth=true
   breadcrumbsMap=breadcrumbsMap
   caption=resourceName>
+
+  <#if isFieldSubmission>
+    <@banner.reviewFieldNotificationBanner fieldStatusAfterAccept/>
+  </#if>
+
   <@submissionSummary.submissionSummary
     submissionType=submissionType/>
 
