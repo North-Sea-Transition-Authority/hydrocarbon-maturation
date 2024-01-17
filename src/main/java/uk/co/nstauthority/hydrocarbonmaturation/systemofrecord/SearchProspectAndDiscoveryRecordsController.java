@@ -29,7 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regul
 @Controller
 @RequestMapping("/search-resource-records/prospects-and-discoveries")
 @AccessibleByServiceUsers
-@SessionAttributes({"searchSystemOfRecordFilter"})
+@SessionAttributes({"searchProspectAndDiscoveryRecordsFilter"})
 public class SearchProspectAndDiscoveryRecordsController {
 
   public static final String PAGE_TITLE = "Search prospect and discovery records";
@@ -53,7 +53,7 @@ public class SearchProspectAndDiscoveryRecordsController {
 
   @GetMapping
   public ModelAndView showSearchResourceRecordsScreen(
-      @ModelAttribute("searchSystemOfRecordFilter") SearchResourceRecordsFilter filter) {
+      @ModelAttribute("searchProspectAndDiscoveryRecordsFilter") SearchProspectAndDiscoveryRecordsFilter filter) {
     var form = SearchResourceRecordsForm.from(filter);
 
     if (filter.isShowResults()) {
@@ -72,7 +72,7 @@ public class SearchProspectAndDiscoveryRecordsController {
 
   @GetMapping("/clear-filters")
   public ModelAndView clearSearchResourceRecordFilter(
-      @ModelAttribute("searchSystemOfRecordFilter") SearchResourceRecordsFilter filter,
+      @ModelAttribute("searchProspectAndDiscoveryRecordsFilter") SearchProspectAndDiscoveryRecordsFilter filter,
       SessionStatus sessionStatus) {
     sessionStatus.setComplete();
     filter.clearFilter();
@@ -81,7 +81,7 @@ public class SearchProspectAndDiscoveryRecordsController {
 
   @PostMapping
   public ModelAndView searchResourceRecords(
-      @ModelAttribute("searchSystemOfRecordFilter") SearchResourceRecordsFilter filter,
+      @ModelAttribute("searchProspectAndDiscoveryRecordsFilter") SearchProspectAndDiscoveryRecordsFilter filter,
       @ModelAttribute("form") SearchResourceRecordsForm form) {
     filter.update(form);
     return ReverseRouter.redirect(on(SearchProspectAndDiscoveryRecordsController.class)
@@ -100,8 +100,9 @@ public class SearchProspectAndDiscoveryRecordsController {
                                        List<ResourceRecordSearchResultItem> resourceRecordSearchResults,
                                        FiltersAdded filtersAdded,
                                        boolean isRegulatorOrAreaTeamUser) {
-    return new ModelAndView("remi/systemofrecord/searchPropsectAndDiscoveryRecords")
+    return new ModelAndView("remi/systemofrecord/searchProspectAndDiscoveryRecords")
         .addObject("form", form)
+        .addObject("backLinkUrl", ReverseRouter.route(on(SystemOfRecordLandingPageController.class).getLandingPage()))
         .addObject("isRegulatorOrAreaTeamUser", isRegulatorOrAreaTeamUser)
         .addObject("pageTitle", PAGE_TITLE)
         .addObject("filtersAdded", filtersAdded.isHasFilters())
@@ -126,11 +127,9 @@ public class SearchProspectAndDiscoveryRecordsController {
         .addObject("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class));
   }
 
-  @ModelAttribute("searchSystemOfRecordFilter")
-  private SearchResourceRecordsFilter getDefaultFilter() {
-    var filter = new SearchResourceRecordsFilter();
-    filter.clearFilter();
-    return filter;
+  @ModelAttribute("searchProspectAndDiscoveryRecordsFilter")
+  private SearchProspectAndDiscoveryRecordsFilter getDefaultFilter() {
+    return SearchProspectAndDiscoveryRecordsFilter.createInstance();
   }
 
   private boolean isRegulatorOrAreaTeamUser() {

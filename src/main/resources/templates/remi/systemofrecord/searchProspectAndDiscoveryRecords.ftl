@@ -14,7 +14,7 @@
   pageHeading=pageTitle
   pageSize=PageSize.FULL_WIDTH
   wrapperWidth=true
-  noIndex=false>
+  backLinkUrl=springUrl(backLinkUrl)>
 
   <@fdsSearch.searchPage>
     <@fdsSearch.searchFilter oneThirdWidth=true>
@@ -94,7 +94,7 @@
             </#if>
             <@fdsResultList.resultList resultCount=resourceRecordSearchResultItems?size>
                 <#list resourceRecordSearchResultItems as item>
-                    <@resourceRecordSearchResultItem.resourceRecordSearchResultItem resultItem=item/>
+                    <@resourceRecordSearchResultItem.prospectAndDiscoveryRecordSearchResultItem resultItem=item/>
                 </#list>
             </@fdsResultList.resultList>
         <#else>

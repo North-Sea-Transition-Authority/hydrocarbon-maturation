@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.lang3.BooleanUtils;
 import org.jooq.Condition;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 
 @Service
 class RegulatorResourceRecordQueryService implements ResourceRecordQueryServiceStrategy {
@@ -19,10 +20,18 @@ class RegulatorResourceRecordQueryService implements ResourceRecordQueryServiceS
 
   @Override
   public List<ResourceRecordQueryResult> getResourceRecordSearchResults(SearchResourceRecordsForm form) {
-    return resourceQueryCommonService.getResourceRecordQueryResults(
-        getRegulatorConditions(form),
-        resourceQueryCommonService.getFormFilterAggregateConditions(form)
-    );
+    var resourceTypes = form.getResourceTypes();
+    if (resourceTypes.contains(ResourceType.FIELD.getEnumName())) {
+      return resourceQueryCommonService.getFieldRecordQueryResults(
+          getRegulatorConditions(form),
+          resourceQueryCommonService.getFormFilterAggregateConditions(form)
+      );
+    } else {
+      return resourceQueryCommonService.getProspectAndDiscoveryRecordQueryResults(
+          getRegulatorConditions(form),
+          resourceQueryCommonService.getFormFilterAggregateConditions(form)
+      );
+    }
   }
 
   private List<Condition> getRegulatorConditions(SearchResourceRecordsForm form) {

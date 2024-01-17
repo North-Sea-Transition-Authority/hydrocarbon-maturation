@@ -7,7 +7,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Component
-class ResourceRecordQueryServiceFactory {
+public class ResourceRecordQueryServiceFactory {
   private final RegulatorResourceRecordQueryService regulatorResourceRecordQueryService;
   private final OperatorResourceRecordQueryService operatorResourceRecordQueryService;
   private final AreaTeamService areaTeamService;

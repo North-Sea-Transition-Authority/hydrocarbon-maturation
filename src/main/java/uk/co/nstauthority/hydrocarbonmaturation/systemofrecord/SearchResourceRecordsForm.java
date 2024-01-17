@@ -3,7 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 import java.util.ArrayList;
 import java.util.List;
 
-class SearchResourceRecordsForm {
+public class SearchResourceRecordsForm {
 
   private String resourceDetailIdForResourceSubmission;
   private Integer responsibleOrganisationId;
@@ -88,7 +88,7 @@ class SearchResourceRecordsForm {
     this.showOnlyPreferredViews = showOnlyPreferredViews;
   }
 
-  public static SearchResourceRecordsForm from(SearchResourceRecordsFilter filter) {
+  public static SearchResourceRecordsForm from(SearchProspectAndDiscoveryRecordsFilter filter) {
     var form = new SearchResourceRecordsForm();
     form.setShowOnlyPreferredViews(filter.isShowOnlyPreferredViews());
     form.setResourceTypes(filter.getResourceTypes());
@@ -99,6 +99,12 @@ class SearchResourceRecordsForm {
     form.setCentreOfInterestBlock(filter.getCentreOfInterestBlock());
     form.setResponsibleOrganisationId(filter.getResponsibleOrganisationId());
     form.setGeographicalArea(filter.getGeographicalArea());
+    return form;
+  }
+
+  public static SearchResourceRecordsForm from(SearchFieldRecordsFilter filter) {
+    var form = new SearchResourceRecordsForm();
+    form.setResourceTypes(filter.getResourceTypes());
     return form;
   }
 }

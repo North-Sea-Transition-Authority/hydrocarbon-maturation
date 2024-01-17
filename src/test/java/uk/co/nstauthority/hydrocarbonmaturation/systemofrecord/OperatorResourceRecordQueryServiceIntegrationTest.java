@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -31,6 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -72,7 +74,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
   @ParameterizedTest
   @EnumSource(IndustryTeamRole.class)
-  void getResourceRecordSearchResults_whenUserNotRegulator_assertOnlyUserTeamsResourcesDisplayedAndAssertValues(
+  void getPropsectAndDiscoveryRecordSearchResults_whenUserNotRegulator_assertOnlyUserTeamsResourcesDisplayedAndAssertValues(
       IndustryTeamRole industryTeamRole) {
     var organisationUnitIdUserIsInGroupFor = 46;
     setUpIndustryTest(Set.of(industryTeamRole), List.of(organisationUnitIdUserIsInGroupFor));
@@ -105,8 +107,8 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     } else {
       assertThat(results)
           .extracting(
-              ResourceRecordQueryResult::getSubmissionDetailId,
-              ResourceRecordQueryResult::getOrganisationResponsibleId
+              ResourceRecordQueryResult::submissionDetailId,
+              ResourceRecordQueryResult::organisationResponsibleId
           )
           .containsExactly(
               tuple(
@@ -119,7 +121,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
   @ParameterizedTest
   @EnumSource(IndustryTeamRole.class)
-  void getResourceRecordSearchResults_whenUserIndustry_whenUserNotInAnyTeams_assertEmpty(
+  void getPropsectAndDiscoveryRecordSearchResults_whenUserIndustry_whenUserNotInAnyTeams_assertEmpty(
       IndustryTeamRole industryTeamRole) {
     var organisationUnitIdUserIsNotIn = 46;
     setUpIndustryTest(Set.of(industryTeamRole), List.of());
@@ -148,7 +150,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenUserIndustry_whenHasAllRoles_assertDisplayed() {
+  void getPropsectAndDiscoveryRecordSearchResults_whenUserIndustry_whenHasAllRoles_assertDisplayed() {
     var organisationUnitIdUserIsInGroupFor = 46;
     setUpIndustryTest(Set.of(IndustryTeamRole.values()), List.of(organisationUnitIdUserIsInGroupFor));
 
@@ -184,8 +186,8 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getOrganisationResponsibleId
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::organisationResponsibleId
         )
         .containsExactly(
             tuple(
@@ -196,7 +198,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenUserIndustry_whenHasSubmitterAndViewer_andOnExtantLicence_assertDisplayed() {
+  void getPropsectAndDiscoveryRecordSearchResults_whenUserIndustry_whenHasSubmitterAndViewer_andOnExtantLicence_assertDisplayed() {
     var organisationUnitIdUserIsInGroupFor = 46;
     setUpIndustryTest(Set.of(IndustryTeamRole.SUBMITTER, IndustryTeamRole.VIEWER), List.of(organisationUnitIdUserIsInGroupFor));
 
@@ -232,8 +234,8 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getOrganisationResponsibleId)
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::organisationResponsibleId)
         .containsExactly(
             tuple(
                 submissionUserIsResponsibleFor.getId(),
@@ -243,7 +245,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenUserIndustry_whenUserSubmitterAndViewer_andNotOnAlicenceAndNotExtant_assertNoneDisplayed() {
+  void getPropsectAndDiscoveryRecordSearchResults_whenUserIndustry_whenUserSubmitterAndViewer_andNotOnAlicenceAndNotExtant_assertNoneDisplayed() {
     var organisationUnitIdUserIsInGroupFor = 46;
     setUpIndustryTest(Set.of(IndustryTeamRole.SUBMITTER, IndustryTeamRole.VIEWER), List.of(organisationUnitIdUserIsInGroupFor));
 
@@ -272,7 +274,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
   @ParameterizedTest
   @EnumSource(GeographicalArea.class)
-  void getResourceRecordSearchResults_andFilterByGeographicalArea_assertOnlyTypeSpecifiedDisplayed(
+  void getPropsectAndDiscoveryRecordSearchResults_andFilterByGeographicalArea_assertOnlyTypeSpecifiedDisplayed(
       GeographicalArea geographicalArea) {
     var userOrgUnitId = 1;
     setUpIndustryTest(Set.of(IndustryTeamRole.SUBMITTER), List.of(userOrgUnitId));
@@ -280,7 +282,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var resourceWithGeographicalArea = buildProspectResource();
     var submissionWithGeographicalArea =
         buildSubmissionDetail(resourceWithGeographicalArea, SubmissionType.CREATE_PROSPECT);
-    buildRegulatorManagedInformation(resourceWithGeographicalArea, geographicalArea);
+    buildRegulatorManagedInformation(resourceWithGeographicalArea, geographicalArea, ResponsibleTeamType.EXPLORATION);
     createResourceDetail(
         submissionWithGeographicalArea, "Not relevant name", userOrgUnitId);
     var generalDetailWithGeographicalArea = createGeneralDetail(submissionWithGeographicalArea);
@@ -289,7 +291,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
         .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
 
     var resourceWithOnshoreGeographicalArea = buildProspectResource();
-    buildRegulatorManagedInformation(resourceWithOnshoreGeographicalArea, GeographicalArea.ONSHORE);
+    buildRegulatorManagedInformation(resourceWithOnshoreGeographicalArea, GeographicalArea.ONSHORE, ResponsibleTeamType.EXPLORATION);
     var submissionWithOnshoreGeographicalArea =
         buildSubmissionDetail(resourceWithOnshoreGeographicalArea, SubmissionType.CREATE_PROSPECT);
     createResourceDetail(
@@ -300,7 +302,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
         .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
 
     var resourceWithNoGeographicalArea = buildProspectResource();
-    buildRegulatorManagedInformation(resourceWithNoGeographicalArea, null);
+    buildRegulatorManagedInformation(resourceWithNoGeographicalArea, null, ResponsibleTeamType.EXPLORATION);
     var submissionWithNoGeographicalArea =
         buildSubmissionDetail(resourceWithNoGeographicalArea, SubmissionType.CREATE_PROSPECT);
     var generalDetailWithNoGeographicalArea = createGeneralDetail(submissionWithNoGeographicalArea);
@@ -317,7 +319,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     if (geographicalArea == GeographicalArea.ONSHORE) {
       assertThat(results)
           .extracting(
-              ResourceRecordQueryResult::getSubmissionDetailId)
+              ResourceRecordQueryResult::submissionDetailId)
           .containsExactly(
               submissionWithOnshoreGeographicalArea.getId(),
               submissionWithGeographicalArea.getId()
@@ -325,7 +327,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     } else {
       assertThat(results)
           .extracting(
-              ResourceRecordQueryResult::getSubmissionDetailId)
+              ResourceRecordQueryResult::submissionDetailId)
           .containsExactly(
               submissionWithGeographicalArea.getId()
           );
@@ -334,7 +336,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
   @ParameterizedTest
   @ValueSource(booleans = {true, false})
-  void getResourceRecordSearchResults_andFilterByPreferredView_assertPreferredAndNonPreferredReturned(
+  void getPropsectAndDiscoveryRecordSearchResults_andFilterByPreferredView_assertPreferredAndNonPreferredReturned(
       boolean showOnlyPreferredView) {
     //the filter for preferred view should not work for operators
     var userOrgUnitId = 1;
@@ -368,7 +370,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId)
+            ResourceRecordQueryResult::submissionDetailId)
         .containsExactly(
             nonPreferredSubmissionDetail.getId(),
             preferredViewSubmissionDetail.getId()
@@ -377,7 +379,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
   @ParameterizedTest
   @ValueSource(booleans = {true, false})
-  void getResourceRecordSearchResults_whenSubmissionWithdrawn_assertOnlyNonWithdrawnDisplayed(
+  void getPropsectAndDiscoveryRecordSearchResults_whenSubmissionWithdrawn_assertOnlyNonWithdrawnDisplayed(
       Boolean withdrawn) {
     if(!withdrawn) {
       withdrawn = null;
@@ -409,11 +411,135 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     } else {
       assertThat(results)
           .extracting(
-              ResourceRecordQueryResult::getSubmissionDetailId)
+              ResourceRecordQueryResult::submissionDetailId)
           .containsExactly(
               submissionDetailWithWithdrawnSubmission.getId()
           );
     }
+  }
+
+  @Test
+  void getFieldRecordsSearchResults_asIndustryInResponsibleOrganisation_assertOnlyUserTeamsResourcesDisplayedAndAssertValues() {
+    var organisationUnitIdUserIsInGroupFor = 46;
+    setUpIndustryTest(Set.of(IndustryTeamRole.SUBMITTER), List.of(organisationUnitIdUserIsInGroupFor));
+
+    var resourceUserIsResponsibleFor = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
+    var submissionUserIsResponsibleFor =
+        buildSubmissionDetail(resourceUserIsResponsibleFor, SubmissionType.CREATE_CSR);
+    var resourceNameUserIsResponsibleFor = "Field A";
+    var generalDetailUserIsResponsibleFor = createGeneralDetail(submissionUserIsResponsibleFor);
+    var regulatorManagedInformationUserIsResponsibleFor = SubmissionIntegrationTestUtils
+        .createRegulatorManagedInformation(resourceUserIsResponsibleFor, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
+    var fieldUserIsResponsibleFor = SubmissionIntegrationTestUtils
+        .createFieldWithParent(resourceUserIsResponsibleFor, resourceNameUserIsResponsibleFor, organisationUnitIdUserIsInGroupFor, entityManager);
+    var fieldStatusHistoryForResponsibleField = SubmissionIntegrationTestUtils
+        .createFieldStatusHistory(fieldUserIsResponsibleFor, FieldStatus.STATUS_300, Instant.now(), entityManager);
+    createLicence(1, "relevant", generalDetailUserIsResponsibleFor);
+
+    var resourceUserIsNotResponsibleFor =  SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
+    var submissionUserIsNotResponsibleFor =
+        buildSubmissionDetail(resourceUserIsNotResponsibleFor, SubmissionType.CREATE_CSR);
+    var resourceNameUserIsNotResponsibleFor = "The resource name B";
+    var organisationIdUserIsNotResponsibleFor = 48;
+    var generalDetailUserNotResponsibleFor = createGeneralDetail(submissionUserIsNotResponsibleFor);
+    var regulatorManagedInformationUserIsNotResponsibleFor = SubmissionIntegrationTestUtils
+        .createRegulatorManagedInformation(resourceUserIsNotResponsibleFor, ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA, GeographicalArea.CENTRAL_NORTH_SEA, entityManager);
+    var fieldUserIsNotResponsibleFor = SubmissionIntegrationTestUtils
+        .createFieldWithParent(resourceUserIsNotResponsibleFor, resourceNameUserIsNotResponsibleFor, organisationIdUserIsNotResponsibleFor, entityManager);
+    var fieldStatusHistoryForNotResponsibleField = SubmissionIntegrationTestUtils
+        .createFieldStatusHistory(fieldUserIsNotResponsibleFor, FieldStatus.STATUS_300, Instant.now(), entityManager);
+    createLicence(2, "not relevant", generalDetailUserNotResponsibleFor);
+    when(licenceQueryService.getExtantLicencesByIds(any()))
+        .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));
+
+    var form = new SearchResourceRecordsForm();
+    form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
+
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    assertThat(results)
+        .extracting(
+            ResourceRecordQueryResult::resourceId,
+            ResourceRecordQueryResult::resourceType,
+            ResourceRecordQueryResult::resourceName,
+            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::responsibleTeam,
+            ResourceRecordQueryResult::parentFieldId,
+            ResourceRecordQueryResult::fieldStatus
+        )
+        .containsExactly(
+            tuple(
+                resourceUserIsResponsibleFor.getId(),
+                ResourceType.FIELD,
+                resourceNameUserIsResponsibleFor,
+                organisationUnitIdUserIsInGroupFor,
+                regulatorManagedInformationUserIsResponsibleFor.getResponsibleTeamType(),
+                fieldUserIsResponsibleFor.getParentDeterminedField().getFieldIdentifier(),
+                fieldStatusHistoryForResponsibleField.getFieldStatus()
+            )
+        );
+  }
+
+  @Test
+  void getFieldRecordsSearchResults_asIndustryInResponsibleOrganisation_assertOnlyResourcesOnExtantLicencesDisplayedAndAssertValues() {
+    var organisationUnitIdUserIsInGroupFor = 46;
+    setUpIndustryTest(Set.of(IndustryTeamRole.SUBMITTER), List.of(organisationUnitIdUserIsInGroupFor));
+
+    var resource1 = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
+    var submissionDetail1 =
+        buildSubmissionDetail(resource1, SubmissionType.CREATE_CSR);
+    var resourceName1 = "Field A";
+    var generalDetail1 = createGeneralDetail(submissionDetail1);
+    var regulatorManagedInformation1 = SubmissionIntegrationTestUtils
+        .createRegulatorManagedInformation(resource1, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
+    var field1 = SubmissionIntegrationTestUtils
+        .createFieldWithParent(resource1, resourceName1, organisationUnitIdUserIsInGroupFor, entityManager);
+    var fieldStatusHistoryForField1 = SubmissionIntegrationTestUtils
+        .createFieldStatusHistory(field1, FieldStatus.STATUS_300, Instant.now(), entityManager);
+    createLicence(1, "relevant", generalDetail1);
+
+    var resource2 =  SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
+    var submissionDetail2 =
+        buildSubmissionDetail(resource2, SubmissionType.CREATE_CSR);
+    var resourceName2 = "The resource name B";
+    var generalDetail2 = createGeneralDetail(submissionDetail2);
+    var regulatorManagedInformation2 = SubmissionIntegrationTestUtils
+        .createRegulatorManagedInformation(resource2, ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
+    var field2 = SubmissionIntegrationTestUtils
+        .createFieldWithParent(resource2, resourceName2, organisationUnitIdUserIsInGroupFor, entityManager);
+    var fieldStatusHistoryForField2 = SubmissionIntegrationTestUtils
+        .createFieldStatusHistory(field2, FieldStatus.STATUS_300, Instant.now(), entityManager);
+    // no licence created for second result
+
+    when(licenceQueryService.getExtantLicencesByIds(any()))
+        .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));
+
+    var form = new SearchResourceRecordsForm();
+    form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
+
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    assertThat(results)
+        .extracting(
+            ResourceRecordQueryResult::resourceId,
+            ResourceRecordQueryResult::resourceType,
+            ResourceRecordQueryResult::resourceName,
+            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::responsibleTeam,
+            ResourceRecordQueryResult::parentFieldId,
+            ResourceRecordQueryResult::fieldStatus
+        )
+        .containsExactly(
+            tuple(
+                resource1.getId(),
+                ResourceType.FIELD,
+                resourceName1,
+                organisationUnitIdUserIsInGroupFor,
+                regulatorManagedInformation1.getResponsibleTeamType(),
+                field1.getParentDeterminedField().getFieldIdentifier(),
+                fieldStatusHistoryForField1.getFieldStatus()
+            )
+        );
   }
 
   private void setUpIndustryTest(Set<TeamRole> userRoles, List<Integer> userOrgUnitIds) {
@@ -454,9 +580,9 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   }
 
   private RegulatorManagedInformation buildRegulatorManagedInformation(
-      Resource resource, GeographicalArea geographicalArea) {
+      Resource resource, GeographicalArea geographicalArea, ResponsibleTeamType responsibleTeamType) {
     return SubmissionIntegrationTestUtils.createRegulatorManagedInformation(
-        resource, ResponsibleTeamType.EXPLORATION, geographicalArea, entityManager);
+        resource, responsibleTeamType, geographicalArea, entityManager);
   }
 
   private Licence createLicence(int id, String ref, GeneralDetail generalDetails) {

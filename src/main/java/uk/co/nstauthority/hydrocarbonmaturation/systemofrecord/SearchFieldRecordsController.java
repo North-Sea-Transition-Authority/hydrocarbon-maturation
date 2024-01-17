@@ -9,41 +9,30 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
-import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Controller
 @RequestMapping("/search-resource-records/fields")
 @AccessibleByServiceUsers
+@SessionAttributes({"searchFieldRecordsFilter"})
 public class SearchFieldRecordsController {
   public static final String PAGE_TITLE = "Search field records";
   private final SearchResourceRecordsService searchResourceRecordsService;
   private final ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory;
-  private final UserService userService;
-  private final RegulatorTeamService regulatorTeamService;
-  private final AreaTeamService areaTeamService;
 
   public SearchFieldRecordsController(SearchResourceRecordsService searchResourceRecordsService,
-                                      ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory,
-                                      UserService userService,
-                                      RegulatorTeamService regulatorTeamService,
-                                      AreaTeamService areaTeamService) {
+                                      ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory) {
     this.searchResourceRecordsService = searchResourceRecordsService;
     this.resourceRecordQueryServiceFactory = resourceRecordQueryServiceFactory;
-    this.userService = userService;
-    this.regulatorTeamService = regulatorTeamService;
-    this.areaTeamService = areaTeamService;
   }
 
   @GetMapping
   public ModelAndView showSearchFieldRecordsScreen(
-      @ModelAttribute("searchSystemOfRecordFilter") SearchResourceRecordsFilter filter) {
+      @ModelAttribute("searchFieldRecordsFilter") SearchFieldRecordsFilter filter) {
     var form = SearchResourceRecordsForm.from(filter);
 
     if (filter.isShowResults()) {
@@ -52,25 +41,29 @@ public class SearchFieldRecordsController {
           searchResourceRecordsService.getResourceRecordSearchResults(
               form,
               resourceRecordQueryServiceFactory.getQueryServiceStrategy()),
-          FiltersAdded.YES,
-          isRegulatorOrAreaTeamUser()
+          FiltersAdded.YES
       );
     }
 
     return getModelAndViewWithNoFiltersAdded(form);
   }
 
+  @GetMapping("/clear-filters")
+  public ModelAndView clearSearchResourceRecordFilter(
+      @ModelAttribute("searchFieldRecordsFilter") SearchFieldRecordsFilter filter,
+      SessionStatus sessionStatus) {
+    sessionStatus.setComplete();
+    filter.clearFilter();
+    return ReverseRouter.redirect(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null));
+  }
+
   private ModelAndView getModelAndViewWithNoFiltersAdded(SearchResourceRecordsForm form) {
-    var isRegulatorOrAreaTeamUser = isRegulatorOrAreaTeamUser();
-    if (isRegulatorOrAreaTeamUser) {
-      form.setShowOnlyPreferredViews(true);
-    }
-    return getModelAndView(form, Collections.emptyList(), FiltersAdded.NO, isRegulatorOrAreaTeamUser);
+    return getModelAndView(form, Collections.emptyList(), FiltersAdded.NO);
   }
 
   @PostMapping
   public ModelAndView searchResourceRecords(
-      @ModelAttribute("searchSystemOfRecordFilter") SearchResourceRecordsFilter filter,
+      @ModelAttribute("searchFieldRecordsFilter") SearchFieldRecordsFilter filter,
       @ModelAttribute("form") SearchResourceRecordsForm form) {
     filter.update(form);
     return ReverseRouter.redirect(on(SearchFieldRecordsController.class)
@@ -79,22 +72,20 @@ public class SearchFieldRecordsController {
 
   private ModelAndView getModelAndView(SearchResourceRecordsForm form,
                                        List<ResourceRecordSearchResultItem> resourceRecordSearchResults,
-                                       FiltersAdded filtersAdded,
-                                       boolean isRegulatorOrAreaTeamUser) {
+                                       FiltersAdded filtersAdded) {
     return new ModelAndView("remi/systemofrecord/searchFieldRecords")
         .addObject("form", form)
-        .addObject("isRegulatorOrAreaTeamUser", isRegulatorOrAreaTeamUser)
+        .addObject("backLinkUrl", ReverseRouter.route(on(SystemOfRecordLandingPageController.class).getLandingPage()))
         .addObject("pageTitle", PAGE_TITLE)
         .addObject("filtersAdded", filtersAdded.isHasFilters())
-        .addObject("clearFilterUrl", ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
+        .addObject("clearFilterUrl", ReverseRouter.route(on(SearchFieldRecordsController.class)
             .clearSearchResourceRecordFilter(null, null)))
         .addObject("resourceRecordSearchResultItems", resourceRecordSearchResults)
-        .addObject("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
-            .searchResources(null, null)));
+        .addObject("maxResultsReturned", searchResourceRecordsService.maxResultsReturned(resourceRecordSearchResults));
   }
 
-  private boolean isRegulatorOrAreaTeamUser() {
-    var user = userService.getUser();
-    return regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user);
+  @ModelAttribute("searchFieldRecordsFilter")
+  private SearchFieldRecordsFilter getDefaultFilter() {
+    return SearchFieldRecordsFilter.createInstance();
   }
 }

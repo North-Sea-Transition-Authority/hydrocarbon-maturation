@@ -18,6 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
@@ -31,19 +32,23 @@ public class SearchResourceRecordsService {
   private final OrganisationUnitQueryService organisationUnitQueryService;
   private final LicenceQueryService licenceQueryService;
   private final SubmissionDetailService submissionDetailService;
+  private final FieldDisplayService fieldDisplayService;
 
   @Autowired
   SearchResourceRecordsService(SubmissionDetailDisplayService submissionDetailDisplayService,
                                SearchSelectorService searchSelectorService,
                                SubmissionResourceService submissionResourceService,
                                OrganisationUnitQueryService organisationUnitQueryService,
-                               LicenceQueryService licenceQueryService, SubmissionDetailService submissionDetailService) {
+                               LicenceQueryService licenceQueryService,
+                               SubmissionDetailService submissionDetailService,
+                               FieldDisplayService fieldDisplayService) {
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.searchSelectorService = searchSelectorService;
     this.submissionResourceService = submissionResourceService;
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.licenceQueryService = licenceQueryService;
     this.submissionDetailService = submissionDetailService;
+    this.fieldDisplayService = fieldDisplayService;
   }
 
   List<ResourceRecordSearchResultItem> getResourceRecordSearchResults(SearchResourceRecordsForm form,
@@ -63,7 +68,7 @@ public class SearchResourceRecordsService {
 
   private List<Integer> getOrganisationUnitIdsFromResults(List<ResourceRecordQueryResult> resourceRecordSearchResults) {
     return resourceRecordSearchResults.stream()
-        .map(ResourceRecordQueryResult::getOrganisationResponsibleId)
+        .map(ResourceRecordQueryResult::organisationResponsibleId)
         .filter(Objects::nonNull)
         .distinct()
         .toList();
@@ -71,7 +76,7 @@ public class SearchResourceRecordsService {
 
   private List<Integer> getLicencesFromResults(List<ResourceRecordQueryResult> resourceRecordSearchResults) {
     return resourceRecordSearchResults.stream()
-        .map(ResourceRecordQueryResult::getLicencesTheResourceIsOn)
+        .map(ResourceRecordQueryResult::licencesTheResourceIsOn)
         .filter(Objects::nonNull)
         .flatMap(List::stream)
         .distinct()
@@ -143,22 +148,22 @@ public class SearchResourceRecordsService {
 
   private String getHeadingText(ResourceRecordQueryResult resourceRecordQueryResult) {
     return submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(
-        resourceRecordQueryResult.getResourceName(),
-        resourceRecordQueryResult.getCentreOfInterestQuadBlock()
+        resourceRecordQueryResult.resourceName(),
+        resourceRecordQueryResult.centreOfInterestQuadBlock()
     );
   }
 
   private String getCaptionText(ResourceRecordQueryResult resourceRecordQueryResult) {
-    var submissionDetailId = resourceRecordQueryResult.getSubmissionDetailId();
+    var submissionDetailId = resourceRecordQueryResult.submissionDetailId();
     return submissionDetailService.getSubmissionDetail(submissionDetailId)
-        .map(submissionDetail -> resourceRecordQueryResult.getResourceType().getDisplayName() +
+        .map(submissionDetail -> resourceRecordQueryResult.resourceType().getDisplayName() +
             (submissionDetail.isRelinquishment() ? " (Relinquishment)" : ""))
         .orElse("");
   }
 
   private String getActionUrl(ResourceRecordQueryResult resourceRecordQueryResult) {
     return ReverseRouter.route(on(ViewResourceRecordController.class)
-        .showResourceRecord(resourceRecordQueryResult.getResourceId()));
+        .showResourceRecord(resourceRecordQueryResult.resourceId()));
   }
 
   private ResourceRecordSearchResultItemModelProperties getResultItemModelProperties(
@@ -166,19 +171,34 @@ public class SearchResourceRecordsService {
       Map<Integer, OrganisationUnitDto> organisationUnitMap,
       Map<Integer, LicenceView> licenceMap) {
 
-    var responsibleTeam = resourceRecordQueryResult.getResponsibleTeam();
-    var organisationResponsibleId = resourceRecordQueryResult.getOrganisationResponsibleId();
-    var licencesTheResourceIsOn = resourceRecordQueryResult.getLicencesTheResourceIsOn();
+    var responsibleTeam = resourceRecordQueryResult.responsibleTeam();
+    var organisationResponsibleId = resourceRecordQueryResult.organisationResponsibleId();
+    var licencesTheResourceIsOn = resourceRecordQueryResult.licencesTheResourceIsOn();
 
     var organisationResponsibleDisplay =
         submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(organisationUnitMap, organisationResponsibleId);
     var licencesForDisplay = submissionDetailDisplayService.getLicencesForDisplayFromMap(licenceMap, licencesTheResourceIsOn);
     var teamResponsibleDisplay = submissionDetailDisplayService.getTeamResponsibleDisplay(responsibleTeam);
 
-    return new ResourceRecordSearchResultItemModelProperties()
+    var resourceType = resourceRecordQueryResult.resourceType();
+    var modelProperties = new ResourceRecordSearchResultItemModelProperties()
         .addProperty("teamResponsible", teamResponsibleDisplay)
-        .addProperty("organisationResponsible", organisationResponsibleDisplay)
-        .addProperty("licences", licencesForDisplay);
+        .addProperty("organisationResponsible", organisationResponsibleDisplay);
+
+    if (ResourceType.DISCOVERY.equals(resourceType)
+        || ResourceType.PROSPECT.equals(resourceType)) {
+      modelProperties.addProperty("licences", licencesForDisplay);
+    } else if (ResourceType.FIELD.equals(resourceType)) {
+      var fieldStatus = resourceRecordQueryResult.fieldStatus() != null
+          ? resourceRecordQueryResult.fieldStatus().getDisplayName()
+          : "";
+      modelProperties
+          .addProperty("fieldStatus", fieldStatus)
+          .addProperty("parentField",
+              fieldDisplayService.getParentFieldNameOrNoneFound(resourceRecordQueryResult.parentFieldId()));
+    }
+
+    return modelProperties;
   }
 
   public Map<String, String> getOpportunityTypes() {

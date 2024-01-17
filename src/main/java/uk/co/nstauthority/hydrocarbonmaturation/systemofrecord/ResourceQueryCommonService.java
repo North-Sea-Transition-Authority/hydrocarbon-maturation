@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
-import static org.jooq.impl.DSL.coalesce;
+import static org.jooq.impl.DSL.and;
+import static org.jooq.impl.DSL.max;
 import static org.jooq.impl.DSL.select;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELDS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
@@ -26,6 +27,7 @@ import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.FieldStatusHistory;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.GeneralDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submissions;
@@ -39,26 +41,31 @@ class ResourceQueryCommonService {
   private static final SubmissionDetails SD_3 = SUBMISSION_DETAILS.as("sd3");
   private static final Submissions SUBMISSIONS_2 = SUBMISSIONS.as("s3");
   private static final GeneralDetails GD_3 = GENERAL_DETAILS.as("gd3");
+  private static final FieldStatusHistory FIELD_STATUS_HISTORY = FieldStatusHistory.FIELD_STATUS_HISTORY.as("fsh");
+  private static final FieldStatusHistory FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS =
+      FieldStatusHistory.FIELD_STATUS_HISTORY.as("fsh2");
   protected final DSLContext context;
 
   protected ResourceQueryCommonService(DSLContext context) {
     this.context = context;
   }
 
-  protected List<ResourceRecordQueryResult> getResourceRecordQueryResults(
+  protected List<ResourceRecordQueryResult> getFieldRecordQueryResults(
       List<Condition> conditionList, List<Condition> aggregateConditionList) {
     return context
         .select(
             RESOURCES.ID,
             SUBMISSION_DETAILS.ID,
             RESOURCES.TYPE,
-            coalesce(RESOURCE_DETAILS.RESOURCE_NAME, FIELDS.CORRECTED_LEGAL_FIELD_NAME),
+            FIELDS.CORRECTED_LEGAL_FIELD_NAME,
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
-            coalesce(RESOURCE_DETAILS.ORGANISATION_ID, FIELDS.RESPONSIBLE_ORGANISATION_ID),
+            FIELDS.RESPONSIBLE_ORGANISATION_ID,
             DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
-            REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM)
+            REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM,
+            FIELDS.PARENT_DETERMINED_FIELD_ID,
+            max(FIELD_STATUS_HISTORY.FIELD_STATUS))
         .from(RESOURCES
           .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
               select(SD_2.ID)
@@ -70,16 +77,71 @@ class ResourceQueryCommonService {
                       .and(SUBMISSIONS.WITHDRAWN.isNull()))
                   .orderBy(SD_2.ACCEPTED_TIMESTAMP.desc().nullsLast())
                   .limit(1)))
-          .join(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
-          .leftJoin(RESOURCE_GROUP_LINKS).on(RESOURCE_GROUP_LINKS.RESOURCE_ID.eq(RESOURCES.ID))
-          .leftJoin(RESOURCE_LINKS).on(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(RESOURCES.ID)
-            .or(RESOURCE_LINKS.DISCOVERY_RESOURCE_ID.eq(RESOURCES.ID)))
           .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
           .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
           .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID))
           .leftJoin(REGULATOR_MANAGED_INFORMATION).on(RESOURCES.ID.eq(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID))
-          .leftJoin(OPPORTUNITY_DETAILS).on(OPPORTUNITY_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
-          .leftJoin(FIELDS).on(FIELDS.RESOURCE_ID.equals(RESOURCES.ID)))
+          .leftJoin(FIELDS).on(FIELDS.RESOURCE_ID.eq(RESOURCES.ID)))
+          .leftJoin(FIELD_STATUS_HISTORY)
+          .on(and(
+              FIELD_STATUS_HISTORY.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER),
+              FIELD_STATUS_HISTORY.STATUS_DATE.eq(
+                  select(max(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS.STATUS_DATE))
+                      .from(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS)
+                      .where(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
+              )))
+        .where(conditionList)
+        .groupBy(
+            RESOURCES.ID,
+            SUBMISSION_DETAILS.ID,
+            GENERAL_DETAILS.ID,
+            TRAP_PROPERTIES.ID,
+            REGULATOR_MANAGED_INFORMATION.ID,
+            FIELDS.FIELD_IDENTIFIER,
+            FIELD_STATUS_HISTORY.FIELD_IDENTIFIER
+        )
+        .having(aggregateConditionList)
+        .orderBy(SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP.desc().nullsLast(),
+            SUBMISSION_DETAILS.CREATED_TIMESTAMP.desc(),
+            FIELDS.CORRECTED_LEGAL_FIELD_NAME)
+        .limit(ResourceQueryCommonService.MAX_RESULTS)
+        .fetchInto(ResourceRecordQueryResult.class);
+  }
+
+  protected List<ResourceRecordQueryResult> getProspectAndDiscoveryRecordQueryResults(
+      List<Condition> conditionList, List<Condition> aggregateConditionList) {
+    return context
+        .select(
+            RESOURCES.ID,
+            SUBMISSION_DETAILS.ID,
+            RESOURCES.TYPE,
+            RESOURCE_DETAILS.RESOURCE_NAME,
+            TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
+            RESOURCE_DETAILS.ORGANISATION_ID,
+            DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
+                .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
+                .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
+            REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM)
+        .from(RESOURCES
+            .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
+                select(SD_2.ID)
+                    .from(SUBMISSIONS.join(SD_2)
+                        //gets latest approved submission detail for a submission on a resource
+                        .on(SD_2.SUBMISSION_ID.eq(SUBMISSIONS.ID)
+                            .and(SD_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))))
+                    .where(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID)
+                        .and(SUBMISSIONS.WITHDRAWN.isNull()))
+                    .orderBy(SD_2.ACCEPTED_TIMESTAMP.desc().nullsLast())
+                    .limit(1)))
+            .leftJoin(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+            .leftJoin(RESOURCE_GROUP_LINKS).on(RESOURCE_GROUP_LINKS.RESOURCE_ID.eq(RESOURCES.ID))
+            .leftJoin(RESOURCE_LINKS).on(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(RESOURCES.ID)
+                .or(RESOURCE_LINKS.DISCOVERY_RESOURCE_ID.eq(RESOURCES.ID)))
+            .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+            .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+            .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID))
+            .leftJoin(REGULATOR_MANAGED_INFORMATION).on(RESOURCES.ID.eq(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID))
+            .leftJoin(OPPORTUNITY_DETAILS).on(OPPORTUNITY_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID)))
         .where(conditionList)
         .groupBy(
             RESOURCES.ID,
@@ -87,8 +149,7 @@ class ResourceQueryCommonService {
             GENERAL_DETAILS.ID,
             TRAP_PROPERTIES.ID,
             RESOURCE_DETAILS.ID,
-            REGULATOR_MANAGED_INFORMATION.ID,
-            FIELDS.FIELD_IDENTIFIER
+            REGULATOR_MANAGED_INFORMATION.ID
         )
         .having(aggregateConditionList)
         .orderBy(SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP.desc().nullsLast(),
@@ -133,12 +194,14 @@ class ResourceQueryCommonService {
 
     // excludes prospects from search results when they are linked to a discovery
     // rl.discovery_resource_id will be null if there is no link
-    conditionList.add(
-        RESOURCE_LINKS.DISCOVERY_RESOURCE_ID
-            .isNull()
-            .or(RESOURCES.TYPE
-                .eq(ResourceType.DISCOVERY.name()))
-    );
+    if (form.getResourceTypes().contains(ResourceType.PROSPECT.getEnumName())) {
+      conditionList.add(
+          RESOURCE_LINKS.DISCOVERY_RESOURCE_ID
+              .isNull()
+              .or(RESOURCES.TYPE
+                  .eq(ResourceType.DISCOVERY.name()))
+      );
+    }
 
     return conditionList;
   }

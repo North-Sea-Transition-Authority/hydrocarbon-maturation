@@ -100,7 +100,7 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
             get(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
                 .showSearchResourceRecordsScreen(null)))
                 .with(user(USER))
-                .flashAttr("searchSystemOfRecordFilter", getFullFilter(true)))
+                .flashAttr("searchProspectAndDiscoveryRecordsFilter", getFullFilter(true)))
         .andExpect(status().isOk());
 
     verify(searchResourceRecordsService, times(1))
@@ -114,7 +114,7 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
             get(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
                 .clearSearchResourceRecordFilter(null, null)))
                 .with(user(USER))
-                .flashAttr("searchSystemOfRecordFilter", filter))
+                .flashAttr("searchProspectAndDiscoveryRecordsFilter", filter))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
             .showSearchResourceRecordsScreen(null))));
@@ -127,11 +127,11 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
             "showOnlyPreferredViews",
             "geographicalArea")
         .extracting(
-            SearchResourceRecordsFilter::getOpportunityTypes,
-            SearchResourceRecordsFilter::getResourceTypes,
-            SearchResourceRecordsFilter::isShowResults,
-            SearchResourceRecordsFilter::isShowOnlyPreferredViews,
-            SearchResourceRecordsFilter::getGeographicalArea)
+            SearchProspectAndDiscoveryRecordsFilter::getOpportunityTypes,
+            SearchProspectAndDiscoveryRecordsFilter::getResourceTypes,
+            SearchProspectAndDiscoveryRecordsFilter::isShowResults,
+            SearchProspectAndDiscoveryRecordsFilter::isShowOnlyPreferredViews,
+            SearchProspectAndDiscoveryRecordsFilter::getGeographicalArea)
         .containsExactly(
             List.of("LEAD",
                 "PROSPECT",
@@ -159,6 +159,7 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
     assertThat(modelMap)
         .contains(
             entry("pageTitle", SearchProspectAndDiscoveryRecordsController.PAGE_TITLE),
+            entry("backLinkUrl", ReverseRouter.route(on(SystemOfRecordLandingPageController.class).getLandingPage())),
             entry("filtersAdded", false),
             entry("isRegulatorOrAreaTeamUser", true),
             entry("clearFilterUrl", ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
@@ -178,8 +179,8 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
         );
   }
 
-  SearchResourceRecordsFilter getFullFilter(boolean showResults) {
-    var filter = new SearchResourceRecordsFilter();
+  SearchProspectAndDiscoveryRecordsFilter getFullFilter(boolean showResults) {
+    var filter = new SearchProspectAndDiscoveryRecordsFilter();
     filter.setShowResults(showResults);
     filter.setCentreOfInterestBlock("2/15");
     filter.setGeographicalArea(List.of(GeographicalArea.ONSHORE.name()));

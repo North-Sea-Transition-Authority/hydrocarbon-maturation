@@ -14,21 +14,12 @@
   pageHeading=pageTitle
   pageSize=PageSize.FULL_WIDTH
   wrapperWidth=true
-  noIndex=false>
+  noIndex=false
+  backLinkUrl=springUrl(backLinkUrl)>
 
   <@fdsSearch.searchPage>
     <@fdsSearch.searchFilter oneThirdWidth=true>
       <@fdsSearch.searchFilterList clearFilterUrl=springUrl(clearFilterUrl)>
-        <@fdsSearch.searchFilterItem itemName="Resource name" expanded=resourceName?has_content>
-          <@fdsSearchSelector.searchSelectorRest
-            path="form.resourceDetailIdForResourceSubmission"
-            restUrl=springUrl(resourceApiEndpoint)
-            labelText="Resource name"
-            labelClass="govuk-visually-hidden"
-            inputClass="govuk-!-width-three-quarters"
-            selectorMinInputLength=1
-            preselectedItems=resourceName!{}/>
-        </@fdsSearch.searchFilterItem>
       </@fdsSearch.searchFilterList>
     </@fdsSearch.searchFilter>
     <@fdsSearch.searchPageContent twoThirdsWidth=true>
@@ -41,7 +32,7 @@
             </#if>
             <@fdsResultList.resultList resultCount=resourceRecordSearchResultItems?size>
                 <#list resourceRecordSearchResultItems as item>
-                    <@resourceRecordSearchResultItem.resourceRecordSearchResultItem resultItem=item/>
+                    <@resourceRecordSearchResultItem.fieldRecordSearchResultItem resultItem=item/>
                 </#list>
             </@fdsResultList.resultList>
         <#else>

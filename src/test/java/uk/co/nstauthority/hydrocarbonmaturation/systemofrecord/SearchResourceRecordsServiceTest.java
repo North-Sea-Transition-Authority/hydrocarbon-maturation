@@ -28,8 +28,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.LicenceViewTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -55,6 +57,8 @@ class SearchResourceRecordsServiceTest {
   private OrganisationUnitQueryService organisationUnitQueryService;
   @Mock
   private SubmissionDetailService submissionDetailService;
+  @Mock
+  private FieldDisplayService fieldDisplayService;
   @InjectMocks
   private SearchResourceRecordsService underTest;
 
@@ -109,30 +113,30 @@ class SearchResourceRecordsServiceTest {
     }
 
     @Test
-    void buildsResourceRecordSearchResultItem_AssertAllReturnedAndItemsAreBuiltCorrectly() {
+    void buildsDiscoveryAndProspectRecordSearchResultItem_AssertAllReturnedAndItemsAreBuiltCorrectly() {
 
       var result1 = buildAndMockResourceRecordQueryResult(
-        "resource-name1", "1/12",
+        "resource-name1", ResourceType.PROSPECT, "1/12",
         ORGANISATION_ID_1, "Org A",
         List.of(EXTANT_LICENCE_1.licenceId(), EXTANT_LICENCE_2.licenceId()),
         List.of(EXTANT_LICENCE_1.licenceRef(), EXTANT_LICENCE_2.licenceRef()),
-        ResponsibleTeamType.EXPLORATION
+        ResponsibleTeamType.EXPLORATION, null, null
       );
       var result2 = buildAndMockResourceRecordQueryResult(
-          "resource-name2", null,
+          "resource-name2", ResourceType.DISCOVERY, null,
         ORGANISATION_ID_2, "Org B",
         List.of(NOT_EXTANT_LICENCE_2.licenceId(), NOT_EXTANT_LICENCE_3.licenceId()),
         List.of(NOT_EXTANT_LICENCE_2.licenceRef(), NOT_EXTANT_LICENCE_3.licenceRef()),
-        ResponsibleTeamType.EXPLORATION
+        ResponsibleTeamType.EXPLORATION, null, null
       );
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form))
           .thenReturn(List.of(result1, result2));
 
       var submissionDetailProspect = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
-      when(submissionDetailService.getSubmissionDetail(result1.getSubmissionDetailId()))
+      when(submissionDetailService.getSubmissionDetail(result1.submissionDetailId()))
           .thenReturn(Optional.of(submissionDetailProspect));
       var submissionDetailRelinquishment = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.RELINQUISHMENT_PROSPECT);
-      when(submissionDetailService.getSubmissionDetail(result2.getSubmissionDetailId()))
+      when(submissionDetailService.getSubmissionDetail(result2.submissionDetailId()))
           .thenReturn(Optional.of(submissionDetailRelinquishment));
 
       var results = underTest.getResourceRecordSearchResults(form, resourceRecordQueryServiceStrategy);
@@ -146,13 +150,13 @@ class SearchResourceRecordsServiceTest {
           .containsExactly(
               tuple(
                   "resource-name1 (1/12)",
-                  result1.getResourceType().getDisplayName(),
-                  getActionUrl(result1.getResourceId())
+                  result1.resourceType().getDisplayName(),
+                  getActionUrl(result1.resourceId())
               ),
               tuple(
                   "resource-name2",
-                  result2.getResourceType().getDisplayName() + " (Relinquishment)",
-                  getActionUrl(result2.getResourceId())
+                  result2.resourceType().getDisplayName() + " (Relinquishment)",
+                  getActionUrl(result2.resourceId())
               )
           );
 
@@ -171,23 +175,96 @@ class SearchResourceRecordsServiceTest {
           );
     }
 
+    @Test
+    void buildsFieldRecordSearchResultItem_AssertAllReturnedAndItemsAreBuiltCorrectly() {
+
+      var result1 = buildAndMockResourceRecordQueryResult(
+          "field-name1", ResourceType.FIELD, "1/12",
+          ORGANISATION_ID_1, "Org A",
+          List.of(EXTANT_LICENCE_1.licenceId(), EXTANT_LICENCE_2.licenceId()),
+          List.of(EXTANT_LICENCE_1.licenceRef(), EXTANT_LICENCE_2.licenceRef()),
+          ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, null, FieldStatus.STATUS_200
+      );
+      var result2 = buildAndMockResourceRecordQueryResult(
+          "field-name2", ResourceType.FIELD, null,
+          ORGANISATION_ID_2, "Org B",
+          List.of(NOT_EXTANT_LICENCE_2.licenceId(), NOT_EXTANT_LICENCE_3.licenceId()),
+          List.of(NOT_EXTANT_LICENCE_2.licenceRef(), NOT_EXTANT_LICENCE_3.licenceRef()),
+          ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA, 2425, FieldStatus.STATUS_400
+      );
+      when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form))
+          .thenReturn(List.of(result1, result2));
+
+      var submissionDetailCsr = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+      when(submissionDetailService.getSubmissionDetail(result1.submissionDetailId()))
+          .thenReturn(Optional.of(submissionDetailCsr));
+      var submissionDetailFdp = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_FDP);
+      when(submissionDetailService.getSubmissionDetail(result2.submissionDetailId()))
+          .thenReturn(Optional.of(submissionDetailFdp));
+
+      when(fieldDisplayService.getParentFieldNameOrNoneFound(result1.parentFieldId()))
+          .thenReturn("");
+      when(fieldDisplayService.getParentFieldNameOrNoneFound(result2.parentFieldId()))
+          .thenReturn("Parent field name");
+
+      var results = underTest.getResourceRecordSearchResults(form, resourceRecordQueryServiceStrategy);
+
+      assertThat(results)
+          .extracting(
+              ResourceRecordSearchResultItem::headingText,
+              ResourceRecordSearchResultItem::captionText,
+              ResourceRecordSearchResultItem::actionUrl
+          )
+          .containsExactly(
+              tuple(
+                  "field-name1 (1/12)",
+                  "Field",
+                  getActionUrl(result1.resourceId())
+              ),
+              tuple(
+                  "field-name2",
+                  "Field",
+                  getActionUrl(result2.resourceId())
+              )
+          );
+
+      assertThat(results.get(0).modelProperties().getProperties())
+          .containsExactly(
+              entry("teamResponsible", ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName()),
+              entry("organisationResponsible", "Org A"),
+              entry("fieldStatus", result1.fieldStatus().getDisplayName()),
+              entry("parentField", "")
+          );
+
+      assertThat(results.get(1).modelProperties().getProperties())
+          .containsExactly(
+              entry("teamResponsible", ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getDisplayName()),
+              entry("organisationResponsible", "Org B"),
+              entry("fieldStatus", result2.fieldStatus().getDisplayName()),
+              entry("parentField", "Parent field name")
+          );
+    }
+
     private String getActionUrl(UUID resourceId) {
       return ReverseRouter.route(on(ViewResourceRecordController.class)
           .showResourceRecord(resourceId));
     }
 
     private ResourceRecordQueryResult buildAndMockResourceRecordQueryResult(String resourceName,
-                                                                            String centreOfInterest,
+                                                                            ResourceType resourceType, String centreOfInterest,
                                                                             int organisationResponsibleId,
                                                                             String orgName,
                                                                             List<Integer> licencesTheResourceIsOn,
                                                                             List<String> licencesDisplayed,
-                                                                            ResponsibleTeamType responsibleTeam) {
-      when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, organisationResponsibleId))
-          .thenReturn(orgName);
-      when(submissionDetailDisplayService.getLicencesForDisplayFromMap(LICENCE_MAP, licencesTheResourceIsOn))
-          .thenReturn(licencesDisplayed);
+                                                                            ResponsibleTeamType responsibleTeam,
+                                                                            Integer parentFieldId,
+                                                                            FieldStatus fieldStatus) {
+      when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, organisationResponsibleId)).thenReturn(orgName);
+      if (!ResourceType.FIELD.equals(resourceType)) {
+        when(submissionDetailDisplayService.getLicencesForDisplayFromMap(LICENCE_MAP, licencesTheResourceIsOn)).thenReturn(licencesDisplayed);
+      }
       when(submissionDetailDisplayService.getTeamResponsibleDisplay(responsibleTeam)).thenReturn(responsibleTeam.getDisplayName());
+
       if (centreOfInterest != null) {
         when(submissionDetailDisplayService
             .getResourceNameAndCentreOfInterestBlockDisplay(resourceName, centreOfInterest))
@@ -200,12 +277,14 @@ class SearchResourceRecordsServiceTest {
       return new ResourceRecordQueryResult(
           UUID.randomUUID(),
           UUID.randomUUID(),
-          "PROSPECT",
+          resourceType,
           resourceName,
           centreOfInterest,
           organisationResponsibleId,
           licencesTheResourceIsOn,
-          responsibleTeam);
+          responsibleTeam,
+          parentFieldId,
+          fieldStatus);
     }
 
   }

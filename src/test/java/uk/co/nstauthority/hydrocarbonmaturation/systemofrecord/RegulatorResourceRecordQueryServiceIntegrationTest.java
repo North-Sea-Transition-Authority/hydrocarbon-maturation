@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -31,9 +32,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.LicenceViewTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTestUtils;
@@ -74,7 +77,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   private LicenceQueryService licenceQueryService;
 
   @Test
-  void getResourceRecordSearchResults_whenOneFullSubmission_assertAllValuesAndOrderIsCorrect() {
+  void getProspectAndDiscoveryRecordSearchResults_whenOneFullSubmission_assertAllValuesAndOrderIsCorrect() {
     var resource1 = buildProspectResource();
     setUpRegulatorTest();
     var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
@@ -124,12 +127,12 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(List.of(results.get(0), results.get(1)))
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getCentreOfInterestQuadBlock,
-            ResourceRecordQueryResult::getOrganisationResponsibleId,
-            ResourceRecordQueryResult::getResourceName,
-            ResourceRecordQueryResult::getResourceType,
-            ResourceRecordQueryResult::getLicencesTheResourceIsOn
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::centreOfInterestQuadBlock,
+            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::resourceName,
+            ResourceRecordQueryResult::resourceType,
+            ResourceRecordQueryResult::licencesTheResourceIsOn
         )
         .containsExactly(
             tuple(
@@ -152,7 +155,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenTwoSubmissionsForOneResource_assertLatestApprovedIsDisplayed() {
+  void getProspectAndDiscoveryRecordSearchResults_whenTwoSubmissionsForOneResource_assertLatestApprovedIsDisplayed() {
     setUpRegulatorTest();
     var resource1 = buildProspectResource();
     var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
@@ -200,12 +203,12 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(List.of(results.get(0)))
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getCentreOfInterestQuadBlock,
-            ResourceRecordQueryResult::getOrganisationResponsibleId,
-            ResourceRecordQueryResult::getResourceName,
-            ResourceRecordQueryResult::getResourceType,
-            ResourceRecordQueryResult::getLicencesTheResourceIsOn
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::centreOfInterestQuadBlock,
+            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::resourceName,
+            ResourceRecordQueryResult::resourceType,
+            ResourceRecordQueryResult::licencesTheResourceIsOn
         )
         .containsExactly(
             tuple(
@@ -220,7 +223,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenFilteringOnResourceName_assertOnlyFilteredDisplayed() {
+  void getProspectAndDiscoveryRecordSearchResults_whenFilteringOnResourceName_assertOnlyFilteredDisplayed() {
     var resource1 = buildProspectResource();
     setUpRegulatorTest();
     var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
@@ -269,12 +272,12 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getCentreOfInterestQuadBlock,
-            ResourceRecordQueryResult::getOrganisationResponsibleId,
-            ResourceRecordQueryResult::getResourceName,
-            ResourceRecordQueryResult::getResourceType,
-            ResourceRecordQueryResult::getLicencesTheResourceIsOn
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::centreOfInterestQuadBlock,
+            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::resourceName,
+            ResourceRecordQueryResult::resourceType,
+            ResourceRecordQueryResult::licencesTheResourceIsOn
         )
         .containsExactly(
             tuple(
@@ -289,7 +292,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenFilteringOnResponsibleOrganisation_assertOnlyFilteredDisplayed() {
+  void getProspectAndDiscoveryRecordSearchResults_whenFilteringOnResponsibleOrganisation_assertOnlyFilteredDisplayed() {
     setUpRegulatorTest();
     var resource1 = buildProspectResource();
     var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
@@ -338,12 +341,12 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getCentreOfInterestQuadBlock,
-            ResourceRecordQueryResult::getOrganisationResponsibleId,
-            ResourceRecordQueryResult::getResourceName,
-            ResourceRecordQueryResult::getResourceType,
-            ResourceRecordQueryResult::getLicencesTheResourceIsOn
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::centreOfInterestQuadBlock,
+            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::resourceName,
+            ResourceRecordQueryResult::resourceType,
+            ResourceRecordQueryResult::licencesTheResourceIsOn
         )
         .containsExactly(
             tuple(
@@ -358,7 +361,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenFilteringOnResourceType_assertOnlyDiscoveryDisplayed() {
+  void getProspectAndDiscoveryRecordSearchResults_whenFilteringOnResourceType_assertOnlyDiscoveryDisplayed() {
     var resource1 = buildDiscoveryResource();
     setUpRegulatorTest();
     var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_DISCOVERY);
@@ -389,12 +392,12 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getCentreOfInterestQuadBlock,
-            ResourceRecordQueryResult::getOrganisationResponsibleId,
-            ResourceRecordQueryResult::getResourceName,
-            ResourceRecordQueryResult::getResourceType,
-            ResourceRecordQueryResult::getLicencesTheResourceIsOn
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::centreOfInterestQuadBlock,
+            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::resourceName,
+            ResourceRecordQueryResult::resourceType,
+            ResourceRecordQueryResult::licencesTheResourceIsOn
         )
         .containsExactly(
             tuple(
@@ -409,7 +412,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenFilteringOnResourceType_assertOnlyProspectDisplayed() {
+  void getProspectAndDiscoveryRecordSearchResults_whenFilteringOnResourceType_assertOnlyProspectDisplayed() {
     var resource1 = buildProspectResource();
     setUpRegulatorTest();
     var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
@@ -440,12 +443,12 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getCentreOfInterestQuadBlock,
-            ResourceRecordQueryResult::getOrganisationResponsibleId,
-            ResourceRecordQueryResult::getResourceName,
-            ResourceRecordQueryResult::getResourceType,
-            ResourceRecordQueryResult::getLicencesTheResourceIsOn
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::centreOfInterestQuadBlock,
+            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::resourceName,
+            ResourceRecordQueryResult::resourceType,
+            ResourceRecordQueryResult::licencesTheResourceIsOn
         )
         .containsExactly(
             tuple(
@@ -460,7 +463,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenFilteringOnResourceType_assertAllResourceTypesDisplayed() {
+  void getProspectAndDiscoveryRecordSearchResults_whenFilteringOnResourceType_assertAllResourceTypesDisplayed() {
     setUpRegulatorTest();
     var discoveryResource = buildDiscoveryResource();
 
@@ -486,8 +489,8 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getResourceType
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::resourceType
         )
         .containsExactly(
             tuple(
@@ -502,7 +505,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenFilteringOnQuadAndBlock_assertOnlyFilteredDisplayed() {
+  void getProspectAndDiscoveryRecordSearchResults_whenFilteringOnQuadAndBlock_assertOnlyFilteredDisplayed() {
     setUpRegulatorTest();
     var resourceMatchingFilter = buildProspectResource();
     var submissionMatchingFilter = buildSubmissionDetail(resourceMatchingFilter, SubmissionType.CREATE_PROSPECT);
@@ -547,10 +550,10 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getCentreOfInterestQuadBlock,
-            ResourceRecordQueryResult::getResourceName,
-            ResourceRecordQueryResult::getResourceType
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::centreOfInterestQuadBlock,
+            ResourceRecordQueryResult::resourceName,
+            ResourceRecordQueryResult::resourceType
         )
         .containsExactly(
             tuple(
@@ -563,7 +566,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenFilteringOnLicence_assertOnlyFilteredDisplayed() {
+  void getProspectAndDiscoveryRecordSearchResults_whenFilteringOnLicence_assertOnlyFilteredDisplayed() {
     setUpRegulatorTest();
     var resourceWithWrongLicences = buildProspectResource();
     var submissionWithWrongLicences = buildSubmissionDetail(resourceWithWrongLicences, SubmissionType.CREATE_PROSPECT);
@@ -588,9 +591,9 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getResourceType,
-            ResourceRecordQueryResult::getLicencesTheResourceIsOn
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::resourceType,
+            ResourceRecordQueryResult::licencesTheResourceIsOn
         )
         .containsExactly(
             tuple(
@@ -603,7 +606,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
   @ParameterizedTest
   @EnumSource(OpportunityType.class)
-  void getResourceRecordSearchResults_whenFilteringOnOpportunityType_assertOnlyFilteredDisplayed(
+  void getProspectAndDiscoveryRecordSearchResults_whenFilteringOnOpportunityType_assertOnlyFilteredDisplayed(
       OpportunityType opportunityType) {
     setUpRegulatorTest();
     var resourceWithNotMatchingOpportunityType = buildProspectResource();
@@ -630,8 +633,8 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getResourceType)
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::resourceType)
         .containsExactly(
             tuple(
                 submissionWithMatchingOpportunityType.getId(),
@@ -641,7 +644,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenNoFilter_asRegulator_assertAllDisplayed() {
+  void getProspectAndDiscoveryRecordSearchResults_whenNoFilter_asRegulator_assertAllDisplayed() {
     setUpRegulatorTest();
     var discoveryWithDiscoveryOpportunityType = buildDiscoveryResource();
     var submissionWithDiscoveryOpportunityType =
@@ -665,8 +668,8 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getResourceType)
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::resourceType)
         .containsExactly(
             tuple(
                 submissionWithLeadOpportunityType.getId(),
@@ -680,7 +683,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenMatchesFilters_andHasLinkedDiscovery_assertNoResults() {
+  void getProspectAndDiscoveryRecordSearchResults_whenMatchesFilters_andHasLinkedDiscovery_assertNoResults() {
     setUpRegulatorTest();
     var resourceMatchingFiltersWithLinkedResource = buildProspectResource();
     var submissionMatchingFiltersWithLinkedResource = buildSubmissionDetail(resourceMatchingFiltersWithLinkedResource, SubmissionType.CREATE_PROSPECT);
@@ -710,7 +713,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenTwoMatchesFilters_andOneHasLinkedDiscovery_assertOneResult() {
+  void getProspectAndDiscoveryRecordSearchResults_whenTwoMatchesFilters_andOneHasLinkedDiscovery_assertOneResult() {
     setUpRegulatorTest();
     var prospectResourceWithNoLink = buildProspectResource();
     var submissionWithNoLinkedDiscovery = buildSubmissionDetail(
@@ -736,8 +739,8 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getResourceType
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::resourceType
         )
         .containsExactly(
             tuple(
@@ -748,7 +751,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenOneDiscoveryMatchesFilters_andHasLinkedProspect_assertResult() {
+  void getProspectAndDiscoveryRecordSearchResults_whenOneDiscoveryMatchesFilters_andHasLinkedProspect_assertResult() {
     setUpRegulatorTest();
     var discoveryWithLinkedProspect = buildDiscoveryResource();
     var submissionWithLinkedProspect = buildSubmissionDetail(discoveryWithLinkedProspect,
@@ -767,8 +770,8 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getResourceType
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::resourceType
         )
         .containsExactly(
             tuple(
@@ -779,7 +782,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenFilterOnLicenceRound_whenPartialMatch_assertResultReturned() {
+  void getProspectAndDiscoveryRecordSearchResults_whenFilterOnLicenceRound_whenPartialMatch_assertResultReturned() {
     setUpRegulatorTest();
     var resourceWithMatchingLicenceApplication  = buildDiscoveryResource();
     var resourceNotMatchingLicenceApplication = buildDiscoveryResource();
@@ -806,9 +809,9 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getResourceId,
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getResourceName
+            ResourceRecordQueryResult::resourceId,
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::resourceName
         )
         .containsExactly(
             tuple(
@@ -819,7 +822,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenFilterOnLicenceRound_whenNoMatch_assertNoResult() {
+  void getProspectAndDiscoveryRecordSearchResults_whenFilterOnLicenceRound_whenNoMatch_assertNoResult() {
     setUpRegulatorTest();
     var resourceNotMatchingLicenceApplication = buildDiscoveryResource();
     var submissionNotMatchingLicenceApplication = buildSubmissionDetail(resourceNotMatchingLicenceApplication,
@@ -875,8 +878,8 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getResourceType
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::resourceType
         )
         .containsExactly(
             tuple(
@@ -887,7 +890,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenFilterOnLicenceRound_whenLicenceRoundOnNewerDraftSubmission_assertNoResult() {
+  void getProspectAndDiscoveryRecordSearchResults_whenFilterOnLicenceRound_whenLicenceRoundOnNewerDraftSubmission_assertNoResult() {
     setUpRegulatorTest();
     var resourceWithLicenceApplications = buildProspectResource();
     var approvedSubmission = buildSubmissionDetail(resourceWithLicenceApplications,
@@ -914,7 +917,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenRegulator_andNotOnAlicenceAndNotExtant_assertAllDisplayed() {
+  void getProspectAndDiscoveryRecordSearchResults_whenRegulator_andNotOnAlicenceAndNotExtant_assertAllDisplayed() {
     setUpRegulatorTest();
 
     var resourceWithoutLicence = buildProspectResource();
@@ -939,8 +942,8 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId,
-            ResourceRecordQueryResult::getOrganisationResponsibleId)
+            ResourceRecordQueryResult::submissionDetailId,
+            ResourceRecordQueryResult::organisationResponsibleId)
         .containsExactly(
             tuple(
                 submissionWithNotExtantLicence.getId(),
@@ -955,7 +958,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
   @ParameterizedTest
   @EnumSource(GeographicalArea.class)
-  void getResourceRecordSearchResults_andFilterByGeographicalArea_assertOnlyTypeSpecifiedDisplayed(
+  void getProspectAndDiscoveryRecordSearchResults_andFilterByGeographicalArea_assertOnlyTypeSpecifiedDisplayed(
       GeographicalArea geographicalArea) {
     setUpRegulatorTest();
 
@@ -990,7 +993,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     if (geographicalArea == GeographicalArea.ONSHORE) {
       assertThat(results)
           .extracting(
-              ResourceRecordQueryResult::getSubmissionDetailId)
+              ResourceRecordQueryResult::submissionDetailId)
           .containsExactly(
               submissionWithOnshoreGeographicalArea.getId(),
               submissionWithGeographicalArea.getId()
@@ -998,7 +1001,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     } else {
       assertThat(results)
           .extracting(
-              ResourceRecordQueryResult::getSubmissionDetailId)
+              ResourceRecordQueryResult::submissionDetailId)
           .containsExactly(
               submissionWithGeographicalArea.getId()
           );
@@ -1007,7 +1010,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
   @ParameterizedTest
   @ValueSource(booleans = {true, false})
-  void getResourceRecordSearchResults_andFilterByPreferredView_assertResult(
+  void getProspectAndDiscoveryRecordSearchResults_andFilterByPreferredView_assertResult(
       boolean showOnlyPreferredViews) {
     setUpRegulatorTest();
 
@@ -1035,14 +1038,14 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     if (showOnlyPreferredViews) {
       assertThat(results)
           .extracting(
-              ResourceRecordQueryResult::getSubmissionDetailId)
+              ResourceRecordQueryResult::submissionDetailId)
           .containsExactly(
               preferredViewSubmissionDetail.getId()
           );
     } else {
       assertThat(results)
           .extracting(
-              ResourceRecordQueryResult::getSubmissionDetailId)
+              ResourceRecordQueryResult::submissionDetailId)
           .containsExactlyInAnyOrder(
               nonPreferredSubmissionDetail.getId(),
               preferredViewSubmissionDetail.getId()
@@ -1051,7 +1054,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
-  void getResourceRecordSearchResults_whenNoResourceLinkAndFilterByPreferredView_assertReturned() {
+  void getProspectAndDiscoveryRecordSearchResults_whenNoResourceLinkAndFilterByPreferredView_assertReturned() {
     setUpRegulatorTest();
 
     var preferredViewResource = buildProspectResource();
@@ -1068,14 +1071,14 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId)
+            ResourceRecordQueryResult::submissionDetailId)
         .containsExactly(
             preferredViewSubmissionDetail.getId()
         );
   }
 
   @Test
-  void getResourceRecordSearchResults_whenSubmittedUpdatesPresent_assertReturnedLatestApproved() {
+  void getProspectAndDiscoveryRecordSearchResults_whenSubmittedUpdatesPresent_assertReturnedLatestApproved() {
     setUpRegulatorTest();
     var prospect = buildProspectResource();
     var submission = SubmissionIntegrationTestUtils.createSubmission(prospect, entityManager);
@@ -1131,7 +1134,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     assertThat(results)
         .extracting(
-            ResourceRecordQueryResult::getSubmissionDetailId)
+            ResourceRecordQueryResult::submissionDetailId)
         .containsExactly(
             submissionDetailApprovedUpdate.getId()
         );
@@ -1139,7 +1142,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
   @ParameterizedTest
   @ValueSource(booleans = {true, false})
-  void getResourceRecordSearchResults_whenSubmissionWithdrawn_assertOnlyNonWithdrawnDisplayed(
+  void getProspectAndDiscoveryRecordSearchResults_whenSubmissionWithdrawn_assertOnlyNonWithdrawnDisplayed(
       Boolean withdrawn) {
     setUpRegulatorTest();
     if(!withdrawn) {
@@ -1169,11 +1172,83 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     } else {
       assertThat(results)
           .extracting(
-              ResourceRecordQueryResult::getSubmissionDetailId)
+              ResourceRecordQueryResult::submissionDetailId)
           .containsExactly(
               submissionDetailWithWithdrawnSubmission.getId()
           );
     }
+  }
+
+  @Test
+  void getFieldRecordsSearchResults_asRegulator_assertCanSeeAllTeamsResourcesDisplayedAndAssertValues() {
+    setUpRegulatorTest();
+
+    var responsibleOrgId1 = 45;
+    var resource1 = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
+    var submissionDetail1 =
+        buildSubmissionDetail(resource1, SubmissionType.CREATE_CSR);
+    var resourceName1 = "Field A";
+    var generalDetail1 = createGeneralDetail(submissionDetail1);
+    var regulatorManagedInformation1 = SubmissionIntegrationTestUtils
+        .createRegulatorManagedInformation(resource1, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
+    var field1 = SubmissionIntegrationTestUtils
+        .createFieldWithParent(resource1, resourceName1, responsibleOrgId1, entityManager);
+    var fieldStatusHistoryForField1 = SubmissionIntegrationTestUtils
+        .createFieldStatusHistory(field1, FieldStatus.STATUS_300, Instant.now(), entityManager);
+    createLicence(1, "relevant", generalDetail1);
+
+    var responsibleOrgId2 = 46;
+    var resource2 =  SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
+    var submissionDetail2 =
+        buildSubmissionDetail(resource2, SubmissionType.CREATE_CSR);
+    var resourceName2 = "Field B";
+    var generalDetail2 = createGeneralDetail(submissionDetail2);
+    var regulatorManagedInformation2 = SubmissionIntegrationTestUtils
+        .createRegulatorManagedInformation(resource2, ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
+    var field2 = SubmissionIntegrationTestUtils
+        .createFieldWithParent(resource2, resourceName2, responsibleOrgId2, entityManager);
+    var fieldStatusHistoryForField2 = SubmissionIntegrationTestUtils
+        .createFieldStatusHistory(field2, FieldStatus.STATUS_300, Instant.now(), entityManager);
+    // no licence created for second result
+
+    when(licenceQueryService.getExtantLicencesByIds(any()))
+        .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));
+
+    var form = new SearchResourceRecordsForm();
+    form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
+
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    assertThat(results)
+        .extracting(
+            ResourceRecordQueryResult::resourceId,
+            ResourceRecordQueryResult::resourceType,
+            ResourceRecordQueryResult::resourceName,
+            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::responsibleTeam,
+            ResourceRecordQueryResult::parentFieldId,
+            ResourceRecordQueryResult::fieldStatus
+        )
+        .containsExactlyInAnyOrder(
+            tuple(
+                resource1.getId(),
+                ResourceType.FIELD,
+                resourceName1,
+                responsibleOrgId1,
+                regulatorManagedInformation1.getResponsibleTeamType(),
+                field1.getParentDeterminedField().getFieldIdentifier(),
+                fieldStatusHistoryForField1.getFieldStatus()
+            ),
+            tuple(
+                resource2.getId(),
+                ResourceType.FIELD,
+                resourceName2,
+                responsibleOrgId2,
+                regulatorManagedInformation2.getResponsibleTeamType(),
+                field2.getParentDeterminedField().getFieldIdentifier(),
+                fieldStatusHistoryForField2.getFieldStatus()
+            )
+        );
   }
 
   private ResourceLink createResourceLink(Resource prospect, Resource discovery) {

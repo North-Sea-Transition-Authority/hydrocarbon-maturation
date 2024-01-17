@@ -166,9 +166,9 @@ public class SubmissionIntegrationTestUtils {
     return field;
   }
 
-  public static Resource createResource(EntityManager entityManager, ResourceType prospect) {
+  public static Resource createResource(EntityManager entityManager, ResourceType resourceType) {
     var resource = new Resource();
-    resource.setType(prospect);
+    resource.setType(resourceType);
     resource.setCreatedTimestamp(Instant.now());
 
     entityManager.persist(resource);
