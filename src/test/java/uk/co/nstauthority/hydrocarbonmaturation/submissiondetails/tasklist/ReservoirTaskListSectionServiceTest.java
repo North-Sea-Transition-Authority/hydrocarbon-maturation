@@ -103,14 +103,14 @@ class ReservoirTaskListSectionServiceTest {
         )
         .containsExactly(
             List.of(
-                new TaskListItem("Permeability",
-                    TaskListLabel.NOT_COMPLETE,
-                    ReverseRouter.route(on(PermeabilityController.class)
-                        .getPermeabilityPage(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
                 new TaskListItem("Reservoir properties",
                     TaskListLabel.NOT_COMPLETE,
                     ReverseRouter.route(on(ReservoirPropertiesController.class)
-                        .getReservoirProperties(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+                        .getReservoirProperties(submissionDetail.getId(), reservoirSubmissionDetail.getId()))),
+                new TaskListItem("Permeability",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(PermeabilityController.class)
+                        .getPermeabilityPage(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
             ),
             "Reservoirs",
             40

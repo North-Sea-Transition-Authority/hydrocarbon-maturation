@@ -53,7 +53,7 @@ public class OpportunityTaskListSectionService implements TaskListSectionService
     this.fieldTrapPropertiesSubmissionService = fieldTrapPropertiesSubmissionService;
   }
 
-  public static final String OUTLINE_FOR_MAXIMUM_CASE = "Upload  for maximum case";
+  public static final String OUTLINE_FOR_MAXIMUM_CASE = "Outline for maximum case";
 
   @Override
   public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail) {

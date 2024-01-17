@@ -36,7 +36,7 @@
         <@fdsAccordion.accordionSection sectionHeading="Post well drill" summaryText="Dry well details">
             <@dryWellSummary.dryWellDetailCard dryWellValues=dryWellDetailsSummaryView/>
         </@fdsAccordion.accordionSection>
-        <@fdsAccordion.accordionSection sectionHeading="Reservoir details" summaryText="Reservoir properties, permeability">
+        <@fdsAccordion.accordionSection sectionHeading="Reservoirs" summaryText="Reservoir properties, permeability">
             <@reservoirPropertiesSummary.reservoirPropertiesSummaryCard
               reservoirPropertiesValues=reservoirPropertiesSummaryView />
             <@permeabilitySummary.permeabilityDetailsSummaryCard

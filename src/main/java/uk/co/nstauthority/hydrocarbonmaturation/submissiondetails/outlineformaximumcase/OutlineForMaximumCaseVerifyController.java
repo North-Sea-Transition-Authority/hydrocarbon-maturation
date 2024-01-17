@@ -31,7 +31,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/outline-for-maximum-case/verify")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
-@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.DISCOVERY_AND_PROSPECT)
+@HasSubmissionType(submissionTypes = {
+    SecuritySubmissionTypes.DISCOVERY_AND_PROSPECT,
+    SecuritySubmissionTypes.POST_DRILL_DRY_HOLE
+})
 @IsFromResponsibleTeam
 public class OutlineForMaximumCaseVerifyController {
 

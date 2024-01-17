@@ -66,14 +66,6 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
       var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
           .getExtantReservoirSubmissionDetail(submissionDetail);
 
-      if (submissionDetail.isDryWellSubmission()) {
-        items.add(new TaskListItem("Permeability",
-            TaskListLabel.notStartedOrComplete(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
-            ReverseRouter.route(on(PermeabilityController.class)
-                .getPermeabilityPage(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
-        );
-      }
-
       items.add(
           new TaskListItem("Reservoir properties",
               TaskListLabel.notStartedOrComplete(
@@ -81,6 +73,14 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
               ReverseRouter.route(on(ReservoirPropertiesController.class)
                   .getReservoirProperties(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
       );
+
+      if (submissionDetail.isDryWellSubmission()) {
+        items.add(new TaskListItem("Permeability",
+            TaskListLabel.notStartedOrComplete(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)),
+            ReverseRouter.route(on(PermeabilityController.class)
+                .getPermeabilityPage(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+        );
+      }
     }
 
     return Optional.of(new TaskListSection(

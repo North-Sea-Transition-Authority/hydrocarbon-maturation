@@ -15,13 +15,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -34,6 +38,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
@@ -94,6 +99,33 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
   }
 
   @SecurityTest
+  void getOutlineForMaximumCasePage_postDrillDryHoleSubmission_assertStatusOk() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+    when(outlineForMaximumCaseFormService.getOutlineForMaximumCaseUploadForm(submissionDetail)).thenReturn(new OutlineForMaximumCaseUploadForm());
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).getOutlineForMaximumCaseUpload(submissionDetailId, form)))
+                .with(user(USER)))
+        .andExpect(status().isOk());
+  }
+
+  @ParameterizedTest
+  @MethodSource("allDiscoveryAndProspectSubmissionTypes")
+  void getOutlineForMaximumCasePage_andSubmissionIsDiscoveryOrProspect_assertStatusOk(SubmissionType submissionType) throws Exception {
+    submissionDetail.setSubmissionType(submissionType);
+
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+    when(outlineForMaximumCaseFormService.getOutlineForMaximumCaseUploadForm(submissionDetail)).thenReturn(new OutlineForMaximumCaseUploadForm());
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).getOutlineForMaximumCaseUpload(submissionDetailId, form)))
+                .with(user(USER)))
+        .andExpect(status().isOk());
+  }
+
+  @SecurityTest
   void getOutlineForMaximumCasePage_andStatusIsNotDraft_assertForbidden() throws Exception {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
@@ -103,10 +135,11 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
         .andExpect(status().isForbidden());
   }
 
-  @SecurityTest
-  void getOutlineForMaximumCasePage_andSubmissionIsField_assertForbidden() throws Exception {
+  @ParameterizedTest
+  @MethodSource("allNonAllowedSubmissionTypes")
+  void getOutlineForMaximumCasePage_andSubmissionIsNonAllowedType_assertForbidden(SubmissionType submissionType) throws Exception {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
+    submissionDetail.setSubmissionType(submissionType);
     mockMvc.perform(
             get(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).getOutlineForMaximumCaseUpload(submissionDetailId, form)))
                 .with(user(USER)))
@@ -196,5 +229,20 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
     );
+  }
+
+  private static Stream<Arguments> allDiscoveryAndProspectSubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(submissionType -> SubmissionDetailUtil.isDiscoverySubmission(submissionType)
+            || SubmissionDetailUtil.isProspectSubmission(submissionType))
+        .map(Arguments::of);
+  }
+
+  private static Stream<Arguments> allNonAllowedSubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(submissionType -> !SubmissionDetailUtil.isDiscoverySubmission(submissionType)
+            && !SubmissionDetailUtil.isProspectSubmission(submissionType)
+            && !SubmissionType.POST_DRILL_DRY_HOLE.equals(submissionType))
+        .map(Arguments::of);
   }
 }

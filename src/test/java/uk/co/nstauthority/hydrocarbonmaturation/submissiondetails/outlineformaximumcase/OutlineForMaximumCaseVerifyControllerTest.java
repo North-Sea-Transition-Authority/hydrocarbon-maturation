@@ -15,13 +15,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.ApplicationContext;
@@ -36,6 +40,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.OpportunityTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -91,8 +96,33 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
         .andExpect(status().isOk());
   }
 
+  @ParameterizedTest
+  @MethodSource("allDiscoveryAndProspectSubmissionTypes")
+  void getOutlineForMaximumCasePage_discoveryOrProspectSubmission_assertStatusOk(SubmissionType submissionType) throws Exception {
+    submissionDetail.setSubmissionType(submissionType);
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+    when(outlineForMaximumCaseVerifyFormService.getOutlineForMaximumCaseVerifyForm(submissionDetail)).thenReturn(form);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).getOutlineForMaximumCaseVerify(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isOk());
+  }
+
   @SecurityTest
   void getOutlineForMaximumCasePage_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
+    mockMvc.perform(
+            get(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).getOutlineForMaximumCaseVerify(submissionDetailId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @ParameterizedTest
+  @MethodSource("allNonAllowedSubmissionTypes")
+  void getOutlineForMaximumCasePage_andStatusIsNotDraft_assertForbidden(SubmissionType submissionType) throws Exception {
+    submissionDetail.setSubmissionType(submissionType);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
@@ -203,5 +233,20 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
                 .getOutlineForMaximumCaseUpload(submissionDetail.getId(), null)),
             OpportunityTaskListSectionService.OUTLINE_FOR_MAXIMUM_CASE)
     );
+  }
+
+  private static Stream<Arguments> allDiscoveryAndProspectSubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(submissionType -> SubmissionDetailUtil.isDiscoverySubmission(submissionType)
+            || SubmissionDetailUtil.isProspectSubmission(submissionType))
+        .map(Arguments::of);
+  }
+
+  private static Stream<Arguments> allNonAllowedSubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(submissionType -> !SubmissionDetailUtil.isDiscoverySubmission(submissionType)
+            && !SubmissionDetailUtil.isProspectSubmission(submissionType)
+            && !SubmissionType.POST_DRILL_DRY_HOLE.equals(submissionType))
+        .map(Arguments::of);
   }
 }

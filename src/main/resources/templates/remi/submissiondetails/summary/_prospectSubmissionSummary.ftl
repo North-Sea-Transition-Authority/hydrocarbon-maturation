@@ -44,7 +44,7 @@
           <@resourceDetailSummary.resourceDetailCard resourceDetailValues=resourceDetailSummaryView/>
           <@generalDetailsSummary.generalDetailCard generalDetailValues=generalDetailsSummaryView isOffshore=resourceDetailSummaryView.isOffshore()/>
         </@fdsAccordion.accordionSection>
-        <@fdsAccordion.accordionSection sectionHeading="Opportunity" summaryText="Opportunity details, trap properties, source and seal, hydrocarbon case, chance of success">
+        <@fdsAccordion.accordionSection sectionHeading="Opportunity" summaryText="Opportunity details, outline for maximum case, trap properties, source and seal, hydrocarbon case, chance of success">
             <@outlineForMaximumCaseSummary.outlineForMaximumCaseSummaryCard outlineForMaximumCaseValues=outlineForMaximumCaseSummaryView />
             <@opportunityDetailsSummary.opportunityDetailsSummaryCard opportunityDetailsValues=opportunityDetailsSummaryView mapName="Map of opportunity"/>
             <@trapPropertiesSummary.trapPropertiesSummaryCard trapPropertiesValues=trapPropertiesSummaryView/>
