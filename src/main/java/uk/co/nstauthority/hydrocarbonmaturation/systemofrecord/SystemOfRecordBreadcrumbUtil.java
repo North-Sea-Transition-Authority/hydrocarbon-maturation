@@ -15,20 +15,37 @@ public class SystemOfRecordBreadcrumbUtil {
     throw new IllegalUtilClassInstantiationException(this.getClass());
   }
 
-  public static ModelAndView addSearchSystemOfRecordToModelAndView(ModelAndView modelAndView,
-                                                                   String pageName) {
+  public static ModelAndView addSearchPropsectAndDiscoveryRecordsBreadcrumbsToModelAndView(ModelAndView modelAndView,
+                                                                                           String pageName) {
     var breadcrumbs = Breadcrumbs.builder(pageName)
-        .addBreadcrumb(getSearchSystemOfRecordBreadcrumb())
+        .addBreadcrumb(getSearchProspectAndDiscoveryRecordsBreadcrumb())
         .build();
 
     BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);
     return modelAndView;
   }
 
-  private static BreadcrumbItem getSearchSystemOfRecordBreadcrumb() {
+  private static BreadcrumbItem getSearchProspectAndDiscoveryRecordsBreadcrumb() {
     return new BreadcrumbItem(
             SearchProspectAndDiscoveryRecordsController.PAGE_TITLE,
             ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).searchResourceRecords(null, null))
+    );
+  }
+
+  public static ModelAndView addSearchFieldRecordsBreadcrumbsToModelAndView(ModelAndView modelAndView,
+                                                                                           String pageName) {
+    var breadcrumbs = Breadcrumbs.builder(pageName)
+        .addBreadcrumb(getSearchFieldRecordsBreadcrumb())
+        .build();
+
+    BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);
+    return modelAndView;
+  }
+
+  private static BreadcrumbItem getSearchFieldRecordsBreadcrumb() {
+    return new BreadcrumbItem(
+        SearchFieldRecordsController.PAGE_TITLE,
+        ReverseRouter.route(on(SearchFieldRecordsController.class).searchResourceRecords(null, null))
     );
   }
 }

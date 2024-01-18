@@ -201,6 +201,27 @@ class ViewResourceRecordServiceTest {
       }
 
       @Test
+      void AndUserIsMemberOfOrgButResourceHasNullExtantLicence_ThenFalse() {
+        var resourceRecordWithNullExtantLicence = new ResourceRecordSummaryView(
+            UUID.randomUUID(),
+            "center",
+            ORGANISATION_UNIT_ID,
+            "Fivium",
+            null,
+            null,
+            null,
+            null,
+            null
+        );
+
+        when(industryTeamMemberService.isMemberOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID)).thenReturn(true);
+
+        var result = underTest.canViewResource(resourceRecordWithNullExtantLicence, USER_DETAIL);
+
+        assertThat(result).isFalse();
+      }
+
+      @Test
       void AndResourceHasExtantLicenceButUserIsNotMemberOfOrg_ThenFalse() {
         when(licenceQueryService.getExtantLicencesByIds(toListOfStrings(RESOURCE_RECORD.licenceIds())))
             .thenReturn(List.of());

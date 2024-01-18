@@ -114,7 +114,7 @@ public class ViewResourceRecordService {
     var organisationUnitId = resourceRecord.responsibleOrganisationId();
     var memberOfOrganisationUnit = industryTeamMemberService.isMemberOfOrganisationUnit(user, organisationUnitId);
 
-    var resourceIsAssociatedWithAnExtantLicence = isResourceIsAssociatedWithAnExtantLicence(resourceRecord);
+    var resourceIsAssociatedWithAnExtantLicence = isResourceAssociatedWithAnExtantLicence(resourceRecord);
 
     return memberOfOrganisationUnit && resourceIsAssociatedWithAnExtantLicence;
   }
@@ -123,7 +123,7 @@ public class ViewResourceRecordService {
     return regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user);
   }
 
-  private boolean isResourceIsAssociatedWithAnExtantLicence(ResourceRecordSummaryView resourceRecord) {
+  private boolean isResourceAssociatedWithAnExtantLicence(ResourceRecordSummaryView resourceRecord) {
     if (resourceRecord.licenceIds() == null) {
       return false;
     }

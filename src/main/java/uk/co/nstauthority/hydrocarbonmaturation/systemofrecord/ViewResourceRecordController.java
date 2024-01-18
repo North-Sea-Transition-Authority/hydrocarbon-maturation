@@ -20,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
@@ -130,20 +131,33 @@ public class ViewResourceRecordController {
         "remi/systemofrecord/viewResourceRecord"
     );
 
-    SystemOfRecordBreadcrumbUtil.addSearchSystemOfRecordToModelAndView(
-        modelAndView, resourceRecord.resourceNameAndCentreOfInterest());
+    if (submissionDetailSelected.isFieldSubmission()) {
+      SystemOfRecordBreadcrumbUtil.addSearchFieldRecordsBreadcrumbsToModelAndView(
+          modelAndView, resourceRecord.resourceNameAndCentreOfInterest());
+    } else if (submissionDetailSelected.isDiscoverySubmission()
+        || submissionDetailSelected.isProspectSubmission()) {
+      SystemOfRecordBreadcrumbUtil.addSearchPropsectAndDiscoveryRecordsBreadcrumbsToModelAndView(
+          modelAndView, resourceRecord.resourceNameAndCentreOfInterest());
+    }
 
     var isInResponsibleTeam = responsibleTeamService
         .isInResponsibleTeam(user, resourceRecord.responsibleTeam());
     if (isInResponsibleTeam) {
-      modelAndView
-          .addObject("regulatorManagedInformationUrl",
-              ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                  .getRegulatorManagedInformationPage(resourceId
-                  )))
-          .addObject("resourceGroupUrl",
-              ReverseRouter.route(on(ResourceGroupController.class)
-                  .getResourceGroupPage(resourceId, null)));
+      modelAndView.addObject("resourceGroupUrl",
+          ReverseRouter.route(on(ResourceGroupController.class)
+              .getResourceGroupPage(resourceId, null)));
+
+      if (submissionDetailSelected.isFieldSubmission()) {
+        modelAndView
+            .addObject("regulatorManagedInformationUrl",
+                ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
+                    .getRegulatorManagedInformationPage(resourceId, null)));
+      } else {
+        modelAndView
+            .addObject("regulatorManagedInformationUrl",
+                ReverseRouter.route(on(RegulatorManagedInformationController.class)
+                    .getRegulatorManagedInformationPage(resourceId)));
+      }
     }
 
     var querySearchResults = submissionHistoryQueryService.getApprovedSubmissionsOnResource(
