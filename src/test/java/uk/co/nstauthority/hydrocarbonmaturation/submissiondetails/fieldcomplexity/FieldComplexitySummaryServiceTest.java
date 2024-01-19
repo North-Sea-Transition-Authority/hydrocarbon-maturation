@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexi
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.assertSummarySection;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -16,7 +15,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 
 @ExtendWith(MockitoExtension.class)
 class FieldComplexitySummaryServiceTest {
@@ -34,29 +32,17 @@ class FieldComplexitySummaryServiceTest {
   }
 
   @Test
-  void getSummarySection_noExistingFieldComplexity() {
+  void getFieldComplexitySummary_noExistingFieldComplexity_thenEmptySummaryCard() {
     when(fieldComplexityRepository.findBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.empty());
 
-    var summarySection = fieldComplexitySummaryService.getSummarySection(submissionDetail);
-    assertThat(summarySection).isPresent();
-
-    assertSummarySection(summarySection.get(), FieldComplexitySummaryService.FIELD_COMPLEXITY_DISPLAY_ORDER);
-    var summaryDataView = SummaryDataView.newWithKeyValue(
-        FieldComplexitySummaryService.VISCOSITY, ""
-    );
-    summaryDataView.addKeyValue(FieldComplexitySummaryService.VERTICAL_HETEROGENEITY, "");
-    summaryDataView.addKeyValue(FieldComplexitySummaryService.AREAL_DENSITY, "");
-    summaryDataView.addKeyValue(FieldComplexitySummaryService.STRUCTURAL_COMPLEXITY, "");
-    summaryDataView.addKeyValue(FieldComplexitySummaryService.FIELD_COMPLEXITY, "");
-
-    var summaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
-    var summaryItem = SummaryItem.withCard(FieldComplexitySummaryService.FIELD_COMPLEXITY_SUMMARY, summaryCard);
-    assertThat(summarySection.get().summaryItems()).containsExactly(summaryItem);
+    assertThat(fieldComplexitySummaryService.getFieldComplexitySummary(submissionDetail))
+        .usingRecursiveComparison()
+        .isEqualTo(SummaryCard.emptySummaryCardWithHeading(FieldComplexitySummaryService.FIELD_COMPLEXITY));
   }
 
   @Test
-  void getSummarySection_existingFieldComplexity_completedSection_thenAllValuesShown() {
+  void getFieldComplexitySummary_existingFieldComplexity_completedSection_thenAllValuesShown() {
     var fieldComplexity = new FieldComplexity();
     fieldComplexity.setViscosityRange(ViscosityRange.ONE_TO_TEN );
     fieldComplexity.setVerticalHeterogeneityRange(VerticalHeterogeneityRange.ONE_TO_TEN );
@@ -67,10 +53,6 @@ class FieldComplexitySummaryServiceTest {
     when(fieldComplexityRepository.findBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(fieldComplexity));
 
-    var summarySection = fieldComplexitySummaryService.getSummarySection(submissionDetail);
-    assertThat(summarySection).isPresent();
-
-    assertSummarySection(summarySection.get(), FieldComplexitySummaryService.FIELD_COMPLEXITY_DISPLAY_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(
         FieldComplexitySummaryService.VISCOSITY, ViscosityRange.ONE_TO_TEN.getDisplayName()
     );
@@ -83,13 +65,18 @@ class FieldComplexitySummaryServiceTest {
     summaryDataView.addKeyValue(FieldComplexitySummaryService.FIELD_COMPLEXITY,
         BigDecimal.ONE);
 
-    var summaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
-    var summaryItem = SummaryItem.withCard(FieldComplexitySummaryService.FIELD_COMPLEXITY_SUMMARY, summaryCard);
-    assertThat(summarySection.get().summaryItems()).containsExactly(summaryItem);
+    var expectedSummaryCard = SummaryCard.simpleSummaryCardWithHeading(
+        FieldComplexitySummaryService.FIELD_COMPLEXITY_SUMMARY,
+        summaryDataView
+    );
+
+    assertThat(fieldComplexitySummaryService.getFieldComplexitySummary(submissionDetail))
+        .usingRecursiveComparison()
+        .isEqualTo(expectedSummaryCard);
   }
 
   @Test
-  void getSummarySection_existingFieldComplexity_incompleteSection_thenEmptyStringsShown() {
+  void getFieldComplexitySummary_existingFieldComplexity_incompleteSection_thenEmptyStringsShown() {
     var fieldComplexity = new FieldComplexity();
     fieldComplexity.setViscosityRange(null);
     fieldComplexity.setVerticalHeterogeneityRange(null);
@@ -100,10 +87,6 @@ class FieldComplexitySummaryServiceTest {
     when(fieldComplexityRepository.findBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(fieldComplexity));
 
-    var summarySection = fieldComplexitySummaryService.getSummarySection(submissionDetail);
-    assertThat(summarySection).isPresent();
-
-    assertSummarySection(summarySection.get(), FieldComplexitySummaryService.FIELD_COMPLEXITY_DISPLAY_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(
         FieldComplexitySummaryService.VISCOSITY, ""
     );
@@ -112,8 +95,13 @@ class FieldComplexitySummaryServiceTest {
     summaryDataView.addKeyValue(FieldComplexitySummaryService.STRUCTURAL_COMPLEXITY, "");
     summaryDataView.addKeyValue(FieldComplexitySummaryService.FIELD_COMPLEXITY, "");
 
-    var summaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
-    var summaryItem = SummaryItem.withCard(FieldComplexitySummaryService.FIELD_COMPLEXITY_SUMMARY, summaryCard);
-    assertThat(summarySection.get().summaryItems()).containsExactly(summaryItem);
+    var expectedSummaryCard = SummaryCard.simpleSummaryCardWithHeading(
+        FieldComplexitySummaryService.FIELD_COMPLEXITY_SUMMARY,
+        summaryDataView
+    );
+
+    assertThat(fieldComplexitySummaryService.getFieldComplexitySummary(submissionDetail))
+        .usingRecursiveComparison()
+        .isEqualTo(expectedSummaryCard);
   }
 }

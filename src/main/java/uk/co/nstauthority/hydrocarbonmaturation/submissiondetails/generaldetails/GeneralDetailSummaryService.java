@@ -1,23 +1,18 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @Service
-public class GeneralDetailSummaryService implements SummarySectionService<SubmissionDetail> {
+public class GeneralDetailSummaryService {
 
   public static final String GENERAL_DETAILS = "General details";
   public static final int GENERAL_DETAIL_SECTION_ORDER = 10;
@@ -141,23 +136,7 @@ public class GeneralDetailSummaryService implements SummarySectionService<Submis
         : "";
   }
 
-  @Override
-  public Optional<SummarySection> getSummarySection(SubmissionDetail submissionDetail) {
-    if (!submissionDetail.isFieldSubmission()) {
-      return Optional.empty();
-    }
-    var summaryItems = List.of(getSummaryItem(submissionDetail));
-    return Optional.of(new SummarySection(GENERAL_DETAIL_SECTION_ORDER, summaryItems, ""));
-  }
-
-  private SummaryItem getSummaryItem(SubmissionDetail submissionDetail) {
-    var summaryCards = new ArrayList<SummaryCard>();
-    summaryCards.add(getGeneralDetailsSummaryCard(submissionDetail));
-
-    return SummaryItem.withCards(GENERAL_DETAILS, summaryCards);
-  }
-
-  private SummaryCard getGeneralDetailsSummaryCard(SubmissionDetail submissionDetail) {
+  public SummaryCard getGeneralDetailsSummary(SubmissionDetail submissionDetail) {
     var generalDetailOptional = generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail);
 
     if (generalDetailOptional.isEmpty()) {

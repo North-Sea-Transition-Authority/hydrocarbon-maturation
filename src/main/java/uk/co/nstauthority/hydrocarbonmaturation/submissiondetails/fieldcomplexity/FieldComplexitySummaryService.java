@@ -1,19 +1,14 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexity;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 
 @Service
-public class FieldComplexitySummaryService implements SummarySectionService<SubmissionDetail> {
+public class FieldComplexitySummaryService {
 
   public static final int FIELD_COMPLEXITY_DISPLAY_ORDER = 15;
   public static final String FIELD_COMPLEXITY_SUMMARY = "Field complexity";
@@ -31,20 +26,12 @@ public class FieldComplexitySummaryService implements SummarySectionService<Subm
     this.fieldComplexityRepository = fieldComplexityRepository;
   }
 
-  @Override
-  public Optional<SummarySection> getSummarySection(SubmissionDetail submissionDetail) {
-    if (!submissionDetail.isFieldSubmission()) {
-      return Optional.empty();
-    }
-    var summaryItems = List.of(getFieldComplexitySummary(submissionDetail));
-    return Optional.of(new SummarySection(FIELD_COMPLEXITY_DISPLAY_ORDER, summaryItems, ""));
-  }
-
-  private SummaryItem getFieldComplexitySummary(SubmissionDetail submissionDetail) {
-    var summaryDataView = new SummaryDataView(new ArrayList<>());
-    fieldComplexityRepository.findBySubmissionDetail(submissionDetail)
-        .ifPresentOrElse(
+  public SummaryCard getFieldComplexitySummary(SubmissionDetail submissionDetail) {
+    return fieldComplexityRepository.findBySubmissionDetail(submissionDetail)
+        .map(
             fieldComplexity -> {
+              var summaryDataView = new SummaryDataView(new ArrayList<>());
+
               var viscosityRange = fieldComplexity.getViscosityRange();
               summaryDataView.addKeyValue(VISCOSITY, viscosityRange == null
                   ? ""
@@ -68,21 +55,9 @@ public class FieldComplexitySummaryService implements SummarySectionService<Subm
               summaryDataView.addKeyValue(FIELD_COMPLEXITY, fieldComplexity.getCalculatedFieldComplexity() == null
                   ? ""
                   : fieldComplexity.getCalculatedFieldComplexity());
-            },
 
-            () -> {
-              summaryDataView.addKeyValue(VISCOSITY, "");
-              summaryDataView.addKeyValue(VERTICAL_HETEROGENEITY, "");
-              summaryDataView.addKeyValue(AREAL_DENSITY, "");
-              summaryDataView.addKeyValue(STRUCTURAL_COMPLEXITY, "");
-              summaryDataView.addKeyValue(FIELD_COMPLEXITY, "");
+              return SummaryCard.simpleSummaryCardWithHeading(FIELD_COMPLEXITY,  summaryDataView);
             }
-        );
-
-    var summaryCard = SummaryCard.simpleSummaryCard(
-        summaryDataView
-    );
-
-    return SummaryItem.withCard(FIELD_COMPLEXITY_SUMMARY, summaryCard);
+        ).orElse(SummaryCard.emptySummaryCardWithHeading(FIELD_COMPLEXITY));
   }
 }

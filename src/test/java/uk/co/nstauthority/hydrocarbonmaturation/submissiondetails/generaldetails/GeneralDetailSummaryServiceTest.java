@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.assertSummarySection;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -254,7 +253,7 @@ class GeneralDetailSummaryServiceTest {
   }
 
   @Test
-  void getSummarySection_generalDetailsSummary_forField_offshore_notFullyInUkcs() {
+  void getGeneralDetailsSummary_generalDetailsSummary_forField_offshore_notFullyInUkcs() {
     submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     generalDetail.setResourceLocatedInUkcs(false);
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.valueOf(99));
@@ -275,10 +274,6 @@ class GeneralDetailSummaryServiceTest {
         .thenReturn(List.of(quadrantBlock1, quadrantBlock2));
     generalDetail.setCurrentDriveMechanism(DriveMechanism.DEPLETION);
 
-    var summarySectionOptional = generalDetailSummaryService.getSummarySection(submissionDetail);
-    assertThat(summarySectionOptional).isPresent();
-    var summarySection = summarySectionOptional.get();
-    assertSummarySection(summarySection, GeneralDetailSummaryService.GENERAL_DETAIL_SECTION_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
@@ -293,12 +288,14 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.CURRENT_DRIVE_MECHANISM, generalDetail.getCurrentDriveMechanism().getDisplayName()
     );
 
-    var summaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
-    assertThat(summarySection.summaryItems().get(0).summaryCards()).contains(summaryCard);
+    var expectedSummaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
+    assertThat(generalDetailSummaryService.getGeneralDetailsSummary(submissionDetail))
+        .usingRecursiveComparison()
+        .isEqualTo(expectedSummaryCard);
   }
 
   @Test
-  void getSummarySection_generalDetailsSummary_forField_offshore_fullyInUkcs() {
+  void getGeneralDetailsSummary_generalDetailsSummary_forField_offshore_fullyInUkcs() {
     submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     generalDetail.setResourceLocatedInUkcs(true);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
@@ -318,10 +315,6 @@ class GeneralDetailSummaryServiceTest {
         .thenReturn(List.of(quadrantBlock1, quadrantBlock2));
     generalDetail.setCurrentDriveMechanism(DriveMechanism.DEPLETION);
 
-    var summarySectionOptional = generalDetailSummaryService.getSummarySection(submissionDetail);
-    assertThat(summarySectionOptional).isPresent();
-    var summarySection = summarySectionOptional.get();
-    assertSummarySection(summarySection, GeneralDetailSummaryService.GENERAL_DETAIL_SECTION_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
@@ -336,11 +329,13 @@ class GeneralDetailSummaryServiceTest {
     );
 
     var summaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
-    assertThat(summarySection.summaryItems().get(0).summaryCards()).contains(summaryCard);
+    assertThat(generalDetailSummaryService.getGeneralDetailsSummary(submissionDetail))
+        .usingRecursiveComparison()
+        .isEqualTo(summaryCard);
   }
 
   @Test
-  void getSummarySection_generalDetailsSummary_forField_onshore_notFullyInEngland() {
+  void getGeneralDetailsSummary_generalDetailsSummary_forField_onshore_notFullyInEngland() {
     submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     generalDetail.setResourceLocatedInEngland(false);
     generalDetail.setPercentageLocatedInEngland(BigDecimal.valueOf(99));
@@ -361,10 +356,6 @@ class GeneralDetailSummaryServiceTest {
         .thenReturn(List.of(quadrantBlock1, quadrantBlock2));
     generalDetail.setCurrentDriveMechanism(DriveMechanism.DEPLETION);
 
-    var summarySectionOptional = generalDetailSummaryService.getSummarySection(submissionDetail);
-    assertThat(summarySectionOptional).isPresent();
-    var summarySection = summarySectionOptional.get();
-    assertSummarySection(summarySection, GeneralDetailSummaryService.GENERAL_DETAIL_SECTION_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
@@ -380,11 +371,13 @@ class GeneralDetailSummaryServiceTest {
     );
 
     var summaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
-    assertThat(summarySection.summaryItems().get(0).summaryCards()).contains(summaryCard);
+    assertThat(generalDetailSummaryService.getGeneralDetailsSummary(submissionDetail))
+        .usingRecursiveComparison()
+        .isEqualTo(summaryCard);
   }
 
   @Test
-  void getSummarySection_generalDetailsSummary_forField_onshore_fullyInEngland() {
+  void getGeneralDetailsSummary_generalDetailsSummary_forField_onshore_fullyInEngland() {
     submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     generalDetail.setResourceLocatedInEngland(true);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
@@ -404,10 +397,6 @@ class GeneralDetailSummaryServiceTest {
         .thenReturn(List.of(quadrantBlock1, quadrantBlock2));
     generalDetail.setCurrentDriveMechanism(DriveMechanism.COMBINED);
 
-    var summarySectionOptional = generalDetailSummaryService.getSummarySection(submissionDetail);
-    assertThat(summarySectionOptional).isPresent();
-    var summarySection = summarySectionOptional.get();
-    assertSummarySection(summarySection, GeneralDetailSummaryService.GENERAL_DETAIL_SECTION_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
@@ -423,11 +412,13 @@ class GeneralDetailSummaryServiceTest {
     );
 
     var summaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
-    assertThat(summarySection.summaryItems().get(0).summaryCards()).contains(summaryCard);
+    assertThat(generalDetailSummaryService.getGeneralDetailsSummary(submissionDetail))
+        .usingRecursiveComparison()
+        .isEqualTo(summaryCard);
   }
 
   @Test
-  void getSummarySection_generalDetailsSummary_Cop() {
+  void getGeneralDetailsSummary_generalDetailsSummary_Cop() {
     submissionDetail = SubmissionDetailTestUtils.createNewCopFieldSubmissionDetail();
     generalDetail.setResourceLocatedInEngland(true);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
@@ -450,10 +441,6 @@ class GeneralDetailSummaryServiceTest {
     generalDetail.setCurrentDriveMechanism(DriveMechanism.OTHER);
     generalDetail.setOtherDriveMechanism("test");
 
-    var summarySectionOptional = generalDetailSummaryService.getSummarySection(submissionDetail);
-    assertThat(summarySectionOptional).isPresent();
-    var summarySection = summarySectionOptional.get();
-    assertSummarySection(summarySection, GeneralDetailSummaryService.GENERAL_DETAIL_SECTION_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
@@ -473,7 +460,9 @@ class GeneralDetailSummaryServiceTest {
     );
 
     var summaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
-    assertThat(summarySection.summaryItems().get(0).summaryCards()).contains(summaryCard);
+    assertThat(generalDetailSummaryService.getGeneralDetailsSummary(submissionDetail))
+        .usingRecursiveComparison()
+        .isEqualTo(summaryCard);
   }
 
   @ParameterizedTest
@@ -481,7 +470,7 @@ class GeneralDetailSummaryServiceTest {
       value = SubmissionType.class,
       names = {"CREATE_FDP", "CREATE_FDPA"}
   )
-  void getSummarySection_generalDetailsSummary_FdpOrFdpa(SubmissionType submissionType) {
+  void getGeneralDetailsSummary_generalDetailsSummary_FdpOrFdpa(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     generalDetail.setResourceLocatedInEngland(true);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
@@ -504,10 +493,6 @@ class GeneralDetailSummaryServiceTest {
     generalDetail.setCurrentDriveMechanism(DriveMechanism.OTHER);
     generalDetail.setOtherDriveMechanism("test");
 
-    var summarySectionOptional = generalDetailSummaryService.getSummarySection(submissionDetail);
-    assertThat(summarySectionOptional).isPresent();
-    var summarySection = summarySectionOptional.get();
-    assertSummarySection(summarySection, GeneralDetailSummaryService.GENERAL_DETAIL_SECTION_ORDER);
     var summaryDataView = SummaryDataView.newWithKeyValue(
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
@@ -526,7 +511,21 @@ class GeneralDetailSummaryServiceTest {
     );
 
     var summaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
-    assertThat(summarySection.summaryItems().get(0).summaryCards()).contains(summaryCard);
+    assertThat(generalDetailSummaryService.getGeneralDetailsSummary(submissionDetail))
+        .usingRecursiveComparison()
+        .isEqualTo(summaryCard);
+  }
+
+  @Test
+  void getGeneralDetailsSummary_noExistingGeneralDetails_thenEmptySummaryCard() {
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.empty());
+
+    var summaryCard = SummaryCard.emptySummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS);
+    assertThat(generalDetailSummaryService.getGeneralDetailsSummary(submissionDetail))
+        .usingRecursiveComparison()
+        .isEqualTo(summaryCard);
   }
 
   private QuadrantAndBlock createQuadrantAndBlock(

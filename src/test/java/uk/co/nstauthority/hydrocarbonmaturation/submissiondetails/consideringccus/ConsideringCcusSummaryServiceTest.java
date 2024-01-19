@@ -3,27 +3,19 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.consideringcc
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
-import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryKeyValue;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 
 @ExtendWith(MockitoExtension.class)
 class ConsideringCcusSummaryServiceTest {
@@ -41,61 +33,8 @@ class ConsideringCcusSummaryServiceTest {
     submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
   }
 
-  @ParameterizedTest
-  @MethodSource("allNonFieldSubmissionTypes")
-  void getSummarySection_notFieldSubmission_thenEmpty(SubmissionType submissionType) {
-    submissionDetail.setSubmissionType(submissionType);
-    assertThat(consideringCcusSummaryService.getSummarySection(submissionDetail)).isEmpty();
-  }
-
-  @ParameterizedTest
-  @MethodSource("allFieldSubmissionTypes")
-  void getSummarySection_assertStructure(SubmissionType submissionType) {
-    submissionDetail.setSubmissionType(submissionType);
-
-    when(consideringCcusDetailRepository.findConsideringCcusDetailBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.empty());
-
-    var summarySectionOptional = consideringCcusSummaryService.getSummarySection(submissionDetail);
-    assertThat(summarySectionOptional).isPresent();
-
-    var summarySection = summarySectionOptional.get();
-    assertThat(summarySection)
-        .extracting(
-            SummarySection::displayOrder,
-            SummarySection::summaryText
-        ).containsExactly(
-           ConsideringCcusSummaryService.CONSIDERING_CCUS_DISPLAY_ORDER,
-            ""
-        );
-    var summaryItems = summarySection.summaryItems();
-    assertThat(summaryItems).hasSize(1);
-
-     var summaryItem = summaryItems.get(0);
-     assertThat(summaryItem.displayName()).isEqualTo(ConsideringCcusSummaryService.CONSIDERING_CCUS);
-
-     var summaryCards = summaryItem.summaryCards();
-     assertThat(summaryCards).hasSize(1);
-
-     var summaryCard = summaryCards.get(0);
-     assertThat(summaryCard)
-         .extracting(
-             SummaryCard::displayName,
-             SummaryCard::summaryCardType
-         ).containsExactly(
-             null,
-             SummaryCardType.SIMPLE_SUMMARY
-         );
-
-     var summaryData = summaryCard.summaryData();
-     assertThat(summaryData).isNotNull();
-  }
-
-  @ParameterizedTest
-  @MethodSource("allFieldSubmissionTypes")
-  void getSummarySection_existingDetail_answeredYes_thenValues(SubmissionType submissionType) {
-    submissionDetail.setSubmissionType(submissionType);
-
+  @Test
+  void getConsideringCcusSummary_existingDetail_answeredYes_thenValues() {
     var consideringCcusDetail = new ConsideringCcusDetail();
     consideringCcusDetail.setIsConnectedToProject(true);
     consideringCcusDetail.setConnectedProjects("projects");
@@ -104,92 +43,97 @@ class ConsideringCcusSummaryServiceTest {
     when(consideringCcusDetailRepository.findConsideringCcusDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(consideringCcusDetail));
 
-    SummaryDataView summaryData = (SummaryDataView) consideringCcusSummaryService.getSummarySection(submissionDetail).get()
-        .summaryItems()
-        .get(0)
-        .summaryCards()
-        .get(0)
-        .summaryData();
+    var expectedSummaryData = new SummaryDataView(List.of(
+        new SummaryKeyValue(
+            ConsideringCcusSummaryService.IS_CONNECTED_TO_PROJECTS,
+            "Yes"
+        ),
+        new SummaryKeyValue(
+            ConsideringCcusSummaryService.CONNECTED_PROJECTS,
+            consideringCcusDetail.getConnectedProjects()
+        ),
+        new SummaryKeyValue(
+            ConsideringCcusSummaryService.IS_SHALLOWER_HORIZONS,
+            "Yes"
+        ),
+        new SummaryKeyValue(
+            ConsideringCcusSummaryService.AGE_AND_FORMATION_OF_HORIZONS,
+            consideringCcusDetail.getAgeAndFormationOfHorizons()
+        )
+    ));
 
-    assertThat(summaryData.keyValues())
-        .extracting(
-            SummaryKeyValue::key,
-            SummaryKeyValue::value
-        ).containsExactly(
-            Tuple.tuple(ConsideringCcusSummaryService.IS_CONNECTED_TO_PROJECTS,
-                "Yes"),
-            Tuple.tuple(ConsideringCcusSummaryService.CONNECTED_PROJECTS,
-                consideringCcusDetail.getConnectedProjects()),
-            Tuple.tuple(ConsideringCcusSummaryService.IS_SHALLOWER_HORIZONS,
-                "Yes"),
-            Tuple.tuple(ConsideringCcusSummaryService.AGE_AND_FORMATION_OF_HORIZONS,
-                consideringCcusDetail.getAgeAndFormationOfHorizons())
-        );
+    var expectedSummaryCard = SummaryCard.simpleSummaryCardWithHeading(
+        ConsideringCcusSummaryService.CONSIDERING_CCUS,
+        expectedSummaryData);
+
+    assertThat(consideringCcusSummaryService.getConsideringCcusSummary(submissionDetail))
+        .usingRecursiveComparison()
+        .isEqualTo(expectedSummaryCard);
   }
 
-  @ParameterizedTest
-  @MethodSource("allFieldSubmissionTypes")
-  void getSummarySection_existingDetail_answeredNo_thenDoNotShowSubAnswers(SubmissionType submissionType) {
-    submissionDetail.setSubmissionType(submissionType);
-
+  @Test
+  void getConsideringCcusSummary_existingDetail_answeredNo_thenDoNotShowSubAnswers() {
     var consideringCcusDetail = new ConsideringCcusDetail();
     consideringCcusDetail.setIsConnectedToProject(false);
+    consideringCcusDetail.setConnectedProjects("projects");
     consideringCcusDetail.setIsAnyShallowerHorizons(false);
-
+    consideringCcusDetail.setAgeAndFormationOfHorizons("ages");
     when(consideringCcusDetailRepository.findConsideringCcusDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(consideringCcusDetail));
 
-    SummaryDataView summaryData = (SummaryDataView) consideringCcusSummaryService.getSummarySection(submissionDetail).get()
-        .summaryItems()
-        .get(0)
-        .summaryCards()
-        .get(0)
-        .summaryData();
+    var expectedSummaryData = new SummaryDataView(List.of(
+        new SummaryKeyValue(
+            ConsideringCcusSummaryService.IS_CONNECTED_TO_PROJECTS,
+            "No"
+        ),
+        new SummaryKeyValue(
+            ConsideringCcusSummaryService.IS_SHALLOWER_HORIZONS,
+            "No"
+        )
+    ));
 
-    assertThat(summaryData.keyValues())
-        .extracting(
-            SummaryKeyValue::key,
-            SummaryKeyValue::value
-        ).containsExactly(
-            Tuple.tuple(ConsideringCcusSummaryService.IS_CONNECTED_TO_PROJECTS, "No"),
-            Tuple.tuple(ConsideringCcusSummaryService.IS_SHALLOWER_HORIZONS, "No")
-        );
+    var expectedSummaryCard = SummaryCard.simpleSummaryCardWithHeading(
+        ConsideringCcusSummaryService.CONSIDERING_CCUS,
+        expectedSummaryData);
+
+    assertThat(consideringCcusSummaryService.getConsideringCcusSummary(submissionDetail))
+        .usingRecursiveComparison()
+        .isEqualTo(expectedSummaryCard);
   }
 
-  @ParameterizedTest
-  @MethodSource("allFieldSubmissionTypes")
-  void getSummarySection_noExistingDetail_thenNoValues(SubmissionType submissionType) {
-    submissionDetail.setSubmissionType(submissionType);
+  @Test
+  void getConsideringCcusSummary_existingDetail_noAnswersGivenYet_thenNoValues() {
+    var consideringCcusDetail = new ConsideringCcusDetail();
+    when(consideringCcusDetailRepository.findConsideringCcusDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(consideringCcusDetail));
 
+    var expectedSummaryData = new SummaryDataView(List.of(
+        new SummaryKeyValue(
+            ConsideringCcusSummaryService.IS_CONNECTED_TO_PROJECTS,
+            null
+        ),
+        new SummaryKeyValue(
+            ConsideringCcusSummaryService.IS_SHALLOWER_HORIZONS,
+            null
+        )
+    ));
+
+    var expectedSummaryCard = SummaryCard.simpleSummaryCardWithHeading(
+        ConsideringCcusSummaryService.CONSIDERING_CCUS,
+        expectedSummaryData);
+
+    assertThat(consideringCcusSummaryService.getConsideringCcusSummary(submissionDetail))
+        .usingRecursiveComparison()
+        .isEqualTo(expectedSummaryCard);
+  }
+
+  @Test
+  void getConsideringCcusSummary_noExistingDetail_thenEmptySummaryCard() {
     when(consideringCcusDetailRepository.findConsideringCcusDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.empty());
 
-    SummaryDataView summaryData = (SummaryDataView) consideringCcusSummaryService.getSummarySection(submissionDetail).get()
-        .summaryItems()
-        .get(0)
-        .summaryCards()
-        .get(0)
-        .summaryData();
-
-    assertThat(summaryData.keyValues())
-        .extracting(
-            SummaryKeyValue::key,
-            SummaryKeyValue::value
-        ).containsExactly(
-            Tuple.tuple(ConsideringCcusSummaryService.IS_CONNECTED_TO_PROJECTS, ""),
-            Tuple.tuple(ConsideringCcusSummaryService.IS_SHALLOWER_HORIZONS, "")
-        );
-  }
-
-  private static Stream<Arguments> allFieldSubmissionTypes() {
-    return Arrays.stream(SubmissionType.values())
-        .filter(SubmissionDetailUtil::isFieldSubmission)
-        .map(Arguments::of);
-  }
-
-  private static Stream<Arguments> allNonFieldSubmissionTypes() {
-    return Arrays.stream(SubmissionType.values())
-        .filter(submissionType -> !SubmissionDetailUtil.isFieldSubmission(submissionType))
-        .map(Arguments::of);
+    assertThat(consideringCcusSummaryService.getConsideringCcusSummary(submissionDetail))
+        .usingRecursiveComparison()
+        .isEqualTo(SummaryCard.emptySummaryCardWithHeading(ConsideringCcusSummaryService.CONSIDERING_CCUS));
   }
 }
