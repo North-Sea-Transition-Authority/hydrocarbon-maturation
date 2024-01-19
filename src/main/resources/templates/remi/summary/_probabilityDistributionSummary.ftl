@@ -4,15 +4,38 @@
 <#-- @ftlvariable name="probabilityDistribution" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView" -->
 
 <#macro probabilityDistributionTable
-  probabilityDistributions = []
-  withDistributionType=true
-  withContingentUncertaintyCategories=false>
+probabilityDistributions = []
+withDistributionType=true
+withContingentUncertaintyCategories=false
+heading="">
+  <#if heading?has_content>
+    <@fdsSummaryList.summaryListCard
+    headingText=heading
+    headingSize="h3"
+    summaryListId="summary-data-card-list">
+      <@probabilityDistributionTableInner
+      probabilityDistributions
+      withDistributionType
+      withContingentUncertaintyCategories />
+    </@fdsSummaryList.summaryListCard>
+  <#else>
+    <@probabilityDistributionTableInner
+    probabilityDistributions
+    withDistributionType
+    withContingentUncertaintyCategories />
+  </#if>
+</#macro>
+
+<#macro probabilityDistributionTableInner
+probabilityDistributions = []
+withDistributionType=true
+withContingentUncertaintyCategories=false>
   <@probabilityDistributionTableHeader withDistributionType=withDistributionType withContingentUncertaintyCategories=withContingentUncertaintyCategories>
     <#list probabilityDistributions as probabilityDistribution>
       <tr class="govuk-table__row">
         <th scope="row" class="govuk-table__header">
           <#if withDistributionType>
-              ${probabilityDistribution.probabilityDistributionName()}
+            ${probabilityDistribution.probabilityDistributionName()}
             <#if probabilityDistribution.probabilityDistributionType()?has_content>
               <#assign hintClass>
                 govuk-hint <#if !probabilityDistribution.comments()?has_content>govuk-!-margin-bottom-0</#if>
@@ -25,16 +48,17 @@
             ${probabilityDistribution.probabilityDistributionName()}
           </#if>
           <#if probabilityDistribution.comments()?has_content>
-              <#assign comments>
-                <p class="govuk-body govuk-body__preserve-whitespace">${probabilityDistribution.comments()}</p>
-              </#assign>
-              <#assign commentsTitle>
-                  Comments<span class="govuk-visually-hidden"> for ${probabilityDistribution.probabilityDistributionName()}</span>
-              </#assign>
-              <#assign detailsClass>
-                govuk-!-margin-bottom-0 <#if !withDistributionType> govuk-!-margin-top-3</#if>
-              </#assign>
-              <@fdsDetails.details detailsText=comments detailsTitle=commentsTitle detailsClass=detailsClass/>
+            <#assign comments>
+              <p class="govuk-body govuk-body__preserve-whitespace">${probabilityDistribution.comments()}</p>
+            </#assign>
+            <#assign commentsTitle>
+              Comments<span
+                    class="govuk-visually-hidden"> for ${probabilityDistribution.probabilityDistributionName()}</span>
+            </#assign>
+            <#assign detailsClass>
+              govuk-!-margin-bottom-0 <#if !withDistributionType> govuk-!-margin-top-3</#if>
+            </#assign>
+            <@fdsDetails.details detailsText=comments detailsTitle=commentsTitle detailsClass=detailsClass/>
           </#if>
         </th>
         <#if withDistributionType>
@@ -66,7 +90,6 @@
       </tr>
     </#list>
   </@probabilityDistributionTableHeader>
-
 </#macro>
 
 <#macro fieldProbabilityDistributionTable

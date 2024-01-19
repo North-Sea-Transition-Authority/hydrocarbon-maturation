@@ -3,9 +3,12 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapprop
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesSummaryService.CLOSURE_MECHANISMS;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesSummaryService.FIELD_TRAP_PROPERTIES;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesSummaryService.FIELD_TRAP_PROPERTIES_PROBABILITIES;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesSummaryService.ORIGINAL_HYDROCARBON_COLUMN_HEIGHT;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesSummaryService.STRUCTURAL_COMPARTMENTS;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesSummaryService.TRAP_TYPE;
@@ -33,7 +36,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryKeyValue;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,48 +58,7 @@ class FieldTrapPropertiesSummaryServiceTest {
   }
 
   @Test
-  void getSummarySection_notFieldSubmission_thenEmpty() {
-    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-
-    assertThat(fieldTrapPropertiesSummaryService.getSummarySection(discoverySubmissionDetail))
-        .isEmpty();
-  }
-
-  @Test
-  void getSummarySection_assertStructure() {
-    when(trapPropertiesPersistenceService.getTrapProperty(submissionDetail)).thenReturn(Optional.empty());
-
-    var summarySectionOptional = fieldTrapPropertiesSummaryService.getSummarySection(submissionDetail);
-
-    assertThat(summarySectionOptional)
-        .isPresent();
-
-    assertThat(summarySectionOptional.get())
-        .extracting(
-            SummarySection::displayOrder,
-            SummarySection::summaryText)
-        .containsExactly(
-            FieldTrapPropertiesSummaryService.FIELD_TRAP_PROPERTIES_ORDER,
-            ""
-        );
-
-    var summaryItems = summarySectionOptional.get().summaryItems();
-    assertThat(summaryItems).hasSize(1);
-
-    var summaryItem = summaryItems.get(0);
-    assertThat(summaryItem.displayName()).isEqualTo(FieldTrapPropertiesSummaryService.FIELD_TRAP_PROPERTIES);
-
-    // regular fields summary
-    var summaryCard1 = summaryItem.summaryCards().get(0);
-    assertThat(summaryCard1.summaryCardType()).isEqualTo(SummaryCardType.SIMPLE_SUMMARY);
-
-    // probability distribution summaries
-    var summaryCard2 = summaryItem.summaryCards().get(1);
-    assertThat(summaryCard2.summaryCardType()).isEqualTo(SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY);
-  }
-
-  @Test
-  void getSummary_assertProbabilityDistributions() {
+  void getFieldTrapPropertiesProbabilitySummaryCard_existingProperty_assertDistributions() {
     var listOfInstances = List.of(
         ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_FIELD,
         ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_FIELD,
@@ -109,19 +70,17 @@ class FieldTrapPropertiesSummaryServiceTest {
         listOfInstances, submissionDetail, null)
     ).thenReturn(summaryViews);
 
-    when(trapPropertiesPersistenceService.getTrapProperty(submissionDetail)).thenReturn(Optional.empty());
+    var trapProperty = new TrapProperty();
+    when(trapPropertiesPersistenceService.getTrapProperty(submissionDetail)).thenReturn(Optional.of(trapProperty));
 
-    var probabilityCard = fieldTrapPropertiesSummaryService.getSummarySection(submissionDetail)
-        .get()
-        .summaryItems()
-        .get(0)
-        .summaryCards()
-        .get(1);
+    var probabilityCard = fieldTrapPropertiesSummaryService.getFieldTrapPropertiesProbabilitySummaryCard(submissionDetail);
     assertThat(probabilityCard)
         .extracting(
+            SummaryCard::displayName,
             SummaryCard::summaryCardType,
             SummaryCard::summaryData
         ).containsExactly(
+            FIELD_TRAP_PROPERTIES_PROBABILITIES,
             SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
             summaryViews
         );
@@ -134,18 +93,26 @@ class FieldTrapPropertiesSummaryServiceTest {
   }
 
   @Test
-  void getSummarySection_selectTrapType() {
+  void getFieldTrapPropertiesProbabilitySummaryCard_noExistingProperty_assertEmptySummaryCard() {
+    when(trapPropertiesPersistenceService.getTrapProperty(submissionDetail)).thenReturn(Optional.empty());
+
+    var probabilityCard = fieldTrapPropertiesSummaryService.getFieldTrapPropertiesProbabilitySummaryCard(submissionDetail);
+    assertThat(probabilityCard).usingRecursiveComparison()
+            .isEqualTo(SummaryCard.emptySummaryCardWithHeading(FIELD_TRAP_PROPERTIES_PROBABILITIES));
+
+    verifyNoInteractions(probabilityDistributionSummaryService);
+
+  }
+
+  @Test
+  void getFieldTrapPropertiesSummaryCard_selectTrapType() {
     var trapProperty = createTrapProperty();
 
     when(trapPropertiesPersistenceService.getTrapProperty(submissionDetail))
         .thenReturn(Optional.of(trapProperty));
 
-    SummaryDataView propertiesCardData = (SummaryDataView) fieldTrapPropertiesSummaryService.getSummarySection(submissionDetail)
-        .get()
-        .summaryItems()
-        .get(0)
-        .summaryCards()
-        .get(0)
+    SummaryDataView propertiesCardData = (SummaryDataView) fieldTrapPropertiesSummaryService
+        .getFieldTrapPropertiesSummaryCard(submissionDetail)
         .summaryData();
 
     assertThat(propertiesCardData.keyValues())
@@ -158,19 +125,15 @@ class FieldTrapPropertiesSummaryServiceTest {
   }
 
   @Test
-  void getSummarySection_otherTrapType() {
+  void getFieldTrapPropertiesSummaryCard_otherTrapType() {
     var trapProperty = createTrapProperty();
     trapProperty.setTrapType(TrapType.OTHER);
 
     when(trapPropertiesPersistenceService.getTrapProperty(submissionDetail))
         .thenReturn(Optional.of(trapProperty));
 
-    SummaryDataView propertiesCardData = (SummaryDataView) fieldTrapPropertiesSummaryService.getSummarySection(submissionDetail)
-        .get()
-        .summaryItems()
-        .get(0)
-        .summaryCards()
-        .get(0)
+    SummaryDataView propertiesCardData = (SummaryDataView) fieldTrapPropertiesSummaryService
+        .getFieldTrapPropertiesSummaryCard(submissionDetail)
         .summaryData();
 
     assertThat(propertiesCardData.keyValues())
@@ -183,19 +146,25 @@ class FieldTrapPropertiesSummaryServiceTest {
   }
 
   @Test
-  void getSummarySection_assertProperties() {
+  void getFieldTrapPropertiesSummaryCard_existingTrapProperty_assertProperties() {
     var trapProperty = createTrapProperty();
 
     when(trapPropertiesPersistenceService.getTrapProperty(submissionDetail))
         .thenReturn(Optional.of(trapProperty));
 
-    SummaryDataView propertiesCardData = (SummaryDataView) fieldTrapPropertiesSummaryService.getSummarySection(submissionDetail)
-        .get()
-        .summaryItems()
-        .get(0)
-        .summaryCards()
-        .get(0)
-        .summaryData();
+    var summaryCard = fieldTrapPropertiesSummaryService
+        .getFieldTrapPropertiesSummaryCard(submissionDetail);
+
+    assertThat(summaryCard)
+        .extracting(
+            SummaryCard::displayName,
+            SummaryCard::summaryCardType
+        ).containsExactly(
+            FIELD_TRAP_PROPERTIES,
+            SummaryCardType.SIMPLE_SUMMARY
+        );
+
+    SummaryDataView propertiesCardData = (SummaryDataView) summaryCard.summaryData();
 
     assertThat(propertiesCardData.keyValues())
         .extracting(
@@ -208,6 +177,18 @@ class FieldTrapPropertiesSummaryServiceTest {
             Tuple.tuple(ORIGINAL_HYDROCARBON_COLUMN_HEIGHT, NumberUtil.getNumberStringWithUnitsOrEmpty(
                 trapProperty.getOriginalHydrocarbonColumnHeight(), "m"))
         );
+  }
+
+  @Test
+  void getFieldTrapPropertiesSummaryCard_noExistingTrapProperty_assertProperties() {
+    when(trapPropertiesPersistenceService.getTrapProperty(submissionDetail))
+        .thenReturn(Optional.empty());
+
+    var summaryCard = fieldTrapPropertiesSummaryService
+        .getFieldTrapPropertiesSummaryCard(submissionDetail);
+
+    assertThat(summaryCard).usingRecursiveComparison()
+        .isEqualTo(SummaryCard.emptySummaryCardWithHeading(FIELD_TRAP_PROPERTIES));
   }
 
   private TrapProperty createTrapProperty() {

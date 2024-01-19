@@ -12,28 +12,28 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.fieldsummarysectionservices.GeneralDetailsSummarySectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.fieldsummarysectionservices.FieldGeneralDetailsSummarySectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionSummaryServiceTest {
 
   @Mock
-  private GeneralDetailsSummarySectionService generalDetailsSummarySectionService;
+  private FieldGeneralDetailsSummarySectionService fieldGeneralDetailsSummarySectionService;
 
   private SubmissionSummaryService submissionSummaryService;
 
   @BeforeEach
   void setUp() {
     submissionSummaryService = new SubmissionSummaryService(
-        List.of(generalDetailsSummarySectionService)
+        List.of(fieldGeneralDetailsSummarySectionService)
     );
   }
 
   @Test
   void getSubmissionSummaries_ForField() {
     var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
-    when(generalDetailsSummarySectionService.getSummarySection(submissionDetail))
+    when(fieldGeneralDetailsSummarySectionService.getSummarySection(submissionDetail))
         .thenReturn(Optional.of(SubmissionSummaryTestUtil.getGeneralDetailsSummarySection(null)));
     var submissionSummaries = submissionSummaryService.getSummarySections(submissionDetail);
     var generalDetailsSummarySection = new SummarySection(GeneralDetailSummaryService.GENERAL_DETAIL_SECTION_ORDER, null, "");

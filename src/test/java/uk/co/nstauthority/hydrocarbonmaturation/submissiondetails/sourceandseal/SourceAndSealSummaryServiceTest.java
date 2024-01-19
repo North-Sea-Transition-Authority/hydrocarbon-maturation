@@ -24,10 +24,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryKeyValue;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -185,28 +184,16 @@ class SourceAndSealSummaryServiceTest {
   }
 
   @ParameterizedTest
-  @MethodSource("allNonFieldSubmissionTypes")
-  void getSummarySection_nonFieldSubmission_thenEmpty(SubmissionType submissionType) {
-    SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
-
-    assertThat(sourceAndSealSummaryService.getSummarySection(submissionDetail)).isEmpty();
-  }
-
-  @ParameterizedTest
   @MethodSource("allFieldSubmissionTypes")
-  void getSummarySection_nonManualEntrys_assertProperties(SubmissionType submissionType) {
+  void getFieldSourceAndSealSummaryCard_nonManualEntrys_assertProperties(SubmissionType submissionType) {
     SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
 
     var sourceAndSeal = sourceAndSealWithNonManualEntrys();
     when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
         .thenReturn(Optional.of(sourceAndSeal));
 
-    SummaryDataView summaryCard = (SummaryDataView) sourceAndSealSummaryService.getSummarySection(submissionDetail)
-        .get()
-        .summaryItems()
-        .get(0)
-        .summaryCards()
-        .get(0)
+    SummaryDataView summaryCard = (SummaryDataView) sourceAndSealSummaryService
+        .getFieldSourceAndSealSummaryCard(submissionDetail)
         .summaryData();
 
     assertThat(summaryCard.keyValues())
@@ -233,55 +220,15 @@ class SourceAndSealSummaryServiceTest {
 
   @ParameterizedTest
   @MethodSource("allFieldSubmissionTypes")
-  void getSummarySection_fieldSubmission_assertStructure(SubmissionType submissionType) {
-    SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
-
-    var sourceAndSeal = sourceAndSealWithNonManualEntrys();
-    when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
-        .thenReturn(Optional.of(sourceAndSeal));
-
-    var summarySection = sourceAndSealSummaryService.getSummarySection(submissionDetail);
-    assertThat(summarySection).isPresent();
-
-    assertThat(summarySection.get())
-        .extracting(
-            SummarySection::displayOrder,
-            SummarySection::summaryText
-        ).containsExactly(
-            SourceAndSealSummaryService.SOURCE_AND_SEAL_DISPLAY_ORDER,
-            ""
-        );
-
-    var summaryItems = summarySection.get().summaryItems();
-    assertThat(summaryItems).hasSize(1);
-
-    var summaryItem = summaryItems.get(0);
-    assertThat(summaryItem.displayName()).isEqualTo(SourceAndSealSummaryService.SOURCE_AND_SEAL);
-
-    var summaryCards = summaryItem.summaryCards();
-    assertThat(summaryCards).hasSize(1);
-
-    var summaryCard = summaryCards.get(0);
-    assertThat(summaryCard.summaryCardType()).isEqualTo(SummaryCardType.SIMPLE_SUMMARY);
-
-    assertThat(summaryCard.summaryData()).isNotNull();
-  }
-
-  @ParameterizedTest
-  @MethodSource("allFieldSubmissionTypes")
-  void getSummarySection_manualEntrys_assertProperties(SubmissionType submissionType) {
+  void getFieldSourceAndSealSummaryCard_manualEntrys_assertProperties(SubmissionType submissionType) {
     SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
 
     var sourceAndSeal = sourceAndSealWithManualEntrys();
     when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
         .thenReturn(Optional.of(sourceAndSeal));
 
-    SummaryDataView summaryCard = (SummaryDataView) sourceAndSealSummaryService.getSummarySection(submissionDetail)
-        .get()
-        .summaryItems()
-        .get(0)
-        .summaryCards()
-        .get(0)
+    SummaryDataView summaryCard = (SummaryDataView) sourceAndSealSummaryService
+        .getFieldSourceAndSealSummaryCard(submissionDetail)
         .summaryData();
 
     assertThat(summaryCard.keyValues())
@@ -308,42 +255,22 @@ class SourceAndSealSummaryServiceTest {
 
   @ParameterizedTest
   @MethodSource("allFieldSubmissionTypes")
-  void getSummarySection_noSourceAndSealExists_assertProperties(SubmissionType submissionType) {
+  void getFieldSourceAndSealSummaryCard_noSourceAndSealExists_assertProperties(SubmissionType submissionType) {
     SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
 
     when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
         .thenReturn(Optional.empty());
 
-    SummaryDataView summaryCard = (SummaryDataView) sourceAndSealSummaryService.getSummarySection(submissionDetail)
-        .get()
-        .summaryItems()
-        .get(0)
-        .summaryCards()
-        .get(0)
-        .summaryData();
+    var summaryCard = sourceAndSealSummaryService
+        .getFieldSourceAndSealSummaryCard(submissionDetail);
 
-    assertThat(summaryCard.keyValues())
-        .extracting(
-            SummaryKeyValue::key,
-            SummaryKeyValue::value
-        )
-        .containsExactly(
-            Tuple.tuple(SourceAndSealSummaryService.SOURCE_AGE_STAGE, ""),
-            Tuple.tuple(SourceAndSealSummaryService.SOURCE_GROUP_NAME, ""),
-            Tuple.tuple(SourceAndSealSummaryService.SOURCE_FORMATION_NAME, ""),
-            Tuple.tuple(SourceAndSealSummaryService.SOURCE_LITHOLOGY, ""),
-            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_AGE_STAGE, ""),
-            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_GROUP_NAME, ""),
-            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_FORMATION_NAME, ""),
-            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_LITHOLOGY, ""),
-            Tuple.tuple(SourceAndSealSummaryService.SEAL_THICKNESS, ""),
-            Tuple.tuple(SourceAndSealSummaryService.TOP_SEAL_FRACTURE_PRESSURE, "")
-        );
+    assertThat(summaryCard).usingRecursiveComparison()
+        .isEqualTo(SummaryCard.emptySummaryCardWithHeading(SourceAndSealSummaryService.SOURCE_AND_SEAL));
   }
 
   @ParameterizedTest
   @MethodSource("allFieldSubmissionTypes")
-  void getSummarySection_sourceAndSealExistsWithAllEmptyValues_assertProperties(SubmissionType submissionType) {
+  void getFieldSourceAndSealSummaryCard_sourceAndSealExistsWithAllEmptyValues_assertProperties(SubmissionType submissionType) {
     SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
 
     var emptySourceAndSeal = new SourceAndSeal();
@@ -352,12 +279,8 @@ class SourceAndSealSummaryServiceTest {
     when(sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail))
         .thenReturn(Optional.of(emptySourceAndSeal));
 
-    SummaryDataView summaryCard = (SummaryDataView) sourceAndSealSummaryService.getSummarySection(submissionDetail)
-        .get()
-        .summaryItems()
-        .get(0)
-        .summaryCards()
-        .get(0)
+    SummaryDataView summaryCard = (SummaryDataView) sourceAndSealSummaryService
+        .getFieldSourceAndSealSummaryCard(submissionDetail)
         .summaryData();
 
     assertThat(summaryCard.keyValues())

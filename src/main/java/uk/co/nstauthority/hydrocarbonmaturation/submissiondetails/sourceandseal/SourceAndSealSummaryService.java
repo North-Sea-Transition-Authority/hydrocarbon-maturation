@@ -1,10 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -12,13 +9,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeS
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
 @Service
-public class SourceAndSealSummaryService implements SummarySectionService<SubmissionDetail> {
+public class SourceAndSealSummaryService {
   private final SourceAndSealPersistenceService sourceAndSealPersistenceService;
 
   public static final String SOURCE_AND_SEAL = "Source and seal";
@@ -34,9 +28,6 @@ public class SourceAndSealSummaryService implements SummarySectionService<Submis
   public static final String SEAL_THICKNESS = "Seal thickness";
   public static final String TOP_SEAL_FRACTURE_PRESSURE = "Top seal fracture pressure";
 
-  public static final int SOURCE_AND_SEAL_DISPLAY_ORDER = 30;
-
-  @Autowired
   public SourceAndSealSummaryService(SourceAndSealPersistenceService sourceAndSealPersistenceService) {
     this.sourceAndSealPersistenceService = sourceAndSealPersistenceService;
   }
@@ -47,103 +38,87 @@ public class SourceAndSealSummaryService implements SummarySectionService<Submis
         .orElse(SourceAndSealSummaryView.empty());
   }
 
-  @Override
-  public Optional<SummarySection> getSummarySection(SubmissionDetail submissionDetail) {
-    if (!submissionDetail.isFieldSubmission()) {
-      return Optional.empty();
-    }
+  public SummaryCard getFieldSourceAndSealSummaryCard(SubmissionDetail submissionDetail) {
+    return sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail)
+        .map(
+            sourceAndSeal -> {
+              var summaryDataView = new SummaryDataView(new ArrayList<>());
+              // Source fields
+              addSourceProperties(sourceAndSeal, summaryDataView);
 
-    var summaryItems = List.of(getFieldSourceAndSealSummary(submissionDetail));
-    return Optional.of(new SummarySection(SOURCE_AND_SEAL_DISPLAY_ORDER, summaryItems, ""));
+              // Top seal fields
+              addTopSealProperties(sourceAndSeal, summaryDataView);
+
+              return SummaryCard.simpleSummaryCardWithHeading(SOURCE_AND_SEAL, summaryDataView);
+
+            }).orElse(SummaryCard.emptySummaryCardWithHeading(SOURCE_AND_SEAL));
   }
 
-  private SummaryItem getFieldSourceAndSealSummary(SubmissionDetail submissionDetail) {
-    var summaryDataView = new SummaryDataView(new ArrayList<>());
-    sourceAndSealPersistenceService.getSourceAndSeal(submissionDetail).ifPresentOrElse(
-        sourceAndSeal -> {
-          // Source fields
-          String sourceAgeStage = "";
-          if (sourceAndSeal.getSourceAgeStage() != null) {
-            sourceAgeStage = sourceAndSeal.getSourceAgeStage().getDisplayName();
-          } else if (sourceAndSeal.getSourceAgeStageManual() != null) {
-            sourceAgeStage = sourceAndSeal.getSourceAgeStageManual();
-          }
-          summaryDataView.addKeyValue(SOURCE_AGE_STAGE, sourceAgeStage);
+  private static void addTopSealProperties(SourceAndSeal sourceAndSeal, SummaryDataView summaryDataView) {
+    String topSealAgeStage = "";
+    if (sourceAndSeal.getTopSealAgeStage() != null) {
+      topSealAgeStage = sourceAndSeal.getTopSealAgeStage().getDisplayName();
+    } else if (sourceAndSeal.getTopSealAgeStageManual() != null) {
+      topSealAgeStage = sourceAndSeal.getTopSealAgeStageManual();
+    }
+    summaryDataView.addKeyValue(TOP_SEAL_AGE_STAGE, topSealAgeStage);
 
-          summaryDataView.addKeyValue(SOURCE_GROUP_NAME,
-              sourceAndSeal.getSourceGroupName() == null
-                  ? ""
-                  : sourceAndSeal.getSourceGroupName().getDisplayName());
+    summaryDataView.addKeyValue(TOP_SEAL_GROUP_NAME,
+        sourceAndSeal.getTopSealGroupName() == null
+            ? ""
+            : sourceAndSeal.getTopSealGroupName().getDisplayName());
 
-          String sourceFormationName = "";
-          if (sourceAndSeal.getSourceFormationName() != null) {
-            sourceFormationName = sourceAndSeal.getSourceFormationName().getDisplayName();
-          } else if (sourceAndSeal.getSourceFormationNameManual() != null) {
-            sourceFormationName = sourceAndSeal.getSourceFormationNameManual();
-          }
-          summaryDataView.addKeyValue(SOURCE_FORMATION_NAME, sourceFormationName);
+    String topSealFormationName = "";
+    if (sourceAndSeal.getTopSealFormationName() != null) {
+      topSealFormationName = sourceAndSeal.getTopSealFormationName().getDisplayName();
+    } else if (sourceAndSeal.getTopSealFormationNameManual() != null) {
+      topSealFormationName = sourceAndSeal.getTopSealFormationNameManual();
+    }
+    summaryDataView.addKeyValue(TOP_SEAL_FORMATION_NAME, topSealFormationName);
 
-          String sourceLithology = "";
-          if (StandardLithology.OTHER.equals(sourceAndSeal.getSourceLithology())) {
-            sourceLithology = sourceAndSeal.getSourceLithologyOther();
-          } else if (sourceAndSeal.getSourceLithology() != null) {
-            sourceLithology = sourceAndSeal.getSourceLithology().getDisplayName();
-          }
-          summaryDataView.addKeyValue(SOURCE_LITHOLOGY, sourceLithology);
+    String topSealLithology = "";
+    if (StandardLithology.OTHER.equals(sourceAndSeal.getTopSealLithology())) {
+      topSealLithology = sourceAndSeal.getTopSealLithologyOther();
+    } else if (sourceAndSeal.getTopSealLithology() != null) {
+      topSealLithology = sourceAndSeal.getTopSealLithology().getDisplayName();
+    }
+    summaryDataView.addKeyValue(TOP_SEAL_LITHOLOGY, topSealLithology);
 
-          // Top seal fields
-          String topSealAgeStage = "";
-          if (sourceAndSeal.getTopSealAgeStage() != null) {
-            topSealAgeStage = sourceAndSeal.getTopSealAgeStage().getDisplayName();
-          } else if (sourceAndSeal.getTopSealAgeStageManual() != null) {
-            topSealAgeStage = sourceAndSeal.getTopSealAgeStageManual();
-          }
-          summaryDataView.addKeyValue(TOP_SEAL_AGE_STAGE, topSealAgeStage);
+    summaryDataView.addKeyValue(SEAL_THICKNESS,
+        NumberUtil.getNumberStringWithUnitsOrEmpty(sourceAndSeal.getSealThickness(), "m"));
+    summaryDataView.addKeyValue(TOP_SEAL_FRACTURE_PRESSURE,
+        NumberUtil.getNumberStringWithUnitsOrEmpty(sourceAndSeal.getTopSealFracturePressure(), "psi"));
+  }
 
-          summaryDataView.addKeyValue(TOP_SEAL_GROUP_NAME,
-              sourceAndSeal.getTopSealGroupName() == null
-                  ? ""
-                  : sourceAndSeal.getTopSealGroupName().getDisplayName());
+  private static void addSourceProperties(SourceAndSeal sourceAndSeal, SummaryDataView summaryDataView) {
+    String sourceAgeStage = "";
+    if (sourceAndSeal.getSourceAgeStage() != null) {
+      sourceAgeStage = sourceAndSeal.getSourceAgeStage().getDisplayName();
+    } else if (sourceAndSeal.getSourceAgeStageManual() != null) {
+      sourceAgeStage = sourceAndSeal.getSourceAgeStageManual();
+    }
+    summaryDataView.addKeyValue(SOURCE_AGE_STAGE, sourceAgeStage);
 
-          String topSealFormationName = "";
-          if (sourceAndSeal.getTopSealFormationName() != null) {
-            topSealFormationName = sourceAndSeal.getTopSealFormationName().getDisplayName();
-          } else if (sourceAndSeal.getTopSealFormationNameManual() != null) {
-            topSealFormationName = sourceAndSeal.getTopSealFormationNameManual();
-          }
-          summaryDataView.addKeyValue(TOP_SEAL_FORMATION_NAME, topSealFormationName);
+    summaryDataView.addKeyValue(SOURCE_GROUP_NAME,
+        sourceAndSeal.getSourceGroupName() == null
+            ? ""
+            : sourceAndSeal.getSourceGroupName().getDisplayName());
 
-          String topSealLithology = "";
-          if (StandardLithology.OTHER.equals(sourceAndSeal.getTopSealLithology())) {
-            topSealLithology = sourceAndSeal.getTopSealLithologyOther();
-          } else if (sourceAndSeal.getTopSealLithology() != null) {
-            topSealLithology = sourceAndSeal.getTopSealLithology().getDisplayName();
-          }
-          summaryDataView.addKeyValue(TOP_SEAL_LITHOLOGY, topSealLithology);
+    String sourceFormationName = "";
+    if (sourceAndSeal.getSourceFormationName() != null) {
+      sourceFormationName = sourceAndSeal.getSourceFormationName().getDisplayName();
+    } else if (sourceAndSeal.getSourceFormationNameManual() != null) {
+      sourceFormationName = sourceAndSeal.getSourceFormationNameManual();
+    }
+    summaryDataView.addKeyValue(SOURCE_FORMATION_NAME, sourceFormationName);
 
-          summaryDataView.addKeyValue(SEAL_THICKNESS,
-              NumberUtil.getNumberStringWithUnitsOrEmpty(sourceAndSeal.getSealThickness(), "m"));
-          summaryDataView.addKeyValue(TOP_SEAL_FRACTURE_PRESSURE,
-              NumberUtil.getNumberStringWithUnitsOrEmpty(sourceAndSeal.getTopSealFracturePressure(), "psi"));
-
-        }, () -> {
-          summaryDataView.addKeyValue(SOURCE_AGE_STAGE, "");
-          summaryDataView.addKeyValue(SOURCE_GROUP_NAME, "");
-          summaryDataView.addKeyValue(SOURCE_FORMATION_NAME, "");
-          summaryDataView.addKeyValue(SOURCE_LITHOLOGY, "");
-          summaryDataView.addKeyValue(TOP_SEAL_AGE_STAGE, "");
-          summaryDataView.addKeyValue(TOP_SEAL_GROUP_NAME, "");
-          summaryDataView.addKeyValue(TOP_SEAL_FORMATION_NAME, "");
-          summaryDataView.addKeyValue(TOP_SEAL_LITHOLOGY, "");
-          summaryDataView.addKeyValue(SEAL_THICKNESS, "");
-          summaryDataView.addKeyValue(TOP_SEAL_FRACTURE_PRESSURE, "");
-        });
-
-    var summaryCard = SummaryCard.simpleSummaryCard(
-        summaryDataView
-    );
-
-    return SummaryItem.withCard(SOURCE_AND_SEAL, summaryCard);
+    String sourceLithology = "";
+    if (StandardLithology.OTHER.equals(sourceAndSeal.getSourceLithology())) {
+      sourceLithology = sourceAndSeal.getSourceLithologyOther();
+    } else if (sourceAndSeal.getSourceLithology() != null) {
+      sourceLithology = sourceAndSeal.getSourceLithology().getDisplayName();
+    }
+    summaryDataView.addKeyValue(SOURCE_LITHOLOGY, sourceLithology);
   }
 
   private SourceAndSealSummaryView createSummaryViewFromSourceAndSeal(SourceAndSeal sourceAndSeal) {
