@@ -88,4 +88,13 @@ public record SummaryCard(
     );
   }
 
+  public static SummaryCard minMaxMostLikelySummaryCard(
+      List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews) {
+    return new SummaryCard(
+        null,
+        SummaryCardType.MIN_MAX_MOST_LIKELY_SUMMARY,
+        probabilityDistributionSummaryViews
+    );
+  }
+
 }

@@ -37,6 +37,9 @@
                         probabilityDistributions=summaryCard.summaryData()/>
                     <#elseif summaryCard.summaryCardType() == "EMPTY_SUMMARY">
                         <@emptySummary.emptySummary/>
+                    <#elseif summaryCard.summaryCardType() == "MIN_MAX_MOST_LIKELY_SUMMARY">
+                        <@probabilityDistributionSummary.minMaxMostLikelyTable
+                        probabilityDistributions=summaryCard.summaryData()/>
                     </#if>
                 </#list>
             </@fdsSummaryList.summaryListCard>

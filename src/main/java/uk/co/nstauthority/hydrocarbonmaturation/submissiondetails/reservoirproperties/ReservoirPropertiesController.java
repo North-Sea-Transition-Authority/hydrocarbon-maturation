@@ -50,6 +50,10 @@ public class ReservoirPropertiesController {
   private static final String GAS_CASE = "gasCase";
   private static final String OIL_CASE = "oilCase";
   public static final String PAGE_NAME = "Reservoir properties";
+  
+  private static final String DEPTH_TO_OIL_WATER_CONTACT_ERROR = "depthToOilWaterContactError";
+  private static final String DEPTH_TO_GAS_WATER_CONTACT_ERROR = "depthToGasWaterContactError";
+  private static final String DEPTH_TO_GAS_OIL_CONTACT_ERROR = "depthToGasOilContactError";
 
   private final ReservoirPropertiesFormService reservoirPropertiesFormService;
   private final ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
@@ -223,17 +227,17 @@ public class ReservoirPropertiesController {
         DisplayableEnumOptionUtil.getDisplayableOptionsWithNameAndDescription(BarrierBaffle.class));
   }
 
-  private ModelAndView addDepthToTemplates(boolean gasCase,
-                                           boolean oilCase,
-                                           boolean mixedCase,
-                                           ModelAndView modelAndView) {
+  private ModelAndView addFieldDepthToTemplates(boolean gasCase,
+                                                boolean oilCase,
+                                                boolean mixedCase,
+                                                ModelAndView modelAndView) {
     if (oilCase || mixedCase) {
       modelAndView
           .addObject("depthToOilWaterContactTemplate",
               probabilityDistributionTemplateService
                   .getProbabilityDistributionTemplateForInstance(
                       ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_FIELD))
-          .addObject("depthToOilWaterContactError", ProbabilityDistributionTypeError.emptyError());
+          .addObject(DEPTH_TO_OIL_WATER_CONTACT_ERROR, ProbabilityDistributionTypeError.emptyError());
     }
     if (gasCase || mixedCase) {
       modelAndView
@@ -241,14 +245,44 @@ public class ReservoirPropertiesController {
               probabilityDistributionTemplateService
                   .getProbabilityDistributionTemplateForInstance(
                       ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_FIELD))
-          .addObject("depthToGasWaterContactError", ProbabilityDistributionTypeError.emptyError());
+          .addObject(DEPTH_TO_GAS_WATER_CONTACT_ERROR, ProbabilityDistributionTypeError.emptyError());
     }
     if (mixedCase) {
       modelAndView.addObject("depthToGasOilContactTemplate",
               probabilityDistributionTemplateService
                   .getProbabilityDistributionTemplateForInstance(
                       ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_FIELD))
-          .addObject("depthToGasOilContactError", ProbabilityDistributionTypeError.emptyError());
+          .addObject(DEPTH_TO_GAS_OIL_CONTACT_ERROR, ProbabilityDistributionTypeError.emptyError());
+    }
+    return modelAndView;
+  }
+
+  private ModelAndView addDiscoveryDepthToTemplates(boolean gasCase,
+                                                    boolean oilCase,
+                                                    boolean mixedCase,
+                                                    ModelAndView modelAndView) {
+    if (oilCase || mixedCase) {
+      modelAndView
+          .addObject("depthToOilWaterContactTemplate",
+              probabilityDistributionTemplateService
+                  .getProbabilityDistributionTemplateForInstance(
+                      ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY))
+          .addObject(DEPTH_TO_OIL_WATER_CONTACT_ERROR, ProbabilityDistributionTypeError.emptyError());
+    }
+    if (gasCase || mixedCase) {
+      modelAndView
+          .addObject("depthToGasWaterContactTemplate",
+              probabilityDistributionTemplateService
+                  .getProbabilityDistributionTemplateForInstance(
+                      ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY))
+          .addObject(DEPTH_TO_GAS_WATER_CONTACT_ERROR, ProbabilityDistributionTypeError.emptyError());
+    }
+    if (mixedCase) {
+      modelAndView.addObject("depthToGasOilContactTemplate",
+              probabilityDistributionTemplateService
+                  .getProbabilityDistributionTemplateForInstance(
+                      ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY))
+          .addObject(DEPTH_TO_GAS_OIL_CONTACT_ERROR, ProbabilityDistributionTypeError.emptyError());
     }
     return modelAndView;
   }
@@ -257,14 +291,14 @@ public class ReservoirPropertiesController {
                                              boolean oilCase,
                                              boolean mixedCase,
                                              ModelAndView modelAndView) {
-    return addDepthToTemplates(gasCase, oilCase, mixedCase, modelAndView);
+    return addDiscoveryDepthToTemplates(gasCase, oilCase, mixedCase, modelAndView);
   }
 
   private ModelAndView addOtherFieldTypeTemplates(boolean gasCase,
                                                   boolean oilCase,
                                                   boolean mixedCase,
                                                   ModelAndView modelAndView) {
-    return addDepthToTemplates(gasCase, oilCase, mixedCase, modelAndView);
+    return addFieldDepthToTemplates(gasCase, oilCase, mixedCase, modelAndView);
   }
 
   private ModelAndView addCessationOfProductionTemplates(boolean gasCase,
@@ -527,17 +561,17 @@ public class ReservoirPropertiesController {
                                              ReservoirPropertiesForm form,
                                              BindingResult bindingResult) {
     modelAndView
-        .addObject("depthToOilWaterContactError",
+        .addObject(DEPTH_TO_OIL_WATER_CONTACT_ERROR,
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,
                 "depthToOilWaterContact",
                 form.getDepthToOilWaterContact()))
-        .addObject("depthToGasWaterContactError",
+        .addObject(DEPTH_TO_GAS_WATER_CONTACT_ERROR,
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,
                 "depthToGasWaterContact",
                 form.getDepthToGasWaterContact()))
-        .addObject("depthToGasOilContactError",
+        .addObject(DEPTH_TO_GAS_OIL_CONTACT_ERROR,
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,
                 "depthToGasOilContact",

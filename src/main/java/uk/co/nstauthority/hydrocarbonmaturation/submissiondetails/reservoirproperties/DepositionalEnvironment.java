@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
-public enum DepositionalEnvironment {
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
+
+public enum DepositionalEnvironment implements Displayable {
   AEOLIAN("Aeolian", "Dune, interdune, loess"),
   FLUVIAL_LACSTRINE("Fluvial/lacustrine", "All river morphologies, lakes incl. playa, swamp"),
   DELTA("Delta", "All delta types"),
@@ -20,6 +22,7 @@ public enum DepositionalEnvironment {
     this.info = info;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }

@@ -1,8 +1,9 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
 import java.util.List;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 
-public enum DepositionalSetting {
+public enum DepositionalSetting implements Displayable {
   TERRESTRIAL("Terrestrial", "",
       List.of(DepositionalEnvironment.AEOLIAN, DepositionalEnvironment.FLUVIAL_LACSTRINE)),
   COASTAL("Coastal", "Estuarine, tidal flat, barrier/lagoon, swamp", List.of()),
@@ -29,6 +30,7 @@ public enum DepositionalSetting {
     this.depositionalEnvironments = depositionalEnvironments;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }

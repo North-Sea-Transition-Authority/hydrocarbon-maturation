@@ -91,6 +91,7 @@
         </@fdsFieldset.fieldset>
       </@grid.twoThirdsColumn>
     </@grid.gridRow>
+
     <#if prospectSubmission>
       <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionPath="form.averageNetPayThickness"
@@ -161,79 +162,25 @@
     || fieldDevelopmentPlanSubmission
     || fieldDevelopmentPlanAddendumSubmission>
       <#if oilCase || mixedCase>
-        <@probabilityDistribution.probabilityDistributionSingularTemplate
+        <@probabilityDistribution.probabilityDistributionTemplate
           probabilityDistributionPath="form.depthToOilWaterContact"
           labelText="Depth to oil-water contact"
           template=depthToOilWaterContactTemplate
           error=depthToOilWaterContactError/>
       </#if>
       <#if gasCase || mixedCase>
-        <@probabilityDistribution.probabilityDistributionSingularTemplate
+        <@probabilityDistribution.probabilityDistributionTemplate
           probabilityDistributionPath="form.depthToGasWaterContact"
           labelText="Depth to gas-water contact"
           template=depthToGasWaterContactTemplate
           error=depthToGasWaterContactError/>
       </#if>
       <#if mixedCase>
-        <@probabilityDistribution.probabilityDistributionSingularTemplate
+        <@probabilityDistribution.probabilityDistributionTemplate
           probabilityDistributionPath="form.depthToGasOilContact"
           labelText="Depth to gas-oil contact"
           template=depthToGasOilContactTemplate
           error=depthToGasOilContactError/>
-      </#if>
-      <#if fieldSubmission>
-          <@fdsTextInput.textInput
-          path="form.fracturePressure.decimalInputValue"
-          labelText="Fracture pressure"
-          suffix="psi"
-          suffixScreenReaderPrompt="in psi"
-          inputClass="govuk-input--width-5"
-          optionalLabel=true
-          />
-
-          <@fdsRadio.radioGroup path="form.depositionalSetting" labelText="Depositional setting" hiddenContent=true>
-              <#assign firstSetting=true/>
-              <#list depositionalSettings as depositionalSetting>
-                  <@fdsRadio.radioItem path="form.depositionalSetting" itemMap={depositionalSetting.name() : depositionalSetting.displayName} itemHintText=depositionalSetting.info isFirstItem=firstSetting>
-                      <#if depositionalSetting.depositionalEnvironments?has_content>
-                          <@fdsRadio.radioGroup path="form.depositionalEnvironmentMap[${depositionalSetting}]" labelText="" nestingPath="form.depositionalSetting" hiddenContent=true>
-                              <#assign firstEnvironment=true/>
-                              <#list depositionalSetting.depositionalEnvironments as depositionalEnvironment>
-                                  <#if depositionalEnvironment?has_content>
-                                      <@fdsRadio.radioItem path="form.depositionalEnvironmentMap[${depositionalSetting}]" itemMap={depositionalEnvironment.name() : depositionalEnvironment.displayName} itemHintText=depositionalEnvironment.info isFirstItem=firstEnvironment/>
-                                      <#assign firstEnvironment=false/>
-                                  </#if>
-                              </#list>
-                          </@fdsRadio.radioGroup>
-                      </#if>
-                  </@fdsRadio.radioItem>
-                  <#assign firstSetting=false/>
-              </#list>
-          </@fdsRadio.radioGroup>
-
-          <@fdsRadio.radioGroup path="form.isLateralBarriersBaffles"
-          labelText="Are there any lateral barriers or baffles?"
-          hiddenContent=true>
-              <@fdsRadio.radioYes path="form.isLateralBarriersBaffles">
-                  <@fdsCheckbox.checkboxes
-                  path="form.lateralBarriersBafflesDetail"
-                  checkboxes=barrierBaffleChecklistOptions
-                  />
-              </@fdsRadio.radioYes>
-              <@fdsRadio.radioNo path="form.isLateralBarriersBaffles"/>
-          </@fdsRadio.radioGroup>
-
-          <@fdsRadio.radioGroup path="form.isVerticalBarriersBaffles"
-          labelText="Are there any vertical barriers or baffles?"
-          hiddenContent=true>
-              <@fdsRadio.radioYes path="form.isVerticalBarriersBaffles">
-                  <@fdsCheckbox.checkboxes
-                  path="form.verticalBarriersBafflesDetail"
-                  checkboxes=barrierBaffleChecklistOptions
-                  />
-              </@fdsRadio.radioYes>
-              <@fdsRadio.radioNo path="form.isVerticalBarriersBaffles"/>
-          </@fdsRadio.radioGroup>
       </#if>
     </#if>
 
@@ -278,6 +225,62 @@
             error=depthToMovedGasOilContactError/>
         </#if>
     </#if>
+
+    <#if fieldSubmission>
+      <@fdsTextInput.textInput
+      path="form.fracturePressure.decimalInputValue"
+      labelText="Fracture pressure"
+      suffix="psi"
+      suffixScreenReaderPrompt="in psi"
+      inputClass="govuk-input--width-5"
+      optionalLabel=true
+      />
+
+      <@fdsRadio.radioGroup path="form.depositionalSetting" labelText="Depositional setting" hiddenContent=true>
+          <#assign firstSetting=true/>
+          <#list depositionalSettings as depositionalSetting>
+              <@fdsRadio.radioItem path="form.depositionalSetting" itemMap={depositionalSetting.name() : depositionalSetting.displayName} itemHintText=depositionalSetting.info isFirstItem=firstSetting>
+                  <#if depositionalSetting.depositionalEnvironments?has_content>
+                      <@fdsRadio.radioGroup path="form.depositionalEnvironmentMap[${depositionalSetting}]" labelText="" nestingPath="form.depositionalSetting" hiddenContent=true>
+                          <#assign firstEnvironment=true/>
+                          <#list depositionalSetting.depositionalEnvironments as depositionalEnvironment>
+                              <#if depositionalEnvironment?has_content>
+                                  <@fdsRadio.radioItem path="form.depositionalEnvironmentMap[${depositionalSetting}]" itemMap={depositionalEnvironment.name() : depositionalEnvironment.displayName} itemHintText=depositionalEnvironment.info isFirstItem=firstEnvironment/>
+                                  <#assign firstEnvironment=false/>
+                              </#if>
+                          </#list>
+                      </@fdsRadio.radioGroup>
+                  </#if>
+              </@fdsRadio.radioItem>
+              <#assign firstSetting=false/>
+          </#list>
+      </@fdsRadio.radioGroup>
+
+      <@fdsRadio.radioGroup path="form.isLateralBarriersBaffles"
+      labelText="Are there any lateral barriers or baffles?"
+      hiddenContent=true>
+          <@fdsRadio.radioYes path="form.isLateralBarriersBaffles">
+              <@fdsCheckbox.checkboxes
+              path="form.lateralBarriersBafflesDetail"
+              checkboxes=barrierBaffleChecklistOptions
+              />
+          </@fdsRadio.radioYes>
+          <@fdsRadio.radioNo path="form.isLateralBarriersBaffles"/>
+      </@fdsRadio.radioGroup>
+
+      <@fdsRadio.radioGroup path="form.isVerticalBarriersBaffles"
+      labelText="Are there any vertical barriers or baffles?"
+      hiddenContent=true>
+          <@fdsRadio.radioYes path="form.isVerticalBarriersBaffles">
+              <@fdsCheckbox.checkboxes
+              path="form.verticalBarriersBafflesDetail"
+              checkboxes=barrierBaffleChecklistOptions
+              />
+          </@fdsRadio.radioYes>
+          <@fdsRadio.radioNo path="form.isVerticalBarriersBaffles"/>
+      </@fdsRadio.radioGroup>
+    </#if>
+
     <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
   </@fdsForm.htmlForm>
 </@defaultPage>
