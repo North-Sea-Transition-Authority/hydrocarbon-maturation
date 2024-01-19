@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolu
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
@@ -23,13 +24,16 @@ public class DiscoveryMixedCaseVolumetricsSummaryService implements SummarySecti
 
   private final GeneralReservoirInformationService generalReservoirInformationService;
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
+  private final DiscoveryMixedCaseVolumetricsPersistenceService discoveryMixedCaseVolumetricsPersistenceService;
 
   @Autowired
   public DiscoveryMixedCaseVolumetricsSummaryService(
       GeneralReservoirInformationService generalReservoirInformationService,
-      ProbabilityDistributionSummaryService probabilityDistributionSummaryService) {
+      ProbabilityDistributionSummaryService probabilityDistributionSummaryService,
+      DiscoveryMixedCaseVolumetricsPersistenceService discoveryMixedCaseVolumetricsPersistenceService) {
     this.generalReservoirInformationService = generalReservoirInformationService;
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
+    this.discoveryMixedCaseVolumetricsPersistenceService = discoveryMixedCaseVolumetricsPersistenceService;
   }
 
   @Override
@@ -50,11 +54,17 @@ public class DiscoveryMixedCaseVolumetricsSummaryService implements SummarySecti
 
     var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
     listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
-    listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
-    listOfInstances.add(ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
+    discoveryMixedCaseVolumetricsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail)
+        .ifPresent(mixedCaseOutput -> {
+          if (BooleanUtils.isTrue(mixedCaseOutput.getHasAssociatedCondensateRecoverableResources())) {
+            listOfInstances.add(
+                ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
+          }
+        });
     listOfInstances.add(ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
 
     var listOfSummaryViews =

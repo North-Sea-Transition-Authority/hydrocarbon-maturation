@@ -10,12 +10,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
 @Service
 public class DrillStemTestResultsSummaryService implements SummarySectionService<ReservoirSubmissionDetail> {
+  public static final int WELL_TEST_RESULTS_DISPLAY_ORDER = 100;
+  public static final String WELL_TEST_RESULT = "Well test result";
+
+  public static final String TEST_NUMBER = "Test number";
+  public static final String FORMATION_NAME = "Formation name";
+  public static final String TOP_DEPTH = "Top depth";
+  public static final String BOTTOM_DEPTH = "Bottom depth";
+  public static final String BHFP = "Bhfp";
+  public static final String WHFP = "Whfp";
+  public static final String FLOW_DURATION = "Flow duration";
+  public static final String GAS_FLOWRATE = "Gas flowrate";
+  public static final String OIL_FLOWRATE = "Oil flowrate";
+  public static final String WATER_FLOWRATE = "Water flowrate";
+  public static final String COMMENTS_AND_INTERPRETATION = "Comments and interpretation";
+
+  static final String HOURS = "hours";
+  static final String PSIA = "psia";
+  static final String M_TVDSS = "m tvdss";
+  static final String BPD = "bpd";
+  static final String MMSCFPD = "mmscfpd";
 
   private final DrillStemTestResultPersistenceService drillStemTestResultPersistenceService;
   private final DrillStemTestInitialPersistenceService drillStemTestInitialPersistenceService;
@@ -56,22 +79,17 @@ public class DrillStemTestResultsSummaryService implements SummarySectionService
     var reservoirSubmissionDetail = drillStemTestResult.getDrillStemTest().getReservoirSubmissionDetail();
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
-    final String hours = "hours";
-    final String psia = "psia";
-    final String mTvdss = "m tvdss";
-    final String bpd = "bpd";
-    final String mmscfpd = "mmscfpd";
     return new DrillStemTestResultSummaryView(
         StringUtils.defaultIfBlank(drillStemTestResult.getTestNumber(), resultCounter.toString()),
         StringUtils.defaultIfBlank(drillStemTestResult.getFormationName(), ""),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getTopDepth(), mTvdss),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getBottomDepth(), mTvdss),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getBhfp(), psia),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getWhfp(), psia),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getFlowDuration(), hours),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getGasFlowrate(), mmscfpd),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getOilFlowrate(), bpd),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getWaterFlowrate(), bpd),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getTopDepth(), M_TVDSS),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getBottomDepth(), M_TVDSS),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getBhfp(), PSIA),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getWhfp(), PSIA),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getFlowDuration(), HOURS),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getGasFlowrate(), MMSCFPD),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getOilFlowrate(), BPD),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getWaterFlowrate(), BPD),
         StringUtils.defaultIfBlank(drillStemTestResult.getCommentsInterpretation(), ""),
         summaryMode,
         ReverseRouter.route(on(DrillStemTestResultController.class)
@@ -100,15 +118,64 @@ public class DrillStemTestResultsSummaryService implements SummarySectionService
     return drillStemTestResultViews;
   }
 
-  private String getDrillStemTestSummaryOptionDisplay(DrillStemTest drillStemTest) {
-    return drillStemTest.getDrillStemTestSummaryOption() != null
-        ? drillStemTest.getDrillStemTestSummaryOption().getDisplayName()
-        : "";
+  @Override
+  public Optional<SummarySection> getSummarySection(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var summaryItems = getAllWellTestResultsSummaries(reservoirSubmissionDetail);
+
+    // do not show summary section if there are no result cards
+    if (summaryItems.isEmpty()) {
+      return Optional.empty();
+    }
+
+    return Optional.of(new SummarySection(WELL_TEST_RESULTS_DISPLAY_ORDER, summaryItems, ""));
   }
 
-  @Override
-  public Optional<SummarySection> getSummarySection(ReservoirSubmissionDetail source) {
-    // TODO HM-816 - add summary section for drill stem test result
-    return Optional.empty();
+  private List<SummaryItem> getAllWellTestResultsSummaries(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    return drillStemTestResultPersistenceService.getDrillStemTestResultsByReservoirSubmissionDetail(reservoirSubmissionDetail)
+        .stream()
+        .map(this::getWellTestResultsSummary)
+        .toList();
+  }
+
+  private SummaryItem getWellTestResultsSummary(DrillStemTestResult drillStemTestResult) {
+    var summaryDataView = new SummaryDataView(new ArrayList<>());
+
+    summaryDataView.addKeyValue(
+        TEST_NUMBER,
+        StringUtils.defaultIfBlank(drillStemTestResult.getTestNumber(), ""));
+    summaryDataView.addKeyValue(
+        FORMATION_NAME,
+        StringUtils.defaultIfBlank(drillStemTestResult.getFormationName(), ""));
+    summaryDataView.addKeyValue(
+        TOP_DEPTH,
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getTopDepth(), M_TVDSS));
+    summaryDataView.addKeyValue(
+        BOTTOM_DEPTH,
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getBottomDepth(), M_TVDSS));
+    summaryDataView.addKeyValue(
+        BHFP,
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getBhfp(), PSIA));
+    summaryDataView.addKeyValue(
+        WHFP,
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getWhfp(), PSIA));
+    summaryDataView.addKeyValue(
+        FLOW_DURATION,
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getFlowDuration(), HOURS));
+    summaryDataView.addKeyValue(
+        GAS_FLOWRATE,
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getGasFlowrate(), MMSCFPD));
+    summaryDataView.addKeyValue(
+        OIL_FLOWRATE,
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getOilFlowrate(), BPD));
+    summaryDataView.addKeyValue(
+        WATER_FLOWRATE,
+        NumberUtil.getNumberStringWithUnitsOrEmpty(drillStemTestResult.getWaterFlowrate(), BPD));
+    summaryDataView.addKeyValue(
+        COMMENTS_AND_INTERPRETATION,
+        StringUtils.defaultIfBlank(drillStemTestResult.getCommentsInterpretation(), ""));
+
+    var cardTitle = "%s %s"
+        .formatted(WELL_TEST_RESULT, StringUtils.defaultIfBlank(drillStemTestResult.getTestNumber(), ""));
+    return SummaryItem.withCard(cardTitle, SummaryCard.simpleSummaryCard(summaryDataView));
   }
 }
