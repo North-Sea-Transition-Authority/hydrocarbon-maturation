@@ -50,7 +50,7 @@ public class TaskListController {
     String deleteLinkText;
     if (BooleanUtils.isTrue(submissionDetail.isCorrection())) {
       deleteLinkText = "Delete correction";
-    } else if (submissionDetail.isUpdateSubmission()) {
+    } else if (submissionDetail.isUpdateToSubmission()) {
       deleteLinkText = "Delete submission update";
     } else {
       deleteLinkText = "Delete submission";

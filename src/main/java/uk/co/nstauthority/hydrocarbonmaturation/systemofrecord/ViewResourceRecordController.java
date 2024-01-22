@@ -160,7 +160,7 @@ public class ViewResourceRecordController {
       }
     }
 
-    var querySearchResults = submissionHistoryQueryService.getApprovedSubmissionsOnResource(
+    var querySearchResults = submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(
         resourceId
     );
     modelAndView.addObject("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(

@@ -50,7 +50,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
       var resourceId = prospectResource.getId();
       var results = submissionHistoryQueryService
-          .getApprovedAndSubmittedSubmissionsOnResource(resourceId);
+          .getAcceptedAndSubmittedSubmissionsOnResourceWithLinkedResources(resourceId);
 
       assertThat(results)
           .extracting(
@@ -84,7 +84,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
       var resourceId = prospectResource.getId();
       var results = submissionHistoryQueryService
-          .getApprovedAndSubmittedSubmissionsOnResource(resourceId);
+          .getAcceptedAndSubmittedSubmissionsOnResourceWithLinkedResources(resourceId);
 
       assertThat(results).isEmpty();
     }
@@ -95,7 +95,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
       var resourceId = prospectResource.getId();
       var results = submissionHistoryQueryService
-          .getApprovedAndSubmittedSubmissionsOnResource(resourceId);
+          .getAcceptedAndSubmittedSubmissionsOnResourceWithLinkedResources(resourceId);
 
       assertThat(results).isEmpty();
     }
@@ -138,7 +138,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
       var resourceId = discoveryLinkedToAProspect.getId();
       var results = submissionHistoryQueryService
-          .getApprovedAndSubmittedSubmissionsOnResource(resourceId);
+          .getAcceptedAndSubmittedSubmissionsOnResourceWithLinkedResources(resourceId);
       if (linkedResources) {
         assertThat(results)
             .extracting(
@@ -200,7 +200,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
       var resourceId = prospectResource.getId();
       var results = submissionHistoryQueryService
-          .getApprovedAndSubmittedSubmissionsOnResource(resourceId);
+          .getAcceptedAndSubmittedSubmissionsOnResourceWithLinkedResources(resourceId);
       if (withdrawn == null) {
         assertThat(results)
             .extracting(
@@ -238,7 +238,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
       var resourceId = prospectResource.getId();
       var results = submissionHistoryQueryService
-          .getApprovedSubmissionsOnResource(resourceId);
+          .getAcceptedSubmissionsOnResourceWithLinkedResources(resourceId);
 
       assertThat(results).isEmpty();
     }
@@ -254,7 +254,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
       var resourceId = prospectResource.getId();
       var results = submissionHistoryQueryService
-          .getApprovedSubmissionsOnResource(resourceId);
+          .getAcceptedSubmissionsOnResourceWithLinkedResources(resourceId);
 
       assertThat(results).isEmpty();
     }
@@ -275,7 +275,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
       var resourceId = prospectResource.getId();
       var results = submissionHistoryQueryService
-          .getApprovedSubmissionsOnResource(resourceId);
+          .getAcceptedSubmissionsOnResourceWithLinkedResources(resourceId);
 
       assertThat(results)
           .extracting(
@@ -332,7 +332,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
 
       var resourceId = discoveryLinkedToAProspect.getId();
       var results = submissionHistoryQueryService
-          .getApprovedSubmissionsOnResource(resourceId);
+          .getAcceptedSubmissionsOnResourceWithLinkedResources(resourceId);
       if (linkedResources) {
         assertThat(results)
             .extracting(
@@ -407,7 +407,7 @@ class SubmissionHistoryQueryServiceIntegrationTest {
       entityManager.flush();
 
       var results = submissionHistoryQueryService
-          .getApprovedAndSubmittedSubmissionsOnResource(prospectResource.getId());
+          .getAcceptedAndSubmittedSubmissionsOnResourceWithLinkedResources(prospectResource.getId());
 
       assertThat(results)
           .extracting(

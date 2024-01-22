@@ -61,6 +61,28 @@ public class ResourceGroupService {
     return resourceGroupLinksRepository.existsResourceGroupLinkByResourceAndPreferredViewIs(resource, false);
   }
 
+  public boolean isPreferredView(Resource resource) {
+    return resourceGroupLinksRepository.existsResourceGroupLinkByResourceAndPreferredViewIs(resource, true);
+  }
+
+  /** Removes a resource from a group and removes the group entirely if there were only two resources in the group to start.
+   * @param resource the resource to remove from the group
+   */
+  @Transactional
+  public void removeResourceFromGroup(Resource resource) {
+    var resourceGroupLinkForResource = getResourceGroupLinkByResource(resource);
+    if (resourceGroupLinkForResource.isPresent()) {
+      var resourceGroupLink = resourceGroupLinkForResource.get();
+      var resourceGroupId = resourceGroupLink.getResourceGroupId();
+      var resourceGroupLinks = resourceGroupLinksRepository.findByResourceGroupId(resourceGroupId);
+      if (resourceGroupLinks.size() == 2) {
+        resourceGroupLinksRepository.deleteAll(resourceGroupLinks);
+      } else {
+        resourceGroupLinksRepository.delete(resourceGroupLink);
+      }
+    }
+  }
+
   private void addToGroup(RelatedResource relatedResource,
                           Resource currentResourceResource,
                           ResourceGroupLink resourceGroupLinkForRelatedResource) {

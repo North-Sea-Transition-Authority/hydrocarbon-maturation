@@ -54,27 +54,31 @@ class CorrectionFormValidator {
       validateMissingUpdate(form, resource, errors);
     }
 
+    if (form.getCorrectionType() == CorrectionType.REMOVE_SUBMISSION) {
+      validateSubmissionRemoval(errors);
+    }
+
     return !errors.hasErrors();
   }
 
   private void validateSubmissionCorrection(Errors errors) {
     ValidationUtils.rejectIfEmpty(
         errors,
-        "submissionIdForCorrectingInformation",
-        "submissionIdForCorrectingInformation.required",
+        "submissionDetailIdForCorrectingInformation",
+        "submissionDetailIdForCorrectingInformation.required",
         "Select the submission you want to correct");
   }
 
   private void validateApprovalDateChange(CorrectionForm form, Resource resource, Errors errors) {
     ValidationUtils.rejectIfEmpty(
         errors,
-        "submissionIdForChangingApprovedDate",
-        "submissionIdForChangingApprovedDate.required",
+        "submissionDetailIdForChangingApprovedDate",
+        "submissionDetailIdForChangingApprovedDate.required",
         "Select the submission you want to change the accepted date for");
 
-    if (form.getSubmissionIdForChangingApprovedDate() != null) {
-      var formSubmissionDetail = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
-      var selectedSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(formSubmissionDetail);
+    if (form.getSubmissionDetailIdForChangingApprovedDate() != null) {
+      var formSubmissionDetailId = UUID.fromString(form.getSubmissionDetailIdForChangingApprovedDate());
+      var selectedSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(formSubmissionDetailId);
 
       // basic date validation - check it isn't in the future
       var basicDateValidationPassed = DateValidationUtil.validateDateIsTodayOrInThePast(
@@ -86,7 +90,8 @@ class CorrectionFormValidator {
           errors);
 
       if (basicDateValidationPassed) {
-        var approvedSubmissions = submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId());
+        var approvedSubmissions =
+            submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId());
 
         checkDateAvailable(
             approvedSubmissions,
@@ -207,13 +212,13 @@ class CorrectionFormValidator {
   private void validateMissingUpdate(CorrectionForm form, Resource resource, Errors errors) {
     ValidationUtils.rejectIfEmpty(
         errors,
-        "submissionIdForMissingUpdate",
-        "submissionIdForMissingUpdate.required",
+        "submissionDetailIdForMissingUpdate",
+        "submissionDetailIdForMissingUpdate.required",
         "Select the submission you want to create the update after");
 
-    if (form.getSubmissionIdForMissingUpdate() != null) {
-      var formSubmissionDetail = UUID.fromString(form.getSubmissionIdForMissingUpdate());
-      var selectedSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(formSubmissionDetail);
+    if (form.getSubmissionDetailIdForMissingUpdate() != null) {
+      var formSubmissionDetailId = UUID.fromString(form.getSubmissionDetailIdForMissingUpdate());
+      var selectedSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(formSubmissionDetailId);
 
       // basic date validation - check it isn't in the future
       var basicDateValidationPassed = DateValidationUtil.validateDateIsTodayOrInThePast(
@@ -225,7 +230,8 @@ class CorrectionFormValidator {
           errors);
 
       if (basicDateValidationPassed) {
-        var approvedSubmissions = submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId());
+        var approvedSubmissions =
+            submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId());
 
         checkDateAvailable(
             approvedSubmissions,
@@ -330,6 +336,14 @@ class CorrectionFormValidator {
         }
       }
     }
+  }
+
+  private void validateSubmissionRemoval(Errors errors) {
+    ValidationUtils.rejectIfEmpty(
+        errors,
+        "submissionDetailIdForRemoval",
+        "submissionDetailIdForRemoval.required",
+        "Select the submission you want to remove");
   }
 
   // check the new approved date isn't the same as any other approved date

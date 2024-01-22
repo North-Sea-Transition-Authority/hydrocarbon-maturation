@@ -141,7 +141,7 @@ public class ReviewSubmissionController {
         "remi/review/reviewSubmission"
     );
 
-    var querySearchResults = submissionHistoryQueryService.getApprovedAndSubmittedSubmissionsOnResource(
+    var querySearchResults = submissionHistoryQueryService.getAcceptedAndSubmittedSubmissionsOnResourceWithLinkedResources(
         resourceId
     );
     modelAndView.addObject("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(

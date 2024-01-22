@@ -264,7 +264,7 @@ public class SubmissionDetail {
     return submission.getResource().getType() == otherSubmissionDetail.getSubmission().getResource().getType();
   }
 
-  public boolean isUpdateSubmission() {
+  public boolean isUpdateToSubmission() {
     return versionNumber > 1;
   }
 

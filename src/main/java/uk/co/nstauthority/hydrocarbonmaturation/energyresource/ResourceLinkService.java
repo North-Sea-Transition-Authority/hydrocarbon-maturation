@@ -42,10 +42,15 @@ public class ResourceLinkService {
 
   public boolean prospectIsLinkedToDiscovery(Resource resource) {
     if (resource.getType() == ResourceType.PROSPECT) {
-      return resourceLinksRepository.existsByProspectResource(resource);
+      return resourceLinksRepository.existsByProspectResourceAndDiscoveryResourceIsNotNull(resource);
     } else {
       return false;
     }
+  }
+
+  @Transactional
+  public void deleteDiscoveryToProspectLink(Resource discovery) {
+    resourceLinksRepository.deleteByDiscoveryResourceAndProspectResourceIsNotNull(discovery);
   }
 
   public List<ResourceLink> getResourceLinksByDiscovery(Resource discovery) {

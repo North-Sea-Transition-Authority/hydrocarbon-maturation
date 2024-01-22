@@ -3,19 +3,21 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,8 +30,10 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
@@ -70,6 +74,14 @@ class CorrectionServiceTest {
   @Mock
   private SubmissionDetailPersistenceService submissionDetailPersistenceService;
 
+  @Mock
+  private ResourceGroupService resourceGroupService;
+
+  @Mock
+  private ResourceLinkService resourceLinkService;
+
+  private Clock clock;
+
   private CorrectionService correctionService;
 
   private Resource resource;
@@ -83,7 +95,10 @@ class CorrectionServiceTest {
         submissionCreateService,
         submissionDetailService,
         submissionPersistenceService,
-        submissionDetailPersistenceService);
+        submissionDetailPersistenceService,
+        resourceGroupService,
+        resourceLinkService,
+        clock = Clock.fixed(Instant.now(), ZoneId.systemDefault()));
 
     resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
     user = UserTestUtil.Builder().build();
@@ -147,12 +162,12 @@ class CorrectionServiceTest {
     var previousSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
     var form = new CorrectionForm();
     form.setCorrectionType(CorrectionType.SUBMISSION_CORRECTION);
-    form.setSubmissionIdForCorrectingInformation(previousSubmissionDetail.getId().toString());
+    form.setSubmissionDetailIdForCorrectingInformation(previousSubmissionDetail.getId().toString());
     when(submissionDetailService.getSubmissionDetailForIdOrError(previousSubmissionDetail.getId())).thenReturn(previousSubmissionDetail);
     var correctionSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
     correctionSubmissionDetail.setCorrection(true);
     correctionSubmissionDetail.setCorrectionByWuaId(user.wuaId().intValue());
-    correctionSubmissionDetail.setCorrectionTimestamp(Instant.now());
+    correctionSubmissionDetail.setCorrectionTimestamp(clock.instant());
     when(submissionCreateService.createCorrectionSubmissionDetail(previousSubmissionDetail, user))
         .thenReturn(correctionSubmissionDetail);
     var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
@@ -186,7 +201,7 @@ class CorrectionServiceTest {
     form.setMissingUpdateDay("1");
     form.setMissingUpdateMonth("1");
     form.setMissingUpdateYear("2023");
-    form.setSubmissionIdForMissingUpdate(previousSubmissionDetail.getId().toString());
+    form.setSubmissionDetailIdForMissingUpdate(previousSubmissionDetail.getId().toString());
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(previousSubmissionDetail.getId())).thenReturn(previousSubmissionDetail);
 
@@ -216,7 +231,7 @@ class CorrectionServiceTest {
     form.setMissingUpdateDay("1");
     form.setMissingUpdateMonth("1");
     form.setMissingUpdateYear("2023");
-    form.setSubmissionIdForMissingUpdate(previousSubmissionDetail.getId().toString());
+    form.setSubmissionDetailIdForMissingUpdate(previousSubmissionDetail.getId().toString());
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(previousSubmissionDetail.getId())).thenReturn(previousSubmissionDetail);
 
@@ -244,7 +259,7 @@ class CorrectionServiceTest {
     when(submissionDetailService.getSubmissionDetailForIdOrError(previousSubmissionDetail.getId())).thenReturn(previousSubmissionDetail);
     var form = new CorrectionForm();
     form.setCorrectionType(CorrectionType.HISTORIC_UPDATE);
-    form.setSubmissionIdForMissingUpdate(previousSubmissionDetail.getId().toString());
+    form.setSubmissionDetailIdForMissingUpdate(previousSubmissionDetail.getId().toString());
 
     assertThatThrownBy(() -> correctionService.startCorrectionForTypeAndRedirect(form, user))
         .hasMessage("Corrections can only be done for prospects and discoveries")
@@ -296,7 +311,7 @@ class CorrectionServiceTest {
     var selectedSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
     var form = new CorrectionForm();
     form.setCorrectionType(CorrectionType.ACCEPTED_DATE_CHANGE);
-    form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.getId().toString());
+    form.setSubmissionDetailIdForChangingApprovedDate(selectedSubmissionDetail.getId().toString());
     form.setApprovalDateChangeDay("1");
     form.setApprovalDateChangeMonth("1");
     form.setApprovalDateChangeYear("2023");
@@ -349,12 +364,118 @@ class CorrectionServiceTest {
 
   @Test
   void startCorrectionForType_removeSubmission() {
+    var submissionDetailForRemoval = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
     var form = new CorrectionForm();
     form.setCorrectionType(CorrectionType.REMOVE_SUBMISSION);
+    form.setSubmissionDetailIdForRemoval(submissionDetailForRemoval.getId().toString());
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailForRemoval.getId()))
+        .thenReturn(submissionDetailForRemoval);
+    var modelAndView = correctionService.startCorrectionForTypeAndRedirect(form, user);
 
-    var submissionDetail = correctionService.startCorrectionForTypeAndRedirect(form, user);
+    assertEquals(
+        ReverseRouter.redirect(on(DeleteSubmissionFromCorrectionController.class)
+            .showDeleteConfirmationPage(submissionDetailForRemoval.getId(), null)).getView(),
+        modelAndView.getView()
+    );
 
-    assertNull(submissionDetail);
+  }
 
+  @Test
+  void canRemoveSubmissions() {
+    var resource = new Resource();
+    when(resourceGroupService.isPreferredView(resource)).thenReturn(false);
+    when(resourceLinkService.prospectIsLinkedToDiscovery(resource)).thenReturn(false);
+    assertTrue(correctionService.canRemoveSubmissions(resource));
+  }
+
+  @Test
+  void cantRemoveSubmissions_whenResourceIsPreferredViewInGroup() {
+    var resource = new Resource();
+    when(resourceGroupService.isPreferredView(resource)).thenReturn(true);
+    assertFalse(correctionService.canRemoveSubmissions(resource));
+  }
+
+  @Test
+  void cantRemoveSubmissions_whenProspectIsLinkedToDiscovery() {
+    var resource = new Resource();
+    when(resourceLinkService.prospectIsLinkedToDiscovery(resource)).thenReturn(true);
+    assertFalse(correctionService.canRemoveSubmissions(resource));
+  }
+
+  @Test
+  void getCorrectionType_canRemoveSubmissions() {
+    var resource = new Resource();
+    when(resourceGroupService.isPreferredView(resource)).thenReturn(false);
+    when(resourceLinkService.prospectIsLinkedToDiscovery(resource)).thenReturn(false);
+    var correctionTypes = correctionService.getCorrectionTypes(resource);
+    assertThat(correctionTypes).containsExactly(
+        entry(CorrectionType.HISTORIC_UPDATE.name(), CorrectionType.HISTORIC_UPDATE.getDisplayName()),
+        entry(CorrectionType.SUBMISSION_CORRECTION.name(), CorrectionType.SUBMISSION_CORRECTION.getDisplayName()),
+        entry(CorrectionType.ACCEPTED_DATE_CHANGE.name(), CorrectionType.ACCEPTED_DATE_CHANGE.getDisplayName()),
+        entry(CorrectionType.REMOVE_SUBMISSION.name(), CorrectionType.REMOVE_SUBMISSION.getDisplayName())
+    );
+  }
+
+  @Test
+  void getCorrectionType_cantRemoveSubmissions_preferredView() {
+    var resource = new Resource();
+    when(resourceGroupService.isPreferredView(resource)).thenReturn(true);
+    var correctionTypes = correctionService.getCorrectionTypes(resource);
+    assertThat(correctionTypes).containsExactly(
+        entry(CorrectionType.HISTORIC_UPDATE.name(), CorrectionType.HISTORIC_UPDATE.getDisplayName()),
+        entry(CorrectionType.SUBMISSION_CORRECTION.name(), CorrectionType.SUBMISSION_CORRECTION.getDisplayName()),
+        entry(CorrectionType.ACCEPTED_DATE_CHANGE.name(), CorrectionType.ACCEPTED_DATE_CHANGE.getDisplayName())
+    );
+  }
+
+  @Test
+  void getCorrectionType_cantRemoveSubmissions_prospectLinkedToDiscovery() {
+    var resource = new Resource();
+    when(resourceLinkService.prospectIsLinkedToDiscovery(resource)).thenReturn(true);
+    var correctionTypes = correctionService.getCorrectionTypes(resource);
+    assertThat(correctionTypes).containsExactly(
+        entry(CorrectionType.HISTORIC_UPDATE.name(), CorrectionType.HISTORIC_UPDATE.getDisplayName()),
+        entry(CorrectionType.SUBMISSION_CORRECTION.name(), CorrectionType.SUBMISSION_CORRECTION.getDisplayName()),
+        entry(CorrectionType.ACCEPTED_DATE_CHANGE.name(), CorrectionType.ACCEPTED_DATE_CHANGE.getDisplayName())
+    );
+  }
+
+  @Test
+  void deleteSubmission() {
+    var firstSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+    var secondSubmissionDetail = SubmissionDetailTestUtils.createUpdateToSubmission(firstSubmissionDetail);
+    when(submissionDetailService.getSubmissionDetailsBySubmission(secondSubmissionDetail.getSubmission())).thenReturn(
+        List.of(firstSubmissionDetail, secondSubmissionDetail)
+    );
+    var user = UserTestUtil.Builder().build();
+    correctionService.deleteSubmission(secondSubmissionDetail, user);
+    assertThat(firstSubmissionDetail).extracting(
+        SubmissionDetail::isCorrection,
+        SubmissionDetail::getCorrectionByWuaId,
+        SubmissionDetail::getCorrectionTimestamp,
+        SubmissionDetail::getSubmitterType,
+        SubmissionDetail::getStatus
+    ).containsExactly(
+        true,
+        user.wuaId().intValue(),
+        clock.instant(),
+        SubmitterType.REGULATOR,
+        SubmissionDetailStatus.DELETED
+    );
+    assertThat(secondSubmissionDetail).extracting(
+        SubmissionDetail::isCorrection,
+        SubmissionDetail::getCorrectionByWuaId,
+        SubmissionDetail::getCorrectionTimestamp,
+        SubmissionDetail::getSubmitterType,
+        SubmissionDetail::getStatus
+    ).containsExactly(
+        true,
+        user.wuaId().intValue(),
+        clock.instant(),
+        SubmitterType.REGULATOR,
+        SubmissionDetailStatus.DELETED
+    );
+    verify(resourceLinkService).deleteDiscoveryToProspectLink(secondSubmissionDetail.getSubmission().getResource());
+    verify(resourceGroupService).removeResourceFromGroup(secondSubmissionDetail.getSubmission().getResource());
   }
 }

@@ -2,9 +2,10 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.time.Instant;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
@@ -38,6 +41,9 @@ public class CorrectionService {
   private final SubmissionDetailService submissionDetailService;
   private final SubmissionPersistenceService submissionPersistenceService;
   private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
+  private final ResourceGroupService resourceGroupService;
+  private final ResourceLinkService resourceLinkService;
+  private final Clock clock;
 
   @Autowired
   public CorrectionService(RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
@@ -45,13 +51,19 @@ public class CorrectionService {
                            SubmissionCreateService submissionCreateService,
                            SubmissionDetailService submissionDetailService,
                            SubmissionPersistenceService submissionPersistenceService,
-                           SubmissionDetailPersistenceService submissionDetailPersistenceService) {
+                           SubmissionDetailPersistenceService submissionDetailPersistenceService,
+                           ResourceGroupService resourceGroupService,
+                           ResourceLinkService resourceLinkService,
+                           Clock clock) {
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.responsibleTeamService = responsibleTeamService;
     this.submissionCreateService = submissionCreateService;
     this.submissionDetailService = submissionDetailService;
     this.submissionPersistenceService = submissionPersistenceService;
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
+    this.resourceGroupService = resourceGroupService;
+    this.resourceLinkService = resourceLinkService;
+    this.clock = clock;
   }
 
 
@@ -79,24 +91,34 @@ public class CorrectionService {
     return !submissionDetailService.openCorrectionExists(Set.of(SubmissionDetailStatus.DRAFT), resource);
   }
 
+  Map<String, String> getCorrectionTypes(Resource resource) {
+    var correctionTypes = CorrectionType.getCorrectionTypes();
+    if (!canRemoveSubmissions(resource)) {
+      correctionTypes.remove(CorrectionType.REMOVE_SUBMISSION.name());
+    }
+    return correctionTypes;
+  }
+
   ModelAndView startCorrectionForTypeAndRedirect(CorrectionForm form, User user) {
     return switch (form.getCorrectionType()) {
       case HISTORIC_UPDATE -> createMissingUpdateAndRedirect(
-          UUID.fromString(form.getSubmissionIdForMissingUpdate()),
+          UUID.fromString(form.getSubmissionDetailIdForMissingUpdate()),
           form.getMissingUpdateDay(),
           form.getMissingUpdateMonth(),
           form.getMissingUpdateYear(),
           user);
       case SUBMISSION_CORRECTION -> createSubmissionCorrectionAndRedirect(
-          UUID.fromString(form.getSubmissionIdForCorrectingInformation()),
+          UUID.fromString(form.getSubmissionDetailIdForCorrectingInformation()),
           user);
       case ACCEPTED_DATE_CHANGE -> updateApprovedDateAndRedirect(
-          UUID.fromString(form.getSubmissionIdForChangingApprovedDate()),
+          UUID.fromString(form.getSubmissionDetailIdForChangingApprovedDate()),
           form.getApprovalDateChangeDay(),
           form.getApprovalDateChangeMonth(),
           form.getApprovalDateChangeYear(),
           user);
-      case REMOVE_SUBMISSION -> null;
+      case REMOVE_SUBMISSION -> removeSubmissionAndRedirect(
+          UUID.fromString(form.getSubmissionDetailIdForRemoval())
+      );
     };
   }
 
@@ -106,7 +128,8 @@ public class CorrectionService {
           .getTaskList(submissionDetail.getId()));
       case ACCEPTED_DATE_CHANGE -> ReverseRouter.redirect(on(ViewResourceRecordController.class)
           .showSubmissionSummary(submissionDetail.getSubmission().getResource().getId(), submissionDetail.getId(), null));
-      case REMOVE_SUBMISSION -> null;
+      case REMOVE_SUBMISSION -> ReverseRouter.redirect(on(DeleteSubmissionFromCorrectionController.class)
+          .showDeleteConfirmationPage(submissionDetail.getId(), null));
     };
   }
 
@@ -180,6 +203,39 @@ public class CorrectionService {
 
   }
 
+  /** Submissions can only be removed from resources if:
+   *  it's not the preferred view for a group
+   *  and if it's a prospect it's not currently linked to a discovery.
+   * @param resource the resource from which submissions are being removed
+   * @return true or false
+   */
+  boolean canRemoveSubmissions(Resource resource) {
+    var isPreferredView = resourceGroupService.isPreferredView(resource);
+    var prospectHasLinkedDiscovery = resourceLinkService.prospectIsLinkedToDiscovery(resource);
+    return !isPreferredView && !prospectHasLinkedDiscovery;
+  }
+
+  @Transactional
+  public void deleteSubmission(SubmissionDetail submissionDetail, User user) {
+    var submission = submissionDetail.getSubmission();
+    var resource = submission.getResource();
+    submissionDetailService.getSubmissionDetailsBySubmission(submission).forEach(submissionDetailForDelete -> {
+      setCorrectionDetails(submissionDetailForDelete, user);
+      submissionDetailForDelete.setStatus(SubmissionDetailStatus.DELETED);
+    });
+    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
+      resourceLinkService.deleteDiscoveryToProspectLink(resource);
+    }
+    if (submissionDetail.isInitialResourceSubmission()) {
+      resourceGroupService.removeResourceFromGroup(resource);
+    }
+  }
+
+  private ModelAndView removeSubmissionAndRedirect(UUID submissionDetailId) {
+    var removedSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    return getCorrectionRedirectForType(CorrectionType.REMOVE_SUBMISSION, removedSubmissionDetail);
+  }
+
   private void setApprovalDateAndUser(SubmissionDetail submissionDetail,
                                       String day,
                                       String month,
@@ -196,7 +252,7 @@ public class CorrectionService {
   private void setCorrectionDetails(SubmissionDetail submissionDetail, User user) {
     submissionDetail.setCorrection(true);
     submissionDetail.setCorrectionByWuaId(user.wuaId().intValue());
-    submissionDetail.setCorrectionTimestamp(Instant.now());
+    submissionDetail.setCorrectionTimestamp(clock.instant());
     submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
   }
 }

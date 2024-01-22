@@ -26,17 +26,25 @@ public class SubmissionHistoryQueryService {
     this.context = context;
   }
 
-  public List<SubmissionQuerySearchRecord> getApprovedAndSubmittedSubmissionsOnResource(UUID resourceId) {
+  public List<SubmissionQuerySearchRecord> getAcceptedAndSubmittedSubmissionsOnResourceWithLinkedResources(UUID resourceId) {
     return getSubmissionsOnResourceQueryResults(
         List.of(
-            getResourceIdAndNotWithdrawnCondition(resourceId),
+            getResourceIdWithLinkedResourcesAndNotWithdrawnCondition(resourceId),
             SUBMISSION_DETAILS.STATUS.in(
                 SubmissionDetailStatus.ACCEPTED.name(),
                 SubmissionDetailStatus.SUBMITTED.name()))
     );
   }
 
-  public List<SubmissionQuerySearchRecord> getApprovedSubmissionsOnResource(UUID resourceId) {
+  public List<SubmissionQuerySearchRecord> getAcceptedSubmissionsOnResourceWithLinkedResources(UUID resourceId) {
+    return getSubmissionsOnResourceQueryResults(
+        List.of(
+            getResourceIdWithLinkedResourcesAndNotWithdrawnCondition(resourceId),
+            SUBMISSION_DETAILS.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))
+    );
+  }
+
+  public List<SubmissionQuerySearchRecord> getAcceptedSubmissionsOnResource(UUID resourceId) {
     return getSubmissionsOnResourceQueryResults(
         List.of(
             getResourceIdAndNotWithdrawnCondition(resourceId),
@@ -61,10 +69,14 @@ public class SubmissionHistoryQueryService {
                                 SubmissionDetailStatus.SUBMITTED.name()))))
                     .where(SD_2.SUBMISSION_ID.eq(SUBMISSIONS.ID))
                     .orderBy(SD_2.VERSION_NUMBER.desc())
-                    .limit(1)))
+                    .limit(1)
+                )
+            )
             .leftJoin(RESOURCE_LINKS)
             .on(RESOURCE_LINKS.DISCOVERY_RESOURCE_ID.eq(SUBMISSIONS.RESOURCE_ID)
-                .or(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(SUBMISSIONS.RESOURCE_ID))))
+                .or(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(SUBMISSIONS.RESOURCE_ID))
+            )
+        )
         .where(conditions)
         .orderBy(
             SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP.desc(),
@@ -74,9 +86,13 @@ public class SubmissionHistoryQueryService {
         .fetchInto(SubmissionQuerySearchRecord.class);
   }
 
-  private Condition getResourceIdAndNotWithdrawnCondition(UUID resourceId) {
+  private Condition getResourceIdWithLinkedResourcesAndNotWithdrawnCondition(UUID resourceId) {
     return SUBMISSIONS.WITHDRAWN.isNull().and(SUBMISSIONS.RESOURCE_ID.eq(resourceId)
         .or(RESOURCE_LINKS.DISCOVERY_RESOURCE_ID.eq(resourceId))
         .or(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(resourceId)));
+  }
+
+  private Condition getResourceIdAndNotWithdrawnCondition(UUID resourceId) {
+    return SUBMISSIONS.WITHDRAWN.isNull().and(SUBMISSIONS.RESOURCE_ID.eq(resourceId));
   }
 }

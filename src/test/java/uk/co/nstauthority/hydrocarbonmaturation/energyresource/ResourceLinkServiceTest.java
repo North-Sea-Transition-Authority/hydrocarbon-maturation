@@ -171,14 +171,21 @@ class ResourceLinkServiceTest {
   @Test
   void prospectIsLinkedToDiscovery_whenProspectLinkedToDiscovery() {
     var prospect = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
-    when(resourceLinksRepository.existsByProspectResource(prospect)).thenReturn(true);
+    when(resourceLinksRepository.existsByProspectResourceAndDiscoveryResourceIsNotNull(prospect)).thenReturn(true);
     assertTrue(resourceLinkService.prospectIsLinkedToDiscovery(prospect));
   }
 
   @Test
   void prospectIsLinkedToDiscovery_whenProspectNotLinkedToDiscovery() {
     var prospect = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
-    when(resourceLinksRepository.existsByProspectResource(prospect)).thenReturn(false);
+    when(resourceLinksRepository.existsByProspectResourceAndDiscoveryResourceIsNotNull(prospect)).thenReturn(false);
     assertFalse(resourceLinkService.prospectIsLinkedToDiscovery(prospect));
+  }
+
+  @Test
+  void deleteDiscoveryToProspectLink_verifyMethodCall() {
+    var resource = new Resource();
+    resourceLinkService.deleteDiscoveryToProspectLink(resource);
+    verify(resourceLinksRepository).deleteByDiscoveryResourceAndProspectResourceIsNotNull(resource);
   }
 }

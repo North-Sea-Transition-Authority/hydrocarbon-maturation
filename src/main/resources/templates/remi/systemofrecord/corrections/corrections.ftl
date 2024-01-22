@@ -2,6 +2,7 @@
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="submissionsOnResource" type="java.util.Map<String, String>"-->
+<#-- @ftlvariable name="removableSubmissions" type="java.util.Map<String, String>"-->
 
 <@defaultPage
 htmlTitle="What do you want to correct?"
@@ -13,10 +14,9 @@ backLinkUrl=springUrl(cancelUrl)>
             <#assign firstItem=true/>
             <#list correctionTypes as key, value>
                 <@fdsRadio.radioItem path="form.correctionType" itemMap={key : value} isFirstItem=firstItem>
-
                     <#if key == "HISTORIC_UPDATE">
                         <@fdsSelect.select
-                            path = "form.submissionIdForMissingUpdate"
+                            path = "form.submissionDetailIdForMissingUpdate"
                             labelText = "After which submission do you want to add a missing update?"
                             options = submissionsOnResource
                             nestingPath="form.correctionType"/>
@@ -31,14 +31,14 @@ backLinkUrl=springUrl(cancelUrl)>
                     </#if>
                     <#if key == "SUBMISSION_CORRECTION">
                         <@fdsSelect.select
-                            path = "form.submissionIdForCorrectingInformation"
+                            path = "form.submissionDetailIdForCorrectingInformation"
                             labelText = "On which submission do you want to correct the information provided?"
                             options = submissionsOnResource
                             nestingPath="form.correctionType"/>
                     </#if>
-                    <#if key == "APPROVAL_DATE_CHANGE">
+                    <#if key == "ACCEPTED_DATE_CHANGE">
                         <@fdsSelect.select
-                            path = "form.submissionIdForChangingApprovedDate"
+                            path = "form.submissionDetailIdForChangingApprovedDate"
                             labelText = "On which submission do you want to change the accepted date?"
                             options = submissionsOnResource
                             nestingPath="form.correctionType"/>
@@ -50,6 +50,13 @@ backLinkUrl=springUrl(cancelUrl)>
                             labelText="What is the new accepted date of the submission?"
                             hintText="For example, 31 1 2023"
                             nestingPath="form.correctionType"/>
+                    </#if>
+                    <#if key == "REMOVE_SUBMISSION">
+                        <@fdsSelect.select
+                        path = "form.submissionDetailIdForRemoval"
+                        labelText = "Which submission do you want to remove?"
+                        options = removableSubmissions
+                        nestingPath="form.correctionType"/>
                     </#if>
                     <#assign firstItem=false/>
                 </@fdsRadio.radioItem>

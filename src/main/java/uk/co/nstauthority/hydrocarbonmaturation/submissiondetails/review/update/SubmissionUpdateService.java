@@ -49,7 +49,7 @@ public class SubmissionUpdateService {
 
   public Optional<SubmissionUpdate> getLatestUnresolvedUpdateForUpdateSubmissionDetail(
       SubmissionDetail submissionDetail) {
-    if (submissionDetail.isUpdateSubmission()) {
+    if (submissionDetail.isUpdateToSubmission()) {
       return submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(
           submissionDetail.getSubmission());
     } else {

@@ -14,6 +14,7 @@ import java.util.Set;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
@@ -32,6 +33,7 @@ class OperatorResourceRecordQueryService implements ResourceRecordQueryServiceSt
   private final DSLContext context;
   private final ResourceQueryCommonService resourceQueryCommonService;
 
+  @Autowired
   OperatorResourceRecordQueryService(UserService userService,
                                      IndustryTeamService industryTeamService,
                                      LicenceQueryService licenceQueryService,

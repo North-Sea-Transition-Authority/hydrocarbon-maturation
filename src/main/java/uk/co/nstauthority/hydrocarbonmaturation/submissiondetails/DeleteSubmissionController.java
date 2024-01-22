@@ -58,7 +58,7 @@ public class DeleteSubmissionController {
     String deleteButtonText;
     if (BooleanUtils.isTrue(submissionDetail.isCorrection())) {
       deleteButtonText = "Delete draft correction";
-    } else if (submissionDetail.isUpdateSubmission()) {
+    } else if (submissionDetail.isUpdateToSubmission()) {
       deleteButtonText = "Delete draft update";
     } else {
       deleteButtonText = "Delete";
@@ -105,7 +105,7 @@ public class DeleteSubmissionController {
     if (BooleanUtils.isTrue(submissionDetail.isCorrection())) {
       bannerContent = "%s draft correction for %s has been deleted";
       bannerTitle = "%s draft correction deleted";
-    } else if (submissionDetail.isUpdateSubmission()) {
+    } else if (submissionDetail.isUpdateToSubmission()) {
       bannerContent = "%s draft update for %s has been deleted";
       bannerTitle = "%s draft update deleted";
     } else {

@@ -23,6 +23,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -164,8 +165,12 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
             SubmissionDetailTestUtils.createNewProspectSubmissionDetail()
         )
     );
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resourceId)).thenReturn(approvedSubmissions);
-    Map<String, String> submissionsOnResource = SubmissionHistorySelectorUtil.getSubmissionSelectorItems(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResource(resourceId)).thenReturn(approvedSubmissions);
+    var correctionTypes = CorrectionType.getCorrectionTypes();
+    when(correctionService.getCorrectionTypes(resource)).thenReturn(correctionTypes);
+    var submissionsOnResource = SubmissionHistorySelectorUtil.getSubmissionSelectorItems(approvedSubmissions);
+    var removableSubmissionMap = submissionsOnResource.entrySet().stream().findFirst().stream()
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resourceId, null)))
                 .with(user(user)))
@@ -176,8 +181,9 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
     assertEquals(CorrectionForm.class, modelMap.get("form").getClass());
     assertThat(modelMap)
         .contains(
-            entry("correctionTypes", CorrectionType.getCorrectionTypes()),
+            entry("correctionTypes", correctionTypes),
             entry("submissionsOnResource", submissionsOnResource),
+            entry("removableSubmissions", removableSubmissionMap),
             entry("cancelUrl", ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)))
         );
   }

@@ -279,6 +279,58 @@ class ResourceGroupServiceTest {
     verify(resourceGroupLinksRepository).existsResourceGroupLinkByResourceAndPreferredViewIs(resource, false);
   }
 
+  @Test
+  void isPreferredView_verifyMethodCall() {
+    var resource = new Resource();
+    resourceGroupService.isPreferredView(resource);
+
+    verify(resourceGroupLinksRepository).existsResourceGroupLinkByResourceAndPreferredViewIs(resource, true);
+  }
+
+  @Test
+  void removeResourceFromGroup_whenOnlyTwoInGroupToStart() {
+    var resource1 = new Resource();
+    var resourceGroupLinkFromResource1 = new ResourceGroupLink();
+    var resource2 = new Resource();
+    var resourceGroupLinkFromResource2 = new ResourceGroupLink();
+    var resourceGroupId = UUID.randomUUID();
+    resourceGroupLinkFromResource1.setResource(resource1);
+    resourceGroupLinkFromResource1.setResourceGroupId(resourceGroupId);
+    resourceGroupLinkFromResource2.setResource(resource2);
+    resourceGroupLinkFromResource2.setResourceGroupId(resourceGroupId);
+    var resourceGroupLinkList = List.of(resourceGroupLinkFromResource1, resourceGroupLinkFromResource2);
+    when(resourceGroupLinksRepository.findByResource(resource1)).thenReturn(Optional.of(resourceGroupLinkFromResource1));
+    when(resourceGroupLinksRepository.findByResourceGroupId(resourceGroupId))
+        .thenReturn(resourceGroupLinkList);
+    resourceGroupService.removeResourceFromGroup(resource1);
+    verify(resourceGroupLinksRepository).deleteAll(resourceGroupLinkList);
+  }
+
+  @Test
+  void removeResourceFromGroup_whenMoreThanTwoInGroupToStart() {
+    var resource1 = new Resource();
+    var resourceGroupLinkFromResource1 = new ResourceGroupLink();
+    var resource2 = new Resource();
+    var resourceGroupLinkFromResource2 = new ResourceGroupLink();
+    var resource3 = new Resource();
+    var resourceGroupLinkFromResource3 = new ResourceGroupLink();
+    var resourceGroupId = UUID.randomUUID();
+    resourceGroupLinkFromResource1.setResource(resource1);
+    resourceGroupLinkFromResource1.setResourceGroupId(resourceGroupId);
+    resourceGroupLinkFromResource2.setResource(resource2);
+    resourceGroupLinkFromResource2.setResourceGroupId(resourceGroupId);
+    resourceGroupLinkFromResource3.setResource(resource3);
+    resourceGroupLinkFromResource3.setResourceGroupId(resourceGroupId);
+    var resourceGroupLinkList = List.of(
+        resourceGroupLinkFromResource1, resourceGroupLinkFromResource2, resourceGroupLinkFromResource3
+    );
+    when(resourceGroupLinksRepository.findByResource(resource1)).thenReturn(Optional.of(resourceGroupLinkFromResource1));
+    when(resourceGroupLinksRepository.findByResourceGroupId(resourceGroupId))
+        .thenReturn(resourceGroupLinkList);
+    resourceGroupService.removeResourceFromGroup(resource1);
+    verify(resourceGroupLinksRepository).delete(resourceGroupLinkFromResource1);
+  }
+
   private RelatedResource buildRelatedProspect(SubmissionDetail submissionDetail) {
     var relatedProspect = new RelatedResource();
     relatedProspect.setRelatedToAnotherResource(true);

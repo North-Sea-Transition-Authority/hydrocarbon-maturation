@@ -134,7 +134,7 @@ class SubmissionQueryService {
     return new ResourceView(resourceDetail.getId(), resourceDisplayName);
   }
 
-  private boolean filterResourceByUser(Resource resource, User users) {
+  private boolean filterResourceByUser(Resource resource, User user) {
     if (internalTeamService.isRegulatorOrAreaTeamUser()) {
       return true;
     }
@@ -143,7 +143,7 @@ class SubmissionQueryService {
         .map(submissionDetail -> resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail).getOrganisationId())
         .orElse(null);
     var userSubmitterOrgUnits = industryTeamService
-        .getOrganisationUnitIdsForUser(users);
+        .getOrganisationUnitIdsForUser(user);
 
     return (responsibleOrganisationId != null && userSubmitterOrgUnits.contains(responsibleOrganisationId));
   }

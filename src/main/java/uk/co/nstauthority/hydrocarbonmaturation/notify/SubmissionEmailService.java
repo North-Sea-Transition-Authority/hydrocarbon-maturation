@@ -237,7 +237,7 @@ public class SubmissionEmailService {
   }
 
   private NotifyTemplate getSubmittedSubmissionConfirmationTemplate(SubmissionDetail submissionDetail) {
-    return submissionDetail.isUpdateSubmission()
+    return submissionDetail.isUpdateToSubmission()
         ? NotifyTemplate.SUBMISSION_UPDATE_SUBMITTED_CONFIRMATION
         : NotifyTemplate.SUBMISSION_CONFIRMATION_NOTIFICATION;
   }

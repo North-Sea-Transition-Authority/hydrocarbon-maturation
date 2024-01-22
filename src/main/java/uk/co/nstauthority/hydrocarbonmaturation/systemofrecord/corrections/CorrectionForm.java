@@ -10,7 +10,7 @@ class CorrectionForm {
   private CorrectionType correctionType;
 
   @ErrorSummaryDisplayOrder(2)
-  private String submissionIdForMissingUpdate;
+  private String submissionDetailIdForMissingUpdate;
 
   @ErrorSummaryDisplayOrder(3)
   private String missingUpdateDay;
@@ -22,10 +22,10 @@ class CorrectionForm {
   private String missingUpdateYear;
 
   @ErrorSummaryDisplayOrder(6)
-  private String submissionIdForCorrectingInformation;
+  private String submissionDetailIdForCorrectingInformation;
 
   @ErrorSummaryDisplayOrder(7)
-  private String submissionIdForChangingApprovedDate;
+  private String submissionDetailIdForChangingApprovedDate;
 
   @ErrorSummaryDisplayOrder(8)
   private String approvalDateChangeDay;
@@ -36,6 +36,9 @@ class CorrectionForm {
   @ErrorSummaryDisplayOrder(10)
   private String approvalDateChangeYear;
 
+  @ErrorSummaryDisplayOrder(11)
+  private String submissionDetailIdForRemoval;
+
   public CorrectionType getCorrectionType() {
     return correctionType;
   }
@@ -45,20 +48,20 @@ class CorrectionForm {
     this.correctionType = correctionType;
   }
 
-  public String getSubmissionIdForCorrectingInformation() {
-    return submissionIdForCorrectingInformation;
+  public String getSubmissionDetailIdForCorrectingInformation() {
+    return submissionDetailIdForCorrectingInformation;
   }
 
-  public void setSubmissionIdForCorrectingInformation(String submissionIdForCorrectingInformation) {
-    this.submissionIdForCorrectingInformation = submissionIdForCorrectingInformation;
+  public void setSubmissionDetailIdForCorrectingInformation(String submissionDetailIdForCorrectingInformation) {
+    this.submissionDetailIdForCorrectingInformation = submissionDetailIdForCorrectingInformation;
   }
 
-  public String getSubmissionIdForChangingApprovedDate() {
-    return submissionIdForChangingApprovedDate;
+  public String getSubmissionDetailIdForChangingApprovedDate() {
+    return submissionDetailIdForChangingApprovedDate;
   }
 
-  public void setSubmissionIdForChangingApprovedDate(String submissionIdForChangingApprovedDate) {
-    this.submissionIdForChangingApprovedDate = submissionIdForChangingApprovedDate;
+  public void setSubmissionDetailIdForChangingApprovedDate(String submissionDetailIdForChangingApprovedDate) {
+    this.submissionDetailIdForChangingApprovedDate = submissionDetailIdForChangingApprovedDate;
   }
 
   public String getApprovalDateChangeDay() {
@@ -85,12 +88,12 @@ class CorrectionForm {
     this.approvalDateChangeYear = approvalDateChangeYear;
   }
 
-  public String getSubmissionIdForMissingUpdate() {
-    return submissionIdForMissingUpdate;
+  public String getSubmissionDetailIdForMissingUpdate() {
+    return submissionDetailIdForMissingUpdate;
   }
 
-  public void setSubmissionIdForMissingUpdate(String submissionIdForMissingUpdate) {
-    this.submissionIdForMissingUpdate = submissionIdForMissingUpdate;
+  public void setSubmissionDetailIdForMissingUpdate(String submissionDetailIdForMissingUpdate) {
+    this.submissionDetailIdForMissingUpdate = submissionDetailIdForMissingUpdate;
   }
 
   public String getMissingUpdateDay() {
@@ -115,5 +118,13 @@ class CorrectionForm {
 
   public void setMissingUpdateYear(String missingUpdateYear) {
     this.missingUpdateYear = missingUpdateYear;
+  }
+
+  public String getSubmissionDetailIdForRemoval() {
+    return submissionDetailIdForRemoval;
+  }
+
+  public void setSubmissionDetailIdForRemoval(String submissionDetailIdForRemoval) {
+    this.submissionDetailIdForRemoval = submissionDetailIdForRemoval;
   }
 }

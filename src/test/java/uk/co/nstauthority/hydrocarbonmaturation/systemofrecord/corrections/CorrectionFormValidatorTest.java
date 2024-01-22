@@ -55,7 +55,7 @@ class CorrectionFormValidatorTest {
     var form = new CorrectionForm();
     var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
     form.setCorrectionType(CorrectionType.SUBMISSION_CORRECTION);
-    form.setSubmissionIdForCorrectingInformation(UUID.randomUUID().toString());
+    form.setSubmissionDetailIdForCorrectingInformation(UUID.randomUUID().toString());
     var bindingResult = validateCorrectionForm(form, resource);
     assertFalse(bindingResult.hasErrors());
   }
@@ -79,7 +79,19 @@ class CorrectionFormValidatorTest {
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).containsExactly(
-        entry("submissionIdForCorrectingInformation", Set.of("submissionIdForCorrectingInformation.required"))
+        entry("submissionDetailIdForCorrectingInformation", Set.of("submissionDetailIdForCorrectingInformation.required"))
+    );
+  }
+
+  @Test
+  void validationRemovalSubmissionCorrectionForm() {
+    var form = new CorrectionForm();
+    var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
+    form.setCorrectionType(CorrectionType.REMOVE_SUBMISSION);
+    var bindingResult = validateCorrectionForm(form, resource);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors).containsExactly(
+        entry("submissionDetailIdForRemoval", Set.of("submissionDetailIdForRemoval.required"))
     );
   }
 
@@ -94,7 +106,7 @@ class CorrectionFormValidatorTest {
         .filter(s -> s.getSubmissionType().equals(SubmissionType.CREATE_PROSPECT))
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
-    form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
         selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
@@ -104,9 +116,9 @@ class CorrectionFormValidatorTest {
     form.setApprovalDateChangeYear(String.valueOf(
             selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()
     ));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).isEmpty();
@@ -119,11 +131,11 @@ class CorrectionFormValidatorTest {
     var form = new CorrectionForm();
     form.setCorrectionType(CorrectionType.ACCEPTED_DATE_CHANGE);
     var selectedSubmissionDetail = submissionDetailHistory.get(0);
-    form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.getId().toString());
+    form.setSubmissionDetailIdForChangingApprovedDate(selectedSubmissionDetail.getId().toString());
     form.setApprovalDateChangeDay("1");
     form.setApprovalDateChangeMonth("1");
     form.setApprovalDateChangeYear("2100");
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -145,7 +157,7 @@ class CorrectionFormValidatorTest {
     var form = new CorrectionForm();
     form.setCorrectionType(CorrectionType.ACCEPTED_DATE_CHANGE);
     var selectedSubmissionDetail = submissionDetailHistory.get(0);
-    form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.getId().toString());
+    form.setSubmissionDetailIdForChangingApprovedDate(selectedSubmissionDetail.getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
         selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
     ));
@@ -154,9 +166,9 @@ class CorrectionFormValidatorTest {
     ));
     form.setApprovalDateChangeYear(String.valueOf(
         selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail);
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).containsExactly(
@@ -184,7 +196,7 @@ class CorrectionFormValidatorTest {
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
     assertThat(creationSubmissionDetail).isPresent();
-    form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
         creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
     ));
@@ -193,9 +205,9 @@ class CorrectionFormValidatorTest {
     ));
     form.setApprovalDateChangeYear(String.valueOf(
         creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).containsExactly(
@@ -227,7 +239,7 @@ class CorrectionFormValidatorTest {
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
     assertThat(dryHoleSubmissionDetail).isPresent();
-    form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
         dryHoleSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
@@ -236,9 +248,9 @@ class CorrectionFormValidatorTest {
     ));
     form.setApprovalDateChangeYear(String.valueOf(
         dryHoleSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).containsExactly(
@@ -270,7 +282,7 @@ class CorrectionFormValidatorTest {
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
     assertThat(relinquishmentSubmissionDetail).isPresent();
-    form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
         relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
@@ -279,9 +291,9 @@ class CorrectionFormValidatorTest {
     ));
     form.setApprovalDateChangeYear(String.valueOf(
         relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).containsExactly(
@@ -313,7 +325,7 @@ class CorrectionFormValidatorTest {
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
     assertThat(discoverySubmissionDetail).isPresent();
-    form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
         discoverySubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
@@ -322,9 +334,9 @@ class CorrectionFormValidatorTest {
     ));
     form.setApprovalDateChangeYear(String.valueOf(
         discoverySubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).containsExactly(
@@ -352,7 +364,7 @@ class CorrectionFormValidatorTest {
         .filter(s -> s.getSubmissionType().equals(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT))
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
-    form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
         selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
@@ -362,9 +374,9 @@ class CorrectionFormValidatorTest {
     form.setApprovalDateChangeYear(String.valueOf(
         selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()
     ));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).isEmpty();
@@ -385,7 +397,7 @@ class CorrectionFormValidatorTest {
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
     assertThat(creationSubmissionDetail).isPresent();
-    form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
         creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
     ));
@@ -394,9 +406,9 @@ class CorrectionFormValidatorTest {
     ));
     form.setApprovalDateChangeYear(String.valueOf(
         creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).containsExactly(
@@ -428,7 +440,7 @@ class CorrectionFormValidatorTest {
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
     assertThat(relinquishmentSubmissionDetail).isPresent();
-    form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
         relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
@@ -437,9 +449,9 @@ class CorrectionFormValidatorTest {
     ));
     form.setApprovalDateChangeYear(String.valueOf(
         relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).containsExactly(
@@ -471,7 +483,7 @@ class CorrectionFormValidatorTest {
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
     assertThat(prospectSubmissionDetail).isPresent();
-    form.setSubmissionIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForChangingApprovedDate(selectedSubmissionDetail.get().getId().toString());
     form.setApprovalDateChangeDay(String.valueOf(
         prospectSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
     ));
@@ -480,9 +492,9 @@ class CorrectionFormValidatorTest {
     ));
     form.setApprovalDateChangeYear(String.valueOf(
         prospectSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForChangingApprovedDate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForChangingApprovedDate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).containsExactly(
@@ -510,7 +522,7 @@ class CorrectionFormValidatorTest {
         .filter(s -> s.getSubmissionType().equals(SubmissionType.CREATE_PROSPECT))
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
-    form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
         selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
@@ -520,9 +532,9 @@ class CorrectionFormValidatorTest {
     form.setMissingUpdateYear(String.valueOf(
         selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()
     ));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).isEmpty();
@@ -535,11 +547,11 @@ class CorrectionFormValidatorTest {
     var form = new CorrectionForm();
     form.setCorrectionType(CorrectionType.HISTORIC_UPDATE);
     var selectedSubmissionDetail = submissionDetailHistory.get(0);
-    form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.getId().toString());
+    form.setSubmissionDetailIdForMissingUpdate(selectedSubmissionDetail.getId().toString());
     form.setMissingUpdateDay("1");
     form.setMissingUpdateMonth("1");
     form.setMissingUpdateYear("2100");
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -561,7 +573,7 @@ class CorrectionFormValidatorTest {
     var form = new CorrectionForm();
     form.setCorrectionType(CorrectionType.HISTORIC_UPDATE);
     var selectedSubmissionDetail = submissionDetailHistory.get(1);
-    form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.getId().toString());
+    form.setSubmissionDetailIdForMissingUpdate(selectedSubmissionDetail.getId().toString());
     form.setMissingUpdateDay(String.valueOf(
         selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
     ));
@@ -570,9 +582,9 @@ class CorrectionFormValidatorTest {
     ));
     form.setMissingUpdateYear(String.valueOf(
         selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail);
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).containsExactly(
@@ -600,7 +612,7 @@ class CorrectionFormValidatorTest {
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
     assertThat(creationSubmissionDetail).isPresent();
-    form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
         creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
     ));
@@ -609,9 +621,9 @@ class CorrectionFormValidatorTest {
     ));
     form.setMissingUpdateYear(String.valueOf(
         creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).containsExactly(
@@ -643,7 +655,7 @@ class CorrectionFormValidatorTest {
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
     assertThat(dryHoleSubmissionDetail).isPresent();
-    form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
         dryHoleSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
@@ -652,9 +664,9 @@ class CorrectionFormValidatorTest {
     ));
     form.setMissingUpdateYear(String.valueOf(
         dryHoleSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).containsExactly(
@@ -686,7 +698,7 @@ class CorrectionFormValidatorTest {
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
     assertThat(relinquishmentSubmissionDetail).isPresent();
-    form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
         relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
@@ -695,9 +707,9 @@ class CorrectionFormValidatorTest {
     ));
     form.setMissingUpdateYear(String.valueOf(
         relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).containsExactly(
@@ -729,7 +741,7 @@ class CorrectionFormValidatorTest {
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
     assertThat(discoverySubmissionDetail).isPresent();
-    form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
         discoverySubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
@@ -738,9 +750,9 @@ class CorrectionFormValidatorTest {
     ));
     form.setMissingUpdateYear(String.valueOf(
         discoverySubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).containsExactly(
@@ -768,7 +780,7 @@ class CorrectionFormValidatorTest {
         .filter(s -> s.getSubmissionType().equals(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT))
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
-    form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
         selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
@@ -778,9 +790,9 @@ class CorrectionFormValidatorTest {
     form.setMissingUpdateYear(String.valueOf(
         selectedSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()
     ));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).isEmpty();
@@ -801,7 +813,7 @@ class CorrectionFormValidatorTest {
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
     assertThat(creationSubmissionDetail).isPresent();
-    form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
         creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
     ));
@@ -810,9 +822,9 @@ class CorrectionFormValidatorTest {
     ));
     form.setMissingUpdateYear(String.valueOf(
         creationSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).containsExactly(
@@ -844,7 +856,7 @@ class CorrectionFormValidatorTest {
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
     assertThat(relinquishmentSubmissionDetail).isPresent();
-    form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
         relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
     ));
@@ -853,9 +865,9 @@ class CorrectionFormValidatorTest {
     ));
     form.setMissingUpdateYear(String.valueOf(
         relinquishmentSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).containsExactly(
@@ -887,7 +899,7 @@ class CorrectionFormValidatorTest {
         .findFirst();
     assertThat(selectedSubmissionDetail).isPresent();
     assertThat(prospectSubmissionDetail).isPresent();
-    form.setSubmissionIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
+    form.setSubmissionDetailIdForMissingUpdate(selectedSubmissionDetail.get().getId().toString());
     form.setMissingUpdateDay(String.valueOf(
         prospectSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
     ));
@@ -896,9 +908,9 @@ class CorrectionFormValidatorTest {
     ));
     form.setMissingUpdateYear(String.valueOf(
         prospectSubmissionDetail.get().getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear() - 1));
-    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionIdForMissingUpdate());
+    var selectedSubmissionUuid = UUID.fromString(form.getSubmissionDetailIdForMissingUpdate());
     when(submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionUuid)).thenReturn(selectedSubmissionDetail.get());
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())).thenReturn(approvedSubmissions);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
     var bindingResult = validateCorrectionForm(form, resource);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).containsExactly(

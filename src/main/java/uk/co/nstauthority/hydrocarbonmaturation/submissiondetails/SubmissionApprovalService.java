@@ -67,7 +67,7 @@ public class SubmissionApprovalService {
     } else {
       submissionDetailPersistenceService.submitSubmission(submissionDetail);
 
-      if (submissionDetail.isUpdateSubmission()) {
+      if (submissionDetail.isUpdateToSubmission()) {
         submissionUpdateService.resolveUpdateOnSubmission(submissionDetail);
       }
 

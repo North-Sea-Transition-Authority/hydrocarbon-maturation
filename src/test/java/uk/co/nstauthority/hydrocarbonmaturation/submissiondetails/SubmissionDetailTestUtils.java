@@ -1,11 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 
+import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-
-import java.util.UUID;
 
 public class SubmissionDetailTestUtils {
 
@@ -105,6 +104,13 @@ public class SubmissionDetailTestUtils {
   public static SubmissionDetail createSubmissionDetail(SubmissionType submissionType) {
     var submissionDetailId = UUID.randomUUID();
     return createSubmissionDetail(submissionType, submissionDetailId);
+  }
+
+  public static SubmissionDetail createUpdateToSubmission(SubmissionDetail submissionDetail) {
+    var newSubmissionDetail = createSubmissionDetail(submissionDetail.getSubmissionType());
+    newSubmissionDetail.setVersionNumber(submissionDetail.getVersionNumber() + 1);
+    newSubmissionDetail.setSubmission(submissionDetail.getSubmission());
+    return newSubmissionDetail;
   }
 
   public static SubmissionDetail createSubmissionDetailWithResourceAndSubmissionType(SubmissionType submissionType) {

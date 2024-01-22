@@ -539,6 +539,6 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     var modelAndView = new ModelAndView();
     when(submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(eq(submissionDetail), anyString()))
         .thenReturn(modelAndView);
-    when(submissionHistoryQueryService.getApprovedAndSubmittedSubmissionsOnResource(resourceId)).thenReturn(querySearchRecords);
+    when(submissionHistoryQueryService.getAcceptedAndSubmittedSubmissionsOnResourceWithLinkedResources(resourceId)).thenReturn(querySearchRecords);
   }
 }

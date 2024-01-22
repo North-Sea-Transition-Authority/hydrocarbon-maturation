@@ -2,7 +2,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -84,13 +86,19 @@ public class CorrectionSelectionController {
 
   private ModelAndView getCorrectionModelAndView(CorrectionForm form, Resource resource) {
     var modelAndView = new ModelAndView("remi/systemofrecord/corrections/corrections");
+    var approvedSubmissions = submissionHistoryQueryService.getAcceptedSubmissionsOnResource(resource.getId());
     var submissionsOnResource = SubmissionHistorySelectorUtil.getSubmissionSelectorItems(
-        submissionHistoryQueryService.getApprovedSubmissionsOnResource(resource.getId())
+        approvedSubmissions
     );
+    // Only the latest submission on a resource can be removed. Create a map to select from on the correction screen.
+    var removableSubmissionMap = submissionsOnResource.entrySet().stream().findFirst().stream()
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    var correctionTypes = correctionService.getCorrectionTypes(resource);
 
     modelAndView
-        .addObject("correctionTypes", CorrectionType.getCorrectionTypes())
+        .addObject("correctionTypes", correctionTypes)
         .addObject("submissionsOnResource", submissionsOnResource)
+        .addObject("removableSubmissions", removableSubmissionMap)
         .addObject("form", form)
         .addObject("cancelUrl",
             ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId()))

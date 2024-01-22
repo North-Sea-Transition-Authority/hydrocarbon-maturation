@@ -554,6 +554,6 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var modelAndView = new ModelAndView();
     when(submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(eq(submissionDetail), anyString()))
         .thenReturn(modelAndView);
-    when(submissionHistoryQueryService.getApprovedSubmissionsOnResource(resourceId)).thenReturn(querySearchRecords);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resourceId)).thenReturn(querySearchRecords);
   }
 }
