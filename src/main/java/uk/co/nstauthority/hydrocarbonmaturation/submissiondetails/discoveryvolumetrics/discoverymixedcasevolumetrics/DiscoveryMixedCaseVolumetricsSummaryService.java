@@ -38,6 +38,10 @@ public class DiscoveryMixedCaseVolumetricsSummaryService implements SummarySecti
 
   @Override
   public Optional<SummarySection> getSummarySection(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    if (!reservoirSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()) {
+      return Optional.empty();
+    }
+
     var hydrocarbonsDiscovered = generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail);
     if (hydrocarbonsDiscovered.isEmpty()
         || hydrocarbonsDiscovered.get().getHydrocarbonsDiscovered() != HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {

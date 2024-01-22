@@ -61,6 +61,10 @@ public class GasCaseVolumetricParametersSummaryService implements SummarySection
 
   @Override
   public Optional<SummarySection> getSummarySection(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    if (!reservoirSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()) {
+      return Optional.empty();
+    }
+
     if (generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)
         || generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail)) {
       var summaryItems = List.of(getGasCaseVolumetricParametersSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail));

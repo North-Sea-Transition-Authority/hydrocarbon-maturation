@@ -6,18 +6,23 @@ import static org.mockito.Mockito.when;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.assertSummarySection;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
@@ -204,5 +209,21 @@ class DiscoveryMixedCaseVolumetricsSummaryServiceTest {
     var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
 
     assertThat(summarySection).isEmpty();
+  }
+
+  @ParameterizedTest
+  @MethodSource("allNonDiscoverySubmissionTypes")
+  void getSummarySection_nonDiscoverySubmission_assertEmpty(SubmissionType submissionType) {
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionType);
+
+    var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
+
+    assertThat(summarySection).isEmpty();
+  }
+
+  private static Stream<Arguments> allNonDiscoverySubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(submissionType -> !SubmissionDetailUtil.isDiscoverySubmission(submissionType))
+        .map(Arguments::of);
   }
 }

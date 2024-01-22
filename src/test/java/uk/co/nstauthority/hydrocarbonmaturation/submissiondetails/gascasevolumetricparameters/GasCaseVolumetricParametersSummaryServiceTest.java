@@ -7,20 +7,27 @@ import static org.mockito.Mockito.when;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.assertSummarySection;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -40,7 +47,7 @@ class GasCaseVolumetricParametersSummaryServiceTest {
   @InjectMocks
   private GasCaseVolumetricParametersSummaryService gasCaseVolumetricParametersSummaryService;
 
-  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
   private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
 
   @Test
@@ -68,6 +75,9 @@ class GasCaseVolumetricParametersSummaryServiceTest {
 
   @Test
   void getGasCaseVolumetricsSummaryView_whenProspect_filledSummaries() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
+    submissionDetail.getSubmission().getResource().setType(ResourceType.PROSPECT);
+
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
         "20", "20", "20", "20", "20", "20", "20", "20", "20",
@@ -154,6 +164,15 @@ class GasCaseVolumetricParametersSummaryServiceTest {
   }
 
   @ParameterizedTest
+  @MethodSource("allNonDiscoverySubmissionTypes")
+  void getSummarySection_whenNonDiscovery(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    assertThat(gasCaseVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail))
+        .isEmpty();
+  }
+
+  @ParameterizedTest
   @EnumSource(
       value = HydrocarbonsDiscovered.class,
       names = {"GAS_ONLY", "MIXED_OIL_AND_GAS"},
@@ -189,5 +208,11 @@ class GasCaseVolumetricParametersSummaryServiceTest {
     );
     var summaryItem = SummaryItem.withCard(GasCaseVolumetricParametersSummaryService.GAS_CASE_VOLUMETRIC_PARAMETERS, summaryCard);
     assertThat(summarySection.get().summaryItems()).containsExactly(summaryItem);
+  }
+
+  private static Stream<Arguments> allNonDiscoverySubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(submissionType -> !SubmissionDetailUtil.isDiscoverySubmission(submissionType))
+        .map(Arguments::of);
   }
 }

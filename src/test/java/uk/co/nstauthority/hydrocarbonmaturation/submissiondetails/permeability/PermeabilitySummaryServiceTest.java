@@ -5,7 +5,10 @@ import static org.mockito.Mockito.when;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.assertSummarySection;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -13,6 +16,10 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -25,10 +32,18 @@ class PermeabilitySummaryServiceTest {
   @Mock
   private PermeabilityPersistenceService permeabilityPersistenceService;
 
+  @Mock
+  private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
+
   @InjectMocks
   private PermeabilitySummaryService permeabilitySummaryService;
 
-  private static final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+  private ReservoirSubmissionDetail reservoirSubmissionDetail;
+
+  @BeforeEach
+  void setUp() {
+    reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+  }
 
   @Test
   void getPermeabilitySummaryFromReservoirSubmissionDetail_whenNoPermeability() {
@@ -167,7 +182,7 @@ class PermeabilitySummaryServiceTest {
   }
 
   @Test
-  void getSummarySection_emptyPermeabilityDetail() {
+  void getSummarySection_discovery_emptyPermeabilityDetail() {
     when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
@@ -190,13 +205,49 @@ class PermeabilitySummaryServiceTest {
     assertThat(summarySection.get().summaryItems()).containsExactly(summaryItem);
   }
 
+  @Test
+  void getSummarySection_field_emptyPermeabilityDetail() {
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_CSR);
+    when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.empty());
+
+
+    var listOfInstances = List.of(
+        ProbabilityDistributionFieldInstance.FIELD_PERMEABILITY,
+        ProbabilityDistributionFieldInstance.FIELD_HORIZONTAL_PERMEABILITY,
+        ProbabilityDistributionFieldInstance.FIELD_VERTICAL_PERMEABILITY
+    );
+    var summaryViews = List.of(ProbabilityDistributionSummaryView.empty("Test"));
+    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        listOfInstances,
+        reservoirSubmissionDetail.getSubmissionDetail(),
+        reservoirSubmissionDetail
+    )).thenReturn(summaryViews);
+
+    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail);
+
+    assertThat(summarySection).isPresent();
+    assertSummarySection(summarySection.get(), PermeabilitySummaryService.PERMEABILITY_DISPLAY_ORDER);
+    var summaryDataView = new SummaryDataView(new ArrayList<>());
+
+    summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_SOURCE, "");
+    summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_COMMENTS, "");
+
+    var propertySummaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
+    var propertySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, propertySummaryCard);
+
+    var fieldProbabilitySummaryCard = SummaryCard.minMaxMostLikelySummaryCard(summaryViews);
+    var fieldProbabilitySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, fieldProbabilitySummaryCard);
+    assertThat(summarySection.get().summaryItems()).containsExactly(propertySummaryItem, fieldProbabilitySummaryItem);
+  }
+
   @ParameterizedTest
   @EnumSource(
       value = PermeabilitySource.class,
       names = {"OTHER"},
       mode = EnumSource.Mode.EXCLUDE
   )
-  void getSummarySection_nonEmptyPermeabilityDetail_withNonOtherSource(PermeabilitySource permeabilitySource) {
+  void getSummarySection_discovery_nonEmptyPermeabilityDetail_withNonOtherSource(PermeabilitySource permeabilitySource) {
     var permeabilityDetail = new PermeabilityDetail();
     permeabilityDetail.setPermeabilityMin(BigDecimal.valueOf(10.0));
     permeabilityDetail.setPermeabilityMax(BigDecimal.valueOf(20.0));
@@ -229,7 +280,46 @@ class PermeabilitySummaryServiceTest {
   }
 
   @Test
-  void getSummarySection_nonEmptyPermeabilityDetail_witOtherSource() {
+  void getSummarySection_field_nonEmptyPermeabilityDetail_withNonOtherSource() {
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_CSR);
+    var permeabilityDetail = new PermeabilityDetail();
+    permeabilityDetail.setPermeabilitySource(PermeabilitySource.SIDEWALL);
+    permeabilityDetail.setPermeabilityComments("Test comments");
+
+    when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(permeabilityDetail));
+
+    var listOfInstances = List.of(
+        ProbabilityDistributionFieldInstance.FIELD_PERMEABILITY,
+        ProbabilityDistributionFieldInstance.FIELD_HORIZONTAL_PERMEABILITY,
+        ProbabilityDistributionFieldInstance.FIELD_VERTICAL_PERMEABILITY
+    );
+    var summaryViews = List.of(ProbabilityDistributionSummaryView.empty("Test"));
+    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        listOfInstances,
+        reservoirSubmissionDetail.getSubmissionDetail(),
+        reservoirSubmissionDetail
+    )).thenReturn(summaryViews);
+
+    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail);
+
+    assertThat(summarySection).isPresent();
+    assertSummarySection(summarySection.get(), PermeabilitySummaryService.PERMEABILITY_DISPLAY_ORDER);
+
+    var summaryDataView = new SummaryDataView(new ArrayList<>());
+    summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_SOURCE, PermeabilitySource.SIDEWALL.getDisplayName());
+    summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_COMMENTS, "Test comments");
+
+    var propertySummaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
+    var propertySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, propertySummaryCard);
+
+    var fieldProbabilitySummaryCard = SummaryCard.minMaxMostLikelySummaryCard(summaryViews);
+    var fieldProbabilitySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, fieldProbabilitySummaryCard);
+    assertThat(summarySection.get().summaryItems()).containsExactly(propertySummaryItem, fieldProbabilitySummaryItem);
+  }
+
+  @Test
+  void getSummarySection_discovery_nonEmptyPermeabilityDetail_withOtherSource() {
     var testSource = "testSource";
 
     var permeabilityDetail = new PermeabilityDetail();
@@ -262,5 +352,47 @@ class PermeabilitySummaryServiceTest {
     var summaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
     var summaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, summaryCard);
     assertThat(summarySection.get().summaryItems()).containsExactly(summaryItem);
+  }
+
+  @Test
+  void getSummarySection_field_nonEmptyPermeabilityDetail_withOtherSource() {
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_CSR);
+    var testSource = "testSource";
+
+    var permeabilityDetail = new PermeabilityDetail();
+    permeabilityDetail.setPermeabilitySource(PermeabilitySource.OTHER);
+    permeabilityDetail.setSourceOther(testSource);
+    permeabilityDetail.setPermeabilityComments("Test comments");
+
+    when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(permeabilityDetail));
+
+    var listOfInstances = List.of(
+        ProbabilityDistributionFieldInstance.FIELD_PERMEABILITY,
+        ProbabilityDistributionFieldInstance.FIELD_HORIZONTAL_PERMEABILITY,
+        ProbabilityDistributionFieldInstance.FIELD_VERTICAL_PERMEABILITY
+    );
+    var summaryViews = List.of(ProbabilityDistributionSummaryView.empty("Test"));
+    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        listOfInstances,
+        reservoirSubmissionDetail.getSubmissionDetail(),
+        reservoirSubmissionDetail
+    )).thenReturn(summaryViews);
+
+    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail);
+
+    assertThat(summarySection).isPresent();
+    assertSummarySection(summarySection.get(), PermeabilitySummaryService.PERMEABILITY_DISPLAY_ORDER);
+
+    var summaryDataView = new SummaryDataView(new ArrayList<>());
+    summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_SOURCE, testSource);
+    summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_COMMENTS, "Test comments");
+
+    var propertySummaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
+    var propertySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, propertySummaryCard);
+
+    var fieldProbabilitySummaryCard = SummaryCard.minMaxMostLikelySummaryCard(summaryViews);
+    var fieldProbabilitySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, fieldProbabilitySummaryCard);
+    assertThat(summarySection.get().summaryItems()).containsExactly(propertySummaryItem, fieldProbabilitySummaryItem);
   }
 }

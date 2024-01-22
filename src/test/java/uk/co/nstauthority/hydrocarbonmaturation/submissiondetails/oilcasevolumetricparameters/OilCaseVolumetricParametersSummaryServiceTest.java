@@ -7,11 +7,15 @@ import static org.mockito.Mockito.when;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.assertSummarySection;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,6 +25,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -40,7 +46,7 @@ class OilCaseVolumetricParametersSummaryServiceTest {
   @InjectMocks
   private OilCaseVolumetricParametersSummaryService oilCaseVolumetricParametersSummaryService;
 
-  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
   private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
 
   @Test
@@ -68,35 +74,38 @@ class OilCaseVolumetricParametersSummaryServiceTest {
 
   @Test
   void getOilCaseVolumetricsSummaryView_whenProspect_filledSummaries() {
+    var propspectSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    var prospectReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(propspectSubmissionDetail);
+
     var testSummary = new ProbabilityDistributionSummaryView(
         "test", "type", "20",
         "20", "20", "20", "20", "20", "20", "20", "20", "20",
         "20", "", "20", "unit", "5", "5", "5", "comments");
 
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail), eq(reservoirSubmissionDetail)))
+        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(propspectSubmissionDetail), eq(prospectReservoirSubmissionDetail)))
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
-            submissionDetail,
-            reservoirSubmissionDetail))
+            propspectSubmissionDetail,
+            prospectReservoirSubmissionDetail))
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_PROSPECT,
-            submissionDetail,
-            reservoirSubmissionDetail))
+            propspectSubmissionDetail,
+            prospectReservoirSubmissionDetail))
         .thenReturn(testSummary);
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT,
-            submissionDetail,
-            reservoirSubmissionDetail))
+            propspectSubmissionDetail,
+            prospectReservoirSubmissionDetail))
         .thenReturn(testSummary);
 
     var oilCaseVolumetricsSummaryView = oilCaseVolumetricParametersSummaryService.getOilCaseVolumetricsSummaryView(
-        reservoirSubmissionDetail);
+        prospectReservoirSubmissionDetail);
 
     assertThat(oilCaseVolumetricsSummaryView)
         .extracting(
@@ -166,6 +175,15 @@ class OilCaseVolumetricParametersSummaryServiceTest {
   }
 
   @ParameterizedTest
+  @MethodSource("allNonDiscoverySubmissionTypes")
+  void getSummarySection_whenNotDiscovery(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    assertThat(oilCaseVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail))
+        .isEmpty();
+  }
+
+  @ParameterizedTest
   @EnumSource(
       value = HydrocarbonsDiscovered.class,
       names = {"OIL_ONLY", "MIXED_OIL_AND_GAS"},
@@ -201,5 +219,11 @@ class OilCaseVolumetricParametersSummaryServiceTest {
     );
     var summaryItem = SummaryItem.withCard(OilCaseVolumetricParametersSummaryService.OIL_CASE_VOLUMETRIC_PARAMETERS, summaryCard);
     assertThat(summarySection.get().summaryItems()).containsExactly(summaryItem);
+  }
+
+  private static Stream<Arguments> allNonDiscoverySubmissionTypes() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(submissionType -> !SubmissionDetailUtil.isDiscoverySubmission(submissionType))
+        .map(Arguments::of);
   }
 }

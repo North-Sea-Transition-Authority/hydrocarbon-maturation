@@ -6,6 +6,9 @@ import java.util.Optional;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
@@ -26,17 +29,25 @@ public class PermeabilitySummaryService implements SummarySectionService<Reservo
   public static final String PERMEABILITY_SOURCE = "Permeability source";
   public static final String PERMEABILITY_COMMENTS = "Permeability comments";
   public static final String KV_KH_AVERAGE = "KV/KH average";
-  public static final String PERMEABILITY_DISTRIBUTION = "Permeability distribution";
+  public static final String PERMEABILITY_DISTRIBUTION = "Permeability";
   public static final String HORIZONTAL_PERMEABILITY_DISTRIBUTION = "Horizontal permeability distribution";
   public static final String VERTICAL_PERMEABILITY_DISTRIBUTION = "Vertical permeability distribution";
 
   public static final int PERMEABILITY_DISPLAY_ORDER = 20;
+  private static final List<ProbabilityDistributionFieldInstance> PERMEABILITY_FIELD_INSTANCES = List.of(
+      ProbabilityDistributionFieldInstance.FIELD_PERMEABILITY,
+      ProbabilityDistributionFieldInstance.FIELD_HORIZONTAL_PERMEABILITY,
+      ProbabilityDistributionFieldInstance.FIELD_VERTICAL_PERMEABILITY
+  );
 
   private final PermeabilityPersistenceService permeabilityPersistenceService;
+  private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
 
   @Autowired
-  public PermeabilitySummaryService(PermeabilityPersistenceService permeabilityPersistenceService) {
+  public PermeabilitySummaryService(PermeabilityPersistenceService permeabilityPersistenceService,
+                                    ProbabilityDistributionSummaryService probabilityDistributionSummaryService) {
     this.permeabilityPersistenceService = permeabilityPersistenceService;
+    this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
   }
 
   public PermeabilityDetailSummaryView getPermeabilitySummaryFromReservoirSubmissionDetail(
@@ -75,23 +86,28 @@ public class PermeabilitySummaryService implements SummarySectionService<Reservo
   }
 
   @Override
-  public Optional<SummarySection> getSummarySection(ReservoirSubmissionDetail source) {
-    var summaryItems = List.of(getDiscoveryPermeabilityPropertySummary(source));
+  public Optional<SummarySection> getSummarySection(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var summaryItems = new ArrayList<>(List.of(getPermeabilityPropertySummary(reservoirSubmissionDetail)));
+    if (reservoirSubmissionDetail.getSubmissionDetail().isFieldSubmission()) {
+      summaryItems.add(getPermeabilityFieldProbabilitiesSummary(reservoirSubmissionDetail));
+    }
     return Optional.of(new SummarySection(PERMEABILITY_DISPLAY_ORDER, summaryItems, ""));
   }
 
-  private SummaryItem getDiscoveryPermeabilityPropertySummary(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+  private SummaryItem getPermeabilityPropertySummary(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var summaryDataView = new SummaryDataView(new ArrayList<>());
     permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail).ifPresentOrElse(
         permeabilityDetail -> {
-          summaryDataView.addKeyValue(PERMEABILITY_MIN,
-              NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getPermeabilityMin(), "mD"));
-          summaryDataView.addKeyValue(PERMEABILITY_MAX,
-              NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getPermeabilityMax(), "mD"));
-          summaryDataView.addKeyValue(PERMEABILITY_AVERAGE,
-              NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getPermeabilityAverage(), "mD"));
-          summaryDataView.addKeyValue(AVERAGE_METHOD_USED,
-              permeabilityDetail.getAverageMethodUsed().getDisplayName());
+          if (reservoirSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()) {
+            summaryDataView.addKeyValue(PERMEABILITY_MIN,
+                NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getPermeabilityMin(), "mD"));
+            summaryDataView.addKeyValue(PERMEABILITY_MAX,
+                NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getPermeabilityMax(), "mD"));
+            summaryDataView.addKeyValue(PERMEABILITY_AVERAGE,
+                NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getPermeabilityAverage(), "mD"));
+            summaryDataView.addKeyValue(AVERAGE_METHOD_USED,
+                DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(permeabilityDetail.getAverageMethodUsed()));
+          }
 
           var permeabilitySource = permeabilityDetail.getPermeabilitySource();
           if (permeabilitySource.equals(PermeabilitySource.OTHER)) {
@@ -103,22 +119,40 @@ public class PermeabilitySummaryService implements SummarySectionService<Reservo
           }
           summaryDataView.addKeyValue(PERMEABILITY_COMMENTS,
               permeabilityDetail.getPermeabilityComments());
-          summaryDataView.addKeyValue(KV_KH_AVERAGE,
-              NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getKvKhAverage(), "kv/kh"));
-
+          if (reservoirSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()) {
+            summaryDataView.addKeyValue(KV_KH_AVERAGE,
+                NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getKvKhAverage(), "kv/kh"));
+          }
         }, () -> {
-          summaryDataView.addKeyValue(PERMEABILITY_MIN, "");
-          summaryDataView.addKeyValue(PERMEABILITY_MAX, "");
-          summaryDataView.addKeyValue(PERMEABILITY_AVERAGE, "");
-          summaryDataView.addKeyValue(AVERAGE_METHOD_USED, "");
+          if (reservoirSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()) {
+            summaryDataView.addKeyValue(PERMEABILITY_MIN, "");
+            summaryDataView.addKeyValue(PERMEABILITY_MAX, "");
+            summaryDataView.addKeyValue(PERMEABILITY_AVERAGE, "");
+            summaryDataView.addKeyValue(AVERAGE_METHOD_USED, "");
+          }
           summaryDataView.addKeyValue(PERMEABILITY_SOURCE, "");
           summaryDataView.addKeyValue(PERMEABILITY_COMMENTS, "");
-          summaryDataView.addKeyValue(KV_KH_AVERAGE, "");
+          if (reservoirSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()) {
+            summaryDataView.addKeyValue(KV_KH_AVERAGE, "");
+          }
         });
 
     var summaryCard = SummaryCard.simpleSummaryCard(
         summaryDataView
     );
+
+    return SummaryItem.withCard(PERMEABILITY, summaryCard);
+  }
+
+  private SummaryItem getPermeabilityFieldProbabilitiesSummary(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var listOfSummaryViews = probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+            PERMEABILITY_FIELD_INSTANCES,
+            reservoirSubmissionDetail.getSubmissionDetail(),
+            reservoirSubmissionDetail
+        );
+
+    var summaryCard = SummaryCard.minMaxMostLikelySummaryCard(listOfSummaryViews);
 
     return SummaryItem.withCard(PERMEABILITY, summaryCard);
   }
