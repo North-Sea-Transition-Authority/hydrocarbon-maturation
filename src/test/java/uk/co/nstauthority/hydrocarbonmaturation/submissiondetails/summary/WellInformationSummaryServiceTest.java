@@ -15,6 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedsanctionedwells.PlannedSanctionedWellsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedunsanctionedwells.PlannedUnsanctionedWellsSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.fieldsummarysectionservices.WellInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;

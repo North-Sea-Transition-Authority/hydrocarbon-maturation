@@ -16,7 +16,7 @@ public class FieldDetailsSummarySectionService implements SummarySectionService<
 
   public static final String FIELD_DETAILS = "Field details";
   public static final String FIELD_DETAILS_SUMMARY_TEXT = "Trap properties, source and seal";
-  public static final int FIELD_DETAILS_DISPLAY_ORDER = 20;
+  public static final int FIELD_DETAILS_DISPLAY_ORDER = 30;
 
   private final FieldTrapPropertiesSummaryService fieldTrapPropertiesSummaryService;
   private final SourceAndSealSummaryService sourceAndSealSummaryService;

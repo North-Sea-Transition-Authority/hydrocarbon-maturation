@@ -22,7 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 public class FieldGasCaseVolumetricTotalsSummaryService implements SummarySectionService<SubmissionDetail> {
 
   public static final String TOTAL_GAS_VOLUMETRICS = "Total gas volumetrics";
-  public static final int TOTAL_GAS_VOLUMETRICS_ORDER = 20;
+  public static final int TOTAL_GAS_VOLUMETRICS_ORDER = 40;
 
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;

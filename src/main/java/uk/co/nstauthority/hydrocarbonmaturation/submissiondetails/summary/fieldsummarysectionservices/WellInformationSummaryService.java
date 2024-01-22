@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
+package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.fieldsummarysectionservices;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ public class WellInformationSummaryService implements SummarySectionService<Subm
 
   public static final String WELL_INFORMATION = "Well information";
   public static final String SUMMARY_DESCRIPTION = "Planned sanctioned wells, planned unsanctioned wells";
-  public static final int WELL_INFORMATION_SECTION_ORDER = 12;
+  public static final int WELL_INFORMATION_SECTION_ORDER = 20;
 
   private final PlannedSanctionedWellsSummaryService plannedSanctionedWellsSummaryService;
   private final PlannedUnsanctionedWellsSummaryService plannedUnsanctionedWellsSummaryService;

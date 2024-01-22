@@ -21,7 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 @Service
 public class FieldCombinedCaseVolumetricTotalsSummaryService implements SummarySectionService<SubmissionDetail> {
   public static final String TOTAL_COMBINED_VOLUMETRICS = "Total oil and gas volumetrics";
-  public static final int TOTAL_COMBINED_VOLUMETRICS_ORDER = 20;
+  public static final int TOTAL_COMBINED_VOLUMETRICS_ORDER = 40;
 
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
