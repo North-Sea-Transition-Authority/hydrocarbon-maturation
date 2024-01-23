@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -96,14 +97,18 @@ public class GeneralDetailsController {
         .addObject("alreadyAddedQuadrantBlocks", generalDetailsFormService.getQuadrantAndBlockViews(form))
         .addObject("form", form)
         .addObject("licenceEndpoint",
-            SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null)))
+            Boolean.TRUE.equals(submissionDetail.isCorrection())
+                ? SearchSelectorService.route(on(LicenceRestController.class).searchLiveLicences(null))
+                : SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null))
+        )
         .addObject("alreadyAddedLicences", generalDetailsFormService.getLicenceViews(
             form))
         .addObject("hasLicencesOnEarlierSubmission", generalDetailsFormService
             .hasLicencesOnEarlierSubmission(submissionDetail))
         .addObject("isOffshore", onshoreOffshore == OnshoreOffshore.OFFSHORE)
         .addObject("driveMechanismOptions", DriveMechanism.getDriveMechanismOptionsWithHintText())
-        .addObject("submissionType", submissionDetail.getSubmissionType());
+        .addObject("submissionType", submissionDetail.getSubmissionType())
+        .addObject("isRegulatorSubmission", SubmitterType.REGULATOR.equals(submissionDetail.getSubmitterType()));
 
     // Relinquishment information source is automatically set to relinquishment
     if (!submissionDetail.isRelinquishment()) {

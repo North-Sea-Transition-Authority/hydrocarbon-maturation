@@ -13,6 +13,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DateValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
@@ -59,7 +60,9 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
   public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     GeneralDetailsForm generalDetailsForm = (GeneralDetailsForm) form;
 
-    if (!isRelinquishment && !generalDetailsForm.getLicences().isEmpty()) {
+    if (!isRelinquishment
+        && !generalDetailsForm.getLicences().isEmpty()
+        && BooleanUtils.isNotTrue(submissionDetail.isCorrection())) {
       validateExtantLicences(generalDetailsForm, errors);
     }
 
@@ -78,10 +81,13 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
   public void validateFull(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var generalDetailsForm = (GeneralDetailsForm) form;
 
-    if (CollectionUtils.isEmpty(generalDetailsForm.getLicences()) && !isRelinquishment) {
+    if (CollectionUtils.isEmpty(generalDetailsForm.getLicences())
+        && !isRelinquishment
+        && SubmitterType.INDUSTRY.equals(submissionDetail.getSubmitterType())
+    ) {
       errors.rejectValue(LICENCE_SELECT, LICENCE_SELECT + ".required",
           "You must select at least one licence");
-    } else {
+    } else if (BooleanUtils.isNotTrue(submissionDetail.isCorrection())) {
       validateExtantLicences(generalDetailsForm, errors);
     }
 

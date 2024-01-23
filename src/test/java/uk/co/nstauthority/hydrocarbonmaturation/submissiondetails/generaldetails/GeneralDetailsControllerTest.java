@@ -32,9 +32,12 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -161,6 +164,9 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
     when(generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication())).thenReturn(preselectedLicenceApplication);
 
+    var licenceView = new LicenceView("1/1", 1, LicenceStatus.EXTANT);
+    var licenceViewList = List.of(licenceView);
+    when(generalDetailsFormService.getLicenceViews(form)).thenReturn(licenceViewList);
     var quadrantBlockView1 = new QuadrantAndBlockView("test", "test", true);
     var quadrantBlockViewList = List.of(quadrantBlockView1);
     when(generalDetailsFormService.getQuadrantAndBlockViews(form)).thenReturn(quadrantBlockViewList);
@@ -187,8 +193,12 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("fieldSubmission", false),
             entry("relinquishmentSubmission", false),
             entry("alreadyAddedQuadrantBlocks", quadrantBlockViewList),
+            entry("licenceEndpoint",
+                SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null))),
+            entry("alreadyAddedLicences", licenceViewList),
             entry("isOffshore", true),
-            entry("submissionType", submissionDetail.getSubmissionType())
+            entry("submissionType", submissionDetail.getSubmissionType()),
+            entry("isRegulatorSubmission", true)
         );
     assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
 
@@ -217,7 +227,9 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
     when(generalDetailsFormService.getPreSelectedLicenceApplication(form.getLicenceApplication())).thenReturn(
         preselectedLicenceApplication);
-
+    var licenceView = new LicenceView("1/1", 1, LicenceStatus.EXTANT);
+    var licenceViewList = List.of(licenceView);
+    when(generalDetailsFormService.getLicenceViews(form)).thenReturn(licenceViewList);
     var quadrantBlockView1 = new QuadrantAndBlockView("test", "test", true);
     var quadrantBlockViewList = List.of(quadrantBlockView1);
     when(generalDetailsFormService.getQuadrantAndBlockViews(form)).thenReturn(quadrantBlockViewList);
@@ -245,8 +257,12 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("fieldSubmission", false),
             entry("relinquishmentSubmission", false),
             entry("alreadyAddedQuadrantBlocks", quadrantBlockViewList),
+            entry("licenceEndpoint",
+                SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null))),
+            entry("alreadyAddedLicences", licenceViewList),
             entry("isOffshore", false),
-            entry("submissionType", submissionDetail.getSubmissionType())
+            entry("submissionType", submissionDetail.getSubmissionType()),
+            entry("isRegulatorSubmission", true)
         );
     assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
 
@@ -258,6 +274,26 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)),
             TaskListController.PAGE_NAME)
     );
+  }
+
+  @Test
+  void getGeneralDetailsModelAndView_whenCorrection_assertLicenceEndpoint() throws Exception {
+    submissionDetail.setCorrection(true);
+    var form = new GeneralDetailsForm();
+    when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
+    var modelMap = Objects.requireNonNull(
+            mockMvc.perform(
+                    get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetailId, null)))
+                        .with(user(USER)))
+                .andReturn()
+                .getModelAndView())
+        .getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("licenceEndpoint",
+                SearchSelectorService.route(on(LicenceRestController.class).searchLiveLicences(null)))
+        );
   }
 
   @ParameterizedTest

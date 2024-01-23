@@ -8,6 +8,7 @@
 <#-- @ftlvariable name="informationSources" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
+<#-- @ftlvariable name="isRegulatorSubmission" type="boolean" -->
 
 <@defaultPage
 htmlTitle=pageTitle
@@ -32,10 +33,12 @@ breadcrumbsMap=breadcrumbsMap>
     </#assign>
   </#if>
     <@fdsForm.htmlForm>
+        <#assign optionalLicences = isRegulatorSubmission/>
       <@fdsFieldset.fieldset
         legendHeadingSize="h2"
         legendHeadingClass="govuk-fieldset__legend--s"
-        legendHeading="What licences are on this ${resourceType}?">
+        legendHeading="What licences are on this ${resourceType}?"
+        optionalLabel=optionalLicences>
           <@fdsAddToList.addToList
             pathForList="form.licences"
             pathForSelector="form.licenceSelect"
@@ -48,7 +51,8 @@ breadcrumbsMap=breadcrumbsMap>
             selectorMinInputLength=1
             addToListId="licence-table"
             selectorLabelText="Select a licence to add to this ${resourceType}"
-            restUrl=springUrl(licenceEndpoint)/>
+            restUrl=springUrl(licenceEndpoint)
+            selectorOptionaLabel=optionalLicences/>
       </@fdsFieldset.fieldset>
 
       <#if isOffshore>

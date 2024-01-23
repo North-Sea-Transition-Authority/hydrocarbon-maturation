@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -30,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -51,6 +53,7 @@ class GeneralDetailsFormValidatorTest {
   void setup() {
     generalDetailsFormValidator = new GeneralDetailsFormValidator(licenceQueryService, onshoreOffshoreService);
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     generalDetail = new GeneralDetail();
     generalDetail.setSubmissionDetail(submissionDetail);
     when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.OFFSHORE);
@@ -250,10 +253,10 @@ class GeneralDetailsFormValidatorTest {
 
   @ParameterizedTest
   @EnumSource(ValidationType.class)
-  void validateLicences_whenNotExtantLicence(ValidationType validationType) {
+  void validateLicences_whenNotExtantLicence_andIndustrySubmission(ValidationType validationType) {
     var form = getValidForm();
     form.setLicences(List.of("1", "2"));
-
+    submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     when(licenceQueryService.getLicencesByIds(List.of("1", "2")))
         .thenReturn(List.of(
             new LicenceView("Licence1", 1, LicenceStatus.EXTANT),
@@ -267,6 +270,39 @@ class GeneralDetailsFormValidatorTest {
         .containsExactly(
             entry("licenceSelect", Set.of("licenceSelect.notValid"))
         );
+  }
+
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void validateLicences_whenNotExtantLicence_andRegulatorSubmission(ValidationType validationType) {
+    var form = getValidForm();
+    form.setLicences(List.of("1", "2"));
+    submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
+    when(licenceQueryService.getLicencesByIds(List.of("1", "2")))
+        .thenReturn(List.of(
+            new LicenceView("Licence1", 1, LicenceStatus.EXTANT),
+            new LicenceView("Licence2", 2, LicenceStatus.SURRENDERED)));
+
+
+    var bindingResult = validateOffshoreGeneralDetailsForm(form, validationType);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("licenceSelect", Set.of("licenceSelect.notValid"))
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(ValidationType.class)
+  void validateLicences_whenCorrection_doNotValidateLicenceStatus(ValidationType validationType) {
+    submissionDetail.setCorrection(true);
+    var form = getValidForm();
+    var bindingResult = validateOffshoreGeneralDetailsForm(form, validationType);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    verifyNoInteractions(licenceQueryService);
+
+    assertThat(extractedErrors).isEmpty();
   }
 
   @ParameterizedTest
@@ -346,12 +382,12 @@ class GeneralDetailsFormValidatorTest {
   }
 
   @Test
-  void validate_whenNoLicenceSelected() {
+  void validate_whenNoLicenceSelected_asIndustrySubmitter() {
     var form = getValidForm();
     form.setLicences(List.of());
     form.setLicenceSelect(null);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-
+    submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     generalDetailsFormValidator.isValid(
         form,
         bindingResult,
@@ -367,6 +403,22 @@ class GeneralDetailsFormValidatorTest {
         .containsExactly(
             entry("licenceSelect", Set.of("You must select at least one licence"))
         );
+  }
+
+  @Test
+  void validate_whenNoLicenceSelected_asRegulatorThenNoErrors() {
+    var form = getValidForm();
+    form.setLicences(List.of());
+    form.setLicenceSelect(null);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
+    generalDetailsFormValidator.isValid(
+        form,
+        bindingResult,
+        submissionDetail,
+        ValidationType.FULL);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors).isEmpty();
   }
 
   @ParameterizedTest

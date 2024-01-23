@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
-import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,11 +46,9 @@ public class GeneralDetailSummaryService {
     return generalDetail.map(detail -> {
       var quadrantAndBlocks = quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(detail)
               .stream()
-              .sorted(new ReferenceBlockComparator())
               .toList();
       var licences = licencePersistenceService.getLicencesByGeneralDetail(detail)
           .stream()
-          .sorted(new LicenceReferenceComparator())
           .toList();
       return createSummaryViewFromGeneralDetail(detail, quadrantAndBlocks, licences);
     })
@@ -100,13 +97,14 @@ public class GeneralDetailSummaryService {
 
   private List<String> getQuadBlocksDisplay(List<QuadrantAndBlock> quadrantAndBlocks) {
     return quadrantAndBlocks.stream()
+        .sorted(new ReferenceBlockComparator())
         .map(QuadrantAndBlock::getQuadrantBlockReference)
         .toList();
   }
 
   private List<String> getLicenceDisplay(List<Licence> licences) {
     return licences.stream()
-        .sorted(Comparator.comparing(Licence::getLicenceReference))
+        .sorted(new LicenceReferenceComparator())
         .map(Licence::getLicenceReference)
         .toList();
   }
