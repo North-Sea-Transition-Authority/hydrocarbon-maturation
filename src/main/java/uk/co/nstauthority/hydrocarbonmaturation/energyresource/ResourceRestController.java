@@ -13,6 +13,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchResourceRecordsQueryService;
 
 @RestController
 @RequestMapping("/api")
@@ -23,16 +24,19 @@ public class ResourceRestController {
   private final SubmissionQueryService submissionQueryService;
   private final FieldQueryService fieldQueryService;
   private final ReservoirQueryService reservoirQueryService;
+  private final SearchResourceRecordsQueryService searchResourceRecordsQueryService;
 
   @Autowired
   public ResourceRestController(SearchSelectorService searchSelectorService,
                                 SubmissionQueryService submissionQueryService,
                                 FieldQueryService fieldQueryService,
-                                ReservoirQueryService reservoirQueryService) {
+                                ReservoirQueryService reservoirQueryService,
+                                SearchResourceRecordsQueryService searchResourceRecordsQueryService) {
     this.searchSelectorService = searchSelectorService;
     this.submissionQueryService = submissionQueryService;
     this.fieldQueryService = fieldQueryService;
     this.reservoirQueryService = reservoirQueryService;
+    this.searchResourceRecordsQueryService = searchResourceRecordsQueryService;
   }
 
   @GetMapping("/prospects/{submissionType}")
@@ -73,6 +77,11 @@ public class ResourceRestController {
         searchTerm,
         submissionQueryService.getLatestResourceSubmissionsByName(searchTerm, user)
     );
+  }
+
+  @GetMapping("/resources/fields")
+  public RestSearchResult searchFieldsByFieldName(@RequestParam("term") String searchTerm) {
+    return searchResourceRecordsQueryService.search(searchTerm);
   }
 
   @GetMapping("field/{submissionType}")

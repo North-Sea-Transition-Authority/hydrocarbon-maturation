@@ -10,6 +10,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 import javax.persistence.EntityManager;
 import org.apache.commons.lang3.BooleanUtils;
 import org.jooq.DSLContext;
@@ -1249,6 +1250,46 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
                 fieldStatusHistoryForField2.getFieldStatus()
             )
         );
+  }
+
+  @Test
+  void getFieldRecordsSearchResults_whenIncompleteFieldName_assertResultsAllContainText() {
+    var organisationUnitIdUserIsInGroupFor = 46;
+    setUpRegulatorTest();
+
+    Stream.of("JH Field", "jh Field 2", "JH Field With More Text", "No sub string")
+        .forEach(fieldName -> buildFieldResultWithFieldName(fieldName, organisationUnitIdUserIsInGroupFor));
+
+    var form = new SearchResourceRecordsForm();
+    form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
+    form.setFieldNameForResourceSubmission("JH Fiel");
+
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    var fieldNames = List.of("JH Field", "jh Field 2", "JH Field With More Text");
+    assertThat(results)
+        .extracting(
+            ResourceRecordQueryResult::resourceName
+        )
+        .containsExactlyInAnyOrderElementsOf(
+            fieldNames
+        );
+  }
+
+  private void buildFieldResultWithFieldName(String fieldName, int organisationUnitIdUserIsInGroupFor) {
+    var resource = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
+    var submission =
+        buildSubmissionDetail(resource, SubmissionType.CREATE_CSR);
+    var generalDetail = createGeneralDetail(submission);
+    var regulatorManagedInformation = SubmissionIntegrationTestUtils
+        .createRegulatorManagedInformation(resource, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
+    var field = SubmissionIntegrationTestUtils
+        .createFieldWithParent(resource, fieldName, organisationUnitIdUserIsInGroupFor, entityManager);
+    var fieldStatusHistoryForResponsibleField = SubmissionIntegrationTestUtils
+        .createFieldStatusHistory(field, FieldStatus.STATUS_300, Instant.now(), entityManager);
+    createLicence(1, "relevant", generalDetail);
+    when(licenceQueryService.getExtantLicencesByIds(any()))
+        .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));
   }
 
   private ResourceLink createResourceLink(Resource prospect, Resource discovery) {

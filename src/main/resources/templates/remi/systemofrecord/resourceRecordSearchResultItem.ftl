@@ -41,19 +41,19 @@
         <@fdsResultList.resultListDataItem>
             <@fdsResultList.resultListDataValue
             key="Responsible team"
-            value=modelProperties["teamResponsible"]/>
+            value=modelProperties["teamResponsible"]!""/>
 
             <@fdsResultList.resultListDataValue
             key="Responsible organisation"
-            value=modelProperties["organisationResponsible"]/>
+            value=modelProperties["organisationResponsible"]!""/>
 
             <@fdsResultList.resultListDataValue
             key="Field status"
-            value=modelProperties["fieldStatus"]/>
+            value=modelProperties["fieldStatus"]!""/>
 
             <@fdsResultList.resultListDataValue
             key="Parent field"
-            value=modelProperties["parentField"]/>
+            value=modelProperties["parentField"]!""/>
         </@fdsResultList.resultListDataItem>
 
     </@fdsResultList.resultListItem>

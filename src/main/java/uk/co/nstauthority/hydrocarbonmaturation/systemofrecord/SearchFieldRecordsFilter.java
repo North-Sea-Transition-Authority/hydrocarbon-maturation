@@ -14,6 +14,7 @@ public class SearchFieldRecordsFilter implements SearchResourceRecordsFilter, Se
 
   public static final List<String> SEARCHABLE_TYPES = List.of(ResourceType.FIELD.getEnumName());
 
+  private String fieldNameForResourceSubmission;
   private List<String> resourceTypes = SEARCHABLE_TYPES;
   private boolean showResults;
 
@@ -26,6 +27,7 @@ public class SearchFieldRecordsFilter implements SearchResourceRecordsFilter, Se
   @Override
   public void update(SearchResourceRecordsForm form) {
     setShowResults(true);
+    setFieldNameForResourceSubmission(form.getFieldNameForResourceSubmission());
   }
 
   @Override
@@ -45,7 +47,16 @@ public class SearchFieldRecordsFilter implements SearchResourceRecordsFilter, Se
     this.showResults = showResults;
   }
 
+  public String getFieldNameForResourceSubmission() {
+    return fieldNameForResourceSubmission;
+  }
+
+  public void setFieldNameForResourceSubmission(String fieldNameForResourceSubmission) {
+    this.fieldNameForResourceSubmission = fieldNameForResourceSubmission;
+  }
+
   private void initialise() {
     setShowResults(false);
+    setFieldNameForResourceSubmission(null);
   }
 }

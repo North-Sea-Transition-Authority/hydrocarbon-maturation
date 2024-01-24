@@ -15,7 +15,7 @@ public class ResourceRecordQueryServiceFactory {
   private final RegulatorTeamService regulatorTeamService;
 
   @Autowired
-  ResourceRecordQueryServiceFactory(RegulatorResourceRecordQueryService regulatorResourceRecordQueryService,
+  public ResourceRecordQueryServiceFactory(RegulatorResourceRecordQueryService regulatorResourceRecordQueryService,
                                     OperatorResourceRecordQueryService operatorResourceRecordQueryService,
                                     AreaTeamService areaTeamService,
                                     UserService userService,
@@ -27,7 +27,7 @@ public class ResourceRecordQueryServiceFactory {
     this.regulatorTeamService = regulatorTeamService;
   }
 
-  ResourceRecordQueryServiceStrategy getQueryServiceStrategy() {
+  public ResourceRecordQueryServiceStrategy getQueryServiceStrategy() {
     var user = userService.getUser();
     if (regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user)) {
       return regulatorResourceRecordQueryService;

@@ -4,7 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -312,6 +314,39 @@ class SearchResourceRecordsServiceTest {
   }
 
   @Nested
+  class WhenGettingResourceRecordSearchResultsDistinctNames {
+
+    @Test
+    void getResourceRecordSearchResultsDistinctResourceNames() {
+      var result1 = newSearchResultWithResourceName("Result Z");
+      var result2 = newSearchResultWithResourceName("Result Z");
+      var result3 = newSearchResultWithResourceName("Result A");
+      var result4 = newSearchResultWithResourceName("Result b");
+      var searchResults = List.of(result1, result2, result3, result4);
+
+      var form = new SearchResourceRecordsForm();
+
+      var queryServiceStrategy = mock(ResourceRecordQueryServiceStrategy.class);
+      when(queryServiceStrategy.getResourceRecordSearchResults(form))
+          .thenReturn(searchResults);
+
+      var expectedResult = Stream.of(result3, result4, result2)
+          .map(ResourceRecordQueryResult::resourceName).toList();
+
+      assertThat(underTest.getResourceRecordSearchResultsDistinctResourceNames(form, queryServiceStrategy))
+          .usingRecursiveComparison()
+          .ignoringCollectionOrder()
+          .isEqualTo(expectedResult);
+    }
+
+    private ResourceRecordQueryResult newSearchResultWithResourceName(String resourceName) {
+      return new ResourceRecordQueryResult(null, null, null,
+          resourceName, null, null,
+          null, null);
+    }
+  }
+
+  @Nested
   class WhenGettingPreSelectedResourceName {
     private SearchResourceRecordsForm form;
 
@@ -343,6 +378,32 @@ class SearchResourceRecordsServiceTest {
           String.valueOf(generalDetailId),
           resourceName
       );
+    }
+
+    @Test
+    void fieldResource_noFieldName() {
+      form.setFieldNameForResourceSubmission(null);
+
+      var result = underTest.getPreSelectedResourceName(form);
+      assertThat(result).isEqualTo(Map.of());
+
+      verifyNoInteractions(searchSelectorService);
+    }
+
+    @Test
+    void fieldResource_VerifyCalls() {
+      var fieldName = "Field Name";
+      form.setFieldNameForResourceSubmission(fieldName);
+
+      var prePopulatedSelection = mock(Map.class);
+      when(searchSelectorService.buildPrePopulatedSelection(fieldName))
+          .thenReturn(prePopulatedSelection);
+
+      var result = underTest.getPreSelectedFieldName(form);
+
+      assertThat(result).isEqualTo(prePopulatedSelection);
+
+      verify(searchSelectorService).buildPrePopulatedSelection(fieldName);
     }
   }
 

@@ -20,6 +20,16 @@
   <@fdsSearch.searchPage>
     <@fdsSearch.searchFilter oneThirdWidth=true>
       <@fdsSearch.searchFilterList clearFilterUrl=springUrl(clearFilterUrl)>
+          <@fdsSearch.searchFilterItem itemName="Field name" expanded=resourceName?has_content>
+              <@fdsSearchSelector.searchSelectorRest
+              path="form.fieldNameForResourceSubmission"
+              restUrl=springUrl(fieldApiEndpoint)
+              labelText="Field name"
+              labelClass="govuk-visually-hidden"
+              inputClass="govuk-!-width-three-quarters"
+              selectorMinInputLength=3
+              preselectedItems=resourceName!{}/>
+          </@fdsSearch.searchFilterItem>
       </@fdsSearch.searchFilterList>
     </@fdsSearch.searchFilter>
     <@fdsSearch.searchPageContent twoThirdsWidth=true>

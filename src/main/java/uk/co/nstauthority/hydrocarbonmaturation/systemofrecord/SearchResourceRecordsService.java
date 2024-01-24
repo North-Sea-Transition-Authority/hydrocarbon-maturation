@@ -35,7 +35,7 @@ public class SearchResourceRecordsService {
   private final FieldDisplayService fieldDisplayService;
 
   @Autowired
-  SearchResourceRecordsService(SubmissionDetailDisplayService submissionDetailDisplayService,
+  public SearchResourceRecordsService(SubmissionDetailDisplayService submissionDetailDisplayService,
                                SearchSelectorService searchSelectorService,
                                SubmissionResourceService submissionResourceService,
                                OrganisationUnitQueryService organisationUnitQueryService,
@@ -63,6 +63,17 @@ public class SearchResourceRecordsService {
 
     return resourceRecordSearchResults.stream()
         .map(result -> buildResourceRecordSearchResultItem(result, organisationUnitMap, licenceMap))
+        .toList();
+  }
+
+  public List<String> getResourceRecordSearchResultsDistinctResourceNames(
+      SearchResourceRecordsForm form,
+      ResourceRecordQueryServiceStrategy queryServiceStrategy) {
+    var resourceRecordSearchResults = queryServiceStrategy.getResourceRecordSearchResults(form);
+
+    return resourceRecordSearchResults.stream()
+        .map(ResourceRecordQueryResult::resourceName)
+        .distinct()
         .toList();
   }
 
@@ -111,6 +122,16 @@ public class SearchResourceRecordsService {
         resourceDetailIdForResourceSubmission,
         submissionResourceService.getResourceDisplayName(UUID.fromString(resourceDetailIdForResourceSubmission))
     );
+  }
+
+  public Map<String, String> getPreSelectedFieldName(SearchResourceRecordsForm form) {
+    var fieldNameForResourceSubmission = form.getFieldNameForResourceSubmission();
+
+    if (fieldNameForResourceSubmission == null) {
+      return Map.of();
+    }
+
+    return searchSelectorService.buildPrePopulatedSelection(fieldNameForResourceSubmission);
   }
 
   public Map<String, String> getPreSelectedOrganisationUnit(SearchResourceRecordsForm form) {

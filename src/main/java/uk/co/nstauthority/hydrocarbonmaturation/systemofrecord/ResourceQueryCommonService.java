@@ -168,6 +168,12 @@ class ResourceQueryCommonService {
       );
     }
 
+    if (StringUtils.isNotBlank(form.getFieldNameForResourceSubmission())) {
+      conditionList.add(
+          FIELDS.CORRECTED_LEGAL_FIELD_NAME.containsIgnoreCase(form.getFieldNameForResourceSubmission())
+      );
+    }
+
     if (Objects.nonNull(form.getResponsibleOrganisationId())) {
       conditionList.add(
           RESOURCE_DETAILS.ORGANISATION_ID.eq(form.getResponsibleOrganisationId())

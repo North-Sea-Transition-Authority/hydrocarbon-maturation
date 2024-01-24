@@ -6,6 +6,7 @@ import java.util.List;
 public class SearchResourceRecordsForm {
 
   private String resourceDetailIdForResourceSubmission;
+  private String fieldNameForResourceSubmission;
   private Integer responsibleOrganisationId;
   private List<String> resourceTypes = new ArrayList<>();
   private List<String> opportunityTypes = new ArrayList<>();
@@ -88,6 +89,14 @@ public class SearchResourceRecordsForm {
     this.showOnlyPreferredViews = showOnlyPreferredViews;
   }
 
+  public String getFieldNameForResourceSubmission() {
+    return fieldNameForResourceSubmission;
+  }
+
+  public void setFieldNameForResourceSubmission(String fieldNameForResourceSubmission) {
+    this.fieldNameForResourceSubmission = fieldNameForResourceSubmission;
+  }
+
   public static SearchResourceRecordsForm from(SearchProspectAndDiscoveryRecordsFilter filter) {
     var form = new SearchResourceRecordsForm();
     form.setShowOnlyPreferredViews(filter.isShowOnlyPreferredViews());
@@ -105,6 +114,7 @@ public class SearchResourceRecordsForm {
   public static SearchResourceRecordsForm from(SearchFieldRecordsFilter filter) {
     var form = new SearchResourceRecordsForm();
     form.setResourceTypes(filter.getResourceTypes());
+    form.setFieldNameForResourceSubmission(filter.getFieldNameForResourceSubmission());
     return form;
   }
 }

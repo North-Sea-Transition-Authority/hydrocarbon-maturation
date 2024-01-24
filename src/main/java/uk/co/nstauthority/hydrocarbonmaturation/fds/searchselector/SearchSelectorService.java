@@ -103,6 +103,10 @@ public class SearchSelectorService {
     );
   }
 
+  public Map<String, String> buildPrePopulatedSelection(String displayText) {
+    return buildPrePopulatedSelection(displayText, displayText);
+  }
+
   public static String removePrefix(String s) {
     return StringUtils.substring(s, SearchSelectablePrefix.FREE_TEXT_PREFIX.length());
   }

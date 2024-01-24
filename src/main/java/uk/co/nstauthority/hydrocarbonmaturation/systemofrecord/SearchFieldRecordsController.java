@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
 @Controller
@@ -36,13 +38,11 @@ public class SearchFieldRecordsController {
     var form = SearchResourceRecordsForm.from(filter);
 
     if (filter.isShowResults()) {
-      return getModelAndView(
-          form,
-          searchResourceRecordsService.getResourceRecordSearchResults(
-              form,
-              resourceRecordQueryServiceFactory.getQueryServiceStrategy()),
-          FiltersAdded.YES
-      );
+      // get the actual results from the search
+      var fieldResultRecords = searchResourceRecordsService.getResourceRecordSearchResults(
+          form, resourceRecordQueryServiceFactory.getQueryServiceStrategy());
+
+      return getModelAndView(form, fieldResultRecords, FiltersAdded.YES);
     }
 
     return getModelAndViewWithNoFiltersAdded(form);
@@ -81,7 +81,11 @@ public class SearchFieldRecordsController {
         .addObject("clearFilterUrl", ReverseRouter.route(on(SearchFieldRecordsController.class)
             .clearSearchResourceRecordFilter(null, null)))
         .addObject("resourceRecordSearchResultItems", resourceRecordSearchResults)
-        .addObject("maxResultsReturned", searchResourceRecordsService.maxResultsReturned(resourceRecordSearchResults));
+        .addObject("maxResultsReturned", searchResourceRecordsService.maxResultsReturned(resourceRecordSearchResults))
+        .addObject("fieldApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
+            .searchFieldsByFieldName(null)))
+        .addObject("resourceName", searchResourceRecordsService.getPreSelectedFieldName(form));
+
   }
 
   @ModelAttribute("searchFieldRecordsFilter")

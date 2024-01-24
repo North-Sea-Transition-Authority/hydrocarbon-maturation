@@ -16,6 +16,8 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -24,6 +26,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
 @ContextConfiguration(classes = SearchFieldRecordsController.class)
@@ -70,11 +74,85 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void showSearchResourceRecordsScreen_whenRegulator_whenFilterInSessionAndShowResults_verifyMethodCalls() throws Exception {
-    var operatorQueryService = mock(OperatorResourceRecordQueryService.class);
+  void showSearchResourceRecordsScreen_whenFilterInSessionAndShowResults_verifyMethodCalls() throws Exception {
+    var regulatorQueryService = mock(RegulatorResourceRecordQueryService.class);
     when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
     when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
-        .thenReturn(operatorQueryService);
+        .thenReturn(regulatorQueryService);
+
+    var preselectedFieldName = Map.of("fieldName", "fieldName");
+    when(searchResourceRecordsService.getPreSelectedFieldName(any(SearchResourceRecordsForm.class)))
+        .thenReturn(preselectedFieldName);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(SearchFieldRecordsController.class)
+                .showSearchFieldRecordsScreen(null)))
+                .with(user(USER))
+                .flashAttr("searchFieldRecordsFilter", getFullFilter(true)));
+
+    verify(searchResourceRecordsService, times(1))
+        .getResourceRecordSearchResults(any(SearchResourceRecordsForm.class), eq(regulatorQueryService));
+  }
+
+  @Test
+  void showSearchResourceRecordsScreen_whenFilterByFieldName_assertResults() throws Exception {
+    var regulatorQueryService = mock(RegulatorResourceRecordQueryService.class);
+    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
+        .thenReturn(regulatorQueryService);
+
+    var preselectedFieldName = Map.of("JH Field", "JH Field");
+    when(searchResourceRecordsService.getPreSelectedFieldName(any(SearchResourceRecordsForm.class)))
+        .thenReturn(preselectedFieldName);
+
+    var emptyModelProperties = new ResourceRecordSearchResultItemModelProperties();
+    emptyModelProperties.addProperty("key", "value");
+
+    var result1 = new ResourceRecordSearchResultItem("JH Field 2", "", "",
+        emptyModelProperties);
+    var result2 = new ResourceRecordSearchResultItem("JH Field 1", "", "",
+        emptyModelProperties);
+    var result3 = new ResourceRecordSearchResultItem("JH Field", "", "",
+        emptyModelProperties);
+    var results = List.of(result1, result2, result3);
+    when(searchResourceRecordsService.getResourceRecordSearchResults(
+        any(SearchResourceRecordsForm.class), eq(regulatorQueryService)))
+        .thenReturn(results);
+
+    var filter = new SearchFieldRecordsFilter();
+    filter.setShowResults(true);
+    filter.setFieldNameForResourceSubmission("JH Field");
+
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(SearchFieldRecordsController.class)
+                .showSearchFieldRecordsScreen(null)))
+                .with(user(USER))
+                .flashAttr("searchFieldRecordsFilter", filter))
+        .andExpect(status().isOk())
+        .andReturn()
+        .getModelAndView()
+        .getModelMap());
+
+    // check results are present and have been ordered
+    assertThat(modelMap)
+        .containsKey("resourceRecordSearchResultItems");
+
+    assertThat(modelMap.get("resourceRecordSearchResultItems"))
+        .usingRecursiveComparison()
+        .isEqualTo(results);
+  }
+
+  @Test
+  void showSearchResourceRecordsScreen_whenRegulator_whenFilterInSessionAndShowResults_assertProperties() throws Exception {
+    var regulatorQueryService = mock(RegulatorResourceRecordQueryService.class);
+    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
+        .thenReturn(regulatorQueryService);
+
+    var preselectedFieldName = Map.of("fieldName", "fieldName");
+    when(searchResourceRecordsService.getPreSelectedFieldName(any(SearchResourceRecordsForm.class)))
+        .thenReturn(preselectedFieldName);
+
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SearchFieldRecordsController.class)
                 .showSearchFieldRecordsScreen(null)))
@@ -85,8 +163,42 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
         .getModelAndView()
         .getModelMap());
 
-    verify(searchResourceRecordsService, times(1))
-        .getResourceRecordSearchResults(any(SearchResourceRecordsForm.class), eq(operatorQueryService));
+    assertEquals(SearchResourceRecordsForm.class, modelMap.get("form").getClass());
+    assertThat(modelMap)
+        .contains(
+            entry("pageTitle", SearchFieldRecordsController.PAGE_TITLE),
+            entry("backLinkUrl", ReverseRouter.route(on(SystemOfRecordLandingPageController.class).getLandingPage())),
+            entry("filtersAdded", true),
+            entry("clearFilterUrl", ReverseRouter.route(on(SearchFieldRecordsController.class)
+                .clearSearchResourceRecordFilter(null, null))),
+            entry("resourceRecordSearchResultItems", Collections.emptyList()),
+            entry("maxResultsReturned", false),
+            entry("fieldApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
+                .searchFieldsByFieldName(null))),
+            entry("resourceName", preselectedFieldName)
+        );
+  }
+
+  @Test
+  void showSearchResourceRecordsScreen_whenOperator_whenFilterInSessionAndShowResults_assertProperties() throws Exception {
+    var operatorQueryService = mock(OperatorResourceRecordQueryService.class);
+    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
+    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
+        .thenReturn(operatorQueryService);
+
+    var preselectedFieldName = Map.of("fieldName", "fieldName");
+    when(searchResourceRecordsService.getPreSelectedFieldName(any(SearchResourceRecordsForm.class)))
+        .thenReturn(preselectedFieldName);
+
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(SearchFieldRecordsController.class)
+                .showSearchFieldRecordsScreen(null)))
+                .with(user(USER))
+                .flashAttr("searchFieldRecordsFilter", getFullFilter(true)))
+        .andExpect(status().isOk())
+        .andReturn()
+        .getModelAndView()
+        .getModelMap());
 
     assertEquals(SearchResourceRecordsForm.class, modelMap.get("form").getClass());
     assertThat(modelMap)
@@ -97,7 +209,10 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
             entry("clearFilterUrl", ReverseRouter.route(on(SearchFieldRecordsController.class)
                 .clearSearchResourceRecordFilter(null, null))),
             entry("resourceRecordSearchResultItems", Collections.emptyList()),
-            entry("maxResultsReturned", false)
+            entry("maxResultsReturned", false),
+            entry("fieldApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
+                .searchFieldsByFieldName(null))),
+            entry("resourceName", preselectedFieldName)
         );
   }
 
