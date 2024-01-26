@@ -36,6 +36,7 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
     validateStimulationTypes(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
     validateExpectedFormationDamage(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
     validateSpecialisedDrillingEquipment(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+    validateMultilateralWells(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
     validateHoleCompletionTypes(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
     validatePlannedCompletionTypes(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
     validateArtificialLiftMechanisms(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
@@ -58,6 +59,7 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
     validateExpectedFormationDamage(plannedSanctionedWellsForm, errors, ValidationType.FULL);
     validateHeavyOil(plannedSanctionedWellsForm, errors, ValidationType.FULL);
     validateSpecialisedDrillingEquipment(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+    validateMultilateralWells(plannedSanctionedWellsForm, errors, ValidationType.FULL);
     validateHoleCompletionTypes(plannedSanctionedWellsForm, errors, ValidationType.FULL);
     validatePlannedCompletionTypes(plannedSanctionedWellsForm, errors, ValidationType.FULL);
     validateArtificialLiftMechanisms(plannedSanctionedWellsForm, errors, ValidationType.FULL);
@@ -467,6 +469,30 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
     }
   }
 
+  private void validateMultilateralWells(PlannedSanctionedWellsForm plannedSanctionedWellsForm,
+                                         Errors errors,
+                                         ValidationType validationType) {
+    if (ValidationType.FULL.equals(validationType)
+        && plannedSanctionedWellsForm.getAnyMultilateralWells() == null) {
+      ValidationUtils.rejectIfEmpty(
+          errors,
+          "anyMultilateralWells",
+          "anyMultilateralWells.required",
+          "Select if there are any multilateral wells"
+      );
+    }
+
+    if (BooleanUtils.isTrue(plannedSanctionedWellsForm.getAnyMultilateralWells())) {
+      isPositiveWholeNumberAndLessThanPlannedSanctionedWells(
+          errors,
+          "numberOfMultilateralWells.decimalInputValue",
+          "Number of multilateral wells",
+          plannedSanctionedWellsForm.getNumberOfMultilateralWells(),
+          validationType
+      );
+    }
+  }
+
   private void validateHoleCompletionTypes(PlannedSanctionedWellsForm plannedSanctionedWellsForm,
                                            Errors errors,
                                            ValidationType validationType) {
@@ -630,10 +656,14 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
           } else {
             areAllValidNumeric = false;
           }
+        } else {
+          // avoid total check if no lift mechanisms selected
+          areAllValidNumeric = false;
         }
       }
 
-      if (BooleanUtils.isTrue(areAllValidNumeric) && BooleanUtils.isTrue(isTotalNumberOfPlannedSanctionedWellsNumeric)
+      if (BooleanUtils.isTrue(areAllValidNumeric)
+          && BooleanUtils.isTrue(isTotalNumberOfPlannedSanctionedWellsNumeric)
           && sumOfTypes != totalNumberOfPlannedSanctionedWells.createIntegerOrNull()) {
         errors.rejectValue(
             firstArtificialLiftMechanismId,

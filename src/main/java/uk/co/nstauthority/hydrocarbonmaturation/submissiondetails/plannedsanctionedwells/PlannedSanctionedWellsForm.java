@@ -69,6 +69,10 @@ public class PlannedSanctionedWellsForm implements SubmissionForm {
 
   private String specialisedDrillingEquipmentRequired;
 
+  private Boolean anyMultilateralWells;
+
+  private DecimalInput numberOfMultilateralWells = new DecimalInput();
+
   private Map<HoleCompletionType, Boolean> selectedHoleCompletionTypes = new EnumMap<>(HoleCompletionType.class);
   private Map<HoleCompletionType, DecimalInput> numberOfHoleCompletionTypes = emptyNumberOfHoleCompletionTypes();
 
@@ -318,6 +322,22 @@ public class PlannedSanctionedWellsForm implements SubmissionForm {
 
   public void setSpecialisedDrillingEquipmentRequired(String specialisedDrillingEquipmentRequired) {
     this.specialisedDrillingEquipmentRequired = specialisedDrillingEquipmentRequired;
+  }
+
+  public Boolean getAnyMultilateralWells() {
+    return anyMultilateralWells;
+  }
+
+  public void setAnyMultilateralWells(Boolean anyMultilateralWells) {
+    this.anyMultilateralWells = anyMultilateralWells;
+  }
+
+  public DecimalInput getNumberOfMultilateralWells() {
+    return numberOfMultilateralWells;
+  }
+
+  public void setNumberOfMultilateralWells(DecimalInput numberOfMultilateralWells) {
+    this.numberOfMultilateralWells = numberOfMultilateralWells;
   }
 
   public Map<HoleCompletionType, Boolean> getSelectedHoleCompletionTypes() {

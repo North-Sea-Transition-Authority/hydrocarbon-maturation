@@ -85,6 +85,10 @@ public class PlannedSanctionedWells implements SubmissionDetailChildEntity {
 
   private String specialisedDrillingEquipmentRequired;
 
+  private Boolean anyMultilateralWells;
+
+  private BigDecimal numberOfMultilateralWells;
+
   public UUID getId() {
     return id;
   }
@@ -331,5 +335,21 @@ public class PlannedSanctionedWells implements SubmissionDetailChildEntity {
 
   public void setSpecialisedDrillingEquipmentRequired(String specialisedDrillingEquipmentRequired) {
     this.specialisedDrillingEquipmentRequired = specialisedDrillingEquipmentRequired;
+  }
+
+  public Boolean getAnyMultilateralWells() {
+    return anyMultilateralWells;
+  }
+
+  public void setAnyMultilateralWells(Boolean anyMultilateralWells) {
+    this.anyMultilateralWells = anyMultilateralWells;
+  }
+
+  public BigDecimal getNumberOfMultilateralWells() {
+    return numberOfMultilateralWells;
+  }
+
+  public void setNumberOfMultilateralWells(BigDecimal numberOfMultilateralWells) {
+    this.numberOfMultilateralWells = numberOfMultilateralWells;
   }
 }

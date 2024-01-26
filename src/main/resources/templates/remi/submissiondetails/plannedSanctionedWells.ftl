@@ -231,6 +231,21 @@ breadcrumbsMap=breadcrumbsMap>
             <@fdsRadio.radioNo path="form.anySpecialisedDrillingEquipmentRequired" />
         </@fdsRadio.radioGroup>
 
+        <@fdsRadio.radioGroup
+        path="form.anyMultilateralWells"
+        labelText="Are there any multilateral wells?"
+        hiddenContent=true>
+            <@fdsRadio.radioYes path="form.anyMultilateralWells">
+                <@fdsTextInput.textInput
+                path="form.numberOfMultilateralWells.decimalInputValue"
+                nestingPath="form.anyMultilateralWells"
+                labelText="Number of multilateral wells"
+                inputClass="govuk-input--width-3"
+                />
+            </@fdsRadio.radioYes>
+            <@fdsRadio.radioNo path="form.anyMultilateralWells" />
+        </@fdsRadio.radioGroup>
+
         <#assign firstItem = holeCompletionOptions?keys[0] >
         <@fdsCheckbox.checkboxGroup
         path="form.selectedHoleCompletionTypes[${firstItem}]"

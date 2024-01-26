@@ -13,6 +13,10 @@ public class DecimalInputTestUtil {
     return DecimalInput.createDecimalInput(BigDecimal.valueOf(input));
   }
 
+  public static DecimalInput asBigDecimal(int input) {
+    return DecimalInput.createDecimalInput(BigDecimal.valueOf(input));
+  }
+
   public static Boolean decimalInputEqualsBigDecimal(DecimalInput decimalInput, BigDecimal bigDecimal) {
     var decimalInputAsBigDecimal = decimalInput.asBigDecimal();
 

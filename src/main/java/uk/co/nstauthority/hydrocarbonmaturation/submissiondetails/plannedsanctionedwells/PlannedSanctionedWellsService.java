@@ -119,6 +119,12 @@ public class PlannedSanctionedWellsService {
               form.setSpecialisedDrillingEquipmentRequired(
                   plannedSanctionedWells.getSpecialisedDrillingEquipmentRequired()
               );
+              form.setAnyMultilateralWells(
+                  plannedSanctionedWells.getAnyMultilateralWells()
+              );
+              form.setNumberOfMultilateralWells(
+                  DecimalInput.createDecimalInput(plannedSanctionedWells.getNumberOfMultilateralWells())
+              );
 
               setStimulationTypeRequiredForm(form, plannedSanctionedWells);
               setPswFaultsForm(form, plannedSanctionedWells);
@@ -228,6 +234,12 @@ public class PlannedSanctionedWellsService {
     );
     plannedSanctionedWells.setSpecialisedDrillingEquipmentRequired(
         form.getSpecialisedDrillingEquipmentRequired()
+    );
+    plannedSanctionedWells.setAnyMultilateralWells(
+        form.getAnyMultilateralWells()
+    );
+    plannedSanctionedWells.setNumberOfMultilateralWells(
+        form.getNumberOfMultilateralWells().createBigDecimalOrNull()
     );
 
     var savedPlannedSanctionedWells = plannedSanctionedWellsRepository.save(plannedSanctionedWells);

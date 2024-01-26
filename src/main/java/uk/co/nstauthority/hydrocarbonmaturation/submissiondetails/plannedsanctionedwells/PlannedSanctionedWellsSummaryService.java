@@ -55,6 +55,8 @@ public class PlannedSanctionedWellsSummaryService {
       " required?";
   public static final String SPECIALISED_DRILLING_EQUIPMENT_REQUIRED = "What specialised drilling equipment or services" +
       " are required?";
+  public static final String ANY_MULTILATERAL_WELLS = "Are there any multilateral wells?";
+  public static final String NUMBER_OF_MULTILATERAL_WELLS = "Number of multilateral wells";
 
   private final PlannedSanctionedWellsRepository plannedSanctionedWellsRepository;
   private final PswFaultRepository pswFaultRepository;
@@ -126,6 +128,7 @@ public class PlannedSanctionedWellsSummaryService {
             summaryDataView.addKeyValue(DRILLING_CHALLENGES_MITIGATIONS,
                 plannedSanctionedWells.getDrillingChallengesMitigations());
           }
+
           summaryDataView.addKeyValue(STIMULATION_TYPE_REQUIRED,
               plannedSanctionedWells.getStimulationTypeRequired().getDisplayName());
 
@@ -144,6 +147,9 @@ public class PlannedSanctionedWellsSummaryService {
             summaryDataView.addKeyValue(SPECIALISED_DRILLING_EQUIPMENT_REQUIRED,
                 plannedSanctionedWells.getSpecialisedDrillingEquipmentRequired());
           }
+
+          summaryDataView.addKeyValue(ANY_MULTILATERAL_WELLS,
+              BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyMultilateralWells()));
         },
         () -> {
           summaryDataView.addKeyValue(TOTAL_CAPEX, "");
@@ -163,6 +169,7 @@ public class PlannedSanctionedWellsSummaryService {
           summaryDataView.addKeyValue(IS_EXPECTING_FORMATION_DAMAGE, "");
           summaryDataView.addKeyValue(ANY_HEAVY_OIL, "");
           summaryDataView.addKeyValue(ANY_SPECIALISED_DRILLING_EQUIPMENT_REQUIRED, "");
+          summaryDataView.addKeyValue(ANY_MULTILATERAL_WELLS, "");
         });
 
     return SummaryCard.simpleSummaryCardWithHeading(PLANNED_SANCTIONED_WELLS, summaryDataView);
@@ -202,6 +209,11 @@ public class PlannedSanctionedWellsSummaryService {
           if (BooleanUtils.isTrue(plannedSanctionedWells.getAnyWellsExpectedToCrossFaults())) {
             summaryTableView.addRow(NUMBER_OF_WELLS_EXPECTED_TO_CROSS_FAULTS,
                 plannedSanctionedWells.getNumberOfWellsExpectedToCrossFaults());
+          }
+
+          if (BooleanUtils.isTrue(plannedSanctionedWells.getAnyMultilateralWells())) {
+            summaryTableView.addRow(NUMBER_OF_MULTILATERAL_WELLS,
+                plannedSanctionedWells.getNumberOfMultilateralWells());
           }
         });
 

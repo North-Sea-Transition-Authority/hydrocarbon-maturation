@@ -117,6 +117,8 @@ class PlannedSanctionedWellsFormValidatorTest {
                 Set.of("anyHeavyOil.required")),
             entry("anySpecialisedDrillingEquipmentRequired",
                 Set.of("anySpecialisedDrillingEquipmentRequired.required")),
+            entry("anyMultilateralWells",
+                Set.of("anyMultilateralWells.required")),
             entry(firstHoleCompletionTypeId,
                 Set.of("%s.required".formatted(firstHoleCompletionTypeId))),
             entry(firstPlannedCompletionTypeId,
@@ -731,6 +733,42 @@ class PlannedSanctionedWellsFormValidatorTest {
         );
   }
 
+  // multilateral wells
+
+  @ParameterizedTest
+  @EnumSource(value = ValidationType.class)
+  void validate_multilateralWells_validNumberOfWells(ValidationType validationType) {
+    form.setTotalNumberOfPlannedSanctionedWells(DecimalInput.createDecimalInput(10));
+
+    form.setAnyMultilateralWells(true);
+    form.setNumberOfMultilateralWells(DecimalInput.createDecimalInput(5));
+
+    assertTrue(plannedSanctionedWellsFormValidator.isValid(form, bindingResult, submissionDetail, validationType));
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors).isEmpty();
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = ValidationType.class)
+  void validate_multilateralWells_invalidNumberOfWells(ValidationType validationType) {
+    form.setTotalNumberOfPlannedSanctionedWells(DecimalInput.createDecimalInput(10));
+
+    form.setTotalNumberOfPlannedSanctionedWells(DecimalInput.createDecimalInput(10));
+
+    form.setAnyMultilateralWells(true);
+    form.setNumberOfMultilateralWells(DecimalInput.createDecimalInput(15));
+
+    assertFalse(plannedSanctionedWellsFormValidator.isValid(form, bindingResult, submissionDetail, validationType));
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors)
+        .containsExactly(
+            entry("numberOfMultilateralWells.decimalInputValue",
+                Set.of("numberOfMultilateralWells.decimalInputValue.moreThanMaxValue"))
+        );
+  }
+
   // hole completion types
 
   @ParameterizedTest
@@ -1147,6 +1185,7 @@ class PlannedSanctionedWellsFormValidatorTest {
     form.setAnyHeavyOil(false);
     form.setAnySpecialisedDrillingEquipmentRequired(false);
     form.setSpecialisedDrillingEquipmentRequired(null);
+    form.setAnyMultilateralWells(false);
 
     form.setSelectedHoleCompletionTypes(Map.of(HoleCompletionType.OPENED_HOLE, true));
     var validHoleCompletionType = PlannedSanctionedWellsForm.emptyNumberOfHoleCompletionTypes();
