@@ -1282,7 +1282,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
             ResourceRecordQueryResult::parentFieldId,
             ResourceRecordQueryResult::fieldStatus
         )
-        .containsExactlyInAnyOrder(
+        .contains(
             tuple(
                 resource1.getId(),
                 ResourceType.FIELD,
@@ -1301,6 +1301,33 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
                 field2.getParentDeterminedField().getFieldIdentifier(),
                 fieldStatusHistoryForField2.getFieldStatus()
             )
+        );
+  }
+  @Test
+  void getFieldRecordsSearchResults_whenNoSubmission_assertResultsReturned() {
+    var organisationUnitIdUserIsInGroupFor = 46;
+    setUpRegulatorTest();
+
+    var resource = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
+    var regulatorManagedInformation = SubmissionIntegrationTestUtils
+        .createRegulatorManagedInformation(resource, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
+    var field = SubmissionIntegrationTestUtils
+        .createFieldWithParent(resource, "Field name", organisationUnitIdUserIsInGroupFor, entityManager);
+    var fieldStatusHistoryForResponsibleField = SubmissionIntegrationTestUtils
+        .createFieldStatusHistory(field, FieldStatus.STATUS_300, Instant.now(), entityManager);
+
+    var form = new SearchResourceRecordsForm();
+    form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
+    form.setFieldNameForResourceSubmission("Field name");
+
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+
+    assertThat(results)
+        .extracting(
+            ResourceRecordQueryResult::resourceId
+        )
+        .contains(
+            resource.getId()
         );
   }
 

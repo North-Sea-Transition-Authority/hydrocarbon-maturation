@@ -169,11 +169,19 @@ public class SearchResourceRecordsService {
   }
 
   private String getCaptionText(ResourceRecordQueryResult resourceRecordQueryResult) {
+    var resourceType = resourceRecordQueryResult.resourceType().getDisplayName();
     var submissionDetailId = resourceRecordQueryResult.submissionDetailId();
-    return submissionDetailService.getSubmissionDetail(submissionDetailId)
-        .map(submissionDetail -> resourceRecordQueryResult.resourceType().getDisplayName() +
-            (submissionDetail.isRelinquishment() ? " (Relinquishment)" : ""))
-        .orElse("");
+
+    var captionText = new StringBuilder();
+    captionText.append(resourceType);
+
+    if (submissionDetailId != null) {
+      captionText.append(submissionDetailService.getSubmissionDetail(submissionDetailId)
+          .map(submissionDetail -> submissionDetail.isRelinquishment() ? " (Relinquishment)" : "")
+          .orElse(""));
+    }
+
+    return captionText.toString();
   }
 
   private String getActionUrl(ResourceRecordQueryResult resourceRecordQueryResult) {

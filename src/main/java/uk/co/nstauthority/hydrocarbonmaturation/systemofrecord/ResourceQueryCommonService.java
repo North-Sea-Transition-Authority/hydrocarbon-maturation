@@ -66,7 +66,7 @@ class ResourceQueryCommonService {
             FIELDS.PARENT_DETERMINED_FIELD_ID,
             max(FIELD_STATUS_HISTORY.FIELD_STATUS))
         .from(RESOURCES
-          .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
+          .leftJoin(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
               select(SD_2.ID)
                   .from(SUBMISSIONS.join(SD_2)
                       //gets latest approved submission detail for a submission on a resource

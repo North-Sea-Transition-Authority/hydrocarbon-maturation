@@ -247,6 +247,47 @@ class SearchResourceRecordsServiceTest {
           );
     }
 
+    @Test
+    void buildsFieldRecordSearchResultItem_whenReturnedFieldRecordHasNoSubmission_AssertAllReturnedAndItemsAreBuiltCorrectly() {
+
+      var result = buildAndMockResourceRecordQueryResult(
+          "field-name1", ResourceType.FIELD, null,
+          ORGANISATION_ID_1, "Org A",
+          List.of(EXTANT_LICENCE_1.licenceId(), EXTANT_LICENCE_2.licenceId()),
+          List.of(EXTANT_LICENCE_1.licenceRef(), EXTANT_LICENCE_2.licenceRef()),
+          ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, null, FieldStatus.STATUS_200
+      );
+      when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form))
+          .thenReturn(List.of(result));
+
+      when(fieldDisplayService.getParentFieldNameOrNoneFound(result.parentFieldId()))
+          .thenReturn("");
+
+      var results = underTest.getResourceRecordSearchResults(form, resourceRecordQueryServiceStrategy);
+
+      assertThat(results)
+          .extracting(
+              ResourceRecordSearchResultItem::headingText,
+              ResourceRecordSearchResultItem::captionText,
+              ResourceRecordSearchResultItem::actionUrl
+          )
+          .containsExactly(
+              tuple(
+                  "field-name1",
+                  "Field",
+                  getActionUrl(result.resourceId())
+              )
+          );
+
+      assertThat(results.get(0).modelProperties().getProperties())
+          .containsExactly(
+              entry("teamResponsible", ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName()),
+              entry("organisationResponsible", "Org A"),
+              entry("fieldStatus", result.fieldStatus().getDisplayName()),
+              entry("parentField", "")
+          );
+    }
+
     private String getActionUrl(UUID resourceId) {
       return ReverseRouter.route(on(ViewResourceRecordController.class)
           .showResourceRecord(resourceId));

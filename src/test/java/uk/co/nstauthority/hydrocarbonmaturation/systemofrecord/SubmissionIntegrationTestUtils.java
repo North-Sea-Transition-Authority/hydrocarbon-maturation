@@ -139,6 +139,9 @@ public class SubmissionIntegrationTestUtils {
     return resourceDetail;
   }
 
+  /*
+   * Note that this method creates 2 fields - the new desired field and a parent with status 200
+   */
   public static Field createFieldWithParent(Resource resource,
                                             String correctedLegalFieldName,
                                             int responsibleOrganisationId,
