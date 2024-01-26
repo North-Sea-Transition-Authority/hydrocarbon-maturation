@@ -156,6 +156,58 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
+  void getProspectAndDiscoveryRecordSearchResults_whenIncompleteResourceName_assertOrderedResultsAllContainTextIgnoreCasing() {
+    var organisationUnitIdUserIsInGroupFor = 46;
+    setUpRegulatorTest();
+
+    var resource1 = buildProspectResource();
+    var submission1 =
+        buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
+    var resourceName1 = "Resource";
+    var generalDetail1 = createGeneralDetail(submission1);
+    createResourceDetail(
+        submission1, resourceName1, organisationUnitIdUserIsInGroupFor);
+    var extantLicenceId1 = 1;
+    var extantLicence1 = createLicence(extantLicenceId1, "licenceRef", generalDetail1);
+
+    var resource2 = buildDiscoveryResource();
+    var submission2 =
+        buildSubmissionDetail(resource2, SubmissionType.CREATE_DISCOVERY);
+    var resourceName2 = "A resource";
+    var generalDetail2 = createGeneralDetail(submission2);
+    createResourceDetail(
+        submission2, resourceName2, organisationUnitIdUserIsInGroupFor);
+    var extantLicenceId2 = 1;
+    var extantLicence2 = createLicence(extantLicenceId2, "licenceRef", generalDetail2);
+
+    var resource3 = buildProspectResource();
+    var submission3 =
+        buildSubmissionDetail(resource3, SubmissionType.CREATE_DISCOVERY);
+    var resourceName3 = "Something else";
+    var generalDetail3 = createGeneralDetail(submission3);
+    createResourceDetail(
+        submission3, resourceName3, organisationUnitIdUserIsInGroupFor);
+    var extantLicenceId3 = 1;
+    var extantLicence3 = createLicence(extantLicenceId3, "licenceRef", generalDetail3);
+
+    when(licenceQueryService.getExtantLicencesByIds(any()))
+        .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));
+
+    var form = new SearchResourceRecordsForm();
+    form.setResourceTypes(List.of(ResourceType.PROSPECT.getEnumName(), ResourceType.DISCOVERY.getEnumName()));
+    form.setResourceNameFromResourceDetail("Resourc");
+
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+    assertThat(results)
+        .extracting(
+            ResourceRecordQueryResult::resourceName
+        )
+        .containsExactly(
+            resourceName2, resourceName1
+        );
+  }
+
+  @Test
   void getProspectAndDiscoveryRecordSearchResults_whenTwoSubmissionsForOneResource_assertLatestApprovedIsDisplayed() {
     setUpRegulatorTest();
     var resource1 = buildProspectResource();
@@ -266,7 +318,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var opportunityDetail = createOpportunityDetail(OpportunityType.PROSPECT, submissionDetail1);
 
     var form = new SearchResourceRecordsForm();
-    form.setResourceDetailIdForResourceSubmission(resourceDetails1.getId().toString());
+    form.setResourceNameFromResourceDetail(resourceDetails1.getResourceName());
     form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
     form.setOpportunityTypes(List.of(OpportunityType.PROSPECT.name()));
     var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);

@@ -70,18 +70,14 @@ public class ResourceRestController {
     );
   }
 
-  @GetMapping("/resources")
-  public RestSearchResult searchResources(@RequestParam("term") String searchTerm,
-                                          User user) {
-    return searchSelectorService.search(
-        searchTerm,
-        submissionQueryService.getLatestResourceSubmissionsByName(searchTerm, user)
-    );
+  @GetMapping("/resources/prospects-and-discoveries")
+  public RestSearchResult searchProspectsAndDiscoveries(@RequestParam("term") String searchTerm) {
+    return searchResourceRecordsQueryService.searchProspectsAndDiscoveries(searchTerm);
   }
 
   @GetMapping("/resources/fields")
   public RestSearchResult searchFieldsByFieldName(@RequestParam("term") String searchTerm) {
-    return searchResourceRecordsQueryService.search(searchTerm);
+    return searchResourceRecordsQueryService.searchFields(searchTerm);
   }
 
   @GetMapping("field/{submissionType}")

@@ -5,7 +5,7 @@ import java.util.List;
 
 public class SearchResourceRecordsForm {
 
-  private String resourceDetailIdForResourceSubmission;
+  private String resourceNameFromResourceDetail;
   private String fieldNameForResourceSubmission;
   private Integer responsibleOrganisationId;
   private List<String> resourceTypes = new ArrayList<>();
@@ -16,12 +16,12 @@ public class SearchResourceRecordsForm {
   private List<String> geographicalArea = new ArrayList<>();
   private boolean showOnlyPreferredViews;
 
-  public String getResourceDetailIdForResourceSubmission() {
-    return resourceDetailIdForResourceSubmission;
+  public String getResourceNameFromResourceDetail() {
+    return resourceNameFromResourceDetail;
   }
 
-  public void setResourceDetailIdForResourceSubmission(String resourceDetailIdForResourceSubmission) {
-    this.resourceDetailIdForResourceSubmission = resourceDetailIdForResourceSubmission;
+  public void setResourceNameFromResourceDetail(String resourceNameFromResourceDetail) {
+    this.resourceNameFromResourceDetail = resourceNameFromResourceDetail;
   }
 
   public Integer getResponsibleOrganisationId() {
@@ -104,7 +104,7 @@ public class SearchResourceRecordsForm {
     form.setOpportunityTypes(filter.getOpportunityTypes());
     form.setLicenceId(filter.getLicenceId());
     form.setLicenceRound(filter.getLicenceRound());
-    form.setResourceDetailIdForResourceSubmission(filter.getResourceDetailIdForResourceSubmission());
+    form.setResourceNameFromResourceDetail(filter.getResourceNameFromResourceDetail());
     form.setCentreOfInterestBlock(filter.getCentreOfInterestBlock());
     form.setResponsibleOrganisationId(filter.getResponsibleOrganisationId());
     form.setGeographicalArea(filter.getGeographicalArea());

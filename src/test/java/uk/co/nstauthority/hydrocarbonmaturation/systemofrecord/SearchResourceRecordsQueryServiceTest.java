@@ -25,7 +25,7 @@ class SearchResourceRecordsQueryServiceTest {
   private SearchResourceRecordsQueryService searchResourceRecordsQueryService;
 
   @Test
-  void search_assertResults() {
+  void searchFields_assertResults() {
     var queryServiceStrategy = mock(ResourceRecordQueryServiceStrategy.class);
     when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
         .thenReturn(queryServiceStrategy);
@@ -40,7 +40,28 @@ class SearchResourceRecordsQueryServiceTest {
         new RestSearchItem("Field 2", "Field 2")
     ));
 
-    assertThat(searchResourceRecordsQueryService.search("Field"))
+    assertThat(searchResourceRecordsQueryService.searchFields("Field"))
+        .usingRecursiveComparison()
+        .isEqualTo(expectedSearchResult);
+  }
+
+  @Test
+  void searchProspectsAndDiscoveries_assertResults() {
+    var queryServiceStrategy = mock(ResourceRecordQueryServiceStrategy.class);
+    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
+        .thenReturn(queryServiceStrategy);
+    var searchResults = List.of("Prospect 1", "Other prospect", "Prospect");
+    when(searchResourceRecordsService
+        .getResourceRecordSearchResultsDistinctResourceNames(any(SearchResourceRecordsForm.class), eq(queryServiceStrategy)))
+        .thenReturn(searchResults);
+
+    var expectedSearchResult = new RestSearchResult(List.of(
+        new RestSearchItem("Other prospect", "Other prospect"),
+        new RestSearchItem("Prospect", "Prospect"),
+        new RestSearchItem("Prospect 1", "Prospect 1")
+    ));
+
+    assertThat(searchResourceRecordsQueryService.searchProspectsAndDiscoveries("Prospect"))
         .usingRecursiveComparison()
         .isEqualTo(expectedSearchResult);
   }

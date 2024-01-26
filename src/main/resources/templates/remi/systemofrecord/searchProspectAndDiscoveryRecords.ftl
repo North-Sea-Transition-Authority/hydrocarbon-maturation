@@ -21,12 +21,12 @@
       <@fdsSearch.searchFilterList clearFilterUrl=springUrl(clearFilterUrl)>
         <@fdsSearch.searchFilterItem itemName="Resource name" expanded=resourceName?has_content>
           <@fdsSearchSelector.searchSelectorRest
-            path="form.resourceDetailIdForResourceSubmission"
+            path="form.resourceNameFromResourceDetail"
             restUrl=springUrl(resourceApiEndpoint)
             labelText="Resource name"
             labelClass="govuk-visually-hidden"
             inputClass="govuk-!-width-three-quarters"
-            selectorMinInputLength=1
+            selectorMinInputLength=3
             preselectedItems=resourceName!{}/>
         </@fdsSearch.searchFilterItem>
         <@fdsSearch.searchFilterItem itemName="Responsible organisation" expanded=responsibleOrganisation?has_content>

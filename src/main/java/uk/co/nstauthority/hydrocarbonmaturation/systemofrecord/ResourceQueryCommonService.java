@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -162,9 +161,15 @@ class ResourceQueryCommonService {
   protected List<Condition> getFormFilterConditions(SearchResourceRecordsForm form) {
     var conditionList = new ArrayList<Condition>();
 
-    if (StringUtils.isNotBlank(form.getResourceDetailIdForResourceSubmission())) {
+    if (StringUtils.isNotBlank(form.getResourceNameFromResourceDetail())) {
       conditionList.add(
-          RESOURCE_DETAILS.ID.eq(UUID.fromString(form.getResourceDetailIdForResourceSubmission()))
+          RESOURCE_DETAILS.RESOURCE_NAME.containsIgnoreCase(form.getResourceNameFromResourceDetail())
+      );
+    }
+
+    if (StringUtils.isNotBlank(form.getFieldNameForResourceSubmission())) {
+      conditionList.add(
+          FIELDS.CORRECTED_LEGAL_FIELD_NAME.containsIgnoreCase(form.getFieldNameForResourceSubmission())
       );
     }
 

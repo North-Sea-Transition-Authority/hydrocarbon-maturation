@@ -110,7 +110,7 @@ public class SearchProspectAndDiscoveryRecordsController {
             .clearSearchResourceRecordFilter(null, null)))
         .addObject("resourceRecordSearchResultItems", resourceRecordSearchResults)
         .addObject("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
-            .searchResources(null, null)))
+            .searchProspectsAndDiscoveries(null)))
         .addObject("licenceEndpoint",
             SearchSelectorService.route(on(LicenceRestController.class).searchLiveLicences(null)))
         .addObject("preselectedLicence", searchResourceRecordsService.getPreselectedLicence(form))

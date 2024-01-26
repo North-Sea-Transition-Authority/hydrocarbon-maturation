@@ -19,7 +19,7 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
       ResourceType.DISCOVERY.getEnumName()
       );
 
-  private String resourceDetailIdForResourceSubmission;
+  private String resourceNameFromResourceDetail;
   private Integer responsibleOrganisationId;
   private List<String> resourceTypes = new ArrayList<>();
   private List<String> opportunityTypes = new ArrayList<>();
@@ -43,7 +43,7 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
     setOpportunityTypes(form.getOpportunityTypes());
     setLicenceId(form.getLicenceId());
     setLicenceRound(form.getLicenceRound());
-    setResourceDetailIdForResourceSubmission(form.getResourceDetailIdForResourceSubmission());
+    setResourceNameFromResourceDetail(form.getResourceNameFromResourceDetail());
     setCentreOfInterestBlock(form.getCentreOfInterestBlock());
     setResponsibleOrganisationId(form.getResponsibleOrganisationId());
     setGeographicalArea(form.getGeographicalArea());
@@ -55,12 +55,12 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
     initialise();
   }
 
-  public String getResourceDetailIdForResourceSubmission() {
-    return resourceDetailIdForResourceSubmission;
+  public String getResourceNameFromResourceDetail() {
+    return resourceNameFromResourceDetail;
   }
 
-  public void setResourceDetailIdForResourceSubmission(String resourceDetailIdForResourceSubmission) {
-    this.resourceDetailIdForResourceSubmission = resourceDetailIdForResourceSubmission;
+  public void setResourceNameFromResourceDetail(String resourceNameFromResourceDetail) {
+    this.resourceNameFromResourceDetail = resourceNameFromResourceDetail;
   }
 
   public Integer getResponsibleOrganisationId() {
@@ -143,7 +143,7 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
     setLicenceRound(null);
     setCentreOfInterestBlock(null);
     setLicenceId(null);
-    setResourceDetailIdForResourceSubmission(null);
+    setResourceNameFromResourceDetail(null);
     setShowOnlyPreferredViews(true);
     setResponsibleOrganisationId(null);
     setResourceTypes(SEARCHABLE_TYPES);

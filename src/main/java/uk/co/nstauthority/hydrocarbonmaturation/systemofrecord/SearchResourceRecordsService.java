@@ -6,7 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydet
 public class SearchResourceRecordsService {
   private final SubmissionDetailDisplayService submissionDetailDisplayService;
   private final SearchSelectorService searchSelectorService;
-  private final SubmissionResourceService submissionResourceService;
   private final OrganisationUnitQueryService organisationUnitQueryService;
   private final LicenceQueryService licenceQueryService;
   private final SubmissionDetailService submissionDetailService;
@@ -44,7 +42,6 @@ public class SearchResourceRecordsService {
                                FieldDisplayService fieldDisplayService) {
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.searchSelectorService = searchSelectorService;
-    this.submissionResourceService = submissionResourceService;
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.licenceQueryService = licenceQueryService;
     this.submissionDetailService = submissionDetailService;
@@ -112,16 +109,13 @@ public class SearchResourceRecordsService {
   }
 
   public Map<String, String> getPreSelectedResourceName(SearchResourceRecordsForm form) {
-    var resourceDetailIdForResourceSubmission = form.getResourceDetailIdForResourceSubmission();
+    var resourceName = form.getResourceNameFromResourceDetail();
 
-    if (resourceDetailIdForResourceSubmission == null) {
+    if (resourceName == null) {
       return Map.of();
     }
 
-    return searchSelectorService.buildPrePopulatedSelection(
-        resourceDetailIdForResourceSubmission,
-        submissionResourceService.getResourceDisplayName(UUID.fromString(resourceDetailIdForResourceSubmission))
-    );
+    return searchSelectorService.buildPrePopulatedSelection(resourceName);
   }
 
   public Map<String, String> getPreSelectedFieldName(SearchResourceRecordsForm form) {

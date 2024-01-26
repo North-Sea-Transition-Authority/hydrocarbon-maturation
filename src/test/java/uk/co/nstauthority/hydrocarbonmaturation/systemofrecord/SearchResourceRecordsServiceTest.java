@@ -356,26 +356,25 @@ class SearchResourceRecordsServiceTest {
     }
 
     @Test
-    void noSelectedResourceName_ReturnsEmptyMap() {
+    void getPreSelectedResourceName_noResourceName_returnsEmptyMap() {
       var result = underTest.getPreSelectedResourceName(form);
 
       assertThat(result).isEqualTo(Map.of());
     }
 
     @Test
-    void noSelectedResourceName_VerifyCalls() {
-      var generalDetailId = UUID.randomUUID();
-      form.setResourceDetailIdForResourceSubmission(String.valueOf(generalDetailId));
-
+    void getPreSelectedResourceName_returnsMapOfResourceName() {
       var resourceName = "Resource Name";
-      when(submissionResourceService.getResourceDisplayName(generalDetailId)).thenReturn(resourceName);
+      form.setResourceNameFromResourceDetail(resourceName);
+
+      var prePopulatedSelection = mock(Map.class);
+      when(searchSelectorService.buildPrePopulatedSelection(resourceName))
+          .thenReturn(prePopulatedSelection);
 
       var result = underTest.getPreSelectedResourceName(form);
-
-      assertThat(result).isEqualTo(Map.of());
+      assertThat(result).isEqualTo(prePopulatedSelection);
 
       verify(searchSelectorService).buildPrePopulatedSelection(
-          String.valueOf(generalDetailId),
           resourceName
       );
     }

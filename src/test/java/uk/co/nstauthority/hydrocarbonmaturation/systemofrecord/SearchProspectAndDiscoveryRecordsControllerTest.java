@@ -166,7 +166,7 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
                 .clearSearchResourceRecordFilter(null, null))),
             entry("resourceRecordSearchResultItems", Collections.emptyList()),
             entry("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
-                .searchResources(null, null))),
+                .searchProspectsAndDiscoveries(null))),
             entry("resourceName", Map.of()),
             entry("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class)
                 .searchOrganisationUnits(null))),
@@ -189,7 +189,7 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
     filter.setOpportunityTypes(List.of(OpportunityType.DISCOVERY.name()));
     filter.setLicenceId("2");
     filter.setLicenceRound("2");
-    filter.setResourceDetailIdForResourceSubmission("random id");
+    filter.setResourceNameFromResourceDetail("random id");
     filter.setResponsibleOrganisationId(1);
     return filter;
   }

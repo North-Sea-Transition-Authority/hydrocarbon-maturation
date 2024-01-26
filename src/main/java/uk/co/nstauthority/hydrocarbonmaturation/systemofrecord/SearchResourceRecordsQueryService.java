@@ -19,10 +19,26 @@ public class SearchResourceRecordsQueryService {
     this.resourceRecordQueryServiceFactory = resourceRecordQueryServiceFactory;
   }
 
-  public RestSearchResult search(String searchTerm) {
+  public RestSearchResult searchFields(String searchTerm) {
     var form = new SearchResourceRecordsForm();
     form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
     form.setFieldNameForResourceSubmission(searchTerm);
+
+    var results =  searchResourceRecordsService.getResourceRecordSearchResultsDistinctResourceNames(
+        form, resourceRecordQueryServiceFactory.getQueryServiceStrategy());
+
+    List<RestSearchItem> restSearchItems = results.stream()
+        .sorted()
+        .map(item -> new RestSearchItem(item, item))
+        .toList();
+
+    return new RestSearchResult(restSearchItems);
+  }
+
+  public RestSearchResult searchProspectsAndDiscoveries(String searchTerm) {
+    var form = new SearchResourceRecordsForm();
+    form.setResourceTypes(List.of(ResourceType.PROSPECT.getEnumName(), ResourceType.DISCOVERY.getEnumName()));
+    form.setResourceNameFromResourceDetail(searchTerm);
 
     var results =  searchResourceRecordsService.getResourceRecordSearchResultsDistinctResourceNames(
         form, resourceRecordQueryServiceFactory.getQueryServiceStrategy());
