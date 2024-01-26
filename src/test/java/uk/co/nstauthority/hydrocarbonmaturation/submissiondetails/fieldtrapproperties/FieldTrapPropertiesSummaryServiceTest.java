@@ -10,6 +10,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtr
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesSummaryService.FIELD_TRAP_PROPERTIES;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesSummaryService.FIELD_TRAP_PROPERTIES_PROBABILITIES;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesSummaryService.ORIGINAL_HYDROCARBON_COLUMN_HEIGHT;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesSummaryService.QUAD_AND_BLOCK_COI_IS_IN;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesSummaryService.STRUCTURAL_COMPARTMENTS;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesSummaryService.TRAP_TYPE;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesSummaryService.VERTICALLY_SEPARATE_HC_POOLS;
@@ -171,6 +172,7 @@ class FieldTrapPropertiesSummaryServiceTest {
             SummaryKeyValue::key,
             SummaryKeyValue::value
         ).contains(
+            Tuple.tuple(QUAD_AND_BLOCK_COI_IS_IN, trapProperty.getCentreOfInterestQuadrantBlock()),
             Tuple.tuple(CLOSURE_MECHANISMS, trapProperty.getClosureMechanisms().toString()),
             Tuple.tuple(VERTICALLY_SEPARATE_HC_POOLS, trapProperty.getVerticallySeparateHcPools().toString()),
             Tuple.tuple(STRUCTURAL_COMPARTMENTS, trapProperty.getStructuralCompartments().toString()),
@@ -195,6 +197,7 @@ class FieldTrapPropertiesSummaryServiceTest {
     var trapProperty = new TrapProperty();
     trapProperty.setClosureMechanisms("test mechanisms");
     trapProperty.setTrapType(TrapType.COMBINATION);
+    trapProperty.setCentreOfInterestQuadrantBlock("1/1");
     trapProperty.setOtherTrapType("test trap property");
 
     trapProperty.setVerticallySeparateHcPools(BigDecimal.ONE);

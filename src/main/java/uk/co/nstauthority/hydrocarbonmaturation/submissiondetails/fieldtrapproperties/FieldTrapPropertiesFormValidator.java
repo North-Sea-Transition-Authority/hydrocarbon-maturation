@@ -72,6 +72,13 @@ public class FieldTrapPropertiesFormValidator implements SubmissionValidator {
 
     ValidationUtils.rejectIfEmptyOrWhitespace(
         errors,
+        "centreOfInterestQuadrantBlock",
+        "centreOfInterestQuadrantBlock.required",
+        "Enter the quadrant and block the centre of interest is within"
+    );
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(
+        errors,
         "closureMechanisms",
         "closureMechanisms.required",
         "Enter the closure mechanisms"

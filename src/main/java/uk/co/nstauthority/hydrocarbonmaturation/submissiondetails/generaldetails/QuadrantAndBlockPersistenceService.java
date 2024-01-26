@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesRepository;
 
 @Service
@@ -54,6 +55,10 @@ public class QuadrantAndBlockPersistenceService {
 
   public List<QuadrantAndBlock> getQuadrantBlocksByGeneralDetail(GeneralDetail generalDetail) {
     return quadrantAndBlockRepository.findAllByGeneralDetail(generalDetail);
+  }
+
+  public List<QuadrantAndBlock> getQuadrantBlocksBySubmissionDetail(SubmissionDetail submissionDetail) {
+    return quadrantAndBlockRepository.findAllByGeneralDetail_SubmissionDetail(submissionDetail);
   }
 
   public Optional<QuadrantAndBlock> getQuadrantBlockById(UUID quadrantAndBlockId) {

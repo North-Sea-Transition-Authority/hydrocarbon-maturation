@@ -53,6 +53,7 @@ public class FieldTrapPropertiesFormService {
       form.setOtherTrapType(trapProperty.getOtherTrapType());
     }
     form.setTrapType(trapType);
+    form.setCentreOfInterestQuadrantBlock(trapProperty.getCentreOfInterestQuadrantBlock());
     form.setClosureMechanisms(trapProperty.getClosureMechanisms());
     form.setVerticallySeparateHcPools(DecimalInput.createDecimalInput(trapProperty.getVerticallySeparateHcPools()));
     form.setStructuralCompartments(DecimalInput.createDecimalInput(trapProperty.getStructuralCompartments()));
@@ -93,6 +94,7 @@ public class FieldTrapPropertiesFormService {
       // clear any saved other trap property
       trapProperty.setOtherTrapType(null);
     }
+    trapProperty.setCentreOfInterestQuadrantBlock(form.getCentreOfInterestQuadrantBlock());
     trapProperty.setClosureMechanisms(form.getClosureMechanisms());
     trapProperty.setVerticallySeparateHcPools(form.getVerticallySeparateHcPools().createBigDecimalOrNull());
     trapProperty.setStructuralCompartments(form.getStructuralCompartments().createBigDecimalOrNull());

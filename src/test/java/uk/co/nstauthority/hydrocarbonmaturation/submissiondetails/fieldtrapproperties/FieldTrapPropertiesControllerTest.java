@@ -4,6 +4,7 @@ import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,6 +46,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlockService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapType;
@@ -60,6 +62,9 @@ class FieldTrapPropertiesControllerTest extends AbstractSubmissionControllerTest
 
   @MockBean
   private FieldTrapPropertiesFormValidator fieldTrapPropertiesFormValidator;
+
+  @MockBean
+  private QuadrantAndBlockService quadrantAndBlockService;
 
   @Autowired
   private ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
@@ -147,6 +152,10 @@ class FieldTrapPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     when(fieldTrapPropertiesFormService.submissionDetailToForm(submissionDetail)).thenReturn(form);
 
+    var quadrantAndBlocks = mock(Map.class);
+    when(quadrantAndBlockService.getQuadrantAndBlocks(submissionDetail))
+        .thenReturn(quadrantAndBlocks);
+
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(FieldTrapPropertiesController.class)
                 .getFieldTrapProperties(submissionDetailId)))
@@ -167,6 +176,7 @@ class FieldTrapPropertiesControllerTest extends AbstractSubmissionControllerTest
             entry("form", form),
             entry("pageTitle", FieldTrapPropertiesController.TRAP_PROPERTIES),
             entry("trapTypes", TrapType.getTrapTypes()),
+            entry("quadrantAndBlocks", quadrantAndBlocks),
 
             entry("depthToCrestError", ProbabilityDistributionTypeError.emptyError()),
             entry("depthToSpillPointError", ProbabilityDistributionTypeError.emptyError()),

@@ -11,7 +11,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.R
 class TrapPropertiesForm implements SubmissionForm {
 
   private String trapDescription;
-  //TODO HM-129
 
   private TrapType trapType;
 

@@ -27,6 +27,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlockService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
@@ -45,6 +46,7 @@ public class TrapPropertiesController {
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
   private final SupportingDocumentService supportingDocumentService;
+  private final QuadrantAndBlockService quadrantAndBlockService;
 
   public static final String PAGE_NAME = "Trap properties";
 
@@ -54,13 +56,15 @@ public class TrapPropertiesController {
                                   SubmissionDetailService submissionDetailService,
                                   TrapPropertiesPersistenceService trapPropertiesPersistenceService,
                                   ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
-                                  SupportingDocumentService supportingDocumentService) {
+                                  SupportingDocumentService supportingDocumentService,
+                                  QuadrantAndBlockService quadrantAndBlockService) {
     this.trapPropertiesFormService = trapPropertiesFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
     this.supportingDocumentService = supportingDocumentService;
+    this.quadrantAndBlockService = quadrantAndBlockService;
   }
 
   @GetMapping
@@ -98,7 +102,7 @@ public class TrapPropertiesController {
         .addObject("form", form)
         .addObject("trapTypes", TrapType.getTrapTypes())
         .addObject("datumTypes", DisplayableEnumOptionUtil.getDisplayableOptions(ReservoirDatum.class))
-        .addObject("quadrantAndBlocks", trapPropertiesFormService.getQuadrantAndBlocks(submissionDetail))
+        .addObject("quadrantAndBlocks", quadrantAndBlockService.getQuadrantAndBlocks(submissionDetail))
         .addObject("longitudeHemisphere", Hemisphere.getLongitudeHemisphere())
         .addObject("depthToCrestError", ProbabilityDistributionTypeError.emptyError())
         .addObject("depthToSpillPointError", ProbabilityDistributionTypeError.emptyError())

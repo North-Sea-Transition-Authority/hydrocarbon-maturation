@@ -8,6 +8,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties
 public class FieldTrapPropertiesForm implements SubmissionForm {
   private TrapType trapType;
 
+  private String centreOfInterestQuadrantBlock;
+
   private String otherTrapType;
 
   private ProbabilityDistributionForm depthToCrest = new ProbabilityDistributionForm();
@@ -30,6 +32,14 @@ public class FieldTrapPropertiesForm implements SubmissionForm {
 
   public void setTrapType(TrapType trapType) {
     this.trapType = trapType;
+  }
+
+  public String getCentreOfInterestQuadrantBlock() {
+    return centreOfInterestQuadrantBlock;
+  }
+
+  public void setCentreOfInterestQuadrantBlock(String centreOfInterestQuadrantBlock) {
+    this.centreOfInterestQuadrantBlock = centreOfInterestQuadrantBlock;
   }
 
   public ProbabilityDistributionForm getDepthToCrest() {

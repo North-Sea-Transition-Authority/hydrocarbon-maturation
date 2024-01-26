@@ -1,4 +1,5 @@
 <#include '../layout/layout.ftl'>
+<#import '../coordinates/coordinateInput.ftl' as coordinateInput/>
 <#import '../probabilitydistribution/probabilitydistribution.ftl' as probabilityDistribution>
 
 <#assign pageTitle = "Trap properties" />
@@ -22,6 +23,19 @@ breadcrumbsMap=breadcrumbsMap>
                 </@fdsRadio.radioItem>
             </#list>
         </@fdsRadio.radioGroup>
+
+        <@fdsFieldset.fieldset legendHeading="Quadrant and block the centre of interest is within"
+        legendHeadingClass="govuk-fieldset__legend--s"
+        legendHeadingSize="h2"
+        hintText="You can only select from quadrants and blocks added in the general details section of the form">
+            <@fdsSearchSelector.searchSelectorEnhanced
+            path="form.centreOfInterestQuadrantBlock"
+            labelHeadingClass="govuk-fieldset__heading"
+            inputWidth="33"
+            pageHeading=false
+            options=quadrantAndBlocks
+            labelText=""/>
+        </@fdsFieldset.fieldset>
 
         <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionPath="form.depthToCrest"

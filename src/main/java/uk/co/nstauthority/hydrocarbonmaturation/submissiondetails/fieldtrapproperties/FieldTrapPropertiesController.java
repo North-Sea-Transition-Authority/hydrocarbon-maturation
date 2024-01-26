@@ -23,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlockService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapType;
@@ -41,16 +42,19 @@ public class FieldTrapPropertiesController {
   private final SubmissionDetailService submissionDetailService;
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
   private final FieldTrapPropertiesFormValidator fieldTrapPropertiesFormValidator;
+  private final QuadrantAndBlockService quadrantAndBlockService;
 
   @Autowired
   public FieldTrapPropertiesController(FieldTrapPropertiesFormService fieldTrapPropertiesFormService,
                                        SubmissionDetailService submissionDetailService,
                                        ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
-                                       FieldTrapPropertiesFormValidator fieldTrapPropertiesFormValidator) {
+                                       FieldTrapPropertiesFormValidator fieldTrapPropertiesFormValidator,
+                                       QuadrantAndBlockService quadrantAndBlockService) {
     this.fieldTrapPropertiesFormService = fieldTrapPropertiesFormService;
     this.submissionDetailService = submissionDetailService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
     this.fieldTrapPropertiesFormValidator = fieldTrapPropertiesFormValidator;
+    this.quadrantAndBlockService = quadrantAndBlockService;
   }
 
   @GetMapping
@@ -84,6 +88,7 @@ public class FieldTrapPropertiesController {
         .addObject("form", form)
         .addObject("pageTitle", TRAP_PROPERTIES)
         .addObject("trapTypes", TrapType.getTrapTypes())
+        .addObject("quadrantAndBlocks", quadrantAndBlockService.getQuadrantAndBlocks(submissionDetail))
 
         .addObject("depthToCrestTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(

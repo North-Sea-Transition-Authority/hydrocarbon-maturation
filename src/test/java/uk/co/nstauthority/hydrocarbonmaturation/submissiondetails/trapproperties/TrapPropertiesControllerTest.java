@@ -4,6 +4,7 @@ import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -45,6 +46,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlockService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -65,6 +67,9 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   SupportingDocumentService supportingDocumentService;
+
+  @MockBean
+  QuadrantAndBlockService quadrantAndBlockService;
 
   @Autowired
   ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
@@ -149,6 +154,9 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
     when(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail)).thenReturn(new TrapPropertiesForm());
     when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(fileUploadTemplate);
 
+    var quadrantAndBlocks = mock(Map.class);
+    when(quadrantAndBlockService.getQuadrantAndBlocks(submissionDetail)).thenReturn(quadrantAndBlocks);
+
     var modelMap =     Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetailId)))
             .with(user(USER)))
@@ -160,6 +168,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
 
     Map<String, Object> modelMapExpected = new HashMap<>();
     modelMapExpected.put("trapTypes", TrapType.getTrapTypes());
+    modelMapExpected.put("quadrantAndBlocks", quadrantAndBlocks);
     modelMapExpected.put("longitudeHemisphere", Hemisphere.getLongitudeHemisphere());
     modelMapExpected.put("depthToCrestTemplate",
         probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
@@ -194,6 +203,9 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
     when(trapPropertiesFormService.getTrapPropertiesForm(discoverySubmissionDetail)).thenReturn(new TrapPropertiesForm());
     when(supportingDocumentService.buildFileUploadTemplate(discoverySubmissionDetailId, SupportingDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(fileUploadTemplate);
 
+    var quadrantAndBlocks = mock(Map.class);
+    when(quadrantAndBlockService.getQuadrantAndBlocks(submissionDetail)).thenReturn(quadrantAndBlocks);
+
     var modelMap =     Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(discoverySubmissionDetailId)))
                 .with(user(USER)))
@@ -205,6 +217,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
 
     Map<String, Object> modelMapExpected = new HashMap<>();
     modelMapExpected.put("trapTypes", TrapType.getTrapTypes());
+    modelMapExpected.put("quadrantAndBlocks", quadrantAndBlocks);
     modelMapExpected.put("longitudeHemisphere", Hemisphere.getLongitudeHemisphere());
     modelMapExpected.put("depthToCrestTemplate",
         probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(

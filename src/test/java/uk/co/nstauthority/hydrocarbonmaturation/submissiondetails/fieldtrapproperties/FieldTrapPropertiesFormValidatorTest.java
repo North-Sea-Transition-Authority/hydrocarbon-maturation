@@ -131,6 +131,7 @@ class FieldTrapPropertiesFormValidatorTest {
     assertThat(extractedErrors)
         .contains(
             entry("trapType", Set.of("trapType.required")),
+            entry("centreOfInterestQuadrantBlock", Set.of("centreOfInterestQuadrantBlock.required")),
             entry("closureMechanisms", Set.of("closureMechanisms.required")),
 
             entry("verticallySeparateHcPools.decimalInputValue",
@@ -156,6 +157,7 @@ class FieldTrapPropertiesFormValidatorTest {
     form.setProductiveArea(probabilityDistributionForm);
 
     form.setTrapType(TrapType.COMBINATION);
+    form.setCentreOfInterestQuadrantBlock("1/1");
     form.setClosureMechanisms("mechanisms");
     form.setVerticallySeparateHcPools(DecimalInput.createDecimalInput(1));
     form.setStructuralCompartments(DecimalInput.createDecimalInput(2));

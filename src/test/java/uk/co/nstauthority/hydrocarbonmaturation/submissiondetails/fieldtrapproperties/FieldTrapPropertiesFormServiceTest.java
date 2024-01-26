@@ -66,12 +66,14 @@ class FieldTrapPropertiesFormServiceTest {
     assertThat(form)
         .extracting(
             FieldTrapPropertiesForm::getTrapType,
+            FieldTrapPropertiesForm::getCentreOfInterestQuadrantBlock,
             FieldTrapPropertiesForm::getClosureMechanisms,
             fieldTrapPropertiesForm -> fieldTrapPropertiesForm.getVerticallySeparateHcPools().getDecimalInputValue(),
             fieldTrapPropertiesForm1 -> fieldTrapPropertiesForm1.getStructuralCompartments().getDecimalInputValue(),
             fieldTrapPropertiesForm2 -> fieldTrapPropertiesForm2.getOriginalHydrocarbonColumnHeight().getDecimalInputValue()
         ).containsExactly(
             existingTrapProperty.getTrapType(),
+            existingTrapProperty.getCentreOfInterestQuadrantBlock(),
             existingTrapProperty.getClosureMechanisms(),
             DecimalInput.createDecimalInput(existingTrapProperty.getVerticallySeparateHcPools()).getDecimalInputValue(),
             DecimalInput.createDecimalInput(existingTrapProperty.getStructuralCompartments()).getDecimalInputValue(),
@@ -98,6 +100,7 @@ class FieldTrapPropertiesFormServiceTest {
     assertThat(form)
         .extracting(
             FieldTrapPropertiesForm::getTrapType,
+            FieldTrapPropertiesForm::getCentreOfInterestQuadrantBlock,
             FieldTrapPropertiesForm::getClosureMechanisms,
 
             fieldTrapPropertiesForm -> fieldTrapPropertiesForm.getVerticallySeparateHcPools().getDecimalInputValue(),
@@ -148,12 +151,14 @@ class FieldTrapPropertiesFormServiceTest {
     assertThat(trapProperty)
         .extracting(
             TrapProperty::getTrapType,
+            TrapProperty::getCentreOfInterestQuadrantBlock,
             TrapProperty::getOtherTrapType,
             TrapProperty::getVerticallySeparateHcPools,
             TrapProperty::getStructuralCompartments,
             TrapProperty::getOriginalHydrocarbonColumnHeight
         ).containsExactly(
             form.getTrapType(),
+            form.getCentreOfInterestQuadrantBlock(),
             form.getOtherTrapType(),
             form.getVerticallySeparateHcPools().asBigDecimal().get(),
             form.getStructuralCompartments().asBigDecimal().get(),
@@ -219,6 +224,7 @@ class FieldTrapPropertiesFormServiceTest {
     var form = new FieldTrapPropertiesForm();
 
     form.setTrapType(TrapType.COMBINATION);
+    form.setCentreOfInterestQuadrantBlock("1/1");
     form.setClosureMechanisms("closure");
     form.setVerticallySeparateHcPools(DecimalInput.createDecimalInput(1));
     form.setStructuralCompartments(DecimalInput.createDecimalInput(1));

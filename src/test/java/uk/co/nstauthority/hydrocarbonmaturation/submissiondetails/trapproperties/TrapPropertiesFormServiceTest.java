@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
-import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
@@ -27,11 +26,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlockPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
@@ -45,8 +39,6 @@ class TrapPropertiesFormServiceTest {
   private static TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private static ProbabilityDistributionFormService probabilityDistributionFormService;
   private static SupportingDocumentService supportingDocumentService;
-  private static QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
-  private static GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
   private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
@@ -56,14 +48,10 @@ class TrapPropertiesFormServiceTest {
     trapPropertiesPersistenceService = mock(TrapPropertiesPersistenceService.class);
     probabilityDistributionFormService = mock(ProbabilityDistributionFormService.class);
     supportingDocumentService = mock(SupportingDocumentService.class);
-    generalDetailsPersistenceService = mock(GeneralDetailsPersistenceService.class);
-    quadrantAndBlockPersistenceService = mock(QuadrantAndBlockPersistenceService.class);
     trapPropertiesFormService = new TrapPropertiesFormService(
         trapPropertiesFormValidator,
         trapPropertiesPersistenceService,
         probabilityDistributionFormService,
-        quadrantAndBlockPersistenceService,
-        generalDetailsPersistenceService,
         supportingDocumentService);
   }
 
@@ -383,59 +371,6 @@ class TrapPropertiesFormServiceTest {
     trapPropertiesFormService.getProspectDepthMapUploads(form);
 
     verify(supportingDocumentService, times(1)).getUploadedFileViewList(anyList());
-  }
-
-  @Test
-  void getQuadrantAndBlocks() {
-    var generalDetail = new GeneralDetail();
-    var quadrantBlock = new QuadrantAndBlock();
-    quadrantBlock.setQuadrantBlockReference("quad1");
-    var blockId = UUID.randomUUID();
-    quadrantBlock.setId(blockId);
-    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.of(generalDetail));
-    when(quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail))
-        .thenReturn(List.of(quadrantBlock));
-
-    var quadrantBlocks = trapPropertiesFormService.getQuadrantAndBlocks(submissionDetail);
-    assertThat(quadrantBlocks)
-        .contains(
-            entry("quad1", "quad1")
-        );
-  }
-
-  @Test
-  void getQuadrantAndBlocks_assertSorted() {
-    var generalDetail = new GeneralDetail();
-    var quadrantBlock1 = new QuadrantAndBlock();
-    var quadrantBlock2 = new QuadrantAndBlock();
-    var quadrantBlock3 = new QuadrantAndBlock();
-    quadrantBlock1.setQuadrantBlockReference("110/2");
-    quadrantBlock1.setQuadrant("110");
-    quadrantBlock1.setBlock(2);
-    quadrantBlock1.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    quadrantBlock2.setQuadrantBlockReference("NA70");
-    quadrantBlock2.setQuadrant("NA");
-    quadrantBlock2.setBlock(70);
-    quadrantBlock2.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
-    quadrantBlock3.setQuadrantBlockReference("100/3");
-    quadrantBlock3.setQuadrant("100");
-    quadrantBlock3.setBlock(3);
-    quadrantBlock3.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    var quadrantAndBlockId = UUID.randomUUID();
-    quadrantBlock1.setId(quadrantAndBlockId);
-    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.of(generalDetail));
-    when(quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail))
-        .thenReturn(List.of(quadrantBlock1, quadrantBlock2, quadrantBlock3));
-
-    var quadrantBlocks = trapPropertiesFormService.getQuadrantAndBlocks(submissionDetail);
-    assertThat(quadrantBlocks)
-        .containsExactly(
-            entry("100/3", "100/3"),
-            entry("110/2", "110/2"),
-            entry("NA70", "NA70")
-        );
   }
 
   private TrapProperty getTrapProperty(SubmissionDetail submissionDetail) {

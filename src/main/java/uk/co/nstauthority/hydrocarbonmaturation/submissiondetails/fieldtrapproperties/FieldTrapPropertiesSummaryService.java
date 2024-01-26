@@ -18,6 +18,7 @@ public class FieldTrapPropertiesSummaryService {
   public static final String FIELD_TRAP_PROPERTIES = "Trap properties";
   public static final String FIELD_TRAP_PROPERTIES_PROBABILITIES = "Trap properties - probability distributions";
   public static final String TRAP_TYPE = "Trap type";
+  public static final String QUAD_AND_BLOCK_COI_IS_IN = "Quadrant and block the centre of interest is within";
   public static final String CLOSURE_MECHANISMS = "Closure mechanisms";
   public static final String VERTICALLY_SEPARATE_HC_POOLS = "Number of vertically separate HC pools";
   public static final String STRUCTURAL_COMPARTMENTS = "Number of structural compartments";
@@ -63,6 +64,7 @@ public class FieldTrapPropertiesSummaryService {
               : trapTypeDisplayName;
 
           var summaryDataView = SummaryDataView.newWithKeyValue(TRAP_TYPE, trapType);
+          summaryDataView.addKeyValue(QUAD_AND_BLOCK_COI_IS_IN, trapProperty.getCentreOfInterestQuadrantBlock());
           summaryDataView.addKeyValue(CLOSURE_MECHANISMS, trapProperty.getClosureMechanisms());
           summaryDataView.addKeyValue(VERTICALLY_SEPARATE_HC_POOLS, trapProperty.getVerticallySeparateHcPools());
           summaryDataView.addKeyValue(STRUCTURAL_COMPARTMENTS, trapProperty.getStructuralCompartments());

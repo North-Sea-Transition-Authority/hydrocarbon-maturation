@@ -1,8 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -17,13 +15,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlock;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlockPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.ReferenceBlockComparator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
-import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -33,22 +26,16 @@ public class TrapPropertiesFormService implements SubmissionFormService {
   private final TrapPropertiesFormValidator trapPropertiesFormValidator;
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private final ProbabilityDistributionFormService probabilityDistributionFormService;
-  private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
-  private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final SupportingDocumentService supportingDocumentService;
 
   @Autowired
   public TrapPropertiesFormService(TrapPropertiesFormValidator trapPropertiesFormValidator,
                                    TrapPropertiesPersistenceService trapPropertiesPersistenceService,
                                    ProbabilityDistributionFormService probabilityDistributionFormService,
-                                   QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
-                                   GeneralDetailsPersistenceService generalDetailsPersistenceService,
                                    SupportingDocumentService supportingDocumentService) {
     this.trapPropertiesFormValidator = trapPropertiesFormValidator;
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
     this.probabilityDistributionFormService = probabilityDistributionFormService;
-    this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
-    this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.supportingDocumentService = supportingDocumentService;
   }
 
@@ -140,14 +127,4 @@ public class TrapPropertiesFormService implements SubmissionFormService {
     return supportingDocumentService.getUploadedFileViewList(prospectDepthMapUploadIdList);
   }
 
-  public Map<String, String> getQuadrantAndBlocks(SubmissionDetail submissionDetail) {
-    return generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)
-        .map(detail -> quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(detail)
-            .stream()
-            .sorted(new ReferenceBlockComparator())
-            .collect(StreamUtil.toLinkedHashMap(
-                QuadrantAndBlock::getQuadrantBlockReference,
-                QuadrantAndBlock::getQuadrantBlockReference)))
-        .orElseGet(LinkedHashMap::new);
-  }
 }
