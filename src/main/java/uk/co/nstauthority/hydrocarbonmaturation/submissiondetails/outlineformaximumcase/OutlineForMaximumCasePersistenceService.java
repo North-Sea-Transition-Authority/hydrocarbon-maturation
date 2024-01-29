@@ -1,34 +1,31 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase;
 
+import java.util.Collection;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.gis.ShapefileConversionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocument;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @Service
 public class OutlineForMaximumCasePersistenceService {
 
-  private final SupportingDocumentService supportingDocumentService;
+  private final SubmissionSupportingDocumentService supportingDocumentService;
   private final ShapefileConversionService shapefileConversionService;
   private final OutlineForMaximumCaseRepository outlineForMaximumCaseRepository;
 
   @Autowired
-  OutlineForMaximumCasePersistenceService(SupportingDocumentService supportingDocumentService,
+  OutlineForMaximumCasePersistenceService(SubmissionSupportingDocumentService supportingDocumentService,
                                           ShapefileConversionService shapefileConversionService,
                                           OutlineForMaximumCaseRepository outlineForMaximumCaseRepository) {
     this.supportingDocumentService = supportingDocumentService;
     this.shapefileConversionService = shapefileConversionService;
     this.outlineForMaximumCaseRepository = outlineForMaximumCaseRepository;
-  }
-
-  @Transactional
-  public void saveOutlineForMaximumCaseUploadDescriptions(OutlineForMaximumCaseUploadForm form) {
-    supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getOutlineForMaximumCase());
   }
 
   @Transactional
@@ -45,7 +42,7 @@ public class OutlineForMaximumCasePersistenceService {
   @Transactional
   public void deleteOutlineForMaximumCase(SubmissionDetail submissionDetail) {
     var uploadedShapefileZip = getUploadedShapefileZip(submissionDetail);
-    supportingDocumentService.deleteFile(submissionDetail, uploadedShapefileZip.getUploadedFile().getId());
+    supportingDocumentService.deleteFile(uploadedShapefileZip.getId());
     outlineForMaximumCaseRepository.deleteBySubmissionDetail(submissionDetail);
   }
 
@@ -65,10 +62,27 @@ public class OutlineForMaximumCasePersistenceService {
     return outlineForMaximumCaseRepository.findBySubmissionDetail(submissionDetail);
   }
 
-  private SupportingDocument getUploadedShapefileZip(SubmissionDetail submissionDetail) {
-    var type = SupportingDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE;
-    return supportingDocumentService.getSupportingDocumentsForType(submissionDetail, type)
-        .orElseThrow(() -> new IllegalStateException("No shapefile found for submission detail %s and type %s"
-            .formatted(submissionDetail.getId(), type.name())));
+  UploadedFile getUploadedShapefileZip(SubmissionDetail submissionDetail) {
+    var type = FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE;
+    var uploadedFiles = supportingDocumentService.getUploadedFiles(submissionDetail, type);
+
+    if (uploadedFiles.isEmpty()) {
+      throw new IllegalStateException("No shapefile found for submission detail %s and type %s"
+          .formatted(submissionDetail.getId(), type.name()));
+    }
+
+    if (uploadedFiles.size() > 1) {
+      throw new IllegalStateException("Multiple shapefiles found for submission detail %s and type %s"
+          .formatted(submissionDetail.getId(), type.name()));
+    }
+
+    return uploadedFiles.get(0);
+  }
+
+  @Transactional
+  public void saveOutlineForMaximumCaseUploads(SubmissionDetail submissionDetail,
+                                               Collection<UploadedFileForm> uploadedFileForms) {
+    supportingDocumentService
+        .saveDocuments(submissionDetail, uploadedFileForms, FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE);
   }
 }

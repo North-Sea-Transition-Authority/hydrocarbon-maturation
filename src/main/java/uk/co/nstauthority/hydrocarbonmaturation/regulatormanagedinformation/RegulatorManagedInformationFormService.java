@@ -4,12 +4,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentType;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 
 @Service
 class RegulatorManagedInformationFormService {
@@ -30,7 +28,7 @@ class RegulatorManagedInformationFormService {
 
   RegulatorManagedInformationForm getRegulatorManagedInformationForm(Resource resource) {
     var relinquishmentReportUploads = resourceSupportingDocumentService
-        .getFileUploadFormListForSubmissionAndType(resource, ResourceSupportingDocumentType.RELINQUISHMENT_REPORT);
+        .getUploadedFileForms(resource, FileDocumentType.RELINQUISHMENT_REPORT);
 
     return regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResource(resource)
         .map(regulatorManagedInformation -> regulatorManagedInformationEntityToForm(
@@ -47,14 +45,9 @@ class RegulatorManagedInformationFormService {
     return bindingResult;
   }
 
-  public List<UploadedFileView> getRelinquishmentReportUploads(RegulatorManagedInformationForm form) {
-    var relinquishmentReportUploadIdList = FileUploadUtils.getUploadIdList(form.getRelinquishmentReport());
-    return resourceSupportingDocumentService.getUploadedFileViewList(relinquishmentReportUploadIdList);
-  }
-
   private RegulatorManagedInformationForm regulatorManagedInformationEntityToForm(
       RegulatorManagedInformation regulatorManagedInformation,
-      List<FileUploadForm> relinquishmentReportUploads) {
+      List<UploadedFileForm> relinquishmentReportUploads) {
     var form = new RegulatorManagedInformationForm();
 
     form.setGeographicalArea(regulatorManagedInformation.getGeographicalArea());

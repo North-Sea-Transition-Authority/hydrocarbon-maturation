@@ -16,7 +16,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
@@ -114,9 +114,9 @@ class OpportunityDetailsFormValidatorTest {
   @Test
   void validate_whenInValidForm_noFileDescriptionsUploaded_thenValidationErrors() {
     var form = getValidOpportunityDetailsForm();
-    form.setMapOfOpportunity(List.of(new FileUploadForm()));
-    form.setGeologicalCrossSection(List.of(new FileUploadForm()));
-    form.setRepresentativeSeismicSection(List.of(new FileUploadForm()));
+    form.setMapOfOpportunity(List.of(new UploadedFileForm()));
+    form.setGeologicalCrossSection(List.of(new UploadedFileForm()));
+    form.setRepresentativeSeismicSection(List.of(new UploadedFileForm()));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     opportunityDetailsFormValidator.validate(
@@ -149,11 +149,11 @@ class OpportunityDetailsFormValidatorTest {
   @EnumSource(ValidationType.class)
   void validate_whenTooManyFilesUploadedForProspect_thenValidationErrors(ValidationType validationType) {
     var form = getValidOpportunityDetailsForm();
-    var formFileUploadForm = new FileUploadForm();
-    formFileUploadForm.setUploadedFileId(UUID.randomUUID());
-    formFileUploadForm.setUploadedFileDescription("description");
-    form.setMapOfOpportunity(List.of(formFileUploadForm, formFileUploadForm));
-    form.setGeologicalCrossSection(List.of(formFileUploadForm, formFileUploadForm));
+    var formUploadedFileForm = new UploadedFileForm();
+    formUploadedFileForm.setUploadedFileId(UUID.randomUUID());
+    formUploadedFileForm.setUploadedFileDescription("description");
+    form.setMapOfOpportunity(List.of(formUploadedFileForm, formUploadedFileForm));
+    form.setGeologicalCrossSection(List.of(formUploadedFileForm, formUploadedFileForm));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
@@ -183,11 +183,11 @@ class OpportunityDetailsFormValidatorTest {
   @EnumSource(ValidationType.class)
   void validate_whenTooManyFilesUploadedForDiscovery_thenValidationErrors(ValidationType validationType) {
     var form = getValidOpportunityDetailsForm();
-    var formFileUploadForm = new FileUploadForm();
-    formFileUploadForm.setUploadedFileId(UUID.randomUUID());
-    formFileUploadForm.setUploadedFileDescription("description");
-    form.setMapOfOpportunity(List.of(formFileUploadForm, formFileUploadForm));
-    form.setGeologicalCrossSection(List.of(formFileUploadForm, formFileUploadForm));
+    var formUploadedFileForm = new UploadedFileForm();
+    formUploadedFileForm.setUploadedFileId(UUID.randomUUID());
+    formUploadedFileForm.setUploadedFileDescription("description");
+    form.setMapOfOpportunity(List.of(formUploadedFileForm, formUploadedFileForm));
+    form.setGeologicalCrossSection(List.of(formUploadedFileForm, formUploadedFileForm));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
@@ -245,7 +245,7 @@ class OpportunityDetailsFormValidatorTest {
     form.setOpportunityType(OpportunityType.LEAD);
     form.setKeyEvaluationWorkCarriedOut("Work being carried out");
     form.setKeyWorkRequiredForFurtherMaturation("Key work");
-    FileUploadForm fileUploadForm = new FileUploadForm();
+    UploadedFileForm fileUploadForm = new UploadedFileForm();
     fileUploadForm.setUploadedFileId(UUID.randomUUID());
     fileUploadForm.setUploadedFileDescription("File description");
     form.setMapOfOpportunity(List.of(fileUploadForm));

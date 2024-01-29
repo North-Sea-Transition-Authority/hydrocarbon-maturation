@@ -3,8 +3,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

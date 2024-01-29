@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunityde
 
 import java.util.ArrayList;
 import java.util.List;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
 class OpportunityDetailsForm implements SubmissionForm {
@@ -11,9 +11,9 @@ class OpportunityDetailsForm implements SubmissionForm {
   private String opportunityComments;
   private String keyEvaluationWorkCarriedOut;
   private String keyWorkRequiredForFurtherMaturation;
-  private List<FileUploadForm> mapOfOpportunity = new ArrayList<>();
-  private List<FileUploadForm> geologicalCrossSection = new ArrayList<>();
-  private List<FileUploadForm> representativeSeismicSection = new ArrayList<>();
+  private List<UploadedFileForm> mapOfOpportunity = new ArrayList<>();
+  private List<UploadedFileForm> geologicalCrossSection = new ArrayList<>();
+  private List<UploadedFileForm> representativeSeismicSection = new ArrayList<>();
 
   public OpportunityType getOpportunityType() {
     return opportunityType;
@@ -56,29 +56,29 @@ class OpportunityDetailsForm implements SubmissionForm {
     this.keyWorkRequiredForFurtherMaturation = keyWorkRequiredForFurtherMaturation;
   }
 
-  public List<FileUploadForm> getMapOfOpportunity() {
+  public List<UploadedFileForm> getMapOfOpportunity() {
     return mapOfOpportunity;
   }
 
-  public void setMapOfOpportunity(List<FileUploadForm> mapOfOpportunity) {
+  public void setMapOfOpportunity(List<UploadedFileForm> mapOfOpportunity) {
     this.mapOfOpportunity = mapOfOpportunity;
   }
 
-  public List<FileUploadForm> getGeologicalCrossSection() {
+  public List<UploadedFileForm> getGeologicalCrossSection() {
     return geologicalCrossSection;
   }
 
   public void setGeologicalCrossSection(
-      List<FileUploadForm> geologicalCrossSection) {
+      List<UploadedFileForm> geologicalCrossSection) {
     this.geologicalCrossSection = geologicalCrossSection;
   }
 
-  public List<FileUploadForm> getRepresentativeSeismicSection() {
+  public List<UploadedFileForm> getRepresentativeSeismicSection() {
     return representativeSeismicSection;
   }
 
   public void setRepresentativeSeismicSection(
-      List<FileUploadForm> representativeSeismicSection) {
+      List<UploadedFileForm> representativeSeismicSection) {
     this.representativeSeismicSection = representativeSeismicSection;
   }
 }

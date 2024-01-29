@@ -15,9 +15,10 @@ public class DevtoolsConfiguration {
   @Order(1)
   protected SecurityFilterChain devToolsFilterChain(HttpSecurity httpSecurity) throws Exception {
 
-    httpSecurity
-        .requestMatchers(request -> request.antMatchers("/devtool/**"))
-        .authorizeRequests(authorize -> authorize.anyRequest().permitAll());
+    httpSecurity.authorizeHttpRequests(requestMatcherRegistry ->
+        requestMatcherRegistry
+            .requestMatchers("/devtool/**").permitAll()
+    );
 
     return httpSecurity.build();
   }

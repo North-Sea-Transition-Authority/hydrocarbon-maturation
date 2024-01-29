@@ -1,25 +1,23 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinformation;
 
-import java.util.Set;
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocument;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @Service
 class AdditionalInformationDuplicationService implements SubmissionSectionDuplicationService {
   private final AdditionalInformationPersistenceService additionalInformationPersistenceService;
-  private final SupportingDocumentService supportingDocumentService;
+  private final SubmissionSupportingDocumentService supportingDocumentService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
 
   @Autowired
   AdditionalInformationDuplicationService(AdditionalInformationPersistenceService chanceOfSuccessPersistenceService,
-                                          SupportingDocumentService supportingDocumentService,
+                                          SubmissionSupportingDocumentService supportingDocumentService,
                                           SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
     this.additionalInformationPersistenceService = chanceOfSuccessPersistenceService;
     this.supportingDocumentService = supportingDocumentService;
@@ -35,13 +33,10 @@ class AdditionalInformationDuplicationService implements SubmissionSectionDuplic
                 AdditionalInformation.class)
         );
 
-    supportingDocumentService.getSupportingDocumentsForTypes(
+    supportingDocumentService.copyUploadedFiles(
         oldSubmissionDetail,
-        Set.of(SupportingDocumentType.ADDITIONAL_DOCUMENT)
-    ).forEach(supportingDocument -> submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
         newSubmissionDetail,
-        supportingDocument,
-        SupportingDocument.class
-    ));
+        FileDocumentType.ADDITIONAL_DOCUMENT
+    );
   }
 }

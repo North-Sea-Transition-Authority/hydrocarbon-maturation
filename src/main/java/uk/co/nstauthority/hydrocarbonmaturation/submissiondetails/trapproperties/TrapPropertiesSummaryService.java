@@ -7,34 +7,30 @@ import java.util.HashMap;
 import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 
 @Service
 public class TrapPropertiesSummaryService {
 
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
-  private final FileUploadService fileUploadService;
-  private final SupportingDocumentService supportingDocumentService;
+  private final SubmissionSupportingDocumentService supportingDocumentService;
 
   @Autowired
   public TrapPropertiesSummaryService(TrapPropertiesPersistenceService trapPropertiesPersistenceService,
                                       ProbabilityDistributionSummaryService probabilityDistributionSummaryService,
-                                      FileUploadService fileUploadService,
-                                      SupportingDocumentService supportingDocumentService) {
+                                      SubmissionSupportingDocumentService supportingDocumentService) {
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
-    this.fileUploadService = fileUploadService;
     this.supportingDocumentService = supportingDocumentService;
   }
 
@@ -96,17 +92,16 @@ public class TrapPropertiesSummaryService {
         probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
             instance, submissionDetail)));
 
-    var fileUploadList = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
+    var fileUploadList = supportingDocumentService.getUploadedFiles(
         submissionDetail,
-        SupportingDocumentType.PROSPECT_DEPTH_MAP);
+        FileDocumentType.PROSPECT_DEPTH_MAP);
 
     var prospectDepthMapUploadsAndLinks = new HashMap<UploadedFile, String>();
 
-    fileUploadList
-        .forEach(file
-            -> prospectDepthMapUploadsAndLinks.put(fileUploadService.findUploadedFileOrThrow(file.getUploadedFileId()),
-            ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
-                .download(submissionDetail.getId(), file.getUploadedFileId()))));
+    fileUploadList.forEach(file -> prospectDepthMapUploadsAndLinks.put(
+        file,
+        ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).download(submissionDetail.getId(), file.getId())))
+    );
 
     var datumDisplay = trapProperty.getDatum() != null
         ? trapProperty.getDatum().getDisplayName()

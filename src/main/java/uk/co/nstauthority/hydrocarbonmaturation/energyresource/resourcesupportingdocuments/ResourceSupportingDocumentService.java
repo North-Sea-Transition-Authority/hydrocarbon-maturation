@@ -1,132 +1,74 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
+import jakarta.transaction.Transactional;
+import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileDeleteResult;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadResult;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadValidationService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
-import uk.co.nstauthority.hydrocarbonmaturation.file.VirtualFolder;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 
 @Service
 public class ResourceSupportingDocumentService {
 
-  private final FileUploadService fileUploadService;
-  private final FileUploadValidationService fileUploadValidationService;
-  private final ResourceSupportingDocumentRepository resourceSupportingDocumentRepository;
+  private final FileService fileService;
+  private final FileDocumentService fileDocumentService;
 
   @Autowired
-  public ResourceSupportingDocumentService(FileUploadService fileUploadService,
-                                           FileUploadValidationService fileUploadValidationService,
-                                           ResourceSupportingDocumentRepository resourceSupportingDocumentRepository) {
-    this.fileUploadService = fileUploadService;
-    this.fileUploadValidationService = fileUploadValidationService;
-    this.resourceSupportingDocumentRepository = resourceSupportingDocumentRepository;
+  ResourceSupportingDocumentService(FileService fileService, FileDocumentService fileDocumentService) {
+    this.fileService = fileService;
+    this.fileDocumentService = fileDocumentService;
   }
 
   @Transactional
-  public FileUploadResult processFileUpload(Resource resource, ResourceSupportingDocumentType resourceSupportingDocumentType,
-                                            MultipartFile multipartFile) {
-    var fileSize = multipartFile.getSize();
-    var filename = fileUploadService.sanitiseFilename(Objects.requireNonNull(multipartFile.getOriginalFilename()));
-    var contentType = multipartFile.getContentType();
-
-    var uploadErrorType = fileUploadValidationService.validateFileUpload(multipartFile, fileSize, filename);
-    if (uploadErrorType != null) {
-      return FileUploadResult.error(filename, multipartFile, uploadErrorType);
-    }
-
-    var uploadedFile = fileUploadService.createUploadedFile(
-        VirtualFolder.SUPPORTING_DOCUMENTS, fileSize, filename, contentType);
-
-    var resourceSupportingDocument = new ResourceSupportingDocument();
-    resourceSupportingDocument.setResource(resource);
-    resourceSupportingDocument.setResourceSupportingDocumentType(resourceSupportingDocumentType);
-    resourceSupportingDocument.setUploadedFile(uploadedFile);
-
-    resourceSupportingDocumentRepository.save(resourceSupportingDocument);
-
-    var fileInputStream = FileUploadUtils.getFileUploadInputStreamOrThrow(multipartFile);
-
-    // Persist uploaded file and ResourceSupporting document records first,
-    // so if it fails, we don't upload. If upload fails, we will roll back
-    fileUploadService.uploadFile(fileInputStream, uploadedFile);
-
-    return FileUploadResult.valid(uploadedFile.getId().toString(), filename, multipartFile);
-  }
-
-  public List<FileUploadForm> getFileUploadFormListForSubmissionAndType(
+  public void saveDocuments(
       Resource resource,
-      ResourceSupportingDocumentType resourceSupportingDocumentType) {
-    return resourceSupportingDocumentRepository
-        .findAllByResourceAndResourceSupportingDocumentType(resource, resourceSupportingDocumentType).stream()
-        .map(ResourceSupportingDocument::getUploadedFile)
-        .map(fileUploadService::createFileUploadForm)
-        .toList();
+      Collection<UploadedFileForm> uploadedFileForms,
+      FileDocumentType fileDocumentType
+  ) {
+    fileDocumentService.saveDocuments(uploadedFileForms, fileDocumentType, getUsageId(resource), getUsageType());
   }
 
-  public List<ResourceSupportingDocument> getResourceSupportingDocumentsForType(
-      Resource resource, ResourceSupportingDocumentType resourceSupportingDocumentType) {
-    return resourceSupportingDocumentRepository
-        .findAllByResourceAndResourceSupportingDocumentType(resource, resourceSupportingDocumentType);
+  public List<UploadedFile> getUploadedFiles(Resource resource, FileDocumentType documentType) {
+    return fileService.findAll(getUsageId(resource), getUsageType(), documentType.name());
   }
 
-  public List<UploadedFileView> getUploadedFileViewList(List<UUID> fileUploadIdList) {
-    return fileUploadService.getUploadedFileViewList(fileUploadIdList);
+  public List<UploadedFileForm> getUploadedFileForms(Resource resource, FileDocumentType documentType) {
+    var uploadedFiles = getUploadedFiles(resource, documentType);
+    return fileDocumentService.getUploadedFileForms(uploadedFiles);
   }
 
-  public FileUploadTemplate buildFileUploadTemplate(
-      UUID resourceId, ResourceSupportingDocumentType resourceSupportingDocumentType) {
-    return fileUploadService.buildFileUploadTemplate(
-        ReverseRouter.route(on(ResourceSupportingDocumentsController.class).download(resourceId, null)),
-        ReverseRouter.route(
-            on(ResourceSupportingDocumentsController.class).upload(resourceId, resourceSupportingDocumentType, null)),
-        ReverseRouter.route(on(ResourceSupportingDocumentsController.class).delete(resourceId, null))
-    );
+  public ResponseStatusException getFileNotFoundException(UUID fileId, Resource resource) {
+    return fileDocumentService.getFileNotFoundException(fileId, getUsageType(), getUsageId(resource));
   }
 
-  @Transactional
-  public FileDeleteResult deleteFile(Resource resource, UUID uploadedFileId) {
-    var uploadedFile = fileUploadService.findUploadedFileOrThrow(uploadedFileId);
-    var resourceSupportingDocuments = resourceSupportingDocumentRepository
-        .findAllByUploadedFile(uploadedFile);
-
-    var resourceSupportingDocument =
-        resourceSupportingDocumentRepository.findByResourceAndUploadedFile(resource, uploadedFile);
-    resourceSupportingDocumentRepository.delete(resourceSupportingDocument);
-
-    // Check if the uploaded file is associated with other resource ResourceSupportingDocuments and only delete if it is not
-    if (resourceSupportingDocuments.size() == 1) {
-      fileUploadService.deleteFile(uploadedFile);
-    }
-    // TODO HM-218 add logging for else size is greater than one
-
-    return FileDeleteResult.success(uploadedFile.getId().toString());
+  public void throwIfFileDoesNotBelongToResource(
+      UploadedFile uploadedFile,
+      Resource resource
+  ) {
+    fileDocumentService
+        .throwIfFileDoesNotBelongToUsageType(uploadedFile, null, getUsageId(resource), getUsageType());
   }
 
-  @Transactional
-  public void updateResourceSupportingDocumentFileDescriptions(List<FileUploadForm> fileUploadFormList) {
-    fileUploadService.updateFileUploadDescriptions(fileUploadFormList);
+  public FileUploadComponentAttributes fileUploadComponentAttributes(
+      List<UploadedFileForm> existingFiles,
+      FileDocumentType fileDocumentType
+  ) {
+    return fileDocumentService.fileUploadComponentAttributes(existingFiles, fileDocumentType);
   }
 
-  UploadedFile findUploadedFileOrThrow(Resource resource, UUID uploadedFileId) {
-    var uploadedFile = fileUploadService.findUploadedFileOrThrow(uploadedFileId);
-    var resourceSupportingDocument = resourceSupportingDocumentRepository
-        .findByResourceAndUploadedFile(resource, uploadedFile);
-    return resourceSupportingDocument.getUploadedFile();
+  private String getUsageId(Resource resource) {
+    return resource.getId().toString();
+  }
+
+  private String getUsageType() {
+    return Resource.class.getSimpleName();
   }
 }

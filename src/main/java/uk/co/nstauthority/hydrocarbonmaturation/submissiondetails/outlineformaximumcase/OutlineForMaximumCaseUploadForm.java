@@ -2,18 +2,18 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformax
 
 import java.util.ArrayList;
 import java.util.List;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
 class OutlineForMaximumCaseUploadForm implements SubmissionForm {
-  private List<FileUploadForm> outlineForMaximumCase = new ArrayList<>();
+  private List<UploadedFileForm> outlineForMaximumCase = new ArrayList<>();
 
-  public List<FileUploadForm> getOutlineForMaximumCase() {
+  public List<UploadedFileForm> getOutlineForMaximumCase() {
     return outlineForMaximumCase;
   }
 
   public void setOutlineForMaximumCase(
-      List<FileUploadForm> outlineForMaximumCase) {
+      List<UploadedFileForm> outlineForMaximumCase) {
     this.outlineForMaximumCase = outlineForMaximumCase;
   }
 }

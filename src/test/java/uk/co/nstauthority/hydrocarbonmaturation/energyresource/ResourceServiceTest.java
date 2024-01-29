@@ -1,7 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,5 +64,13 @@ class ResourceServiceTest {
     var createdResource = resourceArgumentCaptor.getValue();
     assertThat(createdResource.getType()).isEqualTo(ResourceType.PROSPECT);
     assertThat(createdResource.getCreatedTimestamp()).isEqualTo(INSTANT);
+  }
+
+  public void testGetResourceOrThrow_ResourceNotFound() {
+    var resourceId = UUID.randomUUID();
+
+    assertThatExceptionOfType(RemiEntityNotFoundException.class)
+        .isThrownBy(() -> resourceService.getResourceOrThrow(resourceId))
+        .withMessage("Could not find resource with id %s".formatted(resourceId.toString()));
   }
 }

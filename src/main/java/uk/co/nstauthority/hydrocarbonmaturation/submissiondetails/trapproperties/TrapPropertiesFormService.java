@@ -4,19 +4,17 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInputForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -26,13 +24,13 @@ public class TrapPropertiesFormService implements SubmissionFormService {
   private final TrapPropertiesFormValidator trapPropertiesFormValidator;
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private final ProbabilityDistributionFormService probabilityDistributionFormService;
-  private final SupportingDocumentService supportingDocumentService;
+  private final SubmissionSupportingDocumentService supportingDocumentService;
 
   @Autowired
   public TrapPropertiesFormService(TrapPropertiesFormValidator trapPropertiesFormValidator,
                                    TrapPropertiesPersistenceService trapPropertiesPersistenceService,
                                    ProbabilityDistributionFormService probabilityDistributionFormService,
-                                   SupportingDocumentService supportingDocumentService) {
+                                   SubmissionSupportingDocumentService supportingDocumentService) {
     this.trapPropertiesFormValidator = trapPropertiesFormValidator;
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
     this.probabilityDistributionFormService = probabilityDistributionFormService;
@@ -48,8 +46,8 @@ public class TrapPropertiesFormService implements SubmissionFormService {
   }
 
   TrapPropertiesForm getTrapPropertiesForm(SubmissionDetail submissionDetail) {
-    var prospectDepthMapUploads = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
-        submissionDetail, SupportingDocumentType.PROSPECT_DEPTH_MAP);
+    var prospectDepthMapUploads = supportingDocumentService.getUploadedFileForms(
+        submissionDetail, FileDocumentType.PROSPECT_DEPTH_MAP);
 
     return trapPropertiesPersistenceService.getTrapProperty(submissionDetail)
         .map(trapProperty -> trapPropertyEntityToForm(trapProperty, prospectDepthMapUploads))
@@ -61,7 +59,7 @@ public class TrapPropertiesFormService implements SubmissionFormService {
   }
 
   private TrapPropertiesForm trapPropertyEntityToForm(TrapProperty trapProperty,
-                                                      List<FileUploadForm> prospectDepthMapUploads) {
+                                                      List<UploadedFileForm> prospectDepthMapUploads) {
     var form = new TrapPropertiesForm();
     form.setTrapType(trapProperty.getTrapType());
     form.setTrapDescription(trapProperty.getTrapDescription());
@@ -121,10 +119,4 @@ public class TrapPropertiesFormService implements SubmissionFormService {
 
     return form;
   }
-
-  public List<UploadedFileView> getProspectDepthMapUploads(TrapPropertiesForm trapPropertiesForm) {
-    var prospectDepthMapUploadIdList = FileUploadUtils.getUploadIdList(trapPropertiesForm.getProspectDepthMap());
-    return supportingDocumentService.getUploadedFileViewList(prospectDepthMapUploadIdList);
-  }
-
 }

@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,11 +23,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelpe
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -96,11 +94,9 @@ public class RegulatorManagedInformationController {
         .getRegulatorManagedInformationForm(resource);
     var isResourceBeingRelinquished = submissionDetailService
         .isLatestSubmissionForResourceRelinquishment(resource);
-    var relinquishmentReportUploads = regulatorManagedInformationFormService
-        .getRelinquishmentReportUploads(regulatorManagedInformationForm);
 
     return getRegulatorManagedInformationModelAndView(
-        regulatorManagedInformationForm, resource, isResourceBeingRelinquished, relinquishmentReportUploads);
+        regulatorManagedInformationForm, resource, isResourceBeingRelinquished);
   }
 
   @PostMapping
@@ -122,7 +118,6 @@ public class RegulatorManagedInformationController {
             .formatted(resource.getId().toString()))
         );
     var isResourceBeingRelinquished = submissionDetailService.isLatestSubmissionForResourceRelinquishment(resource);
-    var relinquishmentReportUploads = regulatorManagedInformationFormService.getRelinquishmentReportUploads(form);
 
     var isResponsibleTeamBeingUpdated = regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource);
     bindingResult = regulatorManagedInformationFormService
@@ -130,7 +125,7 @@ public class RegulatorManagedInformationController {
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getRegulatorManagedInformationModelAndView(
-            form, resource, isResourceBeingRelinquished, relinquishmentReportUploads),
+            form, resource, isResourceBeingRelinquished),
         () -> {
           regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(form, resource);
 
@@ -159,8 +154,7 @@ public class RegulatorManagedInformationController {
 
   private ModelAndView getRegulatorManagedInformationModelAndView(RegulatorManagedInformationForm form,
                                                                   Resource resource,
-                                                                  boolean isResourceBeingRelinquished,
-                                                                  List<UploadedFileView> relinquishmentReportUploads) {
+                                                                  boolean isResourceBeingRelinquished) {
     var modelAndView = new ModelAndView("remi/review/regulatorManagedInformation")
         .addObject("form", form)
         .addObject("geographicalAreas", DisplayableEnumOptionUtil
@@ -169,10 +163,9 @@ public class RegulatorManagedInformationController {
         .addObject("isResourceBeingRelinquished", isResourceBeingRelinquished);
     if (isResourceBeingRelinquished) {
       modelAndView
-          .addObject("relinquishmentReportTemplate", resourceSupportingDocumentService.buildFileUploadTemplate(
-              resource.getId(),
-              ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
-          .addObject("relinquishmentReportUploads", relinquishmentReportUploads);
+          .addObject("relinquishmentReportTemplate",
+              resourceSupportingDocumentService.fileUploadComponentAttributes(
+                  form.getRelinquishmentReport(), FileDocumentType.RELINQUISHMENT_REPORT));
     }
 
     var canUpdateResponsibleTeam = regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource);

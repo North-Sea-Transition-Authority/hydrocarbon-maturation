@@ -9,22 +9,18 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
-import java.util.List;
+import jakarta.persistence.EntityManager;
 import java.util.Optional;
-import java.util.Set;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocument;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @ExtendWith(MockitoExtension.class)
 class OpportunityDetailsDuplicationServiceTest {
@@ -33,7 +29,7 @@ class OpportunityDetailsDuplicationServiceTest {
   private OpportunityDetailsPersistenceService opportunityDetailPersistenceService;
 
   @Mock
-  private SupportingDocumentService supportingDocumentService;
+  private SubmissionSupportingDocumentService supportingDocumentService;
 
   @Mock
   private EntityManager entityManager;
@@ -110,39 +106,14 @@ class OpportunityDetailsDuplicationServiceTest {
   }
 
   @Test
-  void duplicateSubmissionSection_SupportingDocumentsExist_DoesDuplicate() {
+  void duplicateSubmissionSection_UploadedFilesExist_DoesDuplicate() {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
     var newSubmissionDetail = mock(SubmissionDetail.class);
 
-    var supportingDocument1 = mock(SupportingDocument.class);
-    var supportingDocument2 = mock(SupportingDocument.class);
-    var supportingDocument3 = mock(SupportingDocument.class);
-    when(supportingDocumentService.getSupportingDocumentsForTypes(oldSubmissionDetail,
-        Set.of(SupportingDocumentType.MAP_OF_OPPORTUNITY, SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION)
-    )).thenReturn(List.of(supportingDocument1, supportingDocument2, supportingDocument3));
-
     opportunityDetailDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, supportingDocument1,
-        SupportingDocument.class);
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, supportingDocument2,
-        SupportingDocument.class);
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, supportingDocument3,
-        SupportingDocument.class);
-  }
-
-  @Test
-  void duplicateSubmissionSection_SupportingDocumentsDoNotExist_DoesNotDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = mock(SubmissionDetail.class);
-
-    when(supportingDocumentService.getSupportingDocumentsForTypes(oldSubmissionDetail,
-        Set.of(SupportingDocumentType.MAP_OF_OPPORTUNITY, SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION)
-    )).thenReturn(Collections.emptyList());
-
-    opportunityDetailDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
-
-    verify(submissionDuplicationPersistenceService, never())
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(SupportingDocument.class), eq(SupportingDocument.class));
+    verify(supportingDocumentService).copyUploadedFiles(oldSubmissionDetail, newSubmissionDetail, FileDocumentType.MAP_OF_OPPORTUNITY);
+    verify(supportingDocumentService).copyUploadedFiles(oldSubmissionDetail, newSubmissionDetail, FileDocumentType.REPRESENTATIVE_SEISMIC_SECTION);
+    verify(supportingDocumentService).copyUploadedFiles(oldSubmissionDetail, newSubmissionDetail, FileDocumentType.GEOLOGICAL_CROSS_SECTION);
   }
 }

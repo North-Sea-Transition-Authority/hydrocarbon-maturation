@@ -2,12 +2,12 @@ package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
 import java.util.ArrayList;
 import java.util.List;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 
 public class RegulatorManagedInformationForm {
 
   private GeographicalArea geographicalArea;
-  private List<FileUploadForm> relinquishmentReport = new ArrayList<>();
+  private List<UploadedFileForm> relinquishmentReport = new ArrayList<>();
   private ResponsibleTeamType responsibleTeamType;
 
   public GeographicalArea getGeographicalArea() {
@@ -19,12 +19,12 @@ public class RegulatorManagedInformationForm {
     this.geographicalArea = geographicalArea;
   }
 
-  public List<FileUploadForm> getRelinquishmentReport() {
+  public List<UploadedFileForm> getRelinquishmentReport() {
     return relinquishmentReport;
   }
 
   public void setRelinquishmentReport(
-      List<FileUploadForm> relinquishmentReport) {
+      List<UploadedFileForm> relinquishmentReport) {
     this.relinquishmentReport = relinquishmentReport;
   }
 

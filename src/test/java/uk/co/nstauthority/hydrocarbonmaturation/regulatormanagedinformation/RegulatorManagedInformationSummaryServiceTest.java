@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -17,13 +18,12 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentsController;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 
@@ -34,8 +34,6 @@ class RegulatorManagedInformationSummaryServiceTest {
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   @Mock
   private SubmissionDetailService submissionDetailService;
-  @Mock
-  private FileUploadService fileUploadService;
   @Mock
   private ResourceSupportingDocumentService resourceSupportingDocumentService;
   @InjectMocks
@@ -72,7 +70,6 @@ class RegulatorManagedInformationSummaryServiceTest {
             ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName(),
             Collections.emptyMap()
         );
-    verifyNoInteractions(fileUploadService);
     verifyNoInteractions(resourceSupportingDocumentService);
   }
 
@@ -84,27 +81,30 @@ class RegulatorManagedInformationSummaryServiceTest {
     regulatorManagedInfo.setGeographicalArea(GeographicalArea.ONSHORE);
     regulatorManagedInfo.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     regulatorManagedInfo.setResource(resource);
-    var fileUploadForm = new FileUploadForm();
-    fileUploadForm.setUploadedFileDescription("description");
-    var uploadedFile = new UploadedFile();
-    uploadedFile.setFilename("uploadedfile.txt");
-    uploadedFile.setDescription("description");
-
-    var fileMap = new HashMap<UploadedFile, String>();
-    fileMap.put(uploadedFile, ReverseRouter.route(on(ResourceSupportingDocumentsController.class)
-        .download(resource.getId(), fileUploadForm.getUploadedFileId())));
 
     when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(resource))
         .thenReturn(isBeingRelinquished);
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.of(regulatorManagedInfo));
+
+    var fileMap = new HashMap<UploadedFile, String>();
+
     if (isBeingRelinquished) {
-      when(resourceSupportingDocumentService.getFileUploadFormListForSubmissionAndType(
-          regulatorManagedInfo.getResource(),
-          ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
-          .thenReturn(List.of(fileUploadForm));
-      when(fileUploadService.findUploadedFileOrThrow(fileUploadForm.getUploadedFileId()))
-          .thenReturn(uploadedFile);
+      var uploadedFile = new UploadedFile();
+      uploadedFile.setId(UUID.randomUUID());
+      uploadedFile.setName("uploadedfile.txt");
+      uploadedFile.setDescription("description");
+
+      var fileUploadForm = new UploadedFileForm();
+      fileUploadForm.setFileId(uploadedFile.getId());
+      fileUploadForm.setUploadedFileDescription("description");
+
+      fileMap = new HashMap<>();
+      fileMap.put(uploadedFile, ReverseRouter.route(on(ResourceSupportingDocumentsController.class)
+          .download(resource.getId(), fileUploadForm.getUploadedFileId())));
+
+      when(resourceSupportingDocumentService.getUploadedFiles(regulatorManagedInfo.getResource(), FileDocumentType.RELINQUISHMENT_REPORT))
+          .thenReturn(List.of(uploadedFile));
     }
     var regulatorManagedInformationSummaryView = regulatorManagedInformationSummaryService
         .getRegulatorManagedInformationSummaryFromResource(resource);

@@ -1,5 +1,5 @@
 <#include '../layout/layout.ftl'>
-<#-- @ftlvariable name="filesUploaded" type="java.util.HashMap<uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile, String>" -->
+<#-- @ftlvariable name="filesUploaded" type="java.util.HashMap<uk.co.fivium.fileuploadlibrary.core.UploadedFile, String>" -->
 
 <#macro fileUploadSummary filesUploaded={} fieldName="">
   <@fdsSummaryList.summaryListRowNoAction keyText="Supporting document type">
@@ -8,8 +8,8 @@
   <#if filesUploaded?has_content>
     <#list filesUploaded as file, url>
       <@fdsSummaryList.summaryListRowNoAction keyText="File name">
-      <#if file.getFilename()?has_content>
-        <@fdsAction.link linkText="${file.getFilename()}" linkUrl=springUrl("${url}")/>
+      <#if file.getName()?has_content>
+        <@fdsAction.link linkText="${file.getName()}" linkUrl=springUrl("${url}")/>
       </#if>
       </@fdsSummaryList.summaryListRowNoAction>
       <@fdsSummaryList.summaryListRowNoAction keyText="File description">

@@ -1,9 +1,9 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate;
 
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;

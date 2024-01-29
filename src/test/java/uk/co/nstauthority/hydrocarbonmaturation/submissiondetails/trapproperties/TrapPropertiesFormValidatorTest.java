@@ -19,7 +19,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
@@ -158,7 +158,7 @@ class TrapPropertiesFormValidatorTest {
   @Test
   void validate_whenInValidForm_noProspectDepthMapFileDescriptionUploaded_thenValidationErrors() {
     var form = getValidForm();
-    form.setProspectDepthMap(List.of(new FileUploadForm()));
+    form.setProspectDepthMap(List.of(new UploadedFileForm()));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(validateTrapPropertiesForm(form));
 
@@ -186,7 +186,7 @@ class TrapPropertiesFormValidatorTest {
   void validate_whenInValidForm_twoProspectDepthMapFilesUploaded_thenValidationErrors(
       ValidationType validationType) {
     var form = getValidForm();
-    var fileUploadForm = new FileUploadForm();
+    var fileUploadForm = new UploadedFileForm();
     fileUploadForm.setUploadedFileDescription("description");
     fileUploadForm.setUploadedFileId(UUID.randomUUID());
     form.setProspectDepthMap(List.of(fileUploadForm, fileUploadForm));
@@ -231,7 +231,7 @@ class TrapPropertiesFormValidatorTest {
     form.setProductiveArea(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
     form.setCentreOfInterestQuadrantBlock("15/10");
     form.setDatum(ReservoirDatum.ED50);
-    FileUploadForm fileUploadForm = new FileUploadForm();
+    UploadedFileForm fileUploadForm = new UploadedFileForm();
     fileUploadForm.setUploadedFileId(UUID.randomUUID());
     fileUploadForm.setUploadedFileDescription("File description");
     form.setProspectDepthMap(List.of(fileUploadForm));

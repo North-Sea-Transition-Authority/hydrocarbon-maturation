@@ -178,7 +178,7 @@ Is coupled to the file package.
    CREATE INDEX supporting_documents_idx2 ON supporting_documents(uploaded_file_id);
    ``` 
    3. Repository, see `SupportingDocumentRepository`
-   4. An enum type for all the file uploads form fields instances, see `SupportingDocumentType`
+   4. An enum type for all the file uploads form fields instances, see `FileDocumentType`
 3. Create a controller to coordinate uploads, downloads, deletions, see `SubmissionSupportingDocumentsController`
 4. Create a service to manage the uploads, downloads, deletions of files, and manage the database records. See `SupportingDocumentService`
 5. See `0002-how-to-add-supporting-docs-file-upload.md` for a guide on how to implement a file upload/supporting document instance

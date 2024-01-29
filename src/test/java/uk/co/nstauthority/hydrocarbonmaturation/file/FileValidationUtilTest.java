@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 
@@ -21,7 +22,7 @@ class FileValidationUtilTest {
         .withMaximumNumberOfFiles(1, "Upload at most 1")
         .withMinimumNumberOfFiles(1, "Upload at least 1");
     var bindingResult = new BeanPropertyBindingResult(new TestForm(), "form");
-    var fileForms = List.of(getFileUploadForm("Desc"), getFileUploadForm("descr 2"));
+    var fileForms = List.of(getUploadedFileForm("Desc"), getUploadedFileForm("descr 2"));
     maxMinValidator.validate(bindingResult, fileForms, "fileUploadField");
 
     var errorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
@@ -66,8 +67,8 @@ class FileValidationUtilTest {
     var validator = FileValidationUtil.validator();
     var bindingResult = new BeanPropertyBindingResult(new TestForm(), "form");
     var fileForms = List.of(
-        getFileUploadForm(null),
-        getFileUploadForm(null));
+        getUploadedFileForm(null),
+        getUploadedFileForm(null));
     validator.validate(bindingResult, fileForms, "fileUploadField");
 
     var errorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
@@ -97,8 +98,8 @@ class FileValidationUtilTest {
         .isPartiallyValidated();
     var bindingResult = new BeanPropertyBindingResult(new TestForm(), "form");
     var fileForms = List.of(
-        getFileUploadForm(null),
-        getFileUploadForm(null));
+        getUploadedFileForm(null),
+        getUploadedFileForm(null));
     validator.validate(bindingResult, fileForms, "fileUploadField");
 
     var errorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
@@ -117,8 +118,8 @@ class FileValidationUtilTest {
         );
   }
 
-  private FileUploadForm getFileUploadForm(String description) {
-    var form = new FileUploadForm();
+  private UploadedFileForm getUploadedFileForm(String description) {
+    var form = new UploadedFileForm();
     form.setUploadedFileDescription(description);
     form.setUploadedFileId(UUID.randomUUID());
     return form;
@@ -126,14 +127,14 @@ class FileValidationUtilTest {
 
   @Nested
   private class TestForm implements SubmissionForm {
-    private List<FileUploadForm> fileUploadField = new ArrayList<>();
+    private List<UploadedFileForm> fileUploadField = new ArrayList<>();
 
-    public List<FileUploadForm> getFileUploadField() {
+    public List<UploadedFileForm> getFileUploadField() {
       return fileUploadField;
     }
 
     public void setFileUploadField(
-        List<FileUploadForm> fileUploadField) {
+        List<UploadedFileForm> fileUploadField) {
       this.fileUploadField = fileUploadField;
     }
   }

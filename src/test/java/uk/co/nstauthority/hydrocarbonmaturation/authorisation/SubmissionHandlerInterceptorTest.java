@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -108,7 +108,7 @@ class SubmissionHandlerInterceptorTest {
 
     assertThatThrownBy(() -> submissionHandlerInterceptor.preHandle(request, response, handlerMethod))
         .isInstanceOf(ResponseStatusException.class)
-        .matches(e -> ((ResponseStatusException) e).getStatus().equals(HttpStatus.NOT_FOUND));
+        .matches(e -> ((ResponseStatusException) e).getStatusCode().equals(HttpStatus.NOT_FOUND));
 
     verifyNoInteractions(submissionDetailService);
   }
@@ -124,7 +124,7 @@ class SubmissionHandlerInterceptorTest {
 
     assertThatThrownBy(() -> submissionHandlerInterceptor.preHandle(request, response, handlerMethod))
         .isInstanceOf(ResponseStatusException.class)
-        .matches(e -> ((ResponseStatusException) e).getStatus().equals(HttpStatus.NOT_FOUND));
+        .matches(e -> ((ResponseStatusException) e).getStatusCode().equals(HttpStatus.NOT_FOUND));
 
   }
 

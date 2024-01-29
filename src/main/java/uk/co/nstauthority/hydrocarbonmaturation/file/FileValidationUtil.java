@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.Errors;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
 
 public class FileValidationUtil {
@@ -48,7 +49,7 @@ public class FileValidationUtil {
       return this;
     }
 
-    public void validate(Errors errors, List<FileUploadForm> fileUploadForms, String fieldName) {
+    public void validate(Errors errors, List<UploadedFileForm> fileUploadForms, String fieldName) {
 
       if (!isPartialValidator && minimumNumberOfFiles > 0 && CollectionUtils.isEmpty(fileUploadForms)) {
         errors.rejectValue(

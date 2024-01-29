@@ -1,7 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
 import java.time.Instant;
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdate;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 

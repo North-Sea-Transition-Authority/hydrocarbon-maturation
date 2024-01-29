@@ -5,8 +5,7 @@
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
-<#-- @ftlvariable name="additionalDocumentTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate" -->
-<#-- @ftlvariable name="additionalDocumentUploads" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView>" -->
+<#-- @ftlvariable name="additionalDocumentTemplate" type="uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes" -->
 
 <@defaultPage
   htmlTitle=pageTitle
@@ -34,7 +33,7 @@
             deleteUrl=additionalDocumentTemplate.deleteUrl()
             maxAllowedSize=additionalDocumentTemplate.maxAllowedSize()
             allowedExtensions=additionalDocumentTemplate.allowedExtensions()
-            existingFiles=additionalDocumentUploads
+            existingFiles=additionalDocumentTemplate.existingFiles()
             multiFile=true/>
         </@fdsFieldset.fieldset>
       </@fdsRadio.radioYes>

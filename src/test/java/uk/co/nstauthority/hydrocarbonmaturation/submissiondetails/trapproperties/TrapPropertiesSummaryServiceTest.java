@@ -16,9 +16,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
@@ -27,8 +27,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 
 @ExtendWith(MockitoExtension.class)
 class TrapPropertiesSummaryServiceTest {
@@ -40,10 +40,7 @@ class TrapPropertiesSummaryServiceTest {
   private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
 
   @Mock
-  private FileUploadService fileUploadService;
-
-  @Mock
-  private SupportingDocumentService supportingDocumentService;
+  private SubmissionSupportingDocumentService supportingDocumentService;
 
   @InjectMocks
   private TrapPropertiesSummaryService trapPropertiesSummaryService;
@@ -120,7 +117,11 @@ class TrapPropertiesSummaryServiceTest {
     trapProperty.setOtherTrapType("other trap type");
     trapProperty.setDatum(ReservoirDatum.ED50);
     trapProperty.setCentreOfInterestQuadrantBlock("10/15");
-    FileUploadForm fileUploadForm = new FileUploadForm();
+
+    var uploadedFile = new UploadedFile();
+    uploadedFile.setName("uploadedfile.txt");
+    uploadedFile.setDescription("description");
+    var fileUploadForm = new UploadedFileForm();
     fileUploadForm.setUploadedFileDescription("description");
 
     when(trapPropertiesPersistenceService.getTrapProperty(submissionDetail))
@@ -143,16 +144,9 @@ class TrapPropertiesSummaryServiceTest {
             ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT,
             submissionDetail))
         .thenReturn(testSummary);
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
+    when(supportingDocumentService.getUploadedFiles(
         submissionDetail,
-        SupportingDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(List.of(fileUploadForm));
-
-    var uploadedFile = new UploadedFile();
-    uploadedFile.setFilename("uploadedfile.txt");
-    uploadedFile.setDescription("description");
-
-    when(fileUploadService.findUploadedFileOrThrow(fileUploadForm.getUploadedFileId()))
-        .thenReturn(uploadedFile);
+        FileDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(List.of(uploadedFile));
 
     var fileMap = new HashMap<UploadedFile, String>();
     fileMap.put(uploadedFile, ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
@@ -220,7 +214,11 @@ class TrapPropertiesSummaryServiceTest {
     trapProperty.setOtherTrapType("other trap type");
     trapProperty.setDatum(ReservoirDatum.ED50);
     trapProperty.setCentreOfInterestQuadrantBlock("10/15");
-    FileUploadForm fileUploadForm = new FileUploadForm();
+
+    var uploadedFile = new UploadedFile();
+    uploadedFile.setName("uploadedfile.txt");
+    uploadedFile.setDescription("description");
+    var fileUploadForm = new UploadedFileForm();
     fileUploadForm.setUploadedFileDescription("description");
 
     when(trapPropertiesPersistenceService.getTrapProperty(discoverySubmissionDetail))
@@ -243,16 +241,9 @@ class TrapPropertiesSummaryServiceTest {
             ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_DISCOVERY,
             discoverySubmissionDetail))
         .thenReturn(testSummary);
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
+    when(supportingDocumentService.getUploadedFiles(
         discoverySubmissionDetail,
-        SupportingDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(List.of(fileUploadForm));
-
-    var uploadedFile = new UploadedFile();
-    uploadedFile.setFilename("uploadedfile.txt");
-    uploadedFile.setDescription("description");
-
-    when(fileUploadService.findUploadedFileOrThrow(fileUploadForm.getUploadedFileId()))
-        .thenReturn(uploadedFile);
+        FileDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(List.of(uploadedFile));
 
     var fileMap = new HashMap<UploadedFile, String>();
     fileMap.put(uploadedFile, ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)

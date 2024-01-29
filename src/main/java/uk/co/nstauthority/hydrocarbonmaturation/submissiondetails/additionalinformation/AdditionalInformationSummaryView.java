@@ -1,7 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinformation;
 
 import java.util.Map;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 
 public record AdditionalInformationSummaryView(String providingAdditionalComments,
                                                String additionalComments,

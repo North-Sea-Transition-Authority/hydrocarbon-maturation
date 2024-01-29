@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.stereotype.Controller;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -108,12 +109,15 @@ class DefaultPageControllerAdviceTest {
   static class TestApplication {
   }
 
+  @Controller
   @RequestMapping("/endpoint")
   static class TestController {
 
+    private static final String VIEW_NAME = "test-view";
+
     @GetMapping()
     ModelAndView testEndpoint() {
-      return new ModelAndView();
+      return new ModelAndView(VIEW_NAME);
     }
   }
 

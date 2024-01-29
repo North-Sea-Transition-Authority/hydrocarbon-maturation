@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import org.apache.commons.lang3.BooleanUtils;
 import org.assertj.core.groups.Tuple;
 import org.jetbrains.annotations.NotNull;

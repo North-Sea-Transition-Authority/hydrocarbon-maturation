@@ -15,8 +15,7 @@
 <#-- @ftlvariable name="depthToSpillPointError" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError" -->
 <#-- @ftlvariable name="productiveAreaTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplate" -->
 <#-- @ftlvariable name="productiveAreaError" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError" -->
-<#-- @ftlvariable name="prospectDepthMapTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate" -->
-<#-- @ftlvariable name="prospectDepthMapUploads" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView>" -->
+<#-- @ftlvariable name="prospectDepthMapTemplate" type="uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes" -->
 
 <@defaultPage
   htmlTitle=pageTitle
@@ -111,7 +110,7 @@
             deleteUrl=prospectDepthMapTemplate.deleteUrl()
             maxAllowedSize=prospectDepthMapTemplate.maxAllowedSize()
             allowedExtensions=prospectDepthMapTemplate.allowedExtensions()
-            existingFiles=prospectDepthMapUploads
+            existingFiles=prospectDepthMapTemplate.existingFiles()
             multiFile=false
           />
         </@fdsFieldset.fieldset>

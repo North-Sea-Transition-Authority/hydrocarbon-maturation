@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinf
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,13 +17,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -40,7 +38,7 @@ public class AdditionalInformationController {
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final AdditionalInformationPersistenceService additionalInformationPersistenceService;
-  private final SupportingDocumentService supportingDocumentService;
+  private final SubmissionSupportingDocumentService supportingDocumentService;
 
   public static final String PAGE_NAME = "Additional information";
 
@@ -49,7 +47,7 @@ public class AdditionalInformationController {
                                          ControllerHelperService controllerHelperService,
                                          SubmissionDetailService submissionDetailService,
                                          AdditionalInformationPersistenceService additionalInformationPersistenceService,
-                                         SupportingDocumentService supportingDocumentService) {
+                                         SubmissionSupportingDocumentService supportingDocumentService) {
     this.additionalInformationFormService = additionalInformationFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
@@ -62,8 +60,7 @@ public class AdditionalInformationController {
                                                @ModelAttribute("form") AdditionalInformationForm form) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var additionalInformationForm = additionalInformationFormService.getAdditionalInformationForm(submissionDetail);
-    var additionalDocumentUploads = additionalInformationFormService.getAdditionalDocumentUploads(additionalInformationForm);
-    return getAdditionalInformationModelAndView(additionalInformationForm, submissionDetail, additionalDocumentUploads);
+    return getAdditionalInformationModelAndView(additionalInformationForm, submissionDetail);
   }
 
   @PostMapping
@@ -73,10 +70,9 @@ public class AdditionalInformationController {
                                                 ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     bindingResult = additionalInformationFormService.validate(form, bindingResult, validationType, submissionDetail);
-    var additionalDocumentUploads = additionalInformationFormService.getAdditionalDocumentUploads(form);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getAdditionalInformationModelAndView(form, submissionDetail, additionalDocumentUploads),
+        getAdditionalInformationModelAndView(form, submissionDetail),
         () -> {
           additionalInformationPersistenceService.saveAdditionalInformation(form, submissionDetail);
           return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
@@ -85,15 +81,15 @@ public class AdditionalInformationController {
   }
 
   private ModelAndView getAdditionalInformationModelAndView(AdditionalInformationForm form,
-                                                            SubmissionDetail submissionDetail,
-                                                            List<UploadedFileView> additionalDocumentUploads) {
+                                                            SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/additionalInformation")
         .addObject("form", form)
         .addObject("pageTitle", PAGE_NAME)
         .addObject("additionalDocumentTemplate",
-            supportingDocumentService.buildFileUploadTemplate(submissionDetail.getId(),
-            SupportingDocumentType.ADDITIONAL_DOCUMENT))
-        .addObject("additionalDocumentUploads", additionalDocumentUploads);
+            supportingDocumentService.fileUploadComponentAttributes(
+                form.getAdditionalDocuments(),
+                FileDocumentType.ADDITIONAL_DOCUMENT
+            ));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;

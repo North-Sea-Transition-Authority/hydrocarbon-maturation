@@ -5,31 +5,27 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 
 @Service
 public class OpportunityDetailsSummaryService {
 
   private final OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
-  private final FileUploadService fileUploadService;
-  private final SupportingDocumentService supportingDocumentService;
+  private final SubmissionSupportingDocumentService supportingDocumentService;
 
   @Autowired
   public OpportunityDetailsSummaryService(OpportunityDetailsPersistenceService opportunityDetailsPersistenceService,
-                                          FileUploadService fileUploadService,
-                                          SupportingDocumentService supportingDocumentService) {
+                                          SubmissionSupportingDocumentService supportingDocumentService) {
     this.opportunityDetailsPersistenceService = opportunityDetailsPersistenceService;
-    this.fileUploadService = fileUploadService;
     this.supportingDocumentService = supportingDocumentService;
   }
 
@@ -54,19 +50,20 @@ public class OpportunityDetailsSummaryService {
     var keyEvaluationWork = Objects.requireNonNullElse(opportunityDetail.getKeyEvaluationWorkCarriedOut(), "");
     var keyWorkRequired = Objects.requireNonNullElse(opportunityDetail.getKeyWorkRequiredForFurtherMaturation(), "");
 
-    var mapOfOpportunityUploadFormList = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
+    var mapOfOpportunityUploadFormList = supportingDocumentService.getUploadedFiles(
         submissionDetail,
-        SupportingDocumentType.MAP_OF_OPPORTUNITY);
+        FileDocumentType.MAP_OF_OPPORTUNITY
+    );
 
-    var geologicalCrossSectionUploadFormList = supportingDocumentService
-        .getFileUploadFormListForSubmissionAndType(
-            submissionDetail,
-            SupportingDocumentType.GEOLOGICAL_CROSS_SECTION);
+    var geologicalCrossSectionUploadFormList = supportingDocumentService.getUploadedFiles(
+        submissionDetail,
+        FileDocumentType.GEOLOGICAL_CROSS_SECTION
+    );
 
-    var representativeSeismicSectionUploadFormList = supportingDocumentService
-        .getFileUploadFormListForSubmissionAndType(
-            submissionDetail,
-            SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION);
+    var representativeSeismicSectionUploadFormList = supportingDocumentService.getUploadedFiles(
+        submissionDetail,
+        FileDocumentType.REPRESENTATIVE_SEISMIC_SECTION
+    );
 
     return new OpportunityDetailsSummaryView(opportunityType,
         otherOpportunity,
@@ -79,14 +76,16 @@ public class OpportunityDetailsSummaryService {
         getFileUploadList(geologicalCrossSectionUploadFormList, submissionDetail));
   }
 
-  private Map<UploadedFile, String> getFileUploadList(List<FileUploadForm> fileUploadForms,
+  private Map<UploadedFile, String> getFileUploadList(List<UploadedFile> fileUploadForms,
                                                       SubmissionDetail submissionDetail) {
     return fileUploadForms
         .stream()
         .collect(
             Collectors.toMap(
-                key -> fileUploadService.findUploadedFileOrThrow(key.getUploadedFileId()),
+                Function.identity(),
                 value -> ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
-                    .download(submissionDetail.getId(), value.getUploadedFileId()))));
+                    .download(submissionDetail.getId(), value.getId()))
+            )
+        );
   }
 }

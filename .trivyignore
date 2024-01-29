@@ -75,11 +75,9 @@ CVE-2023-45648
 # Spring Security config
 CVE-2023-34034
 
-# Quartz
-CVE-2023-39017
-
 # Bouncy Castle
 CVE-2023-33201
+CVE-2023-33202
 
 # Apache
 CVE-2023-44483

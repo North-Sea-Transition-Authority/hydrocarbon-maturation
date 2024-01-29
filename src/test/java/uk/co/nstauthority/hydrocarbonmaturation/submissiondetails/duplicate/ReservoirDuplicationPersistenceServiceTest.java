@@ -2,8 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;

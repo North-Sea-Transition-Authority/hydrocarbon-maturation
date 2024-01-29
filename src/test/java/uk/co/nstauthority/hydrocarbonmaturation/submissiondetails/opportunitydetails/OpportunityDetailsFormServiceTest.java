@@ -16,12 +16,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -32,13 +31,13 @@ class OpportunityDetailsFormServiceTest {
   private static OpportunityDetailsFormService opportunityDetailsFormService;
   private static OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
   private static SubmissionDetail submissionDetail;
-  private static SupportingDocumentService supportingDocumentService;
+  private static SubmissionSupportingDocumentService supportingDocumentService;
 
   @BeforeAll
   static void setup() {
     opportunityDetailsFormValidator = mock(OpportunityDetailsFormValidator.class);
     opportunityDetailsPersistenceService = mock(OpportunityDetailsPersistenceService.class);
-    supportingDocumentService = mock(SupportingDocumentService.class);
+    supportingDocumentService = mock(SubmissionSupportingDocumentService.class);
     opportunityDetailsFormService = new OpportunityDetailsFormService(opportunityDetailsFormValidator, opportunityDetailsPersistenceService,
         supportingDocumentService);
 
@@ -69,11 +68,11 @@ class OpportunityDetailsFormServiceTest {
   @Test
   void opportunityDetailEntityToForm_newEntity_thenEmptyForm() {
     when(opportunityDetailsPersistenceService.getOpportunityDetail(submissionDetail)).thenReturn(Optional.empty());
-    var fileUploadFormList = List.of(mock(FileUploadForm.class));
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY))
+    var fileUploadFormList = List.of(mock(UploadedFileForm.class));
+    when(supportingDocumentService.getUploadedFileForms(submissionDetail, FileDocumentType.MAP_OF_OPPORTUNITY))
         .thenReturn(fileUploadFormList);
-    var otherFileUploadList = List.of(mock(FileUploadForm.class));
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION))
+    var otherFileUploadList = List.of(mock(UploadedFileForm.class));
+    when(supportingDocumentService.getUploadedFileForms(submissionDetail, FileDocumentType.GEOLOGICAL_CROSS_SECTION))
         .thenReturn(otherFileUploadList);
     assertThat(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail))
         .extracting(
@@ -100,11 +99,11 @@ class OpportunityDetailsFormServiceTest {
   void opportunityDetailEntityToForm_existingEntity_thenPopulatedForm() {
     var opportunityDetail = getOpportunityDetail(submissionDetail);
     when(opportunityDetailsPersistenceService.getOpportunityDetail(submissionDetail)).thenReturn(Optional.of(opportunityDetail));
-    var fileUploadFormList = List.of(mock(FileUploadForm.class));
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY))
+    var fileUploadFormList = List.of(mock(UploadedFileForm.class));
+    when(supportingDocumentService.getUploadedFileForms(submissionDetail, FileDocumentType.MAP_OF_OPPORTUNITY))
         .thenReturn(fileUploadFormList);
-    var otherFileUploadList = List.of(mock(FileUploadForm.class));
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION))
+    var otherFileUploadList = List.of(mock(UploadedFileForm.class));
+    when(supportingDocumentService.getUploadedFileForms(submissionDetail, FileDocumentType.GEOLOGICAL_CROSS_SECTION))
         .thenReturn(otherFileUploadList);
     assertThat(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail))
         .extracting(
@@ -127,51 +126,6 @@ class OpportunityDetailsFormServiceTest {
         );
   }
 
-  @Test
-  void getMapOfOpportunityUploads_VerifyCalls() {
-    var fileUploadForm1 = getFileUploadForm();
-    var fileUploadForm2 = getFileUploadForm();
-
-    var form = new OpportunityDetailsForm();
-    var fileForms = List.of(fileUploadForm1, fileUploadForm2);
-    form.setMapOfOpportunity(fileForms);
-    var listOfIds = FileUploadUtils.getUploadIdList(fileForms);
-    opportunityDetailsFormService.getMapOfOpportunityUploads(form);
-
-    verify(supportingDocumentService, times(1)).getUploadedFileViewList(listOfIds);
-  }
-
-  @Test
-  void getGeologicalCrossSectionUploads_VerifyCalls() {
-    var fileUploadForm1 = getFileUploadForm();
-    var fileUploadForm2 = getFileUploadForm();
-
-    var form = new OpportunityDetailsForm();
-    var fileForms = List.of(fileUploadForm1, fileUploadForm2);
-    form.setGeologicalCrossSection(fileForms);
-    var listOfIds = FileUploadUtils.getUploadIdList(fileForms);
-
-    opportunityDetailsFormService.getGeologicalCrossSectionUploads(form);
-
-    verify(supportingDocumentService, times(1))
-        .getUploadedFileViewList(listOfIds);
-  }
-
-  @Test
-  void getRepresentativeSeismicSectionUploads_VerifyCalls() {
-    var fileUploadForm1 = getFileUploadForm();
-
-    var form = new OpportunityDetailsForm();
-    var fileForms = List.of(fileUploadForm1);
-    form.setRepresentativeSeismicSection(fileForms);
-    var listOfIds = FileUploadUtils.getUploadIdList(fileForms);
-
-    opportunityDetailsFormService.getRepresentativeSeismicSectionUploads(form);
-
-    verify(supportingDocumentService, times(1))
-        .getUploadedFileViewList(listOfIds);
-  }
-
 
   private OpportunityDetail getOpportunityDetail(SubmissionDetail submissionDetail) {
     var opportunityDetail =  new OpportunityDetail();
@@ -182,8 +136,8 @@ class OpportunityDetailsFormServiceTest {
     return opportunityDetail;
   }
 
-  private FileUploadForm getFileUploadForm() {
-    var fileUploadForm = new FileUploadForm();
+  private UploadedFileForm getUploadedFileForm() {
+    var fileUploadForm = new UploadedFileForm();
     fileUploadForm.setUploadedFileId(UUID.randomUUID());
     return fileUploadForm;
   }

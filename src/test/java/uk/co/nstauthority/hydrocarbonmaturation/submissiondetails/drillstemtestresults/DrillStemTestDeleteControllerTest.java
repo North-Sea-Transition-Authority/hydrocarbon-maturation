@@ -153,8 +153,8 @@ class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest
                 .with(user(USER)))
         .andExpect(status().is3xxRedirection())
         .andExpect(
-            redirectedUrl(ReverseRouter.route(on(DrillStemTestResultController.class)
-                .getDrillStemTestResultPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))))
+            redirectedUrl(ReverseRouter.route(on(DrillStemTestController.class)
+                .getDrillStemTestPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))))
         .andExpect(notificationBanner(expectedBannerImplementation));
 
     verify(drillStemTestResultPersistenceService).deleteDrillStemTestResult(drillStemTestResult);

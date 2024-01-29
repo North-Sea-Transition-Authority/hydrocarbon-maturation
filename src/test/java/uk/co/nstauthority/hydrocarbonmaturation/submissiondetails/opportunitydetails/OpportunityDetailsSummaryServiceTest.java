@@ -13,15 +13,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 
 @ExtendWith(MockitoExtension.class)
 class OpportunityDetailsSummaryServiceTest {
@@ -30,15 +30,15 @@ class OpportunityDetailsSummaryServiceTest {
   private OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
 
   @Mock
-  private FileUploadService fileUploadService;
+  private FileService fileService;
 
   @Mock
-  private SupportingDocumentService supportingDocumentService;
+  private SubmissionSupportingDocumentService supportingDocumentService;
 
   @InjectMocks
   private OpportunityDetailsSummaryService opportunityDetailsSummaryService;
 
-  private SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
   @Test
   void getOpportunityDetailsSummaryFromSubmissionDetail_whenNoOpportunityDetails() {
@@ -81,11 +81,11 @@ class OpportunityDetailsSummaryServiceTest {
     opportunityDetails.setOtherTypeOfOpportunity("other stuff");
     opportunityDetails.setKeyEvaluationWorkCarriedOut("evaluation");
     opportunityDetails.setKeyWorkRequiredForFurtherMaturation("work required");
-    FileUploadForm fileUploadDetail = new FileUploadForm();
+    UploadedFileForm fileUploadDetail = new UploadedFileForm();
     fileUploadDetail.setUploadedFileDescription("description");
 
     var uploadedFile = new UploadedFile();
-    uploadedFile.setFilename("uploadedfile.txt");
+    uploadedFile.setName("uploadedfile.txt");
     uploadedFile.setDescription("description");
 
     var fileMap = new HashMap<UploadedFile, String>();
@@ -94,17 +94,15 @@ class OpportunityDetailsSummaryServiceTest {
 
     when(opportunityDetailsPersistenceService.getOpportunityDetail(submissionDetail))
         .thenReturn(Optional.of(opportunityDetails));
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
+    when(supportingDocumentService.getUploadedFiles(
         submissionDetail,
-        SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(List.of(fileUploadDetail));
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
+        FileDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(List.of(uploadedFile));
+    when(supportingDocumentService.getUploadedFiles(
         submissionDetail,
-        SupportingDocumentType.GEOLOGICAL_CROSS_SECTION)).thenReturn(List.of(fileUploadDetail));
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
+        FileDocumentType.GEOLOGICAL_CROSS_SECTION)).thenReturn(List.of(uploadedFile));
+    when(supportingDocumentService.getUploadedFiles(
         submissionDetail,
-        SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION)).thenReturn(List.of(fileUploadDetail));
-    when(fileUploadService.findUploadedFileOrThrow(fileUploadDetail.getUploadedFileId()))
-        .thenReturn(uploadedFile);
+        FileDocumentType.REPRESENTATIVE_SEISMIC_SECTION)).thenReturn(List.of(uploadedFile));
 
     var opportunityDetailsSummaryView =
         opportunityDetailsSummaryService.getOpportunityDetailsSummaryFromSubmissionDetail(submissionDetail);
@@ -139,15 +137,15 @@ class OpportunityDetailsSummaryServiceTest {
     var fileMap = new HashMap<UploadedFile, String>();
     when(opportunityDetailsPersistenceService.getOpportunityDetail(submissionDetail))
         .thenReturn(Optional.of(opportunityDetails));
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
+    when(supportingDocumentService.getUploadedFiles(
         submissionDetail,
-        SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(List.of());
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
+        FileDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(List.of());
+    when(supportingDocumentService.getUploadedFiles(
         submissionDetail,
-        SupportingDocumentType.GEOLOGICAL_CROSS_SECTION)).thenReturn(List.of());
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
+        FileDocumentType.GEOLOGICAL_CROSS_SECTION)).thenReturn(List.of());
+    when(supportingDocumentService.getUploadedFiles(
         submissionDetail,
-        SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION))
+        FileDocumentType.REPRESENTATIVE_SEISMIC_SECTION))
         .thenReturn(List.of());
     var opportunityDetailsSummaryView =
         opportunityDetailsSummaryService.getOpportunityDetailsSummaryFromSubmissionDetail(submissionDetail);

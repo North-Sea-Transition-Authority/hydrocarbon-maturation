@@ -5,19 +5,19 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @Service
 class AdditionalInformationPersistenceService {
 
   private final AdditionalInformationRepository additionalInformationRepository;
-  private final SupportingDocumentService supportingDocumentService;
+  private final SubmissionSupportingDocumentService supportingDocumentService;
 
   @Autowired
   public AdditionalInformationPersistenceService(AdditionalInformationRepository additionalInformationRepository,
-                                                 SupportingDocumentService supportingDocumentService) {
+                                                 SubmissionSupportingDocumentService supportingDocumentService) {
     this.additionalInformationRepository = additionalInformationRepository;
     this.supportingDocumentService = supportingDocumentService;
   }
@@ -37,14 +37,14 @@ class AdditionalInformationPersistenceService {
       additionalInformation.setAdditionalComments(null);
     }
 
-    if (BooleanUtils.isTrue(form.getProvidingAdditionalDocuments())) {
-      supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getAdditionalDocuments());
-    } else {
-      supportingDocumentService.getFileUploadFormListForSubmissionAndType(
-          submissionDetail, SupportingDocumentType.ADDITIONAL_DOCUMENT)
-          .forEach(file -> supportingDocumentService.deleteFile(submissionDetail, file.getUploadedFileId()));
+    if (!BooleanUtils.isTrue(form.getProvidingAdditionalDocuments())) {
+      supportingDocumentService.getUploadedFiles(
+          submissionDetail, FileDocumentType.ADDITIONAL_DOCUMENT)
+          .forEach(file -> supportingDocumentService.deleteFile(file.getId()));
     }
 
+    supportingDocumentService
+        .saveDocuments(submissionDetail, form.getAdditionalDocuments(), FileDocumentType.ADDITIONAL_DOCUMENT);
     additionalInformationRepository.save(additionalInformation);
   }
 

@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.authentication;
 
+import java.util.Optional;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,14 @@ public class UserService {
       }
     } else {
       throw new InvalidAuthenticationException("ServiceSaml2Authentication not found in authentication context");
+    }
+  }
+
+  public Optional<User> getOptionalUserDetail() {
+    try {
+      return Optional.of(getUser());
+    } catch (InvalidAuthenticationException exception) {
+      return Optional.empty();
     }
   }
 

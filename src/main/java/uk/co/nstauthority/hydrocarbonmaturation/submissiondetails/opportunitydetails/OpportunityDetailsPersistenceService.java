@@ -4,18 +4,19 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @Service
 public class OpportunityDetailsPersistenceService {
 
   private final OpportunityDetailsRepository opportunityDetailsRepository;
-  private final SupportingDocumentService supportingDocumentService;
+  private final SubmissionSupportingDocumentService supportingDocumentService;
 
   @Autowired
   OpportunityDetailsPersistenceService(OpportunityDetailsRepository opportunityDetailsRepository,
-                                       SupportingDocumentService supportingDocumentService) {
+                                       SubmissionSupportingDocumentService supportingDocumentService) {
     this.opportunityDetailsRepository = opportunityDetailsRepository;
     this.supportingDocumentService = supportingDocumentService;
   }
@@ -42,9 +43,12 @@ public class OpportunityDetailsPersistenceService {
       opportunityDetail.setOtherTypeOfOpportunity(null);
     }
 
-    supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getMapOfOpportunity());
-    supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getGeologicalCrossSection());
-    supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getRepresentativeSeismicSection());
+    supportingDocumentService
+        .saveDocuments(submissionDetail, form.getMapOfOpportunity(), FileDocumentType.MAP_OF_OPPORTUNITY);
+    supportingDocumentService
+        .saveDocuments(submissionDetail, form.getGeologicalCrossSection(), FileDocumentType.GEOLOGICAL_CROSS_SECTION);
+    supportingDocumentService
+        .saveDocuments(submissionDetail, form.getRepresentativeSeismicSection(), FileDocumentType.REPRESENTATIVE_SEISMIC_SECTION);
     opportunityDetailsRepository.save(opportunityDetail);
   }
 

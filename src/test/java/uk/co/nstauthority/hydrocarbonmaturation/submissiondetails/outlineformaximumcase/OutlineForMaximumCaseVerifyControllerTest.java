@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
+import static uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -151,7 +154,7 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
                 .with(csrf()))
         .andExpect(status().isForbidden());
 
-    verify(outlineForMaximumCasePersistenceService, never()).saveOutlineForMaximumCaseUploadDescriptions(any());
+    verify(outlineForMaximumCasePersistenceService, never()).saveOutlineForMaximumCaseUploads(eq(submissionDetail), anyList());
   }
 
   @ParameterizedTest(name = "controller validation - {0}")

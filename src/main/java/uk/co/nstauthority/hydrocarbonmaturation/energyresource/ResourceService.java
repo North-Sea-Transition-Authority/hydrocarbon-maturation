@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 
 @Service
 public class ResourceService {
@@ -20,6 +21,12 @@ public class ResourceService {
 
   public Optional<Resource> getResourceById(UUID id) {
     return resourceRepository.findById(id);
+  }
+
+  public Resource getResourceOrThrow(UUID resourceId) {
+    return resourceRepository.findById(resourceId)
+        .orElseThrow(() ->
+            new RemiEntityNotFoundException("Could not find resource with id %s".formatted(resourceId.toString())));
   }
 
   public Resource createResource(ResourceType resourceType) {

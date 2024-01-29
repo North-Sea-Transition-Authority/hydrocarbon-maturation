@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.file;
 import java.util.List;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 
 class FileUploadValidationUtils {
 
@@ -10,7 +11,7 @@ class FileUploadValidationUtils {
     throw new AssertionError();
   }
 
-  static void rejectIfFileDescriptionsAreEmptyOrWhitespace(Errors errors, List<FileUploadForm> fileUploadForms,
+  static void rejectIfFileDescriptionsAreEmptyOrWhitespace(Errors errors, List<UploadedFileForm> fileUploadForms,
                                                                   String field) {
     int bound = fileUploadForms.size();
     for (int i = 0; i < bound; i++) {

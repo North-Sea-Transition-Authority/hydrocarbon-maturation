@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,47 +17,24 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.gis.ShapefileConversionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocument;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @ExtendWith(MockitoExtension.class)
 class OutlineForMaximumCasePersistenceServiceTest {
 
   @Mock
-  private SupportingDocumentService supportingDocumentService;
+  private SubmissionSupportingDocumentService supportingDocumentService;
   @Mock
   private ShapefileConversionService shapefileConversionService;
   @Mock
   private OutlineForMaximumCaseRepository outlineForMaximumCaseRepository;
   @InjectMocks
   private OutlineForMaximumCasePersistenceService underTest;
-  private final SupportingDocumentType type = SupportingDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE;
-
-  @Nested
-  class WhenSavingOutlineForMaximumCaseUploadDescriptions {
-    private OutlineForMaximumCaseUploadForm form;
-
-    @BeforeEach
-    void setup() {
-      form = new OutlineForMaximumCaseUploadForm();
-    }
-
-    @Test
-    void verifyCalls() {
-      var fileUploadForm = new FileUploadForm();
-      var fileUploadFormList = List.of(fileUploadForm);
-      form.setOutlineForMaximumCase(fileUploadFormList);
-
-      underTest.saveOutlineForMaximumCaseUploadDescriptions(form);
-
-      verify(supportingDocumentService).updateSupportingDocumentFileDescriptions(fileUploadFormList);
-    }
-  }
+  private final FileDocumentType type = FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE;
 
   @Nested
   class WhenDeletingOutlineForMaximumCase {
@@ -67,11 +46,9 @@ class OutlineForMaximumCasePersistenceServiceTest {
     void setup() {
       var uploadedFile = new UploadedFile();
       uploadedFile.setId(UPLOADED_FILE_ID);
-      var supportingDocument = new SupportingDocument();
-      supportingDocument.setUploadedFile(uploadedFile);
 
-      when(supportingDocumentService.getSupportingDocumentsForType(submissionDetail, type))
-          .thenReturn(Optional.of(supportingDocument));
+      when(supportingDocumentService.getUploadedFiles(submissionDetail, type))
+          .thenReturn(List.of(uploadedFile));
 
     }
 
@@ -79,7 +56,7 @@ class OutlineForMaximumCasePersistenceServiceTest {
     void verifyCalls() {
       underTest.deleteOutlineForMaximumCase(submissionDetail);
 
-      verify(supportingDocumentService).deleteFile(submissionDetail, UPLOADED_FILE_ID);
+      verify(supportingDocumentService).deleteFile(UPLOADED_FILE_ID);
       verify(outlineForMaximumCaseRepository).deleteBySubmissionDetail(submissionDetail);
     }
   }
@@ -89,19 +66,19 @@ class OutlineForMaximumCasePersistenceServiceTest {
     @Mock
     private SubmissionDetail submissionDetail;
     @Mock
-    private SupportingDocument supportingDocument;
+    private UploadedFile uploadedFile;
 
     @BeforeEach
     void setup() {
-      when(supportingDocumentService.getSupportingDocumentsForType(submissionDetail, type))
-          .thenReturn(Optional.of(supportingDocument));
+      when(supportingDocumentService.getUploadedFiles(submissionDetail, type))
+          .thenReturn(List.of(uploadedFile));
     }
 
     @Test
     void verifyCalls() {
       underTest.getGeoJsonForOutlineForMaximumCase(submissionDetail);
 
-      verify(shapefileConversionService).convertShapefileToGeoJson(supportingDocument);
+      verify(shapefileConversionService).convertShapefileToGeoJson(uploadedFile);
     }
   }
 
@@ -178,6 +155,43 @@ class OutlineForMaximumCasePersistenceServiceTest {
       var result = underTest.hasVerifiedShapefile(submissionDetail);
 
       assertThat(result).isFalse();
+    }
+  }
+
+  @Nested
+  class WhenGettingUploadedShapefileZip {
+    @Mock
+    private SubmissionDetail submissionDetail;
+
+    @Test
+    void noShapefiles() {
+      when(supportingDocumentService.getUploadedFiles(submissionDetail, type)).thenReturn(List.of());
+
+      assertThatExceptionOfType(IllegalStateException.class)
+          .isThrownBy(() -> underTest.getUploadedShapefileZip(submissionDetail))
+          .withMessage("No shapefile found for submission detail %s and type %s".formatted(submissionDetail.getId(), type.name()));
+    }
+
+
+    @Test
+    void moreThanOneShapefile() {
+      when(supportingDocumentService.getUploadedFiles(submissionDetail, type))
+          .thenReturn(List.of(mock(UploadedFile.class), mock(UploadedFile.class)));
+
+      assertThatExceptionOfType(IllegalStateException.class)
+          .isThrownBy(() -> underTest.getUploadedShapefileZip(submissionDetail))
+          .withMessage("Multiple shapefiles found for submission detail %s and type %s".formatted(submissionDetail.getId(), type.name()));
+    }
+
+    @Test
+    void oneShapefile() {
+      var uploadedFile = mock(UploadedFile.class);
+      when(supportingDocumentService.getUploadedFiles(submissionDetail, type))
+          .thenReturn(List.of(uploadedFile));
+
+      var result = underTest.getUploadedShapefileZip(submissionDetail);
+
+      assertThat(result).isEqualTo(uploadedFile);
     }
   }
 }

@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.notify;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 public interface NotifyEmailService {
 

@@ -47,27 +47,22 @@ public class WebSecurityConfiguration {
     authenticationProvider.setResponseAuthenticationConverter(r -> samlResponseParser.parseSamlResponse(r.getResponse()));
 
     httpSecurity
-        .csrf().ignoringAntMatchers("/notify/callback", "/api/v1/logout/*")
-        .and()
-        .authorizeHttpRequests()
-        .mvcMatchers(
-            "/assets/**",
-            "/notify/callback",
-            "/api/v1/logout/*",
-            "/accessibility-statement",
-            "/contact-information"
-        )
-        .permitAll()
-        .mvcMatchers("/*")
-          .hasAuthority(energyPortalAccessApiConfiguration.privilegeName())
-        .anyRequest()
-          .authenticated()
-        .and()
-        .exceptionHandling().accessDeniedPage("/access-denied")
-        .and()
+        .csrf(csrfConfigurer -> csrfConfigurer.ignoringRequestMatchers("/notify/callback", "/api/v1/logout/*"))
+        .authorizeHttpRequests(requestMatcherRegistry ->
+            requestMatcherRegistry
+                .requestMatchers(
+                    "/assets/**",
+                    "/notify/callback",
+                    "/api/v1/logout/*",
+                    "/accessibility-statement",
+                    "/contact-information"
+                ).permitAll()
+                .requestMatchers("/*").hasAuthority(energyPortalAccessApiConfiguration.privilegeName())
+                .anyRequest().authenticated()
+            )
+        .exceptionHandling(exceptionHandlingConfigurer -> exceptionHandlingConfigurer.accessDeniedPage("/access-denied"))
         .saml2Login(saml2 -> saml2.authenticationManager(new ProviderManager(authenticationProvider)))
-        .logout()
-          .logoutSuccessHandler(serviceLogoutSuccessHandler);
+        .logout(logoutConfigurer -> logoutConfigurer.logoutSuccessHandler(serviceLogoutSuccessHandler));
 
     return httpSecurity.build();
   }

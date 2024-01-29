@@ -1,33 +1,31 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
+import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocument;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @Service
 class TrapPropertiesDuplicationService implements SubmissionSectionDuplicationService {
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
-  private final SupportingDocumentService supportingDocumentService;
+  private final SubmissionSupportingDocumentService supportingDocumentService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
 
   @Autowired
   TrapPropertiesDuplicationService(TrapPropertiesPersistenceService trapPropertiesPersistenceService,
                                    ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
-                                   SupportingDocumentService supportingDocumentService,
+                                   SubmissionSupportingDocumentService supportingDocumentService,
                                    SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService) {
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
@@ -49,14 +47,11 @@ class TrapPropertiesDuplicationService implements SubmissionSectionDuplicationSe
                 TrapProperty.class)
         );
 
-    supportingDocumentService.getSupportingDocumentsForTypes(
+    supportingDocumentService.copyUploadedFiles(
         oldSubmissionDetail,
-        Set.of(SupportingDocumentType.PROSPECT_DEPTH_MAP)
-    ).forEach(supportingDocument -> submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
         newSubmissionDetail,
-        supportingDocument,
-        SupportingDocument.class
-    ));
+        FileDocumentType.PROSPECT_DEPTH_MAP
+    );
 
     if (oldSubmissionDetail.hasSameResourceType(newSubmissionDetail)) {
       var applicableInstances = new HashSet<ProbabilityDistributionFieldInstance>();

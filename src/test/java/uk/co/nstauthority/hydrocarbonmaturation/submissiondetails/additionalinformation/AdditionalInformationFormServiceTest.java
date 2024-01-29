@@ -17,12 +17,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -36,7 +35,7 @@ class AdditionalInformationFormServiceTest {
   private AdditionalInformationPersistenceService additionalInformationPersistenceService;
 
   @Mock
-  private SupportingDocumentService supportingDocumentService;
+  private SubmissionSupportingDocumentService supportingDocumentService;
 
   @InjectMocks
   private AdditionalInformationFormService additionalInformationFormService;
@@ -68,9 +67,9 @@ class AdditionalInformationFormServiceTest {
   @Test
   void additionalInformationEntityToForm_newEntity_thenEmptyForm() {
     when(additionalInformationPersistenceService.getAdditionalInformation(submissionDetail)).thenReturn(Optional.empty());
-    var listOfUploads = List.of(getFileUploadForm());
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail,
-        SupportingDocumentType.ADDITIONAL_DOCUMENT)).thenReturn(listOfUploads);
+    var listOfUploads = List.of(getUploadedFileForm());
+    when(supportingDocumentService.getUploadedFileForms(submissionDetail,
+        FileDocumentType.ADDITIONAL_DOCUMENT)).thenReturn(listOfUploads);
 
     assertThat(additionalInformationFormService.getAdditionalInformationForm(submissionDetail))
         .extracting(
@@ -90,11 +89,11 @@ class AdditionalInformationFormServiceTest {
   @Test
   void generalDetailEntityToForm_existingEntity_thenPopulatedForm() {
     var additionalInformation = getAdditionalInformation(submissionDetail);
-    var listOfUploads = List.of(getFileUploadForm());
+    var listOfUploads = List.of(getUploadedFileForm());
     when(additionalInformationPersistenceService.getAdditionalInformation(submissionDetail))
         .thenReturn(Optional.of(additionalInformation));
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail,
-        SupportingDocumentType.ADDITIONAL_DOCUMENT)).thenReturn(listOfUploads);
+    when(supportingDocumentService.getUploadedFileForms(submissionDetail,
+        FileDocumentType.ADDITIONAL_DOCUMENT)).thenReturn(listOfUploads);
 
 
     assertThat(additionalInformationFormService.getAdditionalInformationForm(submissionDetail))
@@ -112,19 +111,6 @@ class AdditionalInformationFormServiceTest {
         );
   }
 
-  @Test
-  void getAdditionalDocumentsUploads_VerifyCalls() {
-    FileUploadForm fileUploadForm1 = getFileUploadForm();
-    FileUploadForm fileUploadForm2 = getFileUploadForm();
-
-    var form = new AdditionalInformationForm();
-    form.setAdditionalDocuments(List.of(fileUploadForm1, fileUploadForm2));
-
-    additionalInformationFormService.getAdditionalDocumentUploads(form);
-    var fileUploadIdList = FileUploadUtils.getUploadIdList(List.of(fileUploadForm1, fileUploadForm2));
-    verify(supportingDocumentService, times(1)).getUploadedFileViewList(fileUploadIdList);
-  }
-
   private AdditionalInformation getAdditionalInformation(SubmissionDetail submissionDetail) {
     var additionalInformation =  new AdditionalInformation();
     additionalInformation.setSubmissionDetail(submissionDetail);
@@ -134,8 +120,8 @@ class AdditionalInformationFormServiceTest {
     return additionalInformation;
   }
 
-  private FileUploadForm getFileUploadForm() {
-    FileUploadForm fileUploadForm = new FileUploadForm();
+  private UploadedFileForm getUploadedFileForm() {
+    var fileUploadForm = new UploadedFileForm();
     fileUploadForm.setUploadedFileId(UUID.randomUUID());
     return fileUploadForm;
   }

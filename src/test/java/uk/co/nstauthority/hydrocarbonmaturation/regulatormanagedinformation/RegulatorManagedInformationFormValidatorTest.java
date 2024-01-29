@@ -16,7 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 
@@ -110,7 +110,7 @@ class RegulatorManagedInformationFormValidatorTest {
   void validate_whenInValidFormMultipleUploadsWhenRelinquishment_assertErrors() {
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    form.setRelinquishmentReport(List.of(new FileUploadForm(), new FileUploadForm()));
+    form.setRelinquishmentReport(List.of(new UploadedFileForm(), new UploadedFileForm()));
     regulatorManagedInformationFormValidator.validate(form, bindingResult,
         new RegulatorManagedInformationFormValidatorHints(true, false));
 
@@ -132,7 +132,7 @@ class RegulatorManagedInformationFormValidatorTest {
   void validate_whenInvalidFormNoFileDescriptionWhenRelinquishment_assertErrors() {
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    form.setRelinquishmentReport(List.of(new FileUploadForm()));
+    form.setRelinquishmentReport(List.of(new UploadedFileForm()));
     regulatorManagedInformationFormValidator.validate(form, bindingResult,
         new RegulatorManagedInformationFormValidatorHints(true, false));
 
@@ -188,7 +188,7 @@ class RegulatorManagedInformationFormValidatorTest {
 
   private RegulatorManagedInformationForm getValidForm() {
     var form = new RegulatorManagedInformationForm();
-    var relinquishmentReportUpload = new FileUploadForm();
+    var relinquishmentReportUpload = new UploadedFileForm();
     relinquishmentReportUpload.setUploadedFileDescription("desc");
     relinquishmentReportUpload.setUploadedFileId(UUID.randomUUID());
     relinquishmentReportUpload.setUploadedFileInstant(Instant.now());

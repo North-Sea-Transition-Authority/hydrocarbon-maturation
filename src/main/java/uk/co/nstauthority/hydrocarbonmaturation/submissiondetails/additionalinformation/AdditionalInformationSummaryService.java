@@ -8,29 +8,25 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 
 @Service
 public class AdditionalInformationSummaryService {
 
   private final AdditionalInformationPersistenceService additionalInformationPersistenceService;
-  private final FileUploadService fileUploadService;
-  private final SupportingDocumentService supportingDocumentService;
+  private final SubmissionSupportingDocumentService supportingDocumentService;
 
   @Autowired
   public AdditionalInformationSummaryService(
       AdditionalInformationPersistenceService additionalInformationPersistenceService,
-      FileUploadService fileUploadService,
-      SupportingDocumentService supportingDocumentService) {
+      SubmissionSupportingDocumentService supportingDocumentService) {
     this.additionalInformationPersistenceService = additionalInformationPersistenceService;
-    this.fileUploadService = fileUploadService;
     this.supportingDocumentService = supportingDocumentService;
   }
 
@@ -54,9 +50,9 @@ public class AdditionalInformationSummaryService {
         ? BooleanUtil.yesNoFromBoolean(additionalInformation.getHasAdditionalDocuments())
         : "";
 
-    var fileUploadList = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
+    var fileUploadList = supportingDocumentService.getUploadedFiles(
         submissionDetail,
-        SupportingDocumentType.ADDITIONAL_DOCUMENT);
+        FileDocumentType.ADDITIONAL_DOCUMENT);
 
     Map<UploadedFile, String> additionalDocumentsUploadsAndLinks = Map.of();
 
@@ -65,9 +61,9 @@ public class AdditionalInformationSummaryService {
           .stream()
           .collect(
               Collectors.toMap(
-                  key -> fileUploadService.findUploadedFileOrThrow(key.getUploadedFileId()),
+                  file -> file,
                   value -> ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
-                      .download(submissionDetail.getId(), value.getUploadedFileId()))));
+                      .download(submissionDetail.getId(), value.getId()))));
     }
 
     return new AdditionalInformationSummaryView(

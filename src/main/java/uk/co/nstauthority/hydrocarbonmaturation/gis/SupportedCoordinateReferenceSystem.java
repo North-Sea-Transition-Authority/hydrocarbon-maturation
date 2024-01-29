@@ -1,9 +1,9 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
 import com.esri.core.geometry.SpatialReference;
+import jakarta.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Optional;
-import javax.annotation.Nullable;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
 enum SupportedCoordinateReferenceSystem {

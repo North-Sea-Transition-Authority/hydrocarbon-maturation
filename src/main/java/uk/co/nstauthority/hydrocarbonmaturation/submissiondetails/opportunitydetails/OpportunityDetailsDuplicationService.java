@@ -1,27 +1,26 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import java.util.Set;
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocument;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @Service
 class OpportunityDetailsDuplicationService implements SubmissionSectionDuplicationService {
   private final OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
-  private final SupportingDocumentService supportingDocumentService;
+  private final SubmissionSupportingDocumentService supportingDocumentService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
   private final EntityManager entityManager;
 
   @Autowired
   OpportunityDetailsDuplicationService(OpportunityDetailsPersistenceService opportunityDetailsPersistenceService,
-                                       SupportingDocumentService supportingDocumentService,
+                                       SubmissionSupportingDocumentService supportingDocumentService,
                                        SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService,
                                        EntityManager entityManager) {
     this.opportunityDetailsPersistenceService = opportunityDetailsPersistenceService;
@@ -42,23 +41,21 @@ class OpportunityDetailsDuplicationService implements SubmissionSectionDuplicati
           }
         });
 
-    supportingDocumentService.getSupportingDocumentsForTypes(
-        oldSubmissionDetail,
-        Set.of(
-            SupportingDocumentType.MAP_OF_OPPORTUNITY,
-            SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION,
-            SupportingDocumentType.GEOLOGICAL_CROSS_SECTION
-        )
-    ).forEach(supportingDocument ->
-        submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
+    Set.of(
+        FileDocumentType.MAP_OF_OPPORTUNITY,
+        FileDocumentType.REPRESENTATIVE_SEISMIC_SECTION,
+        FileDocumentType.GEOLOGICAL_CROSS_SECTION
+    ).forEach(fileDocumentType ->
+        supportingDocumentService.copyUploadedFiles(
+            oldSubmissionDetail,
             newSubmissionDetail,
-            supportingDocument,
-            SupportingDocument.class
-        ));
+            fileDocumentType
+        )
+    );
   }
 
   @Transactional
-  void setOpportunityType(OpportunityDetail opportunityDetail, SubmissionDetail newSubmissionDetail) {
+  public void setOpportunityType(OpportunityDetail opportunityDetail, SubmissionDetail newSubmissionDetail) {
     if (newSubmissionDetail.isDiscoverySubmission()) {
       opportunityDetail.setOpportunityType(OpportunityType.DISCOVERY);
     } else if (newSubmissionDetail.isDryWellSubmission()) {

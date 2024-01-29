@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 

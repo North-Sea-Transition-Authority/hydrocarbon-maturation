@@ -1,7 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
+import jakarta.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
-import javax.annotation.Nullable;
 import org.springframework.util.ReflectionUtils;
 
 public class ProbabilityDistributionTypeBehaviourUtil {

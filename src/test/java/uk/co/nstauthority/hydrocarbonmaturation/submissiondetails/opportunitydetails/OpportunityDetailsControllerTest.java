@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -17,6 +18,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,14 +31,15 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -50,30 +54,41 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
   OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
 
   @MockBean
-  SupportingDocumentService supportingDocumentService;
+  SubmissionSupportingDocumentService supportingDocumentService;
 
   private OpportunityDetailsForm form;
   private BindingResult bindingResult;
   private UUID submissionDetailId;
-  private FileUploadTemplate fileUploadTemplate;
+  private final List<UploadedFileForm> existingFiles = Collections.emptyList();
+  private final FileUploadComponentAttributes fileUploadComponentAttributes = new FileUploadComponentAttributes(
+      "path",
+      "upload_url",
+      "download_url",
+      "delete_url",
+      "max_allowed_size",
+      "allowed_extensions",
+      "dropzone_link_text",
+      "dropzone_text",
+      "dropzone_link_screen_reader_text",
+      "multi_file_error_message",
+      true,
+      existingFiles,
+      true,
+      false);
 
   @BeforeEach
   void setUp() {
     form = new OpportunityDetailsForm();
     bindingResult = new BeanPropertyBindingResult(form, "form");
     submissionDetailId = submissionDetail.getId();
-    fileUploadTemplate = new FileUploadTemplate("", "", "", "", "");
   }
 
   @SecurityTest
   void getOpportunityDetailsPage_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail)).thenReturn(new OpportunityDetailsForm());
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(fileUploadTemplate);
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION))
-        .thenReturn(fileUploadTemplate);
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION))
-        .thenReturn(fileUploadTemplate);
+    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+        .thenReturn(fileUploadComponentAttributes);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
@@ -147,11 +162,8 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
     when(opportunityDetailsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(fileUploadTemplate);
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION))
-        .thenReturn(fileUploadTemplate);
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION))
-        .thenReturn(fileUploadTemplate);
+    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+        .thenReturn(fileUploadComponentAttributes);
     mockMvc.perform(
         post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, bindingResult, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
@@ -166,11 +178,8 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
   void getOpportunityDetailsModelAndViewForProsopect_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail)).thenReturn(new OpportunityDetailsForm());
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(fileUploadTemplate);
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION))
-        .thenReturn(fileUploadTemplate);
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION))
-        .thenReturn(fileUploadTemplate);
+    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+        .thenReturn(fileUploadComponentAttributes);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetailId, form)))
             .with(user(USER)))
@@ -191,11 +200,8 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail)).thenReturn(new OpportunityDetailsForm());
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.MAP_OF_OPPORTUNITY)).thenReturn(fileUploadTemplate);
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION))
-        .thenReturn(fileUploadTemplate);
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION))
-        .thenReturn(fileUploadTemplate);
+    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+        .thenReturn(fileUploadComponentAttributes);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetailId, form)))
                 .with(user(USER)))

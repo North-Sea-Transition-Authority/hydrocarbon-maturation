@@ -278,8 +278,8 @@ class DrillStemTestResultControllerTest extends AbstractSubmissionControllerTest
         entry(ReverseRouter.route(on(ReservoirTaskListController.class)
                 .getReservoirTaskList(submissionDetail.getId(), null)),
             ReservoirTaskListController.PAGE_TITLE),
-        entry(ReverseRouter.route(on(DrillStemTestResultController.class)
-                .getDrillStemTestResultPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)),
+        entry(ReverseRouter.route(on(DrillStemTestController.class)
+                .getDrillStemTestPage(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)),
             ReservoirTaskListService.WELL_TEST_RESULTS));
   }
 

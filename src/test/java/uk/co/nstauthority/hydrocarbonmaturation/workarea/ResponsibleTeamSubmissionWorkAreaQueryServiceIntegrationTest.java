@@ -7,7 +7,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.Submiss
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

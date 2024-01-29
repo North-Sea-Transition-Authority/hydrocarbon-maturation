@@ -50,7 +50,7 @@
             deleteUrl=relinquishmentReportTemplate.deleteUrl()
             maxAllowedSize=relinquishmentReportTemplate.maxAllowedSize()
             allowedExtensions=relinquishmentReportTemplate.allowedExtensions()
-            existingFiles=relinquishmentReportUploads
+            existingFiles=relinquishmentReportTemplate.existingFiles()
             multiFile=false/>
         </@fdsFieldset.fieldset>
     </#if>

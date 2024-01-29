@@ -1,7 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase;
 
 import java.util.Map;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 
 public record OutlineForMaximumCaseSummaryView(Map<UploadedFile, String> outlineForMaximumCaseShapefile,
                                                boolean hasVerifiedShapefile,

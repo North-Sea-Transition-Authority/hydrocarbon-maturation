@@ -6,8 +6,7 @@
 <#-- @ftlvariable name="opportunityTypes" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
-<#-- @ftlvariable name="mapOfOpportunityTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate" -->
-<#-- @ftlvariable name="mapOfOpportunityUploads" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView>" -->
+<#-- @ftlvariable name="mapOfOpportunityTemplate" type="uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes" -->
 
 <@defaultPage
   htmlTitle=pageTitle
@@ -46,7 +45,7 @@
           deleteUrl=mapOfOpportunityTemplate.deleteUrl()
           maxAllowedSize=mapOfOpportunityTemplate.maxAllowedSize()
           allowedExtensions=mapOfOpportunityTemplate.allowedExtensions()
-          existingFiles=mapOfOpportunityUploads
+          existingFiles=mapOfOpportunityTemplate.existingFiles()
           multiFile=false
         />
       </@fdsFieldset.fieldset>
@@ -63,7 +62,7 @@
             deleteUrl=representativeSeismicSectionTemplate.deleteUrl()
             maxAllowedSize=representativeSeismicSectionTemplate.maxAllowedSize()
             allowedExtensions=representativeSeismicSectionTemplate.allowedExtensions()
-            existingFiles=representativeSeismicSectionUploads
+            existingFiles=representativeSeismicSectionTemplate.existingFiles()
             multiFile=false/>
         </@fdsFieldset.fieldset>
 
@@ -80,7 +79,7 @@
           deleteUrl=geologicalCrossSectionTemplate.deleteUrl()
           maxAllowedSize=geologicalCrossSectionTemplate.maxAllowedSize()
           allowedExtensions=geologicalCrossSectionTemplate.allowedExtensions()
-          existingFiles=geologicalCrossSectionUploads
+          existingFiles=geologicalCrossSectionTemplate.existingFiles()
           multiFile=false/>
       </@fdsFieldset.fieldset>
 

@@ -7,20 +7,16 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocument;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @ExtendWith(MockitoExtension.class)
 class AdditionalInformationDuplicationServiceTest {
@@ -29,7 +25,7 @@ class AdditionalInformationDuplicationServiceTest {
   private AdditionalInformationPersistenceService additionalInformationPersistenceService;
 
   @Mock
-  private SupportingDocumentService supportingDocumentService;
+  private SubmissionSupportingDocumentService supportingDocumentService;
 
   @Mock
   private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
@@ -71,30 +67,8 @@ class AdditionalInformationDuplicationServiceTest {
     var oldSubmissionDetail = mock(SubmissionDetail.class);
     var newSubmissionDetail = mock(SubmissionDetail.class);
 
-    var supportingDocument1 = mock(SupportingDocument.class);
-    var supportingDocument2 = mock(SupportingDocument.class);
-    when(supportingDocumentService.getSupportingDocumentsForTypes(oldSubmissionDetail, Set.of(SupportingDocumentType.ADDITIONAL_DOCUMENT)))
-        .thenReturn(List.of(supportingDocument1, supportingDocument2));
-
     additionalInformationDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, supportingDocument1,
-        SupportingDocument.class);
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, supportingDocument2,
-        SupportingDocument.class);
-  }
-
-  @Test
-  void duplicateSubmissionSection_SupportingDocumentsDoNotExist_DoesNotDuplicate() {
-    var oldSubmissionDetail = mock(SubmissionDetail.class);
-    var newSubmissionDetail = mock(SubmissionDetail.class);
-
-    when(supportingDocumentService.getSupportingDocumentsForTypes(oldSubmissionDetail, Set.of(SupportingDocumentType.ADDITIONAL_DOCUMENT)))
-        .thenReturn(Collections.emptyList());
-
-    additionalInformationDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
-
-    verify(submissionDuplicationPersistenceService, never())
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(SupportingDocument.class), eq(SupportingDocument.class));
+    verify(supportingDocumentService).copyUploadedFiles(oldSubmissionDetail, newSubmissionDetail, FileDocumentType.ADDITIONAL_DOCUMENT);
   }
 }

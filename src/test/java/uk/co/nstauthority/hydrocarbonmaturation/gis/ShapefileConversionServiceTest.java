@@ -8,10 +8,8 @@ import static org.mockito.Mockito.when;
 
 import com.esri.core.geometry.Geometry;
 import com.esri.core.geometry.SpatialReference;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -19,9 +17,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocument;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.ResponseEntity;
+import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 
 @ExtendWith(MockitoExtension.class)
 class ShapefileConversionServiceTest {
@@ -31,18 +30,18 @@ class ShapefileConversionServiceTest {
   @Mock
   private GeoJsonExportService geoJsonExportService;
   @Mock
-  private FileUploadService fileUploadService;
+  private FileService fileService;
   @InjectMocks
   private ShapefileConversionService underTest;
   @Nested
   class WhenConvertingShapefileToGeoJson {
 
     @Mock
-    private SupportingDocument shapefileZipDocument;
+    private UploadedFile shapefileZipDocument;
     @Mock
     private UploadedFile uploadedFile;
-    private InputStream inputStream;
-    private final String FILENAME = "FILENAME";
+
+    private final InputStreamResource inputStream = new InputStreamResource(InputStream.nullInputStream());
     private final ShapefileZipContents SHAPEFILE_ZIP_CONTENTS = new ShapefileZipContents(
         "shapefile_name",
         List.of("filenames"),
@@ -54,12 +53,11 @@ class ShapefileConversionServiceTest {
 
 
     @BeforeEach
-    void setup() throws IOException {
-      inputStream = IOUtils.toInputStream("test data", "UTF-8");
+    void setup() {
 
-      when(shapefileZipDocument.getUploadedFile()).thenReturn(uploadedFile);
-      when(uploadedFile.getFilename()).thenReturn(FILENAME);
-      when(fileUploadService.downloadFile(uploadedFile)).thenReturn(inputStream);
+      var FILENAME = "FILENAME";
+      when(shapefileZipDocument.getName()).thenReturn(FILENAME);
+      when(fileService.download(shapefileZipDocument)).thenReturn(ResponseEntity.ok().body(inputStream));
       when(shapefileZipService.getShapefileZipContents(any(), eq(FILENAME))).thenReturn(SHAPEFILE_ZIP_CONTENTS);
     }
 

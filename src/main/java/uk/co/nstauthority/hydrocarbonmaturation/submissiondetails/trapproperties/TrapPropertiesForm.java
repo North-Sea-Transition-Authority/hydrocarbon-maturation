@@ -2,8 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trappropertie
 
 import java.util.ArrayList;
 import java.util.List;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInputForm;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
@@ -28,7 +28,7 @@ class TrapPropertiesForm implements SubmissionForm {
 
   private ProbabilityDistributionForm productiveArea = new ProbabilityDistributionForm();
 
-  private List<FileUploadForm> prospectDepthMap = new ArrayList<>();
+  private List<UploadedFileForm> prospectDepthMap = new ArrayList<>();
 
   public ReservoirDatum getDatum() {
     return datum;
@@ -97,12 +97,12 @@ class TrapPropertiesForm implements SubmissionForm {
     this.productiveArea = productiveArea;
   }
 
-  public List<FileUploadForm> getProspectDepthMap() {
+  public List<UploadedFileForm> getProspectDepthMap() {
     return prospectDepthMap;
   }
 
   public void setProspectDepthMap(
-      List<FileUploadForm> prospectDepthMap) {
+      List<UploadedFileForm> prospectDepthMap) {
     this.prospectDepthMap = prospectDepthMap;
   }
 

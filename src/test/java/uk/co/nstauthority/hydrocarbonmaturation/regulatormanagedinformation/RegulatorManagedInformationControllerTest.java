@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -15,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
-import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -32,16 +33,16 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
@@ -74,7 +75,23 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
   private BindingResult bindingResult;
   private UUID resourceId;
   private Resource resource;
-  private FileUploadTemplate fileUploadTemplate;
+  private final List<UploadedFileForm> existingFiles = Collections.emptyList();
+  private final FileUploadComponentAttributes fileUploadComponentAttributes = new FileUploadComponentAttributes(
+      "path",
+      "upload_url",
+      "download_url",
+      "delete_url",
+      "max_allowed_size",
+      "allowed_extensions",
+      "dropzone_link_text",
+      "dropzone_text",
+      "dropzone_link_screen_reader_text",
+      "multi_file_error_message",
+      false,
+      existingFiles,
+      true,
+      false
+  );
 
   @BeforeEach
   void setUp() {
@@ -84,7 +101,6 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     resourceId = UUID.randomUUID();
     resource.setId(resourceId);
     submissionDetail.getSubmission().setResource(resource);
-    fileUploadTemplate = new FileUploadTemplate("", "", "", "", "");
   }
 
   @Test
@@ -369,8 +385,8 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(
         submissionDetail.getSubmission().getResource()))
         .thenReturn(true);
-    when(resourceSupportingDocumentService.buildFileUploadTemplate(resourceId, ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
-        .thenReturn(fileUploadTemplate);
+    when(resourceSupportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+        .thenReturn(fileUploadComponentAttributes);
     when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
     when(regulatorManagedInformationFormService.validate(any(), any(), eq(true), eq(true)))
         .thenReturn(bindingResult);
@@ -408,8 +424,8 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(
         submissionDetail.getSubmission().getResource()))
         .thenReturn(true);
-    when(resourceSupportingDocumentService.buildFileUploadTemplate(resourceId, ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
-        .thenReturn(fileUploadTemplate);
+    when(resourceSupportingDocumentService.fileUploadComponentAttributes(eq(existingFiles), any(FileDocumentType.class)))
+        .thenReturn(fileUploadComponentAttributes);
     when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
     when(regulatorManagedInformationFormService.validate(any(), any(), eq(true), eq(true)))
         .thenReturn(bindingResult);
@@ -446,8 +462,8 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(
         submissionDetail.getSubmission().getResource()))
         .thenReturn(true);
-    when(resourceSupportingDocumentService.buildFileUploadTemplate(resourceId, ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
-        .thenReturn(fileUploadTemplate);
+    when(resourceSupportingDocumentService.fileUploadComponentAttributes(eq(existingFiles), any(FileDocumentType.class)))
+        .thenReturn(fileUploadComponentAttributes);
     when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
     when(regulatorManagedInformationFormService.validate(any(), any(), eq(true), eq(true)))
         .thenReturn(bindingResult);
@@ -486,8 +502,8 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(
         submissionDetail.getSubmission().getResource()))
         .thenReturn(true);
-    when(resourceSupportingDocumentService.buildFileUploadTemplate(resourceId, ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
-        .thenReturn(fileUploadTemplate);
+    when(resourceSupportingDocumentService.fileUploadComponentAttributes(eq(existingFiles), any(FileDocumentType.class)))
+        .thenReturn(fileUploadComponentAttributes);
     when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
     when(regulatorManagedInformationFormService.validate(any(), any(), eq(true), eq(true)))
         .thenReturn(bindingResult);
@@ -524,19 +540,15 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
   void getRegulatorManagedInformationPage_whenSubmissionDetailIdProvided_assertModelProperties() throws Exception {
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
-    when(resourceSupportingDocumentService.buildFileUploadTemplate(resourceId, ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
-        .thenReturn(fileUploadTemplate);
+    when(resourceSupportingDocumentService.fileUploadComponentAttributes(any(), any(FileDocumentType.class)))
+        .thenReturn(fileUploadComponentAttributes);
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
         .thenReturn(submissionDetail);
     var resourceName = "The Resource (25/5)";
     when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
         .thenReturn(resourceName);
-    var mockFileUploadView = new UploadedFileView("", "", "", "", Instant.EPOCH);
     when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(resource))
         .thenReturn(true);
-    var fileUploadList = List.of(mockFileUploadView);
-    when(regulatorManagedInformationFormService.getRelinquishmentReportUploads(form))
-        .thenReturn(fileUploadList);
     when(regulatorManagedInformationFormService.getRegulatorManagedInformationForm(resource))
         .thenReturn(form);
     when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource))
@@ -557,8 +569,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
             entry("geographicalAreas", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class)),
             entry("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
                 .showReviewPage(resourceId))),
-        entry("relinquishmentReportTemplate", fileUploadTemplate),
-        entry("relinquishmentReportUploads", fileUploadList)
+        entry("relinquishmentReportTemplate", fileUploadComponentAttributes)
         )
         .containsKeys("breadcrumbsMap");
 

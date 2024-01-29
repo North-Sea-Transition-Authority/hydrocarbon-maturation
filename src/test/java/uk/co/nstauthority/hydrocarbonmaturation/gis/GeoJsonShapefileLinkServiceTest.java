@@ -1,14 +1,13 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.co.nstauthority.hydrocarbonmaturation.file.VirtualFolder.SHAPEFILE_GEOJSON;
 
-import java.io.InputStream;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,50 +15,42 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocument;
+import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.fds.FileUploadResponse;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 
 @ExtendWith(MockitoExtension.class)
 class GeoJsonShapefileLinkServiceTest {
 
   @Mock
-  private FileUploadService fileUploadService;
+  private FileService fileService;
   @InjectMocks
   private GeoJsonShapefileLinkService underTest;
   @Mock
   private GeoJsonShapefileLinkRepository geoJsonShapefileLinkRepository;
+  private User user = UserTestUtil.Builder().build();
 
   @Nested
   class WhenStoringGeoJson {
     private final String GEO_JSON = "GEO_JSON";
     private final String SHAPEFILE_NAME = "SHAPEFILE_NAME";
     @Mock
-    private SupportingDocument shapefile;
+    private UploadedFile shapefile;
     @Mock
     private UploadedFile geoJsonUploadedFile;
-
-    @BeforeEach
-    void setUp() {
-      when(fileUploadService.createUploadedFile(
-          SHAPEFILE_GEOJSON,
-          GEO_JSON.length(),
-          SHAPEFILE_NAME,
-          GeoJsonShapefileLinkService.GEOJSON_CONTENT_TYPE
-      )).thenReturn(geoJsonUploadedFile);
-    }
+    private final UUID FILE_ID = UUID.randomUUID();
 
     @Test
-    void geoJsonIsUploaded() {
-      underTest.storeGeoJson(shapefile, GEO_JSON, SHAPEFILE_NAME);
+    void storeGeoJson_GeoJsonShapefileLinkIsPersisted() {
+      var fileUploadResponse = mock(FileUploadResponse.class);
+      when(fileService.upload(any())).thenReturn(fileUploadResponse);
+      when(fileUploadResponse.getFileId()).thenReturn(FILE_ID);
+      when(fileService.find(FILE_ID)).thenReturn(Optional.of(geoJsonUploadedFile));
 
-      verify(fileUploadService).uploadFile(any(InputStream.class), eq(geoJsonUploadedFile));
-    }
-
-    @Test
-    void geoJsonShapefileLinkIsPersisted() {
       var argumentCaptor = ArgumentCaptor.forClass(GeoJsonShapefileLink.class);
-      underTest.storeGeoJson(shapefile, GEO_JSON, SHAPEFILE_NAME);
+      underTest.storeGeoJson(shapefile, GEO_JSON, SHAPEFILE_NAME, user);
 
       verify(geoJsonShapefileLinkRepository).save(argumentCaptor.capture());
       assertThat(argumentCaptor.getValue())

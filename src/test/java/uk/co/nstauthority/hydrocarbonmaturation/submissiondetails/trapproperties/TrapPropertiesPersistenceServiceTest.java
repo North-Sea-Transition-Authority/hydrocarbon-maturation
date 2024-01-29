@@ -12,13 +12,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @ExtendWith(MockitoExtension.class)
 class TrapPropertiesPersistenceServiceTest {
@@ -30,7 +31,7 @@ class TrapPropertiesPersistenceServiceTest {
   private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
   @Mock
-  private SupportingDocumentService supportingDocumentService;
+  private SubmissionSupportingDocumentService supportingDocumentService;
 
   private TrapPropertiesPersistenceService trapPropertiesPersistenceService;
 
@@ -87,6 +88,7 @@ class TrapPropertiesPersistenceServiceTest {
             form.getProductiveArea(),
             submissionDetail);
 
+    verify(supportingDocumentService, times(1)).saveDocuments(submissionDetail, form.getProspectDepthMap(), FileDocumentType.PROSPECT_DEPTH_MAP);
     verify(trapPropertiesRepository, times(1)).save(trapPropertiesArgumentCaptor.capture());
     var savedTrapProperty = trapPropertiesArgumentCaptor.getValue();
 
@@ -157,6 +159,7 @@ class TrapPropertiesPersistenceServiceTest {
             form.getProductiveArea(),
             discoverySubmissionDetail);
 
+    verify(supportingDocumentService, times(1)).saveDocuments(discoverySubmissionDetail, form.getProspectDepthMap(), FileDocumentType.PROSPECT_DEPTH_MAP);
     verify(trapPropertiesRepository, times(1)).save(trapPropertiesArgumentCaptor.capture());
     var savedTrapProperty = trapPropertiesArgumentCaptor.getValue();
 

@@ -1,15 +1,14 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.util.UUID;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocument;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 
 @Entity
 @Table(name = "geojson_shapefile_link")
@@ -21,7 +20,7 @@ class GeoJsonShapefileLink {
 
   @JoinColumn(name = "shapefile_sd_id")
   @ManyToOne
-  private SupportingDocument shapefile;
+  private UploadedFile shapefile;
 
   @JoinColumn(name = "geojson_uf_id")
   @ManyToOne
@@ -35,11 +34,11 @@ class GeoJsonShapefileLink {
     this.id = id;
   }
 
-  public SupportingDocument getShapefile() {
+  public UploadedFile getShapefile() {
     return shapefile;
   }
 
-  public void setShapefile(SupportingDocument shapefile) {
+  public void setShapefile(UploadedFile shapefile) {
     this.shapefile = shapefile;
   }
 

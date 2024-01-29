@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.OngoingStubbing;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
@@ -30,9 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocument;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @ExtendWith(MockitoExtension.class)
 class TrapPropertiesDuplicationServiceTest {
@@ -43,7 +42,7 @@ class TrapPropertiesDuplicationServiceTest {
   private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
 
   @Mock
-  private SupportingDocumentService supportingDocumentService;
+  private SubmissionSupportingDocumentService supportingDocumentService;
 
   @Mock
   private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
@@ -100,34 +99,9 @@ class TrapPropertiesDuplicationServiceTest {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
-    var supportingDocument1 = mock(SupportingDocument.class);
-    var supportingDocument2 = mock(SupportingDocument.class);
-    when(supportingDocumentService.getSupportingDocumentsForTypes(oldSubmissionDetail,
-        Set.of(SupportingDocumentType.PROSPECT_DEPTH_MAP)
-    )).thenReturn(List.of(supportingDocument1, supportingDocument2));
-
     trapPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, supportingDocument1,
-        SupportingDocument.class);
-    verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, supportingDocument2,
-        SupportingDocument.class);
-  }
-
-  @ParameterizedTest
-  @MethodSource("allNonFieldSubmissionTypes")
-  void duplicateSubmissionSection_SupportingDocumentsDoNotExist_DoesNotDuplicate(SubmissionType submissionType) {
-    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
-    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
-
-    when(supportingDocumentService.getSupportingDocumentsForTypes(oldSubmissionDetail,
-        Set.of(SupportingDocumentType.PROSPECT_DEPTH_MAP)
-    )).thenReturn(Collections.emptyList());
-
-    trapPropertiesDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
-
-    verify(submissionDuplicationPersistenceService, never())
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(SupportingDocument.class), eq(SupportingDocument.class));
+    verify(supportingDocumentService).copyUploadedFiles(oldSubmissionDetail, newSubmissionDetail, FileDocumentType.PROSPECT_DEPTH_MAP);
   }
 
   @ParameterizedTest

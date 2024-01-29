@@ -6,14 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentsController;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 
@@ -21,17 +19,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 public class RegulatorManagedInformationSummaryService {
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final SubmissionDetailService submissionDetailService;
-  private final FileUploadService fileUploadService;
   private final ResourceSupportingDocumentService resourceSupportingDocumentService;
 
   @Autowired
   public RegulatorManagedInformationSummaryService(
       RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
-      SubmissionDetailService submissionDetailService, FileUploadService fileUploadService,
+      SubmissionDetailService submissionDetailService,
       ResourceSupportingDocumentService resourceSupportingDocumentService) {
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.submissionDetailService = submissionDetailService;
-    this.fileUploadService = fileUploadService;
     this.resourceSupportingDocumentService = resourceSupportingDocumentService;
   }
 
@@ -59,15 +55,14 @@ public class RegulatorManagedInformationSummaryService {
   private Map<UploadedFile, String> getRelinquishmentReportUploads(
       RegulatorManagedInformation regulatorManagedInformation) {
     var relinquishmentReportUploadsAndLinks = new HashMap<UploadedFile, String>();
-    var fileUploadList = resourceSupportingDocumentService.getFileUploadFormListForSubmissionAndType(
+    var fileUploadList = resourceSupportingDocumentService.getUploadedFiles(
         regulatorManagedInformation.getResource(),
-        ResourceSupportingDocumentType.RELINQUISHMENT_REPORT);
-    fileUploadList
-        .forEach(file
-            -> relinquishmentReportUploadsAndLinks.put(
-            fileUploadService.findUploadedFileOrThrow(file.getUploadedFileId()),
-            ReverseRouter.route(on(ResourceSupportingDocumentsController.class)
-                .download(regulatorManagedInformation.getResource().getId(), file.getUploadedFileId()))));
+        FileDocumentType.RELINQUISHMENT_REPORT);
+    fileUploadList.forEach(file -> relinquishmentReportUploadsAndLinks.put(
+        file,
+        ReverseRouter.route(on(ResourceSupportingDocumentsController.class)
+            .download(regulatorManagedInformation.getResource().getId(), file.getId())))
+    );
     return relinquishmentReportUploadsAndLinks;
   }
 }

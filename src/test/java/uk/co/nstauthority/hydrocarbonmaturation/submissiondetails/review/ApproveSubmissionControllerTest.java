@@ -18,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import jakarta.servlet.ServletException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,7 +32,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.util.NestedServletException;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
@@ -241,7 +241,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
     setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
 
     assertThrows(
-        NestedServletException.class,
+        ServletException.class,
         () -> mockMvc.perform(
             get(ReverseRouter.route(on(ApproveSubmissionController.class)
                 .showApproveConfirmationPage(SUBMISSION_DETAIL_ID)))

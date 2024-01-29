@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
 
 import java.time.Instant;
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 
 public class ResourceIntegrationTestUtils {

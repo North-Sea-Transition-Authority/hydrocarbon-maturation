@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -14,14 +14,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocument;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 
 @ExtendWith(MockitoExtension.class)
 class OutlineForMaximumCaseSummaryServiceTest {
@@ -29,9 +28,9 @@ class OutlineForMaximumCaseSummaryServiceTest {
   @Mock
   private OutlineForMaximumCaseMapService outlineForMaximumCaseMapService;
   @Mock
-  private SupportingDocumentService supportingDocumentService;
+  private SubmissionSupportingDocumentService supportingDocumentService;
   @Mock
-  private FileUploadService fileUploadService;
+  private FileService fileService;
   @Mock
   private OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
   @InjectMocks
@@ -43,15 +42,12 @@ class OutlineForMaximumCaseSummaryServiceTest {
     private SubmissionDetail submissionDetail;
     private String ROUTE;
     private String ATTRIBUTIONS;
-    private SupportingDocument SUPPORTING_DOCUMENT;
     private UploadedFile UPLOADED_FILE;
 
     @BeforeEach
     void setup() {
-      SUPPORTING_DOCUMENT = new SupportingDocument();
       UPLOADED_FILE = new UploadedFile();
       UPLOADED_FILE.setId(UUID.randomUUID());
-      SUPPORTING_DOCUMENT.setUploadedFile(UPLOADED_FILE);
 
       ROUTE = "route";
       when(outlineForMaximumCaseMapService.getMapGeoJsonDataRoute(submissionDetail)).thenReturn(ROUTE);
@@ -62,10 +58,10 @@ class OutlineForMaximumCaseSummaryServiceTest {
 
     @Test
     void hasUpload() {
-      when(supportingDocumentService.getSupportingDocumentsForType(
+      when(supportingDocumentService.getUploadedFiles(
           submissionDetail,
-          SupportingDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE
-      )).thenReturn(Optional.of(SUPPORTING_DOCUMENT));
+          FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE
+      )).thenReturn(List.of(UPLOADED_FILE));
 
       when(outlineForMaximumCasePersistenceService.hasVerifiedShapefile(submissionDetail)).thenReturn(true);
 
@@ -89,10 +85,10 @@ class OutlineForMaximumCaseSummaryServiceTest {
 
     @Test
     void noUpload() {
-      when(supportingDocumentService.getSupportingDocumentsForType(
+      when(supportingDocumentService.getUploadedFiles(
           submissionDetail,
-          SupportingDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE
-      )).thenReturn(Optional.empty());
+          FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE
+      )).thenReturn(List.of());
 
       when(outlineForMaximumCasePersistenceService.hasVerifiedShapefile(submissionDetail)).thenReturn(false);
 

@@ -4,14 +4,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -20,26 +18,24 @@ class OpportunityDetailsFormService implements SubmissionFormService {
 
   private final OpportunityDetailsFormValidator opportunityDetailsFormValidator;
   private final OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
-  private final SupportingDocumentService supportingDocumentService;
+  private final SubmissionSupportingDocumentService supportingDocumentService;
 
   @Autowired
   public OpportunityDetailsFormService(OpportunityDetailsFormValidator opportunityDetailsFormValidator,
                                        OpportunityDetailsPersistenceService opportunityDetailsPersistenceService,
-                                       SupportingDocumentService supportingDocumentService) {
+                                       SubmissionSupportingDocumentService supportingDocumentService) {
     this.opportunityDetailsFormValidator = opportunityDetailsFormValidator;
     this.opportunityDetailsPersistenceService = opportunityDetailsPersistenceService;
     this.supportingDocumentService = supportingDocumentService;
   }
 
   OpportunityDetailsForm getOpportunityDetailsForm(SubmissionDetail submissionDetail) {
-    var mapOfOpportunityFileUploads = supportingDocumentService.getFileUploadFormListForSubmissionAndType(
-        submissionDetail, SupportingDocumentType.MAP_OF_OPPORTUNITY);
+    var mapOfOpportunityFileUploads = supportingDocumentService
+        .getUploadedFileForms(submissionDetail, FileDocumentType.MAP_OF_OPPORTUNITY);
     var geologicalCrossSectionFileUploads = supportingDocumentService
-        .getFileUploadFormListForSubmissionAndType(
-        submissionDetail, SupportingDocumentType.GEOLOGICAL_CROSS_SECTION);
+        .getUploadedFileForms(submissionDetail, FileDocumentType.GEOLOGICAL_CROSS_SECTION);
     var representativeSeismicSectionUploads = supportingDocumentService
-        .getFileUploadFormListForSubmissionAndType(
-            submissionDetail, SupportingDocumentType.REPRESENTATIVE_SEISMIC_SECTION);
+        .getUploadedFileForms(submissionDetail, FileDocumentType.REPRESENTATIVE_SEISMIC_SECTION);
 
     return opportunityDetailsPersistenceService.getOpportunityDetail(submissionDetail)
         .map(opportunityDetail -> opportunityDetailEntityToForm(
@@ -57,9 +53,9 @@ class OpportunityDetailsFormService implements SubmissionFormService {
   }
 
   private OpportunityDetailsForm opportunityDetailEntityToForm(OpportunityDetail opportunityDetail,
-                                                               List<FileUploadForm> mapOfOpportunityUploads,
-                                                               List<FileUploadForm> geologicalCrossSectionUploads,
-                                                               List<FileUploadForm> representativeSeismicSectionUploads) {
+                                                               List<UploadedFileForm> mapOfOpportunityUploads,
+                                                               List<UploadedFileForm> geologicalCrossSectionUploads,
+                                                               List<UploadedFileForm> representativeSeismicSectionUploads) {
     var form = new OpportunityDetailsForm();
     form.setOpportunityComments(opportunityDetail.getOpportunityComments());
     if (opportunityDetail.getSubmissionDetail().isProspectSubmission()) {
@@ -80,22 +76,5 @@ class OpportunityDetailsFormService implements SubmissionFormService {
     opportunityDetailsFormValidator.validate(
         form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
     return bindingResult;
-  }
-
-  public List<UploadedFileView> getMapOfOpportunityUploads(OpportunityDetailsForm opportunityDetailsForm) {
-    var mapOfOpportunityUploadIdList = FileUploadUtils.getUploadIdList(opportunityDetailsForm.getMapOfOpportunity());
-    return supportingDocumentService.getUploadedFileViewList(mapOfOpportunityUploadIdList);
-  }
-
-  public List<UploadedFileView> getGeologicalCrossSectionUploads(OpportunityDetailsForm opportunityDetailsForm) {
-    var geologicalCrossSectionUploadIdList = FileUploadUtils.getUploadIdList(
-        opportunityDetailsForm.getGeologicalCrossSection());
-    return supportingDocumentService.getUploadedFileViewList(geologicalCrossSectionUploadIdList);
-  }
-
-  public List<UploadedFileView> getRepresentativeSeismicSectionUploads(OpportunityDetailsForm opportunityDetailsForm) {
-    var representativeSeismicSectionUploadIdList = FileUploadUtils.getUploadIdList(
-        opportunityDetailsForm.getRepresentativeSeismicSection());
-    return supportingDocumentService.getUploadedFileViewList(representativeSeismicSectionUploadIdList);
   }
 }

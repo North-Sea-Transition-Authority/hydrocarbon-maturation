@@ -14,7 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
@@ -102,7 +102,7 @@ class OutlineForMaximumCaseUploadFormValidatorTest {
 
   private OutlineForMaximumCaseUploadForm getValidOutlineForMaximumCaseForm() {
     var form = new OutlineForMaximumCaseUploadForm();
-    var fileUploadForm = new FileUploadForm();
+    var fileUploadForm = new UploadedFileForm();
     fileUploadForm.setUploadedFileId(UUID.randomUUID());
     fileUploadForm.setUploadedFileDescription("File description");
     form.setOutlineForMaximumCase(List.of(fileUploadForm));

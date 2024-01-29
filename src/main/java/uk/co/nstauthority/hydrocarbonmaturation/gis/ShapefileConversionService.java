@@ -3,35 +3,46 @@ package uk.co.nstauthority.hydrocarbonmaturation.gis;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocument;
+import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 
 @Service
 public class ShapefileConversionService {
 
   private final ShapefileZipService shapefileZipService;
   private final GeoJsonExportService geoJsonExportService;
-  private final FileUploadService fileUploadService;
+  private final FileService fileService;
 
   @Autowired
   ShapefileConversionService(ShapefileZipService shapefileZipService,
                              GeoJsonExportService geoJsonExportService,
-                             FileUploadService fileUploadService) {
+                             FileService fileService) {
     this.shapefileZipService = shapefileZipService;
     this.geoJsonExportService = geoJsonExportService;
-    this.fileUploadService = fileUploadService;
+    this.fileService = fileService;
   }
 
-  public String convertShapefileToGeoJson(SupportingDocument shapefileZipDocument)  {
-    var uploadedZip = shapefileZipDocument.getUploadedFile();
-    var shapefileZipInputStream = fileUploadService.downloadFile(uploadedZip);
+  public String convertShapefileToGeoJson(UploadedFile shapefileZipDocument)  {
+    var shapefileZipInputStream = getInputStream(shapefileZipDocument);
 
     var byteArrayInputStream = getByteArrayInputStream(shapefileZipInputStream);
-    var shapefileZip = shapefileZipService.getShapefileZipContents(byteArrayInputStream, uploadedZip.getFilename());
+    var shapefileZip = shapefileZipService.getShapefileZipContents(byteArrayInputStream, shapefileZipDocument.getName());
 
     return getGeoJsonFromShapefileZip(shapefileZip);
+  }
+
+  private InputStream getInputStream(UploadedFile shapefileZipDocument) {
+    try {
+      var shapefileZipDocumentResource = Optional.ofNullable(fileService.download(shapefileZipDocument).getBody())
+          .orElseThrow(() -> new IllegalArgumentException("Shapefile zip could not be found"));
+
+      return shapefileZipDocumentResource.getInputStream();
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Shapefile zip could not be read", e);
+    }
   }
 
   private static ByteArrayInputStream getByteArrayInputStream(InputStream shapefileZipInputStream) {

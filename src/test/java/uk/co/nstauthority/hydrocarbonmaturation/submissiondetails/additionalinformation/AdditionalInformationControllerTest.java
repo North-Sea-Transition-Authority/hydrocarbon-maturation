@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -17,6 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -29,15 +31,16 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -55,26 +58,40 @@ class AdditionalInformationControllerTest extends AbstractSubmissionControllerTe
   private AdditionalInformationPersistenceService additionalInformationPersistenceService;
 
   @MockBean
-  private SupportingDocumentService supportingDocumentService;
+  private SubmissionSupportingDocumentService supportingDocumentService;
 
   private AdditionalInformationForm form;
   private BindingResult bindingResult;
-  private FileUploadTemplate fileUploadTemplate;
+  private final List<UploadedFileForm> existingFiles = List.of(new UploadedFileForm());
+  private FileUploadComponentAttributes fileUploadComponentAttributes = new FileUploadComponentAttributes(
+      "path",
+      "upload_url",
+      "download_url",
+      "delete_url",
+      "max_allowed_size",
+      "allowed_extensions",
+      "dropzone_link_text",
+      "dropzone_text",
+      "dropzone_link_screen_reader_text",
+      "multi_file_error_message",
+      true,
+      existingFiles,
+      true,
+      true
+  );
 
   @BeforeEach
   void setUp() {
     form = new AdditionalInformationForm();
     bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    fileUploadTemplate = new FileUploadTemplate("", "", "", "", "");
   }
 
   @SecurityTest
   void getAdditionalInformationPage_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
     when(additionalInformationFormService.getAdditionalInformationForm(submissionDetail)).thenReturn(new AdditionalInformationForm());
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetail.getId(), SupportingDocumentType.ADDITIONAL_DOCUMENT))
-        .thenReturn(fileUploadTemplate);
+    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), eq(FileDocumentType.ADDITIONAL_DOCUMENT)))
+        .thenReturn(fileUploadComponentAttributes);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
@@ -119,8 +136,8 @@ class AdditionalInformationControllerTest extends AbstractSubmissionControllerTe
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(additionalInformationFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetail.getId(), SupportingDocumentType.ADDITIONAL_DOCUMENT))
-        .thenReturn(fileUploadTemplate);
+    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), eq(FileDocumentType.ADDITIONAL_DOCUMENT)))
+        .thenReturn(fileUploadComponentAttributes);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -139,8 +156,8 @@ class AdditionalInformationControllerTest extends AbstractSubmissionControllerTe
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
     when(additionalInformationFormService.getAdditionalInformationForm(submissionDetail))
         .thenReturn(new AdditionalInformationForm());
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetail.getId(), SupportingDocumentType.ADDITIONAL_DOCUMENT))
-        .thenReturn(fileUploadTemplate);
+    when(supportingDocumentService.fileUploadComponentAttributes(eq(existingFiles), any(FileDocumentType.class)))
+        .thenReturn(fileUploadComponentAttributes);
 
     ModelMap modelMap = Objects.requireNonNull(
         mockMvc.perform(
@@ -153,7 +170,7 @@ class AdditionalInformationControllerTest extends AbstractSubmissionControllerTe
     assertThat(modelMap)
         .contains(
             entry("pageTitle", AdditionalInformationController.PAGE_NAME),
-            entry("additionalDocumentTemplate", fileUploadTemplate))
+            entry("additionalDocumentTemplate", fileUploadComponentAttributes))
         .containsKeys("breadcrumbsMap", "additionalDocumentUploads");
   }
 }

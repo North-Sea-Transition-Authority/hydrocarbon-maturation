@@ -20,7 +20,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 
 @ExtendWith(MockitoExtension.class)
 class RegulatorManagedInformationPersistenceServiceTest {
@@ -85,7 +86,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
     resource.setType(ResourceType.DISCOVERY);
     var form = new RegulatorManagedInformationForm();
     form.setGeographicalArea(GeographicalArea.ONSHORE);
-    var fileUploadForm = new FileUploadForm();
+    var fileUploadForm = new UploadedFileForm();
     var listOfUploads = List.of(fileUploadForm);
     form.setRelinquishmentReport(listOfUploads);
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
@@ -95,9 +96,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
     regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
         form, resource);
 
+    verify(resourceSupportingDocumentService, times(1)).saveDocuments(resource, form.getRelinquishmentReport(), FileDocumentType.RELINQUISHMENT_REPORT);
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
-    verify(resourceSupportingDocumentService, times(1))
-        .updateResourceSupportingDocumentFileDescriptions(form.getRelinquishmentReport());
     assertThat(argCaptor.getValue())
         .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea")
         .extracting(
@@ -127,9 +127,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
     regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
         form, resource);
 
+    verify(resourceSupportingDocumentService, times(1)).saveDocuments(resource, form.getRelinquishmentReport(), FileDocumentType.RELINQUISHMENT_REPORT);
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
-    verify(resourceSupportingDocumentService, times(1))
-        .updateResourceSupportingDocumentFileDescriptions(form.getRelinquishmentReport());
     assertThat(argCaptor.getValue())
         .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea")
         .extracting(
@@ -159,9 +158,8 @@ class RegulatorManagedInformationPersistenceServiceTest {
     regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
         form, resource);
 
+    verify(resourceSupportingDocumentService, times(1)).saveDocuments(resource, form.getRelinquishmentReport(), FileDocumentType.RELINQUISHMENT_REPORT);
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
-    verify(resourceSupportingDocumentService, times(1))
-        .updateResourceSupportingDocumentFileDescriptions(form.getRelinquishmentReport());
     assertThat(argCaptor.getValue())
         .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea")
         .extracting(

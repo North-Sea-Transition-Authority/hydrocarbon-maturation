@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trappropertie
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -19,7 +20,9 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -34,11 +37,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
@@ -47,8 +52,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlockService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -66,7 +70,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
   TrapPropertiesPersistenceService trapPropertiesPersistenceService;
 
   @MockBean
-  SupportingDocumentService supportingDocumentService;
+  SubmissionSupportingDocumentService supportingDocumentService;
 
   @MockBean
   QuadrantAndBlockService quadrantAndBlockService;
@@ -77,14 +81,29 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
   private TrapPropertiesForm form;
   private UUID submissionDetailId;
   private BindingResult bindingResult;
-  private FileUploadTemplate fileUploadTemplate;
+
+  private final List<UploadedFileForm> existingFiles = Collections.emptyList();
+  private final FileUploadComponentAttributes fileUploadComponentAttributes = new FileUploadComponentAttributes(
+      "path",
+      "upload_url",
+      "download_url",
+      "delete_url",
+      "max_allowed_size",
+      "allowed_extensions",
+      "dropzone_link_text",
+      "dropzone_text",
+      "dropzone_link_screen_reader_text",
+      "multi_file_error_message",
+      true,
+      existingFiles,
+      true,
+      false);
 
   @BeforeEach
   void setup() {
     form = new TrapPropertiesForm();
     bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    fileUploadTemplate = new FileUploadTemplate("", "", "", "", "");
     submissionDetailId = submissionDetail.getId();
   }
 
@@ -92,7 +111,8 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
   void getTrapProperties_assertOK() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail)).thenReturn(new TrapPropertiesForm());
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(fileUploadTemplate);
+    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+        .thenReturn(fileUploadComponentAttributes);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
@@ -116,7 +136,8 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
   void saveTrapProperties_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
     when(trapPropertiesFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(fileUploadTemplate);
+    when(supportingDocumentService.fileUploadComponentAttributes(eq(existingFiles), any(FileDocumentType.class)))
+        .thenReturn(fileUploadComponentAttributes);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(TrapPropertiesController.class).saveTrapProperties(submissionDetailId, form, bindingResult, null)))
@@ -135,7 +156,8 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(trapPropertiesFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(fileUploadTemplate);
+    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+        .thenReturn(fileUploadComponentAttributes);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -152,7 +174,8 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
   void getGeneralDetailsModelAndView_whenProspect_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail)).thenReturn(new TrapPropertiesForm());
-    when(supportingDocumentService.buildFileUploadTemplate(submissionDetailId, SupportingDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(fileUploadTemplate);
+    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+        .thenReturn(fileUploadComponentAttributes);
 
     var quadrantAndBlocks = mock(Map.class);
     when(quadrantAndBlockService.getQuadrantAndBlocks(submissionDetail)).thenReturn(quadrantAndBlocks);
@@ -182,7 +205,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
         probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
             ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT));
     modelMapExpected.put("productiveAreaError", ProbabilityDistributionTypeError.emptyError());
-    modelMapExpected.put("prospectDepthMapTemplate", fileUploadTemplate);
+    modelMapExpected.put("prospectDepthMapTemplate", fileUploadComponentAttributes);
     assertThat(modelMap).containsAllEntriesOf(modelMapExpected);
     assertThat(modelMap.get("form").getClass()).isEqualTo(TrapPropertiesForm.class);
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
@@ -201,7 +224,8 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
     when(trapPropertiesFormService.getTrapPropertiesForm(discoverySubmissionDetail)).thenReturn(new TrapPropertiesForm());
-    when(supportingDocumentService.buildFileUploadTemplate(discoverySubmissionDetailId, SupportingDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(fileUploadTemplate);
+    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+        .thenReturn(fileUploadComponentAttributes);
 
     var quadrantAndBlocks = mock(Map.class);
     when(quadrantAndBlockService.getQuadrantAndBlocks(submissionDetail)).thenReturn(quadrantAndBlocks);
@@ -231,7 +255,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
         probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
             ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_DISCOVERY));
     modelMapExpected.put("productiveAreaError", ProbabilityDistributionTypeError.emptyError());
-    modelMapExpected.put("prospectDepthMapTemplate", fileUploadTemplate);
+    modelMapExpected.put("prospectDepthMapTemplate", fileUploadComponentAttributes);
     assertThat(modelMap).containsAllEntriesOf(modelMapExpected);
     assertThat(modelMap.get("form").getClass()).isEqualTo(TrapPropertiesForm.class);
     assertThat(breadcrumbsMap.entrySet()).containsExactly(

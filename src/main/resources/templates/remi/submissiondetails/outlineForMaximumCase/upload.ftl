@@ -5,8 +5,7 @@
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
-<#-- @ftlvariable name="outlineForMaximumCaseTemplate" type="uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadTemplate" -->
-<#-- @ftlvariable name="outlineForMaximumCaseUploads" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileView>" -->
+<#-- @ftlvariable name="outlineForMaximumCaseTemplate" type="uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes" -->
 <#-- @ftlvariable name="isOffshore" type="Boolean" -->
 
 <@defaultPage
@@ -48,7 +47,7 @@
         deleteUrl=outlineForMaximumCaseTemplate.deleteUrl()
         maxAllowedSize=outlineForMaximumCaseTemplate.maxAllowedSize()
         allowedExtensions=outlineForMaximumCaseTemplate.allowedExtensions()
-        existingFiles=outlineForMaximumCaseUploads
+        existingFiles=outlineForMaximumCaseTemplate.existingFiles()
         multiFile=false
         />
 

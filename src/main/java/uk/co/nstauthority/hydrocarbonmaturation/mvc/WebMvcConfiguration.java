@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.format.FormatterRegistry;
 import org.springframework.http.CacheControl;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -18,8 +17,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegula
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasTeamPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SubmissionHandlerInterceptor;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.StringToResourceSupportingDocumentTypeConverter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.StringToSupportingDocumentTypeConverter;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.PermissionManagementHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryPermissionManagementHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorPermissionManagementHandlerInterceptor;
@@ -102,12 +99,6 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
         .excludePathPatterns(ASSETS_PATH);
     registry.addInterceptor(errorSummaryHandlerInterceptor)
         .excludePathPatterns(ASSETS_PATH);
-  }
-
-  @Override
-  public void addFormatters(FormatterRegistry registry) {
-    registry.addConverter(new StringToSupportingDocumentTypeConverter());
-    registry.addConverter(new StringToResourceSupportingDocumentTypeConverter());
   }
 
   @Bean

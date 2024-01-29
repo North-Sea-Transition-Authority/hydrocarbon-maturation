@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformax
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Nested;
@@ -11,10 +10,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocument;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @ExtendWith(MockitoExtension.class)
 class OutlineForMaximumCaseDuplicationServiceTest {
@@ -22,7 +22,7 @@ class OutlineForMaximumCaseDuplicationServiceTest {
   @Mock
   private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
   @Mock
-  private SupportingDocumentService supportingDocumentService;
+  private SubmissionSupportingDocumentService supportingDocumentService;
   @Mock
   private OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
   @InjectMocks
@@ -35,21 +35,15 @@ class OutlineForMaximumCaseDuplicationServiceTest {
     @Mock
     private SubmissionDetail newSubmissionDetail;
     @Mock
-    private SupportingDocument supportingDocument;
+    private UploadedFile uploadedFile;
     @Mock
     private OutlineForMaximumCase outlineForMaximumCase;
 
     @Test
     void duplicateSupportingDocument() {
-      when(supportingDocumentService.getSupportingDocumentsForType(
-          oldSubmissionDetail,
-          SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE
-      )).thenReturn(Optional.of(supportingDocument));
-
       underTest.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
-      verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, supportingDocument,
-          SupportingDocument.class);
+      verify(supportingDocumentService).copyUploadedFiles(oldSubmissionDetail, newSubmissionDetail, FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE);
     }
 
     @Test

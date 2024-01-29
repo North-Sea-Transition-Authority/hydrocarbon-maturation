@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 public interface SubmissionSectionDuplicationService {

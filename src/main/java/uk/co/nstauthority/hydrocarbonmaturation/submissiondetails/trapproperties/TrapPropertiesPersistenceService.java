@@ -5,22 +5,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @Service
 public class TrapPropertiesPersistenceService {
 
   private final TrapPropertiesRepository trapPropertiesRepository;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
-  private final SupportingDocumentService supportingDocumentService;
+  private final SubmissionSupportingDocumentService supportingDocumentService;
 
   @Autowired
   public TrapPropertiesPersistenceService(TrapPropertiesRepository trapPropertiesRepository,
                                           ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
-                                          SupportingDocumentService supportingDocumentService) {
+                                          SubmissionSupportingDocumentService supportingDocumentService) {
     this.trapPropertiesRepository = trapPropertiesRepository;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.supportingDocumentService = supportingDocumentService;
@@ -90,7 +91,8 @@ public class TrapPropertiesPersistenceService {
         submissionDetail
     );
 
-    supportingDocumentService.updateSupportingDocumentFileDescriptions(form.getProspectDepthMap());
+    supportingDocumentService
+        .saveDocuments(submissionDetail, form.getProspectDepthMap(), FileDocumentType.PROSPECT_DEPTH_MAP);
   }
 
   public Optional<TrapProperty> getTrapProperty(SubmissionDetail submissionDetail) {

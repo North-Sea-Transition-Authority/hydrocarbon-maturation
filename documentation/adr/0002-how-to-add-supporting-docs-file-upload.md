@@ -1,7 +1,7 @@
 # How to add a supporting document file upload field
 
 **Supporting document type**
-- Create a new SupportingDocumentType enum constant named after the data item name, e.g. MAP_OF_OPPORTUNITY for map of opportunity.  
+- Create a new FileDocumentType enum constant named after the data item name, e.g. MAP_OF_OPPORTUNITY for map of opportunity.  
   
 **Form page class** _(see OpportunityDetailsForm)_
 - Add a `List<FileUploadForm>` for each file upload field on the form page.

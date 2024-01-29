@@ -8,6 +8,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 
 @Service
 public class RegulatorManagedInformationPersistenceService {
@@ -45,8 +46,8 @@ public class RegulatorManagedInformationPersistenceService {
       regulatorManagedInformation.setResponsibleTeamType(regulatorManagedInformationForm.getResponsibleTeamType());
     }
 
-    resourceSupportingDocumentService.updateResourceSupportingDocumentFileDescriptions(
-        regulatorManagedInformationForm.getRelinquishmentReport());
+    resourceSupportingDocumentService.saveDocuments(
+        resource, regulatorManagedInformationForm.getRelinquishmentReport(), FileDocumentType.RELINQUISHMENT_REPORT);
     regulatorManagedInformationRepository.save(regulatorManagedInformation);
   }
 

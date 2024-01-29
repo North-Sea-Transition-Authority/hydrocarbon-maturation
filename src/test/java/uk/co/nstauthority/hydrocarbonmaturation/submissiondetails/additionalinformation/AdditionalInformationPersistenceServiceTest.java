@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinformation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,10 +14,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 
 @ExtendWith(MockitoExtension.class)
 class AdditionalInformationPersistenceServiceTest {
@@ -25,7 +27,7 @@ class AdditionalInformationPersistenceServiceTest {
   private AdditionalInformationRepository additionalInformationRepository;
 
   @Mock
-  private SupportingDocumentService supportingDocumentService;
+  private SubmissionSupportingDocumentService supportingDocumentService;
 
   private AdditionalInformationPersistenceService additionalInformationPersistenceService;
 
@@ -52,6 +54,7 @@ class AdditionalInformationPersistenceServiceTest {
 
     additionalInformationPersistenceService.saveAdditionalInformation(form, submissionDetail);
 
+    verify(supportingDocumentService, times(1)).saveDocuments(submissionDetail, form.getAdditionalDocuments(), FileDocumentType.ADDITIONAL_DOCUMENT);
     verify(additionalInformationRepository, times(1)).save(additionalInformationArgumentCaptor.capture());
     var savedAdditionalInformation = (AdditionalInformation) additionalInformationArgumentCaptor.getValue();
 
@@ -78,6 +81,7 @@ class AdditionalInformationPersistenceServiceTest {
 
     additionalInformationPersistenceService.saveAdditionalInformation(form, submissionDetail);
 
+    verify(supportingDocumentService, times(1)).saveDocuments(submissionDetail, form.getAdditionalDocuments(), FileDocumentType.ADDITIONAL_DOCUMENT);
     verify(additionalInformationRepository, times(1)).save(additionalInformationArgumentCaptor.capture());
     var savedAdditionalInformation = (AdditionalInformation) additionalInformationArgumentCaptor.getValue();
 
@@ -95,31 +99,18 @@ class AdditionalInformationPersistenceServiceTest {
   }
 
   @Test
-  void saveAdditionalInformation_whenGivenAFormUpload_verifyFileUpload() {
-    var form = new AdditionalInformationForm();
-    form.setProvidingAdditionalDocuments(true);
-    var fileUploadForm = new FileUploadForm();
-    form.setAdditionalDocuments(List.of(fileUploadForm));
-
-    additionalInformationPersistenceService.saveAdditionalInformation(form, submissionDetail);
-
-    verify(supportingDocumentService, times(1))
-        .updateSupportingDocumentFileDescriptions(form.getAdditionalDocuments());
-  }
-
-  @Test
   void saveAdditionalInformation_whenGivenAFormNoUpload_verifyFileDelete() {
     var form = new AdditionalInformationForm();
     form.setProvidingAdditionalDocuments(false);
-    var fileUploadForm = new FileUploadForm();
+    var fileUploadForm = new UploadedFileForm();
 
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.ADDITIONAL_DOCUMENT))
-        .thenReturn(List.of(fileUploadForm));
+    when(supportingDocumentService.getUploadedFiles(submissionDetail, FileDocumentType.ADDITIONAL_DOCUMENT))
+        .thenReturn(List.of(mock(UploadedFile.class)));
 
     additionalInformationPersistenceService.saveAdditionalInformation(form, submissionDetail);
 
     verify(supportingDocumentService, times(1))
-        .deleteFile(submissionDetail, fileUploadForm.getUploadedFileId());
+        .deleteFile(fileUploadForm.getUploadedFileId());
   }
 
 

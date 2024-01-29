@@ -1,6 +1,6 @@
 plugins {
-	id 'org.springframework.boot' version '2.7.6'
-	id 'io.spring.dependency-management' version '1.0.14.RELEASE'
+	id 'org.springframework.boot' version '3.2.1'
+	id 'io.spring.dependency-management' version '1.1.4'
 	id 'java'
 	id "org.sonarqube" version "3.3"
 	id 'checkstyle'
@@ -50,18 +50,20 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-quartz'
 	implementation 'org.springframework.security:spring-security-saml2-service-provider'
 	implementation 'org.springframework.session:spring-session-core'
 	implementation 'org.springframework.session:spring-session-jdbc'
+	implementation 'org.springframework.data:spring-data-envers'
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.apache.commons:commons-lang3:3.12.0'
-	implementation 'commons-validator:commons-validator:1.7'
+	implementation 'commons-io:commons-io:2.15.1'
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.338'
 	implementation 'fi.solita.clamav:clamav-client:1.0.1'
 	implementation 'uk.co.fivium.energyportalapi:client:v6.3.0'
+	implementation "uk.co.fivium:file-upload-spring-boot-starter:v2.1.0"
 	implementation 'uk.co.fivium.digital.energyportalteamaccesslibrary:energy-portal-team-access-libray:develop-SNAPSHOT'
-	implementation 'uk.co.fivium:fivium-notify-spring-boot-starter:3.17.2-4.2-SNAPSHOT'
+	implementation 'net.javacrumbs.shedlock:shedlock-spring:5.6.0'
+	implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:5.6.0'
 
 	implementation 'com.esri.geometry:esri-geometry-api:2.2.4'
 	implementation 'mil.nga:crs:1.1.5'

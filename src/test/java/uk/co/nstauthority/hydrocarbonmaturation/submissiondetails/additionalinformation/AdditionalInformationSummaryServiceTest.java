@@ -14,15 +14,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
 
 @ExtendWith(MockitoExtension.class)
 class AdditionalInformationSummaryServiceTest {
@@ -31,15 +30,12 @@ class AdditionalInformationSummaryServiceTest {
   private AdditionalInformationPersistenceService additionalInformationPersistenceService;
 
   @Mock
-  private FileUploadService fileUploadService;
-
-  @Mock
-  private SupportingDocumentService supportingDocumentService;
+  private SubmissionSupportingDocumentService supportingDocumentService;
 
   @InjectMocks
   private AdditionalInformationSummaryService additionalInformationSummaryService;
 
-  private SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+  private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
   @Test
   void getAdditionalInformationSummaryFromSubmissionDetail_whenNoAdditionalInformation() {
@@ -96,19 +92,17 @@ class AdditionalInformationSummaryServiceTest {
     additionalInformation.setHasAdditionalDocuments(true);
     additionalInformation.setHasAdditionalComments(true);
 
-    FileUploadForm fileUploadForm = new FileUploadForm();
+    var fileUploadForm = new UploadedFileForm();
     fileUploadForm.setUploadedFileDescription("description");
     var uploadedFile = new UploadedFile();
-    uploadedFile.setFilename("uploadedfile.txt");
+    uploadedFile.setName("uploadedfile.txt");
     uploadedFile.setDescription("description");
 
-    when(fileUploadService.findUploadedFileOrThrow(fileUploadForm.getUploadedFileId()))
-        .thenReturn(uploadedFile);
     when(additionalInformationPersistenceService.getAdditionalInformation(submissionDetail))
         .thenReturn(Optional.of(additionalInformation));
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(
+    when(supportingDocumentService.getUploadedFiles(
         submissionDetail,
-        SupportingDocumentType.ADDITIONAL_DOCUMENT)).thenReturn(List.of(fileUploadForm));
+        FileDocumentType.ADDITIONAL_DOCUMENT)).thenReturn(List.of(uploadedFile));
 
     var fileMap = new HashMap<UploadedFile, String>();
     fileMap.put(uploadedFile, ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)

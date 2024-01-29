@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -18,7 +17,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
@@ -26,8 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -38,7 +37,7 @@ class TrapPropertiesFormServiceTest {
   private static TrapPropertiesFormService trapPropertiesFormService;
   private static TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private static ProbabilityDistributionFormService probabilityDistributionFormService;
-  private static SupportingDocumentService supportingDocumentService;
+  private static SubmissionSupportingDocumentService supportingDocumentService;
 
   private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
@@ -47,7 +46,7 @@ class TrapPropertiesFormServiceTest {
     trapPropertiesFormValidator = mock(TrapPropertiesFormValidator.class);
     trapPropertiesPersistenceService = mock(TrapPropertiesPersistenceService.class);
     probabilityDistributionFormService = mock(ProbabilityDistributionFormService.class);
-    supportingDocumentService = mock(SupportingDocumentService.class);
+    supportingDocumentService = mock(SubmissionSupportingDocumentService.class);
     trapPropertiesFormService = new TrapPropertiesFormService(
         trapPropertiesFormValidator,
         trapPropertiesPersistenceService,
@@ -88,8 +87,8 @@ class TrapPropertiesFormServiceTest {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT))
         .thenReturn(new ProbabilityDistributionForm());
-    var fileUploadFormList = List.of(mock(FileUploadForm.class));
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.PROSPECT_DEPTH_MAP))
+    var fileUploadFormList = List.of(mock(UploadedFileForm.class));
+    when(supportingDocumentService.getUploadedFileForms(submissionDetail, FileDocumentType.PROSPECT_DEPTH_MAP))
         .thenReturn(fileUploadFormList);
     var trapPropertiesForm = trapPropertiesFormService.getTrapPropertiesForm(submissionDetail);
     assertThat(trapPropertiesForm)
@@ -129,8 +128,8 @@ class TrapPropertiesFormServiceTest {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT))
         .thenReturn(probabilityDistributionForm);
-    var fileUploadFormList = List.of(mock(FileUploadForm.class));
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(submissionDetail, SupportingDocumentType.PROSPECT_DEPTH_MAP))
+    var fileUploadFormList = List.of(mock(UploadedFileForm.class));
+    when(supportingDocumentService.getUploadedFileForms(submissionDetail, FileDocumentType.PROSPECT_DEPTH_MAP))
         .thenReturn(fileUploadFormList);
     assertThat(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail))
         .extracting(
@@ -253,8 +252,8 @@ class TrapPropertiesFormServiceTest {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         discoverySubmissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_DISCOVERY))
         .thenReturn(probabilityDistributionForm);
-    var fileUploadFormList = List.of(mock(FileUploadForm.class));
-    when(supportingDocumentService.getFileUploadFormListForSubmissionAndType(discoverySubmissionDetail, SupportingDocumentType.PROSPECT_DEPTH_MAP))
+    var fileUploadFormList = List.of(mock(UploadedFileForm.class));
+    when(supportingDocumentService.getUploadedFileForms(discoverySubmissionDetail, FileDocumentType.PROSPECT_DEPTH_MAP))
         .thenReturn(fileUploadFormList);
     assertThat(trapPropertiesFormService.getTrapPropertiesForm(discoverySubmissionDetail))
         .extracting(
@@ -360,19 +359,6 @@ class TrapPropertiesFormServiceTest {
         );
   }
 
-  @Test
-  void getProspectDepthMapUploads_VerifyCalls() {
-    var fileUploadForm1 = getFileUploadForm();
-    var fileUploadForm2 = getFileUploadForm();
-
-    var form = new TrapPropertiesForm();
-    form.setProspectDepthMap(List.of(fileUploadForm1, fileUploadForm2));
-
-    trapPropertiesFormService.getProspectDepthMapUploads(form);
-
-    verify(supportingDocumentService, times(1)).getUploadedFileViewList(anyList());
-  }
-
   private TrapProperty getTrapProperty(SubmissionDetail submissionDetail) {
     var trapProperty = new TrapProperty();
     trapProperty.setSubmissionDetail(submissionDetail);
@@ -391,8 +377,8 @@ class TrapPropertiesFormServiceTest {
     return trapProperty;
   }
 
-  private FileUploadForm getFileUploadForm() {
-    var fileUploadForm = new FileUploadForm();
+  private UploadedFileForm getUploadedFileForm() {
+    var fileUploadForm = new UploadedFileForm();
     fileUploadForm.setUploadedFileId(UUID.randomUUID());
     return fileUploadForm;
   }

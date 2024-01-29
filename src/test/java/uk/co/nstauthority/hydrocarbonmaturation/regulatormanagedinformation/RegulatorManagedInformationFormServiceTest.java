@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,11 +16,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentType;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadForm;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,12 +45,11 @@ class RegulatorManagedInformationFormServiceTest {
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     regulatorManagedInformation.setGeographicalArea(geographicalArea);
     regulatorManagedInformation.setResource(resource);
-    var relinquishmentReportForms = List.of(mock(FileUploadForm.class));
+    var relinquishmentReportForms = List.of(mock(UploadedFileForm.class));
 
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.of(regulatorManagedInformation));
-    when(resourceSupportingDocumentService.getFileUploadFormListForSubmissionAndType(resource,
-        ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
+    when(resourceSupportingDocumentService.getUploadedFileForms(resource, FileDocumentType.RELINQUISHMENT_REPORT))
         .thenReturn(relinquishmentReportForms);
     var result = regulatorManagedInformationFormService.getRegulatorManagedInformationForm(resource);
 
@@ -70,8 +67,7 @@ class RegulatorManagedInformationFormServiceTest {
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.empty());
 
-    when(resourceSupportingDocumentService.getFileUploadFormListForSubmissionAndType(resource,
-        ResourceSupportingDocumentType.RELINQUISHMENT_REPORT))
+    when(resourceSupportingDocumentService.getUploadedFileForms(resource, FileDocumentType.RELINQUISHMENT_REPORT))
         .thenReturn(List.of());
 
     var result = regulatorManagedInformationFormService.getRegulatorManagedInformationForm(resource);
@@ -112,20 +108,5 @@ class RegulatorManagedInformationFormServiceTest {
         .extracting(RegulatorManagedInformationFormValidatorHints::isResourceBeingRelinquished,
             RegulatorManagedInformationFormValidatorHints::isResponsibleTeamBeingUpdated)
         .containsExactly(false, true);
-  }
-
-  @Test
-  void getRelinquishmentReportUploads_VerifyCalls() {
-    var fileUploadForm1 = new FileUploadForm();
-
-    var form = new RegulatorManagedInformationForm();
-    var fileForms = List.of(fileUploadForm1);
-    form.setRelinquishmentReport(fileForms);
-    var listOfIds = FileUploadUtils.getUploadIdList(fileForms);
-
-    regulatorManagedInformationFormService.getRelinquishmentReportUploads(form);
-
-    verify(resourceSupportingDocumentService, times(1))
-        .getUploadedFileViewList(listOfIds);
   }
 }

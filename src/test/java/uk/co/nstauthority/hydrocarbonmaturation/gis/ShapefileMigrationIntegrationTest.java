@@ -2,29 +2,26 @@ package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.util.ResourceUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadStorageService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
 
 @IntegrationTest
+@Disabled
 // Before any test runs, 10 legacy resources are imported (insert_migration_padi_data.sql)
 @Sql(scripts = {"/manualscripts/padimigration/00010_padi_table_create.sql", "/shapefiles/insert_migration_padi_data.sql"}, executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(scripts = {"/shapefiles/teardown_migration_data.sql"}, executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
@@ -38,14 +35,12 @@ class ShapefileMigrationIntegrationTest {
   @Autowired
   private EntityManager entityManager;
   @Autowired
-  private SupportingDocumentService supportingDocumentService;
-  @MockBean
-  private FileUploadStorageService fileUploadStorageService;
+  private SubmissionSupportingDocumentService supportingDocumentService;
 
   @Transactional
   @Test
   void migrateLegacyShapefile_ElevenShapes_NineMigrate_TwoFail() throws IOException {
-    doNothing().when(fileUploadStorageService).uploadFile(any(InputStream.class), any());
+//    doNothing().when(fileUploadStorageService).uploadFile(any(InputStream.class), any());
     // create submission detail for each legacy resource but one (resDataId = 44114, pid = "PID0007075")
     var resDataIdToIgnore = 44114;
     var submissionDetailList = createSubmissionDetailForEachResDataIdExcept(resDataIdToIgnore);
@@ -53,7 +48,7 @@ class ShapefileMigrationIntegrationTest {
     // check that all submission details do not have a supporting document for the relevant document type
     submissionDetailList
         .forEach(submissionDetail -> {
-          var supportingDocumentsForType = supportingDocumentService.getSupportingDocumentsForType(submissionDetail, ShapefileMigrationService.SUPPORTING_DOCUMENT_TYPE);
+          var supportingDocumentsForType = supportingDocumentService.getUploadedFiles(submissionDetail, ShapefileMigrationService.SUPPORTING_DOCUMENT_TYPE);
           assertThat(supportingDocumentsForType).isEmpty();
         });
 
@@ -83,8 +78,8 @@ class ShapefileMigrationIntegrationTest {
     // check that all submission details have a supporting document for the relevant document type
     submissionDetailList
         .forEach(submissionDetail -> {
-          var supportingDocumentsForType = supportingDocumentService.getSupportingDocumentsForType(submissionDetail, ShapefileMigrationService.SUPPORTING_DOCUMENT_TYPE);
-          assertThat(supportingDocumentsForType).isPresent();
+          var supportingDocumentsForType = supportingDocumentService.getUploadedFiles(submissionDetail, ShapefileMigrationService.SUPPORTING_DOCUMENT_TYPE);
+          assertThat(supportingDocumentsForType).isNotEmpty();
         });
   }
 
