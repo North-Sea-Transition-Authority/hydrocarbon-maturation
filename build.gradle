@@ -111,6 +111,10 @@ flyway {
 	password = 'dev'
 	schemas = ['remi']
 	outOfOrder=true
+	placeholders = [
+	  'datawarehouse-user-password' : 'dev',
+	  'application-schema' : 'remi'
+	]
 }
 
 //Set the url before the build to dynamically set the port

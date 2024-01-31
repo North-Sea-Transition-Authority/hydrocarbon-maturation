@@ -70,6 +70,7 @@ track changes over time.
 | REMI_ENERGY_PORTAL_TEAM_ACCESS_API_TOKEN    | The Energy Portal team access API token                                                            |
 | REMI_EMAIL_MODE                             | Can be test or production. Test mode will redirect all outbound emails to the test recipient(s)    |
 | REMI_EMAIL_TEST_RECIPIENT                   | If email is test mode, who to send emails to. Value can be a CSV list                              |
+| REMI_DATAWAREHOUSE_USER_PASSWORD            | The database password for the `datawarehouseuser` database user                                    |
 | NOTIFY_API_KEY                              | The GOV.UK Notify key                                                                              |
 | NOTIFY_CALLBACK_TOKEN                       | The GOV.UK Notify callback token                                                                   |
 | NOTIFY_PROXY_HOST                           | The GOV.UK Notify proxy host                                                                       |
