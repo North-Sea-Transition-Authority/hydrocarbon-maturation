@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.file;
 
-import static uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadCustomValidatorType.SHAPEFILE_VALIDATION;
+import static uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadCustomValidatorType.OFFSHORE_SHAPEFILE_VALIDATION;
+import static uk.co.nstauthority.hydrocarbonmaturation.file.FileUploadCustomValidatorType.ONSHORE_SHAPEFILE_VALIDATION;
 
 import java.util.Optional;
 import java.util.Set;
@@ -12,7 +13,8 @@ public enum FileDocumentType {
   GEOLOGICAL_CROSS_SECTION,
   REPRESENTATIVE_SEISMIC_SECTION,
   ADDITIONAL_DOCUMENT,
-  SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE(Set.of("zip"), SHAPEFILE_VALIDATION),
+  SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE_OFFSHORE(Set.of("zip"), OFFSHORE_SHAPEFILE_VALIDATION),
+  SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE_ONSHORE(Set.of("zip"), ONSHORE_SHAPEFILE_VALIDATION),
   RELINQUISHMENT_REPORT,
   ;
 

@@ -25,6 +25,8 @@ class OutlineForMaximumCaseDuplicationServiceTest {
   private SubmissionSupportingDocumentService supportingDocumentService;
   @Mock
   private OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
+  @Mock
+  private OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
   @InjectMocks
   private OutlineForMaximumCaseDuplicationService underTest;
 
@@ -41,9 +43,11 @@ class OutlineForMaximumCaseDuplicationServiceTest {
 
     @Test
     void duplicateSupportingDocument() {
+      var documentType = FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE_OFFSHORE;
+      when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(oldSubmissionDetail)).thenReturn(documentType);
       underTest.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
-      verify(supportingDocumentService).copyUploadedFiles(oldSubmissionDetail, newSubmissionDetail, FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE);
+      verify(supportingDocumentService).copyUploadedFiles(oldSubmissionDetail, newSubmissionDetail, documentType);
     }
 
     @Test

@@ -10,7 +10,6 @@ import com.esri.core.geometry.OperatorSimplifyOGC;
 import com.esri.core.geometry.SpatialReference;
 import java.io.InputStream;
 import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,9 +17,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,16 +49,10 @@ class ShapefileValidationServiceTest {
     private SpatialReference spatialReferenceFromWkt;
     @Mock
     private Geometry geometry;
-    @Mock
-    private SubmissionDetail submissionDetail;
-    @Mock
-    private ResourceDetail resourceDetail;
-    private final String WKT = "WKT";
 
     private static final String FILENAME = "shapefile zip";
     private ShapefileZipContents SHAPEFILE_ZIP_CONTENTS_VALID;
     private ShapefileZipContents SHAPEFILE_ZIP_CONTENTS_NO_CRS;
-    private final UUID SUBMISSION_DETAIL_ID = UUID.randomUUID();
 
     @BeforeEach
     void setup() {
@@ -90,7 +82,7 @@ class ShapefileValidationServiceTest {
           .thenReturn(true);
       when(shapefileZipService.getShapefileZipContents(zipInputStream, FILENAME)).thenReturn(SHAPEFILE_ZIP_CONTENTS_VALID);
 
-      var result = underTest.validate(zipInputStream);
+      var result = underTest.validate(zipInputStream, OnshoreOffshore.OFFSHORE);
 
       assertThat(result.errorMessage())
           .isEqualTo(ShapefileValidationService.SHAPEFILE_DOES_NOT_CONTAIN_REQUIRED_FILES);
@@ -104,10 +96,36 @@ class ShapefileValidationServiceTest {
           .thenReturn(false);
       when(shapefileZipService.getShapefileZipContents(zipInputStream, FILENAME)).thenReturn(SHAPEFILE_ZIP_CONTENTS_VALID);
 
-      var result = underTest.validate(zipInputStream);
+      var result = underTest.validate(zipInputStream, OnshoreOffshore.OFFSHORE);
 
       assertThat(result.errorMessage())
           .isEqualTo(ShapefileValidationService.SHAPEFILE_CONTAINS_INVALID_GEOMETRIES);
+    }
+
+    @Test
+    void shapefileContainsUnsupportedCoordinateReferenceSystem_Offshore() {
+      when(shapefileZipService.hasRequiredFiles(any(ShapefileZipContents.class))).thenReturn(true);
+      when(operatorSimplify.isSimpleAsFeature(geometry, spatialReferenceFromWkt, false, null, null))
+          .thenReturn(true);
+      when(shapefileZipService.getShapefileZipContents(zipInputStream, FILENAME)).thenReturn(SHAPEFILE_ZIP_CONTENTS_NO_CRS);
+
+      var result = underTest.validate(zipInputStream, OnshoreOffshore.OFFSHORE);
+
+      assertThat(result.errorMessage())
+          .isEqualTo("Shapefile contains an unsupported coordinate reference system for an offshore resource.");
+    }
+
+    @Test
+    void shapefileContainsUnsupportedCoordinateReferenceSystem_Onshore() {
+      when(shapefileZipService.hasRequiredFiles(any(ShapefileZipContents.class))).thenReturn(true);
+      when(operatorSimplify.isSimpleAsFeature(geometry, spatialReferenceFromWkt, false, null, null))
+          .thenReturn(true);
+      when(shapefileZipService.getShapefileZipContents(zipInputStream, FILENAME)).thenReturn(SHAPEFILE_ZIP_CONTENTS_NO_CRS);
+
+      var result = underTest.validate(zipInputStream, OnshoreOffshore.ONSHORE);
+
+      assertThat(result.errorMessage())
+          .isEqualTo("Shapefile contains an unsupported coordinate reference system for an onshore resource.");
     }
   }
 }

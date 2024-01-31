@@ -14,13 +14,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.fivium.fileuploadlibrary.core.FileService;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
 
 @ExtendWith(MockitoExtension.class)
 class OutlineForMaximumCaseSummaryServiceTest {
@@ -30,9 +29,9 @@ class OutlineForMaximumCaseSummaryServiceTest {
   @Mock
   private SubmissionSupportingDocumentService supportingDocumentService;
   @Mock
-  private FileService fileService;
-  @Mock
   private OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
+  @Mock
+  private OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
   @InjectMocks
   private OutlineForMaximumCaseSummaryService underTest;
 
@@ -58,9 +57,11 @@ class OutlineForMaximumCaseSummaryServiceTest {
 
     @Test
     void hasUpload() {
+      var documentType = FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE_OFFSHORE;
+      when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail)).thenReturn(documentType);
       when(supportingDocumentService.getUploadedFiles(
           submissionDetail,
-          FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE
+          documentType
       )).thenReturn(List.of(UPLOADED_FILE));
 
       when(outlineForMaximumCasePersistenceService.hasVerifiedShapefile(submissionDetail)).thenReturn(true);
@@ -85,9 +86,11 @@ class OutlineForMaximumCaseSummaryServiceTest {
 
     @Test
     void noUpload() {
+      var documentType = FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE_OFFSHORE;
+      when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail)).thenReturn(documentType);
       when(supportingDocumentService.getUploadedFiles(
           submissionDetail,
-          FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE
+          documentType
       )).thenReturn(List.of());
 
       when(outlineForMaximumCasePersistenceService.hasVerifiedShapefile(submissionDetail)).thenReturn(false);

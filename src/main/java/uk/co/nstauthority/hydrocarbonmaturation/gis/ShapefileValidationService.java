@@ -9,35 +9,26 @@ import java.util.ArrayList;
 import java.util.function.UnaryOperator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.fivium.fileuploadlibrary.validation.DeferredFileValidation;
 import uk.co.fivium.fileuploadlibrary.validation.ValidationResult;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 
 @Service
-public class ShapefileValidationService implements DeferredFileValidation {
+class ShapefileValidationService {
   public static final String SHAPEFILE_DOES_NOT_CONTAIN_REQUIRED_FILES = "Shapefile does not contain required files.";
   public static final String SHAPEFILE_CONTAINS_INVALID_GEOMETRIES = "Shapefile contains invalid geometries.";
   public static final UnaryOperator<String> shapefileContainsUnsupportedCoordinateReferenceSystemFunction =
-      "Shapefile contains unsupported coordinate reference system for %s."::formatted;
+      "Shapefile contains an unsupported coordinate reference system for an %s resource."::formatted;
   private final OperatorSimplifyOGC operatorSimplifyOgc;
   private final OperatorSimplify operatorSimplify;
   private final ShapefileZipService shapefileZipService;
-  private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
-  private final SubmissionDetailService submissionDetailService;
 
   @Autowired
   ShapefileValidationService(OperatorSimplifyOGC operatorSimplifyOgc,
                              OperatorSimplify operatorSimplify,
-                             ShapefileZipService shapefileZipService,
-                             ResourceDetailsPersistenceService resourceDetailsPersistenceService,
-                             SubmissionDetailService submissionDetailService) {
+                             ShapefileZipService shapefileZipService) {
     this.operatorSimplifyOgc = operatorSimplifyOgc;
     this.operatorSimplify = operatorSimplify;
     this.shapefileZipService = shapefileZipService;
-    this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
-    this.submissionDetailService = submissionDetailService;
   }
 
   /**
@@ -72,13 +63,18 @@ public class ShapefileValidationService implements DeferredFileValidation {
     return supportedCoordinateReferenceSystem.getOnshoreOffshore() == onshoreOffshore;
   }
 
-  @Override
-  public ValidationResult validate(InputStream inputStream) {
+  public ValidationResult validate(InputStream inputStream, OnshoreOffshore onshoreOffshore) {
+
     var errors = new ArrayList<String>();
 
     var shapefileZip = shapefileZipService.getShapefileZipContents(inputStream, "shapefile zip");
     if (!shapefileZipService.hasRequiredFiles(shapefileZip)) {
       errors.add(SHAPEFILE_DOES_NOT_CONTAIN_REQUIRED_FILES);
+    }
+
+    if (!supportedCoordinateReferenceSystemByOnshoreOrOffshoreIsValid(shapefileZip, onshoreOffshore)) {
+      errors.add(shapefileContainsUnsupportedCoordinateReferenceSystemFunction
+          .apply(onshoreOffshore.getDisplayName().toLowerCase()));
     }
 
     var shapefileGeometriesAreValid = areShapefileGeometriesValid(shapefileZip);

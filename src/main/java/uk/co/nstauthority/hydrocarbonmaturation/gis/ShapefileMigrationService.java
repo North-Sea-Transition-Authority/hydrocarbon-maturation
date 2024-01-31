@@ -29,7 +29,7 @@ public class ShapefileMigrationService {
   public static final String SHAPEFILE_ZIP_CONTENT_TYPE = "application/zip";
   public static final String VIRTUAL_FOLDER = "migration/shapefiles/";
   public static final FileDocumentType SUPPORTING_DOCUMENT_TYPE =
-      FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE;
+      FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE_OFFSHORE;
   private static final Logger LOGGER = LoggerFactory.getLogger(ShapefileMigrationService.class);
   private final ShapefileValidationService shapefileValidationService;
   private final ShapefileZipService shapefileZipService;

@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformax
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
@@ -14,18 +13,24 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @Service
 class OutlineForMaximumCaseUploadFormService implements SubmissionFormService {
   private final OutlineForMaximumCaseUploadFormValidator outlineForMaximumCaseFormValidator;
-  private final SubmissionSupportingDocumentService supportingDocumentService;
+  private final SubmissionSupportingDocumentService submissionSupportingDocumentService;
+  private final OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
 
   @Autowired
-  public OutlineForMaximumCaseUploadFormService(OutlineForMaximumCaseUploadFormValidator outlineForMaximumCaseFormValidator,
-                                                SubmissionSupportingDocumentService supportingDocumentService) {
+  public OutlineForMaximumCaseUploadFormService(
+      OutlineForMaximumCaseUploadFormValidator outlineForMaximumCaseFormValidator,
+      SubmissionSupportingDocumentService submissionSupportingDocumentService,
+      OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService
+  ) {
     this.outlineForMaximumCaseFormValidator = outlineForMaximumCaseFormValidator;
-    this.supportingDocumentService = supportingDocumentService;
+    this.submissionSupportingDocumentService = submissionSupportingDocumentService;
+    this.outlineForMaximumCaseDocumentTypeService = outlineForMaximumCaseDocumentTypeService;
   }
 
   OutlineForMaximumCaseUploadForm getOutlineForMaximumCaseUploadForm(SubmissionDetail submissionDetail) {
-    var outlineForMaximumCaseFileUploads = supportingDocumentService.getUploadedFileForms(
-        submissionDetail, FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE);
+    var documentType = outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail);
+    var outlineForMaximumCaseFileUploads =
+        submissionSupportingDocumentService.getUploadedFileForms(submissionDetail, documentType);
 
     var form = new OutlineForMaximumCaseUploadForm();
     form.setOutlineForMaximumCase(outlineForMaximumCaseFileUploads);

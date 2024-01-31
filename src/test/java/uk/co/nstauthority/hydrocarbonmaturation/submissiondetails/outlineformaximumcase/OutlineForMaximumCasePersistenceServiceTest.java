@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformax
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,9 +33,11 @@ class OutlineForMaximumCasePersistenceServiceTest {
   private ShapefileConversionService shapefileConversionService;
   @Mock
   private OutlineForMaximumCaseRepository outlineForMaximumCaseRepository;
+  @Mock
+  private OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
   @InjectMocks
   private OutlineForMaximumCasePersistenceService underTest;
-  private final FileDocumentType type = FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE;
+  private static final FileDocumentType TYPE = FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE_OFFSHORE;
 
   @Nested
   class WhenDeletingOutlineForMaximumCase {
@@ -44,11 +47,14 @@ class OutlineForMaximumCasePersistenceServiceTest {
 
     @BeforeEach
     void setup() {
+
       var uploadedFile = new UploadedFile();
       uploadedFile.setId(UPLOADED_FILE_ID);
 
-      when(supportingDocumentService.getUploadedFiles(submissionDetail, type))
+      when(supportingDocumentService.getUploadedFiles(submissionDetail, TYPE))
           .thenReturn(List.of(uploadedFile));
+
+      when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail)).thenReturn(TYPE);
 
     }
 
@@ -70,8 +76,9 @@ class OutlineForMaximumCasePersistenceServiceTest {
 
     @BeforeEach
     void setup() {
-      when(supportingDocumentService.getUploadedFiles(submissionDetail, type))
+      when(supportingDocumentService.getUploadedFiles(submissionDetail, TYPE))
           .thenReturn(List.of(uploadedFile));
+      when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail)).thenReturn(TYPE);
     }
 
     @Test
@@ -163,30 +170,36 @@ class OutlineForMaximumCasePersistenceServiceTest {
     @Mock
     private SubmissionDetail submissionDetail;
 
+    @BeforeEach
+    void setUp() {
+      when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(any(SubmissionDetail.class))).thenReturn(
+          TYPE);
+    }
+
     @Test
     void noShapefiles() {
-      when(supportingDocumentService.getUploadedFiles(submissionDetail, type)).thenReturn(List.of());
+      when(supportingDocumentService.getUploadedFiles(submissionDetail, TYPE)).thenReturn(List.of());
 
       assertThatExceptionOfType(IllegalStateException.class)
           .isThrownBy(() -> underTest.getUploadedShapefileZip(submissionDetail))
-          .withMessage("No shapefile found for submission detail %s and type %s".formatted(submissionDetail.getId(), type.name()));
+          .withMessage("No shapefile found for submission detail %s and type %s".formatted(submissionDetail.getId(), TYPE.name()));
     }
 
 
     @Test
     void moreThanOneShapefile() {
-      when(supportingDocumentService.getUploadedFiles(submissionDetail, type))
+      when(supportingDocumentService.getUploadedFiles(submissionDetail, TYPE))
           .thenReturn(List.of(mock(UploadedFile.class), mock(UploadedFile.class)));
 
       assertThatExceptionOfType(IllegalStateException.class)
           .isThrownBy(() -> underTest.getUploadedShapefileZip(submissionDetail))
-          .withMessage("Multiple shapefiles found for submission detail %s and type %s".formatted(submissionDetail.getId(), type.name()));
+          .withMessage("Multiple shapefiles found for submission detail %s and type %s".formatted(submissionDetail.getId(), TYPE.name()));
     }
 
     @Test
     void oneShapefile() {
       var uploadedFile = mock(UploadedFile.class);
-      when(supportingDocumentService.getUploadedFiles(submissionDetail, type))
+      when(supportingDocumentService.getUploadedFiles(submissionDetail, TYPE))
           .thenReturn(List.of(uploadedFile));
 
       var result = underTest.getUploadedShapefileZip(submissionDetail);

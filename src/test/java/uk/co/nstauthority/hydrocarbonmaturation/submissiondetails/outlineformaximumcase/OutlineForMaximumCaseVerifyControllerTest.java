@@ -16,7 +16,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
-import static uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE;
 
 import java.util.Arrays;
 import java.util.Map;

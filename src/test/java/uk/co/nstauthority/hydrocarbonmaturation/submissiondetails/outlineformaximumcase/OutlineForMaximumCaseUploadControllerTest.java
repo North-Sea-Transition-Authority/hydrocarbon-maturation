@@ -67,6 +67,8 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
 
   @MockBean
   SubmissionSupportingDocumentService supportingDocumentService;
+  @MockBean
+  OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
   private final List<UploadedFileForm> existingFiles = Collections.emptyList();
   private final FileUploadComponentAttributes fileUploadComponentAttributes = new FileUploadComponentAttributes(
       "path",
@@ -100,7 +102,8 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
     resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail))
         .thenReturn(resourceDetail);
-
+    when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(resourceDetail))
+        .thenReturn(FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE_OFFSHORE);
   }
 
   @SecurityTest

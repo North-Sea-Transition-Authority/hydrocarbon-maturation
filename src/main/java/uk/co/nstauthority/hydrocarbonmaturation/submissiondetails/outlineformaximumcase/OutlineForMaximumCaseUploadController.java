@@ -17,7 +17,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -47,20 +46,25 @@ public class OutlineForMaximumCaseUploadController {
   private final OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
   private final SubmissionSupportingDocumentService supportingDocumentService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
+  private final OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
 
   @Autowired
-  public OutlineForMaximumCaseUploadController(ControllerHelperService controllerHelperService,
-                                               SubmissionDetailService submissionDetailService,
-                                               OutlineForMaximumCaseUploadFormService outlineForMaximumCaseFormService,
-                                               OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService,
-                                               SubmissionSupportingDocumentService supportingDocumentService,
-                                               ResourceDetailsPersistenceService resourceDetailsPersistenceService) {
+  public OutlineForMaximumCaseUploadController(
+      ControllerHelperService controllerHelperService,
+      SubmissionDetailService submissionDetailService,
+      OutlineForMaximumCaseUploadFormService outlineForMaximumCaseFormService,
+      OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService,
+      SubmissionSupportingDocumentService supportingDocumentService,
+      ResourceDetailsPersistenceService resourceDetailsPersistenceService,
+      OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService
+  ) {
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.outlineForMaximumCaseFormService = outlineForMaximumCaseFormService;
     this.outlineForMaximumCasePersistenceService = outlineForMaximumCasePersistenceService;
     this.supportingDocumentService = supportingDocumentService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
+    this.outlineForMaximumCaseDocumentTypeService = outlineForMaximumCaseDocumentTypeService;
   }
 
   @GetMapping
@@ -97,6 +101,7 @@ public class OutlineForMaximumCaseUploadController {
   private ModelAndView getOutlineForMaximumCaseModelAndView(OutlineForMaximumCaseUploadForm form,
                                                             SubmissionDetail submissionDetail) {
     var resourceDetail = resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail);
+    var documentType = outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(resourceDetail);
 
     var modelAndView = new ModelAndView("remi/submissiondetails/outlineForMaximumCase/upload")
         .addObject("pageTitle", PAGE_NAME)
@@ -105,9 +110,7 @@ public class OutlineForMaximumCaseUploadController {
             ReverseRouter.route(on(TaskListController.class)
                 .getTaskList(submissionDetail.getId())))
         .addObject("outlineForMaximumCaseTemplate",
-            supportingDocumentService.fileUploadComponentAttributes(
-                form.getOutlineForMaximumCase(), FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE)
-        )
+            supportingDocumentService.fileUploadComponentAttributes(form.getOutlineForMaximumCase(), documentType))
         .addObject("isOffshore", resourceDetail.getOnshoreOffshore() == OnshoreOffshore.OFFSHORE);
 
     return TaskListBreadcrumbUtil

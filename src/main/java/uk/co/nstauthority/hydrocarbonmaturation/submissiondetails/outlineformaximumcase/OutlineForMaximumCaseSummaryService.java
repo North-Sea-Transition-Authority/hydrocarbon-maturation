@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
@@ -20,14 +19,17 @@ public class OutlineForMaximumCaseSummaryService {
   private final OutlineForMaximumCaseMapService outlineForMaximumCaseMapService;
   private final SubmissionSupportingDocumentService supportingDocumentService;
   private final OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
+  private final OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
 
   @Autowired
   public OutlineForMaximumCaseSummaryService(OutlineForMaximumCaseMapService outlineForMaximumCaseMapService,
                                              SubmissionSupportingDocumentService supportingDocumentService,
-                                             OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService) {
+                                             OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService,
+                                             OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService) {
     this.outlineForMaximumCaseMapService = outlineForMaximumCaseMapService;
     this.supportingDocumentService = supportingDocumentService;
     this.outlineForMaximumCasePersistenceService = outlineForMaximumCasePersistenceService;
+    this.outlineForMaximumCaseDocumentTypeService = outlineForMaximumCaseDocumentTypeService;
   }
 
   public OutlineForMaximumCaseSummaryView getOutlineForMaximumCaseSummaryFromSubmissionDetail(SubmissionDetail submissionDetail) {
@@ -44,10 +46,8 @@ public class OutlineForMaximumCaseSummaryService {
   }
 
   private Map<UploadedFile, String> getFileUploadMap(SubmissionDetail submissionDetail) {
-    return supportingDocumentService.getUploadedFiles(
-            submissionDetail,
-            FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE
-        )
+    var documentType = outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail);
+    return supportingDocumentService.getUploadedFiles(submissionDetail, documentType)
         .stream()
         .collect(Collectors.toMap(Function.identity(), getUploadedFileDownloadRoute(submissionDetail)));
   }
