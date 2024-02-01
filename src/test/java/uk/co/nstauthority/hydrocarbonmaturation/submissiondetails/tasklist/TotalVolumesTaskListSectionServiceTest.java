@@ -105,7 +105,7 @@ class TotalVolumesTaskListSectionServiceTest {
   }
 
   @Test
-  void getSection_noReservoirSubmissionDetails_thenReturnEmpty() {
+  void getSection_discovery_noReservoirSubmissionDetails_thenReturnEmpty() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
 
     List<ReservoirSubmissionDetail> reservoirSubmissionDetails = List.of();
@@ -118,7 +118,20 @@ class TotalVolumesTaskListSectionServiceTest {
   }
 
   @Test
-  void getSection_oneReservoirSubmissionDetail_thenReturnEmpty() {
+  void getSection_field_noReservoirSubmissionDetails_thenReturnEmpty() {
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+
+    List<ReservoirSubmissionDetail> reservoirSubmissionDetails = List.of();
+
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetails);
+
+    assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail))
+        .isEmpty();
+  }
+
+  @Test
+  void getSection_discovery_oneReservoirSubmissionDetail_thenReturnEmpty() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
 
     var reservoirSubmissionDetails = List.of(new ReservoirSubmissionDetail());
@@ -128,6 +141,20 @@ class TotalVolumesTaskListSectionServiceTest {
 
     assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail))
         .isEmpty();
+  }
+
+  void getSection_field_oneReservoirSubmissionDetail_thenPresent() {
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_CSR);
+
+    var reservoirSubmissionDetails = List.of(rsd1);
+    when(volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails)).thenReturn(true);
+
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetails);
+    when(fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+        .thenReturn(true);
+
+    assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail)).isPresent();
   }
 
   @Test
@@ -510,15 +537,15 @@ class TotalVolumesTaskListSectionServiceTest {
   }
 
   @ParameterizedTest
-  @MethodSource("allDiscoveryAndFieldSubmissionTypes")
-  void isSectionSubmittable_noReservoirs_thenFalse(SubmissionType submissionType) {
+  @MethodSource("allDiscoverySubmissionTypes")
+  void isSectionSubmittable_discovery_noReservoirs_thenFalse(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     assertFalse(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
 
   @ParameterizedTest
-  @MethodSource("allDiscoveryAndFieldSubmissionTypes")
-  void isSectionSubmittable_oneReservoirs_thenTrue(SubmissionType submissionType) {
+  @MethodSource("allDiscoverySubmissionTypes")
+  void isSectionSubmittable_discovery_oneReservoirs_thenTrue(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
 
     var reservoirSubmissionDetails = mock(List.class);

@@ -35,7 +35,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotal;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
@@ -171,34 +170,6 @@ class ReservoirTotalsCleanAndCopyServiceTest {
     );
   }
 
-  @ParameterizedTest
-  @MethodSource("allFieldSubmissionTypes")
-  void copySingleReservoirIntoTotals_field_wheOnlyOneReservoir_oilOnlyCase(SubmissionType submissionType) {
-    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
-    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
-
-    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
-        .thenReturn(List.of(reservoirSubmissionDetail));
-    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
-    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
-        .thenReturn(Optional.of(reservoirHydrocarbons));
-    when(generalReservoirInformationService.isOilOnly(reservoirHydrocarbons)).thenReturn(true);
-    when(generalReservoirInformationService.isGasOnly(reservoirHydrocarbons)).thenReturn(false);
-    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)).thenReturn(false);
-    reservoirTotalsCleanAndCopyService.cleanAndCopyVolumetricTotals(submissionDetail);
-    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(OIL_TOTALS, submissionDetail);
-    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(GAS_TOTALS, submissionDetail);
-    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(COMMON_TOTALS, submissionDetail);
-
-    verify(probabilityDistributionPersistenceService).copyProbabilityDistribution(
-        ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD,
-        reservoirSubmissionDetail,
-        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD,
-        submissionDetail
-    );
-    verifyNoMoreInteractions(probabilityDistributionPersistenceService);
-  }
-
   @Test
   void copySingleReservoirIntoTotals_discovery_wheOnlyOneReservoir_gasOnlyCase_hasAssociatedCondensate() {
     var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
@@ -294,34 +265,6 @@ class ReservoirTotalsCleanAndCopyServiceTest {
         ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY,
         submissionDetail
     );
-  }
-
-  @ParameterizedTest
-  @MethodSource("allFieldSubmissionTypes")
-  void copySingleReservoirIntoTotals_field_wheOnlyOneReservoir_gasOnlyCase(SubmissionType submissionType) {
-    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
-    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
-
-    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
-        .thenReturn(List.of(reservoirSubmissionDetail));
-    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
-    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
-        .thenReturn(Optional.of(reservoirHydrocarbons));
-    when(generalReservoirInformationService.isOilOnly(reservoirHydrocarbons)).thenReturn(false);
-    when(generalReservoirInformationService.isGasOnly(reservoirHydrocarbons)).thenReturn(true);
-    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)).thenReturn(false);
-    reservoirTotalsCleanAndCopyService.cleanAndCopyVolumetricTotals(submissionDetail);
-    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(OIL_TOTALS, submissionDetail);
-    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(GAS_TOTALS, submissionDetail);
-    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(COMMON_TOTALS, submissionDetail);
-
-    verify(probabilityDistributionPersistenceService).copyProbabilityDistribution(
-        ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD,
-        reservoirSubmissionDetail,
-        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD,
-        submissionDetail
-    );
-    verifyNoMoreInteractions(probabilityDistributionPersistenceService);
   }
 
   @Test
@@ -470,40 +413,6 @@ class ReservoirTotalsCleanAndCopyServiceTest {
     );
   }
 
-  @ParameterizedTest
-  @MethodSource("allFieldSubmissionTypes")
-  void copySingleReservoirIntoTotals_field_wheOnlyOneReservoir_combinedCase(SubmissionType submissionType) {
-    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
-    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
-
-    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
-        .thenReturn(List.of(reservoirSubmissionDetail));
-    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
-    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
-        .thenReturn(Optional.of(reservoirHydrocarbons));
-    when(generalReservoirInformationService.isOilOnly(reservoirHydrocarbons)).thenReturn(false);
-    when(generalReservoirInformationService.isGasOnly(reservoirHydrocarbons)).thenReturn(false);
-    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)).thenReturn(true);
-    reservoirTotalsCleanAndCopyService.cleanAndCopyVolumetricTotals(submissionDetail);
-    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(OIL_TOTALS, submissionDetail);
-    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(GAS_TOTALS, submissionDetail);
-    verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(COMMON_TOTALS, submissionDetail);
-
-    verify(probabilityDistributionPersistenceService).copyProbabilityDistribution(
-        ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD,
-        reservoirSubmissionDetail,
-        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD,
-        submissionDetail
-    );
-    verify(probabilityDistributionPersistenceService).copyProbabilityDistribution(
-        ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD,
-        reservoirSubmissionDetail,
-        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD,
-        submissionDetail
-    );
-    verifyNoMoreInteractions(probabilityDistributionPersistenceService);
-  }
-
   @Test
   void cleanTotals_discovery_oilOnlyCase_deleteGasTotals() {
     var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
@@ -524,7 +433,6 @@ class ReservoirTotalsCleanAndCopyServiceTest {
   void cleanTotals_field_oilOnlyCase_deleteOilTotals(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     var reservoirSubmissionDetails = mock(List.class);
-    when(reservoirSubmissionDetails.size()).thenReturn(2);
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
     when(volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails))
@@ -559,7 +467,6 @@ class ReservoirTotalsCleanAndCopyServiceTest {
   void cleanTotals_field_gasOnlyCase_deleteOilTotals(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     var reservoirSubmissionDetails = mock(List.class);
-    when(reservoirSubmissionDetails.size()).thenReturn(2);
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
     when(volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails))
@@ -576,8 +483,26 @@ class ReservoirTotalsCleanAndCopyServiceTest {
   }
 
   @ParameterizedTest
-  @MethodSource("allFieldAndDiscoverySubmissionTypes")
-  void cleanAndCopyVolumetricTotals_noReservoirs(SubmissionType submissionType) {
+  @MethodSource("allFieldSubmissionTypes")
+  void cleanTotals_field_combinedCase_deleteGasOnlyTotal(SubmissionType submissionType) {
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+    var reservoirSubmissionDetails = mock(List.class);
+    when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(reservoirSubmissionDetails);
+    when(volumetricTotalsService.isCombinedCase(reservoirSubmissionDetails))
+        .thenReturn(true);
+
+    reservoirTotalsCleanAndCopyService.cleanAndCopyVolumetricTotals(submissionDetail);
+
+    verify(fieldGasCaseVolumetricTotalsService, times(1)).deleteGasCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
+    verifyNoMoreInteractions(fieldCombinedCaseVolumetricTotalsService);
+
+    verifyNoInteractions(fieldCombinedCaseVolumetricTotalsService);
+  }
+
+  @ParameterizedTest
+  @MethodSource("allDiscoverySubmissionTypes")
+  void cleanAndCopyVolumetricTotals_discovery_noReservoirs(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
 
     var reservoirSubmissionDetails = mock(List.class);
@@ -639,10 +564,9 @@ class ReservoirTotalsCleanAndCopyServiceTest {
         .map(Arguments::of);
   }
 
-  private static Stream<Arguments> allFieldAndDiscoverySubmissionTypes() {
+  private static Stream<Arguments> allDiscoverySubmissionTypes() {
     return Arrays.stream(SubmissionType.values())
-        .filter(submissionType -> SubmissionDetailUtil.isDiscoverySubmission(submissionType)
-            || SubmissionDetailUtil.isFieldSubmission(submissionType))
+        .filter(SubmissionDetailUtil::isDiscoverySubmission)
         .map(Arguments::of);
   }
 }

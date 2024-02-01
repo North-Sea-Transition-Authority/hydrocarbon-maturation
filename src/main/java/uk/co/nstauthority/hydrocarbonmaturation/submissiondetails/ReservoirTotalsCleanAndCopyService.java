@@ -81,22 +81,8 @@ public class ReservoirTotalsCleanAndCopyService {
     var reservoirSubmissionDetails =
         reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
 
-    if (reservoirSubmissionDetails.size() == 1) {
-      // if single reservoir,  copy into totals
-      // clean any previous totals saved first
-      deleteOilOnlyFieldTotals(submissionDetail);
-      deleteGasOnlyFieldTotals(submissionDetail);
-      deleteCommonFieldVolumetricTotals(submissionDetail);
-
-      // clear saved data like has associated condensate question
-      fieldGasCaseVolumetricTotalsService.deleteGasCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
-      fieldCombinedCaseVolumetricTotalsService.deleteCombinedCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
-
-      var reservoirSubmissionDetail = reservoirSubmissionDetails.get(0);
-      copyOilField(reservoirSubmissionDetail, submissionDetail);
-      copyGasField(reservoirSubmissionDetail, submissionDetail);
-    }  else if (volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails)) {
-      // if gas only, clean any oil totals saved
+    if (volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails)) {
+      // if gas only, clean any oil and combined totals saved
       deleteOilOnlyFieldTotals(submissionDetail);
       fieldCombinedCaseVolumetricTotalsService.deleteCombinedCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
     } else if (volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails)) {
@@ -104,6 +90,8 @@ public class ReservoirTotalsCleanAndCopyService {
       deleteGasOnlyFieldTotals(submissionDetail);
       fieldGasCaseVolumetricTotalsService.deleteGasCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
       fieldCombinedCaseVolumetricTotalsService.deleteCombinedCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
+    } else if (volumetricTotalsService.isCombinedCase(reservoirSubmissionDetails)) {
+      fieldGasCaseVolumetricTotalsService.deleteGasCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
     }
   }
 
@@ -231,38 +219,6 @@ public class ReservoirTotalsCleanAndCopyService {
     );
   }
 
-  private void copyOilField(ReservoirSubmissionDetail reservoirSubmissionDetail, SubmissionDetail submissionDetail) {
-    generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)
-        .ifPresent(reservoirHydrocarbons -> {
-              if (generalReservoirInformationService.isOilOnly(reservoirHydrocarbons)
-                  || generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)) {
-                probabilityDistributionPersistenceService.copyProbabilityDistribution(
-                    ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD,
-                    reservoirSubmissionDetail,
-                    ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD,
-                    submissionDetail
-                );
-              }
-            }
-        );
-  }
-
-  private void copyGasField(ReservoirSubmissionDetail reservoirSubmissionDetail, SubmissionDetail submissionDetail) {
-    generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)
-        .ifPresent(reservoirHydrocarbons -> {
-              if (generalReservoirInformationService.isGasOnly(reservoirHydrocarbons)
-                  || generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)) {
-                probabilityDistributionPersistenceService.copyProbabilityDistribution(
-                    ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD,
-                    reservoirSubmissionDetail,
-                    ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD,
-                    submissionDetail
-                );
-              }
-            }
-        );
-  }
-
   private void deleteOilOnlyDiscoveryTotals(SubmissionDetail submissionDetail) {
     List<ProbabilityDistributionFieldInstance> totals = List.of(
         ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY,
@@ -277,20 +233,6 @@ public class ReservoirTotalsCleanAndCopyService {
     List<ProbabilityDistributionFieldInstance> totals = List.of(
         ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY,
         ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY
-    );
-
-    probabilityDistributionPersistenceService.deleteProbabilityDistributions(totals, submissionDetail);
-  }
-
-  private void deleteCommonFieldVolumetricTotals(SubmissionDetail submissionDetail) {
-    var totals = List.of(
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD,
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD,
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD,
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD,
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESERVES_FIELD,
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD
     );
 
     probabilityDistributionPersistenceService.deleteProbabilityDistributions(totals, submissionDetail);
