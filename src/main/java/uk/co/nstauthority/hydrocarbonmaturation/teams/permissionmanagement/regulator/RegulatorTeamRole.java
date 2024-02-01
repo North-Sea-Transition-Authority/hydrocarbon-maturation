@@ -29,8 +29,20 @@ public enum RegulatorTeamRole implements TeamRole {
   VIEWER(
       "Viewer",
       "View all prospect, discovery and field data. Other roles automatically get this permission",
-      30,
+      40,
       EnumSet.of(RolePermission.VIEW_SYSTEM_OF_RECORD)
+  ),
+  RESERVES_AND_RESOURCES_ADVISOR(
+      "Reserves and resources advisor",
+      "Manage undeveloped discoveries and NSTA's view of discovery volumes",
+      50,
+      EnumSet.of(RolePermission.VIEW_SYSTEM_OF_RECORD, RolePermission.RESERVES_AND_RESOURCES_ANALYST)
+  ),
+  PROJECT_ANALYST(
+      "Project analyst",
+      "Manage field statuses and projects",
+      60,
+      EnumSet.of(RolePermission.VIEW_SYSTEM_OF_RECORD, RolePermission.PROJECT_ANALYST)
   );
 
   private final String screenDisplayText;
