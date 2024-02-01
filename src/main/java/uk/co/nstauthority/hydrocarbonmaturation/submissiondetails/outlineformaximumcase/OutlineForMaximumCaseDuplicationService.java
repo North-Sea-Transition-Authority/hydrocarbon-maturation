@@ -29,6 +29,10 @@ class OutlineForMaximumCaseDuplicationService implements SubmissionSectionDuplic
   @Override
   @Transactional
   public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
+    if (oldSubmissionDetail.isFieldSubmission()) {
+      return;
+    }
+
     var documentType = outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(oldSubmissionDetail);
     supportingDocumentService.copyUploadedFiles(
         oldSubmissionDetail,

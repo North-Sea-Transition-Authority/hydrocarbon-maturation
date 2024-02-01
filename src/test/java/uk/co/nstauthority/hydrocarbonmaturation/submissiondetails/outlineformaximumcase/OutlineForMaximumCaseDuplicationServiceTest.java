@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -13,6 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
@@ -32,9 +35,7 @@ class OutlineForMaximumCaseDuplicationServiceTest {
 
   @Nested
   class WhenDuplicatingSubmissionSection {
-    @Mock
     private SubmissionDetail oldSubmissionDetail;
-    @Mock
     private SubmissionDetail newSubmissionDetail;
     @Mock
     private UploadedFile uploadedFile;
@@ -43,6 +44,8 @@ class OutlineForMaximumCaseDuplicationServiceTest {
 
     @Test
     void duplicateSupportingDocument() {
+      oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
+      newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.PROSPECT_UPDATE);
       var documentType = FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE_OFFSHORE;
       when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(oldSubmissionDetail)).thenReturn(documentType);
       underTest.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
@@ -52,6 +55,8 @@ class OutlineForMaximumCaseDuplicationServiceTest {
 
     @Test
     void duplicateOutlineForMaximumCase() {
+      oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
+      newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.PROSPECT_UPDATE);
       when(outlineForMaximumCasePersistenceService.getOutlineForMaximumCaseBySubmissionDetail(oldSubmissionDetail))
           .thenReturn(Optional.of(outlineForMaximumCase));
 
@@ -59,6 +64,17 @@ class OutlineForMaximumCaseDuplicationServiceTest {
 
       verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, outlineForMaximumCase,
           OutlineForMaximumCase.class);
+    }
+
+    @Test
+    void duplicateOutlineForMaximumCase_whenFieldSubmission_doNothing() {
+      oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+
+      underTest.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+      verifyNoInteractions(outlineForMaximumCaseDocumentTypeService);
+      verifyNoInteractions(outlineForMaximumCasePersistenceService);
+      verifyNoInteractions(submissionDuplicationPersistenceService);
     }
   }
 }
