@@ -70,7 +70,12 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
 
     var reservoirSubmissionDetails =
         reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
-    if (reservoirSubmissionDetails.size() < 2) {
+
+    if (reservoirSubmissionDetails.isEmpty()) {
+      return Optional.empty();
+    }
+    
+    if (submissionDetail.isDiscoverySubmission() && reservoirSubmissionDetails.size() == 1) {
       return Optional.empty();
     }
 
@@ -102,7 +107,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
     if (reservoirSubmissionDetails.isEmpty()) {
       return false;
     }
-    if (reservoirSubmissionDetails.size() == 1) {
+    if (submissionDetail.isDiscoverySubmission() && reservoirSubmissionDetails.size() == 1) {
       return true;
     }
     if (submissionDetail.isDiscoverySubmission()) {
