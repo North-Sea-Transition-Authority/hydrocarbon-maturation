@@ -2,6 +2,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.summary;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DecimalFormatUtil;
@@ -24,6 +27,10 @@ class SummaryUtil {
       return DateUtil.formatDate(localDateValue);
     } else if (value instanceof BigDecimal bigDecimalValue) {
       return DecimalFormatUtil.bigDecimalToFormattedString(bigDecimalValue);
+    } else if (value instanceof DecimalInput decimalInput) {
+      return decimalInput.getDecimalInputValue();
+    } else if (value instanceof Displayable displayable) {
+      return DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(displayable);
     } else {
       throw new SummaryException("Unexpected value class type: " + value.getClass().getName());
     }

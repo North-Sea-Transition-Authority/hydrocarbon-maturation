@@ -65,7 +65,7 @@ class OperatorResourceAccessInterceptorRuleTest {
 
     var field = new Field();
     field.setResponsibleOrganisationId(1);
-    when(fieldPersistenceService.getFieldByResourceOrThrow(submissionDetail.getSubmission().getResource()))
+    when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
         .thenReturn(field);
     when(industryTeamService.getOrganisationUnitIdsForUserWithIndustryTeamRoles(
         user, Set.of(IndustryTeamRole.SUBMITTER)))

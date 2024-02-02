@@ -198,7 +198,7 @@ public class GeneralReservoirInformationService {
   }
 
   public List<String> getDiscoveryResourceNamesForFieldResourceLinkFromSubmissionDetail(SubmissionDetail submissionDetail) {
-    var field = fieldPersistenceService.getFieldByResourceOrThrow(submissionDetail.getSubmission().getResource());
+    var field = fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource());
 
     var latestSubmissionDetails = resourceLinkService.getResourceLinksByField(field.getResource())
         .stream()

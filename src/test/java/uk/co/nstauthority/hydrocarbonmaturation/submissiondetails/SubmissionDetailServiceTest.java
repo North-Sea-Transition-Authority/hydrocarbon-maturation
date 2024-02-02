@@ -47,6 +47,32 @@ class SubmissionDetailServiceTest {
   }
 
   @Test
+  void getSubmissionDetail_nullId_thenEmpty() {
+    assertThat(submissionDetailService.getSubmissionDetail(null)).isEmpty();
+  }
+
+  @Test
+  void getSubmissionDetail_nonNullId_submissionDetailDoesNotExist_thenEmpty() {
+    var id = UUID.randomUUID();
+
+    when(submissionDetailRepository.findById(id))
+        .thenReturn(Optional.empty());
+
+    assertThat(submissionDetailService.getSubmissionDetail(id)).isEmpty();
+  }
+
+
+  @Test
+  void getSubmissionDetail_nonNullId_submissionDetailExists_isReturned() {
+    var id = UUID.randomUUID();
+
+    when(submissionDetailRepository.findById(id))
+        .thenReturn(Optional.of(submissionDetail));
+
+    assertThat(submissionDetailService.getSubmissionDetail(id)).contains(submissionDetail);
+  }
+
+  @Test
   void getLatestApprovedDiscoverySubmissionDetailForResource_assertReturn() {
     var resource = new Resource();
     when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(

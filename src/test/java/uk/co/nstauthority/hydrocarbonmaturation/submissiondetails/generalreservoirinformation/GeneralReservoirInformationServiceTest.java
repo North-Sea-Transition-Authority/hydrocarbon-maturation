@@ -620,7 +620,7 @@ class GeneralReservoirInformationServiceTest {
     var fieldResource = fieldSubmissionDetail.getSubmission().getResource();
     var field = new Field();
     field.setResource(fieldResource);
-    when(fieldPersistenceService.getFieldByResourceOrThrow(fieldResource)).thenReturn(field);
+    when(fieldPersistenceService.getFieldOrThrow(fieldResource)).thenReturn(field);
 
     var firstDiscoveryResource = new Resource();
     var firstResourceLink = new ResourceLink();

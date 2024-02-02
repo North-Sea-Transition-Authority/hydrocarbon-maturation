@@ -35,6 +35,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -45,6 +46,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshoreService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -71,6 +74,9 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
   private OnshoreOffshoreService onshoreOffshoreService;
 
   @MockBean
+  private FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
+
+  @MockBean
   private InternalTeamService internalTeamService;
 
   private ResourceDetailSummaryView resourceDetailSummaryView;
@@ -90,13 +96,17 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
     when(submissionDetailService.getSubmissionDetail(submissionDetailId)).thenReturn(Optional.of(submissionDetail));
     var field = new Field();
     field.setResponsibleOrganisationId(1);
-    when(fieldPersistenceService.getFieldByResourceOrThrow(submissionDetail.getSubmission().getResource()))
+    when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
         .thenReturn(field);
   }
 
   @SecurityTest
   void showSubmissionSummary_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    var managedInformationCard = SummaryCard.simpleSummaryCard(new SummaryDataView(List.of()));
+    when(fieldRegulatorManagedInformationSummaryService
+        .getFieldRegulatorManagedInformationSummaryCard(submissionDetail.getSubmission().getResource()))
+        .thenReturn(managedInformationCard);
     mockCreateFieldSubmissionSummaryModelAndView();
     setUpWhenUserIsResponsibleTeam_forField_passSecurity(USER, submissionDetail);
     mockMvc.perform(
@@ -164,6 +174,10 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
   @Test
   void processSubmission_whenInvalidForm_assertOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    var managedInformationCard = SummaryCard.simpleSummaryCard(new SummaryDataView(List.of()));
+    when(fieldRegulatorManagedInformationSummaryService
+        .getFieldRegulatorManagedInformationSummaryCard(submissionDetail.getSubmission().getResource()))
+        .thenReturn(managedInformationCard);
     var bindingResult = new BeanPropertyBindingResult(SubmissionSummaryForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
     when(submissionSummaryFormValidator.isValid(
@@ -203,6 +217,11 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
     when(submissionReadyService.isSubmissionSubmittable(submissionDetail)).thenReturn(true);
     when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.OFFSHORE);
     when(internalTeamService.isRegulatorOrAreaTeamUser()).thenReturn(false);
+    var managedInformationCard = SummaryCard.simpleSummaryCard(new SummaryDataView(List.of()));
+    when(fieldRegulatorManagedInformationSummaryService
+        .getFieldRegulatorManagedInformationSummaryCard(submissionDetail.getSubmission().getResource()))
+        .thenReturn(managedInformationCard);
+
     mockCreateFieldSubmissionSummaryModelAndView();
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -221,7 +240,8 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
             entry("summarySections", summarySections),
             entry("reservoirSummaries", reservoirSummaries),
             entry("accordionId", submissionDetailId),
-            entry("isOffshore", true)
+            entry("isOffshore", true),
+            entry("fieldRegulatorManagedInformationSummaryCard", managedInformationCard)
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

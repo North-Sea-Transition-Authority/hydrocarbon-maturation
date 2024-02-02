@@ -59,10 +59,10 @@ class ResourceRecordSummaryQueryService {
             FIELDS.PARENT_DETERMINED_FIELD_ID,
             max(FIELD_STATUS_HISTORY.FIELD_STATUS)
         )
-        .from(SUBMISSIONS
-            .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
+        .from(RESOURCES
+            .leftJoin(SUBMISSIONS).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
             // Joins the relevant submission detail to the submission.
-            .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
+            .leftJoin(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
                 select(SD_2.ID)
                     .from(SUBMISSIONS_2.join(SD_2)
                         .on(SD_2.SUBMISSION_ID.eq(SUBMISSIONS_2.ID)

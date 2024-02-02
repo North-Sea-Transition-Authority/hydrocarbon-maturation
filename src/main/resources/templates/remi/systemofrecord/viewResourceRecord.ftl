@@ -3,6 +3,7 @@
 <#import '../submissiondetails/summary/_submissionSummary.ftl' as submissionSummary>
 <#import '../systemofrecord/submissionHistorySearchSelector.ftl' as submissionSelector>
 <#import '../summarylistcards/regulatorManagedInformationSummaryCard.ftl' as regulatorManagedInformationSummary>
+<#import '../summary/_simpleSummary.ftl' as simpleSummary>
 
 <#-- @ftlvariable name="submissionType" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType" -->
 <#-- @ftlvariable name="resourceRecord" type="uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceRecordSummaryView" -->
@@ -27,13 +28,15 @@ pageSize=PageSize.FULL_WIDTH
 breadcrumbsMap=breadcrumbsMap>
 
   <@fdsDataItems.dataItem>
-    <#if isFieldSubmission>
+    <#assign responsibleTeam = resourceRecord.responsibleTeam()
+        ?has_content?then(resourceRecord.responsibleTeam().displayName, "")/>
+    <#if isFieldResource>
       <@fdsDataItems.dataValues key="Field status" value="${resourceRecord.fieldStatus()}"/>
       <@fdsDataItems.dataValues key="Responsible organisation" value="${resourceRecord.organisationResponsible()}"/>
-      <@fdsDataItems.dataValues key="Responsible team" value="${resourceRecord.responsibleTeam().displayName}"/>
+      <@fdsDataItems.dataValues key="Responsible team" value="${responsibleTeam}"/>
       <@fdsDataItems.dataValues key="Parent field" value="${resourceRecord.parentFieldName()}"/>
     <#else>
-      <@fdsDataItems.dataValues key="Responsible team" value="${resourceRecord.responsibleTeam().displayName}"/>
+      <@fdsDataItems.dataValues key="Responsible team" value="${responsibleTeam}"/>
       <@fdsDataItems.dataValues key="Responsible organisation" value="${resourceRecord.organisationResponsible()}"/>
       <#assign licencesDisplay>
         <#if resourceRecord.licences()?has_content>
@@ -48,35 +51,49 @@ breadcrumbsMap=breadcrumbsMap>
   <#if canManageRegulatorManagementInfo>
     <@fdsAction.buttonGroup>
       <@fdsAction.link
-        linkText="Manage resource information"
+        linkText=manageResourceInformationText
         linkClass="govuk-button govuk-button--secondary"
         linkUrl=springUrl(regulatorManagedInformationUrl)/>
-      <@fdsAction.link
-        linkText="Manage resource group"
-        linkClass="govuk-button govuk-button--secondary"
-        linkUrl=springUrl(resourceGroupUrl)/>
-        <#if correctionUrl?has_content>
-            <@fdsAction.link
-            linkText="Correct submission"
-            linkClass="govuk-button govuk-button--secondary"
-            linkUrl=springUrl(correctionUrl)/>
-        </#if>
+      <#if !isFieldResource>
+        <@fdsAction.link
+          linkText="Manage resource group"
+          linkClass="govuk-button govuk-button--secondary"
+          linkUrl=springUrl(resourceGroupUrl)/>
+      </#if>
+      <#if correctionUrl?has_content>
+          <@fdsAction.link
+          linkText="Correct submission"
+          linkClass="govuk-button govuk-button--secondary"
+          linkUrl=springUrl(correctionUrl)/>
+      </#if>
     </@fdsAction.buttonGroup>
   </#if>
-  <@fdsForm.htmlForm actionUrl=springUrl(submissionSelectedUrl)>
-    <@submissionSelector.submissionHistorySearchSelector
-      resourceType=resourceType
-      submissionsOnResource=submissionsOnResource />
-  </@fdsForm.htmlForm>
+  <#if submissionsOnResource?has_content>
+    <@fdsForm.htmlForm actionUrl=springUrl(submissionSelectedUrl)>
+      <@submissionSelector.submissionHistorySearchSelector
+        resourceType=resourceType
+        submissionsOnResource=submissionsOnResource />
+    </@fdsForm.htmlForm>
+  </#if>
 
-  <h2 class="govuk-heading-l">${submissionType.getTypeName()}</h2>
+  <#assign regulatorManagedInformationHeading = submissionType?has_content?then(submissionType.getTypeName(), "") />
+  <h2 class="govuk-heading-l">${regulatorManagedInformationHeading}</h2>
   <#if canViewRegulatorManagementInfo>
+    <#if isFieldResource>
+      <@simpleSummary.simpleSummary
+      summaryDataView=fieldRegulatorManagedInformationSummaryCard.summaryData()
+      summaryHeading=fieldRegulatorManagedInformationSummaryCard.displayName()!""/>
+    <#else>
     <@regulatorManagedInformationSummary.regulatorManagedInformationSummaryCard
       regulatorManagedInformationValues=regulatorManagedInformationSummaryView
       resourceGroupsValues=resourceGroupsSummaryView/>
+    </#if>
   </#if>
-  <@submissionSummary.submissionSummary
+
+  <#if submissionsOnResource?has_content>
+    <@submissionSummary.submissionSummary
     submissionType=submissionType.name()
     />
+  </#if>
 
 </@defaultPage>

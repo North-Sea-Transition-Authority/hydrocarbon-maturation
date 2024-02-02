@@ -61,7 +61,7 @@ public class OperatorResourceAccessInterceptorRule implements ResourceAccessInte
   private Integer getResponsibleOrganisationId(SubmissionDetail submissionDetail) {
     if (submissionDetail.isFieldSubmission()) {
       var resource = submissionDetail.getSubmission().getResource();
-      return fieldPersistenceService.getFieldByResourceOrThrow(resource).getResponsibleOrganisationId();
+      return fieldPersistenceService.getFieldOrThrow(resource).getResponsibleOrganisationId();
     }
 
     return resourceDetailsPersistenceService

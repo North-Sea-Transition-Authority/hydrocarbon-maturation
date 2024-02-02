@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -75,6 +74,9 @@ public class FieldPersistenceService {
               new IllegalArgumentException("Parent field %s not found".formatted(form.getParentDeterminedField())));
 
       field.setParentDeterminedField(parentField);
+    } else {
+      // if status is not sub area then clear saved parent
+      field.setParentDeterminedField(null);
     }
 
     field.setFieldNumber(form.getFieldNumber().createIntegerOrNull());
@@ -130,11 +132,5 @@ public class FieldPersistenceService {
 
   public Optional<Field> getFieldByResource(Resource resource) {
     return fieldRepository.findByResource(resource);
-  }
-
-  public Field getFieldByResourceOrThrow(Resource resource) {
-    return getFieldByResource(resource)
-        .orElseThrow(() -> new RemiEntityNotFoundException("No field found for resource id: %s"
-            .formatted(resource.getId())));
   }
 }

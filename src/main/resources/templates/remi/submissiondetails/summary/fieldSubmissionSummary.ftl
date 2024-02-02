@@ -3,6 +3,7 @@
 <#import '_discoverySubmissionSummary.ftl' as discoverySubmissionSummary>
 <#import '_summarySubmissionNotificationBanner.ftl' as banner>
 <#import '../../review/updateSummaryDetails.ftl' as updateSummaryDetails>
+<#import '../../summary/_simpleSummary.ftl' as simpleSummary>
 <#import '../../summary/_submissionSummary.ftl' as submissionSummary>
 <#import '../../summary/_reservoirSummary.ftl' as reservoirSummary>
 
@@ -42,15 +43,20 @@ caption=resourceName>
         <@updateSummaryDetails.updateDetails submissionUpdateReason=submissionUpdateReason/>
     </#if>
     <@fdsForm.htmlForm>
+        <#if isRegulatorOrAreaTeamUser>
+            <@simpleSummary.simpleSummary
+            summaryDataView=fieldRegulatorManagedInformationSummaryCard.summaryData()
+            summaryHeading=fieldRegulatorManagedInformationSummaryCard.displayName()!""/>
+        </#if>
         <@submissionSummary.submissionSummary accordionId>
             <@reservoirSummary.reservoirSummary reservoirSummaries=reservoirSummaries/>
         </@submissionSummary.submissionSummary>
         <#if !submittable && isRegulatorOrAreaTeamUser>
-          <div class="govuk-form-group <#if errorList?has_content>govuk-form-group--error</#if>">
-              <@fdsCheckbox.checkbox
-              labelText="I want to complete this submission without providing all the required information"
-              path="form.completeWithoutMandatoryInformation"/>
-          </div>
+            <div class="govuk-form-group <#if errorList?has_content>govuk-form-group--error</#if>">
+                <@fdsCheckbox.checkbox
+                labelText="I want to complete this submission without providing all the required information"
+                path="form.completeWithoutMandatoryInformation"/>
+            </div>
         </#if>
         <#if isRegulatorOrAreaTeamUser || submittable>
             <@fdsAction.submitButtons

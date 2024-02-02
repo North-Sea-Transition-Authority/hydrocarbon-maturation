@@ -2,7 +2,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Optional;
 import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -16,11 +18,14 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationController;
+import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
@@ -45,18 +50,21 @@ public class ViewResourceRecordController {
   private final ResourceService resourceService;
   private final ResponsibleTeamService responsibleTeamService;
   private final CorrectionService correctionService;
+  private final FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
 
   @Autowired
-  public ViewResourceRecordController(ViewResourceRecordService viewResourceRecordService,
-                                      SubmissionSummaryModelService submissionSummaryModelService,
-                                      SubmissionDetailService submissionDetailService,
-                                      UserService userService,
-                                      SubmissionHistoryQueryService submissionHistoryQueryService,
-                                      RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
-                                      ResourceGroupSummaryService resourceGroupSummaryService,
-                                      ResourceService resourceService,
-                                      ResponsibleTeamService responsibleTeamService,
-                                      CorrectionService correctionService) {
+  public ViewResourceRecordController(
+      ViewResourceRecordService viewResourceRecordService,
+      SubmissionSummaryModelService submissionSummaryModelService,
+      SubmissionDetailService submissionDetailService,
+      UserService userService,
+      SubmissionHistoryQueryService submissionHistoryQueryService,
+      RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
+      ResourceGroupSummaryService resourceGroupSummaryService,
+      ResourceService resourceService,
+      ResponsibleTeamService responsibleTeamService,
+      CorrectionService correctionService,
+      FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService) {
     this.viewResourceRecordService = viewResourceRecordService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
@@ -67,6 +75,7 @@ public class ViewResourceRecordController {
     this.resourceService = resourceService;
     this.responsibleTeamService = responsibleTeamService;
     this.correctionService = correctionService;
+    this.fieldRegulatorManagedInformationSummaryService = fieldRegulatorManagedInformationSummaryService;
   }
 
   @GetMapping
@@ -79,10 +88,10 @@ public class ViewResourceRecordController {
           HttpStatus.FORBIDDEN, "Resource cannot be viewed by user with ID %s ".formatted(user.wuaId()));
     }
 
-    var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(resourceRecord.submissionDetailId());
+    var submissionDetailOptional = submissionDetailService.getSubmissionDetail(resourceRecord.submissionDetailId());
     var form = new SubmissionSearchSelectorForm();
-    form.setSelectedSubmissionId(submissionDetail.getId().toString());
-    return getModelAndView(resourceRecord, submissionDetail, user, form, resourceId);
+    submissionDetailOptional.ifPresent(submissionDetail -> form.setSelectedSubmissionId(submissionDetail.getId().toString()));
+    return getModelAndView(resourceRecord, submissionDetailOptional, user, form, resourceId);
   }
 
   @PostMapping
@@ -106,11 +115,11 @@ public class ViewResourceRecordController {
     }
 
     form.setSelectedSubmissionId(submissionDetailId.toString());
-    return getModelAndView(resourceRecord, selectedSubmissionDetail, user, form, resourceId);
+    return getModelAndView(resourceRecord, Optional.of(selectedSubmissionDetail), user, form, resourceId);
   }
 
   private ModelAndView getModelAndView(ResourceRecordSummaryView resourceRecord,
-                                       SubmissionDetail submissionDetailSelected,
+                                       Optional<SubmissionDetail> submissionDetailSelectedOptional,
                                        User user,
                                        SubmissionSearchSelectorForm form,
                                        UUID resourceId) {
@@ -118,65 +127,21 @@ public class ViewResourceRecordController {
         .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
             .formatted(resourceId)));
 
-    if (!viewResourceRecordService.canViewSubmissionDetail(submissionDetailSelected, resource)) {
-      throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN,
-          ("You cannot view this %s submission detail due to it being a draft or deleted submission detail " +
-              "or a submission detail not on the same resource")
-              .formatted(submissionDetailSelected.getId()));
-    }
-
-    var modelAndView = submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(
-        submissionDetailSelected,
-        "remi/systemofrecord/viewResourceRecord"
-    );
-
-    if (submissionDetailSelected.isFieldSubmission()) {
-      SystemOfRecordBreadcrumbUtil.addSearchFieldRecordsBreadcrumbsToModelAndView(
-          modelAndView, resourceRecord.resourceNameAndCentreOfInterest());
-    } else if (submissionDetailSelected.isDiscoverySubmission()
-        || submissionDetailSelected.isProspectSubmission()) {
-      SystemOfRecordBreadcrumbUtil.addSearchPropsectAndDiscoveryRecordsBreadcrumbsToModelAndView(
-          modelAndView, resourceRecord.resourceNameAndCentreOfInterest());
-    }
-
     var isInResponsibleTeam = responsibleTeamService
         .isInResponsibleTeam(user, resourceRecord.responsibleTeam());
-    if (isInResponsibleTeam) {
+    var isFieldResource = ResourceType.FIELD.equals(resource.getType());
+    var canViewRegulatorManagementInfo = viewResourceRecordService.isRegulatorOrAreaTeamUser(user);
+
+    ModelAndView modelAndView = getModelAndViewForSubmissionDetail(submissionDetailSelectedOptional, resource);
+
+    if (isInResponsibleTeam && !isFieldResource) {
       modelAndView.addObject("resourceGroupUrl",
           ReverseRouter.route(on(ResourceGroupController.class)
               .getResourceGroupPage(resourceId, null)));
-
-      if (submissionDetailSelected.isFieldSubmission()) {
-        modelAndView
-            .addObject("regulatorManagedInformationUrl",
-                ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
-                    .getRegulatorManagedInformationPage(resourceId, null)));
-      } else {
-        modelAndView
-            .addObject("regulatorManagedInformationUrl",
-                ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                    .getRegulatorManagedInformationPage(resourceId)));
-      }
     }
 
-    var querySearchResults = submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(
-        resourceId
-    );
-    modelAndView.addObject("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(
-        querySearchResults
-    ));
-    modelAndView.addObject("submissionSelectedUrl",
-        ReverseRouter.route(on(ViewResourceRecordController.class).viewSubmission(resourceId, null))
-    );
-
-    var canViewRegulatorManagementInfo = viewResourceRecordService.isRegulatorOrAreaTeamUser(user);
     if (canViewRegulatorManagementInfo) {
-      modelAndView
-          .addObject("resourceGroupsSummaryView",
-              resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
-          .addObject("regulatorManagedInformationSummaryView",
-              regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource));
+      addRegulatorOnlyProperties(resourceId, isFieldResource, modelAndView, resource);
     }
 
     if (correctionService.canStartCorrection(resource, user)) {
@@ -184,14 +149,85 @@ public class ViewResourceRecordController {
           ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resourceId, null)));
     }
 
+    addBreadCrumbsForResourceType(resourceRecord, isFieldResource, modelAndView);
+
     return modelAndView
         .addObject("form", form)
         .addObject("resourceRecord", resourceRecord)
-        .addObject("submissionType", submissionDetailSelected.getSubmissionType())
-        .addObject("isFieldSubmission", submissionDetailSelected.isFieldSubmission())
-        .addObject("resourceType", submissionDetailSelected
-            .getSubmission().getResource().getType().getDisplayName())
+        .addObject("isFieldResource", isFieldResource)
         .addObject("canManageRegulatorManagementInfo", isInResponsibleTeam)
         .addObject("canViewRegulatorManagementInfo", canViewRegulatorManagementInfo);
+  }
+
+  private void addRegulatorOnlyProperties(UUID resourceId,
+                                          boolean isFieldResource,
+                                          ModelAndView modelAndView,
+                                          Resource resource) {
+    if (isFieldResource) {
+      modelAndView
+          .addObject("regulatorManagedInformationUrl",
+              ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
+                  .getRegulatorManagedInformationPage(resourceId, null)))
+          .addObject("fieldRegulatorManagedInformationSummaryCard",
+              fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
+          .addObject("manageResourceInformationText", "Manage field information");
+    } else {
+      modelAndView
+          .addObject("regulatorManagedInformationUrl",
+              ReverseRouter.route(on(RegulatorManagedInformationController.class)
+                  .getRegulatorManagedInformationPage(resourceId)))
+          .addObject("resourceGroupsSummaryView",
+              resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
+          .addObject("regulatorManagedInformationSummaryView",
+              regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
+          .addObject("manageResourceInformationText", "Manage resource information");
+    }
+  }
+
+  private static void addBreadCrumbsForResourceType(ResourceRecordSummaryView resourceRecord,
+                                                    boolean isFieldResource,
+                                                    ModelAndView modelAndView) {
+    if (isFieldResource) {
+      SystemOfRecordBreadcrumbUtil.addSearchFieldRecordsBreadcrumbsToModelAndView(
+          modelAndView, resourceRecord.resourceNameAndCentreOfInterest());
+    } else {
+      SystemOfRecordBreadcrumbUtil.addSearchPropsectAndDiscoveryRecordsBreadcrumbsToModelAndView(
+          modelAndView, resourceRecord.resourceNameAndCentreOfInterest());
+    }
+  }
+
+  @NotNull
+  private ModelAndView getModelAndViewForSubmissionDetail(Optional<SubmissionDetail> submissionDetailSelectedOptional,
+                                                          Resource resource) {
+    return submissionDetailSelectedOptional.map(submissionDetailSelected -> {
+          if (!viewResourceRecordService.canViewSubmissionDetail(submissionDetailSelected, resource)) {
+            throw new ResponseStatusException(
+                HttpStatus.FORBIDDEN,
+                ("You cannot view this %s submission detail due to it being a draft or deleted submission detail " +
+                    "or a submission detail not on the same resource")
+                    .formatted(submissionDetailSelected.getId()));
+          }
+
+          var modelAndViewForSubmissionType = submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(
+              submissionDetailSelected,
+              "remi/systemofrecord/viewResourceRecord"
+          );
+          var querySearchResults = submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(
+              resource.getId()
+          );
+
+          modelAndViewForSubmissionType
+              .addObject("submissionType", submissionDetailSelected.getSubmissionType())
+              .addObject("resourceType", submissionDetailSelected
+                  .getSubmission().getResource().getType().getDisplayName())
+              .addObject("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(
+                  querySearchResults))
+              .addObject("submissionSelectedUrl",
+                  ReverseRouter.route(on(ViewResourceRecordController.class).viewSubmission(resource.getId(), null))
+              );
+
+          return modelAndViewForSubmissionType;
+        }
+    ).orElse(new ModelAndView("remi/systemofrecord/viewResourceRecord"));
   }
 }

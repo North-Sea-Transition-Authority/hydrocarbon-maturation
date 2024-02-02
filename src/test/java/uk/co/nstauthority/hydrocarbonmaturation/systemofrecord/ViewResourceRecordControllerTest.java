@@ -37,6 +37,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.Res
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationController;
+import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
@@ -46,6 +47,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionSelectionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionService;
 
@@ -69,6 +73,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   @MockBean
   private ResponsibleTeamService responsibleTeamService;
   @MockBean
+  private FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
+  @MockBean
   private CorrectionService correctionService;
   private Resource resource;
   private UUID resourceId;
@@ -80,10 +86,13 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
     resourceId = resource.getId();
     submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT, resource);
-    resourceRecordSummaryView = SubmissionIntegrationTestUtils.emptyResourceRecordSummaryView(UUID.randomUUID(), 1);
+    resourceRecordSummaryView = new ResourceRecordSummaryView(submissionDetail.getId(), "coi",
+        1, "org name", List.of(), List.of(),
+        null, "parent", "field status");
+
     when(viewResourceRecordService.getResourceRecordOrThrow(resourceId)).thenReturn(resourceRecordSummaryView);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(resourceRecordSummaryView.submissionDetailId()))
-        .thenReturn(submissionDetail);
+    when(submissionDetailService.getSubmissionDetail(resourceRecordSummaryView.submissionDetailId()))
+        .thenReturn(Optional.of(submissionDetail));
   }
 
   @SecurityTest
@@ -144,7 +153,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(otherSubmissionOnResource.getSubmission().getResource().getId(), null))),
-            entry("isFieldSubmission", false),
+            entry("isFieldResource", false),
             entry("resourceType", otherSubmissionOnResource.getSubmission().getResource().getType().getDisplayName()),
             entry("resourceRecord", resourceRecordSummaryView),
             entry("submissionType", otherSubmissionOnResource.getSubmissionType()),
@@ -186,7 +195,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(otherSubmissionOnResource.getSubmission().getResource().getId(), null))),
-            entry("isFieldSubmission", false),
+            entry("isFieldResource", false),
             entry("resourceType", otherSubmissionOnResource.getSubmission().getResource().getType().getDisplayName()),
             entry("resourceRecord", resourceRecordSummaryView),
             entry("submissionType", otherSubmissionOnResource.getSubmissionType()),
@@ -204,6 +213,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   @Test
   @SuppressWarnings("unchecked")
   void showSubmissionSummary_fieldSubmission_assertModelProperties() throws Exception {
+    resource.setType(ResourceType.FIELD);
+
     when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, USER)).thenReturn(true);
     submissionDetail.setAcceptedTimestamp(Instant.now());
     var otherSubmissionOnResource = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR, resource);
@@ -228,7 +239,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
                 .viewSubmission(otherSubmissionOnResource.getSubmission().getResource().getId(), null))),
-            entry("isFieldSubmission", true),
+            entry("isFieldResource", true),
             entry("resourceType", otherSubmissionOnResource.getSubmission().getResource().getType().getDisplayName()),
             entry("resourceRecord", resourceRecordSummaryView),
             entry("submissionType", otherSubmissionOnResource.getSubmissionType()),
@@ -272,7 +283,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .contains(
             entry("resourceRecord", resourceRecordSummaryView),
             entry("submissionType", submissionDetail.getSubmissionType()),
-            entry("isFieldSubmission", submissionDetail.isFieldSubmission()),
+            entry("isFieldResource", ResourceType.FIELD.equals(submissionDetail.getSubmission().getResource().getType())),
             entry("canManageRegulatorManagementInfo", false),
             entry("canViewRegulatorManagementInfo", false)
         ).doesNotContainKeys("regulatorManagedInformationSummaryView", "resourceGroupsSummaryView");
@@ -297,20 +308,20 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .thenReturn(true);
     when(responsibleTeamService.isInResponsibleTeam(USER, resourceRecordSummaryView.responsibleTeam()))
         .thenReturn(true);
-    var regulatorSummary = RegulatorManagedInformationSummaryView.empty(false);
-    when(regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(any()))
-        .thenReturn(regulatorSummary);
     var resource = new Resource();
     resource.setId(resourceId);
+    resource.setType(ResourceType.FIELD);
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
     when(viewResourceRecordService.canViewSubmissionDetail(submissionDetail, resource))
         .thenReturn(true);
-    var resourceGroupSummary = new ResourceGroupSummaryView(List.of(), ResourceType.DISCOVERY, "");
-    when(resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
-        .thenReturn(resourceGroupSummary);
-    when(correctionService.canStartCorrection(resource, USER)).thenReturn(true);
-    var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(submissionDetail));
+    var regulatorSummary = new SummaryCard("", SummaryCardType.EMPTY_SUMMARY, List.of());
+    when(fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
+        .thenReturn(regulatorSummary);
+    var otherSubmissionOnResource = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR, resource);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(otherSubmissionOnResource.getId()))
+        .thenReturn(otherSubmissionOnResource);
+    var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(otherSubmissionOnResource));
     mockModelAndViewCreation(submissionDetail, queryResult);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -327,18 +338,62 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("resourceType", submissionDetail.getSubmission().getResource().getType().getDisplayName()),
             entry("resourceRecord", resourceRecordSummaryView),
             entry("submissionType", submissionDetail.getSubmissionType()),
-            entry("isFieldSubmission", true),
+            entry("isFieldResource", true),
             entry("canManageRegulatorManagementInfo", true),
             entry("regulatorManagedInformationUrl", ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
                 .getRegulatorManagedInformationPage(resourceId, null))),
-            entry("resourceGroupUrl",
-                ReverseRouter.route(on(ResourceGroupController.class)
-                    .getResourceGroupPage(resourceId, null))),
-            entry("regulatorManagedInformationSummaryView", regulatorSummary),
-            entry("resourceGroupsSummaryView", resourceGroupSummary),
+            entry("fieldRegulatorManagedInformationSummaryCard", regulatorSummary),
             entry("submissionType", submissionDetail.getSubmissionType()),
             entry("canViewRegulatorManagementInfo", true),
-            entry("correctionUrl", ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resource.getId(), null)))
+            entry("manageResourceInformationText", "Manage field information")
+        );
+
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null)),
+            SearchFieldRecordsController.PAGE_TITLE)
+    );
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void showResourceRecordModelAndView_whenIsRegulator_fieldResourceWithNoSubmissions_assertModelPropertiesAndVerifyAddRegulatorAttributes() throws Exception {
+    when(submissionDetailService.getSubmissionDetail(resourceRecordSummaryView.submissionDetailId())).thenReturn(Optional.empty());
+    when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, USER)).thenReturn(true);
+    when(viewResourceRecordService.isRegulatorOrAreaTeamUser(USER))
+        .thenReturn(true);
+    when(regulatorTeamService.isRegulatorUser(USER))
+        .thenReturn(true);
+    when(responsibleTeamService.isInResponsibleTeam(USER, resourceRecordSummaryView.responsibleTeam()))
+        .thenReturn(true);
+
+    var resource = new Resource();
+    resource.setId(resourceId);
+    resource.setType(ResourceType.FIELD);
+    when(resourceService.getResourceById(resourceId))
+        .thenReturn(Optional.of(resource));
+
+    var regulatorSummary = new SummaryCard("", SummaryCardType.EMPTY_SUMMARY, SummaryDataView.newWithKeyValue("", ""));
+    when(fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
+        .thenReturn(regulatorSummary);
+
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("resourceRecord", resourceRecordSummaryView),
+            entry("isFieldResource", true),
+            entry("canManageRegulatorManagementInfo", true),
+            entry("regulatorManagedInformationUrl", ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
+                .getRegulatorManagedInformationPage(resourceId, null))),
+            entry("fieldRegulatorManagedInformationSummaryCard", regulatorSummary),
+            entry("canViewRegulatorManagementInfo", true),
+            entry("manageResourceInformationText", "Manage field information")
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -391,7 +446,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("resourceType", submissionDetail.getSubmission().getResource().getType().getDisplayName()),
             entry("resourceRecord", resourceRecordSummaryView),
             entry("submissionType", submissionDetail.getSubmissionType()),
-            entry("isFieldSubmission", false),
+            entry("isFieldResource", false),
             entry("canManageRegulatorManagementInfo", true),
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
@@ -403,7 +458,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("resourceGroupsSummaryView", resourceGroupSummary),
             entry("submissionType", submissionDetail.getSubmissionType()),
             entry("canViewRegulatorManagementInfo", true),
-            entry("correctionUrl", ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resource.getId(), null)))
+            entry("correctionUrl", ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resource.getId(), null))),
+            entry("manageResourceInformationText", "Manage resource information")
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -456,7 +512,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("resourceType", submissionDetail.getSubmission().getResource().getType().getDisplayName()),
             entry("resourceRecord", resourceRecordSummaryView),
             entry("submissionType", submissionDetail.getSubmissionType()),
-            entry("isFieldSubmission", false),
+            entry("isFieldResource", false),
             entry("canManageRegulatorManagementInfo", true),
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
@@ -468,7 +524,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("resourceGroupsSummaryView", resourceGroupSummary),
             entry("submissionType", submissionDetail.getSubmissionType()),
             entry("canViewRegulatorManagementInfo", true),
-            entry("correctionUrl", ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resource.getId(), null)))
+            entry("correctionUrl", ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resource.getId(), null))),
+            entry("manageResourceInformationText", "Manage resource information")
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

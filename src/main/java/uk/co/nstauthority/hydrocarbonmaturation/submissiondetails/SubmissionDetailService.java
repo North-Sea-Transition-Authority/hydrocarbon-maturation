@@ -37,6 +37,9 @@ public class SubmissionDetailService {
   }
 
   public Optional<SubmissionDetail> getSubmissionDetail(UUID id) {
+    if (id == null) {
+      return Optional.empty();
+    }
     return submissionDetailRepository.findById(id);
   }
 

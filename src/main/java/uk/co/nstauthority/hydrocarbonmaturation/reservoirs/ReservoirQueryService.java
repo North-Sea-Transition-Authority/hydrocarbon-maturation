@@ -38,7 +38,7 @@ public class ReservoirQueryService {
     var submissionDetail = submissionDetailService
         .getSubmissionDetailForIdOrError(UUID.fromString(submissionDetailId));
 
-    var field = fieldPersistenceService.getFieldByResourceOrThrow(submissionDetail.getSubmission().getResource());
+    var field = fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource());
 
     var fieldDiscoveries = resourceLinkService.getResourceLinksByField(field.getResource())
         .stream()

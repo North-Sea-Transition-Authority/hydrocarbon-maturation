@@ -195,7 +195,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
     var field = mock(Field.class);
     when(field.getResponsibleOrganisationId())
             .thenReturn(resourceDetail.getOrganisationId());
-    when(fieldPersistenceService.getFieldByResourceOrThrow(submissionDetail.getSubmission().getResource()))
+    when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
             .thenReturn(field);
     when(industryTeamService.getOrganisationUnitIdsForUserWithIndustryTeamRoles(
             user, Set.of(IndustryTeamRole.SUBMITTER)))
@@ -303,7 +303,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
     resourceDetail.setOrganisationId(1);
     var field = new Field();
     field.setResponsibleOrganisationId(resourceDetail.getOrganisationId());
-    when(fieldPersistenceService.getFieldByResourceOrThrow(submissionDetail.getSubmission().getResource()))
+    when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
             .thenReturn(field);
     when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(resourceDetail.getOrganisationId()))
             .thenReturn(List.of(1));

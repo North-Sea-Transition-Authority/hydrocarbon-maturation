@@ -82,9 +82,66 @@ class FieldRegulatorManagedInformationServiceTest {
   }
 
   @Test
-  void resourceToFieldForm_existingField_assertFormAttributes() {
-    var emptyFieldForm = new FieldForm();
+  void resourceToFieldForm_existingField_noParentField_assertFormAttributes() {
+    var field = new Field();
+    field.setLegalFieldName("legal name");
+    field.setCorrectedLegalFieldName("corrected name");
+    field.setCommonNameForField("common name");
+    field.setResponsibleOrganisationId(1);
+    field.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    field.setFieldNumber(1);
+    field.setInfrastructureHost(false);
+    field.setDeterminationStatus(DeterminationStatus.DETERMINED);
 
+    when(fieldPersistenceService.getFieldByResource(resource))
+        .thenReturn(Optional.of(field));
+
+    var regulatorManagedInformation = new RegulatorManagedInformation();
+    regulatorManagedInformation.setGeographicalArea(GeographicalArea.NORTHERN_NORTH_SEA);
+    regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
+
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResource(resource))
+        .thenReturn(Optional.of(regulatorManagedInformation));
+
+    var expectedResourceDetailIds = new ArrayList<UUID>();
+    var link1 = createAndMockNewResourceLink(expectedResourceDetailIds);
+    var link2 = createAndMockNewResourceLink(expectedResourceDetailIds);
+
+    when(resourceLinkService.getResourceLinksByField(resource))
+        .thenReturn(List.of(link1, link2));
+
+    assertThat(fieldRegulatorManagedInformationService.resourceToFieldForm(resource))
+        .extracting(
+            FieldForm::getLegalFieldName,
+            FieldForm::getCorrectedLegalFieldName,
+            FieldForm::getCommonNameForField,
+            FieldForm::getResponsibleOrganisationId,
+            FieldForm::getOnshoreOffshore,
+            FieldForm::getGeographicalArea,
+            FieldForm::getResponsibleTeamType,
+            fieldForm -> fieldForm.getFieldNumber().createIntegerOrNull(),
+            FieldForm::getInfrastructureHost,
+            FieldForm::getDeterminationStatus,
+            FieldForm::getParentDeterminedField,
+            FieldForm::getAssociatedDiscoveries
+        ).containsExactly(
+            field.getLegalFieldName(),
+            field.getCorrectedLegalFieldName(),
+            field.getCommonNameForField(),
+            field.getResponsibleOrganisationId().toString(),
+            field.getOnshoreOffshore(),
+            regulatorManagedInformation.getGeographicalArea(),
+            regulatorManagedInformation.getResponsibleTeamType(),
+            field.getFieldNumber(),
+            field.getInfrastructureHost(),
+            field.getDeterminationStatus(),
+            "",
+            expectedResourceDetailIds.stream().map(UUID::toString).toList()
+        );
+  }
+
+  @Test
+  void resourceToFieldForm_existingField_withParentField_assertFormAttributes() {
     var field = new Field();
     field.setLegalFieldName("legal name");
     field.setCorrectedLegalFieldName("corrected name");
@@ -95,7 +152,7 @@ class FieldRegulatorManagedInformationServiceTest {
     field.setInfrastructureHost(false);
     field.setDeterminationStatus(DeterminationStatus.DETERMINED);
     var parentField = new Field();
-    parentField.setCorrectedLegalFieldName("parent");
+    parentField.setFieldIdentifier(8000);
     field.setParentDeterminedField(parentField);
 
     when(fieldPersistenceService.getFieldByResource(resource))
@@ -140,7 +197,7 @@ class FieldRegulatorManagedInformationServiceTest {
             field.getFieldNumber(),
             field.getInfrastructureHost(),
             field.getDeterminationStatus(),
-            field.getParentDeterminedField().getCorrectedLegalFieldName(),
+            field.getParentDeterminedField().getFieldIdentifier().toString(),
             expectedResourceDetailIds.stream().map(UUID::toString).toList()
         );
   }

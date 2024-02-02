@@ -82,7 +82,7 @@ class FieldOilVolumetricParametersControllerTest extends AbstractSubmissionContr
 
     var field = new Field();
     field.setResponsibleOrganisationId(1);
-    when(fieldPersistenceService.getFieldByResourceOrThrow(submissionDetail.getSubmission().getResource()))
+    when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
         .thenReturn(field);
   }
 

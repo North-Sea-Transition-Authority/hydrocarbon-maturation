@@ -225,7 +225,7 @@ public class ReviewSubmissionController {
       modelAndView
           .addObject("regulatorManagedInformationUrl",
               ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
-                  .getRegulatorManagedInformationPage(resourceId, null)));
+                  .getRegulatorManagedInformationPageWithSubmissionDetail(resourceId, selectedSubmissionDetail.getId(), null)));
     } else {
       modelAndView
           .addObject("regulatorManagedInformationUrl",

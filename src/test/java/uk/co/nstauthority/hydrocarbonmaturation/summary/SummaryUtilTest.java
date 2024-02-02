@@ -2,6 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.summary;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,6 +13,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DecimalFormatUtil;
@@ -58,6 +62,22 @@ class SummaryUtilTest {
     BigDecimal bigDecimalValue = BigDecimal.valueOf(1.123456789);
     assertThat(SummaryUtil.format(bigDecimalValue))
         .isEqualTo(DecimalFormatUtil.bigDecimalToFormattedString(bigDecimalValue));
+  }
+
+  @Test
+  void format_DecimalInput() {
+    DecimalInput decimalInput = new DecimalInput("5.01");
+    assertThat(SummaryUtil.format(decimalInput))
+        .isEqualTo(decimalInput.getDecimalInputValue());
+  }
+
+  @Test
+  void format_Displayable() {
+    Displayable displayable = mock(Displayable.class);
+    when(displayable.getDisplayName()).thenReturn("Displayable name");
+
+    assertThat(SummaryUtil.format(displayable))
+        .isEqualTo("Displayable name");
   }
 
   @ParameterizedTest

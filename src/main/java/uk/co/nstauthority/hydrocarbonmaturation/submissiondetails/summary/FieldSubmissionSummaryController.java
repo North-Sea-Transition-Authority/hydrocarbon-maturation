@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
+import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -45,15 +46,18 @@ public class FieldSubmissionSummaryController {
   private final SubmissionApprovalService submissionApprovalService;
   private final OnshoreOffshoreService onshoreOffshoreService;
   private final InternalTeamService internalTeamService;
+  private final FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
 
   @Autowired
-  public FieldSubmissionSummaryController(SubmissionDetailService submissionDetailService,
-                                          SubmissionReadyService submissionReadyService,
-                                          SubmissionSummaryModelService submissionSummaryModelService,
-                                          SubmissionSummaryFormValidator submissionSummaryFormValidator,
-                                          SubmissionApprovalService submissionApprovalService,
-                                          OnshoreOffshoreService onshoreOffshoreService,
-                                          InternalTeamService internalTeamService) {
+  public FieldSubmissionSummaryController(
+      SubmissionDetailService submissionDetailService,
+      SubmissionReadyService submissionReadyService,
+      SubmissionSummaryModelService submissionSummaryModelService,
+      SubmissionSummaryFormValidator submissionSummaryFormValidator,
+      SubmissionApprovalService submissionApprovalService,
+      OnshoreOffshoreService onshoreOffshoreService,
+      InternalTeamService internalTeamService,
+      FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService) {
     this.submissionDetailService = submissionDetailService;
     this.submissionReadyService = submissionReadyService;
     this.submissionSummaryModelService = submissionSummaryModelService;
@@ -61,6 +65,7 @@ public class FieldSubmissionSummaryController {
     this.submissionApprovalService = submissionApprovalService;
     this.onshoreOffshoreService = onshoreOffshoreService;
     this.internalTeamService = internalTeamService;
+    this.fieldRegulatorManagedInformationSummaryService = fieldRegulatorManagedInformationSummaryService;
   }
 
   @GetMapping
@@ -95,7 +100,10 @@ public class FieldSubmissionSummaryController {
         .addObject("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId())))
         .addObject("submittable", submissionReadyService.isSubmissionSubmittable(submissionDetail))
         .addObject("isRegulatorOrAreaTeamUser", internalTeamService.isRegulatorOrAreaTeamUser())
-        .addObject("isOffshore", onshoreOffshoreService.getOnshoreOffshore(submissionDetail) == OnshoreOffshore.OFFSHORE);
+        .addObject("isOffshore", onshoreOffshoreService.getOnshoreOffshore(submissionDetail) == OnshoreOffshore.OFFSHORE)
+        .addObject("fieldRegulatorManagedInformationSummaryCard",
+            fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(
+                submissionDetail.getSubmission().getResource()));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(
         modelAndView,

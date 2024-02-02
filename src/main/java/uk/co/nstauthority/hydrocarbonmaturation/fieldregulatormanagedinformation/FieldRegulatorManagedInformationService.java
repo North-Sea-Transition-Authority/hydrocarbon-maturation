@@ -67,9 +67,9 @@ public class FieldRegulatorManagedInformationService {
 
               var parentDeterminedField = field.getParentDeterminedField();
               form.setParentDeterminedField(
-                  parentDeterminedField == null
-                      ? ""
-                      : parentDeterminedField.getCorrectedLegalFieldName()
+                  parentDeterminedField != null
+                      ? parentDeterminedField.getFieldIdentifier().toString()
+                      : ""
               );
 
               // create list of associated discovery resourceDetail ids
@@ -94,7 +94,6 @@ public class FieldRegulatorManagedInformationService {
             }
         ).orElse(new FieldForm());
   }
-
 
   @Transactional
   public void saveField(FieldForm form, Resource field) {

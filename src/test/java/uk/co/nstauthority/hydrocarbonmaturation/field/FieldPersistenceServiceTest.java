@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,7 +22,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -130,6 +128,21 @@ class FieldPersistenceServiceTest {
       var result = underTest.saveFieldFromFieldForm(form, resource);
       assertThat(result.getParentDeterminedField())
           .isEqualTo(field);
+    }
+
+    @Test
+    void nonSubAreaDeterminationStatus_parentFieldCleared() {
+      var parentDeterminedField = new Field();
+
+      var field = new Field();
+      field.setParentDeterminedField(parentDeterminedField);
+      when(fieldRepository.findByResource(resource)).thenReturn(Optional.of(field));
+
+      form.setDeterminationStatus(DeterminationStatus.DETERMINED);
+
+      var result = underTest.saveFieldFromFieldForm(form, resource);
+      assertThat(result.getParentDeterminedField())
+          .isNull();
     }
 
     @Test
@@ -244,28 +257,6 @@ class FieldPersistenceServiceTest {
     void verifyCalls() {
       underTest.getFieldByResource(RESOURCE);
       verify(fieldRepository).findByResource(RESOURCE);
-    }
-  }
-
-  @Nested
-  class WhenGettingFieldByResourceOrThrow {
-    private final static Resource RESOURCE = new Resource();
-
-    @Test
-    void verifyCalls() {
-      var field = new Field();
-      when(fieldRepository.findByResource(RESOURCE)).thenReturn(Optional.of(field));
-
-      assertThat(underTest.getFieldByResourceOrThrow(RESOURCE))
-          .isEqualTo(field);
-    }
-
-    @Test
-    void throwsWhenNoField() {
-      when(fieldRepository.findByResource(RESOURCE)).thenReturn(Optional.empty());
-      assertThatThrownBy(() -> underTest.getFieldByResourceOrThrow(RESOURCE))
-          .isInstanceOf(RemiEntityNotFoundException.class)
-          .hasMessageContaining("No field found for resource id: %s".formatted(RESOURCE.getId()));
     }
   }
 }

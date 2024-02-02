@@ -384,7 +384,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
         .contains(
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
-                    .getRegulatorManagedInformationPage(resourceId, null)))
+                  .getRegulatorManagedInformationPageWithSubmissionDetail(resourceId, submissionDetail.getId(), null)))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
