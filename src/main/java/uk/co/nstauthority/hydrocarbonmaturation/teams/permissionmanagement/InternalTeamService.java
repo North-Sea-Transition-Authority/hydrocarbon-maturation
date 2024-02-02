@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
@@ -23,6 +24,10 @@ public class InternalTeamService {
 
   public boolean isRegulatorOrAreaTeamUser() {
     var user = userService.getUser();
+    return isRegulatorOrAreaTeamUser(user);
+  }
+
+  public boolean isRegulatorOrAreaTeamUser(User user) {
     return regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user);
   }
 }
