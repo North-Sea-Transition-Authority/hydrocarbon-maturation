@@ -18,8 +18,10 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlResponseParser;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceLogoutSuccessHandler;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ServiceAccessDeniedHandler;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.access.EnergyPortalAccessApiConfiguration;
 
 @Configuration
@@ -55,14 +57,15 @@ public class WebSecurityConfiguration {
                     "/notify/callback",
                     "/api/v1/logout/*",
                     "/accessibility-statement",
-                    "/contact-information"
+                    "/contact-information",
+                    "/error/**"
                 ).permitAll()
                 .requestMatchers("/*").hasAuthority(energyPortalAccessApiConfiguration.privilegeName())
                 .anyRequest().authenticated()
             )
-        .exceptionHandling(exceptionHandlingConfigurer -> exceptionHandlingConfigurer.accessDeniedPage("/access-denied"))
         .saml2Login(saml2 -> saml2.authenticationManager(new ProviderManager(authenticationProvider)))
-        .logout(logoutConfigurer -> logoutConfigurer.logoutSuccessHandler(serviceLogoutSuccessHandler));
+        .logout(logoutConfigurer -> logoutConfigurer.logoutSuccessHandler(serviceLogoutSuccessHandler))
+        .exceptionHandling(exceptionHandling -> exceptionHandling.accessDeniedHandler(accessDeniedHandler()));
 
     return httpSecurity.build();
   }
@@ -94,6 +97,11 @@ public class WebSecurityConfiguration {
         )
         .assertionConsumerServiceLocation(samlProperties.getConsumerServiceLocation())
         .build();
+  }
+
+  @Bean
+  AccessDeniedHandler accessDeniedHandler() {
+    return new ServiceAccessDeniedHandler();
   }
 
 }
