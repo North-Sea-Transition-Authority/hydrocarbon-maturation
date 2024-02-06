@@ -142,7 +142,7 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
         oilRecoverableReserves,
         errors,
         "oilRecoverableReserves",
-        "Oil recoverable reserves",
+        "Oil reserves",
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD
     );
 
@@ -151,7 +151,7 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
         associatedGasRecoverableReserves,
         errors,
         "associatedGasRecoverableReserves",
-        "Associated gas recoverable reserves",
+        "Associated gas reserves",
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD
     );
 
@@ -160,7 +160,7 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
         gasRecoverableReserves,
         errors,
         "gasRecoverableReserves",
-        "Gas recoverable reserves",
+        "Associated gas reserves",
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD
     );
 
@@ -169,7 +169,7 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
         associatedCondensateRecoverableReserves,
         errors,
         "associatedCondensateRecoverableReserves",
-        "Associated condensate recoverable reserves",
+        "Associated condensate reserves",
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD
     );
 
@@ -178,7 +178,7 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
         oilEquivalentRecoverableReserves,
         errors,
         "oilEquivalentRecoverableReserves",
-        "Oil equivalent recoverable reserves",
+        "Oil equivalent reserves",
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
     );
 
@@ -280,7 +280,7 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
         oilRecoverableReserves,
         errors,
         "oilRecoverableReserves",
-        "Oil recoverable reserves",
+        "Oil reserves",
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD
     );
 
@@ -289,7 +289,7 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
         associatedGasRecoverableReserves,
         errors,
         "associatedGasRecoverableReserves",
-        "Associated gas recoverable reserves",
+        "Associated gas reserves",
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD
     );
 
@@ -298,7 +298,7 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
         gasRecoverableReserves,
         errors,
         "gasRecoverableReserves",
-        "Gas recoverable reserves",
+        "Associated gas reserves",
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD
     );
 
@@ -307,7 +307,7 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
         associatedCondensateRecoverableReserves,
         errors,
         "associatedCondensateRecoverableReserves",
-        "Associated condensate recoverable reserves",
+        "Associated condensate reserves",
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD
     );
 
@@ -316,7 +316,7 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
         oilEquivalentRecoverableReserves,
         errors,
         "oilEquivalentRecoverableReserves",
-        "Oil equivalent recoverable reserves",
+        "Oil equivalent reserves",
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
     );
 

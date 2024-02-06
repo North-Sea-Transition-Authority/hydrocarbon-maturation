@@ -36,6 +36,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.ViewFieldStatusHistoryController;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -76,6 +79,9 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   private FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
   @MockBean
   private CorrectionService correctionService;
+  @MockBean
+  private FieldPersistenceService fieldPersistenceService;
+
   private Resource resource;
   private UUID resourceId;
   private SubmissionDetail submissionDetail;
@@ -324,6 +330,11 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(otherSubmissionOnResource));
     mockModelAndViewCreation(submissionDetail, queryResult);
 
+    var field = new Field();
+    field.setFieldIdentifier(8000);
+    when(fieldPersistenceService.getFieldOrThrow(resource))
+        .thenReturn(field);
+
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)))
                 .with(user(USER)))
@@ -345,6 +356,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("fieldRegulatorManagedInformationSummaryCard", regulatorSummary),
             entry("submissionType", submissionDetail.getSubmissionType()),
             entry("canViewRegulatorManagementInfo", true),
+            entry("fieldStatusUrl", ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
+                .getViewFieldStatusHistory(field.getFieldIdentifier()))),
             entry("manageResourceInformationText", "Manage field information")
         );
 
@@ -373,6 +386,10 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     resource.setType(ResourceType.FIELD);
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
+
+    var field = new Field();
+    when(fieldPersistenceService.getFieldOrThrow(resource))
+        .thenReturn(field);
 
     var regulatorSummary = new SummaryCard("", SummaryCardType.EMPTY_SUMMARY, SummaryDataView.newWithKeyValue("", ""));
     when(fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))

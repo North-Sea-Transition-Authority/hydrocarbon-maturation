@@ -17,9 +17,9 @@ public record FieldOilCaseVolumetricTotalsSummaryView(
     ));
     if (!submissionDetail.isConceptSelectReportSubmission()) {
       summaryViews.addAll(List.of(
-          ProbabilityDistributionSummaryView.empty("Oil recoverable reserves"),
-          ProbabilityDistributionSummaryView.empty("Associated-gas recoverable reserves"),
-          ProbabilityDistributionSummaryView.empty("Oil equivalent recoverable reserves"),
+          ProbabilityDistributionSummaryView.empty("Oil reserves"),
+          ProbabilityDistributionSummaryView.empty("Associated gas reserves"),
+          ProbabilityDistributionSummaryView.empty("Oil equivalent reserves"),
           ProbabilityDistributionSummaryView.empty("Natural gas liquid reserves"),
           ProbabilityDistributionSummaryView.empty("Total sales gas reserves")
       ));

@@ -71,19 +71,19 @@
     <#if resourceType == 'FIELD' && showReserves>
       <@probabilityDistribution.probabilityDistributionSingularTemplate
       probabilityDistributionPath="form.gasRecoverableReserves"
-      labelText="Gas recoverable reserves"
+      labelText="Associated gas reserves"
       template=gasRecoverableReservesTemplate
       error=gasRecoverableReservesError/>
 
       <@probabilityDistribution.probabilityDistributionSingularTemplate
       probabilityDistributionPath="form.associatedCondensateRecoverableReserves"
-      labelText="Associated condensate recoverable reserves"
+      labelText="Associated condensate reserves"
       template=associatedCondensateRecoverableReservesTemplate
       error=associatedCondensateRecoverableReservesError/>
 
       <@probabilityDistribution.probabilityDistributionSingularTemplate
       probabilityDistributionPath="form.oilEquivalentRecoverableReserves"
-      labelText="Oil equivalent recoverable reserves"
+      labelText="Oil equivalent reserves"
       template=oilEquivalentRecoverableReservesTemplate
       error=oilEquivalentRecoverableReservesError/>
 
