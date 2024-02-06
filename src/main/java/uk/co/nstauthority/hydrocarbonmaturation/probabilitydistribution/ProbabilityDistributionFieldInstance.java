@@ -558,7 +558,7 @@ public enum ProbabilityDistributionFieldInstance {
   TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD(
       FieldVolumetricsBehaviourReserves.class,
       ProbabilityOfExceedanceUnits.MMBBL,
-      "Associated gas reserves"
+      "Gas reserves"
   ),
 
 

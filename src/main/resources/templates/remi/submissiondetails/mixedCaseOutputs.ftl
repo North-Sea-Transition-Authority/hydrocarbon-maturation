@@ -122,7 +122,7 @@
 
           <@probabilityDistribution.probabilityDistributionSingularTemplate
           probabilityDistributionPath="form.gasRecoverableReserves"
-          labelText="Associated gas reserves"
+          labelText="Gas reserves"
           template=gasRecoverableReservesTemplate
           error=gasRecoverableReservesError/>
 

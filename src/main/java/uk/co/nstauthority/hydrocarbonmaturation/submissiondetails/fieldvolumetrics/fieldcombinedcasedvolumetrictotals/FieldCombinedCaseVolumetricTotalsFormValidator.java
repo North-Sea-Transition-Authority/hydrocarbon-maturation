@@ -160,7 +160,7 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
         gasRecoverableReserves,
         errors,
         "gasRecoverableReserves",
-        "Associated gas reserves",
+        "Gas reserves",
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD
     );
 
@@ -298,7 +298,7 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
         gasRecoverableReserves,
         errors,
         "gasRecoverableReserves",
-        "Associated gas reserves",
+        "Gas reserves",
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD
     );
 

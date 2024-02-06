@@ -106,7 +106,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         gasRecoverableReserves,
         errors,
         "gasRecoverableReserves",
-        "Associated gas reserves",
+        "Gas reserves",
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD
     );
 
@@ -208,7 +208,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         gasRecoverableReserves,
         errors,
         "gasRecoverableReserves",
-        "Associated gas reserves",
+        "Gas reserves",
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD
     );
 
