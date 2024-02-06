@@ -85,9 +85,13 @@
             linkUrl=springUrl(withdrawUrl)/>
         </#if>
         <@fdsAction.link
-          linkText="Manage resource information"
+          linkText=manageResourceInformationText
           linkClass="govuk-button govuk-button--secondary"
           linkUrl=springUrl(regulatorManagedInformationUrl)/>
+        <@fdsAction.link
+          linkText="Field status"
+          linkClass="govuk-button govuk-button--secondary"
+          linkUrl=springUrl(fieldStatusUrl)/>
     </@fdsAction.buttonGroup>
   </#if>
 

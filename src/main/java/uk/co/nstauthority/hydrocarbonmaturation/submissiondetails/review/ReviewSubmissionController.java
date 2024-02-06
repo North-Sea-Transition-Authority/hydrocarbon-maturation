@@ -21,6 +21,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.ViewFieldStatusHistoryController;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
@@ -51,6 +53,7 @@ public class ReviewSubmissionController {
   private final ResourceService resourceService;
   private final ResourceGroupSummaryService resourceGroupSummaryService;
   private final ResponsibleTeamService responsibleTeamService;
+  private final FieldPersistenceService fieldPersistenceService;
 
   @Autowired
   public ReviewSubmissionController(ReviewSubmissionService reviewSubmissionService,
@@ -61,7 +64,8 @@ public class ReviewSubmissionController {
                                     RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
                                     ResourceService resourceService,
                                     ResourceGroupSummaryService resourceGroupSummaryService,
-                                    ResponsibleTeamService responsibleTeamService) {
+                                    ResponsibleTeamService responsibleTeamService,
+                                    FieldPersistenceService fieldPersistenceService) {
     this.reviewSubmissionService = reviewSubmissionService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
@@ -71,6 +75,7 @@ public class ReviewSubmissionController {
     this.resourceService = resourceService;
     this.resourceGroupSummaryService = resourceGroupSummaryService;
     this.responsibleTeamService = responsibleTeamService;
+    this.fieldPersistenceService = fieldPersistenceService;
   }
 
   @GetMapping
@@ -222,16 +227,22 @@ public class ReviewSubmissionController {
                 .showWithdrawConfirmationPage(selectedSubmissionDetail.getId())));
 
     if (selectedSubmissionDetail.isFieldSubmission()) {
+      var field = fieldPersistenceService.getFieldOrThrow(resource);
       modelAndView
           .addObject("regulatorManagedInformationUrl",
               ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
-                  .getRegulatorManagedInformationPageWithSubmissionDetail(resourceId, selectedSubmissionDetail.getId(), null)));
+                  .getRegulatorManagedInformationPageWithSubmissionDetail(resourceId, selectedSubmissionDetail.getId(), null)))
+          .addObject("manageResourceInformationText", "Manage field information")
+          .addObject("fieldStatusUrl", ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
+              .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), selectedSubmissionDetail.getId())));
     } else {
       modelAndView
           .addObject("regulatorManagedInformationUrl",
               ReverseRouter.route(on(RegulatorManagedInformationController.class)
                   .getRegulatorManagedInformationPage(
-                      resourceId)));
+                      resourceId)))
+          .addObject("manageResourceInformationText", "Manage resource information");
+
     }
 
     return modelAndView;

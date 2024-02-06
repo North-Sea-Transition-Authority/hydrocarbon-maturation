@@ -36,6 +36,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.ViewFieldStatusHistoryController;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
@@ -81,6 +84,8 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
   private ResourceGroupSummaryService resourceGroupSummaryService;
   @MockBean
   private ResponsibleTeamService responsibleTeamService;
+  @MockBean
+  FieldPersistenceService fieldPersistenceService;
 
   private Resource resource;
   private UUID resourceId;
@@ -341,7 +346,8 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(
-                        resourceId)))
+                        resourceId))),
+            entry("manageResourceInformationText", "Manage resource information")
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -374,6 +380,11 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(submissionDetail));
     mockModelAndViewCreation(submissionDetail, queryResult);
     when(responsibleTeamService.isInResponsibleTeam(USER, submissionRecordSummaryView.responsibleTeamType())).thenReturn(true);
+
+    var field = new Field();
+    field.setFieldIdentifier(8000);
+    when(fieldPersistenceService.getFieldOrThrow(resource)).thenReturn(field);
+
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resourceId)))
                 .with(user(USER)))
@@ -384,7 +395,10 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
         .contains(
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
-                  .getRegulatorManagedInformationPageWithSubmissionDetail(resourceId, submissionDetail.getId(), null)))
+                  .getRegulatorManagedInformationPageWithSubmissionDetail(resourceId, submissionDetail.getId(), null))),
+            entry("manageResourceInformationText", "Manage field information"),
+            entry("fieldStatusUrl", ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
+                .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId())))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
