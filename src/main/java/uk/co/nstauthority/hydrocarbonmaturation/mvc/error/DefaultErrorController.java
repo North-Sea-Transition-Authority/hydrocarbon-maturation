@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.WebUtils;
@@ -34,7 +36,7 @@ public class DefaultErrorController implements ErrorController {
    * Handles framework-level errors (404s, authorisation failures, filter exceptions) for browser clients. Errors thrown
    * by app code (controller methods and below) are handled in DefaultExceptionResolver.
    */
-  @GetMapping("/error")
+  @RequestMapping(value = "/error", method = {RequestMethod.GET, RequestMethod.POST})
   public ModelAndView handleError(HttpServletRequest request) {
 
     var statusCode = Optional.ofNullable(request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE))

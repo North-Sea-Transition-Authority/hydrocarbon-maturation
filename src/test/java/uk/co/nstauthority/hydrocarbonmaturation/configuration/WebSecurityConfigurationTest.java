@@ -17,17 +17,22 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.EnergyPortalConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.error.DefaultErrorController;
 
 @AutoConfigureMockMvc
 @IntegrationTest
 @EnableConfigurationProperties(value = {EnergyPortalAccessApiConfiguration.class, EnergyPortalConfiguration.class})
 class WebSecurityConfigurationTest {
+
+  private static final String CONTEXT_PATH = "/test";
 
   @Autowired
   private MockMvc mockMvc;
@@ -37,6 +42,11 @@ class WebSecurityConfigurationTest {
 
   @Autowired
   private EnergyPortalConfiguration energyPortalConfiguration;
+
+  @DynamicPropertySource
+  static void dynamicProperties(DynamicPropertyRegistry registry) {
+    registry.add("server.servlet.context-path", () -> CONTEXT_PATH);
+  }
 
   @Test
   void security_whenUserHasAccessAuthority_thenOk() throws Exception {
@@ -58,10 +68,22 @@ class WebSecurityConfigurationTest {
 
     var user = UserTestUtil.Builder().build();
 
+    // check for a single path endpoint, e.g. /endpoint
     mockMvc.perform(get(ReverseRouter.route(on(WebSecurityConfigurationTestController.class).testEndpoint()))
+            .with(user(user, emptyGrantedAuthorityCollection)))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(
+            CONTEXT_PATH + ReverseRouter.route(on(DefaultErrorController.class).getUnauthorisedErrorPage())
+        ));
+
+    // check for a multi path endpoint e.g. /first/second
+    mockMvc.perform(get(ReverseRouter.route(on(WebSecurityConfigurationTestController.class).testEndpointWithMultiUrlPath()))
             .with(user(user, emptyGrantedAuthorityCollection))
         )
-        .andExpect(status().isForbidden());
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(
+            CONTEXT_PATH + ReverseRouter.route(on(DefaultErrorController.class).getUnauthorisedErrorPage())
+        ));
   }
 
   @Test

@@ -27,6 +27,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.access.EnergyPortal
 @Configuration
 public class WebSecurityConfiguration {
 
+  private static final String[] NO_AUTH_ENDPOINTS = {
+      "/assets/**",
+      "/notify/callback",
+      "/api/v1/logout/*",
+      "/accessibility-statement",
+      "/contact-information",
+      "/error/**"
+  };
+
   private final SamlProperties samlProperties;
   private final SamlResponseParser samlResponseParser;
   private final ServiceLogoutSuccessHandler serviceLogoutSuccessHandler;
@@ -49,20 +58,12 @@ public class WebSecurityConfiguration {
     authenticationProvider.setResponseAuthenticationConverter(r -> samlResponseParser.parseSamlResponse(r.getResponse()));
 
     httpSecurity
-        .csrf(csrfConfigurer -> csrfConfigurer.ignoringRequestMatchers("/notify/callback", "/api/v1/logout/*"))
         .authorizeHttpRequests(requestMatcherRegistry ->
             requestMatcherRegistry
-                .requestMatchers(
-                    "/assets/**",
-                    "/notify/callback",
-                    "/api/v1/logout/*",
-                    "/accessibility-statement",
-                    "/contact-information",
-                    "/error/**"
-                ).permitAll()
-                .requestMatchers("/*").hasAuthority(energyPortalAccessApiConfiguration.privilegeName())
-                .anyRequest().authenticated()
+                .requestMatchers(NO_AUTH_ENDPOINTS).permitAll()
+                .anyRequest().hasAuthority(energyPortalAccessApiConfiguration.privilegeName())
             )
+        .csrf(csrfConfigurer -> csrfConfigurer.ignoringRequestMatchers(NO_AUTH_ENDPOINTS))
         .saml2Login(saml2 -> saml2.authenticationManager(new ProviderManager(authenticationProvider)))
         .logout(logoutConfigurer -> logoutConfigurer.logoutSuccessHandler(serviceLogoutSuccessHandler))
         .exceptionHandling(exceptionHandling -> exceptionHandling.accessDeniedHandler(accessDeniedHandler()));
