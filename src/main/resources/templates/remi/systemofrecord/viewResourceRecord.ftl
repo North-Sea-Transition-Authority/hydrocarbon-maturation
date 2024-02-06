@@ -48,26 +48,33 @@ breadcrumbsMap=breadcrumbsMap>
       <@fdsDataItems.dataValues key="Licenses" value="${licencesDisplay}"/>
     </#if>
   </@fdsDataItems.dataItem>
-  <#if canManageRegulatorManagementInfo>
-    <@fdsAction.buttonGroup>
+  <@fdsAction.buttonGroup>
+    <#if canManageRegulatorManagementInfo>
       <@fdsAction.link
         linkText=manageResourceInformationText
         linkClass="govuk-button govuk-button--secondary"
         linkUrl=springUrl(regulatorManagedInformationUrl)/>
       <#if !isFieldResource>
         <@fdsAction.link
-          linkText="Manage resource group"
-          linkClass="govuk-button govuk-button--secondary"
-          linkUrl=springUrl(resourceGroupUrl)/>
+        linkText="Manage resource group"
+        linkClass="govuk-button govuk-button--secondary"
+        linkUrl=springUrl(resourceGroupUrl)/>
       </#if>
       <#if correctionUrl?has_content>
-          <@fdsAction.link
-          linkText="Correct submission"
-          linkClass="govuk-button govuk-button--secondary"
-          linkUrl=springUrl(correctionUrl)/>
+        <@fdsAction.link
+        linkText="Correct submission"
+        linkClass="govuk-button govuk-button--secondary"
+        linkUrl=springUrl(correctionUrl)/>
       </#if>
-    </@fdsAction.buttonGroup>
-  </#if>
+    </#if>
+    <#if canViewRegulatorManagementInfo
+    && fieldStatusUrl?has_content>
+      <@fdsAction.link
+      linkText="View field status history"
+      linkClass="govuk-button govuk-button--secondary"
+      linkUrl=springUrl(fieldStatusUrl)/>
+    </#if>
+  </@fdsAction.buttonGroup>
   <#if submissionsOnResource?has_content>
     <@fdsForm.htmlForm actionUrl=springUrl(submissionSelectedUrl)>
       <@submissionSelector.submissionHistorySearchSelector

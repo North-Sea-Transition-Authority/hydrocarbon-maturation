@@ -24,6 +24,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.ViewFieldStatusHistoryController;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -51,6 +53,7 @@ public class ViewResourceRecordController {
   private final ResponsibleTeamService responsibleTeamService;
   private final CorrectionService correctionService;
   private final FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
+  private final FieldPersistenceService fieldPersistenceService;
 
   @Autowired
   public ViewResourceRecordController(
@@ -64,7 +67,8 @@ public class ViewResourceRecordController {
       ResourceService resourceService,
       ResponsibleTeamService responsibleTeamService,
       CorrectionService correctionService,
-      FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService) {
+      FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService,
+      FieldPersistenceService fieldPersistenceService) {
     this.viewResourceRecordService = viewResourceRecordService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
@@ -76,6 +80,7 @@ public class ViewResourceRecordController {
     this.responsibleTeamService = responsibleTeamService;
     this.correctionService = correctionService;
     this.fieldRegulatorManagedInformationSummaryService = fieldRegulatorManagedInformationSummaryService;
+    this.fieldPersistenceService = fieldPersistenceService;
   }
 
   @GetMapping
@@ -130,7 +135,7 @@ public class ViewResourceRecordController {
     var isInResponsibleTeam = responsibleTeamService
         .isInResponsibleTeam(user, resourceRecord.responsibleTeam());
     var isFieldResource = ResourceType.FIELD.equals(resource.getType());
-    var canViewRegulatorManagementInfo = viewResourceRecordService.isRegulatorOrAreaTeamUser(user);
+    var isRegulatorOrAreaUser = viewResourceRecordService.isRegulatorOrAreaTeamUser(user);
 
     ModelAndView modelAndView = getModelAndViewForSubmissionDetail(submissionDetailSelectedOptional, resource);
 
@@ -140,7 +145,7 @@ public class ViewResourceRecordController {
               .getResourceGroupPage(resourceId, null)));
     }
 
-    if (canViewRegulatorManagementInfo) {
+    if (isRegulatorOrAreaUser) {
       addRegulatorOnlyProperties(resourceId, isFieldResource, modelAndView, resource);
     }
 
@@ -156,7 +161,7 @@ public class ViewResourceRecordController {
         .addObject("resourceRecord", resourceRecord)
         .addObject("isFieldResource", isFieldResource)
         .addObject("canManageRegulatorManagementInfo", isInResponsibleTeam)
-        .addObject("canViewRegulatorManagementInfo", canViewRegulatorManagementInfo);
+        .addObject("canViewRegulatorManagementInfo", isRegulatorOrAreaUser);
   }
 
   private void addRegulatorOnlyProperties(UUID resourceId,
@@ -164,12 +169,16 @@ public class ViewResourceRecordController {
                                           ModelAndView modelAndView,
                                           Resource resource) {
     if (isFieldResource) {
+      var field = fieldPersistenceService.getFieldOrThrow(resource);
       modelAndView
           .addObject("regulatorManagedInformationUrl",
               ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
                   .getRegulatorManagedInformationPage(resourceId, null)))
           .addObject("fieldRegulatorManagedInformationSummaryCard",
               fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
+          .addObject("fieldStatusUrl",
+              ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
+                  .getViewFieldStatusHistory(field.getFieldIdentifier())))
           .addObject("manageResourceInformationText", "Manage field information");
     } else {
       modelAndView

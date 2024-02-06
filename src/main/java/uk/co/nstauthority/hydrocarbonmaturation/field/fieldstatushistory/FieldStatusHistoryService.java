@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory;
 
 import java.time.Clock;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,13 @@ public class FieldStatusHistoryService {
         .stream()
         .max(Comparator.comparing(FieldStatusHistory::getStatusDate)
             .thenComparing(fieldStatusHistory -> fieldStatusHistory.getFieldStatus().getStatusValue()));
+  }
+
+  List<FieldStatusHistory> getAllFieldStatusHistoriesInOrder(Field field)  {
+    return fieldStatusHistoryRepository.findAllByField(field)
+        .stream()
+        .sorted(Comparator.comparing(FieldStatusHistory::getStatusDate))
+        .toList();
   }
 
   @Transactional
