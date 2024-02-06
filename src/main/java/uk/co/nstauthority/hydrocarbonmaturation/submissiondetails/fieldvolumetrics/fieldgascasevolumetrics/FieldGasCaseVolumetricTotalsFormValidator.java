@@ -106,7 +106,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         gasRecoverableReserves,
         errors,
         "gasRecoverableReserves",
-        "Gas recoverable reserves",
+        "Associated gas reserves",
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD
     );
 
@@ -115,7 +115,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         associatedCondensateRecoverableReserves,
         errors,
         "associatedCondensateRecoverableReserves",
-        "Associated condensate recoverable reserves",
+        "Associated condensate reserves",
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD
     );
 
@@ -124,7 +124,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         oilEquivalentRecoverableReserves,
         errors,
         "oilEquivalentRecoverableReserves",
-        "Oil equivalent recoverable reserves",
+        "Oil equivalent reserves",
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
     );
 
@@ -208,7 +208,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         gasRecoverableReserves,
         errors,
         "gasRecoverableReserves",
-        "Gas recoverable reserves",
+        "Associated gas reserves",
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD
     );
 
@@ -217,7 +217,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         associatedCondensateRecoverableReserves,
         errors,
         "associatedCondensateRecoverableReserves",
-        "Associated condensate recoverable reserves",
+        "Associated condensate reserves",
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD
     );
 
@@ -226,7 +226,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         oilEquivalentRecoverableReserves,
         errors,
         "oilEquivalentRecoverableReserves",
-        "Oil equivalent recoverable reserves",
+        "Oil equivalent reserves",
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
     );
 
