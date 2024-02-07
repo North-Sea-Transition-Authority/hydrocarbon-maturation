@@ -78,8 +78,12 @@ public class ViewFieldStatusHistoryController {
   private ModelAndView getViewFieldStatusHistoryModelAndView(Field field, User user) {
     var modelAndView = new ModelAndView("remi/field/fieldstatushistory/viewFieldStatusHistory");
 
-    var isProjectAnalyst = regulatorTeamService.isProjectAnalyst(user);
-    if (isProjectAnalyst) {
+    var fieldStatusHistoryViews = viewFieldStatusHistoryService.getFieldStatusHistoryViews(field);
+
+    var canAddFieldStatus = regulatorTeamService.isProjectAnalyst(user);
+    var canRemoveFieldStatus = canAddFieldStatus && fieldStatusHistoryViews.size() > 1;
+
+    if (canAddFieldStatus) {
       modelAndView.addObject(
           "addFieldStatusUrl",
           ReverseRouter.route(on(ManageFieldStatusHistoryController.class)
@@ -89,8 +93,9 @@ public class ViewFieldStatusHistoryController {
     return modelAndView
         .addObject("pageTitle",  PAGE_TITLE)
         .addObject("pageCaption", field.getCorrectedLegalFieldName())
-        .addObject("fieldStatusHistoryViews", viewFieldStatusHistoryService.getFieldStatusHistoryViews(field))
-        .addObject("isProjectAnalyst", isProjectAnalyst);
+        .addObject("fieldStatusHistoryViews", fieldStatusHistoryViews)
+        .addObject("canAddFieldStatus", canAddFieldStatus)
+        .addObject("canRemoveFieldStatus", canRemoveFieldStatus);
   }
 
   private void addBreadCrumbsForReviewView(ModelAndView modelAndView, Field field) {

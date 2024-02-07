@@ -70,7 +70,7 @@ breadcrumbsMap=breadcrumbsMap>
     <#if canViewRegulatorManagementInfo
     && fieldStatusUrl?has_content>
       <@fdsAction.link
-      linkText="View field status history"
+      linkText="Field status"
       linkClass="govuk-button govuk-button--secondary"
       linkUrl=springUrl(fieldStatusUrl)/>
     </#if>

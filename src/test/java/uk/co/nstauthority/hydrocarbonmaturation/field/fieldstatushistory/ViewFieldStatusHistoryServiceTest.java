@@ -2,10 +2,14 @@ package uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.UUID;
 import org.assertj.core.groups.Tuple;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,39 +17,106 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
 @ExtendWith(MockitoExtension.class)
 class ViewFieldStatusHistoryServiceTest {
+  private static final Instant FIXED_INSTANT = Instant.parse("2024-02-06T00:00:00.00Z");
+
   @Mock
   private FieldStatusHistoryService fieldStatusHistoryService;
   @InjectMocks
   private ViewFieldStatusHistoryService viewFieldStatusHistoryService;
 
+  private Field field;
+
+  @BeforeEach
+  void setUp() {
+    field = new Field();
+    field.setFieldIdentifier(8001);
+  }
+
   @Test
   void getFieldStatusHistoryViews() {
-
-    var fixedInstant1 = Instant.parse("2024-01-01T00:00:00.00Z");
     var fsh1 = new FieldStatusHistory();
     fsh1.setFieldStatus(FieldStatus.STATUS_200);
-    fsh1.setStatusDate(fixedInstant1);
+    fsh1.setStatusDate(FIXED_INSTANT);
+    fsh1.setField(field);
 
-    var fixedInstant2 = Instant.parse("2024-02-02T00:00:00.00Z");
     var fsh2 = new FieldStatusHistory();
     fsh2.setFieldStatus(FieldStatus.STATUS_400);
-    fsh2.setStatusDate(fixedInstant2);
+    fsh2.setStatusDate(FIXED_INSTANT.plus(1, ChronoUnit.DAYS));
+    fsh2.setField(field);
 
-    var field = new Field();
+    var fsh3 = new FieldStatusHistory();
+    fsh3.setFieldStatus(FieldStatus.STATUS_600);
+    fsh3.setStatusDate(FIXED_INSTANT.plus(2, ChronoUnit.DAYS));
+    fsh3.setField(field);
 
-    when(fieldStatusHistoryService.getAllFieldStatusHistoriesInOrder(field))
-        .thenReturn(List.of(fsh1,  fsh2));
+    when(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(field))
+        .thenReturn(List.of(fsh1, fsh2, fsh3));
 
     assertThat(viewFieldStatusHistoryService.getFieldStatusHistoryViews(field))
         .extracting(
             FieldStatusHistoryDto::fieldStatus,
-            FieldStatusHistoryDto::fieldStatusDate
+            FieldStatusHistoryDto::fieldStatusDate,
+            FieldStatusHistoryDto::removeUrl
         ).containsExactly(
-            Tuple.tuple(fsh1.getFieldStatus().getDisplayName(), "1 Jan 2024"),
-            Tuple.tuple(fsh2.getFieldStatus().getDisplayName(), "2 Feb 2024")
+            Tuple.tuple(
+                fsh1.getFieldStatus().getDisplayName(),
+                "6 February 2024",
+                ReverseRouter.route(on(ManageFieldStatusHistoryController.class)
+                    .getRemoveFieldStatusConfirmation(
+                        fsh1.getField().getFieldIdentifier(),
+                        fsh1.getId()))
+            ),
+            Tuple.tuple(
+                fsh2.getFieldStatus().getDisplayName(),
+                "7 February 2024",
+                ReverseRouter.route(on(ManageFieldStatusHistoryController.class)
+                    .getRemoveFieldStatusConfirmation(
+                        fsh2.getField().getFieldIdentifier(),
+                        fsh2.getId()))
+            ),
+            Tuple.tuple(
+                fsh3.getFieldStatus().getDisplayName(),
+                "8 February 2024",
+                ReverseRouter.route(on(ManageFieldStatusHistoryController.class)
+                    .getRemoveFieldStatusConfirmation(
+                        fsh3.getField().getFieldIdentifier(),
+                        fsh3.getId()))
+            )
         );
+  }
+
+  @Test
+  void toFieldStatusDto() {
+    var fieldStatusHistory = new FieldStatusHistory();
+    fieldStatusHistory.setFieldStatus(FieldStatus.STATUS_400);
+    fieldStatusHistory.setStatusDate(FIXED_INSTANT);
+    fieldStatusHistory.setId(UUID.randomUUID());
+    fieldStatusHistory.setField(field);
+
+    assertThat(ViewFieldStatusHistoryService.toFieldStatusDto(fieldStatusHistory))
+        .extracting(
+            FieldStatusHistoryDto::fieldStatus,
+            FieldStatusHistoryDto::fieldStatusDate,
+            FieldStatusHistoryDto::removeUrl
+        ).contains(
+            fieldStatusHistory.getFieldStatus().getDisplayName(),
+            "6 February 2024",
+            ReverseRouter.route(on(ManageFieldStatusHistoryController.class)
+                .getRemoveFieldStatusConfirmation(
+                    fieldStatusHistory.getField().getFieldIdentifier(),
+                    fieldStatusHistory.getId()))
+        );
+  }
+
+  private FieldStatusHistory createFieldStatusHistory() {
+    var fieldStatusHistory = new FieldStatusHistory();
+    fieldStatusHistory.setField(field);
+    fieldStatusHistory.setId(UUID.randomUUID());
+
+    return fieldStatusHistory;
   }
 }

@@ -8,10 +8,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 
@@ -33,10 +35,16 @@ public class FieldStatusHistoryService {
             .thenComparing(fieldStatusHistory -> fieldStatusHistory.getFieldStatus().getStatusValue()));
   }
 
-  List<FieldStatusHistory> getAllFieldStatusHistoriesInOrder(Field field)  {
+  List<FieldStatusHistory> getAllFieldStatusHistoriesOrderedByDateAndStatus(Field field)  {
     return fieldStatusHistoryRepository.findAllByField(field)
         .stream()
-        .sorted(Comparator.comparing(FieldStatusHistory::getStatusDate))
+        .sorted(
+            Comparator.comparing((FieldStatusHistory fieldStatusHistory1) ->
+                    LocalDate.ofInstant(fieldStatusHistory1.getStatusDate(), ZoneId.systemDefault()).atStartOfDay())
+                .thenComparing(
+                    fieldStatusHistory -> fieldStatusHistory.getFieldStatus().getStatusValue()
+                )
+        )
         .toList();
   }
 
@@ -88,5 +96,16 @@ public class FieldStatusHistoryService {
     fieldStatusHistory.setStatusDate(clock.instant());
 
     fieldStatusHistoryRepository.save(fieldStatusHistory);
+  }
+
+  public FieldStatusHistory getFieldStatusHistoryOrThrow(UUID fieldStatusHistoryId) {
+    return fieldStatusHistoryRepository.findById(fieldStatusHistoryId)
+        .orElseThrow(() -> new RemiEntityNotFoundException("There is no field status history with id %s"
+            .formatted(fieldStatusHistoryId)));
+  }
+
+  @Transactional
+  public void removeFieldStatusHistory(FieldStatusHistory fieldStatusHistory) {
+    fieldStatusHistoryRepository.delete(fieldStatusHistory);
   }
 }

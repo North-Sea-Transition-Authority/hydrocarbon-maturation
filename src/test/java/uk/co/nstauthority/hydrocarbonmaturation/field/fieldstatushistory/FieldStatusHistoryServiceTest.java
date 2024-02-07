@@ -1,15 +1,19 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +21,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 
@@ -88,7 +93,7 @@ class FieldStatusHistoryServiceTest {
   }
 
   @Test
-  void getAllFieldStatusHistoriesInOrder() {
+  void getAllFieldStatusHistoriesOrderedByDateAndStatus_ordersByDate() {
     var fixedInstant = Instant.now();
 
     var oldestFieldStatusHistory = new FieldStatusHistory();
@@ -101,8 +106,29 @@ class FieldStatusHistoryServiceTest {
     when(fieldStatusHistoryRepository.findAllByField(field))
         .thenReturn(Set.of(newestFieldStatusHistory, olderFieldStatusHistory, oldestFieldStatusHistory));
 
-    assertThat(fieldStatusHistoryService.getAllFieldStatusHistoriesInOrder(field))
+    assertThat(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(field))
         .isEqualTo(List.of(oldestFieldStatusHistory, olderFieldStatusHistory, newestFieldStatusHistory));
+  }
+
+  @Test
+  void getAllFieldStatusHistoriesOrderedByDateAndStatus_ordersByStatus() {
+    var fixedInstant = Instant.now();
+
+    var lowestStatusHistory = new FieldStatusHistory();
+    lowestStatusHistory.setStatusDate(fixedInstant);
+    lowestStatusHistory.setFieldStatus(FieldStatus.STATUS_300);
+    var statusHistory = new FieldStatusHistory();
+    statusHistory.setStatusDate(fixedInstant);
+    statusHistory.setFieldStatus(FieldStatus.STATUS_400);
+    var highestStatusHistory = new FieldStatusHistory();
+    highestStatusHistory.setStatusDate(fixedInstant);
+    highestStatusHistory.setFieldStatus(FieldStatus.STATUS_600);
+
+    when(fieldStatusHistoryRepository.findAllByField(field))
+        .thenReturn(Set.of(statusHistory, lowestStatusHistory, highestStatusHistory));
+
+    assertThat(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(field))
+        .isEqualTo(List.of(lowestStatusHistory, statusHistory, highestStatusHistory));
   }
 
   @Test
@@ -186,5 +212,37 @@ class FieldStatusHistoryServiceTest {
             form.getFieldStatus(),
             Instant.parse("2024-02-02T00:00:00.00Z")
         );
+  }
+
+  @Test
+  void getFieldStatusHistoryOrThrow_noFieldStatusWithId_thenThrow() {
+    var uuid = UUID.randomUUID();
+
+    when(fieldStatusHistoryRepository.findById(uuid))
+        .thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> fieldStatusHistoryService.getFieldStatusHistoryOrThrow(uuid))
+        .isInstanceOf(RemiEntityNotFoundException.class);
+  }
+
+  @Test
+  void getFieldStatusHistoryOrThrow_fieldStatusExists_thenReturned() {
+    var uuid = UUID.randomUUID();
+    var fieldStatusHistory = new FieldStatusHistory();
+
+    when(fieldStatusHistoryRepository.findById(uuid))
+        .thenReturn(Optional.of(fieldStatusHistory));
+
+    assertThat(fieldStatusHistoryService.getFieldStatusHistoryOrThrow(uuid))
+        .isEqualTo(fieldStatusHistory);
+  }
+
+  @Test
+  void removeFieldStatusHistory() {
+    var fieldStatusHistory = new FieldStatusHistory();
+    fieldStatusHistoryService.removeFieldStatusHistory(fieldStatusHistory);
+
+    verify(fieldStatusHistoryRepository).delete(fieldStatusHistory);
+    verifyNoMoreInteractions(fieldStatusHistoryRepository);
   }
 }
