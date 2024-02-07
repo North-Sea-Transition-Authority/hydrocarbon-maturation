@@ -9,7 +9,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @Service
-class ViewFieldStatusHistoryService {
+public class ViewFieldStatusHistoryService {
   private final FieldStatusHistoryService fieldStatusHistoryService;
 
   @Autowired

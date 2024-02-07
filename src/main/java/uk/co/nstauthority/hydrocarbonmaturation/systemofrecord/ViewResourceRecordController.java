@@ -178,7 +178,7 @@ public class ViewResourceRecordController {
               fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
           .addObject("fieldStatusUrl",
               ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
-                  .getViewFieldStatusHistory(field.getFieldIdentifier())))
+                  .getViewFieldStatusHistory(field.getFieldIdentifier(), null)))
           .addObject("manageResourceInformationText", "Manage field information");
     } else {
       modelAndView

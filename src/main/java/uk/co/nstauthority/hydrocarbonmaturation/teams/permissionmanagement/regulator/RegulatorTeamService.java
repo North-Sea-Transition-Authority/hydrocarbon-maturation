@@ -92,4 +92,8 @@ public class RegulatorTeamService {
 
     teamMemberRoleService.addUserTeamRoles(team, userToAdd, rolesAsStrings);
   }
+
+  public boolean isProjectAnalyst(User user) {
+    return isRegulatorTeamRole(user, RegulatorTeamRole.PROJECT_ANALYST);
+  }
 }

@@ -170,6 +170,31 @@ class RegulatorTeamServiceTest {
   }
 
   @Test
+  void isProjectAnalyst_whenProjectAnalyst_assertTrue() {
+    var teamId = new TeamId(UUID.randomUUID());
+
+    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, USER, Set.of(RegulatorTeamRole.PROJECT_ANALYST.name())))
+        .thenReturn(true);
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(USER, TeamType.REGULATOR))
+        .thenReturn(List.of(TeamTestUtil.Builder().withId(teamId.uuid()).build()));
+    assertTrue(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.PROJECT_ANALYST));
+
+    assertTrue(regulatorTeamService.isProjectAnalyst(USER));
+  }
+
+  @Test
+  void isProjectAnalyst_whenNotProjectAnalyst_assertFalse() {
+    var teamId = new TeamId(UUID.randomUUID());
+
+    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, USER, Set.of(RegulatorTeamRole.PROJECT_ANALYST.name())))
+        .thenReturn(false);
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(USER, TeamType.REGULATOR))
+        .thenReturn(List.of(TeamTestUtil.Builder().withId(teamId.uuid()).build()));
+    assertFalse(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.PROJECT_ANALYST));
+    assertFalse(regulatorTeamService.isProjectAnalyst(USER));
+  }
+
+  @Test
   void addUserTeamRoles_verifyRepositoryInteractions() {
 
     var team = TeamTestUtil.Builder().build();

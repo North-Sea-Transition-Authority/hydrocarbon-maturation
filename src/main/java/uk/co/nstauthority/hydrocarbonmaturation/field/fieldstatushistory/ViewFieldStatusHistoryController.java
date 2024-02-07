@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
@@ -20,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchFieldRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
 
 @Controller
 @RequestMapping("/field-status/{fieldIdentifier}")
@@ -30,21 +32,25 @@ public class ViewFieldStatusHistoryController {
   private final FieldPersistenceService fieldPersistenceService;
   private final ViewFieldStatusHistoryService viewFieldStatusHistoryService;
   private final SubmissionDetailService submissionDetailService;
+  private final RegulatorTeamService regulatorTeamService;
 
   @Autowired
   public ViewFieldStatusHistoryController(FieldPersistenceService fieldPersistenceService,
                                           ViewFieldStatusHistoryService viewFieldStatusHistoryService,
-                                          SubmissionDetailService submissionDetailService) {
+                                          SubmissionDetailService submissionDetailService,
+                                          RegulatorTeamService regulatorTeamService) {
     this.fieldPersistenceService = fieldPersistenceService;
     this.viewFieldStatusHistoryService = viewFieldStatusHistoryService;
     this.submissionDetailService = submissionDetailService;
+    this.regulatorTeamService = regulatorTeamService;
   }
 
   @GetMapping
-  public ModelAndView getViewFieldStatusHistory(@PathVariable("fieldIdentifier") Integer fieldIdentifier)  {
+  public ModelAndView getViewFieldStatusHistory(@PathVariable("fieldIdentifier") Integer fieldIdentifier,
+                                                User user)  {
     var field = fieldPersistenceService.getFieldOrThrow(fieldIdentifier);
 
-    var modelAndView = getViewFieldStatusHistoryModelAndView(field);
+    var modelAndView = getViewFieldStatusHistoryModelAndView(field, user);
     addBreadCrumbsForSystemOfRecordView(modelAndView, field);
 
     return modelAndView;
@@ -53,28 +59,38 @@ public class ViewFieldStatusHistoryController {
   @GetMapping("/{submissionDetailId}")
   public ModelAndView getViewFieldStatusHistoryWithSubmissionDetail(
       @PathVariable("fieldIdentifier") Integer fieldIdentifier,
-      @PathVariable("submissionDetailId") UUID submissionDetailId) {
+      @PathVariable("submissionDetailId") UUID submissionDetailId,
+      User user) {
 
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     if (SubmissionDetailStatus.ACCEPTED.equals(submissionDetail.getStatus())) {
-      return getViewFieldStatusHistory(fieldIdentifier);
+      return getViewFieldStatusHistory(fieldIdentifier, user);
     }
 
     var field = fieldPersistenceService.getFieldOrThrow(fieldIdentifier);
 
-    var modelAndView = getViewFieldStatusHistoryModelAndView(field);
+    var modelAndView = getViewFieldStatusHistoryModelAndView(field, user);
     addBreadCrumbsForReviewView(modelAndView, field);
 
     return modelAndView;
   }
 
-  private ModelAndView getViewFieldStatusHistoryModelAndView(Field field) {
-    var modelAndView = new ModelAndView("remi/field/fieldstatushistory/fieldStatusHistory");
+  private ModelAndView getViewFieldStatusHistoryModelAndView(Field field, User user) {
+    var modelAndView = new ModelAndView("remi/field/fieldstatushistory/viewFieldStatusHistory");
+
+    var isProjectAnalyst = regulatorTeamService.isProjectAnalyst(user);
+    if (isProjectAnalyst) {
+      modelAndView.addObject(
+          "addFieldStatusUrl",
+          ReverseRouter.route(on(ManageFieldStatusHistoryController.class)
+              .getAddFieldStatus(field.getFieldIdentifier())));
+    }
 
     return modelAndView
         .addObject("pageTitle",  PAGE_TITLE)
         .addObject("pageCaption", field.getCorrectedLegalFieldName())
-        .addObject("fieldStatusHistoryViews", viewFieldStatusHistoryService.getFieldStatusHistoryViews(field));
+        .addObject("fieldStatusHistoryViews", viewFieldStatusHistoryService.getFieldStatusHistoryViews(field))
+        .addObject("isProjectAnalyst", isProjectAnalyst);
   }
 
   private void addBreadCrumbsForReviewView(ModelAndView modelAndView, Field field) {

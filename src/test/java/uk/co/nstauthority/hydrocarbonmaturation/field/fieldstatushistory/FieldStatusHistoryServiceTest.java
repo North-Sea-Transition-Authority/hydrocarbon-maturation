@@ -106,6 +106,42 @@ class FieldStatusHistoryServiceTest {
   }
 
   @Test
+  void fieldStatusHistoryToForm_emptyFieldStatusHistory() {
+    var fieldStatusHistory = new FieldStatusHistory();
+    var form = fieldStatusHistoryService.fieldStatusHistoryToForm(fieldStatusHistory);
+    assertThat(form)
+        .extracting(
+            FieldStatusForm::getFieldStatus,
+            FieldStatusForm::getFieldStatusDateDay,
+            FieldStatusForm::getFieldStatusDateMonth,
+            FieldStatusForm::getFieldStatusDateYear
+        ).containsOnlyNulls();
+  }
+
+  @Test
+  void fieldStatusHistoryToForm_assertForm() {
+    var fieldStatusDate = Instant.parse("2024-02-02T00:00:00.00Z");
+
+    var fieldStatusHistory = new FieldStatusHistory();
+    fieldStatusHistory.setStatusDate(fieldStatusDate);
+    fieldStatusHistory.setFieldStatus(FieldStatus.STATUS_200);
+
+    var form = fieldStatusHistoryService.fieldStatusHistoryToForm(fieldStatusHistory);
+    assertThat(form)
+        .extracting(
+            FieldStatusForm::getFieldStatus,
+            FieldStatusForm::getFieldStatusDateDay,
+            FieldStatusForm::getFieldStatusDateMonth,
+            FieldStatusForm::getFieldStatusDateYear
+        ).contains(
+          fieldStatusHistory.getFieldStatus(),
+          "2",
+          "February",
+          "2024"
+        );
+  }
+
+  @Test
   void saveNewFieldStatusHistory() {
     var fieldStatus = FieldStatus.STATUS_200;
 
@@ -126,6 +162,29 @@ class FieldStatusHistoryServiceTest {
             fieldStatus,
             fixedInstant
         );
+  }
 
+  @Test
+  void saveNewFieldStatusHistoryFromForm() {
+    var form = new FieldStatusForm();
+    form.setFieldStatus(FieldStatus.STATUS_400);
+    form.setFieldStatusDateDay("02");
+    form.setFieldStatusDateMonth("02");
+    form.setFieldStatusDateYear("2024");
+
+    var captor = ArgumentCaptor.forClass(FieldStatusHistory.class);
+    fieldStatusHistoryService.saveNewFieldStatusHistoryFromForm(form, field);
+    verify(fieldStatusHistoryRepository, times(1)).save(captor.capture());
+
+    assertThat(captor.getValue())
+        .extracting(
+            FieldStatusHistory::getField,
+            FieldStatusHistory::getFieldStatus,
+            FieldStatusHistory::getStatusDate
+        ).containsExactly(
+            field,
+            form.getFieldStatus(),
+            Instant.parse("2024-02-02T00:00:00.00Z")
+        );
   }
 }

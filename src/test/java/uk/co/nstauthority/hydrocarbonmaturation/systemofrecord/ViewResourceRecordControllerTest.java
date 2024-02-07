@@ -357,7 +357,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("submissionType", submissionDetail.getSubmissionType()),
             entry("canViewRegulatorManagementInfo", true),
             entry("fieldStatusUrl", ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
-                .getViewFieldStatusHistory(field.getFieldIdentifier()))),
+                .getViewFieldStatusHistory(field.getFieldIdentifier(), null))),
             entry("manageResourceInformationText", "Manage field information")
         );
 

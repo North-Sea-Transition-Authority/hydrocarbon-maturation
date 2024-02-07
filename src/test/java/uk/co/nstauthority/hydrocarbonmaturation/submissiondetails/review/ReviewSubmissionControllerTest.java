@@ -398,7 +398,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
                   .getRegulatorManagedInformationPageWithSubmissionDetail(resourceId, submissionDetail.getId(), null))),
             entry("manageResourceInformationText", "Manage field information"),
             entry("fieldStatusUrl", ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
-                .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId())))
+                .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId(), null)))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

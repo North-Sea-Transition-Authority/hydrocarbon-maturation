@@ -234,7 +234,8 @@ public class ReviewSubmissionController {
                   .getRegulatorManagedInformationPageWithSubmissionDetail(resourceId, selectedSubmissionDetail.getId(), null)))
           .addObject("manageResourceInformationText", "Manage field information")
           .addObject("fieldStatusUrl", ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
-              .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), selectedSubmissionDetail.getId())));
+              .getViewFieldStatusHistoryWithSubmissionDetail(
+                  field.getFieldIdentifier(), selectedSubmissionDetail.getId(), null)));
     } else {
       modelAndView
           .addObject("regulatorManagedInformationUrl",

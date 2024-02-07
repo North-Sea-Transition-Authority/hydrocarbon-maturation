@@ -65,7 +65,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
         .thenReturn(field);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class).getViewFieldStatusHistory(field.getFieldIdentifier())))
+            get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class).getViewFieldStatusHistory(field.getFieldIdentifier(), null)))
                 .with(user(USER)))
         .andExpect(status().isOk());
   }
@@ -80,7 +80,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
 
     mockMvc.perform(
             get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
-                .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId())))
+                .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId(), null)))
                 .with(user(USER)))
         .andExpect(status().isOk());
   }
@@ -88,7 +88,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
   @SecurityTest
   void getViewFieldStatusHistory_whenNotRegulator_assertForbidden() throws Exception {
     mockMvc.perform(
-            get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class).getViewFieldStatusHistory(field.getFieldIdentifier())))
+            get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class).getViewFieldStatusHistory(field.getFieldIdentifier(), null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -97,7 +97,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
   void getViewFieldStatusHistoryWithSubmissionDetail_whenNotRegulator_assertForbidden() throws Exception {
     mockMvc.perform(
             get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
-                .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId())))
+                .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId(), null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -112,7 +112,8 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
 
     assertThatThrownBy(() ->
         mockMvc.perform(
-            get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class).getViewFieldStatusHistory(field.getFieldIdentifier())))
+            get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
+                .getViewFieldStatusHistory(field.getFieldIdentifier(), null)))
                 .with(user(USER)))
     ).hasCauseExactlyInstanceOf(EntityNotFoundException.class);
   }
@@ -128,7 +129,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
     assertThatThrownBy(() ->
         mockMvc.perform(
             get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
-                .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId())))
+                .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId(), null)))
                 .with(user(USER)))
     ).hasCauseExactlyInstanceOf(EntityNotFoundException.class);
   }
@@ -144,13 +145,13 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
     assertThatThrownBy(() ->
         mockMvc.perform(
             get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
-                .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId())))
+                .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId(), null)))
                 .with(user(USER)))
     ).hasCauseExactlyInstanceOf(EntityNotFoundException.class);
   }
 
   @Test
-  void getViewFieldStatusHistory_assertProperties() throws Exception {
+  void getViewFieldStatusHistory_userIsProjectAnalyst_assertProperties() throws Exception {
     when(resourceService.getResourceById(resource.getId()))
         .thenReturn(Optional.of(resource));
     when(fieldPersistenceService.getFieldOrThrow(field.getFieldIdentifier()))
@@ -161,11 +162,14 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
     when(viewFieldStatusHistoryService.getFieldStatusHistoryViews(field))
         .thenReturn(fieldStatusHistoryViews);
 
+    var isProjectAnalyst = true;
+    when(regulatorTeamService.isProjectAnalyst(USER)).thenReturn(isProjectAnalyst);
+
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-                get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class).getViewFieldStatusHistory(field.getFieldIdentifier())))
+                get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class).getViewFieldStatusHistory(field.getFieldIdentifier(), null)))
                     .with(user(USER)))
             .andExpect(status().isOk())
-            .andExpect(view().name("remi/field/fieldstatushistory/fieldStatusHistory"))
+            .andExpect(view().name("remi/field/fieldstatushistory/viewFieldStatusHistory"))
             .andReturn()
             .getModelAndView())
         .getModelMap();
@@ -174,8 +178,45 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
         .contains(
             entry("pageTitle", ViewFieldStatusHistoryController.PAGE_TITLE),
             entry("pageCaption", field.getCorrectedLegalFieldName()),
-            entry("fieldStatusHistoryViews", fieldStatusHistoryViews)
+            entry("fieldStatusHistoryViews", fieldStatusHistoryViews),
+            entry("isProjectAnalyst", isProjectAnalyst),
+            entry("addFieldStatusUrl",
+                ReverseRouter.route(on(ManageFieldStatusHistoryController.class)
+                    .getAddFieldStatus(field.getFieldIdentifier())))
         );
+  }
+
+  @Test
+  void getViewFieldStatusHistory_userIsNotProjectAnalyst_assertProperties() throws Exception {
+    when(resourceService.getResourceById(resource.getId()))
+        .thenReturn(Optional.of(resource));
+    when(fieldPersistenceService.getFieldOrThrow(field.getFieldIdentifier()))
+        .thenReturn(field);
+
+    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    var fieldStatusHistoryViews = List.of(new FieldStatusHistoryDto(FieldStatus.STATUS_200.getDisplayName(), "29th January 2024"));
+    when(viewFieldStatusHistoryService.getFieldStatusHistoryViews(field))
+        .thenReturn(fieldStatusHistoryViews);
+
+    var isProjectAnalyst = false;
+    when(regulatorTeamService.isProjectAnalyst(USER)).thenReturn(isProjectAnalyst);
+
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+                get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class).getViewFieldStatusHistory(field.getFieldIdentifier(), null)))
+                    .with(user(USER)))
+            .andExpect(status().isOk())
+            .andExpect(view().name("remi/field/fieldstatushistory/viewFieldStatusHistory"))
+            .andReturn()
+            .getModelAndView())
+        .getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("pageTitle", ViewFieldStatusHistoryController.PAGE_TITLE),
+            entry("pageCaption", field.getCorrectedLegalFieldName()),
+            entry("fieldStatusHistoryViews", fieldStatusHistoryViews),
+            entry("isProjectAnalyst", isProjectAnalyst)
+        ).doesNotContainKey("addFieldStatusUrl");
   }
 
   @Test
@@ -192,10 +233,10 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
                 get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
-                    .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId())))
+                    .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId(), null)))
                     .with(user(USER)))
             .andExpect(status().isOk())
-            .andExpect(view().name("remi/field/fieldstatushistory/fieldStatusHistory"))
+            .andExpect(view().name("remi/field/fieldstatushistory/viewFieldStatusHistory"))
             .andReturn()
             .getModelAndView())
         .getModelMap();
@@ -221,10 +262,10 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
         .thenReturn(fieldStatusHistoryViews);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-                get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class).getViewFieldStatusHistory(field.getFieldIdentifier())))
+                get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class).getViewFieldStatusHistory(field.getFieldIdentifier(), null)))
                     .with(user(USER)))
             .andExpect(status().isOk())
-            .andExpect(view().name("remi/field/fieldstatushistory/fieldStatusHistory"))
+            .andExpect(view().name("remi/field/fieldstatushistory/viewFieldStatusHistory"))
             .andReturn()
             .getModelAndView())
         .getModelMap();
@@ -258,10 +299,10 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
                 get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
-                    .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId())))
+                    .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId(), null)))
                     .with(user(USER)))
             .andExpect(status().isOk())
-            .andExpect(view().name("remi/field/fieldstatushistory/fieldStatusHistory"))
+            .andExpect(view().name("remi/field/fieldstatushistory/viewFieldStatusHistory"))
             .andReturn()
             .getModelAndView())
         .getModelMap();
