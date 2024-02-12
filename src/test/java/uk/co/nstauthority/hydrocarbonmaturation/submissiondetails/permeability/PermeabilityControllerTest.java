@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +69,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
   @BeforeEach
   void setup() {
     submissionDetailId = submissionDetail.getId();
-    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
 
     reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     reservoirSubmissionDetailId = reservoirSubmissionDetail.getId();
@@ -87,7 +88,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
         .getPermeabilityPage(submissionDetailId, reservoirSubmissionDetailId)))
             .with(user(USER)))
         .andExpect(status().isOk())
-        .andExpect(view().name("remi/submissiondetails/permeability/permeabilityDryWell"));
+        .andExpect(view().name("remi/submissiondetails/permeability/permeabilityDiscovery"));
   }
 
   @SecurityTest
@@ -133,6 +134,28 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class)
             .getReservoirTaskList(submissionDetailId, null))));
+
+    verify(permeabilityPersistenceService, times(1))
+        .savePermeabilityDetail(any(PermeabilityForm.class), eq(reservoirSubmissionDetail));
+  }
+
+  @Test
+  void savePermeabilityDetails_whenValidForm_postDrillDryHole_assertRedirect() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
+        .thenReturn(submissionDetail);
+    when(permeabilityFormValidator.isValid(any(), any(), any(), any())).thenReturn(true);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(PermeabilityController.class)
+                .savePermeabilityDetails(submissionDetailId, reservoirSubmissionDetailId, null, null, null)))
+                .params(ControllerTestUtils.validationPostParams(ValidationType.FULL))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class)
+            .getTaskList(submissionDetailId))));
 
     verify(permeabilityPersistenceService, times(1))
         .savePermeabilityDetail(any(PermeabilityForm.class), eq(reservoirSubmissionDetail));

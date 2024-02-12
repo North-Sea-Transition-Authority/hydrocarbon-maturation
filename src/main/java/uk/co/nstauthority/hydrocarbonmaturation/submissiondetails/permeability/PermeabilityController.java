@@ -23,9 +23,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.reservoir.ReservoirTaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -84,6 +86,11 @@ public class PermeabilityController {
       return getPermeabilityModelAndViewWithErrors(bindingResult, form, reservoirSubmissionDetail);
     } else {
       permeabilityPersistenceService.savePermeabilityDetail(form, reservoirSubmissionDetail);
+
+      if (SubmissionType.POST_DRILL_DRY_HOLE.equals(submissionDetail.getSubmissionType())) {
+        return ReverseRouter.redirect(on(TaskListController.class)
+            .getTaskList(submissionDetailId));
+      }
       return ReverseRouter.redirect(on(ReservoirTaskListController.class)
           .getReservoirTaskList(submissionDetailId, null));
     }
