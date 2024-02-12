@@ -5,6 +5,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -114,37 +115,41 @@ class PermeabilityFormValidator implements SubmissionValidator {
   }
 
   private void validatePermeability(PermeabilityForm permeabilityForm, Errors errors, SubmissionType submissionType) {
-    DecimalInputValidator.configureValidator(
-            errors,
-            "permeabilityValuesForm.permeabilityMin.decimalInputValue",
-            "Permeability (md) min",
-            permeabilityForm.getPermeabilityValuesForm().getPermeabilityMin())
-        .setMaxDecimalPlaces(2)
-        .setMinValue(BigDecimal.ZERO)
-        .validate();
+    var isFieldSubmission = SubmissionType.getSubmissionTypesForResourceType(ResourceType.FIELD).contains(submissionType);
 
-    DecimalInputValidator.configureValidator(
-            errors,
-            "permeabilityValuesForm.permeabilityMax.decimalInputValue",
-            "Permeability (md) max",
-            permeabilityForm.getPermeabilityValuesForm().getPermeabilityMax())
-        .setMaxDecimalPlaces(2)
-        .setMinValue(BigDecimal.ZERO)
-        .validate();
+    if (!isFieldSubmission) {
+      DecimalInputValidator.configureValidator(
+              errors,
+              "permeabilityValuesForm.permeabilityMin.decimalInputValue",
+              "Permeability (md) min",
+              permeabilityForm.getPermeabilityValuesForm().getPermeabilityMin())
+          .setMaxDecimalPlaces(2)
+          .setMinValue(BigDecimal.ZERO)
+          .validate();
 
-    DecimalInputValidator.configureValidator(
-            errors,
-            "permeabilityValuesForm.permeabilityAverage.decimalInputValue",
-            "Permeability (md) average",
-            permeabilityForm.getPermeabilityValuesForm().getPermeabilityAverage())
-        .setMaxDecimalPlaces(2)
-        .setMinValue(BigDecimal.ZERO)
-        .validate();
+      DecimalInputValidator.configureValidator(
+              errors,
+              "permeabilityValuesForm.permeabilityMax.decimalInputValue",
+              "Permeability (md) max",
+              permeabilityForm.getPermeabilityValuesForm().getPermeabilityMax())
+          .setMaxDecimalPlaces(2)
+          .setMinValue(BigDecimal.ZERO)
+          .validate();
 
-    ValidationUtils.rejectIfEmpty(errors,
-        "permeabilityValuesForm.averageMethodUsed",
-        "permeabilityValuesForm.averageMethodUsed.required",
-        "Enter permeability (md) average method used");
+      DecimalInputValidator.configureValidator(
+              errors,
+              "permeabilityValuesForm.permeabilityAverage.decimalInputValue",
+              "Permeability (md) average",
+              permeabilityForm.getPermeabilityValuesForm().getPermeabilityAverage())
+          .setMaxDecimalPlaces(2)
+          .setMinValue(BigDecimal.ZERO)
+          .validate();
+
+      ValidationUtils.rejectIfEmpty(errors,
+          "permeabilityValuesForm.averageMethodUsed",
+          "permeabilityValuesForm.averageMethodUsed.required",
+          "Enter permeability (md) average method used");
+    }
 
     ValidationUtils.rejectIfEmpty(errors,
         "permeabilityValuesForm.permeabilitySource",
@@ -160,19 +165,18 @@ class PermeabilityFormValidator implements SubmissionValidator {
       );
     }
 
-    DecimalInputValidator.configureValidator(
-            errors,
-            "permeabilityValuesForm.kvKhAverage.decimalInputValue",
-            "Kv/kh average",
-            permeabilityForm.getPermeabilityValuesForm().getKvKhAverage())
-        .setMaxDecimalPlaces(2)
-        .setMinValue(BigDecimal.ZERO)
-        .validate();
+    if (!isFieldSubmission) {
+      DecimalInputValidator.configureValidator(
+              errors,
+              "permeabilityValuesForm.kvKhAverage.decimalInputValue",
+              "Kv/kh average",
+              permeabilityForm.getPermeabilityValuesForm().getKvKhAverage())
+          .setMaxDecimalPlaces(2)
+          .setMinValue(BigDecimal.ZERO)
+          .validate();
+    }
 
-    if (submissionType == SubmissionType.CREATE_CSR
-        || submissionType == SubmissionType.CREATE_FDP
-        || submissionType == SubmissionType.CREATE_FDPA
-        || submissionType == SubmissionType.CREATE_COP) {
+    if (isFieldSubmission) {
       ProbabilityDistributionValidationUtil.validateCustomFull(
           permeabilityForm.getPermeabilityValuesForm().getPermeability(),
           errors,

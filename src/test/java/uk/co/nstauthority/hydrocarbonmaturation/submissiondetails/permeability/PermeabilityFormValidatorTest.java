@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.Set;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,8 +33,8 @@ class PermeabilityFormValidatorTest {
 
   static private SubmissionDetail submissionDetail;
 
-  @BeforeAll
-  static void setUp() {
+  @BeforeEach
+  void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
   }
 
@@ -187,7 +187,7 @@ class PermeabilityFormValidatorTest {
   }
 
   @Test
-  void validate_whenInValidForm_emptyPermeability_fieldSubmission_thenValidationErrors() {
+  void validate_whenEmptyForm_fieldSubmission_thenValidationErrors() {
     var form = new PermeabilityForm();
     form.setPermeabilityValuesForm(getValuesFormWithEmptyDistributions());
     submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
@@ -201,12 +201,7 @@ class PermeabilityFormValidatorTest {
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(errors)
         .contains(
-            entry("permeabilityValuesForm.permeabilityMin.decimalInputValue", Set.of("permeabilityValuesForm.permeabilityMin.decimalInputValue.required")),
-            entry("permeabilityValuesForm.permeabilityMax.decimalInputValue", Set.of("permeabilityValuesForm.permeabilityMax.decimalInputValue.required")),
-            entry("permeabilityValuesForm.permeabilityAverage.decimalInputValue", Set.of("permeabilityValuesForm.permeabilityAverage.decimalInputValue.required")),
-            entry("permeabilityValuesForm.averageMethodUsed", Set.of("permeabilityValuesForm.averageMethodUsed.required")),
             entry("permeabilityValuesForm.permeabilitySource", Set.of("permeabilityValuesForm.permeabilitySource.required")),
-            entry("permeabilityValuesForm.kvKhAverage.decimalInputValue", Set.of("permeabilityValuesForm.kvKhAverage.decimalInputValue.required")),
             entry("permeabilityValuesForm.permeability." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("permeabilityValuesForm.permeability." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("permeabilityValuesForm.horizontalPermeability." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
@@ -217,7 +212,7 @@ class PermeabilityFormValidatorTest {
   }
 
   @Test
-  void validate_whenInValidForm_notEmptyPermeability_fieldSubmission_thenValidationErrors() {
+  void validate_whenInvalidForm_sourceNotSelected_fieldSubmission_thenValidationErrors() {
     var form = getEmptyFormWithPermeabilityAndProbabilityDistributions();
     submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
 
@@ -230,12 +225,7 @@ class PermeabilityFormValidatorTest {
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(errors)
         .contains(
-            entry("permeabilityValuesForm.permeabilityMin.decimalInputValue", Set.of("permeabilityValuesForm.permeabilityMin.decimalInputValue.required")),
-            entry("permeabilityValuesForm.permeabilityMax.decimalInputValue", Set.of("permeabilityValuesForm.permeabilityMax.decimalInputValue.required")),
-            entry("permeabilityValuesForm.permeabilityAverage.decimalInputValue", Set.of("permeabilityValuesForm.permeabilityAverage.decimalInputValue.required")),
-            entry("permeabilityValuesForm.averageMethodUsed", Set.of("permeabilityValuesForm.averageMethodUsed.required")),
-            entry("permeabilityValuesForm.permeabilitySource", Set.of("permeabilityValuesForm.permeabilitySource.required")),
-            entry("permeabilityValuesForm.kvKhAverage.decimalInputValue", Set.of("permeabilityValuesForm.kvKhAverage.decimalInputValue.required"))
+            entry("permeabilityValuesForm.permeabilitySource", Set.of("permeabilityValuesForm.permeabilitySource.required"))
         ).doesNotContainKeys(
             "permeabilityValuesForm.permeability." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
             "permeabilityValuesForm.horizontalPermeability." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
