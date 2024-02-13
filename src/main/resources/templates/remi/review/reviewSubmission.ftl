@@ -88,10 +88,12 @@
           linkText=manageResourceInformationText
           linkClass="govuk-button govuk-button--secondary"
           linkUrl=springUrl(regulatorManagedInformationUrl)/>
-        <@fdsAction.link
-          linkText="Field status"
-          linkClass="govuk-button govuk-button--secondary"
-          linkUrl=springUrl(fieldStatusUrl)/>
+        <#if isFieldSubmission>
+           <@fdsAction.link
+             linkText="Field status"
+             linkClass="govuk-button govuk-button--secondary"
+             linkUrl=springUrl(fieldStatusUrl)/>
+        </#if>
     </@fdsAction.buttonGroup>
   </#if>
 
