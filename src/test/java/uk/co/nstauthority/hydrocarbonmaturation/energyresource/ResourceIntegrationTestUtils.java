@@ -1,8 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
 
-import java.time.Instant;
 import jakarta.persistence.EntityManager;
+import java.time.Instant;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 
 public class ResourceIntegrationTestUtils {
@@ -24,6 +24,17 @@ public class ResourceIntegrationTestUtils {
       entityManager.persist(field);
       entityManager.flush();
     }
+
+    return resource;
+  }
+
+  public static Resource buildFieldResource(EntityManager entityManager) {
+    var resource = new Resource();
+    resource.setType(ResourceType.FIELD);
+    resource.setCreatedTimestamp(Instant.now());
+
+    entityManager.persist(resource);
+    entityManager.flush();
 
     return resource;
   }

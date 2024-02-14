@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -15,6 +16,7 @@ public class SearchFieldRecordsFilter implements SearchResourceRecordsFilter, Se
   public static final List<String> SEARCHABLE_TYPES = List.of(ResourceType.FIELD.getEnumName());
 
   private String fieldNameForResourceSubmission;
+  private List<String> fieldStatuses = new ArrayList<>();
   private List<String> resourceTypes = SEARCHABLE_TYPES;
   private boolean showResults;
 
@@ -28,6 +30,7 @@ public class SearchFieldRecordsFilter implements SearchResourceRecordsFilter, Se
   public void update(SearchResourceRecordsForm form) {
     setShowResults(true);
     setFieldNameForResourceSubmission(form.getFieldNameForResourceSubmission());
+    setFieldStatuses(form.getFieldStatuses());
   }
 
   @Override
@@ -55,8 +58,17 @@ public class SearchFieldRecordsFilter implements SearchResourceRecordsFilter, Se
     this.fieldNameForResourceSubmission = fieldNameForResourceSubmission;
   }
 
+  public List<String> getFieldStatuses() {
+    return fieldStatuses;
+  }
+
+  public void setFieldStatuses(List<String> fieldStatuses) {
+    this.fieldStatuses = fieldStatuses;
+  }
+
   private void initialise() {
     setShowResults(false);
+    setFieldStatuses(new ArrayList<>());
     setFieldNameForResourceSubmission(null);
   }
 }

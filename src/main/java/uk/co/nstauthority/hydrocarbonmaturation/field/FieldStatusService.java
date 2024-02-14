@@ -20,8 +20,9 @@ public class FieldStatusService {
   public Optional<FieldStatus> getMostRecentFieldStatus(Field field) {
     return fieldStatusHistoryService.getMostRecentFieldStatusHistory(field)
         .stream()
-        .map(FieldStatusHistory::getFieldStatus)
-        .max(Comparator.comparing(FieldStatus::getStatusValue));
+        .max(Comparator.comparing(FieldStatusHistory::getStatusDate)
+            .thenComparing(FieldStatusHistory::getFieldStatus))
+        .map(FieldStatusHistory::getFieldStatus);
   }
 
   @Transactional

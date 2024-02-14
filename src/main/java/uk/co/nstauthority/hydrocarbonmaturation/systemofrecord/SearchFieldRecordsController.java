@@ -14,7 +14,9 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
 @Controller
@@ -84,6 +86,7 @@ public class SearchFieldRecordsController {
         .addObject("maxResultsReturned", searchResourceRecordsService.maxResultsReturned(resourceRecordSearchResults))
         .addObject("fieldApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
             .searchFieldsByFieldName(null)))
+        .addObject("fieldStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(FieldStatus.class))
         .addObject("resourceName", searchResourceRecordsService.getPreSelectedFieldName(form));
 
   }

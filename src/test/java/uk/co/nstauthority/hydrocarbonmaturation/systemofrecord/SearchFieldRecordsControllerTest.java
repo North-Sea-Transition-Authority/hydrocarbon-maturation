@@ -27,7 +27,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
 @ContextConfiguration(classes = SearchFieldRecordsController.class)
@@ -175,6 +177,7 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
             entry("maxResultsReturned", false),
             entry("fieldApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
                 .searchFieldsByFieldName(null))),
+            entry("fieldStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(FieldStatus.class)),
             entry("resourceName", preselectedFieldName)
         );
   }
@@ -212,6 +215,7 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
             entry("maxResultsReturned", false),
             entry("fieldApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
                 .searchFieldsByFieldName(null))),
+            entry("fieldStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(FieldStatus.class)),
             entry("resourceName", preselectedFieldName)
         );
   }

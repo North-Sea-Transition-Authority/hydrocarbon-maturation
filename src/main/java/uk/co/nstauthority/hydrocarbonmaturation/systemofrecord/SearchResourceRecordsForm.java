@@ -15,6 +15,7 @@ public class SearchResourceRecordsForm {
   private String licenceId;
   private List<String> geographicalArea = new ArrayList<>();
   private boolean showOnlyPreferredViews;
+  private List<String> fieldStatuses = new ArrayList<>();
 
   public String getResourceNameFromResourceDetail() {
     return resourceNameFromResourceDetail;
@@ -97,6 +98,14 @@ public class SearchResourceRecordsForm {
     this.fieldNameForResourceSubmission = fieldNameForResourceSubmission;
   }
 
+  public List<String> getFieldStatuses() {
+    return fieldStatuses;
+  }
+
+  public void setFieldStatuses(List<String> fieldStatuses) {
+    this.fieldStatuses = fieldStatuses;
+  }
+
   public static SearchResourceRecordsForm from(SearchProspectAndDiscoveryRecordsFilter filter) {
     var form = new SearchResourceRecordsForm();
     form.setShowOnlyPreferredViews(filter.isShowOnlyPreferredViews());
@@ -115,6 +124,7 @@ public class SearchResourceRecordsForm {
     var form = new SearchResourceRecordsForm();
     form.setResourceTypes(filter.getResourceTypes());
     form.setFieldNameForResourceSubmission(filter.getFieldNameForResourceSubmission());
+    form.setFieldStatuses(filter.getFieldStatuses());
     return form;
   }
 }

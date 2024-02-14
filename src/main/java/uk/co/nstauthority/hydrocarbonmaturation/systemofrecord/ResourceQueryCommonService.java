@@ -43,6 +43,8 @@ class ResourceQueryCommonService {
   private static final FieldStatusHistory FIELD_STATUS_HISTORY = FieldStatusHistory.FIELD_STATUS_HISTORY.as("fsh");
   private static final FieldStatusHistory FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS =
       FieldStatusHistory.FIELD_STATUS_HISTORY.as("fsh2");
+  private static final FieldStatusHistory FSH_FOR_FINDING_MAX_FIELD_STATUS =
+      FieldStatusHistory.FIELD_STATUS_HISTORY.as("fsh3");
   protected final DSLContext context;
 
   protected ResourceQueryCommonService(DSLContext context) {
@@ -64,7 +66,7 @@ class ResourceQueryCommonService {
                 .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
             REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM,
             FIELDS.PARENT_DETERMINED_FIELD_ID,
-            max(FIELD_STATUS_HISTORY.FIELD_STATUS))
+            FIELD_STATUS_HISTORY.FIELD_STATUS)
         .from(RESOURCES
           .leftJoin(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
               select(SD_2.ID)
@@ -81,13 +83,18 @@ class ResourceQueryCommonService {
           .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID))
           .leftJoin(REGULATOR_MANAGED_INFORMATION).on(RESOURCES.ID.eq(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID))
           .leftJoin(FIELDS).on(FIELDS.RESOURCE_ID.eq(RESOURCES.ID)))
-          .leftJoin(FIELD_STATUS_HISTORY)
+          .join(FIELD_STATUS_HISTORY)
           .on(and(
               FIELD_STATUS_HISTORY.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER),
-              FIELD_STATUS_HISTORY.STATUS_DATE.eq(
-                  select(max(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS.STATUS_DATE))
-                      .from(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS)
-                      .where(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
+              FIELD_STATUS_HISTORY.FIELD_STATUS.eq(
+                  select(max(FSH_FOR_FINDING_MAX_FIELD_STATUS.FIELD_STATUS))
+                      .from(FSH_FOR_FINDING_MAX_FIELD_STATUS)
+                      .where(FSH_FOR_FINDING_MAX_FIELD_STATUS.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
+                      .and(FSH_FOR_FINDING_MAX_FIELD_STATUS.STATUS_DATE.eq(
+                          select(max(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS.STATUS_DATE))
+                              .from(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS)
+                              .where(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
+                      ))
               )))
         .where(conditionList)
         .groupBy(
@@ -97,7 +104,7 @@ class ResourceQueryCommonService {
             TRAP_PROPERTIES.ID,
             REGULATOR_MANAGED_INFORMATION.ID,
             FIELDS.FIELD_IDENTIFIER,
-            FIELD_STATUS_HISTORY.FIELD_IDENTIFIER
+            FIELD_STATUS_HISTORY.ID
         )
         .having(aggregateConditionList)
         .orderBy(SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP.desc().nullsLast(),
@@ -212,6 +219,10 @@ class ResourceQueryCommonService {
               .or(RESOURCES.TYPE
                   .eq(ResourceType.DISCOVERY.name()))
       );
+    }
+
+    if (!form.getFieldStatuses().isEmpty()) {
+      conditionList.add(FIELD_STATUS_HISTORY.FIELD_STATUS.in(form.getFieldStatuses()));
     }
 
     return conditionList;

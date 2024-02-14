@@ -30,6 +30,9 @@
               selectorMinInputLength=3
               preselectedItems=resourceName!{}/>
           </@fdsSearch.searchFilterItem>
+          <@fdsSearch.searchFilterItem itemName="Field status">
+              <@fdsSearch.searchCheckboxes path="form.fieldStatuses" checkboxes=fieldStatusOptions/>
+          </@fdsSearch.searchFilterItem>
       </@fdsSearch.searchFilterList>
     </@fdsSearch.searchFilter>
     <@fdsSearch.searchPageContent twoThirdsWidth=true>
