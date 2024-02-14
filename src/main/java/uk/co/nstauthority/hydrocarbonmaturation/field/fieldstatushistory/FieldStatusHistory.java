@@ -8,7 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 import org.hibernate.annotations.GenericGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
@@ -30,7 +30,7 @@ public class FieldStatusHistory {
   @Enumerated(EnumType.STRING)
   private FieldStatus fieldStatus;
 
-  private Instant statusDate;
+  private LocalDate statusDate;
 
   public UUID getId() {
     return id;
@@ -56,11 +56,11 @@ public class FieldStatusHistory {
     this.fieldStatus = fieldStatus;
   }
 
-  public Instant getStatusDate() {
+  public LocalDate getStatusDate() {
     return statusDate;
   }
 
-  public void setStatusDate(Instant statusDate) {
+  public void setStatusDate(LocalDate statusDate) {
     this.statusDate = statusDate;
   }
 }

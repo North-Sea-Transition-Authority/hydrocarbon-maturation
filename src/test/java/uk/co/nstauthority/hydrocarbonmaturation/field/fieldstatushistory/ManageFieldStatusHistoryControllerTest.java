@@ -19,7 +19,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import static uk.co.nstauthority.hydrocarbonmaturation.util.NotificationBannerTestUtil.notificationBanner;
 
 import jakarta.persistence.EntityNotFoundException;
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -62,7 +62,7 @@ class ManageFieldStatusHistoryControllerTest extends AbstractSubmissionControlle
     fieldStatusHistory = new FieldStatusHistory();
     fieldStatusHistory.setId(UUID.randomUUID());
     fieldStatusHistory.setFieldStatus(FieldStatus.STATUS_300);
-    fieldStatusHistory.setStatusDate(Instant.now());
+    fieldStatusHistory.setStatusDate(LocalDate.now());
   }
 
   // not in nested class to pass ArchRule

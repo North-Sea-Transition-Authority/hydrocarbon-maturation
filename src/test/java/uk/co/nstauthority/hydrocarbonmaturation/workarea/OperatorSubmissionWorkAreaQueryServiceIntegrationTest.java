@@ -4,10 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.when;
 
+import jakarta.persistence.EntityManager;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import jakarta.persistence.EntityManager;
 import org.apache.commons.lang3.BooleanUtils;
 import org.assertj.core.groups.Tuple;
 import org.jetbrains.annotations.NotNull;
@@ -208,8 +209,8 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
         .createFieldWithParent(resource, fieldName, responsibleOrganisationIdForSubmission, entityManager
     );
 
-    var today = Instant.now();
-    var yesterday = today.minus(1, ChronoUnit.DAYS);
+    LocalDate today = LocalDate.now();
+    LocalDate yesterday = today.minus(1, ChronoUnit.DAYS);
     var oldFieldStatusHistory = SubmissionIntegrationTestUtils
         .createFieldStatusHistory(field, FieldStatus.STATUS_200, yesterday, entityManager);
     var newestFieldStatusHistory = SubmissionIntegrationTestUtils

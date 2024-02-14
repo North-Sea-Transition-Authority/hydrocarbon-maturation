@@ -6,7 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import jakarta.persistence.EntityManager;
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -505,7 +505,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var field = SubmissionIntegrationTestUtils
         .createFieldWithParent(resource, fieldName, organisationUnitIdUserIsInGroupFor, entityManager);
     var fieldStatusHistoryForResponsibleField = SubmissionIntegrationTestUtils
-        .createFieldStatusHistory(field, FieldStatus.STATUS_300, Instant.now(), entityManager);
+        .createFieldStatusHistory(field, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
     createLicence(1, "relevant", generalDetail);
     when(licenceQueryService.getExtantLicencesByIds(any()))
         .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));
@@ -527,7 +527,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var fieldUserIsResponsibleFor = SubmissionIntegrationTestUtils
         .createFieldWithParent(resourceUserIsResponsibleFor, resourceNameUserIsResponsibleFor, organisationUnitIdUserIsInGroupFor, entityManager);
     var fieldStatusHistoryForResponsibleField = SubmissionIntegrationTestUtils
-        .createFieldStatusHistory(fieldUserIsResponsibleFor, FieldStatus.STATUS_300, Instant.now(), entityManager);
+        .createFieldStatusHistory(fieldUserIsResponsibleFor, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
     createLicence(1, "relevant", generalDetailUserIsResponsibleFor);
 
     var resourceUserIsNotResponsibleFor =  SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
@@ -541,7 +541,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var fieldUserIsNotResponsibleFor = SubmissionIntegrationTestUtils
         .createFieldWithParent(resourceUserIsNotResponsibleFor, resourceNameUserIsNotResponsibleFor, organisationIdUserIsNotResponsibleFor, entityManager);
     var fieldStatusHistoryForNotResponsibleField = SubmissionIntegrationTestUtils
-        .createFieldStatusHistory(fieldUserIsNotResponsibleFor, FieldStatus.STATUS_300, Instant.now(), entityManager);
+        .createFieldStatusHistory(fieldUserIsNotResponsibleFor, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
     createLicence(2, "not relevant", generalDetailUserNotResponsibleFor);
     when(licenceQueryService.getExtantLicencesByIds(any()))
         .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));
@@ -589,7 +589,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var field1 = SubmissionIntegrationTestUtils
         .createFieldWithParent(resource1, resourceName1, organisationUnitIdUserIsInGroupFor, entityManager);
     var fieldStatusHistoryForField1 = SubmissionIntegrationTestUtils
-        .createFieldStatusHistory(field1, FieldStatus.STATUS_300, Instant.now(), entityManager);
+        .createFieldStatusHistory(field1, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
     createLicence(1, "relevant", generalDetail1);
 
     var resource2 =  SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
@@ -602,7 +602,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var field2 = SubmissionIntegrationTestUtils
         .createFieldWithParent(resource2, resourceName2, organisationUnitIdUserIsInGroupFor, entityManager);
     var fieldStatusHistoryForField2 = SubmissionIntegrationTestUtils
-        .createFieldStatusHistory(field2, FieldStatus.STATUS_300, Instant.now(), entityManager);
+        .createFieldStatusHistory(field2, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
     // no licence created for second result
 
     when(licenceQueryService.getExtantLicencesByIds(any()))

@@ -1,10 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
+import jakarta.persistence.EntityManager;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
-import jakarta.persistence.EntityManager;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -232,7 +233,7 @@ public class SubmissionIntegrationTestUtils {
 
   public static FieldStatusHistory createFieldStatusHistory(Field field,
                                                             FieldStatus status,
-                                                            Instant statusDate,
+                                                            LocalDate statusDate,
                                                             EntityManager entityManager) {
     var fieldStatusHistory = new FieldStatusHistory();
     fieldStatusHistory.setField(field);

@@ -2,10 +2,11 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import jakarta.persistence.EntityManager;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import jakarta.persistence.EntityManager;
 import org.apache.commons.lang3.BooleanUtils;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
@@ -170,7 +171,7 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
     var latestSubmittedSubmissionDetail = buildSubmissionDetail(resourceForQueriedSubmission, SubmissionType.CREATE_CSR);
     latestSubmittedSubmissionDetail.setSubmittedTimestamp(Instant.now());
     var field = createField(resourceForQueriedSubmission, 51);
-    var fixedInstant = Instant.now();
+    LocalDate fixedInstant = LocalDate.now();
     var lowestFieldStatusHistory = SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_200, fixedInstant, entityManager);
     var hihestFieldStatusHistory = SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_300, fixedInstant, entityManager);
 
@@ -197,7 +198,7 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
     var latestSubmittedSubmissionDetail = buildSubmissionDetail(resourceForQueriedSubmission, SubmissionType.CREATE_CSR);
     latestSubmittedSubmissionDetail.setSubmittedTimestamp(Instant.now());
     var field = createField(resourceForQueriedSubmission, 51);
-    var fixedInstant = Instant.now();
+    LocalDate fixedInstant = LocalDate.now();
     var latestFieldStatusHistory = SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_200, fixedInstant.plus(1, ChronoUnit.DAYS), entityManager);
     var earliestFieldStatusHistory = SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_300, fixedInstant, entityManager);
 
@@ -355,7 +356,7 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
   }
 
   private FieldStatusHistory buildFieldStatusHistory(Field field) {
-    var fixedInstant = Instant.now();
+    LocalDate fixedInstant = LocalDate.now();
     SubmissionIntegrationTestUtils.createFieldStatusHistory(field, 
         FieldStatus.STATUS_200,
         fixedInstant,

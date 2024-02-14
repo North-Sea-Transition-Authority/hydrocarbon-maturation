@@ -2,10 +2,10 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.Instant;
+import jakarta.persistence.EntityManager;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import jakarta.persistence.EntityManager;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -149,7 +149,7 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
     var field = SubmissionIntegrationTestUtils
         .createFieldWithParent(resource, resourceName, organisationId, entityManager);
     var fieldStatusHistory =
-        SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_300, Instant.now(), entityManager);
+        SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
 
     var result = resourceRecordSummaryQueryService.getResourceRecord(resource.getId());
 
@@ -180,7 +180,7 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
     var organisationId = 46;
     createGeneralDetail(submissionDetail1);
     var field = SubmissionIntegrationTestUtils.createFieldWithParent(resource, resourceName, organisationId, entityManager);
-    var fixedInstant = Instant.now();
+    LocalDate fixedInstant = LocalDate.now();
     var lowestFieldStatusHistory =
         SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_200, fixedInstant, entityManager);
     var highestFieldStatusHistory =
@@ -207,7 +207,7 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
     var organisationId = 46;
     createGeneralDetail(submissionDetail1);
     var field = SubmissionIntegrationTestUtils.createFieldWithParent(resource, resourceName, organisationId,  entityManager);
-    var fixedInstant = Instant.now();
+    LocalDate fixedInstant = LocalDate.now();
     var latestFieldStatusHistory =
         SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_200, fixedInstant.plus(1, ChronoUnit.DAYS), entityManager);
     var earliestFieldStatusHistory =

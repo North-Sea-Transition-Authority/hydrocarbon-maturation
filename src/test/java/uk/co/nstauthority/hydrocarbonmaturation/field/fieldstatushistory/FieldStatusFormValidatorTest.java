@@ -10,7 +10,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,17 +28,20 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 
 @ExtendWith(MockitoExtension.class)
 class FieldStatusFormValidatorTest {
-  @Mock
-  private FieldStatusHistoryService fieldStatusHistoryService;
+  private static final Field FIELD = new Field();
+
+  private final LocalDate FIXED_TODAY = LocalDate.of(2024, 2, 1);
+  private final Instant FIXED_TODAY_AS_INSTANT = Instant.parse("2024-02-01T00:00:00.00Z");
+
   @Mock
   private Clock clock;
+  @Mock
+  private FieldStatusHistoryService fieldStatusHistoryService;
   @InjectMocks
   private FieldStatusFormValidator fieldStatusFormValidator;
 
-  private static final Field FIELD = new Field();
 
-  private final Instant FIXED_TODAY = Instant.parse("2024-02-01T00:00:00.00Z");
-  private final Instant FIXED_PAST = Instant.parse("2023-02-01T00:00:00.00Z");
+  private final LocalDate FIXED_PAST = LocalDate.of(2023, 2, 1);
 
   private FieldStatusForm form;
   private BindingResult bindingResult;
@@ -54,7 +56,8 @@ class FieldStatusFormValidatorTest {
   void validateForm_validForm_thenNoErrors() {
     form = getValidForm();
 
-    when(clock.instant()).thenReturn(FIXED_TODAY);
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
     assertTrue(fieldStatusFormValidator.isValid(form, bindingResult, FIELD));
   }
@@ -121,7 +124,8 @@ class FieldStatusFormValidatorTest {
     form.setFieldStatusDateMonth("01");
     form.setFieldStatusDateYear("2025");
 
-    when(clock.instant()).thenReturn(FIXED_TODAY);
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
     assertFalse(fieldStatusFormValidator.isValid(form, bindingResult, FIELD));
 
@@ -148,7 +152,8 @@ class FieldStatusFormValidatorTest {
     when(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(FIELD))
         .thenReturn(List.of(existingStatusHistory));
 
-    when(clock.instant()).thenReturn(FIXED_TODAY);
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
     assertFalse(fieldStatusFormValidator.isValid(form, bindingResult, FIELD));
 
@@ -172,12 +177,13 @@ class FieldStatusFormValidatorTest {
 
     var existingStatusHistory = new FieldStatusHistory();
     existingStatusHistory.setFieldStatus(FieldStatus.STATUS_700);
-    existingStatusHistory.setStatusDate(FIXED_TODAY.plus(1, ChronoUnit.DAYS));
+    existingStatusHistory.setStatusDate(FIXED_TODAY.plusDays(1));
     when(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(FIELD))
         .thenReturn(List.of(existingStatusHistory));
 
 
-    when(clock.instant()).thenReturn(FIXED_TODAY);
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
     assertTrue(fieldStatusFormValidator.isValid(form, bindingResult, FIELD));
 
@@ -197,7 +203,8 @@ class FieldStatusFormValidatorTest {
     when(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(FIELD))
         .thenReturn(List.of(existingStatusHistory));
 
-    when(clock.instant()).thenReturn(FIXED_TODAY);
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
     assertTrue(fieldStatusFormValidator.isValid(form, bindingResult, FIELD));
 
@@ -226,7 +233,8 @@ class FieldStatusFormValidatorTest {
     when(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(FIELD))
         .thenReturn(List.of(existingStatusHistory1));
 
-    when(clock.instant()).thenReturn(FIXED_TODAY);
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
     assertTrue(fieldStatusFormValidator.isValid(form, bindingResult, FIELD));
 
@@ -253,7 +261,8 @@ class FieldStatusFormValidatorTest {
     when(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(FIELD))
         .thenReturn(List.of(existingStatusHistory1));
 
-    when(clock.instant()).thenReturn(FIXED_TODAY);
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
     assertTrue(fieldStatusFormValidator.isValid(form, bindingResult, FIELD));
 
@@ -275,7 +284,8 @@ class FieldStatusFormValidatorTest {
     when(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(FIELD))
         .thenReturn(List.of(existingStatusHistory));
 
-    when(clock.instant()).thenReturn(FIXED_TODAY);
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
     assertFalse(fieldStatusFormValidator.isValid(form, bindingResult, FIELD));
 
@@ -291,8 +301,7 @@ class FieldStatusFormValidatorTest {
     form = getValidForm();
     form.setFieldStatus(FieldStatus.STATUS_500);
 
-    var invalidInstant = FIXED_PAST.plus(1, ChronoUnit.DAYS);
-    var invalidLocalDate = LocalDate.ofInstant(invalidInstant, ZoneId.systemDefault());
+    var invalidLocalDate = FIXED_PAST.plusDays(1);
     form.setFieldStatusDateDay(String.valueOf(invalidLocalDate.getDayOfMonth()));
     form.setFieldStatusDateMonth(String.valueOf(invalidLocalDate.getMonthValue()));
     form.setFieldStatusDateYear(String.valueOf(invalidLocalDate.getYear()));
@@ -303,16 +312,17 @@ class FieldStatusFormValidatorTest {
 
     var esh2 = new FieldStatusHistory();
     esh2.setFieldStatus(FieldStatus.STATUS_400);
-    esh2.setStatusDate(FIXED_PAST.plus(2, ChronoUnit.DAYS));
+    esh2.setStatusDate(FIXED_PAST.plusDays(2));
 
     var esh3 = new FieldStatusHistory();
     esh3.setFieldStatus(FieldStatus.STATUS_600);
-    esh3.setStatusDate(FIXED_PAST.plus(4, ChronoUnit.DAYS));
+    esh3.setStatusDate(FIXED_PAST.plusDays(4));
 
     when(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(FIELD))
         .thenReturn(List.of(esh1, esh2, esh3));
 
-    when(clock.instant()).thenReturn(FIXED_TODAY);
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
     assertFalse(fieldStatusFormValidator.isValid(form, bindingResult, FIELD));
 
@@ -328,8 +338,7 @@ class FieldStatusFormValidatorTest {
     form = getValidForm();
     form.setFieldStatus(FieldStatus.STATUS_500);
 
-    var validInstant = FIXED_PAST.plus(3, ChronoUnit.DAYS);
-    var validLocalDate = LocalDate.ofInstant(validInstant, ZoneId.systemDefault());
+    var validLocalDate = FIXED_PAST.plusDays(3);
     form.setFieldStatusDateDay(String.valueOf(validLocalDate.getDayOfMonth()));
     form.setFieldStatusDateMonth(String.valueOf(validLocalDate.getMonthValue()));
     form.setFieldStatusDateYear(String.valueOf(validLocalDate.getYear()));
@@ -340,16 +349,17 @@ class FieldStatusFormValidatorTest {
 
     var esh2 = new FieldStatusHistory();
     esh2.setFieldStatus(FieldStatus.STATUS_400);
-    esh2.setStatusDate(FIXED_PAST.plus(2, ChronoUnit.DAYS));
+    esh2.setStatusDate(FIXED_PAST.plusDays(2));
 
     var esh3 = new FieldStatusHistory();
     esh3.setFieldStatus(FieldStatus.STATUS_600);
-    esh3.setStatusDate(FIXED_PAST.plus(4, ChronoUnit.DAYS));
+    esh3.setStatusDate(FIXED_PAST.plusDays(4));
 
     when(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(FIELD))
         .thenReturn(List.of(esh1, esh2, esh3));
 
-    when(clock.instant()).thenReturn(FIXED_TODAY);
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
     fieldStatusFormValidator.isValid(form, bindingResult, FIELD);
 
@@ -362,8 +372,7 @@ class FieldStatusFormValidatorTest {
     form = getValidForm();
     form.setFieldStatus(FieldStatus.STATUS_899);
 
-    var invalidInstant = FIXED_PAST;
-    var invalidLocalDate = LocalDate.ofInstant(invalidInstant, ZoneId.systemDefault());
+    var invalidLocalDate = FIXED_PAST;
     form.setFieldStatusDateDay(String.valueOf(invalidLocalDate.getDayOfMonth()));
     form.setFieldStatusDateMonth(String.valueOf(invalidLocalDate.getMonthValue()));
     form.setFieldStatusDateYear(String.valueOf(invalidLocalDate.getYear()));
@@ -374,16 +383,17 @@ class FieldStatusFormValidatorTest {
 
     var esh2 = new FieldStatusHistory();
     esh2.setFieldStatus(FieldStatus.STATUS_800);
-    esh2.setStatusDate(FIXED_PAST.plus(2, ChronoUnit.DAYS));
+    esh2.setStatusDate(FIXED_PAST.plusDays(2));
 
     var esh3 = new FieldStatusHistory();
     esh3.setFieldStatus(FieldStatus.STATUS_900);
-    esh3.setStatusDate(FIXED_PAST.plus(4, ChronoUnit.DAYS));
+    esh3.setStatusDate(FIXED_PAST.plusDays(4));
 
     when(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(FIELD))
         .thenReturn(List.of(esh1, esh2, esh3));
 
-    when(clock.instant()).thenReturn(FIXED_TODAY);
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
     assertFalse(fieldStatusFormValidator.isValid(form, bindingResult, FIELD));
 
@@ -399,8 +409,7 @@ class FieldStatusFormValidatorTest {
     form = getValidForm();
     form.setFieldStatus(FieldStatus.STATUS_700);
 
-    var validInstant = FIXED_PAST.plus(3, ChronoUnit.DAYS);
-    var validLocalDate = LocalDate.ofInstant(validInstant, ZoneId.systemDefault());
+    var validLocalDate = FIXED_PAST.plusDays(3);
     form.setFieldStatusDateDay(String.valueOf(validLocalDate.getDayOfMonth()));
     form.setFieldStatusDateMonth(String.valueOf(validLocalDate.getMonthValue()));
     form.setFieldStatusDateYear(String.valueOf(validLocalDate.getYear()));
@@ -411,16 +420,17 @@ class FieldStatusFormValidatorTest {
 
     var esh2 = new FieldStatusHistory();
     esh2.setFieldStatus(FieldStatus.STATUS_799);
-    esh2.setStatusDate(FIXED_PAST.plus(2, ChronoUnit.DAYS));
+    esh2.setStatusDate(FIXED_PAST.plusDays(2));
 
     var esh3 = new FieldStatusHistory();
     esh3.setFieldStatus(FieldStatus.STATUS_900);
-    esh3.setStatusDate(FIXED_PAST.plus(4, ChronoUnit.DAYS));
+    esh3.setStatusDate(FIXED_PAST.plusDays(4));
 
     when(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(FIELD))
         .thenReturn(List.of(esh1, esh2, esh3));
 
-    when(clock.instant()).thenReturn(FIXED_TODAY);
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
     fieldStatusFormValidator.isValid(form, bindingResult, FIELD);
 
@@ -433,8 +443,7 @@ class FieldStatusFormValidatorTest {
     form = getValidForm();
     form.setFieldStatus(FieldStatus.STATUS_800);
 
-    var validInstant = FIXED_PAST.plus(1, ChronoUnit.DAYS);
-    var validLocalDate = LocalDate.ofInstant(validInstant, ZoneId.systemDefault());
+    var validLocalDate = FIXED_PAST.plusDays(1);
     form.setFieldStatusDateDay(String.valueOf(validLocalDate.getDayOfMonth()));
     form.setFieldStatusDateMonth(String.valueOf(validLocalDate.getMonthValue()));
     form.setFieldStatusDateYear(String.valueOf(validLocalDate.getYear()));
@@ -445,16 +454,17 @@ class FieldStatusFormValidatorTest {
 
     var esh2 = new FieldStatusHistory();
     esh2.setFieldStatus(FieldStatus.STATUS_600);
-    esh2.setStatusDate(FIXED_PAST.plus(2, ChronoUnit.DAYS));
+    esh2.setStatusDate(FIXED_PAST.plusDays(2));
 
     var esh3 = new FieldStatusHistory();
     esh3.setFieldStatus(FieldStatus.STATUS_700);
-    esh3.setStatusDate(FIXED_PAST.plus(4, ChronoUnit.DAYS));
+    esh3.setStatusDate(FIXED_PAST.plusDays(4));
 
     when(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(FIELD))
         .thenReturn(List.of(esh1, esh2, esh3));
 
-    when(clock.instant()).thenReturn(FIXED_TODAY);
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
     fieldStatusFormValidator.isValid(form, bindingResult, FIELD);
 

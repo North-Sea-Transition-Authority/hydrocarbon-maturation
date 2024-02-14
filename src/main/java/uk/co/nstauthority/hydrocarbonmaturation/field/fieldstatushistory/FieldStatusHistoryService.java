@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.TextStyle;
 import java.util.Comparator;
 import java.util.List;
@@ -39,8 +38,7 @@ public class FieldStatusHistoryService {
     return fieldStatusHistoryRepository.findAllByField(field)
         .stream()
         .sorted(
-            Comparator.comparing((FieldStatusHistory fieldStatusHistory1) ->
-                    LocalDate.ofInstant(fieldStatusHistory1.getStatusDate(), ZoneId.systemDefault()).atStartOfDay())
+            Comparator.comparing(FieldStatusHistory::getStatusDate)
                 .thenComparing(
                     fieldStatusHistory -> fieldStatusHistory.getFieldStatus().getStatusValue()
                 )
@@ -53,8 +51,8 @@ public class FieldStatusHistoryService {
 
     form.setFieldStatus(fieldStatusHistory.getFieldStatus());
 
-    if (fieldStatusHistory.getStatusDate() != null) {
-      var fieldStatusDate = LocalDate.ofInstant(fieldStatusHistory.getStatusDate(), ZoneId.systemDefault());
+    var fieldStatusDate = fieldStatusHistory.getStatusDate();
+    if (fieldStatusDate != null) {
       form.setFieldStatusDateDay(String.valueOf(fieldStatusDate.getDayOfMonth()));
       form.setFieldStatusDateMonth(fieldStatusDate.getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault()));
       form.setFieldStatusDateYear(String.valueOf(fieldStatusDate.getYear()));
@@ -81,7 +79,7 @@ public class FieldStatusHistoryService {
                   Integer.parseInt(form.getFieldStatusDateYear()),
                   Integer.parseInt(form.getFieldStatusDateMonth()),
                   Integer.parseInt(form.getFieldStatusDateDay())
-          ).atStartOfDay(ZoneId.systemDefault()).toInstant()
+          )
       );
     }
 
@@ -93,7 +91,7 @@ public class FieldStatusHistoryService {
     var fieldStatusHistory = new FieldStatusHistory();
     fieldStatusHistory.setField(field);
     fieldStatusHistory.setFieldStatus(fieldStatus);
-    fieldStatusHistory.setStatusDate(clock.instant());
+    fieldStatusHistory.setStatusDate(LocalDate.now(clock));
 
     fieldStatusHistoryRepository.save(fieldStatusHistory);
   }

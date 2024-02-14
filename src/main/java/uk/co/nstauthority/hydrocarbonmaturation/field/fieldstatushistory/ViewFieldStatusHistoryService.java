@@ -2,8 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,8 +26,7 @@ public class ViewFieldStatusHistoryService {
   }
 
   public static FieldStatusHistoryDto toFieldStatusDto(FieldStatusHistory fieldStatusHistory) {
-    var date = LocalDate.ofInstant(fieldStatusHistory.getStatusDate(), ZoneId.systemDefault());
-    var formattedDate = DateUtil.formatLongDate(date);
+    var formattedDate = DateUtil.formatLongDate(fieldStatusHistory.getStatusDate());
 
     var removeUrl = ReverseRouter.route(on(ManageFieldStatusHistoryController.class)
         .getRemoveFieldStatusConfirmation(

@@ -4,10 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTestUtils.createSubmissionForIntegrationTest;
 
+import jakarta.persistence.EntityManager;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
-import jakarta.persistence.EntityManager;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -644,8 +645,8 @@ class ResponsibleTeamSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persist(licence2);
     entityManager.flush();
 
-    var today = Instant.now();
-    var yesterday = today.minus(1, ChronoUnit.DAYS);
+    LocalDate today = LocalDate.now();
+    LocalDate yesterday = today.minus(1, ChronoUnit.DAYS);
     var oldFieldStatusHistory = SubmissionIntegrationTestUtils
         .createFieldStatusHistory(field, FieldStatus.STATUS_200, yesterday, entityManager);
     var newestFieldStatusHistory = SubmissionIntegrationTestUtils

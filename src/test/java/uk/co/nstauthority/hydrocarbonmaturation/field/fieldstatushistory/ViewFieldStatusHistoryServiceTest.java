@@ -4,8 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import org.assertj.core.groups.Tuple;
@@ -21,7 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
 @ExtendWith(MockitoExtension.class)
 class ViewFieldStatusHistoryServiceTest {
-  private static final Instant FIXED_INSTANT = Instant.parse("2024-02-06T00:00:00.00Z");
+  private static final LocalDate FIXED_DATE = LocalDate.of(2024, 2, 6);
 
   @Mock
   private FieldStatusHistoryService fieldStatusHistoryService;
@@ -40,17 +39,17 @@ class ViewFieldStatusHistoryServiceTest {
   void getFieldStatusHistoryViews() {
     var fsh1 = new FieldStatusHistory();
     fsh1.setFieldStatus(FieldStatus.STATUS_200);
-    fsh1.setStatusDate(FIXED_INSTANT);
+    fsh1.setStatusDate(FIXED_DATE);
     fsh1.setField(field);
 
     var fsh2 = new FieldStatusHistory();
     fsh2.setFieldStatus(FieldStatus.STATUS_400);
-    fsh2.setStatusDate(FIXED_INSTANT.plus(1, ChronoUnit.DAYS));
+    fsh2.setStatusDate(FIXED_DATE.plusDays(1));
     fsh2.setField(field);
 
     var fsh3 = new FieldStatusHistory();
     fsh3.setFieldStatus(FieldStatus.STATUS_600);
-    fsh3.setStatusDate(FIXED_INSTANT.plus(2, ChronoUnit.DAYS));
+    fsh3.setStatusDate(FIXED_DATE.plusDays(2));
     fsh3.setField(field);
 
     when(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(field))
@@ -93,7 +92,7 @@ class ViewFieldStatusHistoryServiceTest {
   void toFieldStatusDto() {
     var fieldStatusHistory = new FieldStatusHistory();
     fieldStatusHistory.setFieldStatus(FieldStatus.STATUS_400);
-    fieldStatusHistory.setStatusDate(FIXED_INSTANT);
+    fieldStatusHistory.setStatusDate(FIXED_DATE);
     fieldStatusHistory.setId(UUID.randomUUID());
     fieldStatusHistory.setField(field);
 

@@ -9,7 +9,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -51,7 +52,7 @@ class FieldStatusHistoryServiceTest {
 
   @Test
   void getMostRecentFieldStatusHistory_sameDate_returnHigherStatus() {
-    var date = Instant.now();
+    LocalDate date = LocalDate.now();
 
     var fieldStatusHistory1 = new FieldStatusHistory();
     fieldStatusHistory1.setFieldStatus(FieldStatus.STATUS_200);
@@ -73,12 +74,12 @@ class FieldStatusHistoryServiceTest {
 
   @Test
   void getMostRecentFieldStatusHistory_sameStatus_returnMostRecent() {
-    var date1 = Instant.now();
+    LocalDate date1 = LocalDate.now();
     var fieldStatusHistory1 = new FieldStatusHistory();
     fieldStatusHistory1.setFieldStatus(FieldStatus.STATUS_200);
     fieldStatusHistory1.setStatusDate(date1);
 
-    var date2 = date1.plus(1, ChronoUnit.DAYS);
+    LocalDate date2 = date1.plusDays(1);
     var fieldStatusHistory2 = new FieldStatusHistory();
     fieldStatusHistory2.setFieldStatus(FieldStatus.STATUS_200);
     fieldStatusHistory2.setStatusDate(date2);
@@ -94,14 +95,14 @@ class FieldStatusHistoryServiceTest {
 
   @Test
   void getAllFieldStatusHistoriesOrderedByDateAndStatus_ordersByDate() {
-    var fixedInstant = Instant.now();
+    LocalDate fixedInstant = LocalDate.now();
 
     var oldestFieldStatusHistory = new FieldStatusHistory();
     oldestFieldStatusHistory.setStatusDate(fixedInstant);
     var olderFieldStatusHistory = new FieldStatusHistory();
-    olderFieldStatusHistory.setStatusDate(fixedInstant.plus(5, ChronoUnit.DAYS));
+    olderFieldStatusHistory.setStatusDate(fixedInstant.plusDays(5));
     var newestFieldStatusHistory = new FieldStatusHistory();
-    newestFieldStatusHistory.setStatusDate(fixedInstant.plus(10, ChronoUnit.DAYS));
+    newestFieldStatusHistory.setStatusDate(fixedInstant.plusDays(10));
 
     when(fieldStatusHistoryRepository.findAllByField(field))
         .thenReturn(Set.of(newestFieldStatusHistory, olderFieldStatusHistory, oldestFieldStatusHistory));
@@ -112,7 +113,7 @@ class FieldStatusHistoryServiceTest {
 
   @Test
   void getAllFieldStatusHistoriesOrderedByDateAndStatus_ordersByStatus() {
-    var fixedInstant = Instant.now();
+    LocalDate fixedInstant = LocalDate.now();
 
     var lowestStatusHistory = new FieldStatusHistory();
     lowestStatusHistory.setStatusDate(fixedInstant);
@@ -146,7 +147,7 @@ class FieldStatusHistoryServiceTest {
 
   @Test
   void fieldStatusHistoryToForm_assertForm() {
-    var fieldStatusDate = Instant.parse("2024-02-02T00:00:00.00Z");
+    LocalDate fieldStatusDate = LocalDate.of(2024, 2, 2);
 
     var fieldStatusHistory = new FieldStatusHistory();
     fieldStatusHistory.setStatusDate(fieldStatusDate);
@@ -171,8 +172,9 @@ class FieldStatusHistoryServiceTest {
   void saveNewFieldStatusHistory() {
     var fieldStatus = FieldStatus.STATUS_200;
 
-    var fixedInstant = Instant.now();
+    var fixedInstant = Instant.parse("2024-02-02T00:00:00.00Z");
     when(clock.instant()).thenReturn(fixedInstant);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
     var captor = ArgumentCaptor.forClass(FieldStatusHistory.class);
     fieldStatusHistoryService.saveNewFieldStatusHistory(field, fieldStatus);
@@ -186,7 +188,7 @@ class FieldStatusHistoryServiceTest {
         ).containsExactly(
             field,
             fieldStatus,
-            fixedInstant
+            LocalDate.of(2024, 2, 2)
         );
   }
 
@@ -210,7 +212,7 @@ class FieldStatusHistoryServiceTest {
         ).containsExactly(
             field,
             form.getFieldStatus(),
-            Instant.parse("2024-02-02T00:00:00.00Z")
+            LocalDate.of(2024, 2, 2)
         );
   }
 

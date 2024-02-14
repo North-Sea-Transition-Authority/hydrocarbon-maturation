@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import jakarta.persistence.EntityManager;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
@@ -1247,7 +1248,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var field1 = SubmissionIntegrationTestUtils
         .createFieldWithParent(resource1, resourceName1, responsibleOrgId1, entityManager);
     var fieldStatusHistoryForField1 = SubmissionIntegrationTestUtils
-        .createFieldStatusHistory(field1, FieldStatus.STATUS_300, Instant.now(), entityManager);
+        .createFieldStatusHistory(field1, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
     createLicence(1, "relevant", generalDetail1);
 
     var responsibleOrgId2 = 46;
@@ -1261,7 +1262,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var field2 = SubmissionIntegrationTestUtils
         .createFieldWithParent(resource2, resourceName2, responsibleOrgId2, entityManager);
     var fieldStatusHistoryForField2 = SubmissionIntegrationTestUtils
-        .createFieldStatusHistory(field2, FieldStatus.STATUS_300, Instant.now(), entityManager);
+        .createFieldStatusHistory(field2, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
     // no licence created for second result
 
     when(licenceQueryService.getExtantLicencesByIds(any()))
@@ -1314,7 +1315,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var field = SubmissionIntegrationTestUtils
         .createFieldWithParent(resource, "Field name", organisationUnitIdUserIsInGroupFor, entityManager);
     var fieldStatusHistoryForResponsibleField = SubmissionIntegrationTestUtils
-        .createFieldStatusHistory(field, FieldStatus.STATUS_300, Instant.now(), entityManager);
+        .createFieldStatusHistory(field, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
 
     var form = new SearchResourceRecordsForm();
     form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
@@ -1365,7 +1366,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var field = SubmissionIntegrationTestUtils
         .createFieldWithParent(resource, fieldName, organisationUnitIdUserIsInGroupFor, entityManager);
     var fieldStatusHistoryForResponsibleField = SubmissionIntegrationTestUtils
-        .createFieldStatusHistory(field, FieldStatus.STATUS_300, Instant.now(), entityManager);
+        .createFieldStatusHistory(field, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
     createLicence(1, "relevant", generalDetail);
     when(licenceQueryService.getExtantLicencesByIds(any()))
         .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));

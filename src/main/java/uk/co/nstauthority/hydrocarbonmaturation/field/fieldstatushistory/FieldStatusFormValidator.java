@@ -1,10 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -74,10 +71,10 @@ public class FieldStatusFormValidator {
             Integer.parseInt(form.getFieldStatusDateYear()),
             Integer.parseInt(form.getFieldStatusDateMonth()),
             Integer.parseInt(form.getFieldStatusDateDay())
-        ).atStartOfDay(ZoneId.systemDefault()).toInstant()
+        )
     );
 
-    if (newFieldStatusHistory.getStatusDate().isAfter(clock.instant())) {
+    if (newFieldStatusHistory.getStatusDate().isAfter(LocalDate.now(clock))) {
       errors.rejectValue(
           FIELD_STATUS_DATE_ERROR_LOCATION,
           "fieldStatusDate.dateInFuture",
@@ -140,13 +137,13 @@ public class FieldStatusFormValidator {
     return newFieldStatusHistory.getStatusDate().isBefore(maxDateLess);
   }
 
-  private static Instant getMostRecentDateForStatuses600OrLess(FieldStatusHistory newFieldStatusHistory,
+  private static LocalDate getMostRecentDateForStatuses600OrLess(FieldStatusHistory newFieldStatusHistory,
                                                                List<FieldStatusHistory> fullFieldStatusHistory) {
     return fullFieldStatusHistory.stream()
         .filter(history -> history.getFieldStatus().getStatusValue() <= 600)
         .map(FieldStatusHistory::getStatusDate)
         .max(Comparator.naturalOrder())
-        .orElse(newFieldStatusHistory.getStatusDate().minus(1, ChronoUnit.DAYS));
+        .orElse(newFieldStatusHistory.getStatusDate().minusDays(1));
   }
 
   /*
