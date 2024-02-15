@@ -18,6 +18,7 @@ public class SearchFieldRecordsFilter implements SearchResourceRecordsFilter, Se
   private String fieldNameForResourceSubmission;
   private List<String> fieldStatuses = new ArrayList<>();
   private List<String> resourceTypes = SEARCHABLE_TYPES;
+  private List<String> geographicalAreas = new ArrayList<>();
   private boolean showResults;
 
   public static SearchFieldRecordsFilter createInstance() {
@@ -31,6 +32,7 @@ public class SearchFieldRecordsFilter implements SearchResourceRecordsFilter, Se
     setShowResults(true);
     setFieldNameForResourceSubmission(form.getFieldNameForResourceSubmission());
     setFieldStatuses(form.getFieldStatuses());
+    setGeographicalAreas(form.getGeographicalArea());
   }
 
   @Override
@@ -66,9 +68,18 @@ public class SearchFieldRecordsFilter implements SearchResourceRecordsFilter, Se
     this.fieldStatuses = fieldStatuses;
   }
 
+  public List<String> getGeographicalAreas() {
+    return geographicalAreas;
+  }
+
+  public void setGeographicalAreas(List<String> geographicalAreas) {
+    this.geographicalAreas = geographicalAreas;
+  }
+
   private void initialise() {
     setShowResults(false);
-    setFieldStatuses(new ArrayList<>());
     setFieldNameForResourceSubmission(null);
+    setFieldStatuses(new ArrayList<>());
+    setGeographicalAreas(new ArrayList<>());
   }
 }

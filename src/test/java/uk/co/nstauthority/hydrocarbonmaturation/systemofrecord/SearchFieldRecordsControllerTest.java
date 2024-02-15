@@ -31,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUt
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 
 @ContextConfiguration(classes = SearchFieldRecordsController.class)
 class SearchFieldRecordsControllerTest extends AbstractControllerTest {
@@ -178,6 +179,7 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
             entry("fieldApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
                 .searchFieldsByFieldName(null))),
             entry("fieldStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(FieldStatus.class)),
+            entry("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class)),
             entry("resourceName", preselectedFieldName)
         );
   }

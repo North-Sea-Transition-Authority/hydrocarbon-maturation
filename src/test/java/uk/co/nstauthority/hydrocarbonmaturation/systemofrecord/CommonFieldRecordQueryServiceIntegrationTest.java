@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import jakarta.persistence.EntityManager;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.jooq.DSLContext;
@@ -15,10 +16,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
+import java.util.ArrayList;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
@@ -45,7 +47,7 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
   void setUp() {
     setUpRegulatorTest();
 
-    form = new SearchResourceRecordsForm();
+    form = SearchResourceRecordsForm.from(SearchFieldRecordsFilter.createInstance());
   }
 
   @Nested
@@ -58,8 +60,6 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
-      form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
-
       status200Field1 = FieldIntegrationTestUtils.createField("Field status 200 1", entityManager);
       FieldIntegrationTestUtils.addFieldStatusHistory(status200Field1, FieldStatus.STATUS_200, entityManager);
 
@@ -143,6 +143,99 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
           .extracting(ResourceRecordQueryResult::resourceName)
           .containsExactlyInAnyOrder(
               status200Field1.getCorrectedLegalFieldName()
+          );
+    }
+  }
+
+  @Nested
+  class GivenFilteringByGeographicalArea {
+
+    private Field nnsField1;
+    private Field nnsField2;
+    private Field wosField;
+    private Field onshoreField;
+
+    @BeforeEach
+    void setUp() {
+      nnsField1 = FieldIntegrationTestUtils.createFieldWithStatusHistory("Northern North Sea Field 1", entityManager);
+      FieldIntegrationTestUtils.setGeographicalAreaForField(nnsField1, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
+
+      nnsField2 = FieldIntegrationTestUtils.createFieldWithStatusHistory("Northern North Sea Field 2", entityManager);
+      FieldIntegrationTestUtils.setGeographicalAreaForField(nnsField2, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
+
+      wosField = FieldIntegrationTestUtils.createFieldWithStatusHistory("West of Shetland Field", entityManager);
+      FieldIntegrationTestUtils.setGeographicalAreaForField(wosField, GeographicalArea.WEST_OF_SHETLAND, entityManager);
+
+      onshoreField = FieldIntegrationTestUtils.createFieldWithStatusHistory("Onshore Field", entityManager);
+      FieldIntegrationTestUtils.setGeographicalAreaForField(onshoreField, GeographicalArea.ONSHORE, entityManager);
+    }
+
+    @Test
+    void whenNoGeographicalAreaSelected_thenAllReturned() {
+      form.setGeographicalArea(new ArrayList<>());
+
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
+          .extracting(ResourceRecordQueryResult::resourceName)
+          .containsExactlyInAnyOrder(
+              nnsField1.getCorrectedLegalFieldName(),
+              nnsField2.getCorrectedLegalFieldName(),
+              wosField.getCorrectedLegalFieldName(),
+              onshoreField.getCorrectedLegalFieldName()
+          );
+    }
+
+    @Test
+    void whenOneGeographicalAreaSelected_thenAllWithAreaTypeReturned() {
+      form.setGeographicalArea(List.of(GeographicalArea.NORTHERN_NORTH_SEA.getEnumName()));
+
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
+          .extracting(ResourceRecordQueryResult::resourceName)
+          .containsExactlyInAnyOrder(
+              nnsField1.getCorrectedLegalFieldName(),
+              nnsField2.getCorrectedLegalFieldName()
+          );
+    }
+
+    @Test
+    void whenMultipleGeographicalAreaSelected_thenAllWithEitherAreaTypesReturned() {
+      form.setGeographicalArea(List.of(
+          GeographicalArea.NORTHERN_NORTH_SEA.getEnumName(),
+          GeographicalArea.WEST_OF_SHETLAND.getEnumName())
+      );
+
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
+          .extracting(ResourceRecordQueryResult::resourceName)
+          .containsExactlyInAnyOrder(
+              nnsField1.getCorrectedLegalFieldName(),
+              nnsField2.getCorrectedLegalFieldName(),
+              wosField.getCorrectedLegalFieldName()
+          );
+    }
+
+    @Test
+    void whenAlsoFilteringByFieldName_thenReturnsFieldThatMeetsAllConditions() {
+      form.setFieldNameForResourceSubmission("Field 1");
+      form.setGeographicalArea(List.of(GeographicalArea.NORTHERN_NORTH_SEA.getEnumName()));
+
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
+          .extracting(ResourceRecordQueryResult::resourceName)
+          .containsExactly(
+              nnsField1.getCorrectedLegalFieldName()
+          );
+    }
+
+    @Test
+    void whenAlsoFilteringByFieldName_andByFieldStatus_thenReturnsFieldThatMeetsAllConditions() {
+      form.setFieldNameForResourceSubmission("Field");
+      form.setGeographicalArea(List.of(GeographicalArea.NORTHERN_NORTH_SEA.getEnumName()));
+
+      FieldIntegrationTestUtils.addFieldStatusHistory(nnsField1, FieldStatus.STATUS_300, entityManager);
+      form.setFieldStatuses(List.of(FieldStatus.STATUS_300.getEnumName()));
+
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
+          .extracting(ResourceRecordQueryResult::resourceName)
+          .containsExactly(
+              nnsField1.getCorrectedLegalFieldName()
           );
     }
   }

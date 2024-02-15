@@ -125,6 +125,7 @@ public class SearchResourceRecordsForm {
     form.setResourceTypes(filter.getResourceTypes());
     form.setFieldNameForResourceSubmission(filter.getFieldNameForResourceSubmission());
     form.setFieldStatuses(filter.getFieldStatuses());
+    form.setGeographicalArea(filter.getGeographicalAreas());
     return form;
   }
 }

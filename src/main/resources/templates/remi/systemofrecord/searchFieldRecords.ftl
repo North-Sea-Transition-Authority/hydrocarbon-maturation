@@ -33,6 +33,9 @@
           <@fdsSearch.searchFilterItem itemName="Field status">
               <@fdsSearch.searchCheckboxes path="form.fieldStatuses" checkboxes=fieldStatusOptions/>
           </@fdsSearch.searchFilterItem>
+          <@fdsSearch.searchFilterItem itemName="Geographical area">
+              <@fdsSearch.searchCheckboxes path="form.geographicalArea" checkboxes=geographicalArea/>
+          </@fdsSearch.searchFilterItem>
       </@fdsSearch.searchFilterList>
     </@fdsSearch.searchFilter>
     <@fdsSearch.searchPageContent twoThirdsWidth=true>

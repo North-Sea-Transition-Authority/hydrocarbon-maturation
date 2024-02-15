@@ -18,6 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUt
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 
 @Controller
 @RequestMapping("/search-resource-records/fields")
@@ -87,7 +88,8 @@ public class SearchFieldRecordsController {
         .addObject("fieldApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
             .searchFieldsByFieldName(null)))
         .addObject("fieldStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(FieldStatus.class))
-        .addObject("resourceName", searchResourceRecordsService.getPreSelectedFieldName(form));
+        .addObject("resourceName", searchResourceRecordsService.getPreSelectedFieldName(form))
+        .addObject("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class));
 
   }
 
