@@ -558,7 +558,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
             ResourceRecordQueryResult::resourceName,
             ResourceRecordQueryResult::organisationResponsibleId,
             ResourceRecordQueryResult::responsibleTeam,
-            ResourceRecordQueryResult::parentFieldId,
+            ResourceRecordQueryResult::parentFieldName,
             ResourceRecordQueryResult::fieldStatus
         )
         .containsExactly(
@@ -568,7 +568,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
                 resourceNameUserIsResponsibleFor,
                 organisationUnitIdUserIsInGroupFor,
                 regulatorManagedInformationUserIsResponsibleFor.getResponsibleTeamType(),
-                fieldUserIsResponsibleFor.getParentDeterminedField().getFieldIdentifier(),
+                fieldUserIsResponsibleFor.getParentDeterminedField().getCorrectedLegalFieldName(),
                 fieldStatusHistoryForResponsibleField.getFieldStatus()
             )
         );
@@ -620,7 +620,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
             ResourceRecordQueryResult::resourceName,
             ResourceRecordQueryResult::organisationResponsibleId,
             ResourceRecordQueryResult::responsibleTeam,
-            ResourceRecordQueryResult::parentFieldId,
+            ResourceRecordQueryResult::parentFieldName,
             ResourceRecordQueryResult::fieldStatus
         )
         .containsExactly(
@@ -630,7 +630,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
                 resourceName1,
                 organisationUnitIdUserIsInGroupFor,
                 regulatorManagedInformation1.getResponsibleTeamType(),
-                field1.getParentDeterminedField().getFieldIdentifier(),
+                field1.getParentDeterminedField().getCorrectedLegalFieldName(),
                 fieldStatusHistoryForField1.getFieldStatus()
             )
         );

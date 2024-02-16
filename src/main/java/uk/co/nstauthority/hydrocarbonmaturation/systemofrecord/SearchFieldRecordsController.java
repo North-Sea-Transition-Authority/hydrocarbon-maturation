@@ -89,7 +89,8 @@ public class SearchFieldRecordsController {
             .searchFieldsByFieldName(null)))
         .addObject("fieldStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(FieldStatus.class))
         .addObject("resourceName", searchResourceRecordsService.getPreSelectedFieldName(form))
-        .addObject("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class));
+        .addObject("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class))
+        .addObject("parentFieldName", searchResourceRecordsService.getPreSelectedParentFieldName(form));
 
   }
 

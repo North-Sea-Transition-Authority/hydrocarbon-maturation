@@ -156,6 +156,10 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
     when(searchResourceRecordsService.getPreSelectedFieldName(any(SearchResourceRecordsForm.class)))
         .thenReturn(preselectedFieldName);
 
+    var preselectedParentFieldName = Map.of("parentName", "parentName");
+    when(searchResourceRecordsService.getPreSelectedParentFieldName(any(SearchResourceRecordsForm.class)))
+        .thenReturn(preselectedParentFieldName);
+
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SearchFieldRecordsController.class)
                 .showSearchFieldRecordsScreen(null)))
@@ -180,7 +184,8 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
                 .searchFieldsByFieldName(null))),
             entry("fieldStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(FieldStatus.class)),
             entry("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class)),
-            entry("resourceName", preselectedFieldName)
+            entry("resourceName", preselectedFieldName),
+            entry("parentFieldName", preselectedParentFieldName)
         );
   }
 
@@ -194,6 +199,10 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
     var preselectedFieldName = Map.of("fieldName", "fieldName");
     when(searchResourceRecordsService.getPreSelectedFieldName(any(SearchResourceRecordsForm.class)))
         .thenReturn(preselectedFieldName);
+
+    var preselectedParentFieldName = Map.of("parentName", "parentName");
+    when(searchResourceRecordsService.getPreSelectedParentFieldName(any(SearchResourceRecordsForm.class)))
+        .thenReturn(preselectedParentFieldName);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SearchFieldRecordsController.class)
@@ -218,7 +227,8 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
             entry("fieldApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
                 .searchFieldsByFieldName(null))),
             entry("fieldStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(FieldStatus.class)),
-            entry("resourceName", preselectedFieldName)
+            entry("resourceName", preselectedFieldName),
+            entry("parentFieldName", preselectedParentFieldName)
         );
   }
 

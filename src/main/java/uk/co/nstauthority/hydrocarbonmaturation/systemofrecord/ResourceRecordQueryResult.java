@@ -6,34 +6,20 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 
-record ResourceRecordQueryResult(
-                            UUID resourceId,
-                            UUID submissionDetailId,
-                            ResourceType resourceType,
-                            String resourceName,
-                            String centreOfInterestQuadBlock,
-                            Integer organisationResponsibleId,
-                            List<Integer> licencesTheResourceIsOn,
-                            ResponsibleTeamType responsibleTeam,
-                            Integer parentFieldId,
-                            FieldStatus fieldStatus) {
-  public ResourceRecordQueryResult(UUID resourceId,
-                                   UUID submissionDetailId,
-                                   ResourceType resourceType,
-                                   String resourceName,
-                                   String centreOfInterestQuadBlock,
-                                   Integer organisationResponsibleId,
-                                   List<Integer> licencesTheResourceIsOn,
-                                   ResponsibleTeamType responsibleTeam) {
-    this(resourceId,
-        submissionDetailId,
-        resourceType,
-        resourceName,
-        centreOfInterestQuadBlock,
-        organisationResponsibleId,
-        licencesTheResourceIsOn,
-        responsibleTeam,
-        null,
-        null);
+public record ResourceRecordQueryResult(
+    UUID resourceId,
+    UUID submissionDetailId,
+    ResourceType resourceType,
+    String resourceName,
+    String centreOfInterestQuadBlock,
+    Integer organisationResponsibleId,
+    List<Integer> licencesTheResourceIsOn,
+    ResponsibleTeamType responsibleTeam,
+    String parentFieldName,
+    FieldStatus fieldStatus) {
+  public ResourceRecordQueryResult {
+    if (parentFieldName == null) {
+      parentFieldName = "No parent field";
+    }
   }
 }

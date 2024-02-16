@@ -27,6 +27,7 @@ import org.jooq.impl.DSL;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.FieldStatusHistory;
+import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Fields;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.GeneralDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submissions;
@@ -45,6 +46,7 @@ class ResourceQueryCommonService {
       FieldStatusHistory.FIELD_STATUS_HISTORY.as("fsh2");
   private static final FieldStatusHistory FSH_FOR_FINDING_MAX_FIELD_STATUS =
       FieldStatusHistory.FIELD_STATUS_HISTORY.as("fsh3");
+  private static final Fields FIELDS_FOR_FINDING_PARENT = FIELDS.as("parent_field");
   protected final DSLContext context;
 
   protected ResourceQueryCommonService(DSLContext context) {
@@ -65,37 +67,39 @@ class ResourceQueryCommonService {
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
             REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM,
-            FIELDS.PARENT_DETERMINED_FIELD_ID,
+            FIELDS_FOR_FINDING_PARENT.CORRECTED_LEGAL_FIELD_NAME,
             FIELD_STATUS_HISTORY.FIELD_STATUS)
         .from(RESOURCES
-          .leftJoin(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
-              select(SD_2.ID)
-                  .from(SUBMISSIONS.join(SD_2)
-                      //gets latest approved submission detail for a submission on a resource
-                      .on(SD_2.SUBMISSION_ID.eq(SUBMISSIONS.ID)
-                          .and(SD_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))))
-                  .where(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID)
-                      .and(SUBMISSIONS.WITHDRAWN.isNull()))
-                  .orderBy(SD_2.ACCEPTED_TIMESTAMP.desc().nullsLast())
-                  .limit(1)))
-          .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
-          .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
-          .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID))
-          .leftJoin(REGULATOR_MANAGED_INFORMATION).on(RESOURCES.ID.eq(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID))
-          .leftJoin(FIELDS).on(FIELDS.RESOURCE_ID.eq(RESOURCES.ID)))
-          .join(FIELD_STATUS_HISTORY)
-          .on(and(
-              FIELD_STATUS_HISTORY.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER),
-              FIELD_STATUS_HISTORY.FIELD_STATUS.eq(
-                  select(max(FSH_FOR_FINDING_MAX_FIELD_STATUS.FIELD_STATUS))
-                      .from(FSH_FOR_FINDING_MAX_FIELD_STATUS)
-                      .where(FSH_FOR_FINDING_MAX_FIELD_STATUS.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
-                      .and(FSH_FOR_FINDING_MAX_FIELD_STATUS.STATUS_DATE.eq(
-                          select(max(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS.STATUS_DATE))
-                              .from(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS)
-                              .where(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
-                      ))
-              )))
+            .join(FIELDS).on(FIELDS.RESOURCE_ID.eq(RESOURCES.ID))
+            .join(FIELD_STATUS_HISTORY)
+            .on(and(
+                FIELD_STATUS_HISTORY.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER),
+                FIELD_STATUS_HISTORY.FIELD_STATUS.eq(
+                    select(max(FSH_FOR_FINDING_MAX_FIELD_STATUS.FIELD_STATUS))
+                        .from(FSH_FOR_FINDING_MAX_FIELD_STATUS)
+                        .where(FSH_FOR_FINDING_MAX_FIELD_STATUS.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
+                        .and(FSH_FOR_FINDING_MAX_FIELD_STATUS.STATUS_DATE.eq(
+                            select(max(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS.STATUS_DATE))
+                                .from(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS)
+                                .where(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
+                        ))
+                )))
+            .leftJoin(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
+                select(SD_2.ID)
+                    .from(SUBMISSIONS.join(SD_2)
+                        //gets latest approved submission detail for a submission on a resource
+                        .on(SD_2.SUBMISSION_ID.eq(SUBMISSIONS.ID)
+                            .and(SD_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))))
+                    .where(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID)
+                        .and(SUBMISSIONS.WITHDRAWN.isNull()))
+                    .orderBy(SD_2.ACCEPTED_TIMESTAMP.desc().nullsLast())
+                    .limit(1)))
+            .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+            .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+            .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID))
+            .leftJoin(REGULATOR_MANAGED_INFORMATION).on(RESOURCES.ID.eq(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID))
+            .leftJoin(FIELDS_FOR_FINDING_PARENT)
+            .on(FIELDS_FOR_FINDING_PARENT.FIELD_IDENTIFIER.eq(FIELDS.PARENT_DETERMINED_FIELD_ID)))
         .where(conditionList)
         .groupBy(
             RESOURCES.ID,
@@ -104,6 +108,7 @@ class ResourceQueryCommonService {
             TRAP_PROPERTIES.ID,
             REGULATOR_MANAGED_INFORMATION.ID,
             FIELDS.FIELD_IDENTIFIER,
+            FIELDS_FOR_FINDING_PARENT.FIELD_IDENTIFIER,
             FIELD_STATUS_HISTORY.ID
         )
         .having(aggregateConditionList)
@@ -127,7 +132,9 @@ class ResourceQueryCommonService {
             DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
-            REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM)
+            REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM,
+            DSL.val(null, FIELDS_FOR_FINDING_PARENT.CORRECTED_LEGAL_FIELD_NAME),
+            DSL.val(null, FIELD_STATUS_HISTORY.FIELD_STATUS))
         .from(RESOURCES
             .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
                 select(SD_2.ID)
@@ -223,6 +230,12 @@ class ResourceQueryCommonService {
 
     if (!form.getFieldStatuses().isEmpty()) {
       conditionList.add(FIELD_STATUS_HISTORY.FIELD_STATUS.in(form.getFieldStatuses()));
+    }
+
+    if (StringUtils.isNotBlank(form.getParentFieldName())) {
+      conditionList.add(
+          FIELDS_FOR_FINDING_PARENT.CORRECTED_LEGAL_FIELD_NAME.containsIgnoreCase(form.getParentFieldName())
+      );
     }
 
     return conditionList;

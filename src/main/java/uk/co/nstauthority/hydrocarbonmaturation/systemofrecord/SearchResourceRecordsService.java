@@ -17,7 +17,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
@@ -30,7 +29,6 @@ public class SearchResourceRecordsService {
   private final OrganisationUnitQueryService organisationUnitQueryService;
   private final LicenceQueryService licenceQueryService;
   private final SubmissionDetailService submissionDetailService;
-  private final FieldDisplayService fieldDisplayService;
 
   @Autowired
   public SearchResourceRecordsService(SubmissionDetailDisplayService submissionDetailDisplayService,
@@ -38,14 +36,12 @@ public class SearchResourceRecordsService {
                                SubmissionResourceService submissionResourceService,
                                OrganisationUnitQueryService organisationUnitQueryService,
                                LicenceQueryService licenceQueryService,
-                               SubmissionDetailService submissionDetailService,
-                               FieldDisplayService fieldDisplayService) {
+                               SubmissionDetailService submissionDetailService) {
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.searchSelectorService = searchSelectorService;
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.licenceQueryService = licenceQueryService;
     this.submissionDetailService = submissionDetailService;
-    this.fieldDisplayService = fieldDisplayService;
   }
 
   List<ResourceRecordSearchResultItem> getResourceRecordSearchResults(SearchResourceRecordsForm form,
@@ -126,6 +122,16 @@ public class SearchResourceRecordsService {
     }
 
     return searchSelectorService.buildPrePopulatedSelection(fieldNameForResourceSubmission);
+  }
+
+  public Map<String, String> getPreSelectedParentFieldName(SearchResourceRecordsForm form) {
+    var parentFieldName = form.getParentFieldName();
+
+    if (parentFieldName == null) {
+      return Map.of();
+    }
+
+    return searchSelectorService.buildPrePopulatedSelection(parentFieldName);
   }
 
   public Map<String, String> getPreSelectedOrganisationUnit(SearchResourceRecordsForm form) {
@@ -217,8 +223,7 @@ public class SearchResourceRecordsService {
           : "";
       modelProperties
           .addProperty("fieldStatus", fieldStatus)
-          .addProperty("parentField",
-              fieldDisplayService.getParentFieldNameOrNoneFound(resourceRecordQueryResult.parentFieldId()));
+          .addProperty("parentField", resourceRecordQueryResult.parentFieldName());
     }
 
     return modelProperties;

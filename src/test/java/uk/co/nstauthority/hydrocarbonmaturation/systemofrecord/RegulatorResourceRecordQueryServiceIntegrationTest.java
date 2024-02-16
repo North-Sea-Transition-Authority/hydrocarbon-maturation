@@ -1280,7 +1280,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
             ResourceRecordQueryResult::resourceName,
             ResourceRecordQueryResult::organisationResponsibleId,
             ResourceRecordQueryResult::responsibleTeam,
-            ResourceRecordQueryResult::parentFieldId,
+            ResourceRecordQueryResult::parentFieldName,
             ResourceRecordQueryResult::fieldStatus
         )
         .contains(
@@ -1290,7 +1290,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
                 resourceName1,
                 responsibleOrgId1,
                 regulatorManagedInformation1.getResponsibleTeamType(),
-                field1.getParentDeterminedField().getFieldIdentifier(),
+                field1.getParentDeterminedField().getCorrectedLegalFieldName(),
                 fieldStatusHistoryForField1.getFieldStatus()
             ),
             tuple(
@@ -1299,7 +1299,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
                 resourceName2,
                 responsibleOrgId2,
                 regulatorManagedInformation2.getResponsibleTeamType(),
-                field2.getParentDeterminedField().getFieldIdentifier(),
+                field2.getParentDeterminedField().getCorrectedLegalFieldName(),
                 fieldStatusHistoryForField2.getFieldStatus()
             )
         );

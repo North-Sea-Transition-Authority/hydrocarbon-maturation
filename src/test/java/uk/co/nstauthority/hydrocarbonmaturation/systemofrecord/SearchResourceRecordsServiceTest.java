@@ -33,7 +33,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.LicenceViewTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -59,8 +58,6 @@ class SearchResourceRecordsServiceTest {
   private OrganisationUnitQueryService organisationUnitQueryService;
   @Mock
   private SubmissionDetailService submissionDetailService;
-  @Mock
-  private FieldDisplayService fieldDisplayService;
   @InjectMocks
   private SearchResourceRecordsService underTest;
 
@@ -192,7 +189,7 @@ class SearchResourceRecordsServiceTest {
           ORGANISATION_ID_2, "Org B",
           List.of(NOT_EXTANT_LICENCE_2.licenceId(), NOT_EXTANT_LICENCE_3.licenceId()),
           List.of(NOT_EXTANT_LICENCE_2.licenceRef(), NOT_EXTANT_LICENCE_3.licenceRef()),
-          ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA, 2425, FieldStatus.STATUS_400
+          ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA, "Parent field name", FieldStatus.STATUS_400
       );
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form))
           .thenReturn(List.of(result1, result2));
@@ -203,11 +200,6 @@ class SearchResourceRecordsServiceTest {
       var submissionDetailFdp = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_FDP);
       when(submissionDetailService.getSubmissionDetail(result2.submissionDetailId()))
           .thenReturn(Optional.of(submissionDetailFdp));
-
-      when(fieldDisplayService.getParentFieldNameOrNoneFound(result1.parentFieldId()))
-          .thenReturn("");
-      when(fieldDisplayService.getParentFieldNameOrNoneFound(result2.parentFieldId()))
-          .thenReturn("Parent field name");
 
       var results = underTest.getResourceRecordSearchResults(form, resourceRecordQueryServiceStrategy);
 
@@ -235,7 +227,7 @@ class SearchResourceRecordsServiceTest {
               entry("teamResponsible", ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName()),
               entry("organisationResponsible", "Org A"),
               entry("fieldStatus", result1.fieldStatus().getDisplayName()),
-              entry("parentField", "")
+              entry("parentField", "No parent field")
           );
 
       assertThat(results.get(1).modelProperties().getProperties())
@@ -260,9 +252,6 @@ class SearchResourceRecordsServiceTest {
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form))
           .thenReturn(List.of(result));
 
-      when(fieldDisplayService.getParentFieldNameOrNoneFound(result.parentFieldId()))
-          .thenReturn("");
-
       var results = underTest.getResourceRecordSearchResults(form, resourceRecordQueryServiceStrategy);
 
       assertThat(results)
@@ -284,7 +273,7 @@ class SearchResourceRecordsServiceTest {
               entry("teamResponsible", ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName()),
               entry("organisationResponsible", "Org A"),
               entry("fieldStatus", result.fieldStatus().getDisplayName()),
-              entry("parentField", "")
+              entry("parentField", "No parent field")
           );
     }
 
@@ -300,7 +289,7 @@ class SearchResourceRecordsServiceTest {
                                                                             List<Integer> licencesTheResourceIsOn,
                                                                             List<String> licencesDisplayed,
                                                                             ResponsibleTeamType responsibleTeam,
-                                                                            Integer parentFieldId,
+                                                                            String parentFieldName,
                                                                             FieldStatus fieldStatus) {
       when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, organisationResponsibleId)).thenReturn(orgName);
       if (!ResourceType.FIELD.equals(resourceType)) {
@@ -326,7 +315,7 @@ class SearchResourceRecordsServiceTest {
           organisationResponsibleId,
           licencesTheResourceIsOn,
           responsibleTeam,
-          parentFieldId,
+          parentFieldName == null ? "No parent field" : parentFieldName,
           fieldStatus);
     }
 
@@ -383,7 +372,7 @@ class SearchResourceRecordsServiceTest {
     private ResourceRecordQueryResult newSearchResultWithResourceName(String resourceName) {
       return new ResourceRecordQueryResult(null, null, null,
           resourceName, null, null,
-          null, null);
+          null, null, null, null);
     }
   }
 

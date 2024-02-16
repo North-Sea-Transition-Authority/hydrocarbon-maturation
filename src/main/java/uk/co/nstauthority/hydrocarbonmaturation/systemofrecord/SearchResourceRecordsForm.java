@@ -16,6 +16,7 @@ public class SearchResourceRecordsForm {
   private List<String> geographicalArea = new ArrayList<>();
   private boolean showOnlyPreferredViews;
   private List<String> fieldStatuses = new ArrayList<>();
+  private String parentFieldName;
 
   public String getResourceNameFromResourceDetail() {
     return resourceNameFromResourceDetail;
@@ -106,6 +107,14 @@ public class SearchResourceRecordsForm {
     this.fieldStatuses = fieldStatuses;
   }
 
+  public String getParentFieldName() {
+    return parentFieldName;
+  }
+
+  public void setParentFieldName(String parentFieldName) {
+    this.parentFieldName = parentFieldName;
+  }
+
   public static SearchResourceRecordsForm from(SearchProspectAndDiscoveryRecordsFilter filter) {
     var form = new SearchResourceRecordsForm();
     form.setShowOnlyPreferredViews(filter.isShowOnlyPreferredViews());
@@ -126,6 +135,7 @@ public class SearchResourceRecordsForm {
     form.setFieldNameForResourceSubmission(filter.getFieldNameForResourceSubmission());
     form.setFieldStatuses(filter.getFieldStatuses());
     form.setGeographicalArea(filter.getGeographicalAreas());
+    form.setParentFieldName(filter.getParentFieldName());
     return form;
   }
 }

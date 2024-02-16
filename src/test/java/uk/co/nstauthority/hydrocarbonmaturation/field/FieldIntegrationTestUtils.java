@@ -14,7 +14,7 @@ public class FieldIntegrationTestUtils {
     throw new AssertionError();
   }
 
-  public static Field createField(String fieldName, EntityManager entityManager) {
+  private static Field buildField(String fieldName, EntityManager entityManager) {
     var field = new Field();
     field.setCorrectedLegalFieldName(fieldName);
 
@@ -27,15 +27,15 @@ public class FieldIntegrationTestUtils {
   }
 
   /**
-   * Create and persist a field with status STATUS_200 set at FIXED_DATE.
+   * Create and persist a field resource and field with status STATUS_200 set at FIXED_DATE.
    * Note the fieldStatusHistory is also persisted.
    * @param fieldName corrected legal field name of new field. It is reccomended to always set this and assert of the
    *                 field name rather than an id to make debugging more readable.
    * @param entityManager the entityManager to persist the entities
    * @return the created field with an associated field status history with STATUS_200
    */
-  public static Field createFieldWithStatusHistory(String fieldName, EntityManager entityManager) {
-    var field = createField(fieldName, entityManager);
+  public static Field createField(String fieldName, EntityManager entityManager) {
+    var field = buildField(fieldName, entityManager);
     addFieldStatusHistory(field, FieldStatus.STATUS_200, entityManager);
 
     return field;

@@ -20,7 +20,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
-import java.util.ArrayList;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
@@ -61,10 +60,8 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
     @BeforeEach
     void setUp() {
       status200Field1 = FieldIntegrationTestUtils.createField("Field status 200 1", entityManager);
-      FieldIntegrationTestUtils.addFieldStatusHistory(status200Field1, FieldStatus.STATUS_200, entityManager);
 
       status200Field2 = FieldIntegrationTestUtils.createField("Field status 200 2", entityManager);
-      FieldIntegrationTestUtils.addFieldStatusHistory(status200Field2, FieldStatus.STATUS_200, entityManager);
 
       status300Field = FieldIntegrationTestUtils.createField("Field status 300", entityManager);
       FieldIntegrationTestUtils.addFieldStatusHistory(status300Field, FieldStatus.STATUS_200, entityManager);
@@ -157,16 +154,16 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
-      nnsField1 = FieldIntegrationTestUtils.createFieldWithStatusHistory("Northern North Sea Field 1", entityManager);
+      nnsField1 = FieldIntegrationTestUtils.createField("Northern North Sea Field 1", entityManager);
       FieldIntegrationTestUtils.setGeographicalAreaForField(nnsField1, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
 
-      nnsField2 = FieldIntegrationTestUtils.createFieldWithStatusHistory("Northern North Sea Field 2", entityManager);
+      nnsField2 = FieldIntegrationTestUtils.createField("Northern North Sea Field 2", entityManager);
       FieldIntegrationTestUtils.setGeographicalAreaForField(nnsField2, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
 
-      wosField = FieldIntegrationTestUtils.createFieldWithStatusHistory("West of Shetland Field", entityManager);
+      wosField = FieldIntegrationTestUtils.createField("West of Shetland Field", entityManager);
       FieldIntegrationTestUtils.setGeographicalAreaForField(wosField, GeographicalArea.WEST_OF_SHETLAND, entityManager);
 
-      onshoreField = FieldIntegrationTestUtils.createFieldWithStatusHistory("Onshore Field", entityManager);
+      onshoreField = FieldIntegrationTestUtils.createField("Onshore Field", entityManager);
       FieldIntegrationTestUtils.setGeographicalAreaForField(onshoreField, GeographicalArea.ONSHORE, entityManager);
     }
 
@@ -237,6 +234,73 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
           .containsExactly(
               nnsField1.getCorrectedLegalFieldName()
           );
+    }
+  }
+
+  @Nested
+  class GivenFilteringByParentField {
+    private Field parentField;
+    private Field childField1;
+    private Field childField2;
+    private Field fieldWithNoChildren;
+
+    @BeforeEach
+    void setUp() {
+      parentField = FieldIntegrationTestUtils.createField("Parent field", entityManager);
+
+      childField1 = FieldIntegrationTestUtils.createField("Child field 1", entityManager);
+      childField1.setParentDeterminedField(parentField);
+
+      childField2 = FieldIntegrationTestUtils.createField("Child field 2", entityManager);
+      childField2.setParentDeterminedField(parentField);
+
+      fieldWithNoChildren = FieldIntegrationTestUtils.createField("Field with no children", entityManager);
+    }
+
+    @Test
+    void whenNoParentFieldSelected_thenReturnAll() {
+      form.setParentFieldName(null);
+
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
+          .extracting(ResourceRecordQueryResult::resourceName)
+          .containsExactlyInAnyOrder(
+              childField1.getCorrectedLegalFieldName(),
+              childField2.getCorrectedLegalFieldName(),
+              parentField.getCorrectedLegalFieldName(),
+              fieldWithNoChildren.getCorrectedLegalFieldName()
+          );
+    }
+
+    @Test
+    void whenParentFieldSelected_andParentHasChildren_thenReturnAllChildrenOfParent() {
+      form.setParentFieldName(parentField.getCorrectedLegalFieldName());
+
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
+          .extracting(ResourceRecordQueryResult::resourceName)
+          .containsExactlyInAnyOrder(
+              childField1.getCorrectedLegalFieldName(),
+              childField2.getCorrectedLegalFieldName()
+          );
+    }
+
+    @Test
+    void whenParentFieldSelected_andParentHasNoChildren_thenReturnEmpty() {
+      form.setParentFieldName(fieldWithNoChildren.getCorrectedLegalFieldName());
+
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
+          .isEmpty();
+    }
+
+    @Test
+    void whenParentFieldSelected_andParentHasChildren_andAlsoFilteringByStatus_thenOnlyReturnChildWithStatus() {
+      form.setParentFieldName(parentField.getCorrectedLegalFieldName());
+
+      FieldIntegrationTestUtils.addFieldStatusHistory(childField1, FieldStatus.STATUS_300, entityManager);
+      form.setFieldStatuses(List.of(FieldStatus.STATUS_300.getEnumName()));
+
+      assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form))
+          .extracting(ResourceRecordQueryResult::resourceName)
+          .containsExactly(childField1.getCorrectedLegalFieldName());
     }
   }
 

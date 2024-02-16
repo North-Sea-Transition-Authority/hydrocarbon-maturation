@@ -36,6 +36,16 @@
           <@fdsSearch.searchFilterItem itemName="Geographical area">
               <@fdsSearch.searchCheckboxes path="form.geographicalArea" checkboxes=geographicalArea/>
           </@fdsSearch.searchFilterItem>
+          <@fdsSearch.searchFilterItem itemName="Parent field" expanded=parentFieldName?has_content>
+              <@fdsSearchSelector.searchSelectorRest
+              path="form.parentFieldName"
+              restUrl=springUrl(fieldApiEndpoint)
+              labelText="Parent field"
+              labelClass="govuk-visually-hidden"
+              inputClass="govuk-!-width-three-quarters"
+              selectorMinInputLength=3
+              preselectedItems=parentFieldName!{}/>
+          </@fdsSearch.searchFilterItem>
       </@fdsSearch.searchFilterList>
     </@fdsSearch.searchFilter>
     <@fdsSearch.searchPageContent twoThirdsWidth=true>
