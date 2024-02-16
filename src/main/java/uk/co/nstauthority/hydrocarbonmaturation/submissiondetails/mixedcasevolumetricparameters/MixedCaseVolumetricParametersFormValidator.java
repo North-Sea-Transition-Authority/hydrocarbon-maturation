@@ -24,7 +24,7 @@ class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidato
         oilFormationVolumeFactor,
         errors,
         "oilFormationVolumeFactor",
-        "Oil formation volume factor distribution used"
+        "Oil formation volume factor"
     );
 
     var gasFormationVolumeFactor = mixedCaseVolumetricsForm.getGasFormationVolumeFactor();
@@ -32,7 +32,7 @@ class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidato
         gasFormationVolumeFactor,
         errors,
         "gasFormationVolumeFactor",
-        "Gas formation volume factor distribution used"
+        "Gas formation volume factor"
     );
 
     var oilHydrocarbonSaturation = mixedCaseVolumetricsForm.getOilHydrocarbonSaturation();
@@ -40,7 +40,7 @@ class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidato
         oilHydrocarbonSaturation,
         errors,
         "oilHydrocarbonSaturation",
-        "Oil hydrocarbon saturation distribution used"
+        "Oil hydrocarbon saturation"
     );
 
     var associatedGasOilRatioLifeOfField = mixedCaseVolumetricsForm.getAssociatedGasOilRatioLifeOfField();
@@ -48,7 +48,7 @@ class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidato
         associatedGasOilRatioLifeOfField,
         errors,
         "associatedGasOilRatioLifeOfField",
-        "Associated gas-oil ratio, life-of-field distribution used"
+        "Associated gas-oil ratio, life-of-field"
     );
 
     var oilRecoveryFactor = mixedCaseVolumetricsForm.getOilRecoveryFactor();
@@ -56,7 +56,7 @@ class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidato
         oilRecoveryFactor,
         errors,
         "oilRecoveryFactor",
-        "Oil recovery factor distribution used"
+        "Oil recovery factor"
     );
 
     var gasHydrocarbonSaturation = mixedCaseVolumetricsForm.getGasHydrocarbonSaturation();
@@ -64,7 +64,7 @@ class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidato
         gasHydrocarbonSaturation,
         errors,
         "gasHydrocarbonSaturation",
-        "Gas hydrocarbon saturation distribution used"
+        "Gas hydrocarbon saturation"
     );
 
     var condensateGasRatioLifeOfField = mixedCaseVolumetricsForm.getCondensateGasRatioLifeOfField();
@@ -72,7 +72,7 @@ class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidato
         condensateGasRatioLifeOfField,
         errors,
         "condensateGasRatioLifeOfField",
-        "Condensate-gas ratio, life-of-field distribution used"
+        "Condensate-gas ratio, life-of-field"
     );
 
     var gasRecoveryFactor = mixedCaseVolumetricsForm.getGasRecoveryFactor();
@@ -80,7 +80,7 @@ class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidato
         gasRecoveryFactor,
         errors,
         "gasRecoveryFactor",
-        "Gas recovery factor distribution used"
+        "Gas recovery factor"
     );
   }
 
@@ -97,7 +97,7 @@ class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidato
         oilFormationVolumeFactor,
         errors,
         "oilFormationVolumeFactor",
-        "Oil formation volume factor distribution used"
+        "Oil formation volume factor"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "oilHydrocarbonSaturation.probabilityDistributionType",
@@ -109,7 +109,7 @@ class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidato
         oilHydrocarbonSaturation,
         errors,
         "oilHydrocarbonSaturation",
-        "Oil hydrocarbon saturation distribution used"
+        "Oil hydrocarbon saturation"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "associatedGasOilRatioLifeOfField.probabilityDistributionType",
@@ -121,7 +121,7 @@ class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidato
         associatedGasOilRatioLifeOfField,
         errors,
         "associatedGasOilRatioLifeOfField",
-        "Associated gas-oil ratio, life-of-field distribution used"
+        "Associated gas-oil ratio, life-of-field"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "oilRecoveryFactor.probabilityDistributionType",
@@ -133,7 +133,7 @@ class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidato
         oilRecoveryFactor,
         errors,
         "oilRecoveryFactor",
-        "Oil recovery factor distribution used"
+        "Oil recovery factor"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "gasFormationVolumeFactor.probabilityDistributionType",
@@ -145,7 +145,7 @@ class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidato
         gasFormationVolumeFactor,
         errors,
         "gasFormationVolumeFactor",
-        "Gas formation volume factor distribution used"
+        "Gas formation volume factor"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "gasHydrocarbonSaturation.probabilityDistributionType",
@@ -157,7 +157,7 @@ class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidato
         gasHydrocarbonSaturation,
         errors,
         "gasHydrocarbonSaturation",
-        "Gas hydrocarbon saturation distribution used"
+        "Gas hydrocarbon saturation"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "condensateGasRatioLifeOfField.probabilityDistributionType",
@@ -169,7 +169,7 @@ class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidato
         condensateGasRatioLifeOfField,
         errors,
         "condensateGasRatioLifeOfField",
-        "Condensate-gas ratio, life-of-field distribution used"
+        "Condensate-gas ratio, life-of-field"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "gasRecoveryFactor.probabilityDistributionType",
@@ -181,7 +181,7 @@ class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidato
         gasRecoveryFactor,
         errors,
         "gasRecoveryFactor",
-        "Gas recovery factor distribution used"
+        "Gas recovery factor"
     );
   }
 }

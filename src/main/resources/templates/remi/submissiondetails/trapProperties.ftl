@@ -84,19 +84,19 @@
     </@grid.gridRow>
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionPath="form.depthToCrest"
-      labelText="Depth to crest distribution used"
+      labelText="Depth to crest"
       template=depthToCrestTemplate
       error=depthToCrestError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionPath="form.depthToSpillPoint"
-        labelText="Depth to spill-point distribution used"
+        labelText="Depth to spill-point"
         template=depthToSpillPointTemplate
         error=depthToSpillPointError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionPath="form.productiveArea"
-        labelText="Productive area distribution used"
+        labelText="Productive area"
         template=productiveAreaTemplate
         error=productiveAreaError/>
     <@grid.gridRow>

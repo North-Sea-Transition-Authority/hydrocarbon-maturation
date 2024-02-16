@@ -95,7 +95,7 @@
     <#if prospectSubmission>
       <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionPath="form.averageNetPayThickness"
-        labelText="Average net pay thickness distribution used"
+        labelText="Average net pay thickness"
         template=averageNetPayThicknessOptionalTemplate
         error=averageNetPayThicknessOptionalError/>
     <#elseif discoverySubmission
@@ -106,54 +106,54 @@
     || cessationOfProductionSubmission>
       <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionPath="form.averageNetPayThickness"
-        labelText="Average net pay thickness distribution used"
+        labelText="Average net pay thickness"
         template=averageNetPayThicknessTemplate
         error=averageNetPayThicknessError/>
     </#if>
     <#if dryHoleSubmission>
         <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionPath="form.averageNetPayThickness"
-        labelText="Average net reservoir thickness distribution used"
+        labelText="Average net reservoir thickness"
         template=averageNetReservoirThicknessTemplate
         error=averageNetReservoirThicknessError/>
     </#if>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionPath="form.grossReservoirThickness"
-      labelText="Gross reservoir thickness distribution used"
+      labelText="Gross reservoir thickness"
       template=grossReservoirThicknessTemplate
       error=grossReservoirThicknessError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionPath="form.grossRockVolume"
-      labelText="Gross rock volume (GRV) distribution used"
+      labelText="Gross rock volume (GRV)"
       template=grossRockVolumeTemplate
       error=grossRockVolumeError/>
 
     <#if dryHoleSubmission || mixedCase>
       <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionPath="form.percentOfGrvOilBearing"
-        labelText="% of GRV which is oil bearing distribution used"
+        labelText="% of GRV which is oil bearing"
         template=percentOfGrvOilBearingTemplate
         error=percentOfGrvOilBearingError/>
     </#if>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionPath="form.netToGross"
-      labelText="Net-to-gross distribution used"
+      labelText="Net-to-gross"
       template=netToGrossTemplate
       error=netToGrossError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionPath="form.netPorosity"
-      labelText="Net porosity distribution used"
+      labelText="Net porosity"
       template=netPorosityTemplate
       error=netPorosityError/>
 
     <#if prospectSubmission>
       <@probabilityDistribution.probabilityDistributionTemplate
         probabilityDistributionPath="form.depthToHydrocarbonContact"
-        labelText="Depth to hydrocarbon contact distribution used"
+        labelText="Depth to hydrocarbon contact"
         template=depthToHydrocarbonContactTemplate
         error=depthToHydrocarbonContactError/>
     </#if>

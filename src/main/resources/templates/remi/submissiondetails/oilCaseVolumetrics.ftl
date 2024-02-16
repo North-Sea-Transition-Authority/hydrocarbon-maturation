@@ -30,19 +30,19 @@
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionPath="form.oilHydrocarbonSaturation"
-      labelText="Oil hydrocarbon saturation distribution used"
+      labelText="Oil hydrocarbon saturation"
       template=oilHydrocarbonSaturationTemplate
       error=oilHydrocarbonSaturationError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionPath="form.associatedGasOilRatioLifeOfField"
-      labelText="Associated gas-oil ratio, life-of-field distribution used"
+      labelText="Associated gas-oil ratio, life-of-field"
       template=associatedGasOilRatioLifeOfFieldTemplate
       error=associatedGasOilRatioLifeOfFieldError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionPath="form.oilRecoveryFactor"
-      labelText="Oil recovery factor distribution used"
+      labelText="Oil recovery factor"
       template=oilRecoveryFactorTemplate
       error=oilRecoveryFactorError/>
 

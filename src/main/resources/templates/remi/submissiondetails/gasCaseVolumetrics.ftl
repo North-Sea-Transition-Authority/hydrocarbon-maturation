@@ -30,19 +30,19 @@
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionPath="form.gasHydrocarbonSaturation"
-      labelText="Gas hydrocarbon saturation distribution used"
+      labelText="Gas hydrocarbon saturation"
       template=gasHydrocarbonSaturationTemplate
       error=gasHydrocarbonSaturationError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionPath="form.condensateGasRatioLifeOfField"
-      labelText="Condensate-gas ratio, life-of-field distribution used"
+      labelText="Condensate-gas ratio, life-of-field"
       template=condensateGasRatioLifeOfFieldTemplate
       error=condensateGasRatioLifeOfFieldError/>
 
     <@probabilityDistribution.probabilityDistributionTemplate
       probabilityDistributionPath="form.gasRecoveryFactor"
-      labelText="Gas recovery factor distribution used"
+      labelText="Gas recovery factor"
       template=gasRecoveryFactorTemplate
       error=gasRecoveryFactorError/>
 

@@ -137,7 +137,8 @@
         <@probabilityDistributionSingularTemplate probabilityDistributionPath=probabilityDistributionPath labelText=labelText template=template error=error/>
     <#else>
         <#assign probabilityDistributionTypePathString = probabilityDistributionPath+".probabilityDistributionType"/>
-        <@fdsRadio.radioGroup path=probabilityDistributionTypePathString labelText=labelText hiddenContent=true>
+        <#assign selectDistributionLabelText = labelText+" distribution used" />
+        <@fdsRadio.radioGroup path=probabilityDistributionTypePathString labelText=selectDistributionLabelText hiddenContent=true>
             <#assign firstItem=true/>
             <#list template.probabilityDistributionTypeWithInputsList as inputs>
                 <@fdsRadio.radioItem

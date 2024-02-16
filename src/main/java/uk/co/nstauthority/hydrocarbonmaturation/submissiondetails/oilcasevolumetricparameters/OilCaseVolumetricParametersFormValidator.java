@@ -31,7 +31,7 @@ public class OilCaseVolumetricParametersFormValidator implements SubmissionValid
           oilHydrocarbonSaturation,
           errors,
           "oilHydrocarbonSaturation",
-          "Oil hydrocarbon saturation distribution used",
+          "Oil hydrocarbon saturation",
           ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_FIELD
       );
     } else {
@@ -39,7 +39,7 @@ public class OilCaseVolumetricParametersFormValidator implements SubmissionValid
           oilHydrocarbonSaturation,
           errors,
           "oilHydrocarbonSaturation",
-          "Oil hydrocarbon saturation distribution used"
+          "Oil hydrocarbon saturation"
       );
     }
 
@@ -48,7 +48,7 @@ public class OilCaseVolumetricParametersFormValidator implements SubmissionValid
         associatedGasOilRatioLifeOfField,
         errors,
         "associatedGasOilRatioLifeOfField",
-        "Associated gas-oil ratio, life-of-field distribution used"
+        "Associated gas-oil ratio, life-of-field"
     );
 
     var oilRecoveryFactor = oilCaseVolumetricsForm.getOilRecoveryFactor();
@@ -56,7 +56,7 @@ public class OilCaseVolumetricParametersFormValidator implements SubmissionValid
         oilRecoveryFactor,
         errors,
         "oilRecoveryFactor",
-        "Oil recovery factor distribution used"
+        "Oil recovery factor"
     );
   }
 
@@ -66,14 +66,14 @@ public class OilCaseVolumetricParametersFormValidator implements SubmissionValid
 
     ValidationUtils.rejectIfEmpty(errors, "oilFormationVolumeFactor.probabilityDistributionType",
         "oilFormationVolumeFactor.probabilityDistributionType.required",
-        "Select oil formation volume factor (Bo)");
+        "Select oil formation volume factor (Bo) distribution used");
 
     var oilFormationVolumeFactor = oilCaseVolumetricsForm.getOilFormationVolumeFactor();
     ProbabilityDistributionValidationUtil.validateFull(
         oilFormationVolumeFactor,
         errors,
         "oilFormationVolumeFactor",
-        "Oil formation volume factor distribution used"
+        "Oil formation volume factor"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "oilHydrocarbonSaturation.probabilityDistributionType",
@@ -86,7 +86,7 @@ public class OilCaseVolumetricParametersFormValidator implements SubmissionValid
           oilHydrocarbonSaturation,
           errors,
           "oilHydrocarbonSaturation",
-          "Oil hydrocarbon saturation distribution used",
+          "Oil hydrocarbon saturation",
           ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_FIELD
       );
     } else {
@@ -94,7 +94,7 @@ public class OilCaseVolumetricParametersFormValidator implements SubmissionValid
           oilHydrocarbonSaturation,
           errors,
           "oilHydrocarbonSaturation",
-          "Oil hydrocarbon saturation distribution used"
+          "Oil hydrocarbon saturation"
       );
     }
 
@@ -107,7 +107,7 @@ public class OilCaseVolumetricParametersFormValidator implements SubmissionValid
         associatedGasOilRatioLifeOfField,
         errors,
         "associatedGasOilRatioLifeOfField",
-        "Associated gas-oil ratio, life-of-field distribution used"
+        "Associated gas-oil ratio, life-of-field"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "oilRecoveryFactor.probabilityDistributionType",
@@ -119,7 +119,7 @@ public class OilCaseVolumetricParametersFormValidator implements SubmissionValid
         gasRecoveryFactor,
         errors,
         "oilRecoveryFactor",
-        "Oil recovery factor distribution used"
+        "Oil recovery factor"
     );
   }
 }

@@ -47,7 +47,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getAverageNetPayThickness(),
           errors,
           averageNetPayThicknessFormField,
-          "Average net pay thickness distribution used",
+          "Average net pay thickness",
           ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_FIELD
       );
     } else if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
@@ -55,14 +55,14 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getAverageNetPayThickness(),
           errors,
           averageNetPayThicknessFormField,
-          "Average net reservoir thickness distribution used"
+          "Average net reservoir thickness"
       );
     } else {
       ProbabilityDistributionValidationUtil.validatePartial(
           reservoirForm.getAverageNetPayThickness(),
           errors,
           averageNetPayThicknessFormField,
-          "Average net pay thickness distribution used"
+          "Average net pay thickness"
       );
     }
 
@@ -71,7 +71,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getGrossReservoirThickness(),
           errors,
           "grossReservoirThickness",
-          "Gross reservoir thickness distribution used",
+          "Gross reservoir thickness",
           ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_FIELD
       );
     } else {
@@ -79,7 +79,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getGrossReservoirThickness(),
           errors,
           "grossReservoirThickness",
-          "Gross reservoir thickness distribution used"
+          "Gross reservoir thickness"
       );
     }
 
@@ -88,7 +88,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getGrossRockVolume(),
           errors,
           "grossRockVolume",
-          "Gross rock volume (GRV) distribution used",
+          "Gross rock volume (GRV)",
           ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_FIELD
       );
     } else {
@@ -96,7 +96,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getGrossRockVolume(),
           errors,
           "grossRockVolume",
-          "Gross rock volume (GRV) distribution used"
+          "Gross rock volume (GRV)"
       );
     }
 
@@ -107,7 +107,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
             reservoirForm.getPercentOfGrvOilBearing(),
             errors,
             "percentOfGrvOilBearing",
-            "Percentage of GRV which is oil bearing distribution used",
+            "Percentage of GRV which is oil bearing",
             ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_FIELD
         );
       } else {
@@ -115,7 +115,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
             reservoirForm.getPercentOfGrvOilBearing(),
             errors,
             "percentOfGrvOilBearing",
-            "Percentage of GRV which is oil bearing distribution used"
+            "Percentage of GRV which is oil bearing"
         );
       }
     }
@@ -125,7 +125,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getNetToGross(),
           errors,
           "netToGross",
-          "Net to gross distribution used",
+          "Net to gross",
           ProbabilityDistributionFieldInstance.NET_TO_GROSS_FIELD
       );
     } else {
@@ -133,7 +133,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getNetToGross(),
           errors,
           "netToGross",
-          "Net to gross distribution used"
+          "Net to gross"
       );
     }
 
@@ -142,7 +142,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getNetToGross(),
           errors,
           "netPorosity",
-          "Net porosity distribution used",
+          "Net porosity",
           ProbabilityDistributionFieldInstance.NET_POROSITY_FIELD
       );
     } else {
@@ -150,7 +150,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getNetPorosity(),
           errors,
           "netPorosity",
-          "Net porosity distribution used"
+          "Net porosity"
       );
     }
 
@@ -161,7 +161,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToHydrocarbonContact(),
           errors,
           "depthToHydrocarbonContact",
-          "Depth to hydrocarbon contact distribution used"
+          "Depth to hydrocarbon contact"
       );
     }
 
@@ -214,7 +214,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getAverageNetPayThickness(),
           errors,
           averageNetPayThicknessFormField,
-          "Average net pay thickness distribution used",
+          "Average net pay thickness",
           ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_FIELD
       );
     } else if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
@@ -222,14 +222,14 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getAverageNetPayThickness(),
           errors,
           averageNetPayThicknessFormField,
-          "Average net reservoir thickness distribution used"
+          "Average net reservoir thickness"
       );
     } else {
       ProbabilityDistributionValidationUtil.validateFull(
           reservoirForm.getAverageNetPayThickness(),
           errors,
           averageNetPayThicknessFormField,
-          "Average net pay thickness distribution used"
+          "Average net pay thickness"
       );
     }
 
@@ -238,7 +238,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getGrossReservoirThickness(),
           errors,
           "grossReservoirThickness",
-          "Gross reservoir thickness distribution used",
+          "Gross reservoir thickness",
           ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_FIELD
       );
     } else {
@@ -249,7 +249,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getGrossReservoirThickness(),
           errors,
           "grossReservoirThickness",
-          "Gross reservoir thickness distribution used"
+          "Gross reservoir thickness"
       );
     }
 
@@ -262,7 +262,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getGrossRockVolume(),
           errors,
           "grossRockVolume",
-          "Gross rock volume (GRV) distribution used",
+          "Gross rock volume (GRV)",
           ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_FIELD
       );
     } else {
@@ -270,7 +270,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getGrossRockVolume(),
           errors,
           "grossRockVolume",
-          "Gross rock volume (GRV) distribution used"
+          "Gross rock volume (GRV)"
       );
     }
 
@@ -289,7 +289,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
             reservoirForm.getPercentOfGrvOilBearing(),
             errors,
             "percentOfGrvOilBearing",
-            "Percentage of GRV which is oil bearing distribution used",
+            "Percentage of GRV which is oil bearing",
             ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_FIELD
         );
       } else {
@@ -297,7 +297,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
             reservoirForm.getPercentOfGrvOilBearing(),
             errors,
             "percentOfGrvOilBearing",
-            "Percentage of GRV which is oil bearing distribution used"
+            "Percentage of GRV which is oil bearing"
         );
       }
     }
@@ -311,7 +311,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getNetToGross(),
           errors,
           "netToGross",
-          "Net to gross distribution used",
+          "Net to gross",
           ProbabilityDistributionFieldInstance.NET_TO_GROSS_FIELD
       );
     } else {
@@ -319,7 +319,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getNetToGross(),
           errors,
           "netToGross",
-          "Net to gross distribution used"
+          "Net to gross"
       );
     }
 
@@ -332,7 +332,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getNetToGross(),
           errors,
           "netPorosity",
-          "Net porosity distribution used",
+          "Net porosity",
           ProbabilityDistributionFieldInstance.NET_POROSITY_FIELD
       );
     } else {
@@ -340,7 +340,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getNetPorosity(),
           errors,
           "netPorosity",
-          "Net porosity distribution used"
+          "Net porosity"
       );
     }
 
@@ -355,7 +355,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           reservoirForm.getDepthToHydrocarbonContact(),
           errors,
           "depthToHydrocarbonContact",
-          "Depth to hydrocarbon contact distribution used"
+          "Depth to hydrocarbon contact"
       );
     }
 

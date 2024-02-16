@@ -31,7 +31,7 @@ public class GasCaseVolumetricParametersFormValidator implements SubmissionValid
           gasHydrocarbonSaturation,
           errors,
           "gasHydrocarbonSaturation",
-          "Gas hydrocarbon saturation distribution used",
+          "Gas hydrocarbon saturation",
           ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_FIELD
       );
     } else {
@@ -39,7 +39,7 @@ public class GasCaseVolumetricParametersFormValidator implements SubmissionValid
           gasHydrocarbonSaturation,
           errors,
           "gasHydrocarbonSaturation",
-          "Gas hydrocarbon saturation distribution used"
+          "Gas hydrocarbon saturation"
       );
     }
 
@@ -48,7 +48,7 @@ public class GasCaseVolumetricParametersFormValidator implements SubmissionValid
         condensateGasRatioLifeOfField,
         errors,
         "condensateGasRatioLifeOfField",
-        "Condensate-gas ratio, life-of-field distribution used"
+        "Condensate-gas ratio, life-of-field"
     );
 
     var gasRecoveryFactor = gasCaseVolumetricsForm.getGasRecoveryFactor();
@@ -56,7 +56,7 @@ public class GasCaseVolumetricParametersFormValidator implements SubmissionValid
         gasRecoveryFactor,
         errors,
         "gasRecoveryFactor",
-        "Gas recovery factor distribution used");
+        "Gas recovery factor");
   }
 
   @Override
@@ -65,7 +65,7 @@ public class GasCaseVolumetricParametersFormValidator implements SubmissionValid
 
     ValidationUtils.rejectIfEmpty(errors, "gasFormationVolumeFactor.probabilityDistributionType",
         "gasFormationVolumeFactor.probabilityDistributionType.required",
-        "Select gas formation volume factor (Bg)");
+        "Select gas formation volume factor (Bg) distribution used");
 
     var gasFormationVolumeFactor = gasCaseVolumetricsForm.getGasFormationVolumeFactor();
     ProbabilityDistributionValidationUtil.validateFull(
@@ -85,7 +85,7 @@ public class GasCaseVolumetricParametersFormValidator implements SubmissionValid
           gasHydrocarbonSaturation,
           errors,
           "gasHydrocarbonSaturation",
-          "Gas hydrocarbon saturation distribution used",
+          "Gas hydrocarbon saturation",
           ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_FIELD
       );
     } else {
@@ -93,7 +93,7 @@ public class GasCaseVolumetricParametersFormValidator implements SubmissionValid
           gasHydrocarbonSaturation,
           errors,
           "gasHydrocarbonSaturation",
-          "Gas hydrocarbon saturation distribution used"
+          "Gas hydrocarbon saturation"
       );
     }
 
@@ -106,7 +106,7 @@ public class GasCaseVolumetricParametersFormValidator implements SubmissionValid
         condensateGasRatioLifeOfField,
         errors,
         "condensateGasRatioLifeOfField",
-        "Condensate-gas ratio, life-of-field distribution used"
+        "Condensate-gas ratio, life-of-field"
     );
 
     ValidationUtils.rejectIfEmpty(errors, "gasRecoveryFactor.probabilityDistributionType",
@@ -118,6 +118,6 @@ public class GasCaseVolumetricParametersFormValidator implements SubmissionValid
         gasRecoveryFactor,
         errors,
         "gasRecoveryFactor",
-        "Gas recovery factor distribution used");
+        "Gas recovery factor");
   }
 }
