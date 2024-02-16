@@ -40,8 +40,46 @@ class FieldGeneralDetailsSummarySectionServiceTest {
   }
 
   @Test
-  void getSummarySection_fieldSubmission_assertProperties() {
+  void getSummarySection_generalDetailHasFileUploaded_assertProperties() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+
+    var generalDetailsCard = new SummaryCard("General details", SummaryCardType.SIMPLE_SUMMARY, null);
+    var generalDetailsFieldReportCard = new SummaryCard("Field report", SummaryCardType.FILES_SUMMARY, null);
+    var consideringCcusCard = new SummaryCard("Considering CCUS", SummaryCardType.SIMPLE_SUMMARY, null);
+    var fieldComplexityCard = new SummaryCard("Field complexity", SummaryCardType.SIMPLE_SUMMARY, null);
+
+    when(generalDetailSummaryService.getGeneralDetailsSummary(submissionDetail))
+        .thenReturn(generalDetailsCard);
+    when(generalDetailSummaryService.getFieldReportSummary(submissionDetail))
+        .thenReturn(Optional.of(generalDetailsFieldReportCard));
+    when(consideringCcusSummaryService.getConsideringCcusSummary(submissionDetail))
+        .thenReturn(consideringCcusCard);
+    when(fieldComplexitySummaryService.getFieldComplexitySummary(submissionDetail))
+        .thenReturn(fieldComplexityCard);
+
+    var expectedSummaryItem = SummaryItem.withCards(
+        FieldGeneralDetailsSummarySectionService.GENERAL_DETAILS,
+        List.of(
+            generalDetailsCard,
+            generalDetailsFieldReportCard,
+            consideringCcusCard,
+            fieldComplexityCard
+        ));
+
+    var expectedSummarySection = Optional.of(new SummarySection(
+        FieldGeneralDetailsSummarySectionService.GENERAL_DETAIL_SECTION_ORDER,
+        List.of(expectedSummaryItem),
+        FieldGeneralDetailsSummarySectionService.GENERAL_DETAILS_SUMMARY_TEXT));
+
+    assertThat(fieldGeneralDetailsSummarySectionService.getSummarySection(submissionDetail))
+        .isPresent()
+        .usingRecursiveComparison()
+        .isEqualTo(expectedSummarySection);
+  }
+
+  @Test
+  void getSummarySection_generalDetailHasNoFileUploaded_assertProperties() {
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_COP);
 
     var generalDetailsCard = new SummaryCard("General details", SummaryCardType.SIMPLE_SUMMARY, null);
     var consideringCcusCard = new SummaryCard("Considering CCUS", SummaryCardType.SIMPLE_SUMMARY, null);
@@ -49,6 +87,8 @@ class FieldGeneralDetailsSummarySectionServiceTest {
 
     when(generalDetailSummaryService.getGeneralDetailsSummary(submissionDetail))
         .thenReturn(generalDetailsCard);
+    when(generalDetailSummaryService.getFieldReportSummary(submissionDetail))
+        .thenReturn(Optional.empty());
     when(consideringCcusSummaryService.getConsideringCcusSummary(submissionDetail))
         .thenReturn(consideringCcusCard);
     when(fieldComplexitySummaryService.getFieldComplexitySummary(submissionDetail))

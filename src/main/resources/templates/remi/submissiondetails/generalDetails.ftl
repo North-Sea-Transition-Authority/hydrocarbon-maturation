@@ -153,6 +153,23 @@ breadcrumbsMap=breadcrumbsMap>
             </#list>
           </#list>
         </@fdsRadio.radioGroup>
+
+        <@fdsFieldset.fieldset
+        legendHeading=fieldReportType
+        legendHeadingSize="h2"
+        legendHeadingClass="govuk-fieldset__legend--m">
+          <@fdsFileUpload.fileUpload
+          id="fieldReport"
+          path="form.fieldReport"
+          downloadUrl=fieldReportTemplate.downloadUrl()
+          uploadUrl=fieldReportTemplate.uploadUrl()
+          deleteUrl=fieldReportTemplate.deleteUrl()
+          maxAllowedSize=fieldReportTemplate.maxAllowedSize()
+          allowedExtensions=fieldReportTemplate.allowedExtensions()
+          existingFiles=fieldReportTemplate.existingFiles()
+          multiFile=false
+          />
+        </@fdsFieldset.fieldset>
       </#if>
 
       <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>

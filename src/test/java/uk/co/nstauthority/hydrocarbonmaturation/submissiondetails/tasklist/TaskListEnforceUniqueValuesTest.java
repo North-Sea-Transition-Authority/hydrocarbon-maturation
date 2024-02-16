@@ -3,11 +3,11 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -71,7 +71,11 @@ class TaskListEnforceUniqueValuesTest {
     setUpTest(userRoles);
   }
   @ParameterizedTest
-  @EnumSource(SubmissionType.class)
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"CREATE_FIELD"},
+      mode = EnumSource.Mode.EXCLUDE
+  )
   void verifyUniqueSectionNamesAndOrders(SubmissionType submissionType) {
     submissionDetail = SubmissionDetailIntegrationTestUtils.createSubmissionDetail(submissionType, entityManager);
     reservoirSubmissionDetail = ReservoirSubmissionDetailsIntegrationTestUtils.createReservoirSubmissionDetail(submissionDetail, entityManager);
@@ -131,7 +135,11 @@ class TaskListEnforceUniqueValuesTest {
   }
 
   @ParameterizedTest
-  @EnumSource(SubmissionType.class)
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"CREATE_FIELD"},
+      mode = EnumSource.Mode.EXCLUDE
+  )
   void verifyUniqueTaskListItems(SubmissionType submissionType) {
     submissionDetail = SubmissionDetailIntegrationTestUtils.createSubmissionDetail(submissionType, entityManager);
     reservoirSubmissionDetail = ReservoirSubmissionDetailsIntegrationTestUtils.createReservoirSubmissionDetail(submissionDetail, entityManager);

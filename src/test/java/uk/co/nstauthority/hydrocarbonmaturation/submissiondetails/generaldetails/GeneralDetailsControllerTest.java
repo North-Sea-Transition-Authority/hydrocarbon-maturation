@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,6 +35,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
+import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationRestController;
@@ -42,11 +45,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.Refe
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
@@ -67,6 +72,9 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private OnshoreOffshoreService onshoreOffshoreService;
+
+  @MockBean
+  private SubmissionSupportingDocumentService supportingDocumentService;
 
   private UUID submissionDetailId;
 
@@ -318,6 +326,10 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
     var quadrantBlockViewList = List.of(quadrantBlockView1);
     when(generalDetailsFormService.getQuadrantAndBlockViews(form)).thenReturn(quadrantBlockViewList);
 
+    var fileReportTemplate = buildFileTemplate();
+    when(supportingDocumentService.fileUploadComponentAttributes(form.getFieldReport(), FileDocumentType.FIELD_REPORT))
+        .thenReturn(fileReportTemplate);
+
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
                     get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetailId, null)))
@@ -330,9 +342,50 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
         .contains(
             entry("fieldSubmission", true),
             entry("submissionType", submissionDetail.getSubmissionType()),
-            entry("driveMechanismOptions", DriveMechanism.getDriveMechanismOptionsWithHintText())
-        );
+            entry("driveMechanismOptions", DriveMechanism.getDriveMechanismOptionsWithHintText()),
+            entry("fieldReportTemplate", fileReportTemplate)
+        ).containsKey("fieldReportType");
     assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
+  }
+
+  @Test
+  void getGeneralDetailsModelAndView_csr_assertFieldReportType() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
+
+    when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.ONSHORE);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    var form = new GeneralDetailsForm();
+
+    when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
+
+    var fileReportTemplate = buildFileTemplate();
+    when(supportingDocumentService.fileUploadComponentAttributes(form.getFieldReport(), FileDocumentType.FIELD_REPORT))
+        .thenReturn(fileReportTemplate);
+
+    var modelMap = Objects.requireNonNull(
+            mockMvc.perform(
+                    get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetailId, null)))
+                        .with(user(USER)))
+                .andReturn()
+                .getModelAndView())
+        .getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("fieldReportTemplate", fileReportTemplate),
+            entry("fieldReportType", GeneralDetailsController.CSR_FIELD_REPORT)
+        );
+  }
+
+  @NotNull
+  private static FileUploadComponentAttributes buildFileTemplate() {
+    var fileReportTemplate = mock(FileUploadComponentAttributes.class);
+    when(fileReportTemplate.downloadUrl()).thenReturn("/download");
+    when(fileReportTemplate.uploadUrl()).thenReturn("/upload");
+    when(fileReportTemplate.deleteUrl()).thenReturn("/delete");
+    when(fileReportTemplate.maxAllowedSize()).thenReturn("100");
+    when(fileReportTemplate.allowedExtensions()).thenReturn("pdf");
+    return fileReportTemplate;
   }
 
   @ParameterizedTest

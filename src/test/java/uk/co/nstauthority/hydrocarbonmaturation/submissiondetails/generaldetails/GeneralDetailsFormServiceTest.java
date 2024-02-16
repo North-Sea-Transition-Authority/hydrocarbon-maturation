@@ -28,12 +28,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockView;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralDetailsFormServiceTest {
@@ -69,7 +70,7 @@ class GeneralDetailsFormServiceTest {
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
   @Mock
-  private FieldPersistenceService fieldPersistenceService;
+  private SubmissionSupportingDocumentService supportingDocumentService;
 
   @InjectMocks
   private GeneralDetailsFormService generalDetailsFormService;
@@ -88,7 +89,7 @@ class GeneralDetailsFormServiceTest {
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)).thenReturn(Optional.empty());
 
     var form = generalDetailsFormService.getGeneralDetailsForm(submissionDetail);
-    assertThat(form).hasAllNullFieldsOrPropertiesExcept("quadrantBlocks", "licences");
+    assertThat(form).hasAllNullFieldsOrPropertiesExcept("quadrantBlocks", "licences", "fieldReport");
     assertThat(form.getQuadrantBlocks()).isEmpty();
   }
 
@@ -322,6 +323,26 @@ class GeneralDetailsFormServiceTest {
         ).containsExactly(
             generalDetail.getCurrentDriveMechanism(),
             generalDetail.getOtherDriveMechanism()
+        );
+  }
+
+  @Test
+  void generalDetailEntityToForm_fieldSubmission_verifyFieldReportAdded() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
+    var generalDetail = getGeneralDetail(submissionDetail);
+
+    var existingDocuments = mock(List.class);
+    when(supportingDocumentService.getUploadedFileForms(submissionDetail, FileDocumentType.FIELD_REPORT))
+        .thenReturn(existingDocuments);
+
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(generalDetail));
+
+    assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail))
+        .extracting(
+            GeneralDetailsForm::getFieldReport
+        ).isEqualTo(
+            existingDocuments
         );
   }
 

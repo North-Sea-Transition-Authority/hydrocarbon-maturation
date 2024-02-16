@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 
 import java.util.ArrayList;
 import java.util.List;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
@@ -32,6 +33,8 @@ public class GeneralDetailsForm implements SubmissionForm {
 
   private DriveMechanism currentDriveMechanism;
   private String otherDriveMechanism;
+
+  private List<UploadedFileForm> fieldReport = new ArrayList<>();
 
   public Boolean getResourceLocatedInUkcs() {
     return resourceLocatedInUkcs;
@@ -194,5 +197,13 @@ public class GeneralDetailsForm implements SubmissionForm {
 
   public void setOtherDriveMechanism(String otherDriveMechanism) {
     this.otherDriveMechanism = otherDriveMechanism;
+  }
+
+  public List<UploadedFileForm> getFieldReport() {
+    return fieldReport;
+  }
+
+  public void setFieldReport(List<UploadedFileForm> fieldReport) {
+    this.fieldReport = fieldReport;
   }
 }

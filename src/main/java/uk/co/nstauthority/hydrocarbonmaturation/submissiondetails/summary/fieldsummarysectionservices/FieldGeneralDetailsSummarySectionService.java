@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.fieldsummarysectionservices;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,11 +44,15 @@ public class FieldGeneralDetailsSummarySectionService implements SummarySectionS
   }
 
   private SummaryItem getGeneralDetailsSummaryItem(SubmissionDetail submissionDetail) {
-    var cards = List.of(
-        generalDetailSummaryService.getGeneralDetailsSummary((submissionDetail)),
-        consideringCcusSummaryService.getConsideringCcusSummary(submissionDetail),
-        fieldComplexitySummaryService.getFieldComplexitySummary(submissionDetail)
-    );
+    var cards = new ArrayList<>(List.of(
+        generalDetailSummaryService.getGeneralDetailsSummary((submissionDetail))
+    ));
+
+    generalDetailSummaryService.getFieldReportSummary(submissionDetail).ifPresent(cards::add);
+
+    cards.add(consideringCcusSummaryService.getConsideringCcusSummary(submissionDetail));
+    cards.add(fieldComplexitySummaryService.getFieldComplexitySummary(submissionDetail));
+
     return SummaryItem.withCards(GENERAL_DETAILS, cards);
   }
 }

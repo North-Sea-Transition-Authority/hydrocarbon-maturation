@@ -1,12 +1,20 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileView;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
@@ -29,16 +37,20 @@ public class GeneralDetailSummaryService {
   private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
   private final LicencePersistenceService licencePersistenceService;
   private final OnshoreOffshoreService onshoreOffshoreService;
+  private final SubmissionSupportingDocumentService supportingDocumentService;
+
 
   @Autowired
   public GeneralDetailSummaryService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
                                      QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
                                      LicencePersistenceService licencePersistenceService,
-                                     OnshoreOffshoreService onshoreOffshoreService) {
+                                     OnshoreOffshoreService onshoreOffshoreService,
+                                     SubmissionSupportingDocumentService supportingDocumentService) {
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
     this.licencePersistenceService = licencePersistenceService;
     this.onshoreOffshoreService = onshoreOffshoreService;
+    this.supportingDocumentService = supportingDocumentService;
   }
 
   public GeneralDetailSummaryView getGeneralDetailSummaryFromSubmissionDetail(SubmissionDetail submissionDetail) {
@@ -174,6 +186,31 @@ public class GeneralDetailSummaryService {
     addFieldSummaryValues(submissionDetail, generalDetail, summaryDataView);
 
     return SummaryCard.simpleSummaryCardWithHeading(GENERAL_DETAILS, summaryDataView);
+  }
+
+  public Optional<SummaryCard> getFieldReportSummary(SubmissionDetail submissionDetail) {
+    var uploadedFiles = supportingDocumentService.getUploadedFiles(submissionDetail, FileDocumentType.FIELD_REPORT);
+
+    var cardHeading = "%s - %s"
+        .formatted(GENERAL_DETAILS,
+            GeneralDetailsFormService.getFieldReportTypeForSubmissionDetail(submissionDetail.getSubmissionType()));
+
+    if (uploadedFiles.isEmpty()) {
+      if (submissionDetail.isCessationOfProductionSubmission()) {
+        return Optional.empty();
+      }
+      return Optional.of(SummaryCard.emptySummaryCardWithHeading(cardHeading));
+    }
+    var fieldReportFile = uploadedFiles.get(0);
+
+    var downloadUrl = ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
+        .download(submissionDetail.getId(), fieldReportFile.getId()));
+
+    var summaryFileView = SummaryFileView.from(fieldReportFile, downloadUrl);
+
+    return Optional.of(SummaryCard.filesSummaryCardWithHeading(
+        cardHeading,
+        List.of(summaryFileView)));
   }
 
   private void addFieldSummaryValues(SubmissionDetail submissionDetail,

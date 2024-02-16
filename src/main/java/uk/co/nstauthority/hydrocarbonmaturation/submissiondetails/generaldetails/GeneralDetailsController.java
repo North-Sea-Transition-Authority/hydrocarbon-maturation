@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -18,11 +19,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -33,25 +36,33 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @IsFromResponsibleTeam
 public class GeneralDetailsController {
 
+  public static final String PAGE_NAME = "General details";
+
+  public static final String CSR_FIELD_REPORT = "Provide the final Concept Select Report";
+  public static final String FDP_FIELD_REPORT = "Provide the final Field Development Plan";
+  public static final String FDPA_FIELD_REPORT = "Provide the final Field Development Plan Addendum";
+  public static final String COP_FIELD_REPORT = "Provide your Cessation of Production report if available";
+
   private final GeneralDetailsFormService generalDetailsFormService;
   private final SubmissionDetailService submissionDetailService;
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final GeneralDetailsFormValidator generalDetailsFormValidator;
   private final OnshoreOffshoreService onshoreOffshoreService;
-
-  public static final String PAGE_NAME = "General details";
+  private final SubmissionSupportingDocumentService supportingDocumentService;
 
   @Autowired
   public GeneralDetailsController(GeneralDetailsFormService generalDetailsFormService,
                                   SubmissionDetailService submissionDetailService,
                                   GeneralDetailsPersistenceService generalDetailsPersistenceService,
                                   GeneralDetailsFormValidator generalDetailsFormValidator,
-                                  OnshoreOffshoreService onshoreOffshoreService) {
+                                  OnshoreOffshoreService onshoreOffshoreService,
+                                  SubmissionSupportingDocumentService supportingDocumentService) {
     this.generalDetailsFormService = generalDetailsFormService;
     this.submissionDetailService = submissionDetailService;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.generalDetailsFormValidator = generalDetailsFormValidator;
     this.onshoreOffshoreService = onshoreOffshoreService;
+    this.supportingDocumentService = supportingDocumentService;
   }
 
   @GetMapping
@@ -119,8 +130,28 @@ public class GeneralDetailsController {
       }
     }
 
+    if (submissionDetail.isFieldSubmission()) {
+      modelAndView
+          .addObject("fieldReportTemplate",
+              supportingDocumentService.fileUploadComponentAttributes(form.getFieldReport(), FileDocumentType.FIELD_REPORT))
+          .addObject("fieldReportType",
+              getFieldReportTypeForSubmissionType(submissionDetail));
+    }
+
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
     return modelAndView;
+  }
+
+  @NotNull
+  private static String getFieldReportTypeForSubmissionType(SubmissionDetail submissionDetail) {
+    return switch (submissionDetail.getSubmissionType()) {
+      case CREATE_CSR -> CSR_FIELD_REPORT;
+      case CREATE_FDP -> FDP_FIELD_REPORT;
+      case CREATE_FDPA -> FDPA_FIELD_REPORT;
+      case CREATE_COP -> COP_FIELD_REPORT;
+      default -> throw new IllegalArgumentException("There is no field report type for submission with id %s"
+          .formatted(submissionDetail.getId()));
+    };
   }
 
   private String getQuadrantBlocksApiEndpoint(SubmissionDetail submissionDetail) {

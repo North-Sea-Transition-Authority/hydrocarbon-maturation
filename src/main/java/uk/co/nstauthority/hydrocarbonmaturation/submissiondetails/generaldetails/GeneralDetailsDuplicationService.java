@@ -2,12 +2,15 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @Service
 class GeneralDetailsDuplicationService implements SubmissionSectionDuplicationService {
@@ -16,18 +19,21 @@ class GeneralDetailsDuplicationService implements SubmissionSectionDuplicationSe
   private final LicencePersistenceService licencePersistenceService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
   private final EntityManager entityManager;
+  private final SubmissionSupportingDocumentService supportingDocumentService;
 
   @Autowired
   GeneralDetailsDuplicationService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
                                    QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
                                    LicencePersistenceService licencePersistenceService,
                                    SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService,
-                                   EntityManager entityManager) {
+                                   EntityManager entityManager,
+                                   SubmissionSupportingDocumentService supportingDocumentService) {
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
     this.licencePersistenceService = licencePersistenceService;
     this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
     this.entityManager = entityManager;
+    this.supportingDocumentService = supportingDocumentService;
   }
 
   @Override
@@ -56,6 +62,15 @@ class GeneralDetailsDuplicationService implements SubmissionSectionDuplicationSe
           licencePersistenceService.getLicencesByGeneralDetail(generalDetail).forEach(licence ->
               submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(newGeneralDetail, licence,
                   Licence.class));
+
+          var isCorrection = newSubmissionDetail.isCorrection();
+          if (newSubmissionDetail.isFieldSubmission()
+              && (BooleanUtils.isTrue(isCorrection) || newSubmissionDetail.isUpdateToSubmission())) {
+            supportingDocumentService.copyUploadedFiles(
+                oldSubmissionDetail,
+                newSubmissionDetail,
+                FileDocumentType.FIELD_REPORT);
+          }
         });
   }
 

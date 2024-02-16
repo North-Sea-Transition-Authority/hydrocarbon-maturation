@@ -16,6 +16,7 @@ public enum FileDocumentType {
   SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE_OFFSHORE(Set.of("zip"), OFFSHORE_SHAPEFILE_VALIDATION),
   SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE_ONSHORE(Set.of("zip"), ONSHORE_SHAPEFILE_VALIDATION),
   RELINQUISHMENT_REPORT,
+  FIELD_REPORT(Set.of("pdf"))
   ;
 
   private final Set<String> allowedExtensions;
@@ -23,6 +24,11 @@ public enum FileDocumentType {
 
   FileDocumentType() {
     this.allowedExtensions = null;
+    this.fileUploadCustomValidatorType = null;
+  }
+
+  FileDocumentType(Set<String> allowedExtensions) {
+    this.allowedExtensions = allowedExtensions;
     this.fileUploadCustomValidatorType = null;
   }
 

@@ -10,6 +10,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -155,6 +156,18 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
 
         );
       }
+
+      var fieldReportTitle = GeneralDetailsFormService
+          .getFieldReportTypeForSubmissionDetail(submissionType)
+          .toLowerCase();
+      var fieldReport = generalDetailsForm.getFieldReport();
+      var fieldReportValidator = FileValidationUtil.validator()
+          .withMaximumNumberOfFiles(1, "Upload at most one %s".formatted(fieldReportTitle))
+          .withMinimumNumberOfFiles(1, "Upload a %s".formatted(fieldReportTitle));
+      if (submissionDetail.isCessationOfProductionSubmission()) {
+        fieldReportValidator = fieldReportValidator.isPartiallyValidated();
+      }
+      fieldReportValidator.validate(errors, fieldReport, "fieldReport");
     }
   }
 

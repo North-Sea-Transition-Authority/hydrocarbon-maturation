@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
@@ -443,7 +445,7 @@ class GeneralDetailsFormValidatorTest {
     form.setCurrentDriveMechanism(DriveMechanism.DEPLETION);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    assertTrue(generalDetailsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL));
+    generalDetailsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).isEmpty();
   }
@@ -556,6 +558,141 @@ class GeneralDetailsFormValidatorTest {
         );
   }
 
+  @Nested
+  class GivenAskingForFieldReport {
+
+    private GeneralDetailsForm form;
+    private BindingResult bindingResult;
+
+    @BeforeEach
+    void setUp() {
+      form = getValidFormNoFileUploaded();
+      bindingResult = new BeanPropertyBindingResult(form, "form");
+    }
+
+    @Nested
+    class GivenFieldSubmissionIsCop {
+
+      @BeforeEach
+      void setUp() {
+        submissionDetail.setSubmissionType(SubmissionType.CREATE_COP);
+      }
+
+      @ParameterizedTest
+      @EnumSource(ValidationType.class)
+      void whenNoFileUploaded_thenNoError(ValidationType validationType) {
+        assertTrue(generalDetailsFormValidator.isValid(
+            form,
+            bindingResult,
+            submissionDetail,
+            validationType
+        ));
+      }
+    }
+
+    @Nested
+    class GivenFieldSubmissionIsNonCop {
+
+      @BeforeEach
+      void setUp() {
+        submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
+      }
+
+      @Test
+      void whenNoFileUploaded_partialValidation_thenNoError() {
+        assertTrue(generalDetailsFormValidator.isValid(
+            form,
+            bindingResult,
+            submissionDetail,
+            ValidationType.PARTIAL
+        ));
+      }
+
+      @Test
+      void whenNoFileUploaded_fullValidation_thenError() {
+        generalDetailsFormValidator.isValid(
+            form,
+            bindingResult,
+            submissionDetail,
+            ValidationType.FULL
+        );
+
+        var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+        assertThat(errors)
+            .containsExactly(
+                entry("fieldReport", Set.of("fieldReport.belowThreshold"))
+            );
+      }
+
+      @Test
+      void whenFileUploaded_noFileDescription_thenError() {
+        var uploadedFile = new UploadedFileForm();
+        uploadedFile.setFileName("file.docx");
+        form.setFieldReport(List.of(uploadedFile));
+
+        generalDetailsFormValidator.isValid(
+            form,
+            bindingResult,
+            submissionDetail,
+            ValidationType.FULL
+        );
+
+        var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+        assertThat(errors)
+            .containsExactly(
+                entry("fieldReport[0].uploadedFileDescription", Set.of("fieldReport[0].uploadedFileDescription.required"))
+            );
+      }
+
+      @Test
+      void whenFileUploaded_multipleFiles_thenError() {
+        var uploadedFile1 = new UploadedFileForm();
+        uploadedFile1.setFileName("file1.docx");
+        uploadedFile1.setFileDescription("File 1");
+
+        var uploadedFile2 = new UploadedFileForm();
+        uploadedFile2.setFileName("file2.docx");
+        uploadedFile2.setFileDescription("File 2");
+
+        form.setFieldReport(List.of(uploadedFile1, uploadedFile2));
+
+        generalDetailsFormValidator.isValid(
+            form,
+            bindingResult,
+            submissionDetail,
+            ValidationType.FULL
+        );
+
+        var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+        assertThat(errors)
+            .containsExactly(
+                entry("fieldReport", Set.of("fieldReport.limitExceeded"))
+            );
+      }
+    }
+
+    private GeneralDetailsForm getValidFormNoFileUploaded() {
+      var form = new GeneralDetailsForm();
+      form.setResourceLocatedInUkcs(false);
+      form.setPercentageLocatedInUkcs(new DecimalInput("50.0"));
+      form.setInformationSource(InformationSource.WELL_INVESTMENT_DECISION);
+      form.setQuadrantBlocks(List.of("27/10"));
+      form.setLicences(List.of("122"));
+      form.setRelinquishmentDay("12");
+      form.setRelinquishmentMonth("6");
+      form.setRelinquishmentYear("2011");
+      form.setCapitalProjectScopeDelivered("test summary of scope");
+      form.setCurrentDriveMechanism(DriveMechanism.DEPLETION);
+      form.setFieldStoppedProducingDay("01");
+      form.setFieldStoppedProducingMonth("05");
+      form.setFieldStoppedProducingYear("1999");
+      return form;
+    }
+  }
+
   private BindingResult validateOffshoreGeneralDetailsForm(GeneralDetailsForm form, ValidationType validationType) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     generalDetailsFormValidator.isValid(
@@ -610,6 +747,13 @@ class GeneralDetailsFormValidatorTest {
     form.setFieldStoppedProducingDay("01");
     form.setFieldStoppedProducingMonth("05");
     form.setFieldStoppedProducingYear("1999");
+
+    var fieldReport = new UploadedFileForm();
+    fieldReport.setFileName("file.pdf");
+    fieldReport.setFileDescription("A test file");
+    fieldReport.setFileName("file");
+
+    form.setFieldReport(List.of(fieldReport));
     return form;
   }
 

@@ -15,11 +15,19 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @Service
 public class GeneralDetailsFormService {
+  public static final String FINAL_CONCEPT_SELECT_REPORT = "Final concept select report";
+  public static final String FINAL_FIELD_DEVELOPMENT_PLAN = "Final field development plan";
+  public static final String FINAL_FIELD_DEVELOPMENT_PLAN_ADDENDUM = "Final field development plan addendum";
+  public static final String CESSATION_OF_PRODUCTION_REPORT = "Cessation of production report";
+
 
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final LicenceApplicationQueryService licenceApplicationQueryService;
@@ -28,6 +36,7 @@ public class GeneralDetailsFormService {
   private final LicenceQueryService licenceQueryService;
   private final LicencePersistenceService licencePersistenceService;
   private final SubmissionDetailService submissionDetailService;
+  private final SubmissionSupportingDocumentService supportingDocumentService;
 
   @Autowired
   public GeneralDetailsFormService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
@@ -36,7 +45,8 @@ public class GeneralDetailsFormService {
                                    ReferenceBlockQueryService referenceBlockQueryService,
                                    LicenceQueryService licenceQueryService,
                                    LicencePersistenceService licencePersistenceService,
-                                   SubmissionDetailService submissionDetailService) {
+                                   SubmissionDetailService submissionDetailService,
+                                   SubmissionSupportingDocumentService supportingDocumentService) {
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.licenceApplicationQueryService = licenceApplicationQueryService;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
@@ -44,6 +54,7 @@ public class GeneralDetailsFormService {
     this.licenceQueryService = licenceQueryService;
     this.licencePersistenceService = licencePersistenceService;
     this.submissionDetailService = submissionDetailService;
+    this.supportingDocumentService = supportingDocumentService;
   }
 
   GeneralDetailsForm getGeneralDetailsForm(SubmissionDetail submissionDetail) {
@@ -147,6 +158,17 @@ public class GeneralDetailsFormService {
         .orElse(false);
   }
 
+  public static String getFieldReportTypeForSubmissionDetail(SubmissionType submissionType) {
+    return switch (submissionType) {
+      case CREATE_CSR -> FINAL_CONCEPT_SELECT_REPORT;
+      case CREATE_FDP -> FINAL_FIELD_DEVELOPMENT_PLAN;
+      case CREATE_FDPA -> FINAL_FIELD_DEVELOPMENT_PLAN_ADDENDUM;
+      case CREATE_COP -> CESSATION_OF_PRODUCTION_REPORT;
+      default -> throw new IllegalArgumentException("There is no field report type for submission type %s"
+          .formatted(submissionType.getTypeName()));
+    };
+  }
+
   private void setFieldValues(GeneralDetail generalDetail, GeneralDetailsForm form, SubmissionDetail submissionDetail) {
     if (submissionDetail.isRelinquishment() && generalDetail.getRelinquishmentDate() != null) {
       form.setRelinquishmentDay(String.valueOf(generalDetail.getRelinquishmentDate().getDayOfMonth()));
@@ -169,6 +191,9 @@ public class GeneralDetailsFormService {
       if (DriveMechanism.OTHER.equals(form.getCurrentDriveMechanism())) {
         form.setOtherDriveMechanism(generalDetail.getOtherDriveMechanism());
       }
+
+      var fieldReports = supportingDocumentService.getUploadedFileForms(submissionDetail, FileDocumentType.FIELD_REPORT);
+      form.setFieldReport(fieldReports);
     }
   }
 }

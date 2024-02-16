@@ -11,8 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @Service
 public class GeneralDetailsPersistenceService {
@@ -21,16 +23,19 @@ public class GeneralDetailsPersistenceService {
   private final LicenceApplicationQueryService licenceApplicationQueryService;
   private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
   private final LicencePersistenceService licencePersistenceService;
+  private final SubmissionSupportingDocumentService supportingDocumentService;
 
   @Autowired
   public GeneralDetailsPersistenceService(GeneralDetailsRepository generalDetailsRepository,
                                           QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
                                           LicenceApplicationQueryService licenceApplicationQueryService,
-                                          LicencePersistenceService licencePersistenceService) {
+                                          LicencePersistenceService licencePersistenceService,
+                                          SubmissionSupportingDocumentService supportingDocumentService) {
     this.generalDetailsRepository = generalDetailsRepository;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
     this.licenceApplicationQueryService = licenceApplicationQueryService;
     this.licencePersistenceService = licencePersistenceService;
+    this.supportingDocumentService = supportingDocumentService;
   }
 
   @Transactional
@@ -92,6 +97,9 @@ public class GeneralDetailsPersistenceService {
       } else {
         generalDetail.setOtherDriveMechanism(null);
       }
+
+      supportingDocumentService
+          .saveDocuments(submissionDetail, form.getFieldReport(), FileDocumentType.FIELD_REPORT);
     }
 
     generalDetailsRepository.save(generalDetail);

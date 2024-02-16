@@ -10,10 +10,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import jakarta.persistence.EntityManager;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,10 +21,12 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralDetailsDuplicationServiceTest {
@@ -42,6 +44,9 @@ class GeneralDetailsDuplicationServiceTest {
 
   @Mock
   private SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
+
+  @Mock
+  private SubmissionSupportingDocumentService supportingDocumentService;
 
   @InjectMocks
   private GeneralDetailsDuplicationService generalDetailsDuplicationService;
@@ -166,6 +171,7 @@ class GeneralDetailsDuplicationServiceTest {
     oldSubmissionDetail.setSubmissionType(submissionType);
     var newSubmissionDetail = new SubmissionDetail();
     newSubmissionDetail.setSubmissionType(submissionType);
+    newSubmissionDetail.setVersionNumber(1);
     var oldGeneralDetail = new GeneralDetail();
     var newGeneralDetail = mock(GeneralDetail.class);
 
@@ -182,5 +188,67 @@ class GeneralDetailsDuplicationServiceTest {
         .duplicateChildAndReplaceParent(eq(oldGeneralDetail), any(QuadrantAndBlock.class), eq(QuadrantAndBlock.class));
 
     verifyNoInteractions(newGeneralDetail);
+  }
+
+  @Test
+  void duplicateSubmissionSection_fieldSubmission_isCorrection_verifyFieldReportCopied() {
+    var submissionType = SubmissionType.CREATE_CSR;
+
+    var oldSubmissionDetail = new SubmissionDetail();
+    oldSubmissionDetail.setSubmissionType(submissionType);
+    var newSubmissionDetail = new SubmissionDetail();
+    newSubmissionDetail.setSubmissionType(submissionType);
+    newSubmissionDetail.setCorrection(true);
+
+    var oldGeneralDetail = new GeneralDetail();
+
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(oldSubmissionDetail))
+        .thenReturn(Optional.of(oldGeneralDetail));
+
+    generalDetailsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    verify(supportingDocumentService).copyUploadedFiles(oldSubmissionDetail, newSubmissionDetail, FileDocumentType.FIELD_REPORT);
+  }
+
+  @Test
+  void duplicateSubmissionSection_fieldSubmission_isUpdate_verifyFieldReportCopied() {
+    var submissionType = SubmissionType.CREATE_CSR;
+
+    var oldSubmissionDetail = new SubmissionDetail();
+    oldSubmissionDetail.setSubmissionType(submissionType);
+    var newSubmissionDetail = new SubmissionDetail();
+    newSubmissionDetail.setSubmissionType(submissionType);
+    newSubmissionDetail.setCorrection(false);
+    newSubmissionDetail.setVersionNumber(2);
+
+    var oldGeneralDetail = new GeneralDetail();
+
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(oldSubmissionDetail))
+        .thenReturn(Optional.of(oldGeneralDetail));
+
+    generalDetailsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    verify(supportingDocumentService).copyUploadedFiles(oldSubmissionDetail, newSubmissionDetail, FileDocumentType.FIELD_REPORT);
+  }
+
+  @Test
+  void duplicateSubmissionSection_fieldSubmission_isNotCorrectionOrUpdate_verifyNoFieldReportCopied() {
+    var submissionType = SubmissionType.CREATE_CSR;
+
+    var oldSubmissionDetail = new SubmissionDetail();
+    oldSubmissionDetail.setSubmissionType(submissionType);
+    var newSubmissionDetail = new SubmissionDetail();
+    newSubmissionDetail.setSubmissionType(submissionType);
+    newSubmissionDetail.setCorrection(false);
+    newSubmissionDetail.setVersionNumber(1);
+
+    var oldGeneralDetail = new GeneralDetail();
+
+    when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(oldSubmissionDetail))
+        .thenReturn(Optional.of(oldGeneralDetail));
+
+    generalDetailsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+    verifyNoInteractions(supportingDocumentService);
   }
 }

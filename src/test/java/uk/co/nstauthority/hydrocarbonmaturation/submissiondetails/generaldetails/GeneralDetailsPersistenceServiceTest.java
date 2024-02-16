@@ -4,10 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -22,15 +24,18 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralDetailsPersistenceServiceTest {
@@ -48,6 +53,8 @@ class GeneralDetailsPersistenceServiceTest {
   private static LicenceApplicationQueryService licenceApplicationQueryService;
   @Mock
   private static LicencePersistenceService licencePersistenceService;
+  @Mock
+  private static SubmissionSupportingDocumentService supportingDocumentService;
 
   private static SubmissionDetail submissionDetail;
 
@@ -57,7 +64,8 @@ class GeneralDetailsPersistenceServiceTest {
         generalDetailsRepository,
         quadrantAndBlockPersistenceService,
         licenceApplicationQueryService,
-        licencePersistenceService);
+        licencePersistenceService,
+        supportingDocumentService);
     var submissionDetailId = UUID.randomUUID();
     submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     submissionDetail.setId(submissionDetailId);
@@ -374,6 +382,7 @@ class GeneralDetailsPersistenceServiceTest {
   @MethodSource("allFieldSubmissionTypes")
   void saveGeneralDetails_whenField_verifyCommon(SubmissionType submissionType) {
     var form = new GeneralDetailsForm();
+    form.setFieldReport(List.of(new UploadedFileForm()));
     submissionDetail.setSubmissionType(submissionType);
     var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
 
@@ -390,6 +399,9 @@ class GeneralDetailsPersistenceServiceTest {
             form.getCurrentDriveMechanism(),
             form.getOtherDriveMechanism()
         );
+
+    verify(supportingDocumentService).saveDocuments(submissionDetail, form.getFieldReport(), FileDocumentType.FIELD_REPORT);
+    verifyNoMoreInteractions(supportingDocumentService);
   }
 
   @Test

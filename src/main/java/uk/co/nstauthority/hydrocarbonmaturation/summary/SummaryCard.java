@@ -97,4 +97,11 @@ public record SummaryCard(
     );
   }
 
+  public static SummaryCard filesSummaryCardWithHeading(String heading, List<SummaryFileView> fileViews) {
+    return new SummaryCard(
+        heading,
+        SummaryCardType.FILES_SUMMARY,
+        fileViews
+    );
+  }
 }
