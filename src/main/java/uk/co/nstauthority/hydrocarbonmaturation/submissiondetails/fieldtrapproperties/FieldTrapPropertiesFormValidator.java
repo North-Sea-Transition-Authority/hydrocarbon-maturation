@@ -112,7 +112,9 @@ public class FieldTrapPropertiesFormValidator implements SubmissionValidator {
         .validate();
   }
 
-  private void validateOptionalProbabilityDistributions(FieldTrapPropertiesForm fieldTrapPropertiesForm, Errors errors) {
+  private void validateOptionalProbabilityDistributions(
+      FieldTrapPropertiesForm fieldTrapPropertiesForm, Errors errors
+  ) {
     var depthToCrest = fieldTrapPropertiesForm.getDepthToCrest();
     // partial validation on optional fields
     ProbabilityDistributionValidationUtil.validateCustomPartial(

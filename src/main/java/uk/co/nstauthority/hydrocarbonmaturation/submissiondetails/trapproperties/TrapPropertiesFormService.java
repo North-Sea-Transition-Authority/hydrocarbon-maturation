@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trappropertie
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInputForm;
@@ -12,37 +11,22 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-public class TrapPropertiesFormService implements SubmissionFormService {
+public class TrapPropertiesFormService {
 
-  private final TrapPropertiesFormValidator trapPropertiesFormValidator;
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private final ProbabilityDistributionFormService probabilityDistributionFormService;
   private final SubmissionSupportingDocumentService supportingDocumentService;
 
   @Autowired
-  public TrapPropertiesFormService(TrapPropertiesFormValidator trapPropertiesFormValidator,
-                                   TrapPropertiesPersistenceService trapPropertiesPersistenceService,
+  public TrapPropertiesFormService(TrapPropertiesPersistenceService trapPropertiesPersistenceService,
                                    ProbabilityDistributionFormService probabilityDistributionFormService,
                                    SubmissionSupportingDocumentService supportingDocumentService) {
-    this.trapPropertiesFormValidator = trapPropertiesFormValidator;
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
     this.probabilityDistributionFormService = probabilityDistributionFormService;
     this.supportingDocumentService = supportingDocumentService;
-  }
-
-  @Override
-  public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
-                                ValidationType validationType, SubmissionDetail submissionDetail) {
-    trapPropertiesFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
-    return bindingResult;
   }
 
   TrapPropertiesForm getTrapPropertiesForm(SubmissionDetail submissionDetail) {

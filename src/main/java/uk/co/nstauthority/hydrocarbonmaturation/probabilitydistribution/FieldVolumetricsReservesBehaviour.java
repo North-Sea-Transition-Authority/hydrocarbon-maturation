@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
-public class FieldVolumetricsBehaviourReserves extends BaseBehaviour implements ProbabilityDistributionTypeBehaviour {
+public class FieldVolumetricsReservesBehaviour extends BaseBehaviour implements ProbabilityDistributionTypeBehaviour {
   @Override
   public boolean is1PAvailable() {
     return true;
@@ -29,5 +29,15 @@ public class FieldVolumetricsBehaviourReserves extends BaseBehaviour implements 
   @Override
   public boolean is3PRequired() {
     return true;
+  }
+
+  @Override
+  public boolean allowEquivalentValues() {
+    return true;
+  }
+
+  @Override
+  public ProbabilityDistributionValidationError get1PTo3PError() {
+    return ProbabilityDistributionValidationError.ONE_P_TO_THREE_P;
   }
 }

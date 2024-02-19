@@ -12,11 +12,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 public class MixedCaseVolumetricParametersSubmissionService implements ReservoirSectionSubmissionService {
 
   private final MixedCaseVolumetricParametersFormService mixedCaseVolumetricParametersFormService;
+  private final MixedCaseVolumetricParametersFormValidator mixedCaseVolumetricParametersFormValidator;
 
   @Autowired
   public MixedCaseVolumetricParametersSubmissionService(
-      MixedCaseVolumetricParametersFormService mixedCaseVolumetricParametersFormService) {
+      MixedCaseVolumetricParametersFormService mixedCaseVolumetricParametersFormService,
+      MixedCaseVolumetricParametersFormValidator mixedCaseVolumetricParametersFormValidator) {
     this.mixedCaseVolumetricParametersFormService = mixedCaseVolumetricParametersFormService;
+    this.mixedCaseVolumetricParametersFormValidator = mixedCaseVolumetricParametersFormValidator;
   }
 
   @Override
@@ -27,7 +30,6 @@ public class MixedCaseVolumetricParametersSubmissionService implements Reservoir
     }
     var form = mixedCaseVolumetricParametersFormService.getMixedCaseVolumetricsForm(reservoirSubmissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = mixedCaseVolumetricParametersFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
-    return !bindingResult.hasErrors();
+    return mixedCaseVolumetricParametersFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
   }
 }

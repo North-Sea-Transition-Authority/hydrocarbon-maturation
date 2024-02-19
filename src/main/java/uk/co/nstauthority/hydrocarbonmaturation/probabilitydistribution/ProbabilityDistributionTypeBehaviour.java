@@ -68,4 +68,16 @@ public interface ProbabilityDistributionTypeBehaviour {
   boolean is3PAvailable();
 
   boolean is3PRequired();
+
+  boolean allowEquivalentValues();
+
+  ProbabilityDistributionValidationError getP99ToP1Error();
+
+  ProbabilityDistributionValidationError getP90ToP10Error();
+
+  ProbabilityDistributionValidationError getMinMaxError();
+
+  ProbabilityDistributionValidationError get1CTo3CError();
+
+  ProbabilityDistributionValidationError get1PTo3PError();
 }

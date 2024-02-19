@@ -41,4 +41,9 @@ public class DiscoveryOutputsBehaviour extends BaseBehaviour implements Probabil
   public boolean isP10Required() {
     return true;
   }
+
+  @Override
+  public ProbabilityDistributionValidationError getP90ToP10Error() {
+    return ProbabilityDistributionValidationError.P90_TO_P10;
+  }
 }

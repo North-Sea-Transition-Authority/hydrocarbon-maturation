@@ -91,4 +91,14 @@ public class BetaBehaviour extends BaseBehaviour implements ProbabilityDistribut
   public boolean isMaxRequired() {
     return true;
   }
+
+  @Override
+  public ProbabilityDistributionValidationError getP99ToP1Error() {
+    return ProbabilityDistributionValidationError.P99_TO_P1;
+  }
+
+  @Override
+  public ProbabilityDistributionValidationError getMinMaxError() {
+    return ProbabilityDistributionValidationError.MIN_MAX;
+  }
 }

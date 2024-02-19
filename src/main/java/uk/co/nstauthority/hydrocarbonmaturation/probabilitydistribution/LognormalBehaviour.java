@@ -91,4 +91,14 @@ public class LognormalBehaviour extends BaseBehaviour implements ProbabilityDist
   public boolean isMaxRequired() {
     return false;
   }
+
+  @Override
+  public ProbabilityDistributionValidationError getP99ToP1Error() {
+    return ProbabilityDistributionValidationError.P99_TO_P1;
+  }
+
+  @Override
+  public ProbabilityDistributionValidationError getMinMaxError() {
+    return ProbabilityDistributionValidationError.MIN_MAX;
+  }
 }

@@ -72,7 +72,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Average net pay thickness"
   ),
   AVERAGE_NET_PAY_THICKNESS_FIELD(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVT,
       "Average net pay thickness"
   ),
@@ -92,7 +92,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Gross reservoir thickness"
   ),
   GROSS_RESERVOIR_THICKNESS_FIELD(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVT,
       "Gross reservoir thickness"
   ),
@@ -107,7 +107,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Gross rock volume (GRV)"
   ),
   GROSS_ROCK_VOLUME_FIELD(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.MILLION_M3,
       "Gross rock volume (GRV)"
   ),
@@ -122,7 +122,7 @@ public enum ProbabilityDistributionFieldInstance {
       "% of GRV which is oil bearing"
   ),
   PERCENT_OF_GRV_OIL_BEARING_FIELD(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.PERCENT,
       "% of GRV which is oil bearing"
   ),
@@ -137,7 +137,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Net to gross"
   ),
   NET_TO_GROSS_FIELD(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.PERCENT,
       "Net to gross"
   ),
@@ -152,7 +152,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Net porosity"
   ),
   NET_POROSITY_FIELD(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.PERCENT,
       "Net porosity"
   ),
@@ -180,47 +180,47 @@ public enum ProbabilityDistributionFieldInstance {
   ),
 
   DEPTH_TO_OIL_WATER_CONTACT_FIELD(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to oil-water contact"
   ),
   DEPTH_TO_GAS_WATER_CONTACT_FIELD(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to gas-water contact"
   ),
   DEPTH_TO_GAS_OIL_CONTACT_FIELD(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to gas-oil contact"
   ),
   ORIGINAL_DEPTH_TO_OIL_WATER_CONTACT_FIELD(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Original depth to oil-water contact"
   ),
   ORIGINAL_DEPTH_TO_GAS_WATER_CONTACT_FIELD(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Original depth to gas-water contact"
   ),
   ORIGINAL_DEPTH_TO_GAS_OIL_CONTACT_FIELD(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Original depth to gas-oil contact"
   ),
   DEPTH_TO_MOVED_OIL_WATER_CONTACT_FIELD(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to moved oil-water contact"
   ),
   DEPTH_TO_MOVED_GAS_WATER_CONTACT_FIELD(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to moved gas-water contact"
   ),
   DEPTH_TO_MOVED_GAS_OIL_CONTACT_FIELD(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.M_TVDSS,
       "Depth to moved gas-oil contact"
   ),
@@ -237,7 +237,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Gas hydrocarbon saturation"
   ),
   GAS_HYDROCARBON_SATURATION_FIELD(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.PERCENT,
       "Gas hydrocarbon saturation"
   ),
@@ -329,7 +329,7 @@ public enum ProbabilityDistributionFieldInstance {
       "Oil hydrocarbon saturation"
   ),
   OIL_HYDROCARBON_SATURATION_FIELD(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.PERCENT,
       "Oil hydrocarbon saturation"
   ),
@@ -470,22 +470,22 @@ public enum ProbabilityDistributionFieldInstance {
       "Oil in place"
   ),
   TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD(
-      FieldVolumetricsBehaviourResources.class,
+      FieldVolumetricsResourcesBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBBL,
       "Oil recoverable resources"
   ),
   TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD(
-      FieldVolumetricsBehaviourReserves.class,
+      FieldVolumetricsReservesBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBBL,
       "Oil reserves"
   ),
   TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD(
-      FieldVolumetricsBehaviourResources.class,
+      FieldVolumetricsResourcesBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
       "Associated gas recoverable resources"
   ),
   TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD(
-      FieldVolumetricsBehaviourReserves.class,
+      FieldVolumetricsReservesBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
       "Associated gas reserves"
   ),
@@ -551,12 +551,12 @@ public enum ProbabilityDistributionFieldInstance {
       "Gas in place"
   ),
   TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD(
-      FieldVolumetricsBehaviourResources.class,
+      FieldVolumetricsResourcesBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBBL,
       "Gas recoverable resources"
   ),
   TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD(
-      FieldVolumetricsBehaviourReserves.class,
+      FieldVolumetricsReservesBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBBL,
       "Gas reserves"
   ),
@@ -640,59 +640,59 @@ public enum ProbabilityDistributionFieldInstance {
 
   // Common volumetrics for fields
   TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD(
-      FieldVolumetricsBehaviourResources.class,
+      FieldVolumetricsResourcesBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBBL,
       "Associated condensate recoverable resources"
   ),
   TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD(
-      FieldVolumetricsBehaviourReserves.class,
+      FieldVolumetricsReservesBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBBL,
       "Associated condensate reserves"
   ),
   TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD(
-      FieldVolumetricsBehaviourResources.class,
+      FieldVolumetricsResourcesBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"
   ),
   TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD(
-      FieldVolumetricsBehaviourReserves.class,
+      FieldVolumetricsReservesBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent reserves"
   ),
   TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD(
-      FieldVolumetricsBehaviourResources.class,
+      FieldVolumetricsResourcesBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBBL,
       "Natural gas liquid resources"
   ),
   TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESERVES_FIELD(
-      FieldVolumetricsBehaviourReserves.class,
+      FieldVolumetricsReservesBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBBL,
       "Natural gas liquid reserves"
   ),
   TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD(
-      FieldVolumetricsBehaviourResources.class,
+      FieldVolumetricsResourcesBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
       "Sales gas resources"
   ),
   TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD(
-      FieldVolumetricsBehaviourReserves.class,
+      FieldVolumetricsReservesBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
       "Sales gas reserves"
   ),
 
   // Field Permeability
   FIELD_PERMEABILITY(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.MD,
       "Permeability"
   ),
   FIELD_HORIZONTAL_PERMEABILITY(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.MD,
       "Horizontal permeability"
   ),
   FIELD_VERTICAL_PERMEABILITY(
-      MinimumMostLikelyMaxBehaviour.class,
+      FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.MD,
       "Vertical permeability"
   );

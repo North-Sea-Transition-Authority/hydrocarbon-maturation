@@ -31,8 +31,8 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
 
   @Override
   public void validatePartial(SubmissionForm form,
-                       Errors errors,
-                       ReservoirSubmissionDetail reservoirSubmissionDetail) {
+                              Errors errors,
+                              ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var hydrocarbonsDiscovered = generalReservoirInformationService
         .getReservoirHydrocarbons(reservoirSubmissionDetail).orElse(new ReservoirHydrocarbons())
         .getHydrocarbonsDiscovered();
@@ -182,7 +182,6 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
   public void validateFull(SubmissionForm form,
                             Errors errors,
                             ReservoirSubmissionDetail reservoirSubmissionDetail) {
-
     var submissionType = reservoirSubmissionDetail.getSubmissionDetail().getSubmissionType();
 
     ReservoirPropertiesForm reservoirPropertiesForm = (ReservoirPropertiesForm) form;

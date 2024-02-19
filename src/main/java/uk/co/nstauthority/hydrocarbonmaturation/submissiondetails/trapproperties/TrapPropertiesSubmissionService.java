@@ -12,17 +12,19 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 public class TrapPropertiesSubmissionService implements SectionSubmissionService {
 
   private final TrapPropertiesFormService trapPropertiesFormService;
+  private final TrapPropertiesFormValidator trapPropertiesFormValidator;
 
   @Autowired
-  public TrapPropertiesSubmissionService(TrapPropertiesFormService trapPropertiesFormService) {
+  public TrapPropertiesSubmissionService(TrapPropertiesFormService trapPropertiesFormService,
+                                         TrapPropertiesFormValidator trapPropertiesFormValidator) {
     this.trapPropertiesFormService = trapPropertiesFormService;
+    this.trapPropertiesFormValidator = trapPropertiesFormValidator;
   }
 
   @Override
   public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
     var form = trapPropertiesFormService.getTrapPropertiesForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = trapPropertiesFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
-    return !bindingResult.hasErrors();
+    return trapPropertiesFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
   }
 }

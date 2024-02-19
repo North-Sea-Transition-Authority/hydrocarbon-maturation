@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
-import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
@@ -39,30 +38,30 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 public class TrapPropertiesController {
 
   private final TrapPropertiesFormService trapPropertiesFormService;
-  private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
   private final SubmissionSupportingDocumentService supportingDocumentService;
   private final QuadrantAndBlockService quadrantAndBlockService;
+  private final TrapPropertiesFormValidator trapPropertiesFormValidator;
 
   public static final String PAGE_NAME = "Trap properties";
 
   @Autowired
   public TrapPropertiesController(TrapPropertiesFormService trapPropertiesFormService,
-                                  ControllerHelperService controllerHelperService,
                                   SubmissionDetailService submissionDetailService,
                                   TrapPropertiesPersistenceService trapPropertiesPersistenceService,
                                   ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
                                   SubmissionSupportingDocumentService supportingDocumentService,
-                                  QuadrantAndBlockService quadrantAndBlockService) {
+                                  QuadrantAndBlockService quadrantAndBlockService,
+                                  TrapPropertiesFormValidator trapPropertiesFormValidator) {
     this.trapPropertiesFormService = trapPropertiesFormService;
-    this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
     this.supportingDocumentService = supportingDocumentService;
     this.quadrantAndBlockService = quadrantAndBlockService;
+    this.trapPropertiesFormValidator = trapPropertiesFormValidator;
   }
 
   @GetMapping
@@ -78,16 +77,11 @@ public class TrapPropertiesController {
                                          @ModelAttribute("form") TrapPropertiesForm form, BindingResult bindingResult,
                                          ValidationType validationType) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    bindingResult = trapPropertiesFormService.validate(form, bindingResult, validationType, submissionDetail);
-
-    return controllerHelperService.checkErrorsAndRedirect(
-        bindingResult,
-        getTrapPropertiesWithDistributionErrors(bindingResult, form, submissionDetail),
-        () -> {
-          trapPropertiesPersistenceService.saveTrapProperties(form, submissionDetail);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
-        }
-    );
+    if (trapPropertiesFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
+      trapPropertiesPersistenceService.saveTrapProperties(form, submissionDetail);
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+    }
+    return getTrapPropertiesWithDistributionErrors(bindingResult, form, submissionDetail);
   }
 
   private ModelAndView getTrapPropertiesModelAndView(TrapPropertiesForm form, SubmissionDetail submissionDetail) {

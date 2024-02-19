@@ -31,4 +31,9 @@ public class RectangularBehaviour extends BaseBehaviour implements ProbabilityDi
   public boolean isMaxRequired() {
     return true;
   }
+
+  @Override
+  public ProbabilityDistributionValidationError getMinMaxError() {
+    return ProbabilityDistributionValidationError.MIN_MAX;
+  }
 }

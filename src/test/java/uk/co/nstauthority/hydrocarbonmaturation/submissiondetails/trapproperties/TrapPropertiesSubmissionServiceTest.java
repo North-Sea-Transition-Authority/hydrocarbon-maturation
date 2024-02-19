@@ -23,6 +23,9 @@ class TrapPropertiesSubmissionServiceTest {
   @Mock
   private TrapPropertiesFormService trapPropertiesFormService;
 
+  @Mock
+  private TrapPropertiesFormValidator trapPropertiesFormValidator;
+
   @InjectMocks
   private TrapPropertiesSubmissionService trapPropertiesSubmissionService;
 
@@ -34,9 +37,9 @@ class TrapPropertiesSubmissionServiceTest {
 
     when(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail)).thenReturn(form);
 
-    when(trapPropertiesFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(emptyBindingResult);
+    when(trapPropertiesFormValidator.isValid(
+        eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL))
+    ).thenReturn(true);
 
     assertTrue(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail));
 
@@ -51,9 +54,9 @@ class TrapPropertiesSubmissionServiceTest {
 
     when(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail)).thenReturn(form);
 
-    when(trapPropertiesFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(bindingResultWithError);
+    when(trapPropertiesFormValidator.isValid(
+        eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL))
+    ).thenReturn(false);
 
     assertFalse(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail));
   }

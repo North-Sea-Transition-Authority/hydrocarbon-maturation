@@ -40,4 +40,14 @@ public class FieldVolumetricsBehaviour extends BaseBehaviour implements Probabil
   public boolean isP10Required() {
     return true;
   }
+
+  @Override
+  public boolean allowEquivalentValues() {
+    return true;
+  }
+
+  @Override
+  public ProbabilityDistributionValidationError getP90ToP10Error() {
+    return ProbabilityDistributionValidationError.P90_TO_P10_ALLOW_EQUIVALENT;
+  }
 }

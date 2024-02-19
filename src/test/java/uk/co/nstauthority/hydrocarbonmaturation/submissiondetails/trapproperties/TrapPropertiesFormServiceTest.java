@@ -1,10 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -14,9 +11,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
@@ -27,13 +22,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class TrapPropertiesFormServiceTest {
 
-  private static TrapPropertiesFormValidator trapPropertiesFormValidator;
   private static TrapPropertiesFormService trapPropertiesFormService;
   private static TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private static ProbabilityDistributionFormService probabilityDistributionFormService;
@@ -43,36 +35,13 @@ class TrapPropertiesFormServiceTest {
 
   @BeforeAll
   static void setup() {
-    trapPropertiesFormValidator = mock(TrapPropertiesFormValidator.class);
     trapPropertiesPersistenceService = mock(TrapPropertiesPersistenceService.class);
     probabilityDistributionFormService = mock(ProbabilityDistributionFormService.class);
     supportingDocumentService = mock(SubmissionSupportingDocumentService.class);
     trapPropertiesFormService = new TrapPropertiesFormService(
-        trapPropertiesFormValidator,
         trapPropertiesPersistenceService,
         probabilityDistributionFormService,
         supportingDocumentService);
-  }
-
-  @Test
-  void validate_verifyMethodCall() {
-    var form = new TrapPropertiesForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-
-    var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
-
-    trapPropertiesFormService.validate(
-        form, bindingResult, ValidationType.FULL, submissionDetail);
-    verify(trapPropertiesFormValidator, times(1))
-        .validate(eq(form), eq(bindingResult), captor.capture());
-
-    assertThat(captor.getValue())
-        .extracting(
-            SubmissionFormValidatorHints::getValidationType,
-            SubmissionFormValidatorHints::getSubmissionDetail)
-        .containsExactly(
-            ValidationType.FULL,
-            submissionDetail);
   }
 
   @Test

@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
-public class MinimumMostLikelyMaxBehaviour extends BaseBehaviour implements ProbabilityDistributionTypeBehaviour {
+public class FieldMinimumMostLikelyMaxBehaviour extends BaseBehaviour implements ProbabilityDistributionTypeBehaviour {
 
   @Override
   public boolean isMinAvailable() {
@@ -20,5 +20,15 @@ public class MinimumMostLikelyMaxBehaviour extends BaseBehaviour implements Prob
   @Override
   public boolean isMostLikelyRequired() {
     return true;
+  }
+
+  @Override
+  public boolean allowEquivalentValues() {
+    return true;
+  }
+
+  @Override
+  public ProbabilityDistributionValidationError getMinMaxError() {
+    return ProbabilityDistributionValidationError.MIN_MAX_ALLOW_EQUIVALENT;
   }
 }

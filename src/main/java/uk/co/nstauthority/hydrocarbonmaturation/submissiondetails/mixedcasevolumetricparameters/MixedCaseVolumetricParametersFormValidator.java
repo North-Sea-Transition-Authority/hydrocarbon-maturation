@@ -4,19 +4,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PartialFullFormValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
 
 @Service
-class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidator {
+class MixedCaseVolumetricParametersFormValidator implements SubmissionValidator {
 
   @Override
-  public boolean supports(Class<?> clazz) {
-    return MixedCaseVolumetricParametersForm.class.equals(clazz);
-  }
-
-  @Override
-  public void validatePartial(SubmissionForm form, Errors errors) {
+  public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var mixedCaseVolumetricsForm = (MixedCaseVolumetricParametersForm) form;
 
     var oilFormationVolumeFactor = mixedCaseVolumetricsForm.getOilFormationVolumeFactor();
@@ -85,7 +81,7 @@ class MixedCaseVolumetricParametersFormValidator extends PartialFullFormValidato
   }
 
   @Override
-  public void validateFull(SubmissionForm form, Errors errors) {
+  public void validateFull(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var mixedCaseVolumetricsForm = (MixedCaseVolumetricParametersForm) form;
 
     ValidationUtils.rejectIfEmpty(errors, "oilFormationVolumeFactor.probabilityDistributionType",

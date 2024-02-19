@@ -50,7 +50,9 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
     }
   }
 
-  private void validateResourcesPartial(GasCaseOutputsForm gasCaseOutputsForm, Errors errors) {
+  private void validateResourcesPartial(
+      GasCaseOutputsForm gasCaseOutputsForm, Errors errors
+  ) {
     var gasRecoverableResources = gasCaseOutputsForm.getGasRecoverableResources();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
         gasRecoverableResources,
@@ -100,7 +102,9 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
     );
   }
 
-  private void validateReservesPartial(GasCaseOutputsForm gasCaseOutputsForm, Errors errors) {
+  private void validateReservesPartial(
+      GasCaseOutputsForm gasCaseOutputsForm, Errors errors
+  ) {
     var gasRecoverableReserves = gasCaseOutputsForm.getGasRecoverableResources();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
         gasRecoverableReserves,
@@ -147,7 +151,9 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
     );
   }
 
-  private void validateResourcesFull(GasCaseOutputsForm gasCaseOutputsForm, Errors errors) {
+  private void validateResourcesFull(
+      GasCaseOutputsForm gasCaseOutputsForm, Errors errors
+  ) {
     var gasRecoverableResources = gasCaseOutputsForm.getGasRecoverableResources();
     ProbabilityDistributionValidationUtil.validateCustomFull(
         gasRecoverableResources,

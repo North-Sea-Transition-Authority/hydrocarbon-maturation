@@ -70,4 +70,9 @@ public class ProspectOutputsPreDrillBehaviour extends BaseBehaviour implements P
   public boolean isP1Required() {
     return true;
   }
+
+  @Override
+  public ProbabilityDistributionValidationError getP99ToP1Error() {
+    return ProbabilityDistributionValidationError.P99_TO_P1;
+  }
 }

@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trappropertie
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,18 +16,16 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.coordinateinput.CoordinateInput;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
-import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
-import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,18 +39,6 @@ class TrapPropertiesFormValidatorTest {
   void setup() {
     trapPropertiesFormValidator = new TrapPropertiesFormValidator();
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-  }
-
-  @Test
-  void supports_whenTrapPropertiesFormClass_thenTrue() {
-    var supportedClass = TrapPropertiesForm.class;
-    assertTrue(trapPropertiesFormValidator.supports(supportedClass));
-  }
-
-  @Test
-  void supports_whenNotTrapPropertiesFormClass_thenFalse() {
-    var nonSupportedClass = NonSupportedClass.class;
-    assertFalse(trapPropertiesFormValidator.supports(nonSupportedClass));
   }
 
   @Test
@@ -192,8 +177,7 @@ class TrapPropertiesFormValidatorTest {
     form.setProspectDepthMap(List.of(fileUploadForm, fileUploadForm));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    trapPropertiesFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
+    trapPropertiesFormValidator.isValid(form, bindingResult, submissionDetail,validationType);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
         .containsExactly(
@@ -264,8 +248,7 @@ class TrapPropertiesFormValidatorTest {
 
   private BindingResult validateTrapPropertiesForm(TrapPropertiesForm form) {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    trapPropertiesFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+    trapPropertiesFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
     return bindingResult;
   }
 }

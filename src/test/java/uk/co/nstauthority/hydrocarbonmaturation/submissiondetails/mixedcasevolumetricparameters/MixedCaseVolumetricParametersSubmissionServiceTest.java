@@ -24,6 +24,9 @@ class MixedCaseVolumetricParametersSubmissionServiceTest {
   @Mock
   private MixedCaseVolumetricParametersFormService mixedCaseVolumetricParametersFormService;
 
+  @Mock
+  private MixedCaseVolumetricParametersFormValidator mixedCaseVolumetricParametersFormValidator;
+
   @InjectMocks
   private MixedCaseVolumetricParametersSubmissionService mixedCaseVolumetricParametersSubmissionService;
 
@@ -37,9 +40,9 @@ class MixedCaseVolumetricParametersSubmissionServiceTest {
 
     when(mixedCaseVolumetricParametersFormService.getMixedCaseVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
 
-    when(mixedCaseVolumetricParametersFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(emptyBindingResult);
+    when(mixedCaseVolumetricParametersFormValidator.isValid(
+        eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)
+    )).thenReturn(true);
 
     assertTrue(mixedCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }
@@ -54,9 +57,10 @@ class MixedCaseVolumetricParametersSubmissionServiceTest {
 
     when(mixedCaseVolumetricParametersFormService.getMixedCaseVolumetricsForm(reservoirSubmissionDetail))
         .thenReturn(form);
-    when(mixedCaseVolumetricParametersFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
-        .thenReturn(bindingResultWithError);
+
+    when(mixedCaseVolumetricParametersFormValidator.isValid(
+        eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)
+    )).thenReturn(false);
 
     assertFalse(mixedCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
   }

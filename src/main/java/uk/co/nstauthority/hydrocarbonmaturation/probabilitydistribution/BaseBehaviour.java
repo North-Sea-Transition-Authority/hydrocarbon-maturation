@@ -172,4 +172,34 @@ public abstract class BaseBehaviour implements ProbabilityDistributionTypeBehavi
   public boolean is3PRequired() {
     return false;
   }
+
+  @Override
+  public boolean allowEquivalentValues() {
+    return false;
+  }
+
+  @Override
+  public ProbabilityDistributionValidationError getP99ToP1Error() {
+    return null;
+  }
+
+  @Override
+  public ProbabilityDistributionValidationError getP90ToP10Error() {
+    return null;
+  }
+
+  @Override
+  public ProbabilityDistributionValidationError getMinMaxError() {
+    return null;
+  }
+
+  @Override
+  public ProbabilityDistributionValidationError get1CTo3CError() {
+    return null;
+  }
+
+  @Override
+  public ProbabilityDistributionValidationError get1PTo3PError() {
+    return null;
+  }
 }

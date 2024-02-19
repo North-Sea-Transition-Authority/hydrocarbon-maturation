@@ -18,11 +18,11 @@ public class FieldOilCaseVolumetricTotalsFormValidator implements SubmissionVali
 
     var oilInPlace = oilCaseOutputsForm.getOilInPlace();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
-            oilInPlace,
-            errors,
-            "oilInPlace",
-            "Oil in place",
-            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD
+        oilInPlace,
+        errors,
+        "oilInPlace",
+        "Oil in place",
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD
     );
 
     validateResourcesPartial(oilCaseOutputsForm, errors);
@@ -37,11 +37,11 @@ public class FieldOilCaseVolumetricTotalsFormValidator implements SubmissionVali
 
     var oilInPlace = oilCaseOutputsForm.getOilInPlace();
     ProbabilityDistributionValidationUtil.validateCustomFull(
-            oilInPlace,
-            errors,
-            "oilInPlace",
-            "Oil in place",
-            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD
+        oilInPlace,
+        errors,
+        "oilInPlace",
+        "Oil in place",
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD
     );
 
     validateResourcesFull(oilCaseOutputsForm, errors);
@@ -50,14 +50,16 @@ public class FieldOilCaseVolumetricTotalsFormValidator implements SubmissionVali
     }
   }
 
-  private void validateResourcesPartial(OilCaseOutputsForm oilCaseOutputsForm, Errors errors) {
+  private void validateResourcesPartial(
+      OilCaseOutputsForm oilCaseOutputsForm, Errors errors
+  ) {
     var oilRecoverableResources = oilCaseOutputsForm.getOilRecoverableResources();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
-            oilRecoverableResources,
-            errors,
-            "oilRecoverableResources",
-            "Oil recoverable resources",
-            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD
+        oilRecoverableResources,
+        errors,
+        "oilRecoverableResources",
+        "Oil recoverable resources",
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD
     );
 
     var associatedCondensateRecoverableResources = oilCaseOutputsForm.getAssociatedCondensateRecoverableResources();
@@ -71,58 +73,58 @@ public class FieldOilCaseVolumetricTotalsFormValidator implements SubmissionVali
 
     var associatedGasRecoverableResources = oilCaseOutputsForm.getAssociatedGasRecoverableResources();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
-            associatedGasRecoverableResources,
-            errors,
-            "associatedGasRecoverableResources",
-            "Associated gas recoverable resources",
-            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD
+        associatedGasRecoverableResources,
+        errors,
+        "associatedGasRecoverableResources",
+        "Associated gas recoverable resources",
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD
     );
 
     var oilEquivalentRecoverableResources = oilCaseOutputsForm.getOilEquivalentRecoverableResources();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
-            oilEquivalentRecoverableResources,
-            errors,
-            "oilEquivalentRecoverableResources",
-            "Oil equivalent recoverable resources",
-            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD
+        oilEquivalentRecoverableResources,
+        errors,
+        "oilEquivalentRecoverableResources",
+        "Oil equivalent recoverable resources",
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD
     );
 
     var naturalGasLiquidsResources = oilCaseOutputsForm.getNaturalGasLiquidsResources();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
-            naturalGasLiquidsResources,
-            errors,
-            "naturalGasLiquidsResources",
-            "Natural gas liquids resources",
-            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD
+        naturalGasLiquidsResources,
+        errors,
+        "naturalGasLiquidsResources",
+        "Natural gas liquids resources",
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD
     );
 
     var salesGasResources = oilCaseOutputsForm.getSalesGasResources();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
-            salesGasResources,
-            errors,
-            "salesGasResources",
-            "Total sales gas resources",
-            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD
+        salesGasResources,
+        errors,
+        "salesGasResources",
+        "Total sales gas resources",
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD
     );
   }
 
   private void validateReservesPartial(OilCaseOutputsForm oilCaseOutputsForm, Errors errors) {
     var oilRecoverableReserves = oilCaseOutputsForm.getOilRecoverableReserves();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
-            oilRecoverableReserves,
-            errors,
-            "oilRecoverableReserves",
-            "Oil reserves",
-            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD
+        oilRecoverableReserves,
+        errors,
+        "oilRecoverableReserves",
+        "Oil reserves",
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD
     );
 
     var associatedGasRecoverableReserves = oilCaseOutputsForm.getAssociatedGasRecoverableReserves();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
-            associatedGasRecoverableReserves,
-            errors,
-            "associatedGasRecoverableReserves",
-            "Associated gas reserves",
-            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD
+        associatedGasRecoverableReserves,
+        errors,
+        "associatedGasRecoverableReserves",
+        "Associated gas reserves",
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD
     );
 
     var associatedCondensateRecoverableReserves = oilCaseOutputsForm.getAssociatedCondensateRecoverableReserves();
@@ -136,40 +138,40 @@ public class FieldOilCaseVolumetricTotalsFormValidator implements SubmissionVali
 
     var oilEquivalentRecoverableReserves = oilCaseOutputsForm.getOilEquivalentRecoverableReserves();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
-            oilEquivalentRecoverableReserves,
-            errors,
-            "oilEquivalentRecoverableReserves",
-            "Oil equivalent reserves",
-            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
+        oilEquivalentRecoverableReserves,
+        errors,
+        "oilEquivalentRecoverableReserves",
+        "Oil equivalent reserves",
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
     );
 
     var naturalGasLiquidsReserves = oilCaseOutputsForm.getNaturalGasLiquidsReserves();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
-            naturalGasLiquidsReserves,
-            errors,
-            "naturalGasLiquidsReserves",
-            "Natural gas liquids reserves",
-            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESERVES_FIELD
+        naturalGasLiquidsReserves,
+        errors,
+        "naturalGasLiquidsReserves",
+        "Natural gas liquids reserves",
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESERVES_FIELD
     );
 
     var salesGasReserves = oilCaseOutputsForm.getSalesGasReserves();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
-            salesGasReserves,
-            errors,
-            "salesGasReserves",
-            "Total sales gas reserves",
-            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD
+        salesGasReserves,
+        errors,
+        "salesGasReserves",
+        "Total sales gas reserves",
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD
     );
   }
 
   private void validateResourcesFull(OilCaseOutputsForm oilCaseOutputsForm, Errors errors) {
     var oilRecoverableResources = oilCaseOutputsForm.getOilRecoverableResources();
     ProbabilityDistributionValidationUtil.validateCustomFull(
-            oilRecoverableResources,
-            errors,
-            "oilRecoverableResources",
-            "Oil recoverable resources",
-            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD
+        oilRecoverableResources,
+        errors,
+        "oilRecoverableResources",
+        "Oil recoverable resources",
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD
     );
 
     var associatedCondensateRecoverableResources = oilCaseOutputsForm.getAssociatedCondensateRecoverableResources();
@@ -183,49 +185,49 @@ public class FieldOilCaseVolumetricTotalsFormValidator implements SubmissionVali
 
     var associatedGasRecoverableResources = oilCaseOutputsForm.getAssociatedGasRecoverableResources();
     ProbabilityDistributionValidationUtil.validateCustomFull(
-            associatedGasRecoverableResources,
-            errors,
-            "associatedGasRecoverableResources",
-            "Associated gas recoverable resources",
-            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD
+        associatedGasRecoverableResources,
+        errors,
+        "associatedGasRecoverableResources",
+        "Associated gas recoverable resources",
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD
     );
 
     var oilEquivalentRecoverableResources = oilCaseOutputsForm.getOilEquivalentRecoverableResources();
     ProbabilityDistributionValidationUtil.validateCustomFull(
-            oilEquivalentRecoverableResources,
-            errors,
-            "oilEquivalentRecoverableResources",
-            "Oil equivalent recoverable resources",
-            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD
+        oilEquivalentRecoverableResources,
+        errors,
+        "oilEquivalentRecoverableResources",
+        "Oil equivalent recoverable resources",
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD
     );
 
     var naturalGasLiquidsResources = oilCaseOutputsForm.getNaturalGasLiquidsResources();
     ProbabilityDistributionValidationUtil.validateCustomFull(
-            naturalGasLiquidsResources,
-            errors,
-            "naturalGasLiquidsResources",
-            "Natural gas liquids resources",
-            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD
+        naturalGasLiquidsResources,
+        errors,
+        "naturalGasLiquidsResources",
+        "Natural gas liquids resources",
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD
     );
 
     var salesGasResources = oilCaseOutputsForm.getSalesGasResources();
     ProbabilityDistributionValidationUtil.validateCustomFull(
-            salesGasResources,
-            errors,
-            "salesGasResources",
-            "Total sales gas resources",
-            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD
+        salesGasResources,
+        errors,
+        "salesGasResources",
+        "Total sales gas resources",
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD
     );
   }
 
   private void validateReservesFull(OilCaseOutputsForm oilCaseOutputsForm, Errors errors) {
     var oilRecoverableReserves = oilCaseOutputsForm.getOilRecoverableReserves();
     ProbabilityDistributionValidationUtil.validateCustomFull(
-            oilRecoverableReserves,
-            errors,
-            "oilRecoverableReserves",
-            "Oil reserves",
-            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD
+        oilRecoverableReserves,
+        errors,
+        "oilRecoverableReserves",
+        "Oil reserves",
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD
     );
 
     var associatedCondensateRecoverableReserves = oilCaseOutputsForm.getAssociatedCondensateRecoverableReserves();
@@ -239,38 +241,38 @@ public class FieldOilCaseVolumetricTotalsFormValidator implements SubmissionVali
 
     var associatedGasRecoverableReserves = oilCaseOutputsForm.getAssociatedGasRecoverableReserves();
     ProbabilityDistributionValidationUtil.validateCustomFull(
-            associatedGasRecoverableReserves,
-            errors,
-            "associatedGasRecoverableReserves",
-            "Associated gas reserves",
-            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD
+        associatedGasRecoverableReserves,
+        errors,
+        "associatedGasRecoverableReserves",
+        "Associated gas reserves",
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD
     );
 
     var oilEquivalentRecoverableReserves = oilCaseOutputsForm.getOilEquivalentRecoverableReserves();
     ProbabilityDistributionValidationUtil.validateCustomFull(
-            oilEquivalentRecoverableReserves,
-            errors,
-            "oilEquivalentRecoverableReserves",
-            "Oil equivalent reserves",
-            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
+        oilEquivalentRecoverableReserves,
+        errors,
+        "oilEquivalentRecoverableReserves",
+        "Oil equivalent reserves",
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
     );
 
     var naturalGasLiquidsReserves = oilCaseOutputsForm.getNaturalGasLiquidsReserves();
     ProbabilityDistributionValidationUtil.validateCustomFull(
-            naturalGasLiquidsReserves,
-            errors,
-            "naturalGasLiquidsReserves",
-            "Natural gas liquids reserves",
-            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESERVES_FIELD
+        naturalGasLiquidsReserves,
+        errors,
+        "naturalGasLiquidsReserves",
+        "Natural gas liquids reserves",
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESERVES_FIELD
     );
 
     var salesGasReserves = oilCaseOutputsForm.getSalesGasReserves();
     ProbabilityDistributionValidationUtil.validateCustomFull(
-            salesGasReserves,
-            errors,
-            "salesGasReserves",
-            "Total sales gas reserves",
-            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD
+        salesGasReserves,
+        errors,
+        "salesGasReserves",
+        "Total sales gas reserves",
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD
     );
   }
 }

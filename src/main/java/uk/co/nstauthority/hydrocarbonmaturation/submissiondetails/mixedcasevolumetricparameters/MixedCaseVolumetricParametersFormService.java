@@ -2,37 +2,20 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolu
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class MixedCaseVolumetricParametersFormService implements SubmissionFormService {
+class MixedCaseVolumetricParametersFormService {
 
-  private final MixedCaseVolumetricParametersFormValidator mixedCaseVolumetricParametersFormValidator;
   private final ProbabilityDistributionFormService probabilityDistributionFormService;
 
   @Autowired
   public MixedCaseVolumetricParametersFormService(
-      MixedCaseVolumetricParametersFormValidator mixedCaseVolumetricParametersFormValidator,
       ProbabilityDistributionFormService probabilityDistributionFormService) {
-    this.mixedCaseVolumetricParametersFormValidator = mixedCaseVolumetricParametersFormValidator;
     this.probabilityDistributionFormService = probabilityDistributionFormService;
-  }
-
-  @Override
-  public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
-                                ValidationType validationType, SubmissionDetail submissionDetail) {
-    mixedCaseVolumetricParametersFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
-    return bindingResult;
   }
 
   MixedCaseVolumetricParametersForm getMixedCaseVolumetricsForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {

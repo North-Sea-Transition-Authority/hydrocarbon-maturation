@@ -68,7 +68,9 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
     }
   }
 
-  private void validateResourcesPartial(MixedCaseOutputsForm mixedCaseOutputsForm, Errors errors) {
+  private void validateResourcesPartial(
+      MixedCaseOutputsForm mixedCaseOutputsForm, Errors errors
+  ) {
     var oilRecoverableResources = mixedCaseOutputsForm.getOilRecoverableResources();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
         oilRecoverableResources,
@@ -136,7 +138,9 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
     );
   }
 
-  private void validateReservesPartial(MixedCaseOutputsForm mixedCaseOutputsForm, Errors errors) {
+  private void validateReservesPartial(
+      MixedCaseOutputsForm mixedCaseOutputsForm, Errors errors
+  ) {
     var oilRecoverableReserves = mixedCaseOutputsForm.getOilRecoverableReserves();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
         oilRecoverableReserves,
@@ -201,7 +205,9 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
     );
   }
 
-  private void validateResourcesFull(MixedCaseOutputsForm mixedCaseOutputsForm, Errors errors) {
+  private void validateResourcesFull(
+      MixedCaseOutputsForm mixedCaseOutputsForm, Errors errors
+  ) {
     var oilRecoverableResources = mixedCaseOutputsForm.getOilRecoverableResources();
     ProbabilityDistributionValidationUtil.validateCustomFull(
         oilRecoverableResources,
@@ -274,7 +280,9 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
     );
   }
 
-  private void validateReservesFull(MixedCaseOutputsForm mixedCaseOutputsForm, Errors errors) {
+  private void validateReservesFull(
+      MixedCaseOutputsForm mixedCaseOutputsForm, Errors errors
+  ) {
     var oilRecoverableReserves = mixedCaseOutputsForm.getOilRecoverableReserves();
     ProbabilityDistributionValidationUtil.validateCustomFull(
         oilRecoverableReserves,

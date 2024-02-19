@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcasevolu
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,9 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
@@ -36,25 +33,12 @@ class MixedCaseVolumetricParametersFormValidatorTest {
     submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   }
 
-  @Test
-  void supports_whenMixedCaseVolumetricsFormClass_thenTrue() {
-    var supportedClass = MixedCaseVolumetricParametersForm.class;
-    assertTrue(mixedCaseVolumetricParametersFormValidator.supports(supportedClass));
-  }
-
-  @Test
-  void supports_whenNotMixedCaseVolumetricsFormClass_thenFalse() {
-    var nonSupportedClass = NonSupportedClass.class;
-    assertFalse(mixedCaseVolumetricParametersFormValidator.supports(nonSupportedClass));
-  }
-
   @ParameterizedTest
   @EnumSource (value = ValidationType.class)
   void validate_whenValidForm_thenNoValidationErrors(ValidationType validationType) {
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    mixedCaseVolumetricParametersFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
+    mixedCaseVolumetricParametersFormValidator.isValid(form, bindingResult, submissionDetail, validationType);
     assertFalse(bindingResult.hasErrors());
   }
 
@@ -63,8 +47,7 @@ class MixedCaseVolumetricParametersFormValidatorTest {
     var form = new MixedCaseVolumetricParametersForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    mixedCaseVolumetricParametersFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+    mixedCaseVolumetricParametersFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -98,8 +81,7 @@ class MixedCaseVolumetricParametersFormValidatorTest {
   void validate_whenEmptyExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithEmptyDistributions(probabilityDistributionType);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    mixedCaseVolumetricParametersFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+    mixedCaseVolumetricParametersFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -133,8 +115,7 @@ class MixedCaseVolumetricParametersFormValidatorTest {
   void validate_whenInvalidExceedanceForm_thenValidationErrors(ProbabilityDistributionType probabilityDistributionType) {
     var form = getFormWithInvalidDistributions(probabilityDistributionType);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    mixedCaseVolumetricParametersFormValidator.validate(
-        form, bindingResult, new SubmissionFormValidatorHints(ValidationType.FULL, submissionDetail));
+    mixedCaseVolumetricParametersFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)

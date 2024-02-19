@@ -52,7 +52,6 @@ public class FieldReservoirVolumetricsFormValidator implements ReservoirSubmissi
   @Override
   public void validateFull(SubmissionForm form, Errors errors, ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var fieldVolumetricsForm = (FieldReservoirVolumetricsForm) form;
-
     var reservoirHydrocarbons = generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)
         .orElse(new ReservoirHydrocarbons());
 

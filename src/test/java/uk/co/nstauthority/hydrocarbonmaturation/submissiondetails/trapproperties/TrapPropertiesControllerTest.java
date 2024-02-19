@@ -36,6 +36,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
@@ -50,6 +51,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.QuadrantAndBlockService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
@@ -64,16 +66,19 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
   private static final User USER = UserTestUtil.Builder().build();
 
   @MockBean
-  TrapPropertiesFormService trapPropertiesFormService;
+  private TrapPropertiesFormService trapPropertiesFormService;
 
   @MockBean
-  TrapPropertiesPersistenceService trapPropertiesPersistenceService;
+  private TrapPropertiesPersistenceService trapPropertiesPersistenceService;
 
   @MockBean
-  SubmissionSupportingDocumentService supportingDocumentService;
+  private SubmissionSupportingDocumentService supportingDocumentService;
 
   @MockBean
-  QuadrantAndBlockService quadrantAndBlockService;
+  private QuadrantAndBlockService quadrantAndBlockService;
+
+  @MockBean
+  private TrapPropertiesFormValidator trapPropertiesFormValidator;
 
   @Autowired
   ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
@@ -134,7 +139,9 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveTrapProperties_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(trapPropertiesFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    when(trapPropertiesFormValidator.isValid(
+        any(SubmissionForm.class), any(Errors.class), eq(submissionDetail), eq(validationType)
+    )).thenReturn(true);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(supportingDocumentService.submissionFileUploadComponentAttributes(eq(existingFiles), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
@@ -154,8 +161,9 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveTrapProperties_partialValidation_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-
-    when(trapPropertiesFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    when(trapPropertiesFormValidator.isValid(
+        any(SubmissionForm.class), any(Errors.class), eq(submissionDetail), eq(validationType)
+    )).thenReturn(false);
     when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);

@@ -186,12 +186,12 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Percentage of GRV which is oil bearing - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Average net reservoir thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Net to gross - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Net porosity - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent."
+            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Percentage of GRV which is oil bearing - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Average net reservoir thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Net to gross - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Net porosity - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%"
         );
   }
 
@@ -240,15 +240,15 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Percentage of GRV which is oil bearing - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Average net pay thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Net to gross - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Net porosity - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Depth to oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Depth to gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Depth to gas-oil contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Percentage of GRV which is oil bearing - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Average net pay thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Net to gross - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Net porosity - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Depth to oil-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Depth to gas-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Depth to gas-oil contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places"
         );
   }
 
@@ -290,12 +290,12 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Percentage of GRV which is oil bearing - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Average net pay thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Net to gross - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Net porosity - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent."
+            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Percentage of GRV which is oil bearing - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Average net pay thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Net to gross - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Net porosity - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%"
         );
   }
 
@@ -337,12 +337,12 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Percentage of GRV which is oil bearing - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Average net pay thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Net to gross - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Net porosity - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent."
+            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Percentage of GRV which is oil bearing - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Average net pay thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Net to gross - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Net porosity - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%"
         );
   }
 
@@ -391,15 +391,15 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Percentage of GRV which is oil bearing - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Average net pay thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Net to gross - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Net porosity - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Depth to oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Depth to gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Depth to gas-oil contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Percentage of GRV which is oil bearing - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Average net pay thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Net to gross - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Net porosity - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Depth to oil-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Depth to gas-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Depth to gas-oil contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places"
         );
   }
 
@@ -441,12 +441,12 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Percentage of GRV which is oil bearing - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Average net pay thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Net to gross - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Net porosity - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent."
+            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Percentage of GRV which is oil bearing - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Average net pay thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Net to gross - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Net porosity - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%"
         );
   }
 
@@ -488,12 +488,12 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Percentage of GRV which is oil bearing - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Average net pay thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Net to gross - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Net porosity - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent."
+            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Percentage of GRV which is oil bearing - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Average net pay thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Net to gross - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Net porosity - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%"
         );
   }
 
@@ -533,12 +533,12 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Average net pay thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Net to gross - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Net porosity - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Depth to gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Average net pay thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Net to gross - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Net porosity - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Depth to gas-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places"
         );
   }
 
@@ -577,12 +577,12 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Average net pay thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Net to gross - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Net porosity - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Depth to oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Average net pay thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Net to gross - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Net porosity - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Depth to oil-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places"
         );
   }
 
@@ -610,7 +610,7 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Depth to oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Depth to oil-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places"
         );
   }
 
@@ -641,8 +641,8 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Depth to moved oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Original depth to oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Depth to moved oil-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Original depth to oil-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places"
         );
   }
 
@@ -676,9 +676,9 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Depth to oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Depth to gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Depth to gas-oil contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Depth to oil-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Depth to gas-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Depth to gas-oil contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places"
         );
   }
 
@@ -717,12 +717,12 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Depth to moved oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Depth to moved gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Depth to moved gas-oil contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Original depth to oil-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Original depth to gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Original depth to gas-oil contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Depth to moved oil-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Depth to moved gas-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Depth to moved gas-oil contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Original depth to oil-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Original depth to gas-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Original depth to gas-oil contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places"
         );
   }
 
@@ -751,7 +751,7 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Depth to gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Depth to gas-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places"
         );
   }
 
@@ -783,8 +783,8 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Depth to moved gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Original depth to gas-water contact - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places."
+            "Depth to moved gas-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Original depth to gas-water contact - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places"
         );
   }
 
@@ -917,12 +917,12 @@ class ReservoirPropertiesFormValidatorTest {
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
         .contains(
-            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Percentage of GRV which is oil bearing - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Average net reservoir thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places.",
-            "Net to gross - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent.",
-            "Net porosity - all mandatory probability of exceedence inputs must be provided. All inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100 percent."
+            "Gross rock volume (GRV) - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Percentage of GRV which is oil bearing - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Average net reservoir thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Gross reservoir thickness - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places",
+            "Net to gross - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%",
+            "Net porosity - all mandatory probability of exceedence inputs must be provided and all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%"
         );
   }
 

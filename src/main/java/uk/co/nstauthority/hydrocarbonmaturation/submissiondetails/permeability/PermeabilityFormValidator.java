@@ -107,15 +107,16 @@ class PermeabilityFormValidator implements SubmissionValidator {
           "hasPermeability.required",
           "Select whether you have permeability details");
       if (BooleanUtils.isTrue(permeabilityForm.getHasPermeability())) {
-        validatePermeability(permeabilityForm, errors, submissionType);
+        validatePermeability(permeabilityForm, errors, submissionDetail);
       }
     } else {
-      validatePermeability(permeabilityForm, errors, submissionType);
+      validatePermeability(permeabilityForm, errors, submissionDetail);
     }
   }
 
-  private void validatePermeability(PermeabilityForm permeabilityForm, Errors errors, SubmissionType submissionType) {
-    var isFieldSubmission = SubmissionType.getSubmissionTypesForResourceType(ResourceType.FIELD).contains(submissionType);
+  private void validatePermeability(PermeabilityForm permeabilityForm, Errors errors, SubmissionDetail submissionDetail) {
+    var isFieldSubmission = SubmissionType.getSubmissionTypesForResourceType(ResourceType.FIELD)
+        .contains(submissionDetail.getSubmissionType());
 
     if (!isFieldSubmission) {
       DecimalInputValidator.configureValidator(

@@ -31,6 +31,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -40,6 +41,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
@@ -56,6 +58,9 @@ class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionCont
 
   @MockBean
   private MixedCaseVolumetricParametersPersistenceService mixedCaseVolumetricParametersPersistenceService;
+
+  @MockBean
+  private MixedCaseVolumetricParametersFormValidator mixedCaseVolumetricParametersFormValidator;
 
   @Autowired
   private ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
@@ -135,8 +140,12 @@ class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionCont
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveMixedCaseVolumetrics_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(mixedCaseVolumetricParametersFormService.validate(any(), any(), any(), eq(submissionDetail)))
-        .thenReturn(bindingResult);
+    when(mixedCaseVolumetricParametersFormValidator.isValid(
+        any(SubmissionForm.class),
+        any(Errors.class),
+        eq(submissionDetail),
+        eq(validationType))
+    ).thenReturn(true);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
@@ -157,7 +166,12 @@ class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionCont
   void saveMixedCaseVolumetrics_partialValidation_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
-    when(mixedCaseVolumetricParametersFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    when(mixedCaseVolumetricParametersFormValidator.isValid(
+        any(SubmissionForm.class),
+        any(Errors.class),
+        eq(submissionDetail),
+        eq(validationType))
+    ).thenReturn(false);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(

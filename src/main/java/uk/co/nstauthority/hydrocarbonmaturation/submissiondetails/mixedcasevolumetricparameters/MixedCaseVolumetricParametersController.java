@@ -17,7 +17,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
-import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
@@ -40,28 +39,28 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 public class MixedCaseVolumetricParametersController {
 
   private final SubmissionDetailService submissionDetailService;
-  private final ControllerHelperService controllerHelperService;
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
   private final MixedCaseVolumetricParametersFormService mixedCaseVolumetricParametersFormService;
   private final MixedCaseVolumetricParametersPersistenceService mixedCaseVolumetricParametersPersistenceService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+  private final MixedCaseVolumetricParametersFormValidator mixedCaseVolumetricParametersFormValidator;
 
   public static final String PAGE_NAME = "Mixed case volumetrics parameters";
 
   @Autowired
   public MixedCaseVolumetricParametersController(
       SubmissionDetailService submissionDetailService,
-      ControllerHelperService controllerHelperService,
       ProbabilityDistributionTemplateService probabilityDistributionTemplateService,
       MixedCaseVolumetricParametersFormService mixedCaseVolumetricParametersFormService,
       MixedCaseVolumetricParametersPersistenceService mixedCaseVolumetricParametersPersistenceService,
-      ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
+      ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
+      MixedCaseVolumetricParametersFormValidator mixedCaseVolumetricParametersFormValidator) {
     this.submissionDetailService = submissionDetailService;
-    this.controllerHelperService = controllerHelperService;
     this.probabilityDistributionTemplateService = probabilityDistributionTemplateService;
     this.mixedCaseVolumetricParametersFormService = mixedCaseVolumetricParametersFormService;
     this.mixedCaseVolumetricParametersPersistenceService = mixedCaseVolumetricParametersPersistenceService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
+    this.mixedCaseVolumetricParametersFormValidator = mixedCaseVolumetricParametersFormValidator;
   }
 
   @GetMapping
@@ -83,16 +82,11 @@ public class MixedCaseVolumetricParametersController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
-    bindingResult = mixedCaseVolumetricParametersFormService.validate(form, bindingResult, validationType, submissionDetail);
-
-    return controllerHelperService.checkErrorsAndRedirect(
-        bindingResult,
-        getMixedVolumetricsModelAndViewWithErrors(bindingResult, form, submissionDetail),
-        () -> {
-          mixedCaseVolumetricParametersPersistenceService.saveMixedCaseVolumetrics(form, reservoirSubmissionDetail);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
-        }
-    );
+    if (mixedCaseVolumetricParametersFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
+      mixedCaseVolumetricParametersPersistenceService.saveMixedCaseVolumetrics(form, reservoirSubmissionDetail);
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+    }
+    return getMixedVolumetricsModelAndViewWithErrors(bindingResult, form, submissionDetail);
   }
 
   private ModelAndView getMixedCaseVolumetricsModelAndView(
