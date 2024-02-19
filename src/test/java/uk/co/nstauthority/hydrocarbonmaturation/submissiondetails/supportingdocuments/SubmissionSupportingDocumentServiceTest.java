@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,11 +19,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.util.unit.DataSize;
 import uk.co.fivium.fileuploadlibrary.core.FileService;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.file.UnlinkedFileController;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 
@@ -77,9 +82,47 @@ class SubmissionSupportingDocumentServiceTest {
 
   @Test
   void fileUploadComponentAttributes_VerifyMethodCall() {
-    submissionSupportingDocumentService.fileUploadComponentAttributes(EXISTING_FILES, DOCUMENT_TYPE);
 
-    verify(fileDocumentService).fileUploadComponentAttributes(EXISTING_FILES, DOCUMENT_TYPE);
+    var builder = FileUploadComponentAttributes.newBuilder()
+            .withMaximumSize(DataSize.ofBytes(1));
+    when(fileDocumentService.getFileUploadComponentAttributesBuilder(EXISTING_FILES, DOCUMENT_TYPE))
+        .thenReturn(builder);
+
+    assertThat(submissionSupportingDocumentService.fileUploadComponentAttributes(EXISTING_FILES, DOCUMENT_TYPE))
+        .extracting(
+            FileUploadComponentAttributes::uploadUrl,
+            FileUploadComponentAttributes::downloadUrl,
+            FileUploadComponentAttributes::deleteUrl
+        ).containsExactly(
+            ReverseRouter.route(on(UnlinkedFileController.class).upload(null, DOCUMENT_TYPE.toString())),
+            ReverseRouter.route(on(UnlinkedFileController.class).download(null)),
+            ReverseRouter.route(on(UnlinkedFileController.class).delete(null))
+        );
+
+    verify(fileDocumentService).getFileUploadComponentAttributesBuilder(EXISTING_FILES, DOCUMENT_TYPE);
+  }
+
+  @Test
+  void submissionFileUploadComponentAttributes_VerifyMethodCall() {
+    var submissionDetail = new SubmissionDetail();
+
+    var builder = FileUploadComponentAttributes.newBuilder()
+        .withMaximumSize(DataSize.ofBytes(1));
+    when(fileDocumentService.getFileUploadComponentAttributesBuilder(EXISTING_FILES, DOCUMENT_TYPE))
+        .thenReturn(builder);
+
+    assertThat(submissionSupportingDocumentService.submissionFileUploadComponentAttributes(EXISTING_FILES, DOCUMENT_TYPE, submissionDetail))
+        .extracting(
+            FileUploadComponentAttributes::uploadUrl,
+            FileUploadComponentAttributes::downloadUrl,
+            FileUploadComponentAttributes::deleteUrl
+        ).containsExactly(
+            ReverseRouter.route(on(UnlinkedFileController.class).upload(null, DOCUMENT_TYPE.toString())),
+            ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).download(submissionDetail.getId(), null)),
+            ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).delete(submissionDetail.getId(), null))
+        );
+
+    verify(fileDocumentService).getFileUploadComponentAttributesBuilder(EXISTING_FILES, DOCUMENT_TYPE);
   }
 
   @Test

@@ -61,7 +61,7 @@ public class ResourceSupportingDocumentService {
       List<UploadedFileForm> existingFiles,
       FileDocumentType fileDocumentType
   ) {
-    return fileDocumentService.fileUploadComponentAttributes(existingFiles, fileDocumentType);
+    return fileDocumentService.getFileUploadComponentAttributes(existingFiles, fileDocumentType);
   }
 
   private String getUsageId(Resource resource) {

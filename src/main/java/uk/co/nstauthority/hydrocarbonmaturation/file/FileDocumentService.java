@@ -34,7 +34,7 @@ public class FileDocumentService {
     this.fileService = fileService;
   }
 
-  public FileUploadComponentAttributes fileUploadComponentAttributes(
+  public FileUploadComponentAttributes getFileUploadComponentAttributes(
       List<UploadedFileForm> existingFiles,
       FileDocumentType fileDocumentType
   ) {
@@ -50,6 +50,18 @@ public class FileDocumentService {
         .withDeleteUrl(ReverseRouter.route(on(controller).delete(null)))
         .withExistingFiles(existingFiles)
         .build();
+  }
+
+  public FileUploadComponentAttributes.Builder getFileUploadComponentAttributesBuilder(
+      List<UploadedFileForm> existingFiles,
+      FileDocumentType fileDocumentType
+  ) {
+    var fileUploadAttributes = fileService.getFileUploadAttributes();
+
+    fileDocumentType.getAllowedExtensions().ifPresent(fileUploadAttributes::withAllowedExtensions);
+
+    return fileUploadAttributes
+        .withExistingFiles(existingFiles);
   }
 
   public ResponseStatusException getFileNotFoundException(UUID fileId, String usageType, String usageId) {

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -32,6 +33,10 @@ public class GeneralDetailSummaryService {
   public static final String FIELD_STOPPED_PRODUCING_DATE = "Date field stopped producing";
   public static final String CAPITAL_PROJECT_SCOPE_DELIVERED = "Capital project scope delivered";
   public static final String CURRENT_DRIVE_MECHANISM = "Current drive mechanism";
+  public static final String FINAL_CONCEPT_SELECT_REPORT = "Final concept select report";
+  public static final String FINAL_FIELD_DEVELOPMENT_PLAN = "Final field development plan";
+  public static final String FINAL_FIELD_DEVELOPMENT_PLAN_ADDENDUM = "Final field development plan addendum";
+  public static final String CESSATION_OF_PRODUCTION_REPORT = "Cessation of production report";
 
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
@@ -192,8 +197,7 @@ public class GeneralDetailSummaryService {
     var uploadedFiles = supportingDocumentService.getUploadedFiles(submissionDetail, FileDocumentType.FIELD_REPORT);
 
     var cardHeading = "%s - %s"
-        .formatted(GENERAL_DETAILS,
-            GeneralDetailsFormService.getFieldReportTypeForSubmissionDetail(submissionDetail.getSubmissionType()));
+        .formatted(GENERAL_DETAILS, getFieldReportTypeForSubmissionDetail(submissionDetail.getSubmissionType()));
 
     if (uploadedFiles.isEmpty()) {
       if (submissionDetail.isCessationOfProductionSubmission()) {
@@ -235,5 +239,16 @@ public class GeneralDetailSummaryService {
         summaryDataView.addKeyValue(CURRENT_DRIVE_MECHANISM, currentDriveMechanism);
       }
     }
+  }
+
+  private String getFieldReportTypeForSubmissionDetail(SubmissionType submissionType) {
+    return switch (submissionType) {
+      case CREATE_CSR -> FINAL_CONCEPT_SELECT_REPORT;
+      case CREATE_FDP -> FINAL_FIELD_DEVELOPMENT_PLAN;
+      case CREATE_FDPA -> FINAL_FIELD_DEVELOPMENT_PLAN_ADDENDUM;
+      case CREATE_COP -> CESSATION_OF_PRODUCTION_REPORT;
+      default -> throw new IllegalArgumentException("There is no field report type for submission type %s"
+          .formatted(submissionType.getTypeName()));
+    };
   }
 }

@@ -86,9 +86,10 @@ public class AdditionalInformationController {
         .addObject("form", form)
         .addObject("pageTitle", PAGE_NAME)
         .addObject("additionalDocumentTemplate",
-            supportingDocumentService.fileUploadComponentAttributes(
+            supportingDocumentService.submissionFileUploadComponentAttributes(
                 form.getAdditionalDocuments(),
-                FileDocumentType.ADDITIONAL_DOCUMENT
+                FileDocumentType.ADDITIONAL_DOCUMENT,
+                submissionDetail
             ));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);

@@ -83,15 +83,15 @@ public class OpportunityDetailsController {
         .addObject("form", form)
         .addObject("pageTitle", PAGE_NAME)
         .addObject("mapOfOpportunityTemplate",
-            supportingDocumentService.fileUploadComponentAttributes(
-                form.getMapOfOpportunity(), FileDocumentType.MAP_OF_OPPORTUNITY))
+            supportingDocumentService.submissionFileUploadComponentAttributes(
+                form.getMapOfOpportunity(), FileDocumentType.MAP_OF_OPPORTUNITY, submissionDetail))
         .addObject("prospectSubmission", submissionDetail.isProspectSubmission())
         .addObject("geologicalCrossSectionTemplate",
-            supportingDocumentService.fileUploadComponentAttributes(
-                form.getGeologicalCrossSection(), FileDocumentType.GEOLOGICAL_CROSS_SECTION))
+            supportingDocumentService.submissionFileUploadComponentAttributes(
+                form.getGeologicalCrossSection(), FileDocumentType.GEOLOGICAL_CROSS_SECTION, submissionDetail))
         .addObject("representativeSeismicSectionTemplate",
-            supportingDocumentService.fileUploadComponentAttributes(
-                form.getRepresentativeSeismicSection(), FileDocumentType.REPRESENTATIVE_SEISMIC_SECTION))
+            supportingDocumentService.submissionFileUploadComponentAttributes(
+                form.getRepresentativeSeismicSection(), FileDocumentType.REPRESENTATIVE_SEISMIC_SECTION, submissionDetail))
         .addObject("mapName", submissionDetail.isDiscoverySubmission() ? "Map of discovery" : "Map of opportunity");
 
     return TaskListBreadcrumbUtil

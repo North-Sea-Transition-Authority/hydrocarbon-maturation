@@ -1,5 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import jakarta.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
@@ -13,6 +15,8 @@ import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.file.UnlinkedFileController;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
@@ -58,7 +62,26 @@ public class SubmissionSupportingDocumentService {
       List<UploadedFileForm> existingFiles,
       FileDocumentType fileDocumentType
   ) {
-    return fileDocumentService.fileUploadComponentAttributes(existingFiles, fileDocumentType);
+    var controller = UnlinkedFileController.class;
+
+    return fileDocumentService.getFileUploadComponentAttributesBuilder(existingFiles, fileDocumentType)
+        .withUploadUrl(ReverseRouter.route(on(controller).upload(null, fileDocumentType.name())))
+        .withDownloadUrl(ReverseRouter.route(on(controller).download(null)))
+        .withDeleteUrl(ReverseRouter.route(on(controller).delete(null)))
+        .build();
+  }
+
+  public FileUploadComponentAttributes submissionFileUploadComponentAttributes(
+      List<UploadedFileForm> existingFiles,
+      FileDocumentType fileDocumentType,
+      SubmissionDetail submissionDetail) {
+    var controller = SubmissionSupportingDocumentsController.class;
+
+    return fileDocumentService.getFileUploadComponentAttributesBuilder(existingFiles, fileDocumentType)
+        .withUploadUrl(ReverseRouter.route(on(UnlinkedFileController.class).upload(null, fileDocumentType.name())))
+        .withDownloadUrl(ReverseRouter.route(on(controller).download(submissionDetail.getId(), null)))
+        .withDeleteUrl(ReverseRouter.route(on(controller).delete(submissionDetail.getId(), null)))
+        .build();
   }
 
   public void copyUploadedFiles(SubmissionDetail oldSubmissionDetail,

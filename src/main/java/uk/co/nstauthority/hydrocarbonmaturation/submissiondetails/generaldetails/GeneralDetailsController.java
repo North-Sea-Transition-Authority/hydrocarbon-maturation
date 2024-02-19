@@ -133,7 +133,9 @@ public class GeneralDetailsController {
     if (submissionDetail.isFieldSubmission()) {
       modelAndView
           .addObject("fieldReportTemplate",
-              supportingDocumentService.fileUploadComponentAttributes(form.getFieldReport(), FileDocumentType.FIELD_REPORT))
+              supportingDocumentService.submissionFileUploadComponentAttributes(
+                  form.getFieldReport(),
+                  FileDocumentType.FIELD_REPORT, submissionDetail))
           .addObject("fieldReportType",
               getFieldReportTypeForSubmissionType(submissionDetail));
     }

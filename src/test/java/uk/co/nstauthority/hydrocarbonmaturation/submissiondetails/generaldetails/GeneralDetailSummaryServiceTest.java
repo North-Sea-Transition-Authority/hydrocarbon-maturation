@@ -565,7 +565,7 @@ class GeneralDetailSummaryServiceTest {
     when(supportingDocumentService.getUploadedFiles(submissionDetail, FileDocumentType.FIELD_REPORT))
         .thenReturn(List.of());
 
-    var expectedHeading = "General details - " + GeneralDetailsFormService.FINAL_CONCEPT_SELECT_REPORT;
+    var expectedHeading = "General details - " + GeneralDetailSummaryService.FINAL_CONCEPT_SELECT_REPORT;
 
     assertThat(generalDetailSummaryService.getFieldReportSummary(submissionDetail).get())
         .usingRecursiveComparison()
@@ -579,7 +579,7 @@ class GeneralDetailSummaryServiceTest {
     when(supportingDocumentService.getUploadedFiles(submissionDetail, FileDocumentType.FIELD_REPORT))
         .thenReturn(List.of());
 
-    var expectedHeading = "General details - " + GeneralDetailsFormService.FINAL_FIELD_DEVELOPMENT_PLAN;
+    var expectedHeading = "General details - " + GeneralDetailSummaryService.FINAL_FIELD_DEVELOPMENT_PLAN;
 
     assertThat(generalDetailSummaryService.getFieldReportSummary(submissionDetail).get())
         .usingRecursiveComparison()
@@ -593,7 +593,7 @@ class GeneralDetailSummaryServiceTest {
     when(supportingDocumentService.getUploadedFiles(submissionDetail, FileDocumentType.FIELD_REPORT))
         .thenReturn(List.of());
 
-    var expectedHeading = "General details - " + GeneralDetailsFormService.FINAL_FIELD_DEVELOPMENT_PLAN_ADDENDUM;
+    var expectedHeading = "General details - " + GeneralDetailSummaryService.FINAL_FIELD_DEVELOPMENT_PLAN_ADDENDUM;
 
     assertThat(generalDetailSummaryService.getFieldReportSummary(submissionDetail).get())
         .usingRecursiveComparison()
@@ -607,7 +607,7 @@ class GeneralDetailSummaryServiceTest {
     when(supportingDocumentService.getUploadedFiles(submissionDetail, FileDocumentType.FIELD_REPORT))
         .thenReturn(List.of(new UploadedFile()));
 
-    var expectedHeading = "General details - " + GeneralDetailsFormService.CESSATION_OF_PRODUCTION_REPORT;
+    var expectedHeading = "General details - " + GeneralDetailSummaryService.CESSATION_OF_PRODUCTION_REPORT;
 
     assertThat(generalDetailSummaryService.getFieldReportSummary(submissionDetail).get())
         .extracting(SummaryCard::displayName)

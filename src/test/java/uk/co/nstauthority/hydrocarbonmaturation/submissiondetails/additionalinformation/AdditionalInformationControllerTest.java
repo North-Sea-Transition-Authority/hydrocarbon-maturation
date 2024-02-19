@@ -90,7 +90,7 @@ class AdditionalInformationControllerTest extends AbstractSubmissionControllerTe
   void getAdditionalInformationPage_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
     when(additionalInformationFormService.getAdditionalInformationForm(submissionDetail)).thenReturn(new AdditionalInformationForm());
-    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), eq(FileDocumentType.ADDITIONAL_DOCUMENT)))
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), eq(FileDocumentType.ADDITIONAL_DOCUMENT), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
@@ -136,7 +136,7 @@ class AdditionalInformationControllerTest extends AbstractSubmissionControllerTe
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(additionalInformationFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
-    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), eq(FileDocumentType.ADDITIONAL_DOCUMENT)))
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), eq(FileDocumentType.ADDITIONAL_DOCUMENT), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
@@ -156,7 +156,7 @@ class AdditionalInformationControllerTest extends AbstractSubmissionControllerTe
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
     when(additionalInformationFormService.getAdditionalInformationForm(submissionDetail))
         .thenReturn(new AdditionalInformationForm());
-    when(supportingDocumentService.fileUploadComponentAttributes(eq(existingFiles), any(FileDocumentType.class)))
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(eq(existingFiles), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
 
     ModelMap modelMap = Objects.requireNonNull(

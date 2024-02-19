@@ -111,7 +111,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
   void getTrapProperties_assertOK() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail)).thenReturn(new TrapPropertiesForm());
-    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
@@ -136,7 +136,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
   void saveTrapProperties_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
     when(trapPropertiesFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(supportingDocumentService.fileUploadComponentAttributes(eq(existingFiles), any(FileDocumentType.class)))
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(eq(existingFiles), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
 
     mockMvc.perform(
@@ -156,7 +156,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(trapPropertiesFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
-    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
@@ -174,7 +174,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
   void getGeneralDetailsModelAndView_whenProspect_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail)).thenReturn(new TrapPropertiesForm());
-    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
 
     var quadrantAndBlocks = mock(Map.class);
@@ -224,7 +224,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
     when(trapPropertiesFormService.getTrapPropertiesForm(discoverySubmissionDetail)).thenReturn(new TrapPropertiesForm());
-    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(discoverySubmissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
 
     var quadrantAndBlocks = mock(Map.class);

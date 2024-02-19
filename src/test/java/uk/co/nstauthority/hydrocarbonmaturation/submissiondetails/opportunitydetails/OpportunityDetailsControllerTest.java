@@ -87,7 +87,7 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
   void getOpportunityDetailsPage_assertStatusOk() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail)).thenReturn(new OpportunityDetailsForm());
-    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
@@ -162,7 +162,7 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
     when(opportunityDetailsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
-    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
     mockMvc.perform(
         post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, bindingResult, null)))
@@ -178,7 +178,7 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
   void getOpportunityDetailsModelAndViewForProsopect_assertModelProperties() throws Exception {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail)).thenReturn(new OpportunityDetailsForm());
-    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetailId, form)))
@@ -200,7 +200,7 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail)).thenReturn(new OpportunityDetailsForm());
-    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetailId, form)))

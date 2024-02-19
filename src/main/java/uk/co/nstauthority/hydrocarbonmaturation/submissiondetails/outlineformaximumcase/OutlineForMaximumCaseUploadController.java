@@ -110,7 +110,10 @@ public class OutlineForMaximumCaseUploadController {
             ReverseRouter.route(on(TaskListController.class)
                 .getTaskList(submissionDetail.getId())))
         .addObject("outlineForMaximumCaseTemplate",
-            supportingDocumentService.fileUploadComponentAttributes(form.getOutlineForMaximumCase(), documentType))
+            supportingDocumentService.submissionFileUploadComponentAttributes(
+                form.getOutlineForMaximumCase(),
+                documentType,
+                submissionDetail))
         .addObject("isOffshore", resourceDetail.getOnshoreOffshore() == OnshoreOffshore.OFFSHORE);
 
     return TaskListBreadcrumbUtil

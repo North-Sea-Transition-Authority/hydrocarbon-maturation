@@ -95,7 +95,7 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
     bindingResult = new BeanPropertyBindingResult(form, "form");
     submissionDetailId = submissionDetail.getId();
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(supportingDocumentService.fileUploadComponentAttributes(eq(existingFiles), any(FileDocumentType.class)))
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(eq(existingFiles), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
 
     var resourceDetail = new ResourceDetail();
@@ -110,7 +110,7 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
   void getOutlineForMaximumCasePage_assertStatusOk() throws Exception {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(outlineForMaximumCaseFormService.getOutlineForMaximumCaseUploadForm(submissionDetail)).thenReturn(new OutlineForMaximumCaseUploadForm());
-    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
 
     mockMvc.perform(
@@ -170,7 +170,7 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
   @SecurityTest
   void getOutlineForMaximumCasePage_whenUserNotResponsibleOrganisation_assertForbidden() throws Exception {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
-    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
     mockMvc.perform(
             post(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class)
@@ -217,7 +217,7 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
     when(outlineForMaximumCaseFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
-    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
 
     mockMvc.perform(
@@ -232,7 +232,7 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
   @Test
   void getOutlineForMaximumCaseModelAndView_assertModelProperties() throws Exception {
     when(outlineForMaximumCaseFormService.getOutlineForMaximumCaseUploadForm(submissionDetail)).thenReturn(new OutlineForMaximumCaseUploadForm());
-    when(supportingDocumentService.fileUploadComponentAttributes(anyList(), any(FileDocumentType.class)))
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(

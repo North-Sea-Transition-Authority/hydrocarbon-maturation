@@ -83,6 +83,6 @@ class ResourceSupportingDocumentServiceTest {
 
     resourceSupportingDocumentService.fileUploadComponentAttributes(EXISTING_FILES, DOCUMENT_TYPE);
 
-    verify(fileDocumentService).fileUploadComponentAttributes(EXISTING_FILES, DOCUMENT_TYPE);
+    verify(fileDocumentService).getFileUploadComponentAttributes(EXISTING_FILES, DOCUMENT_TYPE);
   }
 }

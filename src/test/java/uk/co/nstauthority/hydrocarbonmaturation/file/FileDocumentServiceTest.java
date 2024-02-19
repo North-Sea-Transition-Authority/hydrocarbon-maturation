@@ -108,7 +108,7 @@ class FileDocumentServiceTest {
     );
   }
   @Test
-  void fileUploadComponentAttributes() {
+  void getFileUploadComponentAttributes() {
     var existingFiles = Collections.<UploadedFileForm>emptyList();
 
     var attributesBuilder = FileUploadComponentAttributes.newBuilder()
@@ -116,7 +116,7 @@ class FileDocumentServiceTest {
         .withAllowedExtensions(Collections.singleton("pdf"));
     when(fileService.getFileUploadAttributes()).thenReturn(attributesBuilder);
 
-    var result = underTest.fileUploadComponentAttributes(existingFiles, DOCUMENT_TYPE);
+    var result = underTest.getFileUploadComponentAttributes(existingFiles, DOCUMENT_TYPE);
 
     assertThat(result)
         .extracting(
@@ -129,6 +129,33 @@ class FileDocumentServiceTest {
             ReverseRouter.route(on(UnlinkedFileController.class).upload(null, DOCUMENT_TYPE.name())),
             ReverseRouter.route(on(UnlinkedFileController.class).download(null)),
             ReverseRouter.route(on(UnlinkedFileController.class).delete(null)),
+            existingFiles
+        );
+  }
+
+  @Test
+  void getFileUploadComponentAttributesBuilder() {
+    var existingFiles = Collections.<UploadedFileForm>emptyList();
+
+    var attributesBuilder = FileUploadComponentAttributes.newBuilder()
+        .withMaximumSize(DataSize.ofMegabytes(50))
+        .withAllowedExtensions(Collections.singleton("pdf"));
+    when(fileService.getFileUploadAttributes()).thenReturn(attributesBuilder);
+
+    var result = underTest.getFileUploadComponentAttributesBuilder(existingFiles, DOCUMENT_TYPE).build();
+
+    assertThat(result)
+        .extracting(
+            FileUploadComponentAttributes::uploadUrl,
+            FileUploadComponentAttributes::downloadUrl,
+            FileUploadComponentAttributes::deleteUrl
+        )
+        .containsOnlyNulls();
+
+    assertThat(result)
+        .extracting(
+            FileUploadComponentAttributes::existingFiles
+        ).isEqualTo(
             existingFiles
         );
   }

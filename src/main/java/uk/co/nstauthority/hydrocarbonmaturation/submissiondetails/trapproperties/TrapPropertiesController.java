@@ -102,8 +102,8 @@ public class TrapPropertiesController {
         .addObject("depthToSpillPointError", ProbabilityDistributionTypeError.emptyError())
         .addObject("productiveAreaError", ProbabilityDistributionTypeError.emptyError())
         .addObject("prospectDepthMapTemplate",
-            supportingDocumentService.fileUploadComponentAttributes(
-                form.getProspectDepthMap(), FileDocumentType.PROSPECT_DEPTH_MAP));
+            supportingDocumentService.submissionFileUploadComponentAttributes(
+                form.getProspectDepthMap(), FileDocumentType.PROSPECT_DEPTH_MAP, submissionDetail));
 
     var resourceType = submissionDetail.getSubmission().getResource().getType();
     if (resourceType == ResourceType.PROSPECT) {

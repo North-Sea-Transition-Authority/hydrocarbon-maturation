@@ -327,8 +327,11 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
     when(generalDetailsFormService.getQuadrantAndBlockViews(form)).thenReturn(quadrantBlockViewList);
 
     var fileReportTemplate = buildFileTemplate();
-    when(supportingDocumentService.fileUploadComponentAttributes(form.getFieldReport(), FileDocumentType.FIELD_REPORT))
-        .thenReturn(fileReportTemplate);
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(
+        form.getFieldReport(),
+        FileDocumentType.FIELD_REPORT,
+        submissionDetail)
+    ).thenReturn(fileReportTemplate);
 
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
@@ -359,8 +362,11 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
 
     var fileReportTemplate = buildFileTemplate();
-    when(supportingDocumentService.fileUploadComponentAttributes(form.getFieldReport(), FileDocumentType.FIELD_REPORT))
-        .thenReturn(fileReportTemplate);
+    when(supportingDocumentService.submissionFileUploadComponentAttributes(
+        form.getFieldReport(),
+        FileDocumentType.FIELD_REPORT,
+        submissionDetail)
+    ).thenReturn(fileReportTemplate);
 
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
