@@ -34,26 +34,28 @@ breadcrumbsMap=breadcrumbsMap>
   </#if>
     <@fdsForm.htmlForm>
         <#assign optionalLicences = isRegulatorSubmission/>
-      <@fdsFieldset.fieldset
-        legendHeadingSize="h2"
-        legendHeadingClass="govuk-fieldset__legend--s"
-        legendHeading="What licences are on this ${resourceType}?"
-        optionalLabel=optionalLicences>
-          <@fdsAddToList.addToList
-            pathForList="form.licences"
-            pathForSelector="form.licenceSelect"
-            alreadyAdded=alreadyAddedLicences
-            title=""
-            selectorHintText=guidanceTextLicence
-            itemName="Licences"
-            noItemText="No licence added"
-            invalidItemText="This licence is not extant"
-            selectorMinInputLength=1
-            addToListId="licence-table"
-            selectorLabelText="Select a licence to add to this ${resourceType}"
-            restUrl=springUrl(licenceEndpoint)
-            selectorOptionaLabel=optionalLicences/>
-      </@fdsFieldset.fieldset>
+      <#if !fieldSubmission>
+        <@fdsFieldset.fieldset
+          legendHeadingSize="h2"
+          legendHeadingClass="govuk-fieldset__legend--s"
+          legendHeading="What licences are on this ${resourceType}?"
+          optionalLabel=optionalLicences>
+            <@fdsAddToList.addToList
+              pathForList="form.licences"
+              pathForSelector="form.licenceSelect"
+              alreadyAdded=alreadyAddedLicences
+              title=""
+              selectorHintText=guidanceTextLicence
+              itemName="Licences"
+              noItemText="No licence added"
+              invalidItemText="This licence is not extant"
+              selectorMinInputLength=1
+              addToListId="licence-table"
+              selectorLabelText="Select a licence to add to this ${resourceType}"
+              restUrl=springUrl(licenceEndpoint)
+              selectorOptionaLabel=optionalLicences/>
+        </@fdsFieldset.fieldset>
+      </#if>
 
       <#if isOffshore>
         <@resourceLocatedInRegion formId="resourceLocatedInUkcs" percentageFormId="percentageLocatedInUkcs" regionName="the UKCS"/>

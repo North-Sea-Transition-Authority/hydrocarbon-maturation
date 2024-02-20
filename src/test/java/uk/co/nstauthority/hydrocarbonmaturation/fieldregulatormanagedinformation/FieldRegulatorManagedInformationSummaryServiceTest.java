@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -21,6 +22,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.DeterminationStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldForm;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
@@ -43,6 +46,8 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
   private SubmissionDetailDisplayService submissionDetailDisplayService;
   @Mock
   private FieldPersistenceService fieldPersistenceService;
+  @Mock
+  private FieldLicenceService fieldLicenceService;
   @InjectMocks
   private FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
 
@@ -82,6 +87,7 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
             FieldRegulatorManagedInformationSummaryService.COMMON_NAME_FOR_FIELD,
             FieldRegulatorManagedInformationSummaryService.ASSOCIATED_DISCOVERIES,
             FieldRegulatorManagedInformationSummaryService.RESPONSIBLE_ORGANISATION,
+            FieldRegulatorManagedInformationSummaryService.IS_ON_LICENCE,
             FieldRegulatorManagedInformationSummaryService.ONSHORE_OFFSHORE,
             FieldRegulatorManagedInformationSummaryService.DETERMINATION_STATUS,
             FieldRegulatorManagedInformationSummaryService.FIELD_NUMBER,
@@ -128,6 +134,8 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
                 ASSOCIATED_DISCOVERIES),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.RESPONSIBLE_ORGANISATION,
                 RESPONSIBLE_ORGANISATION),
+            Tuple.tuple(FieldRegulatorManagedInformationSummaryService.IS_ON_LICENCE,
+                BooleanUtil.yesNoFromBoolean(form.getIsOnLicence())),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.ONSHORE_OFFSHORE,
               form.getOnshoreOffshore().getDisplayName()),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.DETERMINATION_STATUS,
@@ -212,6 +220,49 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
         );
   }
 
+  @Test
+  void getFieldRegulatorManagedInformationSummaryCard_fieldOnLicence_thenShowLicences() {
+    var form = getFieldFormWithMockedAssociatedDiscoveries();
+    form.setIsOnLicence(true);
+
+    var field = FieldTestUtils.createField(8000);
+
+    when(fieldPersistenceService.getFieldOrThrow(resource))
+        .thenReturn(field);
+
+    var licenceView1 = new LicenceView("ref1", 1, null);
+    var licenceView2 = new LicenceView("ref2", 2, null);
+    when(fieldLicenceService.getFieldLicencesViewsIgnoreStatus(field))
+        .thenReturn(List.of(licenceView1, licenceView2));
+
+    when(fieldRegulatorManagedInformationService.resourceToFieldForm(resource))
+        .thenReturn(form);
+
+    var card = fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource);
+
+    assertThat(card)
+        .extracting(
+            SummaryCard::displayName,
+            SummaryCard::summaryCardType
+        ).contains(
+            FieldRegulatorManagedInformationSummaryService.REGULATOR_MANAGED_INFORMATION,
+            SummaryCardType.SIMPLE_SUMMARY
+        );
+
+    var summaryData = (SummaryDataView) card.summaryData();
+
+    assertThat(summaryData.keyValues())
+        .extracting(
+            SummaryKeyValue::key,
+            SummaryKeyValue::value)
+        .contains(
+            Tuple.tuple(
+              FieldRegulatorManagedInformationSummaryService.LICENCES,
+                "ref1, ref2"
+            )
+        );
+  }
+
   @NotNull
   private FieldForm getFieldFormWithMockedAssociatedDiscoveries() {
     var discovery1 = UUID.randomUUID();
@@ -241,6 +292,7 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
     form.setDeterminationStatus(DeterminationStatus.DETERMINED);
     form.setFieldNumber(DecimalInput.createDecimalInput(1));
     form.setInfrastructureHost(true);
+    form.getIsOnLicence();
     return form;
   }
 }

@@ -1,16 +1,24 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field;
 
 import java.math.BigDecimal;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
 
 @Service
-public class NewFieldFormValidator implements Validator {
+public class FieldFormValidator implements Validator {
+
+  private final FieldLicenceService fieldLicenceService;
+
+  public FieldFormValidator(FieldLicenceService fieldLicenceService) {
+    this.fieldLicenceService = fieldLicenceService;
+  }
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -33,6 +41,8 @@ public class NewFieldFormValidator implements Validator {
       errors.rejectValue("associatedDiscoverySelect", "associatedDiscoverySelect.notEmpty",
           "You must select at least one associated discovery");
     }
+
+    validateLicences(form, errors);
 
     ValidationUtils.rejectIfEmpty(errors, "onshoreOffshore", "onshoreOffshore.required", "Select onshore or offshore");
 
@@ -61,5 +71,33 @@ public class NewFieldFormValidator implements Validator {
 
     ValidationUtils.rejectIfEmpty(errors,
         "infrastructureHost", "infrastructureHost.required", "Select yes if this field's infrastructure hosts other fields");
+  }
+
+  private void validateLicences(FieldForm form, Errors errors) {
+    ValidationUtils.rejectIfEmpty(
+        errors,
+        "isOnLicence",
+        "isOnLicence.required",
+        "Select if this field is on a licence");
+
+
+    var isOnLicence = BooleanUtils.isTrue(form.getIsOnLicence());
+    if (isOnLicence && form.getLicences().isEmpty()) {
+      errors.rejectValue(
+          "licenceSelect",
+          "licenceSelect.required",
+          "You must select at least one extant licence"
+      );
+
+      return;
+    }
+
+    if (isOnLicence && !fieldLicenceService.areAllExtantLicences(form.getLicences())) {
+      errors.rejectValue(
+          "licenceSelect",
+          "licenceSelect.notValid",
+          "You must only select extant licences"
+      );
+    }
   }
 }

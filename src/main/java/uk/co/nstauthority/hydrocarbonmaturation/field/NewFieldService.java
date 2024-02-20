@@ -26,7 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 
 @Service
 public class NewFieldService {
-  private final NewFieldFormValidator newFieldFormValidator;
+  private final FieldFormValidator fieldFormValidator;
   private final FieldPersistenceService fieldPersistenceService;
   private final ResourceService resourceService;
   private final OrganisationUnitQueryService organisationUnitQueryService;
@@ -36,7 +36,7 @@ public class NewFieldService {
   private final FieldStatusService fieldStatusService;
 
   @Autowired
-  NewFieldService(NewFieldFormValidator newFieldFormValidator,
+  NewFieldService(FieldFormValidator fieldFormValidator,
                   FieldPersistenceService fieldPersistenceService,
                   ResourceService resourceService,
                   OrganisationUnitQueryService organisationUnitQueryService,
@@ -44,7 +44,7 @@ public class NewFieldService {
                   SubmissionResourceService submissionResourceService,
                   ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                   FieldStatusService fieldStatusService) {
-    this.newFieldFormValidator = newFieldFormValidator;
+    this.fieldFormValidator = fieldFormValidator;
     this.fieldPersistenceService = fieldPersistenceService;
     this.resourceService = resourceService;
     this.organisationUnitQueryService = organisationUnitQueryService;
@@ -55,7 +55,7 @@ public class NewFieldService {
   }
 
   BindingResult validate(FieldForm form, BindingResult bindingResult) {
-    newFieldFormValidator.validate(form, bindingResult);
+    fieldFormValidator.validate(form, bindingResult);
     return bindingResult;
   }
 

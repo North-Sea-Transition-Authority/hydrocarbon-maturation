@@ -3,19 +3,23 @@ package uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformatio
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.field.DeterminationStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
+import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 
 @Service
 public class FieldRegulatorManagedInformationSummaryService {
@@ -33,22 +37,27 @@ public class FieldRegulatorManagedInformationSummaryService {
   public static final String DETERMINATION_STATUS = "Determination status";
   public static final String PARENT_DETERMINED_FIELD = "Parent determined field";
   public static final String ASSOCIATED_DISCOVERIES = "Associated discoveries";
+  public static final String IS_ON_LICENCE = "Field is on licence";
+  public static final String LICENCES = "Licences";
 
   private final FieldRegulatorManagedInformationService fieldRegulatorManagedInformationService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final SubmissionDetailDisplayService submissionDetailDisplayService;
   private final FieldPersistenceService fieldPersistenceService;
+  private final FieldLicenceService fieldLicenceService;
 
   @Autowired
   public FieldRegulatorManagedInformationSummaryService(
       FieldRegulatorManagedInformationService fieldRegulatorManagedInformationService,
       ResourceDetailsPersistenceService resourceDetailsPersistenceService,
       SubmissionDetailDisplayService submissionDetailDisplayService,
-      FieldPersistenceService fieldPersistenceService) {
+      FieldPersistenceService fieldPersistenceService,
+      FieldLicenceService fieldLicenceService) {
     this.fieldRegulatorManagedInformationService = fieldRegulatorManagedInformationService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.fieldPersistenceService = fieldPersistenceService;
+    this.fieldLicenceService = fieldLicenceService;
   }
 
   public SummaryCard getFieldRegulatorManagedInformationSummaryCard(Resource resource) {
@@ -81,6 +90,22 @@ public class FieldRegulatorManagedInformationSummaryService {
                 ? null
                 : Integer.valueOf(form.getResponsibleOrganisationId()))
     );
+    summaryDataView.addKeyValue(
+        IS_ON_LICENCE,
+        BooleanUtil.yesNoFromBoolean(form.getIsOnLicence())
+    );
+
+    if (BooleanUtils.isTrue(form.getIsOnLicence())) {
+      var field = fieldPersistenceService.getFieldOrThrow(resource);
+      var licenceDisplayNames = fieldLicenceService.getFieldLicencesViewsIgnoreStatus(field)
+          .stream().map(LicenceView::licenceRef)
+          .toList();
+      summaryDataView.addKeyValue(
+          LICENCES,
+          StringUtils.join(licenceDisplayNames, ", ")
+      );
+    }
+
     summaryDataView.addKeyValue(
         ONSHORE_OFFSHORE,
         form.getOnshoreOffshore()

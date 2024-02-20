@@ -408,6 +408,22 @@ class GeneralDetailsFormValidatorTest {
   }
 
   @Test
+  void validate_whenNoLicenceSelected_fieldSubmission_thenNoErrors() {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
+
+    var form = getValidForm();
+    form.setLicences(List.of());
+    form.setLicenceSelect(null);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
+    assertTrue(generalDetailsFormValidator.isValid(
+        form,
+        bindingResult,
+        submissionDetail,
+        ValidationType.FULL));
+  }
+
+  @Test
   void validate_whenNoLicenceSelected_asRegulatorThenNoErrors() {
     var form = getValidForm();
     form.setLicences(List.of());
@@ -497,7 +513,6 @@ class GeneralDetailsFormValidatorTest {
     assertThat(extractedErrors)
         .contains(
             entry("currentDriveMechanism", Set.of("currentDriveMechanism.required")),
-            entry("licenceSelect", Set.of("licenceSelect.required")),
             entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty")),
             entry("resourceLocatedInUkcs", Set.of("resourceLocatedInUkcs.required")),
             entry("capitalProjectScopeDelivered", Set.of("capitalProjectScopeDelivered.required"))
@@ -532,7 +547,6 @@ class GeneralDetailsFormValidatorTest {
     assertThat(extractedErrors)
         .contains(
             entry("currentDriveMechanism", Set.of("currentDriveMechanism.required")),
-            entry("licenceSelect", Set.of("licenceSelect.required")),
             entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty")),
             entry("resourceLocatedInUkcs", Set.of("resourceLocatedInUkcs.required")),
             entry("fieldStoppedProducingDay", Set.of("fieldStoppedProducingDay.invalid")),

@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field;
 
+import java.util.ArrayList;
 import java.util.List;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
@@ -20,6 +21,9 @@ public class FieldForm {
   private String parentDeterminedField;
   private List<String> associatedDiscoveries;
   private String associatedDiscoverySelect;
+  private Boolean isOnLicence;
+  private List<String> licences = new ArrayList<>();
+  private String licenceSelect;
 
   public String getLegalFieldName() {
     return legalFieldName;
@@ -125,5 +129,29 @@ public class FieldForm {
 
   public void setAssociatedDiscoverySelect(String associatedDiscoverySelect) {
     this.associatedDiscoverySelect = associatedDiscoverySelect;
+  }
+
+  public Boolean getIsOnLicence() {
+    return isOnLicence;
+  }
+
+  public void setIsOnLicence(Boolean onLicence) {
+    isOnLicence = onLicence;
+  }
+
+  public List<String> getLicences() {
+    return licences;
+  }
+
+  public void setLicences(List<String> licences) {
+    this.licences = licences;
+  }
+
+  public String getLicenceSelect() {
+    return licenceSelect;
+  }
+
+  public void setLicenceSelect(String licenceSelect) {
+    this.licenceSelect = licenceSelect;
   }
 }
