@@ -13,22 +13,25 @@ DECLARE
 BEGIN
 
     FOR single_reservoir_rec IN (
+        WITH res_count AS (
+            SELECT sd.id sd_id, COUNT(rsd.id) rsd_count
+            FROM remi.resources r
+            JOIN remi.submissions s ON s.resource_id = r.id
+            JOIN remi.submission_details sd ON sd.submission_id = s.id
+            JOIN remi.reservoir_submission_details rsd ON rsd.submission_detail_id = sd.id
+            AND r.type = 'DISCOVERY'
+            GROUP BY sd.id
+        )
         SELECT
-            sd.id sd_id,
+            rc.sd_id,
             rsd.id rsd_id,
             gco.has_associated_condensate_recoverable_resources gas_associated_condensate,
             mco.has_associated_condensate_recoverable_resources combined_associated_condensate
-        FROM remi.resources r
-        JOIN remi.submissions s ON s.resource_id = r.id
-        JOIN remi.submission_details sd ON sd.submission_id = s.id
-        JOIN remi.reservoir_submission_details rsd ON rsd.submission_detail_id = sd.id
+        FROM res_count rc
+        JOIN remi.reservoir_submission_details rsd ON rsd.submission_detail_id = rc.sd_id
         LEFT JOIN remi.gas_case_outputs gco ON gco.reservoir_submission_detail_id = rsd.id
         LEFT JOIN remi.mixed_case_outputs mco ON mco.reservoir_submission_detail_id = rsd.id
-        WHERE (
-            SELECT COUNT(*) FROM remi.reservoir_submission_details rsd
-            WHERE rsd.submission_detail_id = sd.id
-        ) = 1
-        AND r.type = 'DISCOVERY'
+        WHERE rc.rsd_count = 1
     )
     LOOP
 

@@ -25,7 +25,8 @@
 htmlTitle=pageTitle
 pageHeading=pageTitle
 pageSize=PageSize.FULL_WIDTH
-breadcrumbsMap=breadcrumbsMap>
+breadcrumbsMap=breadcrumbsMap
+wrapperWidth=true>
 
   <@fdsDataItems.dataItem>
     <#assign responsibleTeam = resourceRecord.responsibleTeam()
