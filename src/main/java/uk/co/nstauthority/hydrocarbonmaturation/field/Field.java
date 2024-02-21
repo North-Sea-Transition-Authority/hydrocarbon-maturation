@@ -51,6 +51,8 @@ public class Field {
   @ManyToOne
   private Field parentDeterminedField;
 
+  private Boolean isOnLicence;
+
   public Integer getFieldIdentifier() {
     return fieldIdentifier;
   }
@@ -154,5 +156,13 @@ public class Field {
 
   public void setParentDeterminedField(Field parentDeterminedField) {
     this.parentDeterminedField = parentDeterminedField;
+  }
+
+  public Boolean getIsOnLicence() {
+    return isOnLicence;
+  }
+
+  public void setIsOnLicence(Boolean onLicence) {
+    isOnLicence = onLicence;
   }
 }

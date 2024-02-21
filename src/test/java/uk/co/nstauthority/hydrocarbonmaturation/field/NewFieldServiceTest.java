@@ -33,7 +33,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetail
 class NewFieldServiceTest {
 
   @Mock
-  private NewFieldFormValidator newFieldFormValidator;
+  private FieldFormValidator fieldFormValidator;
   @Mock
   private FieldPersistenceService fieldPersistenceService;
   @Mock

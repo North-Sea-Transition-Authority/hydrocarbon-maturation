@@ -32,8 +32,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
@@ -49,6 +52,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldForm;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.NewFieldService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.StartFieldController;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -78,6 +82,8 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
   private FieldRegulatorManagedInformationService fieldRegulatorManagedInformationService;
   @MockBean
   private FieldStatusService fieldStatusService;
+  @MockBean
+  private FieldLicenceService fieldLicenceService;
 
   private FieldForm form;
   private BindingResult bindingResult;
@@ -274,6 +280,10 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
     when(fieldPersistenceService.getFieldOrThrow(resource))
         .thenReturn(field);
 
+    var licences = List.of(new LicenceView("example", 1, LicenceStatus.EXTANT));
+        when(fieldLicenceService.getFieldLicenceViews(form))
+            .thenReturn(licences);
+
     var modelMap = mockMvc.perform(
             get(ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
                 .getRegulatorManagedInformationPage(resourceId, null)))
@@ -304,7 +314,10 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
                     .searchDiscoveriesNotInGroupOrPreferredView(null))),
             entry("responsibleOrganisation", expectedResponsibleOrganisation),
             entry("parentDeterminedField", expectedParentDeterminedField),
-            entry("alreadyAddedAssociatedDiscoveries", expectedAssociatedDiscoveries)
+            entry("alreadyAddedAssociatedDiscoveries", expectedAssociatedDiscoveries),
+            entry("licenceEndpoint",
+                SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null))),
+            entry("alreadyAddedLicences", licences)
             ).containsKey("breadcrumbsMap");
   }
 
@@ -354,6 +367,10 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
     when(fieldPersistenceService.getFieldOrThrow(resource))
         .thenReturn(field);
 
+    var licences = List.of(new LicenceView("example", 1, LicenceStatus.EXTANT));
+    when(fieldLicenceService.getFieldLicenceViews(form))
+        .thenReturn(licences);
+
     var modelMap = mockMvc.perform(
             get(ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
                 .getRegulatorManagedInformationPageWithSubmissionDetail(resourceId, submissionDetail.getId(), null)))
@@ -384,7 +401,10 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
                     .searchDiscoveriesNotInGroupOrPreferredView(null))),
             entry("responsibleOrganisation", expectedResponsibleOrganisation),
             entry("parentDeterminedField", expectedParentDeterminedField),
-            entry("alreadyAddedAssociatedDiscoveries", expectedAssociatedDiscoveries)
+            entry("alreadyAddedAssociatedDiscoveries", expectedAssociatedDiscoveries),
+            entry("licenceEndpoint",
+                SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null))),
+            entry("alreadyAddedLicences", licences)
         ).containsKeys("breadcrumbsMap", "cancelUrl");
   }
 

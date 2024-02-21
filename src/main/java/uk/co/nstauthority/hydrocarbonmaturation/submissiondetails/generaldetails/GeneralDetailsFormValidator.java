@@ -82,14 +82,8 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
   public void validateFull(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var generalDetailsForm = (GeneralDetailsForm) form;
 
-    if (CollectionUtils.isEmpty(generalDetailsForm.getLicences())
-        && !isRelinquishment
-        && SubmitterType.INDUSTRY.equals(submissionDetail.getSubmitterType())
-    ) {
-      errors.rejectValue(LICENCE_SELECT, LICENCE_SELECT + ".required",
-          "You must select at least one licence");
-    } else if (BooleanUtils.isNotTrue(submissionDetail.isCorrection())) {
-      validateExtantLicences(generalDetailsForm, errors);
+    if (!submissionDetail.isFieldSubmission()) {
+      validateLicences(errors, submissionDetail, generalDetailsForm);
     }
 
     validateResourceLocated(errors);
@@ -123,6 +117,18 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
     }
 
     validateFieldValues(errors, submissionDetail, generalDetailsForm);
+  }
+
+  private void validateLicences(Errors errors, SubmissionDetail submissionDetail, GeneralDetailsForm generalDetailsForm) {
+    if (CollectionUtils.isEmpty(generalDetailsForm.getLicences())
+        && !isRelinquishment
+        && SubmitterType.INDUSTRY.equals(submissionDetail.getSubmitterType())
+    ) {
+      errors.rejectValue(LICENCE_SELECT, LICENCE_SELECT + ".required",
+          "You must select at least one licence");
+    } else if (BooleanUtils.isNotTrue(submissionDetail.isCorrection())) {
+      validateExtantLicences(generalDetailsForm, errors);
+    }
   }
 
   private void validateFieldValues(Errors errors, SubmissionDetail submissionDetail, GeneralDetailsForm generalDetailsForm) {

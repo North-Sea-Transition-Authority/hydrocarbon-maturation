@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation;
 
 import java.util.ArrayList;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,9 +9,11 @@ import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldForm;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.field.NewFieldFormValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
@@ -22,21 +25,25 @@ public class FieldRegulatorManagedInformationService {
   private final ResourceLinkService resourceLinkService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final SubmissionDetailService submissionDetailService;
-  private final NewFieldFormValidator newFieldFormValidator;
+  private final FieldFormValidator fieldFormValidator;
+  private final FieldLicenceService fieldLicenceService;
 
   @Autowired
   public FieldRegulatorManagedInformationService(
       FieldPersistenceService fieldPersistenceService,
       RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
       ResourceLinkService resourceLinkService,
-      ResourceDetailsPersistenceService resourceDetailsPersistenceService, SubmissionDetailService submissionDetailService,
-      NewFieldFormValidator newFieldFormValidator) {
+      ResourceDetailsPersistenceService resourceDetailsPersistenceService,
+      SubmissionDetailService submissionDetailService,
+      FieldFormValidator fieldFormValidator,
+      FieldLicenceService fieldLicenceService) {
     this.fieldPersistenceService = fieldPersistenceService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.resourceLinkService = resourceLinkService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.submissionDetailService = submissionDetailService;
-    this.newFieldFormValidator = newFieldFormValidator;
+    this.fieldFormValidator = fieldFormValidator;
+    this.fieldLicenceService = fieldLicenceService;
   }
 
   public FieldForm resourceToFieldForm(Resource resource) {
@@ -90,9 +97,21 @@ public class FieldRegulatorManagedInformationService {
                   );
               form.setAssociatedDiscoveries(associatedDiscoveries);
 
+              addLicences(field, form);
+
               return form;
             }
         ).orElse(new FieldForm());
+  }
+
+  private void addLicences(Field field, FieldForm form) {
+    form.setIsOnLicence(field.getIsOnLicence());
+
+    if (BooleanUtils.isTrue(field.getIsOnLicence())) {
+      form.setLicences(
+          fieldLicenceService.getFieldLicenceIds(field)
+      );
+    }
   }
 
   @Transactional
@@ -102,7 +121,7 @@ public class FieldRegulatorManagedInformationService {
 
   public boolean isValidNewFieldForm(FieldForm form, BindingResult bindingResult) {
     var initialErrors = bindingResult.getAllErrors().size();
-    newFieldFormValidator.validate(form, bindingResult);
+    fieldFormValidator.validate(form, bindingResult);
     return bindingResult.getAllErrors().size() == initialErrors;
   }
 }

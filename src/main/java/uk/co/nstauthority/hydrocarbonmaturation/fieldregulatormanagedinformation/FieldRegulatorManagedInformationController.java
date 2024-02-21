@@ -20,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
@@ -34,6 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldForm;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.NewFieldService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.StartFieldController;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -65,6 +67,7 @@ public class FieldRegulatorManagedInformationController {
   private final FieldRegulatorManagedInformationService fieldRegulatorManagedInformationService;
   private final FieldPersistenceService fieldPersistenceService;
   private final SubmissionDetailService submissionDetailService;
+  private final FieldLicenceService fieldLicenceService;
 
   @Autowired
   public FieldRegulatorManagedInformationController(
@@ -73,7 +76,8 @@ public class FieldRegulatorManagedInformationController {
       NewFieldService newFieldService,
       FieldRegulatorManagedInformationService fieldRegulatorManagedInformationService,
       FieldPersistenceService fieldPersistenceService,
-      SubmissionDetailService submissionDetailService) {
+      SubmissionDetailService submissionDetailService,
+      FieldLicenceService fieldLicenceService) {
     this.userService = userService;
     this.responsibleTeamService = responsibleTeamService;
     this.resourceService = resourceService;
@@ -81,6 +85,7 @@ public class FieldRegulatorManagedInformationController {
     this.fieldRegulatorManagedInformationService = fieldRegulatorManagedInformationService;
     this.fieldPersistenceService = fieldPersistenceService;
     this.submissionDetailService = submissionDetailService;
+    this.fieldLicenceService = fieldLicenceService;
   }
 
   @GetMapping
@@ -203,7 +208,10 @@ public class FieldRegulatorManagedInformationController {
             .getPreSelectedAssociatedDiscoveriesMap(form.getAssociatedDiscoveries()))
         .addObject("discoveriesApiEndpoint",
             SearchSelectorService.route(on(ResourceRestController.class)
-                .searchDiscoveriesNotInGroupOrPreferredView(null)));
+                .searchDiscoveriesNotInGroupOrPreferredView(null)))
+        .addObject("licenceEndpoint",
+            SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null)))
+        .addObject("alreadyAddedLicences", fieldLicenceService.getFieldLicenceViews(form));
   }
 
   private void addBreadcrumbsAndCancelUrlForSystemOfRecord(ModelAndView modelAndView, Resource resource) {

@@ -68,6 +68,35 @@
       optionalLabel=true/>
 
     <@fdsRadio.radioGroup
+    path="form.isOnLicence"
+    labelText="Is this field on a licence?"
+    hiddenContent=true>
+      <@fdsRadio.radioYes
+      path="form.isOnLicence">
+        <@fdsFieldset.fieldset
+        legendHeadingSize="h2"
+        legendHeadingClass="govuk-fieldset__legend--s"
+        legendHeading="What licences are on this field?">
+          <@fdsAddToList.addToList
+          pathForList="form.licences"
+          pathForSelector="form.licenceSelect"
+          alreadyAdded=alreadyAddedLicences!{}
+          title=""
+          itemName="Licences"
+          noItemText="No licence added"
+          invalidItemText="This licence is not extant"
+          selectorMinInputLength=1
+          addToListId="licence-table"
+          selectorLabelText="Select a licence to add to this field"
+          restUrl=springUrl(licenceEndpoint)/>
+        </@fdsFieldset.fieldset>
+      </@fdsRadio.radioYes>
+
+      <@fdsRadio.radioNo
+      path="form.isOnLicence" />
+    </@fdsRadio.radioGroup>
+
+    <@fdsRadio.radioGroup
       path="form.onshoreOffshore"
       labelText="Is this field onshore or offshore?"
       hiddenContent=true>

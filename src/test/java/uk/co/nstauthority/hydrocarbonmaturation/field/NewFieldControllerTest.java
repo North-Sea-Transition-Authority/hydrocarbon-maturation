@@ -25,12 +25,16 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
+import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceView;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
@@ -41,6 +45,8 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private NewFieldService newFieldService;
+  @MockBean
+  private FieldLicenceService fieldLicenceService;
 
   @SecurityTest
   void getNewFieldPage_whenNoPermission_assertForbidden() throws Exception {
@@ -83,6 +89,10 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
     when(newFieldService.getPreSelectedAssociatedDiscoveriesMap(form.getAssociatedDiscoveries()))
         .thenReturn(alreadyAddedDiscovery);
 
+    var licenceViews = List.of(new LicenceView("ref", 1, LicenceStatus.EXTANT));
+    when(fieldLicenceService.getFieldLicenceViews(any(FieldForm.class)))
+        .thenReturn(licenceViews);
+
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
                     get(ReverseRouter.route(on(NewFieldController.class)
@@ -107,7 +117,9 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
             entry("parentDeterminedFieldEndpoint", SearchSelectorService.route(on(DeterminedFieldRestController.class).searchDeterminedFields(null))),
             entry("parentDeterminedField", parentDeterminedField),
             entry("alreadyAddedAssociatedDiscoveries", alreadyAddedDiscovery),
-            entry("cancelUrl", ReverseRouter.route(on(StartFieldController.class).getStartPage()))
+            entry("cancelUrl", ReverseRouter.route(on(StartFieldController.class).getStartPage())),
+            entry("licenceEndpoint", SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null))),
+            entry("alreadyAddedLicences", licenceViews)
         );
   }
 

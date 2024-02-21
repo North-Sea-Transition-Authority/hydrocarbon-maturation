@@ -2,14 +2,17 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -42,6 +46,8 @@ class FieldPersistenceServiceTest {
   private SubmissionDetailService submissionDetailService;
   @Mock
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
+  @Mock
+  private FieldLicenceService fieldLicenceService;
   @InjectMocks
   private FieldPersistenceService underTest;
 
@@ -192,6 +198,17 @@ class FieldPersistenceServiceTest {
           );
 
       verify(fieldRepository).save(result);
+    }
+    @Test
+    void fieldLicencesSaved() {
+      form.setIsOnLicence(true);
+      form.setLicences(List.of("ref1", "ref2"));
+      var result = underTest.saveFieldFromFieldForm(form, resource);
+
+      assertThat(result.getIsOnLicence()).isEqualTo(form.getIsOnLicence());
+
+      verify(fieldLicenceService).saveFieldLicences(any(Field.class), eq(form.getLicences()));
+      verifyNoMoreInteractions(fieldLicenceService);
     }
   }
 

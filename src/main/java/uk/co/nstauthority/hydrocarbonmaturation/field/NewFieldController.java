@@ -14,11 +14,13 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
@@ -36,12 +38,15 @@ class NewFieldController {
 
   private final NewFieldService newFieldService;
   private final ControllerHelperService controllerHelperService;
+  private final FieldLicenceService fieldLicenceService;
 
   @Autowired
   public NewFieldController(NewFieldService newFieldService,
-                            ControllerHelperService controllerHelperService) {
+                            ControllerHelperService controllerHelperService,
+                            FieldLicenceService fieldLicenceService) {
     this.newFieldService = newFieldService;
     this.controllerHelperService = controllerHelperService;
+    this.fieldLicenceService = fieldLicenceService;
   }
 
   @GetMapping
@@ -88,6 +93,9 @@ class NewFieldController {
         .addObject("discoveriesApiEndpoint",
             SearchSelectorService.route(on(ResourceRestController.class)
                 .searchDiscoveriesNotInGroupOrPreferredView(null)))
-        .addObject("cancelUrl", ReverseRouter.route(on(StartFieldController.class).getStartPage()));
+        .addObject("cancelUrl", ReverseRouter.route(on(StartFieldController.class).getStartPage()))
+        .addObject("licenceEndpoint",
+            SearchSelectorService.route(on(LicenceRestController.class).searchExtantLicences(null)))
+        .addObject("alreadyAddedLicences", fieldLicenceService.getFieldLicenceViews(form));
   }
 }

@@ -2,23 +2,31 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 
 @ExtendWith(MockitoExtension.class)
 class FieldFormValidatorTest {
-
+  @Mock
+  private FieldLicenceService fieldLicenceService;
   @InjectMocks
-  private NewFieldFormValidator underTest;
+  private FieldFormValidator underTest;
 
   @Test
   void emptyForm() {
@@ -38,7 +46,8 @@ class FieldFormValidatorTest {
             entry("determinationStatus", Set.of("determinationStatus.required")),
             entry("fieldNumber.decimalInputValue", Set.of("fieldNumber.decimalInputValue.required")),
             entry("infrastructureHost", Set.of("infrastructureHost.required")),
-            entry("associatedDiscoverySelect", Set.of("associatedDiscoverySelect.notEmpty"))
+            entry("associatedDiscoverySelect", Set.of("associatedDiscoverySelect.notEmpty")),
+            entry("isOnLicence", Set.of("isOnLicence.required"))
         );
   }
 
@@ -87,6 +96,72 @@ class FieldFormValidatorTest {
         );
   }
 
+  @Nested
+  class GivenFieldIsOnLicence {
+    private BindingResult bindingResult;
+    private FieldForm form;
+
+    @BeforeEach
+    void setUp() {
+      form = getValidForm();
+      bindingResult = new BeanPropertyBindingResult(form, "form");
+    }
+
+    @Test
+    void whenNoLicenceSelected_thenErrors() {
+      form.setIsOnLicence(true);
+      form.setLicences(new ArrayList<>());
+
+      underTest.validate(form, bindingResult);
+
+      var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+      assertThat(extractedErrors)
+          .contains(
+              entry("licenceSelect", Set.of("licenceSelect.required"))
+          );
+    }
+
+    @Test
+    void whenLicencesSelected_andAllAreExtant_thenNoErrors() {
+      form.setIsOnLicence(true);
+
+      var licenceRefs = List.of("ref1", "ref2");
+      form.setLicences(licenceRefs);
+
+      when(fieldLicenceService.areAllExtantLicences(licenceRefs))
+          .thenReturn(true);
+
+      underTest.validate(form, bindingResult);
+
+      var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+      assertThat(extractedErrors)
+          .isEmpty();
+    }
+
+    @Test
+    void whenLicencesSelected_butAreNotAllExtant_thenErrors() {
+      form = getValidForm();
+      form.setIsOnLicence(true);
+
+      var licenceRefs = List.of("ref1", "ref2");
+      form.setLicences(licenceRefs);
+
+      when(fieldLicenceService.areAllExtantLicences(licenceRefs))
+          .thenReturn(false);
+
+      underTest.validate(form, bindingResult);
+
+      var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+      assertThat(extractedErrors)
+          .contains(
+              entry("licenceSelect", Set.of("licenceSelect.notValid"))
+          );
+    }
+  }
+
   private FieldForm getEmptyForm() {
     var form = new FieldForm();
     form.setFieldNumber(new DecimalInput());
@@ -103,6 +178,7 @@ class FieldFormValidatorTest {
     form.setFieldNumber(DecimalInput.createDecimalInput(1));
     form.setInfrastructureHost(false);
     form.setAssociatedDiscoveries(List.of("associated discovery"));
+    form.setIsOnLicence(false);
 
     return form;
   }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -23,18 +24,21 @@ public class FieldPersistenceService {
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final ResourceLinkService resourceLinkService;
   private final SubmissionDetailService submissionDetailService;
+  private final FieldLicenceService fieldLicenceService;
 
   @Autowired
   FieldPersistenceService(FieldRepository fieldRepository,
                           OrganisationUnitQueryService organisationUnitQueryService,
                           RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
                           ResourceLinkService resourceLinkService,
-                          SubmissionDetailService submissionDetailService) {
+                          SubmissionDetailService submissionDetailService,
+                          FieldLicenceService fieldLicenceService) {
     this.fieldRepository = fieldRepository;
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.resourceLinkService = resourceLinkService;
     this.submissionDetailService = submissionDetailService;
+    this.fieldLicenceService = fieldLicenceService;
   }
 
   @Transactional
@@ -97,6 +101,10 @@ public class FieldPersistenceService {
             submissionDetailService.getSubmissionDetailByResourceDetailOrThrow(UUID.fromString(resourceDetailId)))
         .map(submissionDetail -> submissionDetail.getSubmission().getResource())
         .forEach(discovery -> resourceLinkService.createNewDiscoveryFieldResourceLink(discovery, field.getResource()));
+
+    field.setIsOnLicence(form.getIsOnLicence());
+
+    fieldLicenceService.saveFieldLicences(field, form.getLicences());
 
     return field;
   }
