@@ -34,7 +34,8 @@
   pageHeading=pageTitle
   caption=caption
   pageSize=PageSize.FULL_WIDTH
-  breadcrumbsMap=breadcrumbsMap>
+  breadcrumbsMap=breadcrumbsMap
+  wrapperWidth=true>
 
   <@fdsDataItems.dataItem>
       <#if isFieldSubmission>

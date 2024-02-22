@@ -1,3 +1,7 @@
+TRUNCATE remi.padi_res_header_prev;
+
+TRUNCATE remi.padi_res_data_header_prev;
+
 INSERT INTO remi.padi_res_header_prev
 SELECT *
 FROM remi.padi_res_header;
@@ -15,10 +19,10 @@ ORDER BY resource_id;
 SELECT resource_id, block_centroid
 FROM remi.padi_res_header_prev;
 
-SELECT h.resource_id, h.block_polygon
+SELECT h.resource_id, REPLACE(h.block_polygon, ' ', '')
 FROM remi.padi_res_header h
 EXCEPT
-SELECT p.resource_id, p.block_polygon
+SELECT p.resource_id, REPLACE(p.block_polygon, ' ', '')
 FROM remi.padi_res_header_prev p
 ORDER BY 1;
 
@@ -26,11 +30,11 @@ ORDER BY 1;
 SELECT
     h.resdat_id,
 --     h.resource_id,
-    h.stage_date,
-    h.stage_name,
+--     h.stage_date,
+--     h.stage_name,
 --     h.stage_choice,
 --     h.name_alternative,
-    h.company,
+--     h.company
     h.o_well_number
 --     h.application_ref,
 --     h.hc_case,
@@ -50,11 +54,11 @@ EXCEPT
 SELECT
     p.resdat_id,
 --     p.resource_id,
-    p.stage_date,
-    p.stage_name,
+--     p.stage_date,
+--     p.stage_name,
 --     p.stage_choice,
 --     p.name_alternative,
-    p.company,
+--     p.company
     p.o_well_number
 --     p.application_ref,
 --     p.hc_case,
@@ -86,6 +90,13 @@ SELECT pwm.padi_resdat_id, pwm.padi_resource_id, pwm.well_registration_no
 FROM remi.padi_well_mapping pwm
 ORDER BY 1;
 
+SELECT
+    prdh.resdat_id padi_resdat_id,
+    prdh.resource_id padi_resource_id,
+    prdh.o_well_number padi_well
+FROM remi.padi_res_data_header prdh
+WHERE prdh.o_well_number IS NOT NULL;
+
 -- After running company diff check, manually update any which fall into this where possible
 SELECT pom.*
 FROM remi.padi_operator_mapping pom
@@ -111,3 +122,11 @@ AND UPPER(padi_name) NOT IN (
 
 SELECT *
 FROM remi.padi_operator_mapping;
+
+SELECT prdh.resdat_id, prdh.resource_id, prdh.licence_list
+FROM remi.padi_res_data_header prdh
+WHERE prdh.licence_list IS NOT NULL;
+
+SELECT prh.resource_id, prh.block_polygon, prh.block_centroid, prh.play_fairway
+FROM remi.padi_res_header prh
+WHERE prh.block_polygon IS NOT NULL;

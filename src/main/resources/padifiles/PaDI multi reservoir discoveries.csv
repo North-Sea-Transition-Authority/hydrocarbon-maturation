@@ -1,236 +1,212 @@
-﻿resource_id,Name of Prospect,Resource Name,Opportunity TYPE,Split TYPE,Resource Stage Name,Play Fairway,Reservoir Horizon,Reference,choice,resdat_id
-RID0000428,cp110_12_10,110/12a- 1  Ennerdale,Discovery,Res_split_plays,110/12a-1 discovery Collyhurst,Collyhurst,PU,GC05/01,0,47294
-RID0000428,cp110_12_10,110/12a- 1  Ennerdale,Discovery,Res_split_plays,110/12a-1 discovery Sherwood,Sherwood,T,GC05/01,0,47183
-RID0000928,cp14_18_8,14/18b- 7 ATHENA,Discovery,Res_split_plays,Esk discovery  - Scapa SA Sand,DevilsHole-Scapa,KL,23rd Round (AP108T),0,37964
-RID0000928,cp14_18_8,14/18b- 7 ATHENA,Discovery,Res_split_plays,Esk discovery  - Valanginian,DevilsHole-Scapa,KL,23rd Round (AP108T),0,37965
-RID0003700,cp22_23_21,22/24e- 12  Seagull North,Discovery,Res_split_plays,Lead A Jurassic,Fulmar,JU,25th Round (AP138T),0,40761
-RID0003700,cp22_23_21,22/24e- 12  Seagull North,Discovery,Res_split_plays,Lead A Triassic,Skagerrak,T,25th Round (AP138T),0,40762
-RID0004308,cp28_9_27,28/09- 1  CATCHER Sele,Discovery,Res_split_plays,CATCHER Sele,Sele,GEGP,Reserves end 2014,1,51170
-RID0004308,cp28_9_27,28/09- 1  CATCHER Sele,Discovery,Res_split_plays,CATCHER Tay,Tay,GE,Reserves end 2014,1,50332
-RID0004664,cp29_7_31,29/07- 1  Danni Chalk,Discovery,Res_split_plays,Curlew A Ekofisk,Chalk,KU,27th Round (72T),0,41686
-RID0004664,cp29_7_31,29/07- 1  Danni Chalk,Discovery,Res_split_plays,Curlew A Tor,Chalk,KU,27th Round (72T),0,41687
-RID0011140,cp15_7_16,15/07- 1  Funnel,Discovery,Res_split_plays,Funnel (Forties),Forties,GP,23rd Round (AP128 P),0,38468
-RID0011140,cp15_7_16,15/07- 1  Funnel,Discovery,Res_split_plays,Funnel (Mey),Mey,GP,23rd Round (AP128 P),0,38469
-RID0011140,cp15_7_16,15/07- 1  Funnel,Discovery,Res_split_plays,Funnel Dornoch,Ninian,GP,25th Round (AP17T),0,38463
-RID0011140,cp15_7_16,15/07- 1  Funnel,Discovery,Res_split_plays,Funnel Forties,Mey,GP,25th Round (AP17T),0,38464
-RID0011147,cp9_12_30,9/12- 3  Bluebeard,Discovery,Res_split_plays,Bluebeard 9/12-3,Teal-Heimdal,GP,Apache_P1982_Block_9_12b_Relinquishment_Report_January_2019.pdf,0,53129
-RID0011147,cp9_12_30,9/12- 3  Bluebeard,Discovery,Res_split_plays,Bluebeard Frigg,Frigg,GE,Apache_P1982_Block_9_12b_Relinquishment_Report_January_2019.pdf,0,53130
-RID0011217,cp15_23_56,15/23d- 13  Bugle,Discovery,Res_split_plays,Bugle (Dirk sand),Brae-Kimmeridge,JU,33rd Round - F33/0060IA,1,56301
-RID0011217,cp15_23_56,15/23d- 13  Bugle,Discovery,Res_split_plays,Bugle (Galley sand),Brae-Kimmeridge,JU,33rd Round - F33/0060IA,1,56302
-RID0011276,cp21_20_21,21/20b- 4  CHRISTIAN J62,Discovery,Res_split_plays,Christian Fulmar,Fulmar,JU,28th Round (7T),0,39539
-RID0011276,cp21_20_21,21/20b- 4  CHRISTIAN J62,Discovery,Res_split_plays,Christian Sands,Kimmeridge,JU,28th Round (7T),0,39537
-RID0011306,cp213_25_2,213/25c- 1V  North Uist,Discovery,Res_split_plays,North Uist Carboniferous,WOS_Permo-Triassic,C,22nd Round (AP16F),0,40155
-RID0011306,cp213_25_2,213/25c- 1V  North Uist,Discovery,Res_split_plays,North Uist Jurassic,WOS_Jurassic,KU,22nd Round (AP16F),0,40154
-RID0011344,cp29_3_42,29/03b- 9  Corfe,Discovery,Res_split_plays,Corfe Fulmar,Fulmar,JU,Prospex 2014,0,41569
-RID0011344,cp29_3_42,29/03b- 9  Corfe,Discovery,Res_split_plays,Corfe Joanne Judy,Skagerrak,T,Prospex 2014,0,41568
-RID0011344,cp29_3_42,29/03b- 9  Corfe,Discovery,Res_split_plays,Corfe Tr MJ,Skagerrak,T,25th Round (AP36T),0,41550
-RID0011344,cp29_3_42,29/03b- 9  Corfe,Discovery,Res_split_plays,Corfe_Fulmar,Fulmar,JU,25th Round (AP36T),0,41551
-RID0011384,cp30_25_29,30/25a- 4  North Argyll,Discovery,Res_split_plays,30/25a-4 discovery (Devonian),Devonian,D,24th Round (AP1P),0,42279
-RID0011384,cp30_25_29,30/25a- 4  North Argyll,Discovery,Res_split_plays,30/25a-4 Discovery (Devonian),Devonian,D,p1435.pdf,0,54390
-RID0011384,cp30_25_29,30/25a- 4  North Argyll,Discovery,Res_split_plays,30/25a-4 discovery (Permian),Rotliegend,PL,24th Round (AP1P),0,42278
-RID0011384,cp30_25_29,30/25a- 4  North Argyll,Discovery,Res_split_plays,30/25a-4 Discovery (Permian),Rotliegend,PL,p1435.pdf,0,54389
-RID0011467,cp8_15_12,8/15a- 3  Boatswain,Discovery,Res_split_plays,Boatswain Heimdal,Teal-Heimdal,GP,P1758_8_15_Equinor_RelReport_September2019.pdf,0,54759
-RID0011467,cp8_15_12,8/15a- 3  Boatswain,Discovery,Res_split_plays,Boatswain Maureen,Maureen,GP,P1758_8_15_Equinor_RelReport_September2019.pdf,0,53053
-RID0011467,cp8_15_12,8/15a- 3  Boatswain,Discovery,Res_split_plays,Lead A,Maureen,GP,26th Round (60T),0,44223
-RID0011467,cp8_15_12,8/15a- 3  Boatswain,Discovery,Res_split_plays,Lead B,Teal-Heimdal,GP,26th Round (60T),0,44224
-RID0011550,cp29_1_36,29/01c- 9  Orchid,Discovery,Res_split_plays,Acheron Fulmar,Fulmar,JU,25th Round (AP11T),0,41385
-RID0011550,cp29_1_36,29/01c- 9  Orchid,Discovery,Res_split_plays,Acheron_Ekofisk,Chalk,GP,25th Round (AP11T),0,41382
-RID0011550,cp29_1_36,29/01c- 9  Orchid,Discovery,Res_split_plays,Acheron_Tor,Chalk,KU,25th Round (AP11T),0,41383
-RID0011550,cp29_1_36,29/01c- 9  Orchid,Discovery,Res_split_plays,F-2--Lead29/1A,Chalk,KUGD,GC04/24,0,46120
-RID0011550,cp29_1_36,29/01c- 9  Orchid,Discovery,Res_split_plays,F-2--Lead29/1A-Hod,Chalk,KUGD,GC04/24,0,46121
-RID0011550,cp29_1_36,29/01c- 9  Orchid,Discovery,Res_split_plays,F-2--Lead29/1A-Tor,Chalk,KUGD,GC04/24,0,46122
-RID0011550,cp29_1_36,29/01c- 9  Orchid,Discovery,Res_split_plays,F-2-119,Chalk,KUGD,GC04/24,0,46102
-RID0011591,cp22_30_40,22/30a- 17  Aragorn,Discovery,Res_split_plays,Aragorn Pentland,Pentland,JM,HPHT Dec 2004,0,40962
-RID0011591,cp22_30_40,22/30a- 17  Aragorn,Discovery,Res_split_plays,Aragorn Skagerrak,Skagerrak,T,HPHT Dec 2004,0,40951
-RID0011747,cp28_9_54,28/09a- 6  Bonneville,Discovery,Res_split_plays,Bonneville,Tay,GE,30th Round - F30/0063IA,0,49860
-RID0011747,cp28_9_54,28/09a- 6  Bonneville,Discovery,Res_split_plays,Bonneville West Deep,Sele,GP,30th Round - F30/0063IA,0,49861
-RID0011780,cp22_24_29,22/24c- 11  Tesla,Discovery,Res_split_plays,Tesla Judy,Skagerrak,T,24th Round (AP53T),0,40756
-RID0011780,cp22_24_29,22/24c- 11  Tesla,Discovery,Res_split_plays,Tesla Pentland,Pentland,JM,24th Round (AP53T),0,40778
-RID0012010,cp30_1_56,30/01a- 11  Faraday Fulmar,Discovery,Res_split_plays,Faraday Fulmar (Shearwater),Fulmar,JU,30th Round - F30/0043IA,0,50203
-RID0012010,cp30_1_56,30/01a- 11  Faraday Fulmar,Discovery,Res_split_plays,Faraday Fulmar(Puffin),Fulmar,JU,30th Round - F30/0043IA,0,50202
-RID0012053,cp9_14_18,9/14b- 1  LEADON,Discovery,Res_split_plays,LEADON Frigg,Frigg,GE,Reserves end 2014,0,50294
-RID0012053,cp9_14_18,9/14b- 1  LEADON,Discovery,Res_split_plays,LEADON Rogaland-Balder,Balder,GE,Reserves end 2014,0,51156
-RID0012059,cp9_19_68,9/19- 8Z  MACLURE,Discovery,Res_split_plays,MACLURE Frigg,Frigg,GE,Reserves end 2014,1,50300
-RID0012059,cp9_19_68,9/19- 8Z  MACLURE,Discovery,Res_split_plays,MACLURE Rogaland-Balder,Balder,GE,Reserves end 2014,1,51160
-RID0012123,cp29_2_6,29/02a- 6  BANFF,Discovery,Res_split_plays,BANFF Chalk,Chalk,KU,Reserves end 2014,0,50364
-RID0012123,cp29_2_6,29/02a- 6  BANFF,Discovery,Res_split_plays,BANFF Mey,Mey,GP,Reserves end 2014,0,51140
-RID0012123,cp29_2_6,29/02a- 6  BANFF,Discovery,Res_split_plays,BANFF Zechstein-Halibut,Zechstein-Halibut,PU,Reserves end 2014,0,50643
-RID0012130,cp30_7_33,30/07a- 1  JOANNE,Discovery,Res_split_plays,JOANNE Chalk,Chalk,KU,Reserves end 2014,1,50371
-RID0012130,cp30_7_33,30/07a- 1  JOANNE,Discovery,Res_split_plays,JOANNE Forties-Andrew - Mey,Mey,GP,Reserves end 2014,1,51143
-RID0012134,cp31_26_9,31/26a- 12  FLORA,Discovery,Res_split_plays,FLORA Carboniferous,Carboniferous,C,Reserves end 2014,1,50848
-RID0012134,cp31_26_9,31/26a- 12  FLORA,Discovery,Res_split_plays,FLORA Chalk,Chalk,KU,Reserves end 2014,1,50375
-RID0012134,cp31_26_9,31/26a- 12  FLORA,Discovery,Res_split_plays,FLORA Fulmar-Kimmeridge - Fulmar,Fulmar,JU,Reserves end 2014,1,51066
-RID0012144,cp13_24_5,13/24b- 3  BLAKE,Discovery,Res_split_plays,BLAKE DevilsHole-Scapa,DevilsHole-Scapa,KL,Reserves end 2014,1,50401
-RID0012144,cp13_24_5,13/24b- 3  BLAKE,Discovery,Res_split_plays,BLAKE Kopervik,Kopervik,KL,Reserves end 2014,1,50385
-RID0012176,cp14_19_6,14/19- 2  CLAYMORE,Discovery,Res_split_plays,CLAYMORE Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,1,50417
-RID0012176,cp14_19_6,14/19- 2  CLAYMORE,Discovery,Res_split_plays,CLAYMORE DevilsHole-Scapa,DevilsHole-Scapa,KL,Reserves end 2014,1,50404
-RID0012176,cp14_19_6,14/19- 2  CLAYMORE,Discovery,Res_split_plays,CLAYMORE Piper,Piper,JU,Reserves end 2014,1,50482
-RID0012176,cp14_19_6,14/19- 2  CLAYMORE,Discovery,Res_split_plays,CLAYMORE Zechstein-Halibut,Zechstein-Halibut,PU,Reserves end 2014,1,50639
-RID0012211,cp16_17_13,16/17- 1  THELMA,Discovery,Res_split_plays,THELMA Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,1,50452
-RID0012211,cp16_17_13,16/17- 1  THELMA,Discovery,Res_split_plays,THELMA Fladen-Hugin,Fladen-Hugin,JM,Reserves end 2014,1,50590
-RID0012212,cp16_17_11,16/17- 4  TONI,Discovery,Res_split_plays,TONI Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,1,50453
-RID0012212,cp16_17_11,16/17- 4  TONI,Discovery,Res_split_plays,TONI Fladen-Hugin,Fladen-Hugin,JM,Reserves end 2014,1,50591
-RID0012220,cp20_2_12,20/02- 1  ETTRICK,Discovery,Res_split_plays,ETTRICK Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,1,50461
-RID0012220,cp20_2_12,20/02- 1  ETTRICK,Discovery,Res_split_plays,ETTRICK Zechstein-Halibut,Zechstein-Halibut,PU,Reserves end 2014,1,50641
-RID0012233,cp9_13_8,9/13b- 28A  NESS,Discovery,Res_split_plays,NESS Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,1,50474
-RID0012233,cp9_13_8,9/13b- 28A  NESS,Discovery,Res_split_plays,NESS Fladen-Hugin,Fladen-Hugin,JM,Reserves end 2014,1,50600
-RID0012236,cp9_13_12,9/13- 4  NEVIS,Discovery,Res_split_plays,NEVIS Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,1,50477
-RID0012236,cp9_13_12,9/13- 4  NEVIS,Discovery,Res_split_plays,NEVIS Cormorant-Beryl,Cormorant-Beryl,JM,Reserves end 2014,1,50635
-RID0012244,cp14_20_26,14/20- 5  HIGHLANDER,Discovery,Res_split_plays,HIGHLANDER Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,1,50418
-RID0012244,cp14_20_26,14/20- 5  HIGHLANDER,Discovery,Res_split_plays,HIGHLANDER DevilsHole-Scapa,DevilsHole-Scapa,KL,Reserves end 2014,1,50407
-RID0012244,cp14_20_26,14/20- 5  HIGHLANDER,Discovery,Res_split_plays,HIGHLANDER Piper,Piper,JU,Reserves end 2014,1,50485
-RID0012248,cp15_16_28,15/16- 1  TARTAN,Discovery,Res_split_plays,TARTAN Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,1,50422
-RID0012248,cp15_16_28,15/16- 1  TARTAN,Discovery,Res_split_plays,TARTAN Piper,Piper,JU,Reserves end 2014,1,50489
-RID0012249,cp15_17_22,15/17- 13  CHANTER,Discovery,Res_split_plays,CHANTER Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,1,50423
-RID0012249,cp15_17_22,15/17- 13  CHANTER,Discovery,Res_split_plays,CHANTER Piper,Piper,JU,Reserves end 2014,1,50490
-RID0012250,cp15_17_28,15/17- 16  SALTIRE,Discovery,Res_split_plays,SALTIRE Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,1,50424
-RID0012250,cp15_17_28,15/17- 16  SALTIRE,Discovery,Res_split_plays,SALTIRE DevilsHole-Scapa,DevilsHole-Scapa,KL,Reserves end 2014,1,50408
-RID0012250,cp15_17_28,15/17- 16  SALTIRE,Discovery,Res_split_plays,SALTIRE Piper,Piper,JU,Reserves end 2014,1,50491
-RID0012255,cp15_17_32,15/17- 9  IONA,Discovery,Res_split_plays,IONA Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,1,50427
-RID0012255,cp15_17_32,15/17- 9  IONA,Discovery,Res_split_plays,IONA Piper,Piper,JU,Reserves end 2014,1,50496
-RID0012282,cp210_25_24,210/25- 1  TERN,Discovery,Res_split_plays,TERN Brent-Emerald,Brent-Emerald,JM,Reserves end 2014,1,50523
-RID0012282,cp210_25_24,210/25- 1  TERN,Discovery,Res_split_plays,TERN Cormorant-Beryl,Cormorant,T,Reserves end 2014,1,50628
-RID0012284,cp211_13_22,211/13- 2  PENGUIN EAST,Discovery,Res_split_plays,PENGUIN EAST Brent-Emerald,Brent-Emerald,JM,Reserves end 2014,1,50525
-RID0012284,cp211_13_22,211/13- 2  PENGUIN EAST,Discovery,Res_split_plays,PENGUIN EAST Nansen-Statfjord,Nansen-Statfjord,JL,Reserves end 2014,1,50609
-RID0012310,cp211_24_8,211/24- 4  STATFJORD,Discovery,Res_split_plays,STATFJORD Brent-Emerald,Brent-Emerald,JM,Reserves end 2014,1,50551
-RID0012310,cp211_24_8,211/24- 4  STATFJORD,Discovery,Res_split_plays,STATFJORD Nansen-Statfjord,Nansen-Statfjord,JL,Reserves end 2014,1,50610
-RID0012311,cp211_26_3,211/26- 1  SOUTH CORMORANT,Discovery,Res_split_plays,SOUTH CORMORANT Brent-Emerald,Brent-Emerald,JM,Reserves end 2014,1,50552
-RID0012311,cp211_26_3,211/26- 1  SOUTH CORMORANT,Discovery,Res_split_plays,SOUTH CORMORANT Cormorant-Beryl,Cormorant-Beryl,T,Reserves end 2014,1,50632
-RID0012319,cp211_29_1,211/29- 1  BRENT,Discovery,Res_split_plays,BRENT Brent-Emerald,Brent-Emerald,JM,Reserves end 2014,1,50560
-RID0012319,cp211_29_1,211/29- 1  BRENT,Discovery,Res_split_plays,BRENT Nansen-Statfjord,Nansen-Statfjord,JL,Reserves end 2014,1,50612
-RID0012329,cp3_4_9,3/04- 4  STRATHSPEY,Discovery,Res_split_plays,STRATHSPEY Brent-Emerald,Brent-Emerald,JM,Reserves end 2014,1,50570
-RID0012329,cp3_4_9,3/04- 4  STRATHSPEY,Discovery,Res_split_plays,STRATHSPEY Nansen-Statfjord,Nansen-Statfjord,JL,Reserves end 2014,1,50613
-RID0012337,cp3_14_7,3/14a- 1  DUNBAR,Discovery,Res_split_plays,DUNBAR Brent-Emerald,Brent-Emerald,JM,Reserves end 2014,1,50578
-RID0012337,cp3_14_7,3/14a- 1  DUNBAR,Discovery,Res_split_plays,DUNBAR Nansen-Statfjord,Nansen-Statfjord,JL,Reserves end 2014,1,50616
-RID0012357,cp9_8_11,9/08- 1  BRUCE,Discovery,Res_split_plays,BRUCE Chalk,Chalk,KU,Reserves end 2014,1,50379
-RID0012357,cp9_8_11,9/08- 1  BRUCE,Discovery,Res_split_plays,BRUCE Fladen-Hugin,Fladen-Hugin,JM,Reserves end 2014,1,50598
-RID0012357,cp9_8_11,9/08- 1  BRUCE,Discovery,Res_split_plays,BRUCE Nansen-Statfjord,Nansen-Statfjord,JL,Reserves end 2014,1,50617
-RID0012361,cp9_13_15,9/13- 1  BERYL,Discovery,Res_split_plays,BERYL Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,1,50476
-RID0012361,cp9_13_15,9/13- 1  BERYL,Discovery,Res_split_plays,BERYL Cormorant-Beryl,Cormorant-Beryl,JM,Reserves end 2014,1,50634
-RID0012361,cp9_13_15,9/13- 1  BERYL,Discovery,Res_split_plays,BERYL Fladen-Hugin,Fladen-Hugin,JM,Reserves end 2014,1,50602
-RID0012361,cp9_13_15,9/13- 1  BERYL,Discovery,Res_split_plays,BERYL Nansen-Statfjord,Nansen-Statfjord,JL,Reserves end 2014,1,50618
-RID0012365,cp9_19_64,9/19- 2  SKENE,Discovery,Res_split_plays,SKENE Cormorant-Beryl,Cormorant-Beryl,T,Reserves end 2014,1,50636
-RID0012365,cp9_19_64,9/19- 2  SKENE,Discovery,Res_split_plays,SKENE Fladen-Hugin,Fladen-Hugin,JM,Reserves end 2014,1,50606
-RID0012374,cp3_9_6,3/09a- 1  ALWYN NORTH,Discovery,Res_split_plays,ALWYN NORTH Brent-Emerald,Brent-Emerald,JM,Reserves end 2014,1,50577
-RID0012374,cp3_9_6,3/09a- 1  ALWYN NORTH,Discovery,Res_split_plays,ALWYN NORTH Nansen-Statfjord,Nansen-Statfjord,JL,Reserves end 2014,1,50615
-RID0012403,cp30_16_5,30/16- 1  AUK,Discovery,Res_split_plays,AUK Rotliegend,Rotliegend,PL,Reserves end 2014,1,50659
-RID0012403,cp30_16_5,30/16- 1  AUK,Discovery,Res_split_plays,AUK Zechstein-Halibut,Zechstein-Halibut,PU,Reserves end 2014,1,50644
-RID0012404,cp30_24_16,30/24- 2  ALMA,Discovery,Res_split_plays,ALMA Devonian,Devonian,D,Reserves end 2014,1,50919
-RID0012404,cp30_24_16,30/24- 2  ALMA,Discovery,Res_split_plays,ALMA Rotliegend,Rotliegend,PL,Reserves end 2014,1,50661
-RID0012404,cp30_24_16,30/24- 2  ALMA,Discovery,Res_split_plays,ALMA Zechstein,Zechstein-Halibut,PU,Reserves end 2014,1,50645
-RID0012412,cp49_21_13,49/21- 2  SOUTH VALIANT,Discovery,Res_split_plays,SOUTH VALIANT Rotliegend,Rotliegend,PL,Reserves end 2014,0,50798
-RID0012412,cp49_21_13,49/21- 2  SOUTH VALIANT,Discovery,Res_split_plays,SOUTH VALIANT Zechstein,Zechstein,PU,Reserves end 2014,0,50653
-RID0012417,cp30_16_9,30/16- 13Z  AUK NORTH,Discovery,Res_split_plays,AUK NORTH Chalk,Chalk,KU,Reserves end 2014,1,50372
-RID0012417,cp30_16_9,30/16- 13Z  AUK NORTH,Discovery,Res_split_plays,AUK NORTH Rotliegend,Rotliegend,PL,Reserves end 2014,1,50658
-RID0012430,cp43_21_7,43/21- 2  GARROW,Discovery,Res_split_plays,GARROW Namurian,Namurian,CN,Reserves end 2014,1,50907
-RID0012430,cp43_21_7,43/21- 2  GARROW,Discovery,Res_split_plays,GARROW Rotliegend,Rotliegend,PL,Reserves end 2014,1,50671
-RID0012431,cp43_26_17,43/26b- 10  Kumatage,Discovery,Res_split_plays,Kumatage A Sand,Rotliegend,PL,25th Round (AP176T),0,42881
-RID0012431,cp43_26_17,43/26b- 10  Kumatage,Discovery,Res_split_plays,Kumatage A Sand,Rotliegend,PL,30th Round - F30/0046IA,0,49755
-RID0012431,cp43_26_17,43/26b- 10  Kumatage,Discovery,Res_split_plays,Kumatage A Sand,Rotliegend,PL,27th Round (197P),0,42874
-RID0012431,cp43_26_17,43/26b- 10  Kumatage,Discovery,Res_split_plays,Kumatage B Sand,Rotliegend,PL,27th Round (197P),0,42873
-RID0012431,cp43_26_17,43/26b- 10  Kumatage,Discovery,Res_split_plays,Kumatage B Sand,Rotliegend,PL,25th Round (AP176T),0,42882
-RID0012431,cp43_26_17,43/26b- 10  Kumatage,Discovery,Res_split_plays,Kumatage B Sand,Rotliegend,PL,30th Round - F30/0046IA,0,49756
-RID0012431,cp43_26_17,43/26b- 10  Kumatage,Discovery,Res_split_plays,Kumatage Unit A,Rotliegend,PL,p1331.pdf,0,53897
-RID0012431,cp43_26_17,43/26b- 10  Kumatage,Discovery,Res_split_plays,Kumatage Unit B,Rotliegend,PL,p1331.pdf,0,53896
-RID0012435,cp44_12_10,44/12- 1  CYGNUS,Discovery,Res_split_plays,CYGNUS Rotliegend,Rotliegend,PL,Reserves end 2014,1,50676
-RID0012435,cp44_12_10,44/12- 1  CYGNUS,Discovery,Res_split_plays,CYGNUS Westph Red Beds,Westph_Red_Beds,C,Reserves end 2014,1,50850
-RID0012449,cp47_10_19,47/10- 1  HELVELLYN,Discovery,Res_split_plays,HELVELLYN Rotliegend,Rotliegend,PL,Reserves end 2014,1,50690
-RID0012449,cp47_10_19,47/10- 1  HELVELLYN,Discovery,Res_split_plays,HELVELLYN Westph Coal Measures,Westph_Coal_Measures,CW,Reserves end 2014,1,50888
-RID0012478,cp48_12_25,48/12e- 11  Olympus,Discovery,Res_split_plays,Olympus Lower Leman,Rotliegend,PL,33rd Round - F33/0025IA,1,56284
-RID0012478,cp48_12_25,48/12e- 11  Olympus,Discovery,Res_split_plays,Olympus Upper Leman,Rotliegend,PL,33rd Round - F33/0025IA,1,56283
-RID0012481,cp48_13_4,48/13- 1  BARQUE,Discovery,Res_split_plays,BARQUE Rotliegend,Rotliegend,PL,Reserves end 2014,1,50722
-RID0012481,cp48_13_4,48/13- 1  BARQUE,Discovery,Res_split_plays,BARQUE Westph Coal Measures,Westph_Coal_Measures,CW,Reserves end 2014,1,50891
-RID0012517,cp49_9_12,49/09a- 3  CUTTER,Discovery,Res_split_plays,CUTTER Rotliegend,Rotliegend,PL,Reserves end 2014,1,50758
-RID0012517,cp49_9_12,49/09a- 3  CUTTER,Discovery,Res_split_plays,CUTTER Westph Coal Measures,Westph_Coal_Measures,CW,Reserves end 2014,1,50898
-RID0012524,cp49_11_14,49/11b- 8  TETHYS,Discovery,Res_split_plays,TETHYS Rotliegend,Rotliegend,PL,Reserves end 2014,1,50765
-RID0012524,cp49_11_14,49/11b- 8  TETHYS,Discovery,Res_split_plays,TETHYS Zechstein,Zechstein,PU,Reserves end 2014,1,50652
-RID0012528,cp49_14_21,49/14b- 3  CARRACK,Discovery,Res_split_plays,CARRACK Rotliegend,Rotliegend,PL,Reserves end 2014,1,50769
-RID0012528,cp49_14_21,49/14b- 3  CARRACK,Discovery,Res_split_plays,CARRACK Westph Coal Measures,Westph_Coal_Measures,CW,Reserves end 2014,1,50900
-RID0012565,cp49_22_24,49/22- 3  EUROPA,Discovery,Res_split_plays,EUROPA Rotliegend,Rotliegend,PL,Reserves end 2014,1,50806
-RID0012565,cp49_22_24,49/22- 3  EUROPA,Discovery,Res_split_plays,EUROPA Zechstein,Zechstein,PU,Reserves end 2014,1,50654
-RID0012587,cp49_29_23,49/29- 2  TRISTAN,Discovery,Res_split_plays,TRISTAN Rotliegend,Rotliegend,PL,Reserves end 2014,1,50828
-RID0012587,cp49_29_23,49/29- 2  TRISTAN,Discovery,Res_split_plays,TRISTAN Zechstein,Zechstein,PU,Reserves end 2014,1,50655
-RID0012636,cp43_19_4,43/19- 1  CAVENDISH,Discovery,Res_split_plays,CAVENDISH Namurian,Namurian,CN,Reserves end 2014,1,50904
-RID0012636,cp43_19_4,43/19- 1  CAVENDISH,Discovery,Res_split_plays,CAVENDISH Westph Coal Measures,Westph_Coal_Measures,CW,Reserves end 2014,1,50877
-RID0012639,cp44_17_9,44/17- 1  McADAM,Discovery,Res_split_plays,McADAM Namurian,Namurian,CN,Reserves end 2014,1,50912
-RID0012639,cp44_17_9,44/17- 1  McADAM,Discovery,Res_split_plays,McADAM Westph Coal Measures,Westph_Coal_Measures,CW,Reserves end 2014,1,50880
-RID0012651,cp49_1_8,49/01- 3  TOPAZ,Discovery,Res_split_plays,TOPAZ Westph Coal Measures,Westph_Coal_Measures,C,Reserves end 2014,1,50892
-RID0012651,cp49_1_8,49/01- 3  TOPAZ,Discovery,Res_split_plays,TOPAZ Westph Red Beds,Westph_Red_Beds,C,Reserves end 2014,1,50873
-RID0012655,cp49_4_10,49/04- 1  CHISWICK,Discovery,Res_split_plays,CHISWICK Rotliegend,Rotliegend,PL,Reserves end 2014,1,50754
-RID0012655,cp49_4_10,49/04- 1  CHISWICK,Discovery,Res_split_plays,CHISWICK Westph Coal Measures,Westph_Coal_Measures,C,Reserves end 2014,1,50896
-RID0012744,cp213_27_7,213/27- 1Z  ROSEBANK,Discovery,Res_split_plays,ROSEBANK WOS_Jurassic,WOS_Jurassic,J,Reserves end 2014,1,50985
-RID0012744,cp213_27_7,213/27- 1Z  ROSEBANK,Discovery,Res_split_plays,ROSEBANK WOS_Upper_Paleocene,WOS_Upper_Paleocene,GC,Reserves end 2014,1,50976
-RID0012757,cp30_7_31,30/07a- 4A  JUDY,Discovery,Res_split_plays,JUDY Fulmar-Kimmeridge - Heather,Heather,JU,Reserves end 2014,1,50998
-RID0012757,cp30_7_31,30/07a- 4A  JUDY,Discovery,Res_split_plays,JUDY Pentland-Skagerrak t,Skagerrak,T,Reserves end 2014,1,51223
-RID0012763,cp21_16_16,21/16- 1  DURWARD,Discovery,Res_split_plays,DURWARD Fulmar-Kimmeridge - Fulmar,Fulmar,JU,Reserves end 2014,1,51004
-RID0012763,cp21_16_16,21/16- 1  DURWARD,Discovery,Res_split_plays,DURWARD Pentland-Skagerrak_t,Skagerrak,T,Reserves end 2014,1,51198
-RID0012765,cp21_18_12,21/18- 2A  KITTIWAKE,Discovery,Res_split_plays,KITTIWAKE Fulmar-Kimmeridge - Fulmar,Fulmar,JU,Reserves end 2014,1,51006
-RID0012765,cp21_18_12,21/18- 2A  KITTIWAKE,Discovery,Res_split_plays,KITTIWAKE Pentland-Skagerrak_t,Skagerrak,T,Reserves end 2014,1,51200
-RID0012774,cp21_25_11,21/25- 10  TEAL SOUTH,Discovery,Res_split_plays,TEAL SOUTH Fulmar,Fulmar,JU,Reserves end 2014,1,51015
-RID0012774,cp21_25_11,21/25- 10  TEAL SOUTH,Discovery,Res_split_plays,TEAL SOUTH Skagerrak_t,Skagerrak,T,Reserves end 2014,1,51201
-RID0012775,cp21_25_14,21/25- 2  GUILLEMOT A,Discovery,Res_split_plays,GUILLEMOT A Forties,Forties,GP,Reserves end 2014,1,51080
-RID0012775,cp21_25_14,21/25- 2  GUILLEMOT A,Discovery,Res_split_plays,GUILLEMOT A Fulmar,Fulmar,JU,Reserves end 2014,1,51016
-RID0012775,cp21_25_14,21/25- 2  GUILLEMOT A,Discovery,Res_split_plays,GUILLEMOT A Skagerrak,Skagerrak,T,Reserves end 2014,1,51202
-RID0012780,cp22_5_5,22/05b- 3  SEYMOUR,Discovery,Res_split_plays,SEYMOUR Fulmar-Kimmeridge - Fulmar,Fulmar,JU,Reserves end 2014,1,51021
-RID0012780,cp22_5_5,22/05b- 3  SEYMOUR,Discovery,Res_split_plays,SEYMOUR Pentland-Skagerrak_t,Skagerrak,T,Reserves end 2014,1,51203
-RID0012783,cp22_12_15,22/12a- 1  HOWE,Discovery,Res_split_plays,HOWE,Fulmar,JU,Reserves end 2014,1,51024
-RID0012783,cp22_12_15,22/12a- 1  HOWE,Discovery,Res_split_plays,HOWE Skagerrak,Skagerrak,T,Reserves end 2014,1,51204
-RID0012799,cp22_30_48,22/30b- 4  SHEARWATER,Discovery,Res_split_plays,SHEARWATER Fulmar,Fulmar,JU,Reserves end 2014,1,51040
-RID0012799,cp22_30_48,22/30b- 4  SHEARWATER,Discovery,Res_split_plays,SHEARWATER Pentland,Pentland,JM,Reserves end 2014,1,51186
-RID0012800,cp22_30_50,22/30c- 8  ELGIN,Discovery,Res_split_plays,ELGIN Fulmar,Fulmar,JU,Reserves end 2014,1,51041
-RID0012800,cp22_30_50,22/30c- 8  ELGIN,Discovery,Res_split_plays,ELGIN Skagerrak,Pentland,JM,Reserves end 2014,1,51187
-RID0012803,cp23_26_41,23/26a- 7  ERSKINE Fulmar,Discovery,Res_split_plays,ERSKINE Fulmar-Kimmeridge - Fulmar,Fulmar,JU,Reserves end 2014,1,51044
-RID0012803,cp23_26_41,23/26a- 7  ERSKINE Fulmar,Discovery,Res_split_plays,ERSKINE Pentland-Skagerrak jm,Pentland,JM,Reserves end 2014,1,51188
-RID0012807,cp29_5_36,29/05b- 4  FRANKLIN,Discovery,Res_split_plays,FRANKLIN Fulmar-Kimmeridge - Fulmar,Fulmar,JU,Reserves end 2014,1,51048
-RID0012807,cp29_5_36,29/05b- 4  FRANKLIN,Discovery,Res_split_plays,FRANKLIN Pentland-Skagerrak jm,Pentland,JM,Reserves end 2014,1,51190
-RID0012826,cp31_26_13,31/26a- 9  FIFE,Discovery,Res_split_plays,FIFE Chalk,Chalk,KU,Reserves end 2014,1,50376
-RID0012826,cp31_26_13,31/26a- 9  FIFE,Discovery,Res_split_plays,FIFE Fulmar-Kimmeridge - Fulmar,Fulmar,JU,Reserves end 2014,1,51067
-RID0012838,cp21_25_6,21/25- 1  GANNET B,Discovery,Res_split_plays,GANNET B Forties,Forties,GP,Reserves end 2014,1,51079
-RID0012838,cp21_25_6,21/25- 1  GANNET B,Discovery,Res_split_plays,GANNET B Tay,Tay,GE,Reserves end 2014,1,50308
-RID0012844,cp22_10_10,22/10a- 2  EVEREST,Discovery,Res_split_plays,EVEREST Forties-Andrew - Forties,Forties,GP,Reserves end 2014,1,51085
-RID0012844,cp22_10_10,22/10a- 2  EVEREST,Discovery,Res_split_plays,EVEREST Forties-Andrew - Maureen,Maureen,GP,Reserves end 2014,1,51151
-RID0012844,cp22_10_10,22/10a- 2  EVEREST,Discovery,Res_split_plays,EVEREST Forties-Andrew - Mey,Mey,GP,Reserves end 2014,1,51138
-RID0012859,cp23_16_40,23/16a- 3  MUNGO,Discovery,Res_split_plays,MUNGO Chalk,Chalk,KUGD,Reserves end 2014,1,50360
-RID0012859,cp23_16_40,23/16a- 3  MUNGO,Discovery,Res_split_plays,MUNGO Forties-Andrew - Forties,Forties,GP,Reserves end 2014,1,51100
-RID0012863,cp23_26_40,23/26a- 1  MACHAR,Discovery,Res_split_plays,MACHAR Chalk,Chalk,KU,Reserves end 2014,1,50361
-RID0012863,cp23_26_40,23/26a- 1  MACHAR,Discovery,Res_split_plays,MACHAR Forties-Andrew_-_Forties,Forties,GP,Reserves end 2014,1,51104
-RID0012864,cp23_27_31,23/27- 3  PIERCE,Discovery,Res_split_plays,PIERCE Chalk,Chalk,KU,Reserves end 2014,1,50362
-RID0012864,cp23_27_31,23/27- 3  PIERCE,Discovery,Res_split_plays,PIERCE Forties-Andrew_-_Forties,Forties,GP,Reserves end 2014,1,51105
-RID0012893,cp16_28_5,16/28- 1  ANDREW,Discovery,Res_split_plays,ANDREW Forties-Andrew -Mey,Mey,GP,Reserves end 2014,1,51134
-RID0012893,cp16_28_5,16/28- 1  ANDREW,Discovery,Res_split_plays,ANDREW Kopervik,Kopervik,KL,Reserves end 2014,1,50393
-RID0012898,cp22_21_41,22/21- 5Z  GANNET D,Discovery,Res_split_plays,GANNET D Mey,Mey,GP,Reserves end 2014,1,51139
-RID0012898,cp22_21_41,22/21- 5Z  GANNET D,Discovery,Res_split_plays,GANNET D Tay,Tay,GE,Reserves end 2014,1,50324
-RID0012906,cp30_18_19,30/18- 3  ORION,Discovery,Res_split_plays,ORION Chalk,Chalk,KU,Reserves end 2014,1,50373
-RID0012906,cp30_18_19,30/18- 3  ORION,Discovery,Res_split_plays,ORION Forties-Andrew - Mey,Mey,GP,Reserves end 2014,1,51147
-RID0012913,cp16_7_6,16/07- 2  WEST BRAE,Discovery,Res_split_plays,WEST BRAE Devonian,Devonian,D,Reserves end 2014,1,50916
-RID0012913,cp16_7_6,16/07- 2  WEST BRAE,Discovery,Res_split_plays,WEST BRAE Rogaland-Balder,Balder,GE,Reserves end 2014,1,51154
-RID0012913,cp16_7_6,16/07- 2  WEST BRAE,Discovery,Res_split_plays,WEST BRAE Rogaland-Sele,Sele,GEGP,Reserves end 2014,1,51164
-RID0012921,cp9_23_17,9/23b- 24  HARDING,Discovery,Res_split_plays,HARDING Balder,Balder,GE,Reserves end 2014,1,51162
-RID0012921,cp9_23_17,9/23b- 24  HARDING,Discovery,Res_split_plays,HARDING Sele,Sele,GEGP,Reserves end 2014,1,51181
-RID0012922,cp9_23_21,9/23b- 7  HARDING,Discovery,Res_split_plays,HARDING Balder,Balder,GE,Reserves end 2014,1,51163
-RID0012922,cp9_23_21,9/23b- 7  HARDING,Discovery,Res_split_plays,HARDING Frigg,Frigg,GE,Reserves end 2014,1,50302
-RID0012931,cp29_1_38,29/01b- 5  BITTERN,Discovery,Res_split_plays,BITTERN Pentland-Skagerrak t,Skagerrak,T,Reserves end 2014,1,51214
-RID0012931,cp29_1_38,29/01b- 5  BITTERN,Discovery,Res_split_plays,BITTERN Rogaland - Sele,Sele,GEGP,Reserves end 2014,1,51172
-RID0012938,cp9_23_16,9/23b- 21  HARDING DEEP SOUTH,Discovery,Res_split_plays,HARDING DEEP SOUTH Rogaland-Sele,Sele,GEGP,Reserves end 2014,1,51179
-RID0012938,cp9_23_16,9/23b- 21  HARDING DEEP SOUTH,Discovery,Res_split_plays,HARDING DEEP SOUTH Teal-Heimdal,Teal-Heimdal,GP,Reserves end 2014,1,50357
-RID0013031,cp12_27_28,12/27- 1 Delgany,Discovery,Res_split_plays,Neo - Mid Jurassic,Beatrice,JM,26th Round (110T),0,37692
-RID0013031,cp12_27_28,12/27- 1 Delgany,Discovery,Res_split_plays,Neo - Triassic,Skagerrak,T,26th Round (110T),0,37691
-RID0013149,cp12_21_9,12/21- 3  Sarclet,Discovery,Res_split_plays,Baca Alness,Alness,JU,P2471_11_25c_12_21b_12_22_Jetex_RelReport_Jun2021.pdf,0,55641
-RID0013149,cp12_21_9,12/21- 3  Sarclet,Discovery,Res_split_plays,Baca Humber,Brae-Kimmeridge,JU,P2471_11_25c_12_21b_12_22_Jetex_RelReport_Jun2021.pdf,0,55640
-RID0013256,cp9_28_10,9/28- 2  CRAWFORD,Discovery,Res_split_plays,CRAWFORD Cormorant-Beryl,Cormorant-Beryl,T,Reserves end 2014,0,50638
-RID0013256,cp9_28_10,9/28- 2  CRAWFORD,Discovery,Res_split_plays,CRAWFORD Fladen-Hugin,Fladen-Hugin,JM,Reserves end 2014,0,50608
-RID0013299,cp30_12_27,30/12d- 11  Isabella,Discovery,Res_split_plays,Jane (Joanne Sandstone),Skagerrak,T,26th Round (57T),0,42045
-RID0013299,cp30_12_27,30/12d- 11  Isabella,Discovery,Res_split_plays,Jane(Judy Sandstone),Skagerrak,T,26th Round (57T),0,42044
-RID0013299,cp30_12_27,30/12d- 11  Isabella,Discovery,Res_split_plays,Isabella Jurassic Fulmar,Fulmar,JU,Isabella TCM PDR Presentation 040620 PRE_READ.pdf,1,55070
-RID0013299,cp30_12_27,30/12d- 11  Isabella,Discovery,Res_split_plays,Isabella Jurassic Kimmeridgen,Kimmeridge,JU,Isabella TCM PDR Presentation 040620 PRE_READ.pdf,1,55062
-RID0013299,cp30_12_27,30/12d- 11  Isabella,Discovery,Res_split_plays,Isabella Triassic Joanne,Skagerrak,T,Isabella TCM PDR Presentation 040620 PRE_READ.pdf,1,55071
-RID0013299,cp30_12_27,30/12d- 11  Isabella,Discovery,Res_split_plays,Isabella Triassic Judy ,Skagerrak,T,Isabella TCM PDR Presentation 040620 PRE_READ.pdf,1,55072
-RID0013368,cp30_1_62,30/01c -5A  Kessog South (Triassic),Discovery,Res_split_plays,Kessog Discovery,Pentland,JM,Proj GC10/28,0,46422
-RID0013368,cp30_1_62,30/01c -5A  Kessog South (Triassic),Discovery,Res_split_plays,Kessog Skagerrak,Skagerrak,T,Proj GC10/28,0,46438
-RID0013368,cp30_1_62,30/01c -5A  Kessog South (Triassic),Discovery,Res_split_plays,Kessog Skagerrak,Skagerrak,T,Proj GC10/28,0,46437
-RID0013618,cp29_15_19,30/11c- 6C  Romeo,Discovery,Res_split_plays,Cassio Fulmar,Fulmar,JU,26th Round (148T),0,42064
-RID0013618,cp29_15_19,30/11c- 6C  Romeo,Discovery,Res_split_plays,Cassio Triassic,Skagerrak,T,26th Round (148T),0,42065
-RID0013618,cp29_15_19,30/11c- 6C  Romeo,Discovery,Res_split_plays,Romeo Discovery (Jurassic Fulmar),Fulmar,JU,33rd Round - F33/0023IA,1,56024
-RID0013618,cp29_15_19,30/11c- 6C  Romeo,Discovery,Res_split_plays,Romeo Discovery (Triassic Skagerrak),Skagerrak,T,33rd Round - F33/0023IA,1,56019
-RID0014328,cp43_13_16,43/13b- 7  Pegasus West,Discovery,Res_split_plays,Pegasus West,Westph_Coal_Measures,CA,33rd Round - F33/0011I,1,56152
-RID0014328,cp43_13_16,43/13b- 7  Pegasus West,Discovery,Res_split_plays,Pegasus West Shallow,Westph_Coal_Measures,CA,33rd Round - F33/0011I,1,56154
+resource_id,choice,name_of_prospect,resource_name,opportunity_type,split_type,resource_stage_name,play_fairway,reservoir_horizon,reference,resdat_id
+RID0000428,0,cp110_12_10,110/12a- 1  Ennerdale,Discovery,Res_split_plays,110/12a-1 discovery Collyhurst,Collyhurst,PU,GC05/01,47294
+RID0000428,0,cp110_12_10,110/12a- 1  Ennerdale,Discovery,Res_split_plays,110/12a-1 discovery Sherwood,Sherwood,T,GC05/01,47183
+RID0000928,0,cp14_18_8,14/18b- 7 ATHENA,Discovery,Res_split_plays,Esk discovery  - Scapa SA Sand,DevilsHole-Scapa,KL,23rd Round (AP108T),37964
+RID0000928,0,cp14_18_8,14/18b- 7 ATHENA,Discovery,Res_split_plays,Esk discovery  - Valanginian,DevilsHole-Scapa,KL,23rd Round (AP108T),37965
+RID0003700,0,cp22_23_21,22/24e- 12  Seagull North,Discovery,Res_split_plays,Seagull North,Fulmar,JU,P1806.pdf,53288
+RID0004308,1,cp28_9_27,28/09- 1  CATCHER Sele,Discovery,Res_split_plays,CATCHER Sele,Sele,GEGP,Reserves end 2014,51170
+RID0004308,1,cp28_9_27,28/09- 1  CATCHER Sele,Discovery,Res_split_plays,CATCHER Tay,Tay,GE,Reserves end 2014,50332
+RID0011140,0,cp15_7_16,15/07- 1  Funnel,Discovery,Res_split_plays,Funnel (Forties),Forties,GP,23rd Round (AP128 P),38468
+RID0011140,0,cp15_7_16,15/07- 1  Funnel,Discovery,Res_split_plays,Funnel (Mey),Mey,GP,23rd Round (AP128 P),38469
+RID0011140,0,cp15_7_16,15/07- 1  Funnel,Discovery,Res_split_plays,Funnel Dornoch,Ninian,GP,25th Round (AP17T),38463
+RID0011140,0,cp15_7_16,15/07- 1  Funnel,Discovery,Res_split_plays,Funnel Forties,Mey,GP,25th Round (AP17T),38464
+RID0011147,0,cp9_12_30,9/12- 3  Bluebeard,Discovery,Res_split_plays,Bluebeard 9/12-3,Teal-Heimdal,GP,Apache_P1982_Block_9_12b_Relinquishment_Report_January_2019.pdf,53129
+RID0011147,0,cp9_12_30,9/12- 3  Bluebeard,Discovery,Res_split_plays,Bluebeard Frigg,Frigg,GE,Apache_P1982_Block_9_12b_Relinquishment_Report_January_2019.pdf,53130
+RID0011217,1,cp15_23_56,15/23d- 13  Bugle,Discovery,Res_split_plays,Bugle (Dirk sand),Brae-Kimmeridge,JU,33rd Round - F33/0060IA,56301
+RID0011217,0,cp15_23_56,15/23d- 13  Bugle,Discovery,Res_split_plays,Bugle (Galley sand),Brae-Kimmeridge,JU,33rd Round - F33/0060IA,56302
+RID0011276,0,cp21_20_21,21/20b- 4  CHRISTIAN J62,Discovery,Res_split_plays,Christian Fulmar,Fulmar,JU,28th Round (7T),39539
+RID0011276,0,cp21_20_21,21/20b- 4  CHRISTIAN J62,Discovery,Res_split_plays,Christian Sands,Kimmeridge,JU,28th Round (7T),39537
+RID0011306,1,cp213_25_2,213/25c- 1V  North Uist,Discovery,Res_split_plays,North Uist Carboniferous,WOS_Clair,C,P1192.pdf,53493
+RID0011344,1,cp29_3_42,29/03b- 9  Corfe,Discovery,Res_split_plays,Corfe Fulmar,Fulmar,JU,P1626.pdf,53315
+RID0011344,0,cp29_3_42,29/03b- 9  Corfe,Discovery,Res_split_plays,Corfe Joanne Judy,Skagerrak,T,Prospex 2014,41568
+RID0011384,0,cp30_25_29,30/25a- 4  North Argyll,Discovery,Res_split_plays,30/25a-4 Discovery (Devonian),Devonian,D,24th Round (AP1P),42279
+RID0011384,0,cp30_25_29,30/25a- 4  North Argyll,Discovery,Res_split_plays,30/25a-4 Discovery (Devonian),Devonian,D,p1435.pdf,54390
+RID0011384,0,cp30_25_29,30/25a- 4  North Argyll,Discovery,Res_split_plays,30/25a-4 Discovery (Permian),Rotliegend,PL,24th Round (AP1P),42278
+RID0011384,0,cp30_25_29,30/25a- 4  North Argyll,Discovery,Res_split_plays,30/25a-4 Discovery (Permian),Rotliegend,PL,p1435.pdf,54389
+RID0011467,0,cp8_15_12,8/15a- 3  Boatswain,Discovery,Res_split_plays,Boatswain Maureen,Maureen,GP,P1758_8_15_Equinor_RelReport_September2019.pdf,53053
+RID0011591,1,cp22_30_40,22/30a- 17  Aragorn,Discovery,Res_split_plays,Aragorn Pentland,Pentland,JM,P2386_22_29d_22_30d_Total_RelReport_Dec2020.pdf,55000
+RID0011591,0,cp22_30_40,22/30a- 17  Aragorn,Discovery,Res_split_plays,Aragorn Skagerrak,Skagerrak,T,P2386_22_29d_22_30d_Total_RelReport_Dec2020.pdf,56514
+RID0011747,0,cp28_9_54,28/09a- 6  Bonneville,Discovery,Res_split_plays,Bonneville,Tay,GE,30th Round - F30/0063IA,49860
+RID0012010,0,cp30_1_56,30/01a- 11  Faraday Fulmar,Discovery,Res_split_plays,Faraday Fulmar (Shearwater),Fulmar,JU,30th Round - F30/0043IA,50203
+RID0012010,0,cp30_1_56,30/01a- 11  Faraday Fulmar,Discovery,Res_split_plays,Faraday Fulmar(Puffin),Fulmar,JU,30th Round - F30/0043IA,50202
+RID0012053,0,cp9_14_18,9/14b- 1  LEADON,Discovery,Res_split_plays,LEADON Frigg,Frigg,GE,Reserves end 2014,50294
+RID0012053,0,cp9_14_18,9/14b- 1  LEADON,Discovery,Res_split_plays,LEADON Rogaland-Balder,Balder,GE,Reserves end 2014,51156
+RID0012059,1,cp9_19_68,9/19- 8Z  MACLURE,Discovery,Res_split_plays,MACLURE Frigg,Frigg,GE,Reserves end 2014,50300
+RID0012059,1,cp9_19_68,9/19- 8Z  MACLURE,Discovery,Res_split_plays,MACLURE Rogaland-Balder,Balder,GE,Reserves end 2014,51160
+RID0012123,0,cp29_2_6,29/02a- 6  BANFF,Discovery,Res_split_plays,BANFF Chalk,Chalk,KU,Reserves end 2014,50364
+RID0012123,0,cp29_2_6,29/02a- 6  BANFF,Discovery,Res_split_plays,BANFF Mey,Mey,GP,Reserves end 2014,51140
+RID0012123,0,cp29_2_6,29/02a- 6  BANFF,Discovery,Res_split_plays,BANFF Zechstein-Halibut,Zechstein-Halibut,PU,Reserves end 2014,50643
+RID0012130,1,cp30_7_33,30/07a- 1  JOANNE,Discovery,Res_split_plays,JOANNE Chalk,Chalk,KU,Reserves end 2014,50371
+RID0012130,1,cp30_7_33,30/07a- 1  JOANNE,Discovery,Res_split_plays,JOANNE Forties-Andrew - Mey,Mey,GP,Reserves end 2014,51143
+RID0012134,1,cp31_26_9,31/26a- 12  FLORA,Discovery,Res_split_plays,FLORA Carboniferous,Carboniferous,C,Reserves end 2014,50848
+RID0012134,1,cp31_26_9,31/26a- 12  FLORA,Discovery,Res_split_plays,FLORA Chalk,Chalk,KU,Reserves end 2014,50375
+RID0012134,1,cp31_26_9,31/26a- 12  FLORA,Discovery,Res_split_plays,FLORA Fulmar-Kimmeridge - Fulmar,Fulmar,JU,Reserves end 2014,51066
+RID0012144,0,cp13_24_5,13/24b- 3  BLAKE,Discovery,Res_split_plays,BLAKE DevilsHole-Scapa,DevilsHole-Scapa,KL,Reserves end 2014,50401
+RID0012144,1,cp13_24_5,13/24b- 3  BLAKE,Discovery,Res_split_plays,BLAKE Kopervik,Kopervik,KL,Reserves end 2014,50385
+RID0012176,1,cp14_19_6,14/19- 2  CLAYMORE,Discovery,Res_split_plays,CLAYMORE Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,50417
+RID0012176,1,cp14_19_6,14/19- 2  CLAYMORE,Discovery,Res_split_plays,CLAYMORE DevilsHole-Scapa,DevilsHole-Scapa,KL,Reserves end 2014,50404
+RID0012176,1,cp14_19_6,14/19- 2  CLAYMORE,Discovery,Res_split_plays,CLAYMORE Piper,Piper,JU,Reserves end 2014,50482
+RID0012176,1,cp14_19_6,14/19- 2  CLAYMORE,Discovery,Res_split_plays,CLAYMORE Zechstein-Halibut,Zechstein-Halibut,PU,Reserves end 2014,50639
+RID0012211,1,cp16_17_13,16/17- 1  THELMA,Discovery,Res_split_plays,THELMA Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,50452
+RID0012211,0,cp16_17_13,16/17- 1  THELMA,Discovery,Res_split_plays,THELMA Fladen-Hugin,Fladen-Hugin,JM,Reserves end 2014,50590
+RID0012212,1,cp16_17_11,16/17- 4  TONI,Discovery,Res_split_plays,TONI Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,50453
+RID0012212,0,cp16_17_11,16/17- 4  TONI,Discovery,Res_split_plays,TONI Fladen-Hugin,Fladen-Hugin,JM,Reserves end 2014,50591
+RID0012220,1,cp20_2_12,20/02- 1  ETTRICK,Discovery,Res_split_plays,ETTRICK Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,50461
+RID0012220,0,cp20_2_12,20/02- 1  ETTRICK,Discovery,Res_split_plays,ETTRICK Zechstein-Halibut,Zechstein-Halibut,PU,Reserves end 2014,50641
+RID0012233,1,cp9_13_8,9/13b- 28A  NESS,Discovery,Res_split_plays,NESS Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,50474
+RID0012233,0,cp9_13_8,9/13b- 28A  NESS,Discovery,Res_split_plays,NESS Fladen-Hugin,Fladen-Hugin,JM,Reserves end 2014,50600
+RID0012236,1,cp9_13_12,9/13- 4  NEVIS,Discovery,Res_split_plays,NEVIS Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,50477
+RID0012236,0,cp9_13_12,9/13- 4  NEVIS,Discovery,Res_split_plays,NEVIS Cormorant-Beryl,Cormorant-Beryl,JM,Reserves end 2014,50635
+RID0012244,0,cp14_20_26,14/20- 5  HIGHLANDER,Discovery,Res_split_plays,HIGHLANDER Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,50418
+RID0012244,0,cp14_20_26,14/20- 5  HIGHLANDER,Discovery,Res_split_plays,HIGHLANDER DevilsHole-Scapa,DevilsHole-Scapa,KL,Reserves end 2014,50407
+RID0012244,1,cp14_20_26,14/20- 5  HIGHLANDER,Discovery,Res_split_plays,HIGHLANDER Piper,Piper,JU,Reserves end 2014,50485
+RID0012248,0,cp15_16_28,15/16- 1  TARTAN,Discovery,Res_split_plays,TARTAN Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,50422
+RID0012248,1,cp15_16_28,15/16- 1  TARTAN,Discovery,Res_split_plays,TARTAN Piper,Piper,JU,Reserves end 2014,50489
+RID0012249,0,cp15_17_22,15/17- 13  CHANTER,Discovery,Res_split_plays,CHANTER Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,50423
+RID0012249,1,cp15_17_22,15/17- 13  CHANTER,Discovery,Res_split_plays,CHANTER Piper,Piper,JU,Reserves end 2014,50490
+RID0012250,0,cp15_17_28,15/17- 16  SALTIRE,Discovery,Res_split_plays,SALTIRE Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,50424
+RID0012250,0,cp15_17_28,15/17- 16  SALTIRE,Discovery,Res_split_plays,SALTIRE DevilsHole-Scapa,DevilsHole-Scapa,KL,Reserves end 2014,50408
+RID0012250,1,cp15_17_28,15/17- 16  SALTIRE,Discovery,Res_split_plays,SALTIRE Piper,Piper,JU,Reserves end 2014,50491
+RID0012255,0,cp15_17_32,15/17- 9  IONA,Discovery,Res_split_plays,IONA Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,50427
+RID0012255,1,cp15_17_32,15/17- 9  IONA,Discovery,Res_split_plays,IONA Piper,Piper,JU,Reserves end 2014,50496
+RID0012282,1,cp210_25_24,210/25- 1  TERN,Discovery,Res_split_plays,TERN Brent-Emerald,Brent-Emerald,JM,Reserves end 2014,50523
+RID0012282,0,cp210_25_24,210/25- 1  TERN,Discovery,Res_split_plays,TERN Cormorant-Beryl,Cormorant,T,Reserves end 2014,50628
+RID0012284,1,cp211_13_22,211/13- 2  PENGUIN EAST,Discovery,Res_split_plays,PENGUIN EAST Brent-Emerald,Brent-Emerald,JM,Reserves end 2014,50525
+RID0012284,0,cp211_13_22,211/13- 2  PENGUIN EAST,Discovery,Res_split_plays,PENGUIN EAST Nansen-Statfjord,Nansen-Statfjord,JL,Reserves end 2014,50609
+RID0012310,1,cp211_24_8,211/24- 4  STATFJORD,Discovery,Res_split_plays,STATFJORD Brent-Emerald,Brent-Emerald,JM,Reserves end 2014,50551
+RID0012310,1,cp211_24_8,211/24- 4  STATFJORD,Discovery,Res_split_plays,STATFJORD Nansen-Statfjord,Nansen-Statfjord,JL,Reserves end 2014,50610
+RID0012311,1,cp211_26_3,211/26- 1  SOUTH CORMORANT,Discovery,Res_split_plays,SOUTH CORMORANT Brent-Emerald,Brent-Emerald,JM,Reserves end 2014,50552
+RID0012311,0,cp211_26_3,211/26- 1  SOUTH CORMORANT,Discovery,Res_split_plays,SOUTH CORMORANT Cormorant-Beryl,Cormorant-Beryl,T,Reserves end 2014,50632
+RID0012319,1,cp211_29_1,211/29- 1  BRENT,Discovery,Res_split_plays,BRENT Brent-Emerald,Brent-Emerald,JM,Reserves end 2014,50560
+RID0012319,1,cp211_29_1,211/29- 1  BRENT,Discovery,Res_split_plays,BRENT Nansen-Statfjord,Nansen-Statfjord,JL,Reserves end 2014,50612
+RID0012329,1,cp3_4_9,3/04- 4  STRATHSPEY,Discovery,Res_split_plays,STRATHSPEY Brent-Emerald,Brent-Emerald,JM,Reserves end 2014,50570
+RID0012329,1,cp3_4_9,3/04- 4  STRATHSPEY,Discovery,Res_split_plays,STRATHSPEY Nansen-Statfjord,Nansen-Statfjord,JL,Reserves end 2014,50613
+RID0012337,1,cp3_14_7,3/14a- 1  DUNBAR,Discovery,Res_split_plays,DUNBAR Brent-Emerald,Brent-Emerald,JM,Reserves end 2014,50578
+RID0012337,1,cp3_14_7,3/14a- 1  DUNBAR,Discovery,Res_split_plays,DUNBAR Nansen-Statfjord,Nansen-Statfjord,JL,Reserves end 2014,50616
+RID0012357,0,cp9_8_11,9/08- 1  BRUCE,Discovery,Res_split_plays,BRUCE Chalk,Chalk,KU,Reserves end 2014,50379
+RID0012357,1,cp9_8_11,9/08- 1  BRUCE,Discovery,Res_split_plays,BRUCE Fladen-Hugin,Fladen-Hugin,JM,Reserves end 2014,50598
+RID0012357,0,cp9_8_11,9/08- 1  BRUCE,Discovery,Res_split_plays,BRUCE Nansen-Statfjord,Nansen-Statfjord,JL,Reserves end 2014,50617
+RID0012361,1,cp9_13_15,9/13- 1  BERYL,Discovery,Res_split_plays,BERYL Brae-Kimmeridge,Brae-Kimmeridge,JU,Reserves end 2014,50476
+RID0012361,1,cp9_13_15,9/13- 1  BERYL,Discovery,Res_split_plays,BERYL Cormorant-Beryl,Cormorant-Beryl,JM,Reserves end 2014,50634
+RID0012361,1,cp9_13_15,9/13- 1  BERYL,Discovery,Res_split_plays,BERYL Fladen-Hugin,Fladen-Hugin,JM,Reserves end 2014,50602
+RID0012361,1,cp9_13_15,9/13- 1  BERYL,Discovery,Res_split_plays,BERYL Nansen-Statfjord,Nansen-Statfjord,JL,Reserves end 2014,50618
+RID0012365,1,cp9_19_64,9/19- 2  SKENE,Discovery,Res_split_plays,SKENE Cormorant-Beryl,Cormorant-Beryl,T,Reserves end 2014,50636
+RID0012365,1,cp9_19_64,9/19- 2  SKENE,Discovery,Res_split_plays,SKENE Fladen-Hugin,Fladen-Hugin,JM,Reserves end 2014,50606
+RID0012374,0,cp3_9_6,3/09a- 1  ALWYN NORTH,Discovery,Res_split_plays,ALWYN NORTH Brent-Emerald,Brent-Emerald,JM,Reserves end 2014,50577
+RID0012374,1,cp3_9_6,3/09a- 1  ALWYN NORTH,Discovery,Res_split_plays,ALWYN NORTH Nansen-Statfjord,Nansen-Statfjord,JL,Reserves end 2014,50615
+RID0012403,1,cp30_16_5,30/16- 1  AUK,Discovery,Res_split_plays,AUK Rotliegend,Rotliegend,PL,Reserves end 2014,50659
+RID0012403,1,cp30_16_5,30/16- 1  AUK,Discovery,Res_split_plays,AUK Zechstein-Halibut,Zechstein-Halibut,PU,Reserves end 2014,50644
+RID0012404,1,cp30_24_16,30/24- 2  ALMA,Discovery,Res_split_plays,ALMA Devonian,Devonian,D,Reserves end 2014,50919
+RID0012404,1,cp30_24_16,30/24- 2  ALMA,Discovery,Res_split_plays,ALMA Rotliegend,Rotliegend,PL,Reserves end 2014,50661
+RID0012404,1,cp30_24_16,30/24- 2  ALMA,Discovery,Res_split_plays,ALMA Zechstein,Zechstein-Halibut,PU,Reserves end 2014,50645
+RID0012412,0,cp49_21_13,49/21- 2  SOUTH VALIANT,Discovery,Res_split_plays,SOUTH VALIANT Rotliegend,Rotliegend,PL,Reserves end 2014,50798
+RID0012412,0,cp49_21_13,49/21- 2  SOUTH VALIANT,Discovery,Res_split_plays,SOUTH VALIANT Zechstein,Zechstein,PU,Reserves end 2014,50653
+RID0012417,1,cp30_16_9,30/16- 13Z  AUK NORTH,Discovery,Res_split_plays,AUK NORTH Chalk,Chalk,KU,Reserves end 2014,50372
+RID0012417,1,cp30_16_9,30/16- 13Z  AUK NORTH,Discovery,Res_split_plays,AUK NORTH Rotliegend,Rotliegend,PL,Reserves end 2014,50658
+RID0012430,0,cp43_21_7,43/21- 2  GARROW,Discovery,Res_split_plays,GARROW Namurian,Namurian,CN,Reserves end 2014,50907
+RID0012430,1,cp43_21_7,43/21- 2  GARROW,Discovery,Res_split_plays,GARROW Rotliegend,Rotliegend,PL,Reserves end 2014,50671
+RID0012431,0,cp43_26_17,43/26b- 10  Kumatage,Discovery,Res_split_plays,Kumatage A Sand,Rotliegend,PL,30th Round - F30/0046IA,49755
+RID0012431,0,cp43_26_17,43/26b- 10  Kumatage,Discovery,Res_split_plays,Kumatage A Sand,Rotliegend,PL,p1331.pdf,53897
+RID0012431,0,cp43_26_17,43/26b- 10  Kumatage,Discovery,Res_split_plays,Kumatage A Sand,Rotliegend,PL,27th Round (197P),42874
+RID0012431,0,cp43_26_17,43/26b- 10  Kumatage,Discovery,Res_split_plays,Kumatage A Sand,Rotliegend,PL,25th Round (AP176T),42881
+RID0012431,0,cp43_26_17,43/26b- 10  Kumatage,Discovery,Res_split_plays,Kumatage B Sand,Rotliegend,PL,30th Round - F30/0046IA,49756
+RID0012431,0,cp43_26_17,43/26b- 10  Kumatage,Discovery,Res_split_plays,Kumatage B Sand,Rotliegend,PL,p1331.pdf,53896
+RID0012431,0,cp43_26_17,43/26b- 10  Kumatage,Discovery,Res_split_plays,Kumatage B Sand,Rotliegend,PL,27th Round (197P),42873
+RID0012431,0,cp43_26_17,43/26b- 10  Kumatage,Discovery,Res_split_plays,Kumatage B Sand,Rotliegend,PL,25th Round (AP176T),42882
+RID0012435,1,cp44_12_10,44/12- 1  CYGNUS,Discovery,Res_split_plays,CYGNUS Rotliegend,Rotliegend,PL,Reserves end 2014,50676
+RID0012435,1,cp44_12_10,44/12- 1  CYGNUS,Discovery,Res_split_plays,CYGNUS Westph Red Beds,Westph_Red_Beds,C,Reserves end 2014,50850
+RID0012449,1,cp47_10_19,47/10- 1  HELVELLYN,Discovery,Res_split_plays,HELVELLYN Rotliegend,Rotliegend,PL,Reserves end 2014,50690
+RID0012449,0,cp47_10_19,47/10- 1  HELVELLYN,Discovery,Res_split_plays,HELVELLYN Westph Coal Measures,Westph_Coal_Measures,CW,Reserves end 2014,50888
+RID0012478,1,cp48_12_25,48/12e- 11  Olympus,Discovery,Res_split_plays,Olympus Lower Leman,Rotliegend,PL,33rd Round - F33/0025IA,56284
+RID0012478,0,cp48_12_25,48/12e- 11  Olympus,Discovery,Res_split_plays,Olympus Upper Leman,Rotliegend,PL,33rd Round - F33/0025IA,56283
+RID0012481,1,cp48_13_4,48/13- 1  BARQUE,Discovery,Res_split_plays,BARQUE Rotliegend,Rotliegend,PL,Reserves end 2014,50722
+RID0012481,0,cp48_13_4,48/13- 1  BARQUE,Discovery,Res_split_plays,BARQUE Westph Coal Measures,Westph_Coal_Measures,CW,Reserves end 2014,50891
+RID0012517,1,cp49_9_12,49/09a- 3  CUTTER,Discovery,Res_split_plays,CUTTER Rotliegend,Rotliegend,PL,Reserves end 2014,50758
+RID0012517,0,cp49_9_12,49/09a- 3  CUTTER,Discovery,Res_split_plays,CUTTER Westph Coal Measures,Westph_Coal_Measures,CW,Reserves end 2014,50898
+RID0012524,1,cp49_11_14,49/11b- 8  TETHYS,Discovery,Res_split_plays,TETHYS Rotliegend,Rotliegend,PL,Reserves end 2014,50765
+RID0012524,0,cp49_11_14,49/11b- 8  TETHYS,Discovery,Res_split_plays,TETHYS Zechstein,Zechstein,PU,Reserves end 2014,50652
+RID0012528,1,cp49_14_21,49/14b- 3  CARRACK,Discovery,Res_split_plays,CARRACK Rotliegend,Rotliegend,PL,Reserves end 2014,50769
+RID0012528,1,cp49_14_21,49/14b- 3  CARRACK,Discovery,Res_split_plays,CARRACK Westph Coal Measures,Westph_Coal_Measures,CW,Reserves end 2014,50900
+RID0012565,1,cp49_22_24,49/22- 3  EUROPA,Discovery,Res_split_plays,EUROPA Rotliegend,Rotliegend,PL,Reserves end 2014,50806
+RID0012565,0,cp49_22_24,49/22- 3  EUROPA,Discovery,Res_split_plays,EUROPA Zechstein,Zechstein,PU,Reserves end 2014,50654
+RID0012587,1,cp49_29_23,49/29- 2  TRISTAN,Discovery,Res_split_plays,TRISTAN Rotliegend,Rotliegend,PL,Reserves end 2014,50828
+RID0012587,0,cp49_29_23,49/29- 2  TRISTAN,Discovery,Res_split_plays,TRISTAN Zechstein,Zechstein,PU,Reserves end 2014,50655
+RID0012636,0,cp43_19_4,43/19- 1  CAVENDISH,Discovery,Res_split_plays,CAVENDISH Namurian,Namurian,CN,Reserves end 2014,50904
+RID0012636,1,cp43_19_4,43/19- 1  CAVENDISH,Discovery,Res_split_plays,CAVENDISH Westph Coal Measures,Westph_Coal_Measures,CW,Reserves end 2014,50877
+RID0012639,0,cp44_17_9,44/17- 1  McADAM,Discovery,Res_split_plays,McADAM Namurian,Namurian,CN,Reserves end 2014,50912
+RID0012639,1,cp44_17_9,44/17- 1  McADAM,Discovery,Res_split_plays,McADAM Westph Coal Measures,Westph_Coal_Measures,CW,Reserves end 2014,50880
+RID0012651,1,cp49_1_8,49/01- 3  TOPAZ,Discovery,Res_split_plays,TOPAZ Westph Coal Measures,Westph_Coal_Measures,C,Reserves end 2014,50892
+RID0012651,0,cp49_1_8,49/01- 3  TOPAZ,Discovery,Res_split_plays,TOPAZ Westph Red Beds,Westph_Red_Beds,C,Reserves end 2014,50873
+RID0012655,0,cp49_4_10,49/04- 1  CHISWICK,Discovery,Res_split_plays,CHISWICK Rotliegend,Rotliegend,PL,Reserves end 2014,50754
+RID0012655,1,cp49_4_10,49/04- 1  CHISWICK,Discovery,Res_split_plays,CHISWICK Westph Coal Measures,Westph_Coal_Measures,C,Reserves end 2014,50896
+RID0012744,1,cp213_27_7,213/27- 1Z  ROSEBANK,Discovery,Res_split_plays,ROSEBANK WOS_Jurassic,WOS_Jurassic,J,Reserves end 2014,50985
+RID0012744,0,cp213_27_7,213/27- 1Z  ROSEBANK,Discovery,Res_split_plays,ROSEBANK WOS_Upper_Paleocene,WOS_Upper_Paleocene,GC,Reserves end 2014,50976
+RID0012757,1,cp30_7_31,30/07a- 4A  JUDY,Discovery,Res_split_plays,JUDY Fulmar-Kimmeridge - Heather,Heather,JU,Reserves end 2014,50998
+RID0012757,0,cp30_7_31,30/07a- 4A  JUDY,Discovery,Res_split_plays,JUDY Pentland-Skagerrak t,Skagerrak,T,Reserves end 2014,51223
+RID0012763,1,cp21_16_16,21/16- 1  DURWARD,Discovery,Res_split_plays,DURWARD Fulmar-Kimmeridge - Fulmar,Fulmar,JU,Reserves end 2014,51004
+RID0012763,0,cp21_16_16,21/16- 1  DURWARD,Discovery,Res_split_plays,DURWARD Pentland-Skagerrak_t,Skagerrak,T,Reserves end 2014,51198
+RID0012765,1,cp21_18_12,21/18- 2A  KITTIWAKE,Discovery,Res_split_plays,KITTIWAKE Fulmar-Kimmeridge - Fulmar,Fulmar,JU,Reserves end 2014,51006
+RID0012765,0,cp21_18_12,21/18- 2A  KITTIWAKE,Discovery,Res_split_plays,KITTIWAKE Pentland-Skagerrak_t,Skagerrak,T,Reserves end 2014,51200
+RID0012774,1,cp21_25_11,21/25- 10  TEAL SOUTH,Discovery,Res_split_plays,TEAL SOUTH Fulmar,Fulmar,JU,Reserves end 2014,51015
+RID0012774,1,cp21_25_11,21/25- 10  TEAL SOUTH,Discovery,Res_split_plays,TEAL SOUTH Skagerrak_t,Skagerrak,T,Reserves end 2014,51201
+RID0012775,1,cp21_25_14,21/25- 2  GUILLEMOT A,Discovery,Res_split_plays,GUILLEMOT A Forties,Forties,GP,Reserves end 2014,51080
+RID0012775,1,cp21_25_14,21/25- 2  GUILLEMOT A,Discovery,Res_split_plays,GUILLEMOT A Fulmar,Fulmar,JU,Reserves end 2014,51016
+RID0012775,1,cp21_25_14,21/25- 2  GUILLEMOT A,Discovery,Res_split_plays,GUILLEMOT A Skagerrak,Skagerrak,T,Reserves end 2014,51202
+RID0012780,1,cp22_5_5,22/05b- 3  SEYMOUR,Discovery,Res_split_plays,SEYMOUR Fulmar-Kimmeridge - Fulmar,Fulmar,JU,Reserves end 2014,51021
+RID0012780,0,cp22_5_5,22/05b- 3  SEYMOUR,Discovery,Res_split_plays,SEYMOUR Pentland-Skagerrak_t,Skagerrak,T,Reserves end 2014,51203
+RID0012783,1,cp22_12_15,22/12a- 1  HOWE,Discovery,Res_split_plays,HOWE,Fulmar,JU,Reserves end 2014,51024
+RID0012783,1,cp22_12_15,22/12a- 1  HOWE,Discovery,Res_split_plays,HOWE Skagerrak,Skagerrak,T,Reserves end 2014,51204
+RID0012799,1,cp22_30_48,22/30b- 4  SHEARWATER,Discovery,Res_split_plays,SHEARWATER Fulmar,Fulmar,JU,Reserves end 2014,51040
+RID0012799,1,cp22_30_48,22/30b- 4  SHEARWATER,Discovery,Res_split_plays,SHEARWATER Pentland,Pentland,JM,Reserves end 2014,51186
+RID0012800,1,cp22_30_50,22/30c- 8  ELGIN,Discovery,Res_split_plays,ELGIN Fulmar,Fulmar,JU,Reserves end 2014,51041
+RID0012800,0,cp22_30_50,22/30c- 8  ELGIN,Discovery,Res_split_plays,ELGIN Skagerrak,Pentland,JM,Reserves end 2014,51187
+RID0012803,1,cp23_26_41,23/26a- 7  ERSKINE Fulmar,Discovery,Res_split_plays,ERSKINE Fulmar-Kimmeridge - Fulmar,Fulmar,JU,Reserves end 2014,51044
+RID0012803,0,cp23_26_41,23/26a- 7  ERSKINE Fulmar,Discovery,Res_split_plays,ERSKINE Pentland-Skagerrak jm,Pentland,JM,Reserves end 2014,51188
+RID0012807,1,cp29_5_36,29/05b- 4  FRANKLIN,Discovery,Res_split_plays,FRANKLIN Fulmar-Kimmeridge - Fulmar,Fulmar,JU,Reserves end 2014,51048
+RID0012807,1,cp29_5_36,29/05b- 4  FRANKLIN,Discovery,Res_split_plays,FRANKLIN Pentland-Skagerrak jm,Pentland,JM,Reserves end 2014,51190
+RID0012826,1,cp31_26_13,31/26a- 9  FIFE,Discovery,Res_split_plays,FIFE Chalk,Chalk,KU,Reserves end 2014,50376
+RID0012826,1,cp31_26_13,31/26a- 9  FIFE,Discovery,Res_split_plays,FIFE Fulmar-Kimmeridge - Fulmar,Fulmar,JU,Reserves end 2014,51067
+RID0012838,1,cp21_25_6,21/25- 1  GANNET B,Discovery,Res_split_plays,GANNET B Forties,Forties,GP,Reserves end 2014,51079
+RID0012838,1,cp21_25_6,21/25- 1  GANNET B,Discovery,Res_split_plays,GANNET B Tay,Tay,GE,Reserves end 2014,50308
+RID0012844,1,cp22_10_10,22/10a- 2  EVEREST,Discovery,Res_split_plays,EVEREST Forties-Andrew - Forties,Forties,GP,Reserves end 2014,51085
+RID0012844,0,cp22_10_10,22/10a- 2  EVEREST,Discovery,Res_split_plays,EVEREST Forties-Andrew - Maureen,Maureen,GP,Reserves end 2014,51151
+RID0012844,0,cp22_10_10,22/10a- 2  EVEREST,Discovery,Res_split_plays,EVEREST Forties-Andrew - Mey,Mey,GP,Reserves end 2014,51138
+RID0012859,0,cp23_16_40,23/16a- 3  MUNGO,Discovery,Res_split_plays,MUNGO Chalk,Chalk,KUGD,Reserves end 2014,50360
+RID0012859,1,cp23_16_40,23/16a- 3  MUNGO,Discovery,Res_split_plays,MUNGO Forties-Andrew - Forties,Forties,GP,Reserves end 2014,51100
+RID0012863,0,cp23_26_40,23/26a- 1  MACHAR,Discovery,Res_split_plays,MACHAR Chalk,Chalk,KU,Reserves end 2014,50361
+RID0012863,1,cp23_26_40,23/26a- 1  MACHAR,Discovery,Res_split_plays,MACHAR Forties-Andrew_-_Forties,Forties,GP,Reserves end 2014,51104
+RID0012864,0,cp23_27_31,23/27- 3  PIERCE,Discovery,Res_split_plays,PIERCE Chalk,Chalk,KU,Reserves end 2014,50362
+RID0012864,1,cp23_27_31,23/27- 3  PIERCE,Discovery,Res_split_plays,PIERCE Forties-Andrew_-_Forties,Forties,GP,Reserves end 2014,51105
+RID0012893,1,cp16_28_5,16/28- 1  ANDREW,Discovery,Res_split_plays,ANDREW Forties-Andrew -Mey,Mey,GP,Reserves end 2014,51134
+RID0012893,1,cp16_28_5,16/28- 1  ANDREW,Discovery,Res_split_plays,ANDREW Kopervik,Kopervik,KL,Reserves end 2014,50393
+RID0012898,1,cp22_21_41,22/21- 5Z  GANNET D,Discovery,Res_split_plays,GANNET D Mey,Mey,GP,Reserves end 2014,51139
+RID0012898,1,cp22_21_41,22/21- 5Z  GANNET D,Discovery,Res_split_plays,GANNET D Tay,Tay,GE,Reserves end 2014,50324
+RID0012906,1,cp30_18_19,30/18- 3  ORION,Discovery,Res_split_plays,ORION Chalk,Chalk,KU,Reserves end 2014,50373
+RID0012906,1,cp30_18_19,30/18- 3  ORION,Discovery,Res_split_plays,ORION Forties-Andrew - Mey,Mey,GP,Reserves end 2014,51147
+RID0012913,1,cp16_7_6,16/07- 2  WEST BRAE,Discovery,Res_split_plays,WEST BRAE Devonian,Devonian,D,Reserves end 2014,50916
+RID0012913,1,cp16_7_6,16/07- 2  WEST BRAE,Discovery,Res_split_plays,WEST BRAE Rogaland-Balder,Balder,GE,Reserves end 2014,51154
+RID0012913,1,cp16_7_6,16/07- 2  WEST BRAE,Discovery,Res_split_plays,WEST BRAE Rogaland-Sele,Sele,GEGP,Reserves end 2014,51164
+RID0012921,1,cp9_23_17,9/23b- 24  HARDING,Discovery,Res_split_plays,HARDING Balder,Balder,GE,Reserves end 2014,51162
+RID0012921,0,cp9_23_17,9/23b- 24  HARDING,Discovery,Res_split_plays,HARDING Sele,Sele,GEGP,Reserves end 2014,51181
+RID0012922,1,cp9_23_21,9/23b- 7  HARDING,Discovery,Res_split_plays,HARDING Balder,Balder,GE,Reserves end 2014,51163
+RID0012922,0,cp9_23_21,9/23b- 7  HARDING,Discovery,Res_split_plays,HARDING Frigg,Frigg,GE,Reserves end 2014,50302
+RID0012931,0,cp29_1_38,29/01b- 5  BITTERN,Discovery,Res_split_plays,BITTERN Pentland-Skagerrak t,Skagerrak,T,Reserves end 2014,51214
+RID0012931,1,cp29_1_38,29/01b- 5  BITTERN,Discovery,Res_split_plays,BITTERN Rogaland - Sele,Sele,GEGP,Reserves end 2014,51172
+RID0012938,1,cp9_23_16,9/23b- 21  HARDING DEEP SOUTH,Discovery,Res_split_plays,HARDING DEEP SOUTH Rogaland-Sele,Sele,GEGP,Reserves end 2014,51179
+RID0012938,0,cp9_23_16,9/23b- 21  HARDING DEEP SOUTH,Discovery,Res_split_plays,HARDING DEEP SOUTH Teal-Heimdal,Teal-Heimdal,GP,Reserves end 2014,50357
+RID0013031,0,cp12_27_28,12/27- 1 Delgany,Discovery,Res_split_plays,Neo - Mid Jurassic,Beatrice,JM,26th Round (110T),37692
+RID0013031,0,cp12_27_28,12/27- 1 Delgany,Discovery,Res_split_plays,Neo - Triassic,Skagerrak,T,26th Round (110T),37691
+RID0013149,0,cp12_21_9,12/21- 3  Sarclet,Discovery,Res_split_plays,Baca Alness,Alness,JU,P2471_11_25c_12_21b_12_22_Jetex_RelReport_Jun2021.pdf,55641
+RID0013149,0,cp12_21_9,12/21- 3  Sarclet,Discovery,Res_split_plays,Baca Humber,Brae-Kimmeridge,JU,P2471_11_25c_12_21b_12_22_Jetex_RelReport_Jun2021.pdf,55640
+RID0013256,0,cp9_28_10,9/28- 2  CRAWFORD,Discovery,Res_split_plays,CRAWFORD Cormorant-Beryl,Cormorant-Beryl,T,Reserves end 2014,50638
+RID0013256,0,cp9_28_10,9/28- 2  CRAWFORD,Discovery,Res_split_plays,CRAWFORD Fladen-Hugin,Fladen-Hugin,JM,Reserves end 2014,50608
+RID0013299,1,cp30_12_27,30/12d- 11  Isabella,Discovery,Res_split_plays,Isabella Jurassic Fulmar,Fulmar,JC,Isabella TCM PDR Presentation 040620 PRE_READ.pdf,55070
+RID0013299,1,cp30_12_27,30/12d- 11  Isabella,Discovery,Res_split_plays,Isabella Jurassic Kimmeridgen,Kimmeridge,JD,Isabella TCM PDR Presentation 040620 PRE_READ.pdf,55062
+RID0013299,1,cp30_12_27,30/12d- 11  Isabella,Discovery,Res_split_plays,Isabella Triassic Joanne,Skagerrak,TD,Isabella TCM PDR Presentation 040620 PRE_READ.pdf,55071
+RID0013299,1,cp30_12_27,30/12d- 11  Isabella,Discovery,Res_split_plays,Isabella Triassic Judy ,Skagerrak,TA,Isabella TCM PDR Presentation 040620 PRE_READ.pdf,55072
+RID0013368,0,cp30_1_62,30/01c -5A  Kessog South (Triassic),Discovery,Res_split_plays,Kessog Discovery,Pentland,JM,Proj GC10/28,46422
+RID0013368,0,cp30_1_62,30/01c -5A  Kessog South (Triassic),Discovery,Res_split_plays,Kessog Skagerrak,Skagerrak,T,Proj GC10/28,46437
+RID0013368,0,cp30_1_62,30/01c -5A  Kessog South (Triassic),Discovery,Res_split_plays,Kessog Skagerrak,Skagerrak,T,Proj GC10/28,46438
+RID0013618,1,cp29_15_19,30/11c- 6C  Romeo,Discovery,Res_split_plays,Romeo Discovery (Jurassic Fulmar),Fulmar,JU,33rd Round - F33/0023IA,56024
+RID0013618,0,cp29_15_19,30/11c- 6C  Romeo,Discovery,Res_split_plays,Romeo Discovery (Triassic Skagerrak),Skagerrak,T,33rd Round - F33/0023IA,56019
+RID0014328,1,cp43_13_16,43/13b- 7  Pegasus West,Discovery,Res_split_plays,Pegasus West,Westph_Coal_Measures,CA,33rd Round - F33/0011I,56152
