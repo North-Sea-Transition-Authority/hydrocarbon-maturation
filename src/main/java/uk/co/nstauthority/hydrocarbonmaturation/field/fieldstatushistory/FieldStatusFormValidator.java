@@ -185,7 +185,7 @@ public class FieldStatusFormValidator {
   private boolean violatesUniqueConstraint(FieldStatusHistory newFieldStatusHistory,
                                            List<FieldStatusHistory> existingHistories) {
     return switch (newFieldStatusHistory.getFieldStatus()) {
-      case STATUS_200, STATUS_300, STATUS_400, STATUS_500, STATUS_600, STATUS_900 ->
+      case STATUS_200, STATUS_300, STATUS_400, STATUS_450, STATUS_500, STATUS_600, STATUS_900 ->
           statusAlreadyExists(newFieldStatusHistory.getFieldStatus(), existingHistories);
       case STATUS_700, STATUS_799, STATUS_800, STATUS_899 -> false;
     };

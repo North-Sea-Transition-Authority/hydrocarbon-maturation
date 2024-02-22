@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation;
 
 import static org.mockito.Mockito.doCallRealMethod;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SubmissionHandlerI
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionInterceptorSecurityRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionStatusInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.IncludeServiceBrandingConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.configuration.ExternalApiAuthenticationEntryPoint;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.IncludeEnergyPortalConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ErrorSummaryHandlerInterceptor;
@@ -118,6 +120,11 @@ public abstract class AbstractControllerTest {
         UserService userService,
         List<SubmissionInterceptorSecurityRule> securityRules) {
       return new SubmissionHandlerInterceptor(submissionDetailService, userService, securityRules);
+    }
+
+    @Bean
+    public ExternalApiAuthenticationEntryPoint externalApiAuthenticationEntryPoint() {
+      return new ExternalApiAuthenticationEntryPoint(new ObjectMapper());
     }
   }
 }
