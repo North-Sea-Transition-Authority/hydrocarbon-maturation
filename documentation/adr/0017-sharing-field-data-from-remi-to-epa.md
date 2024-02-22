@@ -10,7 +10,7 @@ To be consistent with established patterns by other services (SCAP, PWA), a REST
 
 ### Required REST Endpoints
 Based on the GraphQL queries in EPA for fields, the following REST endpoints will be implemented:
-- Single Field Retrieval: `/api/external/v1/fields/{fieldId}` to retrieve a single field by ID.
+- Single Field Retrieval: `/api/external/v1/fields?ids={fieldId}` to retrieve a single field by ID.
 - Multiple Fields Retrieval: `/api/external/v1/fields?fieldName={name}&status={status}&ids={id1,id2,...}` for querying multiple fields based on name, status, or IDs.
 
 ### Fields EPA GraphQL Queries and Schema
@@ -100,3 +100,11 @@ Note: Not all `FieldStatus` enums exist in ReMI
 | SNS      | SOUTHERN_NORTH_SEA |
 | WOS      | WEST_OF_SHETLAND   |
 | UNKNOWN  |                    |
+
+
+### Enum Transformation in ReMI vs. EPA
+
+Reasons for performing enum transformation in ReMI instead of EPA include:
+- Direct JSON Conversion in EPA: EPA's object mapper directly converts JSON into the `field` type, making sending ReMI enums unfeasible and requiring additional processing and maintenance in EPA.
+- Filtering by Field Statuses in EPA: EPA requires filtering data by field statuses. If ReMI's rest end point expected ReMI's field status enums, it would necessitate maintenance of a ReMI field status list in EPA.
+- Maintaining EPA Enums in ReMI: ReMI is already familiar with EPA enums through the library, eliminating the need to duplicate EPA enums. Any new EPA enums are automatically updated in ReMI ensuring compatibility and compilation integrity.

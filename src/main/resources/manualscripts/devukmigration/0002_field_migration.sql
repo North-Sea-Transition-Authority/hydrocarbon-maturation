@@ -5,6 +5,7 @@ DECLARE
     remi_res_id UUID;
     remi_geographical_area TEXT;
     remi_responsible_team TEXT;
+    remi_field_identifier INTEGER;
 
 BEGIN
 
@@ -41,7 +42,6 @@ BEGIN
       INSERT INTO remi.fields (
         field_identifier
       , resource_id
-      , field_status
       , legal_field_name
       , corrected_legal_field_name
       , common_name_for_field
@@ -54,7 +54,6 @@ BEGIN
       VALUES (
         field_rec.field_identifier
       , remi_res_id
-      , 'STATUS_' || field_rec.status
       , field_rec.name
       , field_rec.name
       , field_rec.name
@@ -63,6 +62,20 @@ BEGIN
       , CASE field_rec.infrastructure_host_flag WHEN 'true' THEN TRUE ELSE FALSE END
       , CASE field_rec.sub_type WHEN 'D' THEN 'DETERMINED' WHEN 'U' THEN 'UNDETERMINED' WHEN 'S' THEN 'SUB_AREA_OF_DETERMINED_FIELD' END
       , field_rec.parent_field_identifier
+      )
+      RETURNING field_identifier INTO remi_field_identifier;
+
+      INSERT into remi.field_status_history (
+        id
+      , field_identifier
+      , field_status
+      , status_date
+      )
+      VALUES (
+        gen_random_uuid()
+      , remi_field_identifier
+      , 'STATUS_' || field_rec.status
+      , NOW()
       );
 
       IF field_rec.on_offshore = 'L' THEN
@@ -96,8 +109,8 @@ BEGIN
       VALUES (
         gen_random_uuid()
       , remi_res_id
-      , remi_geographical_area
       , remi_responsible_team
+      , remi_geographical_area
       );
 
     END LOOP;

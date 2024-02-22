@@ -12,7 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class DevtoolsConfiguration {
 
   @Bean
-  @Order(1)
+  @Order(2)
   protected SecurityFilterChain devToolsFilterChain(HttpSecurity httpSecurity) throws Exception {
 
     httpSecurity.authorizeHttpRequests(requestMatcherRegistry ->

@@ -7,13 +7,14 @@ public enum FieldStatus implements Displayable {
   STATUS_200("200: no CSR or FDP", 10, 200),
   STATUS_300("300: CSR submitted", 20, 300),
   STATUS_400("400: CSR approved, FDP under discussion", 30, 400),
-  STATUS_500("500: FDP submitted", 40, 500),
-  STATUS_600("600: FDP approved", 50, 600),
+  STATUS_450("450: Under discovery - CoPP", 40, 450),
+  STATUS_500("500: FDP submitted", 50, 500),
+  STATUS_600("600: FDP approved", 60, 600),
   STATUS_700("700: Producing", 60, 700),
-  STATUS_799("799: Production suspended (possible reserves remain)", 70, 799),
-  STATUS_800("800: Production suspended", 80, 800),
-  STATUS_899("899: Production ceased (vent consent needed)", 90, 899),
-  STATUS_900("900: Production ceased", 100, 900),
+  STATUS_799("799: Production suspended (possible reserves remain)", 80, 799),
+  STATUS_800("800: Production suspended", 90, 800),
+  STATUS_899("899: Production ceased (vent consent needed)", 100, 899),
+  STATUS_900("900: Production ceased", 110, 900),
   ;
   private final String displayName;
   private final int displayOrder;
