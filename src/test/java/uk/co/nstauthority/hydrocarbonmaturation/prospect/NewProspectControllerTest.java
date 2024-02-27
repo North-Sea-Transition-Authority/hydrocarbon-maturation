@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.prospect;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,11 +56,17 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
   }
 
   @Test
-  void getNewProspectPage_assertModelProperties() throws Exception {
+  void getNewProspectPage_withPreSelectedOrganisation_assertModelProperties() throws Exception {
     var form = new ResourceDetailsForm();
+    form.setResponsibleOrganisationId("191002");
+
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
         .thenReturn(true);
-    when(regulatorTeamService.isRegulatorUser(any())).thenReturn(true);
+    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    var alreadySelectedOrgMap = mock(Map.class);
+    when(organisationUnitQueryService.getPreSelectedOrganisationUnit(191002))
+        .thenReturn(alreadySelectedOrgMap);
+
     var modelAndView = mockMvc.perform(
             get(ReverseRouter.route(on(NewProspectController.class).getNewProspectPage(null)))
                 .flashAttr("form", form)
@@ -75,7 +83,8 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
             "form",
             "resourceType",
             "isRegulatorOrAreaTeamUser",
-            "onshoreOffshore")
+            "onshoreOffshore",
+            "alreadySelectedOrganisation")
         .containsExactly(
             ReverseRouter.route(on(StartProspectController.class).getStartPage()),
             ReverseRouter.route(on(NewProspectController.class).createProspect(null, null)),
@@ -83,7 +92,49 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
             form,
             ResourceType.PROSPECT.getDisplayName().toLowerCase(),
             true,
-            OnshoreOffshore.getOnshoreOffshore());
+            OnshoreOffshore.getOnshoreOffshore(),
+            alreadySelectedOrgMap);
+  }
+
+  @Test
+  void getNewProspectPage_withoutPreSelectedOrganisation_assertModelProperties() throws Exception {
+    var form = new ResourceDetailsForm();
+    form.setResponsibleOrganisationId(null);
+
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+        .thenReturn(true);
+    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    var alreadySelectedOrgMap = mock(Map.class);
+    when(organisationUnitQueryService.getPreSelectedOrganisationUnit(null))
+        .thenReturn(alreadySelectedOrgMap);
+
+    var modelAndView = mockMvc.perform(
+            get(ReverseRouter.route(on(NewProspectController.class).getNewProspectPage(null)))
+                .flashAttr("form", form)
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView();
+
+    assert modelAndView != null;
+    assertThat(modelAndView.getModel())
+        .extracting(
+            "backLinkUrl",
+            "actionUrl",
+            "organisationUnitEndpoint",
+            "form",
+            "resourceType",
+            "isRegulatorOrAreaTeamUser",
+            "onshoreOffshore",
+            "alreadySelectedOrganisation")
+        .containsExactly(
+            ReverseRouter.route(on(StartProspectController.class).getStartPage()),
+            ReverseRouter.route(on(NewProspectController.class).createProspect(null, null)),
+            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null)),
+            form,
+            ResourceType.PROSPECT.getDisplayName().toLowerCase(),
+            true,
+            OnshoreOffshore.getOnshoreOffshore(),
+            alreadySelectedOrgMap);
   }
 
   @SecurityTest
@@ -116,6 +167,10 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
         .thenReturn(true);
     when(regulatorTeamService.isRegulatorUser(any())).thenReturn(true);
 
+    var alreadySelectedOrgMap = mock(Map.class);
+    when(organisationUnitQueryService.getPreSelectedOrganisationUnit(any()))
+        .thenReturn(alreadySelectedOrgMap);
+
     var modelAndView = mockMvc.perform(
             post(ReverseRouter.route(on(NewProspectController.class).createProspect(null, null)))
                 .flashAttr("form", form)
@@ -134,7 +189,8 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
             "form",
             "resourceType",
             "isRegulatorOrAreaTeamUser",
-            "onshoreOffshore")
+            "onshoreOffshore",
+            "alreadySelectedOrganisation")
         .containsExactly(
             ReverseRouter.route(on(StartProspectController.class).getStartPage()),
             ReverseRouter.route(on(NewProspectController.class).createProspect(null, null)),
@@ -142,7 +198,8 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
             form,
             ResourceType.PROSPECT.getDisplayName().toLowerCase(),
             true,
-            OnshoreOffshore.getOnshoreOffshore());
+            OnshoreOffshore.getOnshoreOffshore(),
+            alreadySelectedOrgMap);
 
     verify(startProspectService, times(1)).validate(eq(form), any());
     verify(startProspectService, never()).createInitialProspect(any());

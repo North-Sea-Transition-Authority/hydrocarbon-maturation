@@ -26,7 +26,8 @@
       labelText="What organisation is responsible for this ${resourceType}?"
       selectorMinInputLength=3
       nestingPath="form.responsibleOrganisationId"
-      optionalLabel=isOptional/>
+      optionalLabel=isOptional
+      preselectedItems=alreadySelectedOrganisation!{}/>
     <@fdsRadio.radio
       path="form.onshoreOffshore"
       radioItems=onshoreOffshore
