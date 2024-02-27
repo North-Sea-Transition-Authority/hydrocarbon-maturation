@@ -101,7 +101,7 @@ class HydrocarbonCaseFormValidator extends PartialFullFormValidator {
     if (total.compareTo(BigDecimal.valueOf(100)) != 0) {
       errors.rejectValue(
           "oilOnlyCaseType", "oilOnlyCaseType.decimalInputError",
-          String.format("The selected cases must add up to 100 percent. Currently they add up to %s percent.", total));
+          String.format("The selected cases must add up to 100%%. Currently they add up to %s%%.", total));
     }
   }
 

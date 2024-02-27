@@ -107,6 +107,10 @@ class HydrocarbonCaseFormValidatorTest {
         .containsExactly(
             entry("oilOnlyCaseType", Set.of("oilOnlyCaseType.decimalInputError"))
         );
+
+    bindingResult.getFieldError("oilOnlyCaseType")
+        .getDefaultMessage()
+        .equals("The selected cases must add up to 100%. Currently they add up to 80%.");
   }
 
   @Test
