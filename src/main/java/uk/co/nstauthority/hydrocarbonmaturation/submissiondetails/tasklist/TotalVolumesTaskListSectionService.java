@@ -64,7 +64,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
 
   @Override
   public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail) {
-    if (submissionDetail.isProspectSubmission()) {
+    if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
       return Optional.empty();
     }
 
@@ -98,7 +98,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
 
   @Override
   public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
-    if (submissionDetail.isProspectSubmission()) {
+    if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
       return true;
     }
 

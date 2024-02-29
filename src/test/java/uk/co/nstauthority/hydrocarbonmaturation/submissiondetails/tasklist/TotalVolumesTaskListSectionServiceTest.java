@@ -105,6 +105,14 @@ class TotalVolumesTaskListSectionServiceTest {
   }
 
   @Test
+  void getSection_isProspect_thenReturnEmpty() {
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.POST_DRILL_DRY_HOLE);
+
+    assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail))
+        .isEmpty();
+  }
+
+  @Test
   void getSection_discovery_noReservoirSubmissionDetails_thenReturnEmpty() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
 
@@ -143,6 +151,7 @@ class TotalVolumesTaskListSectionServiceTest {
         .isEmpty();
   }
 
+  @Test
   void getSection_field_oneReservoirSubmissionDetail_thenPresent() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_CSR);
 
@@ -533,6 +542,12 @@ class TotalVolumesTaskListSectionServiceTest {
   @MethodSource("allProspectSubmissionTypes")
   void isSectionSubmittable_prospect_thenTrue(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+  }
+
+  @Test
+  void isSectionSubmittable_postDrillDryHole_thenTrue() {
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.POST_DRILL_DRY_HOLE);
     assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
 
