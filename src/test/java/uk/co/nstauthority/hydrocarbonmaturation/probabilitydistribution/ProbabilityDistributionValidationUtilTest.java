@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -9,6 +11,44 @@ import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 class ProbabilityDistributionValidationUtilTest {
+
+  @Test
+  void validateRequiredDistributionType_noTypeSelected_thenErrors() {
+    var formField = "dummy";
+    var form = new DummyForm();
+    var errors = new BeanPropertyBindingResult(form, "form");
+
+    ProbabilityDistributionValidationUtil.validateRequiredDistributionType(
+        errors,
+        formField,
+        "dummy"
+    );
+
+    assertTrue(errors.hasErrors());
+    assertThat(errors.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .containsExactly("Select the distribution used for dummy");
+  }
+
+  @Test
+  void validateRequiredDistributionType_typeSelected_thenNoErrors() {
+    var formField = "dummy";
+    var form = new DummyForm();
+
+    var probabilityDistributionForm = new ProbabilityDistributionForm();
+    probabilityDistributionForm.setProbabilityDistributionType(ProbabilityDistributionType.CUSTOM);
+    form.setDummy(probabilityDistributionForm);
+
+    var errors = new BeanPropertyBindingResult(form, "form");
+
+    ProbabilityDistributionValidationUtil.validateRequiredDistributionType(
+        errors,
+        formField,
+        "dummy"
+    );
+
+    assertFalse(errors.hasErrors());
+  }
 
   @Test
   void validateInput_FullValidation_RequiredField() {

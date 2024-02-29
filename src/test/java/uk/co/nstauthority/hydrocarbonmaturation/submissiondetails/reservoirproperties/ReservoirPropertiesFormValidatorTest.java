@@ -252,6 +252,62 @@ class ReservoirPropertiesFormValidatorTest {
         );
   }
 
+  @Test
+  void validate_whenInvalidExceedenceForm_whenDiscovery_whenNoDepthToContactsDistributionType_fullValidation_thenValidationErrors() {
+    var form = new ReservoirPropertiesForm();
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+
+    reservoirPropertiesFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("depthToOilWaterContact.probabilityDistributionType" ,
+                Set.of("depthToOilWaterContact.probabilityDistributionType.required")),
+            entry("depthToGasWaterContact.probabilityDistributionType" ,
+                Set.of("depthToGasWaterContact.probabilityDistributionType.required")),
+            entry("depthToGasOilContact.probabilityDistributionType" ,
+                Set.of("depthToGasOilContact.probabilityDistributionType.required")));
+
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains(
+            "Select the distribution used for depth to oil-water contact",
+            "Select the distribution used for depth to gas-water contact",
+            "Select the distribution used for depth to gas-oil contact"
+        );
+  }
+
+  @Test
+  void validate_whenInvalidExceedenceForm_whenDiscovery_whenNoDepthToContactsDistributionType_partialValidation_thenNoValidationErrors() {
+    var form = new ReservoirPropertiesForm();
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+
+    reservoirPropertiesFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.PARTIAL);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .doesNotContainKeys(
+            "depthToOilWaterContact.probabilityDistributionType",
+            "depthToGasWaterContact.probabilityDistributionType",
+            "depthToGasOilContact.probabilityDistributionType"
+        );
+  }
+
   @ParameterizedTest
   @EnumSource(
       value = ProbabilityDistributionType.class,

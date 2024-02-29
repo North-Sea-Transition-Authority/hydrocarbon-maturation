@@ -358,8 +358,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
       );
     }
 
-    if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE
-        || SubmissionDetailUtil.isDiscoverySubmission(submissionType)) {
+    if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
       validateFullyDiscoveryDepthTo(errors, reservoirForm, hydrocarbonsDiscovered);
     } else if (SubmissionDetailUtil.isFieldSubmission(submissionType)) {
       if (submissionType == SubmissionType.CREATE_COP) {
@@ -552,6 +551,11 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
                                              HydrocarbonsDiscovered hydrocarbonsDiscovered) {
     if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY
         || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateRequiredDistributionType(
+          errors,
+          "depthToOilWaterContact",
+          "depth to oil-water contact"
+      );
       ProbabilityDistributionValidationUtil.validateCustomFull(
           reservoirForm.getDepthToOilWaterContact(),
           errors,
@@ -562,6 +566,11 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
     }
     if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
         || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateRequiredDistributionType(
+          errors,
+          "depthToGasWaterContact",
+          "depth to gas-water contact"
+      );
       ProbabilityDistributionValidationUtil.validateCustomFull(
           reservoirForm.getDepthToGasWaterContact(),
           errors,
@@ -571,6 +580,11 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
       );
     }
     if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+      ProbabilityDistributionValidationUtil.validateRequiredDistributionType(
+          errors,
+          "depthToGasOilContact",
+          "depth to gas-oil contact"
+      );
       ProbabilityDistributionValidationUtil.validateCustomFull(
           reservoirForm.getDepthToGasOilContact(),
           errors,

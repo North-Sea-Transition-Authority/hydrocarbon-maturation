@@ -23,6 +23,15 @@ public class ProbabilityDistributionValidationUtil {
     throw new IllegalUtilClassInstantiationException(this.getClass());
   }
 
+  public static void validateRequiredDistributionType(Errors errors,
+                                                      String formField,
+                                                      String label) {
+    ValidationUtils.rejectIfEmpty(errors,
+        formField + ".probabilityDistributionType",
+        formField + ".probabilityDistributionType.required",
+        "Select the distribution used for %s".formatted(label.toLowerCase()));
+  }
+
   public static void validatePartial(ProbabilityDistributionForm probabilityDistributionForm,
                                      Errors errors,
                                      String formField,
