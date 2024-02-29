@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.discovery;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import jakarta.validation.Valid;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -40,17 +42,21 @@ public class NewDiscoveryController {
   private final UserService userService;
   private final RegulatorTeamService regulatorTeamService;
   private final AreaTeamService areaTeamService;
+  private final OrganisationUnitQueryService organisationUnitQueryService;
 
   @Autowired
   public NewDiscoveryController(ControllerHelperService controllerHelperService,
                                 StartDiscoveryService startDiscoveryService,
                                 UserService userService,
-                                RegulatorTeamService regulatorTeamService, AreaTeamService areaTeamService) {
+                                RegulatorTeamService regulatorTeamService,
+                                AreaTeamService areaTeamService,
+                                OrganisationUnitQueryService organisationUnitQueryService) {
     this.controllerHelperService = controllerHelperService;
     this.startDiscoveryService = startDiscoveryService;
     this.userService = userService;
     this.regulatorTeamService = regulatorTeamService;
     this.areaTeamService = areaTeamService;
+    this.organisationUnitQueryService = organisationUnitQueryService;
   }
 
   @GetMapping
@@ -82,7 +88,11 @@ public class NewDiscoveryController {
             ResourceType.DISCOVERY.getDisplayName().toLowerCase())
         .addObject("isRegulatorOrAreaTeamUser", isRegulatorOrAreaTeamUser())
         .addObject("form", form)
-        .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore());
+        .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())
+        .addObject("alreadySelectedOrganisation",
+            organisationUnitQueryService.getPreSelectedOrganisationUnit(
+                NumberUtils.createInteger(form.getResponsibleOrganisationId()))
+        );
   }
 
   private boolean isRegulatorOrAreaTeamUser() {

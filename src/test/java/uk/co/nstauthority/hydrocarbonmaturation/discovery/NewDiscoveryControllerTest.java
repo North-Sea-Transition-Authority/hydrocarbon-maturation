@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,6 +62,12 @@ class NewDiscoveryControllerTest extends AbstractSubmissionControllerTest {
         RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
         .thenReturn(true);
     when(regulatorTeamService.isRegulatorUser(any())).thenReturn(true);
+
+    form.setResponsibleOrganisationId("2523");
+    var selectedOranisationMap = Map.of("2523", "Org name");
+    when(organisationUnitQueryService.getPreSelectedOrganisationUnit(2523))
+        .thenReturn(selectedOranisationMap);
+
     var modelAndView = mockMvc.perform(
             get(ReverseRouter.route(on(NewDiscoveryController.class).getNewDiscoveryPage(null)))
                 .flashAttr("form", form)
@@ -77,7 +84,8 @@ class NewDiscoveryControllerTest extends AbstractSubmissionControllerTest {
             "form",
             "resourceType",
             "isRegulatorOrAreaTeamUser",
-            "onshoreOffshore")
+            "onshoreOffshore",
+            "alreadySelectedOrganisation")
         .containsExactly(
             ReverseRouter.route(on(StartDiscoveryController.class).getStartPage()),
             ReverseRouter.route(on(NewDiscoveryController.class).createDiscovery(null, null)),
@@ -85,7 +93,8 @@ class NewDiscoveryControllerTest extends AbstractSubmissionControllerTest {
             form,
             ResourceType.DISCOVERY.getDisplayName().toLowerCase(),
             true,
-            OnshoreOffshore.getOnshoreOffshore());
+            OnshoreOffshore.getOnshoreOffshore(),
+            selectedOranisationMap);
   }
 
   @SecurityTest
