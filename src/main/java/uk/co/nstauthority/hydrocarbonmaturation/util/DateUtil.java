@@ -28,6 +28,17 @@ public class DateUtil {
   }
 
   /**
+   * Produce a GDS-complaint long date string for the provided date.
+   *
+   * @param instant The Instant to format
+   * @return The formatted temporal in a GDS-complaint format
+   */
+  public static String formatLongDate(Instant instant) {
+    var localDate = LocalDate.ofInstant(instant, ZoneId.systemDefault());
+    return DATE_FORMATTER_LONG_DATE.format(localDate);
+  }
+
+  /**
    * Produce a GDS-complaint string for the provided date.
    *
    * @param localDate The LocalDate to format

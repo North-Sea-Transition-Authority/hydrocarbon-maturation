@@ -38,7 +38,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.Res
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.ViewFieldStatusHistoryController;
+import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectListController;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -332,6 +334,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     var field = new Field();
     field.setFieldIdentifier(8000);
+    field.setResource(resource);
     when(fieldPersistenceService.getFieldOrThrow(resource))
         .thenReturn(field);
 
@@ -358,7 +361,10 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("canViewRegulatorManagementInfo", true),
             entry("fieldStatusUrl", ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
                 .getViewFieldStatusHistory(field.getFieldIdentifier(), null))),
-            entry("manageResourceInformationText", "Manage field information")
+            entry("manageResourceInformationText", "Manage field information"),
+            entry("projectTrackerUrl",
+                ReverseRouter.route(on(ProjectListController.class)
+                    .getProjectList(field.getResource().getId(), null)))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -387,7 +393,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
 
-    var field = new Field();
+    var field = FieldTestUtils.createField(8000);
     when(fieldPersistenceService.getFieldOrThrow(resource))
         .thenReturn(field);
 

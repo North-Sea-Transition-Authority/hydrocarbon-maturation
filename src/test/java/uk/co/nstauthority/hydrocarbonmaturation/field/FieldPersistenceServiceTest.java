@@ -2,10 +2,12 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -25,6 +27,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
@@ -48,6 +54,8 @@ class FieldPersistenceServiceTest {
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   @Mock
   private FieldLicenceService fieldLicenceService;
+  @Mock
+  private ResourceService resourceService;
   @InjectMocks
   private FieldPersistenceService underTest;
 
@@ -274,6 +282,58 @@ class FieldPersistenceServiceTest {
     void verifyCalls() {
       underTest.getFieldByResource(RESOURCE);
       verify(fieldRepository).findByResource(RESOURCE);
+    }
+  }
+
+  @Nested
+  class WhenGetFieldsOrThrowByResourceId {
+    private final Resource RESOURCE = ResourceTestUtils.buildResource(ResourceType.FIELD);
+
+    @Test
+    void verifyCalls() {
+      var field = new Field();
+
+      when(resourceService.getResourceOrThrow(RESOURCE.getId()))
+          .thenReturn(RESOURCE);
+      when(fieldRepository.findByResource(RESOURCE))
+          .thenReturn(Optional.of(field));
+
+      underTest.getFieldOrThrow(RESOURCE.getId());
+      verify(resourceService).getResourceOrThrow(RESOURCE.getId());
+      verify(fieldRepository).findByResource(RESOURCE);
+
+      verifyNoMoreInteractions(resourceService);
+      verifyNoMoreInteractions(fieldRepository);
+    }
+
+    @Test
+    void whenNoFieldForResource_verifyThrows() {
+      when(resourceService.getResourceOrThrow(RESOURCE.getId()))
+          .thenReturn(RESOURCE);
+      when(fieldRepository.findByResource(RESOURCE))
+          .thenReturn(Optional.empty());
+
+      assertThrows(EntityNotFoundException.class,
+          () -> underTest.getFieldOrThrow(RESOURCE.getId()));
+
+      verify(resourceService).getResourceOrThrow(RESOURCE.getId());
+
+      verifyNoMoreInteractions(resourceService);
+      verifyNoMoreInteractions(fieldRepository);
+    }
+
+    @Test
+    void whenNoResourceForId_verifyThrows() {
+      when(resourceService.getResourceOrThrow(RESOURCE.getId()))
+          .thenThrow(RemiEntityNotFoundException.class);
+
+      assertThrows(RemiEntityNotFoundException.class,
+          () -> underTest.getFieldOrThrow(RESOURCE.getId()));
+
+      verify(resourceService).getResourceOrThrow(RESOURCE.getId());
+
+      verifyNoMoreInteractions(resourceService);
+      verifyNoInteractions(fieldRepository);
     }
   }
 }

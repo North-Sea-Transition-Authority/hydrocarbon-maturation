@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
@@ -25,6 +26,7 @@ public class FieldPersistenceService {
   private final ResourceLinkService resourceLinkService;
   private final SubmissionDetailService submissionDetailService;
   private final FieldLicenceService fieldLicenceService;
+  private final ResourceService resourceService;
 
   @Autowired
   FieldPersistenceService(FieldRepository fieldRepository,
@@ -32,13 +34,15 @@ public class FieldPersistenceService {
                           RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
                           ResourceLinkService resourceLinkService,
                           SubmissionDetailService submissionDetailService,
-                          FieldLicenceService fieldLicenceService) {
+                          FieldLicenceService fieldLicenceService,
+                          ResourceService resourceService) {
     this.fieldRepository = fieldRepository;
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.resourceLinkService = resourceLinkService;
     this.submissionDetailService = submissionDetailService;
     this.fieldLicenceService = fieldLicenceService;
+    this.resourceService = resourceService;
   }
 
   @Transactional
@@ -132,6 +136,10 @@ public class FieldPersistenceService {
   public Field getFieldOrThrow(Resource resource) {
     return getField(resource)
         .orElseThrow(() -> new EntityNotFoundException("No field found for resource id: %s".formatted(resource.getId())));
+  }
+
+  public Field getFieldOrThrow(UUID resourceId) {
+    return getFieldOrThrow(resourceService.getResourceOrThrow(resourceId));
   }
 
   public List<Field> getFieldsByCorrectedLegalName(String fieldName) {

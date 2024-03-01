@@ -26,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.Res
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.ViewFieldStatusHistoryController;
+import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectListController;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -179,7 +180,10 @@ public class ViewResourceRecordController {
           .addObject("fieldStatusUrl",
               ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
                   .getViewFieldStatusHistory(field.getFieldIdentifier(), null)))
-          .addObject("manageResourceInformationText", "Manage field information");
+          .addObject("manageResourceInformationText", "Manage field information")
+          .addObject("projectTrackerUrl",
+              ReverseRouter.route(on(ProjectListController.class)
+                  .getProjectList(field.getResource().getId(), null)));
     } else {
       modelAndView
           .addObject("regulatorManagedInformationUrl",
