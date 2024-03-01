@@ -38,7 +38,7 @@ public class ProjectTestUtils {
     project.setId(projectId);
     project.setField(field);
     project.setProjectName("Project name");
-    project.setProjectType(ProjectType.CONSENT_GRANTED);
+    project.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM);
 
     return project;
   }

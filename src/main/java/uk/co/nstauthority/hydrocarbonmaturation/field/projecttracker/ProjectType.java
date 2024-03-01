@@ -3,15 +3,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 
 public enum ProjectType implements Displayable {
-  OPERATOR_PROGRESSION("Operator progression", 10),
-  CSR_TECHNICAL_COMMENTS_WITH_REGULATOR("CSR technical comments (with regulator)", 20),
-  CSR_TECHNICAL_COMMENTS_WITH_OPERATOR("CSR technical comments (with operator)", 30),
-  FDP_TECHNICAL_COMMENTS_WITH_REGULATOR("FDP technical comments (with regulator)", 40),
-  FDP_TECHNICAL_COMMENTS_WITH_OPERATOR("FDP technical comments (with operator)", 50),
-  AWAITING_OPERATOR_INFO("Awaiting operator info", 60),
-  AWAITING_APPROVED_ENVIRONMENTAL_STATEMENT("Awaiting approved environmental statement", 70),
-  CONSENT_GRANTED("Consent granted", 80),
-  PROJECT_CLOSE_OUT_RECEIVED_FROM_OPERATOR("Project close out received from operator", 90),
+  FIELD_DEVELOPMENT_PLAN("Field development plan (FDP)", 10),
+  FIELD_DEVELOPMENT_PLAN_ADDENDUM("Field development plan addendum (FDPA)", 20),
+  CESSATION_OF_PRODUCTION("Cessation of production (CoP)", 30),
   ;
 
   private final String displayName;

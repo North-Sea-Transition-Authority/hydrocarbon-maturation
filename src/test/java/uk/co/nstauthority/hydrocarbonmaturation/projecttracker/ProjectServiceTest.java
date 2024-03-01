@@ -235,8 +235,8 @@ class ProjectServiceTest {
 
     private ProjectForm getPopulatedProjectForm() {
       var form = new ProjectForm();
-      form.setProjectType(ProjectType.PROJECT_CLOSE_OUT_RECEIVED_FROM_OPERATOR);
-      form.setProjectStatus(ProjectStatus.ACCEPTED_CSR);
+      form.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN);
+      form.setProjectStatus(ProjectStatus.ASSESSMENT_PHASE);
       form.setIsPartOfPipeline(true);
       form.setSelectedSubmissionId(submissionDetail.getId().toString());
       return form;
@@ -255,8 +255,8 @@ class ProjectServiceTest {
     void whenOneProjectForField_thenProjectListViewCorrect() {
       var project = ProjectTestUtils.createPopulatedProject(
           "Project name",
-          ProjectType.CONSENT_GRANTED,
-          ProjectStatus.ACCEPTED_FDP,
+          ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM,
+          ProjectStatus.AUTHORISE_PHASE,
           true,
           FIXED_INSTANT
       );
@@ -286,22 +286,22 @@ class ProjectServiceTest {
     void whenMultipleProjectsForField_thenOrderedList() {
       var firstCreatedProject = ProjectTestUtils.createPopulatedProject(
           "Project 1",
-          ProjectType.PROJECT_CLOSE_OUT_RECEIVED_FROM_OPERATOR,
-          ProjectStatus.ACCEPTED_FDP,
+          ProjectType.FIELD_DEVELOPMENT_PLAN,
+          ProjectStatus.AUTHORISE_PHASE,
           false,
           FIXED_INSTANT);
 
       var secondCreatedProject = ProjectTestUtils.createPopulatedProject(
           "Project 2",
-          ProjectType.AWAITING_OPERATOR_INFO,
-          ProjectStatus.ACCEPTED_CSR,
+          ProjectType.CESSATION_OF_PRODUCTION,
+          ProjectStatus.ASSESSMENT_PHASE,
           false,
           FIXED_INSTANT.plus(1, ChronoUnit.HOURS));
 
       var thirdCreatedProject = ProjectTestUtils.createPopulatedProject(
           "Project 3",
-          ProjectType.CONSENT_GRANTED,
-          ProjectStatus.DRAFT_FDPA,
+          ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM,
+          ProjectStatus.ON_HOLD,
           true,
           FIXED_INSTANT.plus(10, ChronoUnit.DAYS));
 

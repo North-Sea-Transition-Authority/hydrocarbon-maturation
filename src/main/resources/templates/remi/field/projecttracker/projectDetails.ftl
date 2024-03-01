@@ -22,7 +22,7 @@ errorItems=errorList>
 
         <@fdsRadio.radio
         path="form.projectStatus"
-        labelText="Project status"
+        labelText="Current project status"
         radioItems=projectStatusOptions/>
 
         <@fdsRadio.radioGroup

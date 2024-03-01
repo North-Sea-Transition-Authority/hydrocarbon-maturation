@@ -51,8 +51,8 @@ class ProjectFormValidatorTest {
   private ProjectForm getPopulatedForm() {
     var form = new ProjectForm();
     form.setProjectName("Test name");
-    form.setProjectType(ProjectType.PROJECT_CLOSE_OUT_RECEIVED_FROM_OPERATOR);
-    form.setProjectStatus(ProjectStatus.ACCEPTED_CSR);
+    form.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN);
+    form.setProjectStatus(ProjectStatus.ASSESSMENT_PHASE);
     form.setIsPartOfPipeline(true);
     form.setSelectedSubmissionId(UUID.randomUUID().toString());
     return form;

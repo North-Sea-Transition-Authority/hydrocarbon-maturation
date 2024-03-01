@@ -30,8 +30,8 @@ class ProjectDetailsSummaryServiceTest {
     projectDetailsSummaryService = new ProjectDetailsSummaryService();
     project = ProjectTestUtils.createPopulatedProject(
         "Project",
-        ProjectType.PROJECT_CLOSE_OUT_RECEIVED_FROM_OPERATOR,
-        ProjectStatus.ACCEPTED_CSR,
+        ProjectType.FIELD_DEVELOPMENT_PLAN,
+        ProjectStatus.ASSESSMENT_PHASE,
         true,
         FIXED_INSTANT);
   }

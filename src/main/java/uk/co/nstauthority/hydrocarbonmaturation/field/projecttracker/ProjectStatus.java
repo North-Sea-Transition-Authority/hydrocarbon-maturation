@@ -3,13 +3,11 @@ package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 
 public enum ProjectStatus implements Displayable {
-  DRAFT_CSR("Draft CSR", 10),
-  ACCEPTED_CSR("Accepted CSR", 20),
-  DRAFT_FDP("Draft FDP", 30),
-  ACCEPTED_FDP("Accepted FDP", 40),
-  DRAFT_FDPA("Draft FDPA", 50),
-  ACCEPTED_FDPA("Accepted FDPA", 60),
-  UKSS("UKSS", 70)
+  ASSESSMENT_PHASE("Assessment phase", 10),
+  AUTHORISE_PHASE("Authorise phase", 20),
+  EXECUTE_PHASE("Execute phase", 30),
+  ON_HOLD("On hold", 40),
+  WITHDRAWN("Withdrawn", 50)
   ;
 
   private final String displayName;
