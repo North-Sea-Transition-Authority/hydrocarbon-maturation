@@ -169,8 +169,8 @@ class ReservoirPropertiesFormValidatorTest {
 
     assertThat(extractedErrors)
         .contains(
-            entry("averageNetPayThickness." + probabilityDistributionType.getPath() + ".error",
-                Set.of("averageNetPayThickness." + probabilityDistributionType.getPath() + ".error.error")),
+            entry("averageNetReservoirThickness." + probabilityDistributionType.getPath() + ".error",
+                Set.of("averageNetReservoirThickness." + probabilityDistributionType.getPath() + ".error.error")),
             entry("grossReservoirThickness." + probabilityDistributionType.getPath() + ".error",
                 Set.of("grossReservoirThickness." + probabilityDistributionType.getPath() + ".error.error")),
             entry("grossRockVolume." + probabilityDistributionType.getPath() + ".error",
@@ -181,7 +181,8 @@ class ReservoirPropertiesFormValidatorTest {
                 Set.of("netToGross." + probabilityDistributionType.getPath() + ".error.error")),
             entry("netPorosity." + probabilityDistributionType.getPath() + ".error",
                 Set.of("netPorosity." + probabilityDistributionType.getPath() + ".error.error")))
-        .doesNotContainKey("depthToHydrocarbonContact." + probabilityDistributionType.getPath() + ".error");
+        .doesNotContainKey("depthToHydrocarbonContact." + probabilityDistributionType.getPath() + ".error")
+        .doesNotContainKey("averageNetPayThickness." + probabilityDistributionType.getPath() + ".error");
 
     assertThat(bindingResult.getAllErrors())
         .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
@@ -957,8 +958,8 @@ class ReservoirPropertiesFormValidatorTest {
 
     assertThat(extractedErrors)
         .contains(
-            entry("averageNetPayThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
-                Set.of("averageNetPayThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
+            entry("averageNetReservoirThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
+                Set.of("averageNetReservoirThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
             entry("grossReservoirThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
                 Set.of("grossReservoirThickness." + ProbabilityDistributionType.NORMAL.getPath() + ".error.error")),
             entry("grossRockVolume." + ProbabilityDistributionType.NORMAL.getPath() + ".error",
@@ -1011,6 +1012,7 @@ class ReservoirPropertiesFormValidatorTest {
     form.setReservoirConnectivity("connectivity");
     form.setReservoirFacies("facies");
     form.setAverageNetPayThickness(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
+    form.setAverageNetReservoirThickness(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
     form.setGrossReservoirThickness(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
     form.setDepthToHydrocarbonContact(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
     form.setGrossRockVolume(ProbabilityDistributionTestUtil.getValidNormalProbabilityDistributionForm());
@@ -1057,6 +1059,7 @@ class ReservoirPropertiesFormValidatorTest {
             probabilityDistributionType,
             ProbabilityDistributionTestUtil.getInvalidProbabilityOfExceedanceForm());
     form.setAverageNetPayThickness(probabilityDistributionForm);
+    form.setAverageNetReservoirThickness(probabilityDistributionForm);
     form.setGrossReservoirThickness(probabilityDistributionForm);
     form.setDepthToHydrocarbonContact(probabilityDistributionForm);
     form.setGrossRockVolume(probabilityDistributionForm);

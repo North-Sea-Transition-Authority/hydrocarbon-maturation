@@ -114,7 +114,7 @@ public class ReservoirPropertiesController {
       return getReservoirPropertiesWithErrors(bindingResult, form, reservoirSubmissionDetail);
     } else {
       reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
-      if (submissionDetail.isProspectSubmission()) {
+      if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
         return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
       } else {
         return ReverseRouter.redirect(on(ReservoirTaskListController.class)
@@ -450,13 +450,6 @@ public class ReservoirPropertiesController {
                   .getProbabilityDistributionTemplateForInstance(
                       ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL))
           .addObject("averageNetReservoirThicknessError", ProbabilityDistributionTypeError.emptyError());
-
-      modelAndView
-          .addObject("averageNetPayThicknessTemplate",
-              probabilityDistributionTemplateService
-                  .getProbabilityDistributionTemplateForInstance(
-                      ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY))
-          .addObject("averageNetPayThicknessError", ProbabilityDistributionTypeError.emptyError());
     } else if (submissionDetail.isDiscoverySubmission()) {
       modelAndView
           .addObject("averageNetPayThicknessTemplate",
@@ -524,8 +517,8 @@ public class ReservoirPropertiesController {
       modelAndView.addObject("averageNetReservoirThicknessError",
           probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
               bindingResult,
-              averageNetPayThicknessFormName,
-              form.getAverageNetPayThickness()));
+              "averageNetReservoirThickness",
+              form.getAverageNetReservoirThickness()));
       modelAndView.addObject("averageNetPayThicknessError",
           probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
               bindingResult,

@@ -119,7 +119,7 @@ class ReservoirPropertiesPersistenceServiceTest {
     // Dry well specific
     verify(probabilityDistributionPersistenceService, times(1)).saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL,
-        form.getAverageNetPayThickness(),
+        form.getAverageNetReservoirThickness(),
         submissionDetail,
         reservoirSubmissionDetail);
 

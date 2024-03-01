@@ -68,6 +68,8 @@ class ReservoirPropertiesSummaryServiceTest {
 
   private final ProbabilityDistributionSummaryView averageNetPayThickness =
       ProbabilityDistributionSummaryView.empty("averageNetPayThickness");
+  private final ProbabilityDistributionSummaryView averageNetReservoirThickness =
+      ProbabilityDistributionSummaryView.empty("averageNetReservoirThickness");
   private final ProbabilityDistributionSummaryView grossReservoirThickness =
       ProbabilityDistributionSummaryView.empty("grossReservoirThickness");
   private final ProbabilityDistributionSummaryView grossRockVolume =
@@ -262,7 +264,7 @@ class ReservoirPropertiesSummaryServiceTest {
             "facies",
             "connectivity",
             List.of(
-                averageNetPayThickness,
+                averageNetReservoirThickness,
                 grossReservoirThickness,
                 grossRockVolume,
                 percentOfGrvOilBearing,
@@ -1343,7 +1345,7 @@ class ReservoirPropertiesSummaryServiceTest {
           .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
               ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL,
               submissionDetail, reservoirSubmissionDetail
-          )).thenReturn(averageNetPayThickness);
+          )).thenReturn(averageNetReservoirThickness);
     } else if (submissionDetail.isDiscoverySubmission()) {
         when(probabilityDistributionSummaryService
             .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(

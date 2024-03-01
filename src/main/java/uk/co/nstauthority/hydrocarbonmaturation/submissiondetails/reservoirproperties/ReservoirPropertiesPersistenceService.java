@@ -11,6 +11,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StandardLithology;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
@@ -51,22 +52,26 @@ class ReservoirPropertiesPersistenceService {
       reservoirProperty.setReservoirFacies(form.getReservoirFacies());
     }
 
-    ProbabilityDistributionFieldInstance averageNetPayInstance;
-    if (submissionDetail.isDryWellSubmission()) {
-      averageNetPayInstance = ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL;
-    } else if (submissionDetail.isDiscoverySubmission()) {
-      averageNetPayInstance = ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY;
-    } else if (submissionDetail.isFieldSubmission()) {
-      averageNetPayInstance = ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_FIELD;
-    } else {
-      averageNetPayInstance = ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT;
+    ProbabilityDistributionFieldInstance averageNetPayInstance = getAverageNetPayInstance(submissionDetail);
+    if (averageNetPayInstance != null) {
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+          averageNetPayInstance,
+          form.getAverageNetPayThickness(),
+          submissionDetail,
+          reservoirSubmissionDetail
+      );
     }
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-        averageNetPayInstance,
-        form.getAverageNetPayThickness(),
-        submissionDetail,
-        reservoirSubmissionDetail
-    );
+
+    if (submissionDetail.isDryWellSubmission()) {
+      var averageNetReservoirThicknessInstance = ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL;
+
+      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
+          averageNetReservoirThicknessInstance,
+          form.getAverageNetReservoirThickness(),
+          submissionDetail,
+          reservoirSubmissionDetail
+      );
+    }
 
     var resourceType = submissionDetail.getSubmission().getResource().getType();
 
@@ -164,6 +169,18 @@ class ReservoirPropertiesPersistenceService {
       // save reservoir property first to assign reservoir_property_id used in barrier_baffles table.
       saveBarrierBafflesDetail(form, savedReservoirProperty);
     }
+  }
+
+  private static ProbabilityDistributionFieldInstance getAverageNetPayInstance(SubmissionDetail submissionDetail) {
+    ProbabilityDistributionFieldInstance averageNetPayInstance = null;
+    if (submissionDetail.isDiscoverySubmission()) {
+      averageNetPayInstance = ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY;
+    } else if (submissionDetail.isFieldSubmission()) {
+      averageNetPayInstance = ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_FIELD;
+    } else if (submissionDetail.isProspectSubmission()) {
+      averageNetPayInstance = ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_PROSPECT;
+    }
+    return averageNetPayInstance;
   }
 
   Optional<ReservoirProperty> getReservoirProperty(ReservoirSubmissionDetail reservoirSubmissionDetail) {

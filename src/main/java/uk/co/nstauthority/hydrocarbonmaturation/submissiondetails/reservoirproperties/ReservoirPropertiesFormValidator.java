@@ -50,19 +50,22 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           "Average net pay thickness",
           ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_FIELD
       );
-    } else if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
-      ProbabilityDistributionValidationUtil.validatePartial(
-          reservoirForm.getAverageNetPayThickness(),
-          errors,
-          averageNetPayThicknessFormField,
-          "Average net reservoir thickness"
-      );
-    } else {
+    } else if (SubmissionDetailUtil.isDiscoverySubmission(submissionType)
+        || SubmissionDetailUtil.isProspectSubmission(submissionType)) {
       ProbabilityDistributionValidationUtil.validatePartial(
           reservoirForm.getAverageNetPayThickness(),
           errors,
           averageNetPayThicknessFormField,
           "Average net pay thickness"
+      );
+    }
+
+    if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
+      ProbabilityDistributionValidationUtil.validatePartial(
+          reservoirForm.getAverageNetReservoirThickness(),
+          errors,
+          "averageNetReservoirThickness",
+          "Average net reservoir thickness"
       );
     }
 
@@ -216,19 +219,22 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           "Average net pay thickness",
           ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_FIELD
       );
-    } else if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
-      ProbabilityDistributionValidationUtil.validateFull(
-          reservoirForm.getAverageNetPayThickness(),
-          errors,
-          averageNetPayThicknessFormField,
-          "Average net reservoir thickness"
-      );
-    } else {
+    } else if (SubmissionDetailUtil.isDiscoverySubmission(submissionType)
+        || SubmissionDetailUtil.isProspectSubmission(submissionType)) {
       ProbabilityDistributionValidationUtil.validateFull(
           reservoirForm.getAverageNetPayThickness(),
           errors,
           averageNetPayThicknessFormField,
           "Average net pay thickness"
+      );
+    }
+
+    if (submissionType == SubmissionType.POST_DRILL_DRY_HOLE) {
+      ProbabilityDistributionValidationUtil.validateFull(
+          reservoirForm.getAverageNetReservoirThickness(),
+          errors,
+          "averageNetReservoirThickness",
+          "Average net reservoir thickness"
       );
     }
 

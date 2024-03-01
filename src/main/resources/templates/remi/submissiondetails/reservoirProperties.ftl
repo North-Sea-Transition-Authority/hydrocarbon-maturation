@@ -99,7 +99,6 @@
         template=averageNetPayThicknessOptionalTemplate
         error=averageNetPayThicknessOptionalError/>
     <#elseif discoverySubmission
-    || dryHoleSubmission
     || conceptSelectReportSubmission
     || fieldDevelopmentPlanSubmission
     || fieldDevelopmentPlanAddendumSubmission
@@ -112,7 +111,7 @@
     </#if>
     <#if dryHoleSubmission>
         <@probabilityDistribution.probabilityDistributionTemplate
-        probabilityDistributionPath="form.averageNetPayThickness"
+        probabilityDistributionPath="form.averageNetReservoirThickness"
         labelText="Average net reservoir thickness"
         template=averageNetReservoirThicknessTemplate
         error=averageNetReservoirThicknessError/>

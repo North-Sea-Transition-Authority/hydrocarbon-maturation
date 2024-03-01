@@ -19,6 +19,7 @@ class ReservoirPropertiesForm implements SubmissionForm {
   private StandardLithology lithology;
   private String lithologyOther;
   private ProbabilityDistributionForm averageNetPayThickness = new ProbabilityDistributionForm();
+  private ProbabilityDistributionForm averageNetReservoirThickness = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm grossReservoirThickness = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm grossRockVolume = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm percentOfGrvOilBearing = new ProbabilityDistributionForm();
@@ -119,6 +120,14 @@ class ReservoirPropertiesForm implements SubmissionForm {
   public void setAverageNetPayThickness(
       ProbabilityDistributionForm averageNetPayThickness) {
     this.averageNetPayThickness = averageNetPayThickness;
+  }
+
+  public ProbabilityDistributionForm getAverageNetReservoirThickness() {
+    return averageNetReservoirThickness;
+  }
+
+  public void setAverageNetReservoirThickness(ProbabilityDistributionForm averageNetReservoirThickness) {
+    this.averageNetReservoirThickness = averageNetReservoirThickness;
   }
 
   public ProbabilityDistributionForm getGrossReservoirThickness() {

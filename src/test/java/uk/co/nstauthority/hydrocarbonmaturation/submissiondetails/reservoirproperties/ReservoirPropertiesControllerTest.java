@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -218,6 +219,33 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     verify(reservoirPropertiesPersistenceService, times(1))
         .saveReservoirProperty(any(ReservoirPropertiesForm.class), eq(discoveryReservoirSubmissionDetail));
+  }
+
+  @ParameterizedTest(name = "controller validation - {0}")
+  @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
+  void saveReservoirProperties_whenValidForm_assertSaveAndRedirection_postDrillDryHole(ValidationType validationType) throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
+
+    var dryHoleReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+    var dryHoleReservoirSubmissionDetailId = dryHoleReservoirSubmissionDetail.getId();
+
+    when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(dryHoleReservoirSubmissionDetailId))
+        .thenReturn(dryHoleReservoirSubmissionDetail);
+    when(reservoirPropertiesFormValidator.isValid(any(ReservoirPropertiesForm.class), any(BindingResult.class), eq(dryHoleReservoirSubmissionDetail), eq(validationType)))
+        .thenReturn(true);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(ReservoirPropertiesController.class)
+                .saveReservoirProperties(submissionDetailId, dryHoleReservoirSubmissionDetailId, form, null, null)))
+                .params(ControllerTestUtils.validationPostParams(validationType))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class)
+            .getTaskList(submissionDetailId))));
+
+    verify(reservoirPropertiesPersistenceService, times(1))
+        .saveReservoirProperty(any(ReservoirPropertiesForm.class), eq(dryHoleReservoirSubmissionDetail));
   }
 
   @ParameterizedTest(name = "controller validation - {0}")

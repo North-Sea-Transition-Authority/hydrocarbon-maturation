@@ -113,7 +113,7 @@ class ReservoirPropertiesFormServiceTest {
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE", "CREATE_PROSPECT", "POST_DRILL_DRY_HOLE"})
+  @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE", "CREATE_PROSPECT"})
   void reservoirPropertiesEntityToForm_existingProspectEntity_thenPopulatedForm(SubmissionType submissionType) {
     var reservoirProperty = getReservoirProperty(reservoirSubmissionDetail);
     submissionDetail.setSubmissionType(submissionType);
@@ -524,11 +524,13 @@ class ReservoirPropertiesFormServiceTest {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         eq(reservoirSubmissionDetail), any())).thenReturn(probabilityDistributionForm);
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(reservoirSubmissionDetail,
-            ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL))
+        ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL))
         .thenReturn(probabilityDistributionForm);
 
-    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail).getAverageNetPayThickness())
-        .isEqualTo(probabilityDistributionForm);
+    assertThat(reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail))
+        .extracting(
+            ReservoirPropertiesForm::getAverageNetReservoirThickness
+        ).isEqualTo(probabilityDistributionForm);
   }
 
   @Test

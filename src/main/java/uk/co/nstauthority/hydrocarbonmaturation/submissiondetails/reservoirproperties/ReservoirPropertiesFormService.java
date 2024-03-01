@@ -92,7 +92,7 @@ class ReservoirPropertiesFormService {
     }
 
     if (submissionDetail.isDryWellSubmission()) {
-      form.setAverageNetPayThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+      form.setAverageNetReservoirThickness(probabilityDistributionFormService.probabilityDistributionEntityToForm(
           reservoirSubmissionDetail,
           ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL
       ));
