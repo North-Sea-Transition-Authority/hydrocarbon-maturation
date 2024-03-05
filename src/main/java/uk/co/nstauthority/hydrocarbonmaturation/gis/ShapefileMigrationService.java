@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
+import com.google.common.annotations.VisibleForTesting;
 import jakarta.transaction.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -17,44 +18,50 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 import uk.co.fivium.fileuploadlibrary.configuration.FileUploadProperties;
 import uk.co.fivium.fileuploadlibrary.core.FileService;
-import uk.co.fivium.fileuploadlibrary.s3.S3FileService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
+import uk.co.fivium.fileuploadlibrary.fds.UploadErrorType;
+import uk.co.fivium.fileuploadlibrary.s3.S3Exception;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileUsageType;
 import uk.co.nstauthority.hydrocarbonmaturation.file.MultipartFileInputStream;
+import uk.co.nstauthority.hydrocarbonmaturation.file.s3.RemiS3FileService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseDocumentTypeService;
 
 @Service
 public class ShapefileMigrationService {
   public static final String PID = "pid";
   public static final String SHAPEFILE_ZIP_CONTENT_TYPE = "application/zip";
   public static final String VIRTUAL_FOLDER = "migration/shapefiles/";
-  public static final FileDocumentType SUPPORTING_DOCUMENT_TYPE =
-      FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE_OFFSHORE;
   private static final Logger LOGGER = LoggerFactory.getLogger(ShapefileMigrationService.class);
   private final ShapefileValidationService shapefileValidationService;
   private final ShapefileZipService shapefileZipService;
   private final ShapefileMigrationProgressRepository shapefileMigrationProgressRepository;
   private final SubmissionDetailService submissionDetailService;
-  private final S3FileService s3FileService;
+  private final RemiS3FileService remiS3FileService;
   private final FileService fileService;
   private final FileUploadProperties fileUploadProperties;
+  private final OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
 
   @Autowired
   public ShapefileMigrationService(ShapefileValidationService shapefileValidationService,
                                    ShapefileZipService shapefileZipService,
                                    ShapefileMigrationProgressRepository shapefileMigrationProgressRepository,
                                    SubmissionDetailService submissionDetailService,
-                                   S3FileService s3FileService, FileService fileService,
-                                   FileUploadProperties fileUploadProperties) {
+                                   RemiS3FileService remiS3FileService,
+                                   FileService fileService,
+                                   FileUploadProperties fileUploadProperties,
+                                   OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService) {
     this.shapefileValidationService = shapefileValidationService;
     this.shapefileZipService = shapefileZipService;
     this.shapefileMigrationProgressRepository = shapefileMigrationProgressRepository;
     this.submissionDetailService = submissionDetailService;
-    this.s3FileService = s3FileService;
+    this.remiS3FileService = remiS3FileService;
     this.fileService = fileService;
     this.fileUploadProperties = fileUploadProperties;
+    this.outlineForMaximumCaseDocumentTypeService = outlineForMaximumCaseDocumentTypeService;
   }
 
+  @VisibleForTesting
   void migrateShapefilesInDirectory(String migrationDirectoryLocation) throws IOException {
     var migrationDirectory = ResourceUtils.getFile(migrationDirectoryLocation);
     for (var file : FileUtils.listFiles(migrationDirectory, new String[]{"zip"}, false)) {
@@ -62,26 +69,23 @@ public class ShapefileMigrationService {
     }
   }
 
-  @Transactional
-  public void migrateShapefilesFromS3() {
-    // TODO refactor in HM-875
+  void migrateShapefilesFromS3() throws S3Exception, IOException {
     var bucketName = fileUploadProperties.s3().defaultBucket();
-    var fileKeys = List.of(); //s3FileService.getFileObjectsInBucket(defaultBucket);
+    var fileKeys = remiS3FileService.listS3Files(bucketName, VIRTUAL_FOLDER).stream()
+        .filter(s3File -> s3File.key().startsWith(VIRTUAL_FOLDER) && s3File.key().endsWith(".zip"))
+        .toList();
 
-    //    fileKeys.stream()
-    //        .filter(fileObject -> fileObject.getKey().startsWith(VIRTUAL_FOLDER) && fileObject.getKey().endsWith(".zip"))
-    //        .forEach(fileObject -> {
-    //          try (var inputStream = s3FileService.downloadFile(bucketName, fileObject.getKey())) {
-    //            var byteArrayInputStream = getByteArrayInputStream(inputStream);
-    //            migrateLegacyShapefile(byteArrayInputStream, fileObject.getKey(), fileObject.getSize());
-    //          } catch (IOException e) {
-    //            throw new IllegalArgumentException("Could not fetch file from S3 or migrate shapefile", e);
-    //          }
-    //        });
+    for (var s3File : fileKeys) {
+      try (var byteArrayInputStream = getByteArrayInputStream(remiS3FileService.downloadFile(bucketName, s3File.key()))) {
+        migrateLegacyShapefile(byteArrayInputStream, s3File.key(), s3File.size());
+      } catch (IOException e) {
+        throw new IOException("Failed to migrate shapefile %s".formatted(s3File.key()), e);
+      }
+    }
   }
 
   @Transactional
-  public void migrateLegacyShapefile(InputStream shapefileZipInputStream, String fileName, long fileSize) {
+  public void migrateLegacyShapefile(InputStream shapefileZipInputStream, String fileName, long fileSize) throws IOException {
     var shapefileZipContents = shapefileZipService.getShapefileZipContents(shapefileZipInputStream, fileName);
 
     checkShapefileOrThrow(shapefileZipContents);
@@ -131,19 +135,33 @@ public class ShapefileMigrationService {
 
     rewindShapefileInputStream(shapefileZipInputStream, fileName);
 
-    submissionDetails.forEach(submissionDetail -> {
-      var multipartFileInputStream = new MultipartFileInputStream(fileName, SHAPEFILE_ZIP_CONTENT_TYPE, fileSize,
-          shapefileZipInputStream);
+    for (var submissionDetail : submissionDetails) {
+      var documentType = outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail);
+      var multipartFileInputStream =
+          new MultipartFileInputStream(fileName, SHAPEFILE_ZIP_CONTENT_TYPE, fileSize, shapefileZipInputStream);
 
-      fileService.upload(builder -> builder
+      var fileUploadResponse = fileService.upload(builder -> builder
           .withMultipartFile(multipartFileInputStream)
-          .withUsage(submissionDetail.getId().toString(), SubmissionDetail.class.getSimpleName(), SUPPORTING_DOCUMENT_TYPE.name())
+          .withUsage(submissionDetail.getId().toString(), FileUsageType.SUBMISSION_DETAIL.getUsageType(), documentType.name())
           .build());
-    });
+
+      if (fileUploadResponse.getError() != null) {
+        var message = "Failed to upload shapefile file for polygon %s".formatted(polygonId);
+
+        if (UploadErrorType.INTERNAL_SERVER_ERROR.getErrorMessage().equals(fileUploadResponse.getError())) {
+          throw new IllegalArgumentException(message);
+        }
+
+        migrationProgress.setStatus(ShapefileMigrationStatus.FAILED_TO_UPLOAD_FILE);
+        shapefileMigrationProgressRepository.save(migrationProgress);
+        LOGGER.error(message);
+        return;
+      }
+    }
 
     migrationProgress.setStatus(ShapefileMigrationStatus.COMPLETED);
     shapefileMigrationProgressRepository.save(migrationProgress);
-
+    LOGGER.info("Shapefile migrated for polygon {}", polygonId);
   }
 
   private static void rewindShapefileInputStream(InputStream shapefileZipInputStream, String fileName) {

@@ -48,7 +48,7 @@ class ShapefileMigrationIntegrationTest {
     // check that all submission details do not have a supporting document for the relevant document type
     submissionDetailList
         .forEach(submissionDetail -> {
-          var supportingDocumentsForType = supportingDocumentService.getUploadedFiles(submissionDetail, ShapefileMigrationService.SUPPORTING_DOCUMENT_TYPE);
+          var supportingDocumentsForType = supportingDocumentService.getUploadedFiles(submissionDetail, null);
           assertThat(supportingDocumentsForType).isEmpty();
         });
 
@@ -78,7 +78,7 @@ class ShapefileMigrationIntegrationTest {
     // check that all submission details have a supporting document for the relevant document type
     submissionDetailList
         .forEach(submissionDetail -> {
-          var supportingDocumentsForType = supportingDocumentService.getUploadedFiles(submissionDetail, ShapefileMigrationService.SUPPORTING_DOCUMENT_TYPE);
+          var supportingDocumentsForType = supportingDocumentService.getUploadedFiles(submissionDetail, null);
           assertThat(supportingDocumentsForType).isNotEmpty();
         });
   }

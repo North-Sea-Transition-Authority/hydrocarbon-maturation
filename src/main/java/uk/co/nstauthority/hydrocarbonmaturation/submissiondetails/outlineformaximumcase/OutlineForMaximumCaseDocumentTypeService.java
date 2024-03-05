@@ -8,7 +8,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetail
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 
 @Service
-class OutlineForMaximumCaseDocumentTypeService {
+public class OutlineForMaximumCaseDocumentTypeService {
 
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
@@ -17,7 +17,7 @@ class OutlineForMaximumCaseDocumentTypeService {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
   }
 
-  FileDocumentType getOutlineForMaximumCaseDocumentType(SubmissionDetail submissionDetail) {
+  public FileDocumentType getOutlineForMaximumCaseDocumentType(SubmissionDetail submissionDetail) {
     var resourceDetail = resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail);
 
     return getOutlineForMaximumCaseDocumentType(resourceDetail);

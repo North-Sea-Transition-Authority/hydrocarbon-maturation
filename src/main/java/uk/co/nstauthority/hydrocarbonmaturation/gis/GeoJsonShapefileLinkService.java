@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ class GeoJsonShapefileLinkService {
   public GeoJsonShapefileLink storeGeoJson(UploadedFile shapefile,
                                            String geoJson,
                                            String shapefileName,
-                                           User user) {
+                                           User user) throws IOException {
     var multipartFileInputStream = new MultipartFileInputStream(
         shapefileName,
         GEOJSON_CONTENT_TYPE,

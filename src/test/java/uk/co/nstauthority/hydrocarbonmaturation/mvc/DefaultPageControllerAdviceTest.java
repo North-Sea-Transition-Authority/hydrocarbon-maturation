@@ -1,13 +1,14 @@
 package uk.co.nstauthority.hydrocarbonmaturation.mvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -54,9 +55,8 @@ class DefaultPageControllerAdviceTest {
   @Test
   void addDefaultModelAttributes_verifyDefaultAttributes() throws Exception {
 
-    doCallRealMethod().when(userService).getUser();
-
     var loggedInUser = UserTestUtil.Builder().build();
+    when(userService.getOptionalUserDetail()).thenReturn(Optional.of(loggedInUser));
 
     var modelAndView = mockMvc.perform(
         get(ReverseRouter.route(on(TestController.class).testEndpoint()))

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Nested;
@@ -43,7 +44,7 @@ class GeoJsonShapefileLinkServiceTest {
     private final UUID FILE_ID = UUID.randomUUID();
 
     @Test
-    void storeGeoJson_GeoJsonShapefileLinkIsPersisted() {
+    void storeGeoJson_GeoJsonShapefileLinkIsPersisted() throws IOException {
       var fileUploadResponse = mock(FileUploadResponse.class);
       when(fileService.upload(any())).thenReturn(fileUploadResponse);
       when(fileUploadResponse.getFileId()).thenReturn(FILE_ID);

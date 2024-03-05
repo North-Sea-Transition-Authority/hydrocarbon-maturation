@@ -12,7 +12,6 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.InvalidAuthenticationException;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.feedback.FeedbackController;
@@ -95,10 +94,7 @@ public class DefaultPageControllerAdvice {
   }
 
   private void addUser(Model model) {
-    try {
-      model.addAttribute("loggedInUser", userService.getUser());
-    } catch (InvalidAuthenticationException e) {
-      LOGGER.warn("Could not get logged in user", e);
-    }
+    userService.getOptionalUserDetail()
+        .ifPresent(user -> model.addAttribute("loggedInUser", user));
   }
 }
