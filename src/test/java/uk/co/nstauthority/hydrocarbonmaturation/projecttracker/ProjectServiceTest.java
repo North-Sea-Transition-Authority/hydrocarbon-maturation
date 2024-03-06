@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.projecttracker;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -170,7 +171,12 @@ class ProjectServiceTest {
       when(clock.instant())
           .thenReturn(FIXED_INSTANT);
 
-      projectService.saveNewProject(field, form);
+      var savedProject = new Project();
+      when(projectRepository.save(any(Project.class)))
+          .thenReturn(savedProject);
+
+      assertThat(projectService.saveNewProject(field, form))
+          .isEqualTo(savedProject);
 
       var captor = ArgumentCaptor.forClass(Project.class);
       verify(projectRepository).save(captor.capture());
@@ -203,8 +209,12 @@ class ProjectServiceTest {
 
       when(clock.instant())
           .thenReturn(FIXED_INSTANT);
+      var savedProject = new Project();
+      when(projectRepository.save(any(Project.class)))
+          .thenReturn(savedProject);
 
-      projectService.saveNewProject(field, form);
+      assertThat(projectService.saveNewProject(field, form))
+          .isEqualTo(savedProject);
 
       var captor = ArgumentCaptor.forClass(Project.class);
       verify(projectRepository).save(captor.capture());

@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
+import static uk.co.nstauthority.hydrocarbonmaturation.util.NotificationBannerTestUtil.notificationBanner;
 
 import java.util.Map;
 import java.util.Objects;
@@ -27,6 +28,8 @@ import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
@@ -119,7 +122,7 @@ class ProjectDetailsControllerTest extends AbstractProjectTrackerControllerTest 
 
       mockMvc.perform(
               post(ReverseRouter.route(on(ProjectDetailsController.class)
-                  .saveCreatedProject(fieldResourceIdThatDoesNotExists, null, null)))
+                  .saveCreatedProject(fieldResourceIdThatDoesNotExists, null, null, null)))
                   .with(user(USER))
                   .with(csrf()))
           .andExpect(status().isNotFound());
@@ -134,7 +137,7 @@ class ProjectDetailsControllerTest extends AbstractProjectTrackerControllerTest 
 
       mockMvc.perform(
               post(ReverseRouter.route(on(ProjectDetailsController.class)
-                  .saveCreatedProject(RESOURCE_ID, null, null)))
+                  .saveCreatedProject(RESOURCE_ID, null, null, null)))
                   .with(user(USER))
                   .with(csrf()))
           .andExpect(status().isOk())
@@ -151,14 +154,26 @@ class ProjectDetailsControllerTest extends AbstractProjectTrackerControllerTest 
       when(projectFormValidator.isValid(any(BindingResult.class)))
           .thenReturn(true);
 
+      var savedProject = new Project();
+      project.setProjectName("Saved project");
+      when(projectService.saveNewProject(eq(field), any(ProjectForm.class)))
+          .thenReturn(savedProject);
+
+      var expectedBanner = NotificationBanner.builder()
+          .withBannerType(NotificationBannerType.SUCCESS)
+          .withContent("Created project '%s'".formatted(savedProject.getProjectName()))
+          .withTitle("Success")
+          .build();
+
       mockMvc.perform(
               post(ReverseRouter.route(on(ProjectDetailsController.class)
-                  .saveCreatedProject(RESOURCE_ID, null, null)))
+                  .saveCreatedProject(RESOURCE_ID, null, null, null)))
                   .with(user(USER))
                   .with(csrf()))
           .andExpect(status().is3xxRedirection())
           .andExpect(redirectedUrl(ReverseRouter.route(on(ProjectListController.class)
               .getProjectList(RESOURCE_ID, null))))
+          .andExpect(notificationBanner(expectedBanner))
           .andReturn()
           .getModelAndView();
 

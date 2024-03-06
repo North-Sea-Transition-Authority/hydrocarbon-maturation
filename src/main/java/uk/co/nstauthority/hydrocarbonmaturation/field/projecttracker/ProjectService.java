@@ -47,7 +47,7 @@ public class ProjectService {
   }
 
   @Transactional
-  public void saveNewProject(Field field, ProjectForm form) {
+  public Project saveNewProject(Field field, ProjectForm form) {
     var project = new Project();
 
     project.setField(field);
@@ -67,7 +67,7 @@ public class ProjectService {
               }
           );
     }
-    projectRepository.save(project);
+    return projectRepository.save(project);
   }
 
   public List<ProjectListView> getProjectListViews(Field field) {

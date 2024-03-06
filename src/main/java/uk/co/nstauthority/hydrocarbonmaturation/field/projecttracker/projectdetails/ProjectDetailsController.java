@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectForm;
@@ -54,11 +56,17 @@ public class ProjectDetailsController {
   @PostMapping("/create-project")
   public ModelAndView saveCreatedProject(@PathVariable("resourceId") UUID resourceId,
                                          @ModelAttribute("form") ProjectForm form,
-                                         BindingResult bindingResult) {
+                                         BindingResult bindingResult,
+                                         RedirectAttributes redirectAttributes) {
     var field = fieldPersistenceService.getFieldOrThrow(resourceId);
 
     if (projectFormValidator.isValid(bindingResult)) {
-      projectService.saveNewProject(field, form);
+      var savedProject = projectService.saveNewProject(field, form);
+
+      NotificationBannerUtil.addSuccessNotification(
+          redirectAttributes, "Success", "Created project '%s'"
+              .formatted(savedProject.getProjectName()));
+
       return ReverseRouter.redirect(on(ProjectListController.class).getProjectList(resourceId, null));
     }
 
