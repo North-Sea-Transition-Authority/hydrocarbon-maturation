@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import jakarta.validation.constraints.NotNull;
 import java.time.Clock;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -51,21 +52,26 @@ public class ProjectService {
     var project = new Project();
 
     project.setField(field);
-    project.setProjectName(form.getProjectName());
-    project.setProjectType(form.getProjectType());
-    project.setProjectStatus(form.getProjectStatus());
-    project.setPartOfPipeline(form.getIsPartOfPipeline());
     project.setCreatedTimestamp(clock.instant());
+    project.setProjectType(form.getProjectType());
 
-    if (form.getSelectedSubmissionId() != null) {
-      StringUtil.toUuid(form.getSelectedSubmissionId())
-          .ifPresent(
-              selectedSubmissionDetailId -> {
-                var selectedSubmissionDetail =
-                    submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionDetailId);
-                project.setSubmissionDetail(selectedSubmissionDetail);
-              }
-          );
+    saveCommonProjectInformation(project, form);
+
+    return projectRepository.save(project);
+  }
+
+  @Transactional
+  public Project saveProjectUpdate(Project project, ProjectForm form) {
+    saveCommonProjectInformation(project, form);
+
+
+    if (ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM.equals(project.getProjectType())) {
+      var fdpaStartUpDate = LocalDate.of(
+          Integer.parseInt(form.getFdpaStartUpDateYear()),
+          Integer.parseInt(form.getFdpaStartUpDateMonth()),
+          Integer.parseInt(form.getFdpaStartUpDateDay())
+      );
+      project.setFdpaStartUpDate(fdpaStartUpDate);
     }
     return projectRepository.save(project);
   }
@@ -90,5 +96,48 @@ public class ProjectService {
   public Project getProjectOrThrow(@NotNull UUID projectId) {
     return projectRepository.findById(projectId)
         .orElseThrow(() -> new RemiEntityNotFoundException("There is no project with id %s".formatted(projectId)));
+  }
+
+  public ProjectForm projectToForm(Project project) {
+    var form = new ProjectForm();
+
+    form.setProjectName(project.getProjectName());
+    form.setProjectStatus(project.getProjectStatus());
+    form.setProjectType(project.getProjectType());
+    form.setIsPartOfPipeline(project.getPartOfPipeline());
+
+    if (project.getSubmissionDetail() != null) {
+      form.setSelectedSubmissionId(project.getSubmissionDetail().getId().toString());
+    }
+
+    var fdpaStartUpDate = project.getFdpaStartUpDate();
+    if (fdpaStartUpDate != null
+        && ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM.equals(project.getProjectType())) {
+      form.setFdpaStartUpDateDay(String.valueOf(fdpaStartUpDate.getDayOfMonth()));
+      form.setFdpaStartUpDateMonth(String.valueOf(fdpaStartUpDate.getMonthValue()));
+      form.setFdpaStartUpDateYear(String.valueOf(fdpaStartUpDate.getYear()));
+    }
+
+    return form;
+  }
+
+  private void setSubmissionDetailIfSelected(ProjectForm form, Project project) {
+    if (form.getSelectedSubmissionId() != null) {
+      StringUtil.toUuid(form.getSelectedSubmissionId())
+          .ifPresent(
+              selectedSubmissionDetailId -> {
+                var selectedSubmissionDetail =
+                    submissionDetailService.getSubmissionDetailForIdOrError(selectedSubmissionDetailId);
+                project.setSubmissionDetail(selectedSubmissionDetail);
+              }
+          );
+    }
+  }
+
+  private void saveCommonProjectInformation(Project project, ProjectForm form) {
+    project.setProjectName(form.getProjectName());
+    project.setProjectStatus(form.getProjectStatus());
+    project.setPartOfPipeline(form.getIsPartOfPipeline());
+    setSubmissionDetailIfSelected(form, project);
   }
 }

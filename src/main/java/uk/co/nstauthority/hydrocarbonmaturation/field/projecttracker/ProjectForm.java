@@ -6,6 +6,9 @@ public class ProjectForm {
   private ProjectStatus projectStatus;
   private Boolean isPartOfPipeline;
   private String selectedSubmissionId;
+  private String fdpaStartUpDateDay;
+  private String fdpaStartUpDateMonth;
+  private String fdpaStartUpDateYear;
 
   public String getProjectName() {
     return projectName;
@@ -45,5 +48,29 @@ public class ProjectForm {
 
   public void setSelectedSubmissionId(String selectedSubmissionId) {
     this.selectedSubmissionId = selectedSubmissionId;
+  }
+
+  public String getFdpaStartUpDateDay() {
+    return fdpaStartUpDateDay;
+  }
+
+  public void setFdpaStartUpDateDay(String fdpaStartUpDateDay) {
+    this.fdpaStartUpDateDay = fdpaStartUpDateDay;
+  }
+
+  public String getFdpaStartUpDateMonth() {
+    return fdpaStartUpDateMonth;
+  }
+
+  public void setFdpaStartUpDateMonth(String fdpaStartUpDateMonth) {
+    this.fdpaStartUpDateMonth = fdpaStartUpDateMonth;
+  }
+
+  public String getFdpaStartUpDateYear() {
+    return fdpaStartUpDateYear;
+  }
+
+  public void setFdpaStartUpDateYear(String fdpaStartUpDateYear) {
+    this.fdpaStartUpDateYear = fdpaStartUpDateYear;
   }
 }

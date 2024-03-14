@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.envers.Audited;
@@ -38,6 +39,8 @@ public class Project {
   private ProjectStatus projectStatus;
 
   private Boolean isPartOfPipeline;
+
+  private LocalDate fdpaStartUpDate;
 
   @ManyToOne
   @JoinColumn(name = "submission_detail_id")
@@ -108,5 +111,13 @@ public class Project {
 
   public void setCreatedTimestamp(Instant createdTimestamp) {
     this.createdTimestamp = createdTimestamp;
+  }
+
+  public LocalDate getFdpaStartUpDate() {
+    return fdpaStartUpDate;
+  }
+
+  public void setFdpaStartUpDate(LocalDate fdpaStartUpDate) {
+    this.fdpaStartUpDate = fdpaStartUpDate;
   }
 }

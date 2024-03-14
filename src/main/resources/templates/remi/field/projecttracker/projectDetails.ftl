@@ -15,10 +15,12 @@ errorItems=errorList>
         labelText="Project name"
         inputClass="govuk-input--width-20"/>
 
-        <@fdsRadio.radio
-        path="form.projectType"
-        labelText="Project type"
-        radioItems=projectTypeOptions/>
+        <#if !isUpdate>
+            <@fdsRadio.radio
+            path="form.projectType"
+            labelText="Project type"
+            radioItems=projectTypeOptions/>
+        </#if>
 
         <@fdsRadio.radio
         path="form.projectStatus"
@@ -37,6 +39,15 @@ errorItems=errorList>
         labelText="Which submission is associated with this project?"
         optionalLabel=true
         options=acceptedSubmissionOptions!{}/>
+
+        <#if isUpdate && ((projectType!"") == "FIELD_DEVELOPMENT_PLAN_ADDENDUM")>
+            <@fdsDateInput.dateInput
+            formId="fdpaStartUpDate-date-input"
+            dayPath="form.fdpaStartUpDateDay"
+            monthPath="form.fdpaStartUpDateMonth"
+            yearPath="form.fdpaStartUpDateYear"
+            labelText="FDPA start up date"/>
+        </#if>
 
         <@fdsAction.submitButtons
         primaryButtonText="Save and complete"

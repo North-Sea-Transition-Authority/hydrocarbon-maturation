@@ -30,7 +30,7 @@ class ViewProjectControllerTest extends AbstractProjectTrackerControllerTest {
   private ProjectSummaryService projectSummaryService;
 
   @SecurityTest
-  void whenGetViewProject_thenForbidden() throws Exception {
+  void whenGetViewProject_andUserIsNotRegulator_thenForbidden() throws Exception {
     mockMvc.perform(
             get(ReverseRouter.route(on(ViewProjectController.class)
                 .getViewProject(RESOURCE_ID, PROJECT_ID)))

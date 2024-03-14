@@ -12,7 +12,9 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +24,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -254,6 +258,185 @@ class ProjectServiceTest {
   }
 
   @Nested
+  class GivenSaveProjectUpdate {
+    private SubmissionDetail submissionDetail;
+    private Project project;
+    private ProjectForm form;
+
+    @BeforeEach
+    void setUp() {
+      submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+      project = ProjectTestUtils.createPopulatedProject(
+          "Project name",
+          ProjectType.FIELD_DEVELOPMENT_PLAN,
+          ProjectStatus.ON_HOLD,
+          true,
+          Instant.now()
+      );
+      form = getPopulatedProjectForm();
+    }
+
+    @Test
+    void whenSelectedSubmissionDetailDoesNotExist_thenAssertThrows() {
+      var randomUuid = UUID.randomUUID().toString();
+      form.setSelectedSubmissionId(randomUuid);
+
+      when(submissionDetailService.getSubmissionDetailForIdOrError(UUID.fromString(randomUuid)))
+          .thenThrow(RemiEntityNotFoundException.class);
+
+      assertThatThrownBy(() -> projectService.saveProjectUpdate(project, form))
+          .isInstanceOf(RemiEntityNotFoundException.class);
+
+      verifyNoInteractions(projectRepository);
+    }
+
+    @Test
+    void whenNoSelectedSubmissionDetail_thenAssertSavedWithoutSubmissionDetail() {
+      form.setSelectedSubmissionId(null);
+
+      var savedProject = new Project();
+      when(projectRepository.save(any(Project.class)))
+          .thenReturn(savedProject);
+
+      assertThat(projectService.saveProjectUpdate(project, form))
+          .isEqualTo(savedProject);
+
+      var captor = ArgumentCaptor.forClass(Project.class);
+      verify(projectRepository).save(captor.capture());
+      verifyNoMoreInteractions(projectRepository);
+
+      verifyNoInteractions(submissionDetailService);
+
+      assertThat(captor.getValue())
+          .extracting(
+              Project::getProjectType,
+              Project::getCreatedTimestamp,
+              Project::getField,
+              Project::getProjectName,
+              Project::getProjectStatus,
+              Project::getPartOfPipeline,
+              Project::getSubmissionDetail
+          ).containsExactly(
+              project.getProjectType(),
+              project.getCreatedTimestamp(),
+              project.getField(),
+              form.getProjectName(),
+              form.getProjectStatus(),
+              form.getIsPartOfPipeline(),
+              null
+          );
+    }
+
+    @Test
+    void whenSelectedSubmissionDetail_thenAssertSavedWithSubmissionDetail() {
+      when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
+          .thenReturn(submissionDetail);
+      var savedProject = new Project();
+      when(projectRepository.save(any(Project.class)))
+          .thenReturn(savedProject);
+
+      assertThat(projectService.saveProjectUpdate(project, form))
+          .isEqualTo(savedProject);
+
+      var captor = ArgumentCaptor.forClass(Project.class);
+      verify(projectRepository).save(captor.capture());
+      verifyNoMoreInteractions(projectRepository);
+
+      verify(submissionDetailService).getSubmissionDetailForIdOrError(submissionDetail.getId());
+      verifyNoMoreInteractions(submissionDetailService);
+
+      assertThat(captor.getValue())
+          .extracting(
+              Project::getProjectType,
+              Project::getCreatedTimestamp,
+              Project::getField,
+              Project::getProjectName,
+              Project::getProjectStatus,
+              Project::getPartOfPipeline,
+              Project::getSubmissionDetail
+          ).containsExactly(
+              project.getProjectType(),
+              project.getCreatedTimestamp(),
+              project.getField(),
+              form.getProjectName(),
+              form.getProjectStatus(),
+              form.getIsPartOfPipeline(),
+              submissionDetail
+          );
+    }
+
+    @Test
+    void whenFdpaProject_thenSaveFdpaStartUpDate() {
+      project.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM);
+
+      var savedProject = new Project();
+      when(projectRepository.save(any(Project.class)))
+          .thenReturn(savedProject);
+
+      assertThat(projectService.saveProjectUpdate(project, form))
+          .isEqualTo(savedProject);
+
+      var captor = ArgumentCaptor.forClass(Project.class);
+      verify(projectRepository).save(captor.capture());
+      verifyNoMoreInteractions(projectRepository);
+
+      assertThat(captor.getValue())
+          .extracting(
+              Project::getProjectType,
+              Project::getCreatedTimestamp,
+              Project::getField,
+              Project::getProjectName,
+              Project::getProjectStatus,
+              Project::getPartOfPipeline,
+              Project::getFdpaStartUpDate
+          ).containsExactly(
+              project.getProjectType(),
+              project.getCreatedTimestamp(),
+              project.getField(),
+              form.getProjectName(),
+              form.getProjectStatus(),
+              form.getIsPartOfPipeline(),
+              LocalDate.of(2002, 11, 3)
+          );
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = ProjectType.class,
+        names = "FIELD_DEVELOPMENT_PLAN_ADDENDUM",
+        mode = EnumSource.Mode.EXCLUDE
+    )
+    void whenNonFdpaProject_thenStartUpDateNull(ProjectType projectType) {
+      project.setProjectType(projectType);
+
+      var savedProject = new Project();
+      when(projectRepository.save(any(Project.class)))
+          .thenReturn(savedProject);
+
+      assertThat(projectService.saveProjectUpdate(project, form))
+          .isEqualTo(savedProject);
+
+      var captor = ArgumentCaptor.forClass(Project.class);
+      verify(projectRepository).save(captor.capture());
+      verifyNoMoreInteractions(projectRepository);
+
+      assertThat(captor.getValue().getFdpaStartUpDate()).isNull();
+    }
+
+    private ProjectForm getPopulatedProjectForm() {
+      var form = new ProjectForm();
+      form.setProjectType(ProjectType.CESSATION_OF_PRODUCTION);
+      form.setProjectStatus(ProjectStatus.ON_HOLD);
+      form.setIsPartOfPipeline(true);
+      form.setSelectedSubmissionId(submissionDetail.getId().toString());
+      form.setFdpaStartUpDateDay("3");
+      form.setFdpaStartUpDateMonth("11");
+      form.setFdpaStartUpDateYear("2002");
+      return form;
+    }
+  }
+
+  @Nested
   class GivenGetProjectListViews {
     @Test
     void whenNoProjectsForField_thenEmptyList() {
@@ -344,6 +527,94 @@ class ProjectServiceTest {
                   ))
               )
           );
+    }
+  }
+
+  @Nested
+  class GivenProjectToForm {
+    @ParameterizedTest
+    @EnumSource(
+        value = ProjectType.class,
+        names = "FIELD_DEVELOPMENT_PLAN_ADDENDUM",
+        mode = EnumSource.Mode.EXCLUDE
+    )
+    void whenProjectTypeNonFdpa_withSubmissionDetail_thenValuesOnForm(ProjectType projectType) {
+      var project = ProjectTestUtils.createPopulatedProject(
+          "Project name",
+          projectType,
+          ProjectStatus.ON_HOLD,
+          true,
+          Instant.now()
+      );
+      project.setSubmissionDetail(SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_FDP));
+
+      assertThat(projectService.projectToForm(project))
+          .extracting(
+              ProjectForm::getProjectName,
+              ProjectForm::getProjectType,
+              ProjectForm::getProjectStatus,
+              ProjectForm::getIsPartOfPipeline,
+              ProjectForm::getSelectedSubmissionId,
+              ProjectForm::getFdpaStartUpDateDay,
+              ProjectForm::getFdpaStartUpDateMonth,
+              ProjectForm::getFdpaStartUpDateYear
+          ).containsExactly(
+              project.getProjectName(),
+              project.getProjectType(),
+              project.getProjectStatus(),
+              project.getPartOfPipeline(),
+              project.getSubmissionDetail().getId().toString(),
+              null,
+              null,
+              null
+          );
+    }
+
+    @Test
+    void whenProjectTypeFdpa_thenValuesOnForm() {
+      var project = ProjectTestUtils.createPopulatedProject(
+          "Project name",
+          ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM,
+          ProjectStatus.ON_HOLD,
+          true,
+          Instant.now()
+      );
+      var fdpaStartUpDate = LocalDate.of(2024, Month.MARCH, 6);
+      project.setFdpaStartUpDate(fdpaStartUpDate);
+
+      assertThat(projectService.projectToForm(project))
+          .extracting(
+              ProjectForm::getProjectName,
+              ProjectForm::getProjectType,
+              ProjectForm::getProjectStatus,
+              ProjectForm::getIsPartOfPipeline,
+              ProjectForm::getFdpaStartUpDateDay,
+              ProjectForm::getFdpaStartUpDateMonth,
+              ProjectForm::getFdpaStartUpDateYear
+          ).containsExactly(
+              project.getProjectName(),
+              project.getProjectType(),
+              project.getProjectStatus(),
+              project.getPartOfPipeline(),
+              String.valueOf(fdpaStartUpDate.getDayOfMonth()),
+              String.valueOf(fdpaStartUpDate.getMonthValue()),
+              String.valueOf(fdpaStartUpDate.getYear())
+          );
+    }
+
+    @Test
+    void whenNoSubmissionDetailSaved_thenNotOnForm() {
+      var project = ProjectTestUtils.createPopulatedProject(
+          "Project name",
+          ProjectType.CESSATION_OF_PRODUCTION,
+          ProjectStatus.ON_HOLD,
+          true,
+          Instant.now()
+      );
+
+      project.setSubmissionDetail(null);
+
+      assertThat(projectService.projectToForm(project).getSelectedSubmissionId()).isNull();
     }
   }
 }
