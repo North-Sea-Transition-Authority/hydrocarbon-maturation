@@ -64,7 +64,6 @@ public class ProjectService {
   public Project saveProjectUpdate(Project project, ProjectForm form) {
     saveCommonProjectInformation(project, form);
 
-
     if (ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM.equals(project.getProjectType())) {
       var fdpaStartUpDate = LocalDate.of(
           Integer.parseInt(form.getFdpaStartUpDateYear()),
