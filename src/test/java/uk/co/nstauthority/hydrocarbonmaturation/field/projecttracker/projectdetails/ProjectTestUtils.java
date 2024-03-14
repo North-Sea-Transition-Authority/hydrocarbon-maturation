@@ -7,6 +7,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
+import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.projectstagehistory.ProjectStageHistory;
 
 public class ProjectTestUtils {
   private ProjectTestUtils() {
@@ -41,5 +42,14 @@ public class ProjectTestUtils {
     project.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM);
 
     return project;
+  }
+
+  public static ProjectStageHistory createProjectStageHistory(Project project, UUID projectStatusHistoryId) {
+    var projectStageHistory = new ProjectStageHistory();
+
+    projectStageHistory.setId(projectStatusHistoryId);
+    projectStageHistory.setProject(project);
+
+    return projectStageHistory;
   }
 }

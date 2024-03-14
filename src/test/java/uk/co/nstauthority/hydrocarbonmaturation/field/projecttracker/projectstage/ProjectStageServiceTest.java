@@ -19,7 +19,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.projectstagehistory.ProjectStageHistory;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.projectstagehistory.ProjectStageHistoryService;
-import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectStageServiceTest {
@@ -31,7 +30,7 @@ class ProjectStageServiceTest {
   private Project project;
 
   @Nested
-  class GivenGetProjectStageHistories {
+  class GivenGetOrderedProjectStages {
     private static final LocalDate FIXED_DATE = LocalDate.of(2024, Month.MARCH, 4);
 
     private ProjectStageHistory firstCreatedStageHistory;
@@ -55,7 +54,7 @@ class ProjectStageServiceTest {
 
     @Test
     void whenNoHistories_thenReturnEmptyList() {
-      assertThat(projectStageService.getProjectStageHistories(project))
+      assertThat(projectStageService.getOrderedProjectStages(project))
           .isEmpty();
     }
 
@@ -64,14 +63,14 @@ class ProjectStageServiceTest {
       when(projectStageHistoryService.getProjectStageHistories(project))
           .thenReturn(List.of(firstCreatedStageHistory));
 
-      assertThat(projectStageService.getProjectStageHistories(project))
+      assertThat(projectStageService.getOrderedProjectStages(project))
           .extracting(
-              ProjectStageDto::stage,
-              ProjectStageDto::date
+              ProjectStageHistory::getStage,
+              ProjectStageHistory::getStageDate
           ).containsExactly(
               Tuple.tuple(
                   firstCreatedStageHistory.getStage(),
-                  DateUtil.formatLongDate(firstCreatedStageHistory.getStageDate())
+                  firstCreatedStageHistory.getStageDate()
               )
           );
     }
@@ -81,22 +80,22 @@ class ProjectStageServiceTest {
       when(projectStageHistoryService.getProjectStageHistories(project))
           .thenReturn(List.of(lastCreatedStageHistory, firstCreatedStageHistory, secondCreatedStageHistory));
 
-      assertThat(projectStageService.getProjectStageHistories(project))
+      assertThat(projectStageService.getOrderedProjectStages(project))
           .extracting(
-              ProjectStageDto::stage,
-              ProjectStageDto::date
+              ProjectStageHistory::getStage,
+              ProjectStageHistory::getStageDate
           ).containsExactly(
               Tuple.tuple(
                   firstCreatedStageHistory.getStage(),
-                  DateUtil.formatLongDate(firstCreatedStageHistory.getStageDate())
+                  firstCreatedStageHistory.getStageDate()
               ),
               Tuple.tuple(
                   secondCreatedStageHistory.getStage(),
-                  DateUtil.formatLongDate(secondCreatedStageHistory.getStageDate())
+                  secondCreatedStageHistory.getStageDate()
               ),
               Tuple.tuple(
                   lastCreatedStageHistory.getStage(),
-                  DateUtil.formatLongDate(lastCreatedStageHistory.getStageDate())
+                  lastCreatedStageHistory.getStageDate()
               )
           );
     }

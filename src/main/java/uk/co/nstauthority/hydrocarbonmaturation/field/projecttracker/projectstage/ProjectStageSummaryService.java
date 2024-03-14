@@ -1,0 +1,104 @@
+package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage;
+
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
+import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.projectstagehistory.ProjectStageHistory;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTimelineView;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.TimelineEvent;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
+
+@Service
+class ProjectStageSummaryService implements SummarySectionService<Project> {
+  static final int DISPLAY_ORDER = 20;
+  static final String PROJECT_STAGE = "Project stage";
+
+  private final ProjectStageService projectStageService;
+  private final UserService userService;
+  private final PermissionService permissionService;
+
+  @Autowired
+  ProjectStageSummaryService(ProjectStageService projectStageService,
+                             UserService userService,
+                             PermissionService permissionService) {
+    this.projectStageService = projectStageService;
+    this.userService = userService;
+    this.permissionService = permissionService;
+  }
+
+  @Override
+  public Optional<SummarySection> getSummarySection(Project project) {
+    var summaryItems = List.of(SummaryItem.withCard(PROJECT_STAGE, getProjectStageSummaryCard(project)));
+
+    return Optional.of(new SummarySection(DISPLAY_ORDER, summaryItems, ""));
+  }
+
+  SummaryCard getProjectStageSummaryCard(Project project) {
+    var timelineEvents = projectStageService.getOrderedProjectStages(project).stream()
+        .map(this::toTimelineEvent)
+        .toList();
+
+    var user = userService.getUser();
+    Map<String, String> actionsMap = getActionsMapForUser(project, user);
+
+    if (timelineEvents.isEmpty()) {
+      return SummaryCard.emptySummaryCardWithActions(PROJECT_STAGE, actionsMap);
+    }
+
+    return SummaryCard.timelineSummaryCardWithHeading(
+        PROJECT_STAGE,
+        new SummaryTimelineView(actionsMap, timelineEvents)
+    );
+  }
+
+  private Map<String, String> getActionsMapForUser(Project project, User user) {
+    Map<String, String> actionsMap = new HashMap<>();
+    if (permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))) {
+      actionsMap.put(
+          "Add",
+          ReverseRouter.route(on(ProjectStageController.class)
+              .getCreateProjectStageUpdate(project.getField().getResource().getId(), project.getId()))
+      );
+    }
+    return actionsMap;
+  }
+
+  private TimelineEvent toTimelineEvent(ProjectStageHistory projectStageHistory) {
+    var stage = projectStageHistory.getStage().getDisplayName();
+
+    var date = DateUtil.formatLongDate(projectStageHistory.getStageDate());
+
+    var project = projectStageHistory.getProject();
+    var removeUrl = ReverseRouter.route(on(ProjectStageController.class)
+        .getRemoveProjectStageConfirmation(
+            project.getField().getResource().getId(),
+            project.getId(),
+            projectStageHistory.getId())
+    );
+
+    var timelineActionsMap = new HashMap<String, String>();
+
+    var user = userService.getUser();
+    if (permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))) {
+      timelineActionsMap.put("Remove", removeUrl);
+    }
+
+    return new TimelineEvent(stage, date, timelineActionsMap);
+  }
+}

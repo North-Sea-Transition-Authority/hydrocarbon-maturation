@@ -2,6 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectsta
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Optional;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,15 @@ public class ProjectStageHistoryService {
 
   public Collection<ProjectStageHistory> getProjectStageHistories(Project project) {
     return projectStageHistoryRepository.findAllByProject(project);
+  }
+
+  public Optional<ProjectStageHistory> getProjectStageHistory(UUID id) {
+    return projectStageHistoryRepository.findById(id);
+  }
+
+  @Transactional
+  public void removeProjectStage(ProjectStageHistory projectStageHistory) {
+    projectStageHistoryRepository.delete(projectStageHistory);
   }
 
   @Transactional

@@ -55,23 +55,15 @@ public class ProjectService {
     project.setCreatedTimestamp(clock.instant());
     project.setProjectType(form.getProjectType());
 
-    saveCommonProjectInformation(project, form);
+    setCommonProjectInformation(project, form);
 
     return projectRepository.save(project);
   }
 
   @Transactional
   public Project saveProjectUpdate(Project project, ProjectForm form) {
-    saveCommonProjectInformation(project, form);
+    setCommonProjectInformation(project, form);
 
-    if (ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM.equals(project.getProjectType())) {
-      var fdpaStartUpDate = LocalDate.of(
-          Integer.parseInt(form.getFdpaStartUpDateYear()),
-          Integer.parseInt(form.getFdpaStartUpDateMonth()),
-          Integer.parseInt(form.getFdpaStartUpDateDay())
-      );
-      project.setFdpaStartUpDate(fdpaStartUpDate);
-    }
     return projectRepository.save(project);
   }
 
@@ -133,10 +125,18 @@ public class ProjectService {
     }
   }
 
-  private void saveCommonProjectInformation(Project project, ProjectForm form) {
+  private void setCommonProjectInformation(Project project, ProjectForm form) {
     project.setProjectName(form.getProjectName());
     project.setProjectStatus(form.getProjectStatus());
     project.setPartOfPipeline(form.getIsPartOfPipeline());
     setSubmissionDetailIfSelected(form, project);
+
+    if (ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM.equals(project.getProjectType())) {
+      project.setFdpaStartUpDate(LocalDate.of(
+          Integer.parseInt(form.getFdpaStartUpDateYear()),
+          Integer.parseInt(form.getFdpaStartUpDateMonth()),
+          Integer.parseInt(form.getFdpaStartUpDateDay())
+      ));
+    }
   }
 }

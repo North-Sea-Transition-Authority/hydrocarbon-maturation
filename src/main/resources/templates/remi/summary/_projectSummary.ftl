@@ -1,9 +1,7 @@
 <#include '../layout/layout.ftl'>
 <#import '_simpleSummary.ftl' as simpleSummary>
-<#import '_tableSummary.ftl' as tableSummary>
+<#import '_timelineSummary.ftl' as timelineSummary>
 <#import '_emptySummary.ftl' as emptySummary>
-<#import '_fileSummary.ftl' as filesSummary>
-<#import '_probabilityDistributionSummary.ftl' as probabilityDistributionSummary>
 
 <#-- @ftlvariable name="summarySections" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection>" -->
 <#-- @ftlvariable name="summaryItem" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem>" -->
@@ -20,7 +18,15 @@
                             <@simpleSummary.simpleSummaryWithActions
                             summaryDataViewWithActions=summaryCard.summaryData()
                             summaryHeading=summaryCard.displayName()!""/>
-                       </#if>
+                        <#elseif summaryCard.summaryCardType() == "TIMELINE_SUMMARY">
+                            <@timelineSummary.timelineSummary
+                            summaryTimelineView=summaryCard.summaryData()
+                            summaryHeading=summaryCard.displayName()!""/>
+                        <#elseif summaryCard.summaryCardType() == "EMPTY_SUMMARY_WITH_ACTIONS">
+                            <@emptySummary.emptySummaryWithActions
+                            heading=summaryCard.displayName()
+                            actionsMap=summaryCard.summaryData()/>
+                        </#if>
                     </#list>
                 </@fdsAccordion.accordionSection>
             </#list>

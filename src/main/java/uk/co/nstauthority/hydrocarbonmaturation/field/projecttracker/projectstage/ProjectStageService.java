@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.projectstagehistory.ProjectStageHistory;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.projectstagehistory.ProjectStageHistoryService;
-import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @Service
 class ProjectStageService {
@@ -20,11 +19,10 @@ class ProjectStageService {
     this.projectStageHistoryService = projectStageHistoryService;
   }
 
-  List<ProjectStageDto> getProjectStageHistories(Project project) {
+  List<ProjectStageHistory> getOrderedProjectStages(Project project) {
     return projectStageHistoryService.getProjectStageHistories(project)
         .stream()
         .sorted(Comparator.comparing(ProjectStageHistory::getStageDate))
-        .map(this::projectStageHistoryToDto)
         .toList();
   }
 
@@ -36,12 +34,5 @@ class ProjectStageService {
         Integer.parseInt(form.getStageDateDay())
     );
     projectStageHistoryService.saveProjectStatusHistory(project, form.getStage(), date);
-  }
-
-  private ProjectStageDto projectStageHistoryToDto(ProjectStageHistory projectStageHistory) {
-    return new ProjectStageDto(
-        projectStageHistory.getStage(),
-        DateUtil.formatLongDate(projectStageHistory.getStageDate())
-    );
   }
 }
