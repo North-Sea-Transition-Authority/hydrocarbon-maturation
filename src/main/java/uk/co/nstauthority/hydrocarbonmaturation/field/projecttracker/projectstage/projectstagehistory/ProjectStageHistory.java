@@ -10,11 +10,13 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.UUID;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.envers.Audited;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.ProjectStage;
 
 @Entity
 @Table(name = "project_stage_history")
+@Audited
 public class ProjectStageHistory {
   @Id
   @UuidGenerator
@@ -28,6 +30,9 @@ public class ProjectStageHistory {
   private ProjectStage stage;
 
   private LocalDate stageDate;
+
+  @Enumerated(EnumType.STRING)
+  private ProjectStageStatus projectStageStatus;
 
   public UUID getId() {
     return id;
@@ -59,5 +64,13 @@ public class ProjectStageHistory {
 
   public void setStageDate(LocalDate stageDate) {
     this.stageDate = stageDate;
+  }
+
+  public ProjectStageStatus getProjectStageStatus() {
+    return projectStageStatus;
+  }
+
+  public void setProjectStageStatus(ProjectStageStatus projectStageStatus) {
+    this.projectStageStatus = projectStageStatus;
   }
 }

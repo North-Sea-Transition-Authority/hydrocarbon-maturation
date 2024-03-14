@@ -32,17 +32,22 @@ class ProjectStageHistoryServiceTest {
   private Project project;
 
   @Test
-  void getProjectStageHistories_thenReturnAllHistories() {
+  void getCreatedProjectStageHistories_thenReturnOnlyCreatedHistories() {
     var projectStageHistory1 = new ProjectStageHistory();
+    projectStageHistory1.setProjectStageStatus(ProjectStageStatus.REMOVED);
+
     var projectStageHistory2 = new ProjectStageHistory();
+    projectStageHistory2.setProjectStageStatus(null);
+
     var projectStageHistory3 = new ProjectStageHistory();
+    projectStageHistory3.setProjectStageStatus(ProjectStageStatus.CREATED);
 
     var histories = List.of(projectStageHistory1, projectStageHistory2, projectStageHistory3);
     when(projectStageHistoryRepository.findAllByProject(project))
         .thenReturn(histories);
 
-    assertThat(projectStageHistoryService.getProjectStageHistories(project))
-        .isEqualTo(histories);
+    assertThat(projectStageHistoryService.getCreatedProjectStageHistories(project))
+        .isEqualTo(List.of(projectStageHistory3));
 
     verify(projectStageHistoryRepository).findAllByProject(project);
     verifyNoMoreInteractions(projectStageHistoryRepository);
@@ -95,9 +100,13 @@ class ProjectStageHistoryServiceTest {
   @Test
   void removeProjectStage_thenVerifyCall() {
     var projectStageHistory = new ProjectStageHistory();
+    projectStageHistory.setProjectStageStatus(ProjectStageStatus.CREATED);
+
     projectStageHistoryService.removeProjectStage(projectStageHistory);
 
-    verify(projectStageHistoryRepository).delete(projectStageHistory);
+    assertThat(projectStageHistory.getProjectStageStatus()).isEqualTo(ProjectStageStatus.REMOVED);
+
+    verify(projectStageHistoryRepository).save(projectStageHistory);
     verifyNoMoreInteractions(projectStageHistoryRepository);
   }
 }

@@ -406,6 +406,23 @@ class ProjectServiceTest {
         names = "FIELD_DEVELOPMENT_PLAN_ADDENDUM",
         mode = EnumSource.Mode.EXCLUDE
     )
+    void whenNonFdpaProject_thenDoNotSaveFdpaStartUpDate(ProjectType projectType) {
+      project.setProjectType(projectType);
+
+      projectService.saveProjectUpdate(project, form);
+
+      var captor = ArgumentCaptor.forClass(Project.class);
+      verify(projectRepository).save(captor.capture());
+
+      assertThat(captor.getValue().getFdpaStartUpDate()).isNull();
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = ProjectType.class,
+        names = "FIELD_DEVELOPMENT_PLAN_ADDENDUM",
+        mode = EnumSource.Mode.EXCLUDE
+    )
     void whenNonFdpaProject_thenStartUpDateNull(ProjectType projectType) {
       project.setProjectType(projectType);
 

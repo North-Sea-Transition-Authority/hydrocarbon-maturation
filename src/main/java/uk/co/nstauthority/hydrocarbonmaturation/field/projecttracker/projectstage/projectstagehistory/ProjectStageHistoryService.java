@@ -1,7 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.projectstagehistory;
 
 import java.time.LocalDate;
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +19,11 @@ public class ProjectStageHistoryService {
     this.projectStageHistoryRepository = projectStageHistoryRepository;
   }
 
-  public Collection<ProjectStageHistory> getProjectStageHistories(Project project) {
-    return projectStageHistoryRepository.findAllByProject(project);
+  public List<ProjectStageHistory> getCreatedProjectStageHistories(Project project) {
+    return projectStageHistoryRepository.findAllByProject(project)
+        .stream().filter(projectStageHistory ->
+            ProjectStageStatus.CREATED.equals(projectStageHistory.getProjectStageStatus()))
+        .toList();
   }
 
   public Optional<ProjectStageHistory> getProjectStageHistory(UUID id) {
@@ -29,7 +32,8 @@ public class ProjectStageHistoryService {
 
   @Transactional
   public void removeProjectStage(ProjectStageHistory projectStageHistory) {
-    projectStageHistoryRepository.delete(projectStageHistory);
+    projectStageHistory.setProjectStageStatus(ProjectStageStatus.REMOVED);
+    projectStageHistoryRepository.save(projectStageHistory);
   }
 
   @Transactional
@@ -38,6 +42,8 @@ public class ProjectStageHistoryService {
     projectStageHistory.setProject(project);
     projectStageHistory.setStage(stage);
     projectStageHistory.setStageDate(stageDate);
+
+    projectStageHistory.setProjectStageStatus(ProjectStageStatus.CREATED);
 
     projectStageHistoryRepository.save(projectStageHistory);
   }

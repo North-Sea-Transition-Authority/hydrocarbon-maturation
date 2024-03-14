@@ -60,7 +60,7 @@ class ProjectStageServiceTest {
 
     @Test
     void whenOneHistory_thenListWithDto() {
-      when(projectStageHistoryService.getProjectStageHistories(project))
+      when(projectStageHistoryService.getCreatedProjectStageHistories(project))
           .thenReturn(List.of(firstCreatedStageHistory));
 
       assertThat(projectStageService.getOrderedProjectStages(project))
@@ -77,7 +77,7 @@ class ProjectStageServiceTest {
 
     @Test
     void whenMultipleHistories_thenListOrderedByDate() {
-      when(projectStageHistoryService.getProjectStageHistories(project))
+      when(projectStageHistoryService.getCreatedProjectStageHistories(project))
           .thenReturn(List.of(lastCreatedStageHistory, firstCreatedStageHistory, secondCreatedStageHistory));
 
       assertThat(projectStageService.getOrderedProjectStages(project))

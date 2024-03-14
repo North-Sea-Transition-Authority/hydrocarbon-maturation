@@ -20,7 +20,7 @@ class ProjectStageService {
   }
 
   List<ProjectStageHistory> getOrderedProjectStages(Project project) {
-    return projectStageHistoryService.getProjectStageHistories(project)
+    return projectStageHistoryService.getCreatedProjectStageHistories(project)
         .stream()
         .sorted(Comparator.comparing(ProjectStageHistory::getStageDate))
         .toList();
