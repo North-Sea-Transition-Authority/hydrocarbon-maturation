@@ -163,6 +163,138 @@ class DateValidationUtilTest {
   }
 
   @Test
+  void validateOptionalDate_allNull() {
+    var isValid = invokeValidateOptionalDate(null, null, null, errors);
+
+    assertThat(isValid).isTrue();
+  }
+
+  @Test
+  void validateOptionalDate() {
+    var isValid = invokeValidateOptionalDate("01", "12", "2020", errors);
+
+    assertThat(errors.getAllErrors()).isEmpty();
+    assertThat(isValid).isTrue();
+  }
+
+  @Test
+  void validateOptionalDate_dayNull() {
+    var isValid = invokeValidateOptionalDate(null, "12", "2020", errors);
+
+    assertCodes(errors, "dateOfBirthDay.required");
+    assertMessages(errors, "Enter a complete date of birth");
+    assertThat(isValid).isFalse();
+  }
+
+  @Test
+  void validateOptionalDate_monthNull() {
+    var isValid = invokeValidateOptionalDate("21", null, "2020", errors);
+
+    assertCodes(errors, "dateOfBirthMonth.required");
+    assertMessages(errors, "Enter a complete date of birth");
+    assertThat(isValid).isFalse();
+  }
+
+  @Test
+  void validateOptionalDate_yearNull() {
+    var isValid = invokeValidateOptionalDate("21", "12", null, errors);
+
+    assertCodes(errors, "dateOfBirthYear.required");
+    assertMessages(errors, "Enter a complete date of birth");
+    assertThat(isValid).isFalse();
+  }
+
+  @Test
+  void validateOptionalDate_dayAndMonthNull() {
+    var isValid = invokeValidateOptionalDate(null, null, "2020", errors);
+
+    assertCodes(errors, "dateOfBirthDay.required", "dateOfBirthMonth.required");
+    assertMessages(errors, "Enter a complete date of birth", "");
+    assertThat(isValid).isFalse();
+  }
+
+  @Test
+  void validateOptionalDate_monthAndYearNull() {
+    var isValid = invokeValidateOptionalDate("21", null, null, errors);
+
+    assertCodes(errors, "dateOfBirthMonth.required", "dateOfBirthYear.required");
+    assertMessages(errors, "Enter a complete date of birth", "");
+    assertThat(isValid).isFalse();
+  }
+
+  @Test
+  void validateOptionalDate_dayAndYearNull() {
+    var isValid = invokeValidateOptionalDate(null, "12", null, errors);
+
+    assertCodes(errors, "dateOfBirthDay.required", "dateOfBirthYear.required");
+    assertMessages(errors, "Enter a complete date of birth", "");
+    assertThat(isValid).isFalse();
+  }
+
+  @Test
+  void validateOptionalDate_dayInvalid() {
+    var isValid = invokeValidateOptionalDate("foo", "12", "2020", errors);
+
+    assertCodes(errors, "dateOfBirthDay.invalid");
+    assertMessages(errors, "Date of birth must be a real date");
+    assertThat(isValid).isFalse();
+  }
+
+  @Test
+  void validateOptionalDate_monthInvalid() {
+    var isValid = invokeValidateOptionalDate("21", "foo", "2020", errors);
+
+    assertCodes(errors, "dateOfBirthMonth.invalid");
+    assertMessages(errors, "Date of birth must be a real date");
+    assertThat(isValid).isFalse();
+  }
+
+  @Test
+  void validateOptionalDate_yearInvalid() {
+    var isValid = invokeValidateOptionalDate("21", "12", "foo", errors);
+
+    assertCodes(errors, "dateOfBirthYear.invalid");
+    assertMessages(errors, "Date of birth must be a real date");
+    assertThat(isValid).isFalse();
+  }
+
+  @Test
+  void validateOptionalDate_dayAndMonthInvalid() {
+    var isValid = invokeValidateOptionalDate("2.3", "a1", "2020", errors);
+
+    assertCodes(errors, "dateOfBirthDay.invalid", "dateOfBirthMonth.invalid");
+    assertMessages(errors, "Date of birth must be a real date", "");
+    assertThat(isValid).isFalse();
+  }
+
+  @Test
+  void validateOptionalDate_monthAndYearInvalid() {
+    var isValid = invokeValidateOptionalDate("21", "-4", "abc", errors);
+
+    assertCodes(errors, "dateOfBirthMonth.invalid", "dateOfBirthYear.invalid");
+    assertMessages(errors, "Date of birth must be a real date", "");
+    assertThat(isValid).isFalse();
+  }
+
+  @Test
+  void validateOptionalDate_dayAndYearInvalid() {
+    var isValid = invokeValidateOptionalDate("99", "12", "<>?/!-=", errors);
+
+    assertCodes(errors, "dateOfBirthDay.invalid", "dateOfBirthYear.invalid");
+    assertMessages(errors, "Date of birth must be a real date", "");
+    assertThat(isValid).isFalse();
+  }
+
+  @Test
+  void validateOptionalDate_dateInvalid() {
+    var isValid = invokeValidateOptionalDate("29", "02", "2021", errors);
+
+    assertCodes(errors, "dateOfBirthDay.invalid", "dateOfBirthMonth.invalid", "dateOfBirthYear.invalid");
+    assertMessages(errors, "Date of birth must be a real date", "", "");
+    assertThat(isValid).isFalse();
+  }
+
+  @Test
   void validateDateIsTodayOrInTheFuture_today() {
     var now = LocalDate.now();
     var day = String.valueOf(now.getDayOfMonth());
@@ -361,6 +493,37 @@ class DateValidationUtilTest {
     assertThat(isValid).isFalse();
   }
 
+  @Test
+  void validateDateIsOnOrBeforeComparison_on() {
+    final var COMPARISON_DATE = LocalDate.of(2024, 3, 18);
+    final var FIXED_DATE = COMPARISON_DATE;
+
+    var isValid = invokeValidateDateIsOnOrBeforeComparisonDate(FIXED_DATE, COMPARISON_DATE);
+
+    assertThat(isValid).isTrue();
+  }
+
+  @Test
+  void validateDateIsOnOrBeforeComparison_before() {
+    final var COMPARISON_DATE = LocalDate.of(2024, 3, 18);
+    final var DATE = COMPARISON_DATE.minusYears(1);
+
+    var isValid = invokeValidateDateIsOnOrBeforeComparisonDate(DATE, COMPARISON_DATE);
+
+    assertThat(isValid).isTrue();
+  }
+
+  @Test
+  void validateDateIsOnOrBeforeComparison_after() {
+    final var COMPARISON_DATE = LocalDate.of(2024, 3, 18);
+    final var DATE = COMPARISON_DATE.plusYears(1);
+
+    var isValid = invokeValidateDateIsOnOrBeforeComparisonDate(DATE, COMPARISON_DATE);
+
+    assertCodes(errors, "dateOfBirthDay.notBeforeTargetDate", "dateOfBirthMonth.notBeforeTargetDate", "dateOfBirthYear.notBeforeTargetDate");
+    assertMessages(errors, "Date of birth must be on or before the date of death", "", "");
+    assertThat(isValid).isFalse();
+  }
 
   private void assertCodes(Errors errors, String... codes) {
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
@@ -374,6 +537,17 @@ class DateValidationUtilTest {
 
   private boolean invokeValidateDate(String day, String month, String year, Errors errors) {
     return DateValidationUtil.validateDate(
+        "dateOfBirth",
+        "date of birth",
+        day,
+        month,
+        year,
+        errors
+    );
+  }
+
+  private boolean invokeValidateOptionalDate(String day, String month, String year, Errors errors) {
+    return DateValidationUtil.validateOptionalDate(
         "dateOfBirth",
         "date of birth",
         day,
@@ -423,6 +597,17 @@ class DateValidationUtilTest {
         day,
         month,
         year,
+        errors
+    );
+  }
+
+  private boolean invokeValidateDateIsOnOrBeforeComparisonDate(LocalDate date, LocalDate comparisonDate) {
+    return DateValidationUtil.validateDateIsOnOrBeforeComparisonDate(
+        "dateOfBirth",
+        "date of birth",
+        date,
+        comparisonDate,
+        "on or before the date of death",
         errors
     );
   }

@@ -28,7 +28,6 @@ public class DateValidationUtil {
   private DateValidationUtil() {
     throw new IllegalStateException("DateValidationUtil is an util class and should not be instantiated");
   }
-
   /**
    * Ensures that the date is valid.
    *
@@ -40,6 +39,7 @@ public class DateValidationUtil {
    * @param errors        Errors object to add rejection codes and messages to
    * @return True if the date is valid with no errors
    */
+
   public static boolean validateDate(String fieldPrefix,
                                      String displayPrefix,
                                      String day,
@@ -95,6 +95,38 @@ public class DateValidationUtil {
   }
 
   /**
+   * Ensures that the date is valid or not provided.
+   *
+   * @param fieldPrefix   The prefix of the form date fields. e.g: proposedStartDay has a prefix of proposedStart
+   * @param displayPrefix The grouped name in the error message. e.g: "proposed start date"
+   * @param day           Form field day
+   * @param month         Form field month
+   * @param year          Form field year
+   * @param errors        Errors object to add rejection codes and messages to
+   * @return True if all the date values are null or if they are provided are are valid with no errors
+   */
+  public static boolean validateOptionalDate(String fieldPrefix,
+                                             String displayPrefix,
+                                             String day,
+                                             String month,
+                                             String year,
+                                             Errors errors) {
+    // optional field so if all null then is valid
+    if (ObjectUtils.allNull(day, month, year)) {
+      return true;
+    }
+
+    // there are values so validate field
+    return validateDate(
+        fieldPrefix,
+        displayPrefix,
+        day,
+        month,
+        year,
+        errors
+    );
+  }
+  /**
    * Ensures that the date is valid, and the date is either the current date, or is in the future.
    *
    * @param fieldPrefix   The prefix of the form date fields. e.g: proposedStartDay has a prefix of proposedStart
@@ -105,6 +137,7 @@ public class DateValidationUtil {
    * @param errors        Errors object to add rejection codes and messages to
    * @return True if the date is valid and the date is either the current day, or is in the future
    */
+
   public static boolean validateDateIsTodayOrInTheFuture(String fieldPrefix,
                                                          String displayPrefix,
                                                          String day,
@@ -178,22 +211,7 @@ public class DateValidationUtil {
       if (date.isAfter(comparisonDate)) {
         return true;
       } else {
-        errors.rejectValue(
-            fieldPrefix + DAY_FIELD_SUFFIX,
-            String.format(DAY_FIELD_WITH_PREFIX_AND_SUFFIX, fieldPrefix, ERROR_CODE_NOT_AFTER_TARGET_DATE),
-            String.format("%s must be %s", StringUtils.capitalize(displayPrefix), errorSuffix)
-        );
-        errors.rejectValue(
-            fieldPrefix + MONTH_FIELD_SUFFIX,
-            String.format(MONTH_FIELD_WITH_PREFIX_AND_SUFFIX, fieldPrefix, ERROR_CODE_NOT_AFTER_TARGET_DATE),
-            ""
-        );
-        errors.rejectValue(
-            fieldPrefix + YEAR_FIELD_SUFFIX,
-            String.format(YEAR_FIELD_WITH_PREFIX_AND_SUFFIX, fieldPrefix, ERROR_CODE_NOT_AFTER_TARGET_DATE),
-            ""
-        );
-        return false;
+        return rejectDate(errors, fieldPrefix, ERROR_CODE_NOT_AFTER_TARGET_DATE, displayPrefix, errorSuffix);
       }
     }
 
@@ -264,6 +282,34 @@ public class DateValidationUtil {
    *
    * @param fieldPrefix    The prefix of the form date fields. e.g: proposedStartDay has a prefix of proposedStart
    * @param displayPrefix  The grouped name in the error message. e.g: "proposed start date"
+   * @param date           Date being compared
+   * @param comparisonDate Date to compare with
+   * @param errorSuffix    Text to append to error message
+   * @param errors         Errors object to add rejection codes and messages to
+   * @return True if the date is valid with no errors
+   */
+  public static boolean validateDateIsOnOrBeforeComparisonDate(String fieldPrefix,
+                                                               String displayPrefix,
+                                                               LocalDate date,
+                                                               LocalDate comparisonDate,
+                                                               String errorSuffix,
+                                                               Errors errors) {
+    if (validateDate(fieldPrefix, displayPrefix,
+        String.valueOf(date.getDayOfMonth()), String.valueOf(date.getMonthValue()), String.valueOf(date.getYear()), errors)) {
+      if (date.equals(comparisonDate) || date.isBefore(comparisonDate)) {
+        return true;
+      } else {
+        return rejectDate(errors, fieldPrefix, ERROR_CODE_NOT_BEFORE_TARGET_DATE, displayPrefix, errorSuffix);
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Ensures that the date is valid, and the date is before the comparison date passed in.
+   *
+   * @param fieldPrefix    The prefix of the form date fields. e.g: proposedStartDay has a prefix of proposedStart
+   * @param displayPrefix  The grouped name in the error message. e.g: "proposed start date"
    * @param day            Form field day
    * @param month          Form field month
    * @param year           Form field year
@@ -285,22 +331,7 @@ public class DateValidationUtil {
       if (date.isBefore(comparisonDate)) {
         return true;
       } else {
-        errors.rejectValue(
-            fieldPrefix + DAY_FIELD_SUFFIX,
-            String.format(DAY_FIELD_WITH_PREFIX_AND_SUFFIX, fieldPrefix, ERROR_CODE_NOT_BEFORE_TARGET_DATE),
-            String.format("%s must be %s", StringUtils.capitalize(displayPrefix), errorSuffix)
-        );
-        errors.rejectValue(
-            fieldPrefix + MONTH_FIELD_SUFFIX,
-            String.format(MONTH_FIELD_WITH_PREFIX_AND_SUFFIX, fieldPrefix, ERROR_CODE_NOT_BEFORE_TARGET_DATE),
-            ""
-        );
-        errors.rejectValue(
-            fieldPrefix + YEAR_FIELD_SUFFIX,
-            String.format(YEAR_FIELD_WITH_PREFIX_AND_SUFFIX, fieldPrefix, ERROR_CODE_NOT_BEFORE_TARGET_DATE),
-            ""
-        );
-        return false;
+        return rejectDate(errors, fieldPrefix, ERROR_CODE_NOT_BEFORE_TARGET_DATE, displayPrefix, errorSuffix);
       }
     }
     return false;
@@ -412,5 +443,28 @@ public class DateValidationUtil {
         year == null ? String.format(YEAR_FIELD_WITH_PREFIX_AND_SUFFIX, fieldPrefix, ERROR_CODE_REQUIRED) : null,
         errors
     );
+  }
+
+  private static boolean rejectDate(Errors errors,
+                                    String fieldPrefix,
+                                    String errorCodeNotBeforeTargetDate,
+                                    String displayPrefix,
+                                    String errorSuffix) {
+    errors.rejectValue(
+        fieldPrefix + DAY_FIELD_SUFFIX,
+        String.format(DAY_FIELD_WITH_PREFIX_AND_SUFFIX, fieldPrefix, errorCodeNotBeforeTargetDate),
+        String.format("%s must be %s", StringUtils.capitalize(displayPrefix), errorSuffix)
+    );
+    errors.rejectValue(
+        fieldPrefix + MONTH_FIELD_SUFFIX,
+        String.format(MONTH_FIELD_WITH_PREFIX_AND_SUFFIX, fieldPrefix, errorCodeNotBeforeTargetDate),
+        ""
+    );
+    errors.rejectValue(
+        fieldPrefix + YEAR_FIELD_SUFFIX,
+        String.format(YEAR_FIELD_WITH_PREFIX_AND_SUFFIX, fieldPrefix, errorCodeNotBeforeTargetDate),
+        ""
+    );
+    return false;
   }
 }

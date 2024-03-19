@@ -26,7 +26,7 @@ class SubmissionEstimates {
   private Project project;
 
   @Enumerated(EnumType.STRING)
-  private SubmissionEstimatesType submissionEstimatesType;
+  private SubmissionEstimatesType submissionEstimateType;
 
   private LocalDate earliestDate;
 
@@ -51,12 +51,12 @@ class SubmissionEstimates {
     this.project = project;
   }
 
-  public SubmissionEstimatesType getSubmissionEstimatesType() {
-    return submissionEstimatesType;
+  public SubmissionEstimatesType getSubmissionEstimateType() {
+    return submissionEstimateType;
   }
 
-  public void setSubmissionEstimatesType(SubmissionEstimatesType submissionEstimatesType) {
-    this.submissionEstimatesType = submissionEstimatesType;
+  public void setSubmissionEstimateType(SubmissionEstimatesType submissionEstimatesType) {
+    this.submissionEstimateType = submissionEstimatesType;
   }
 
   public LocalDate getEarliestDate() {
