@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.licence.FieldLicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
@@ -28,6 +29,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 class FieldLicenceServiceTest {
   @Mock
   private LicenceQueryService licenceQueryService;
+  @Mock
+  private FieldLicenceQueryService fieldLicenceQueryService;
   @Mock
   private FieldLicenceRepository fieldLicenceRepository;
   @InjectMocks
@@ -150,5 +153,74 @@ class FieldLicenceServiceTest {
         );
 
     verifyNoMoreInteractions(fieldLicenceRepository);
+  }
+
+  @Test
+  void fieldHasPearsLicences_EmptyList_ReturnsFalse() {
+    var result = fieldLicenceService.fieldHasPearsLicences(List.of());
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  void fieldHasPearsLicences_NonEmptyList_ReturnsTrue() {
+    var pearsLicenceList = List.of(
+        new LicenceView("ref1", 1, LicenceStatus.EXTANT),
+        new LicenceView("ref2", 2, LicenceStatus.EXTANT)
+    );
+    assertThat(fieldLicenceService.fieldHasPearsLicences(pearsLicenceList)).isTrue();
+  }
+
+  @Test
+  void getPearsLicenceList_verifyMethodCalled() {
+    var field = new Field();
+
+    fieldLicenceService.getPearsLicenceList(field);
+
+    verify(fieldLicenceQueryService).getFieldLicencesByFieldIdentifier(field.getFieldIdentifier());
+  }
+
+  @Test
+  void getMostCurrentLicencesForField_WithPearsLicencesAndFieldLicences_ShouldReturnExtantLicenceRefs() {
+    var licenceExpired = new LicenceView("ref1-expired", 1, LicenceStatus.EXPIRED);
+    var licenceExtant = new LicenceView("ref2-extant", 2, LicenceStatus.EXTANT);
+    var pearsLicenceList = List.of(licenceExpired, licenceExtant);
+    var field = new Field();
+
+    var result = fieldLicenceService.getMostCurrentLicencesForField(pearsLicenceList, field);
+
+    assertThat(result).containsExactly(licenceExtant);
+  }
+
+  @Test
+  void getMostCurrentLicencesForField_WithoutPearsLicences_ShouldReturnFieldLicenceRefs() {
+    List<LicenceView> pearsLicenceList = List.of();
+    var field = new Field();
+
+    var licence1 = new FieldLicence();
+    licence1.setLicenceReference("ref 1");
+
+    var licence2 = new FieldLicence();
+    licence2.setLicenceReference("ref 2");
+
+    when(fieldLicenceRepository.getLicencesByField(field))
+        .thenReturn(List.of(licence1, licence2));
+
+    var result = fieldLicenceService.getMostCurrentLicencesForField(pearsLicenceList, field);
+
+    assertThat(result).containsExactly(getLicenceViewFromFieldLicence(licence1), getLicenceViewFromFieldLicence(licence2));
+  }
+
+  @Test
+  void getMostCurrentLicencesForField_WithNoLicencesInField_ShouldReturnEmptyList() {
+    List<LicenceView> pearsLicenceList = List.of();
+    var field = new Field();
+
+    var result = fieldLicenceService.getMostCurrentLicencesForField(pearsLicenceList, field);
+
+    assertThat(result).isEmpty();
+  }
+
+  private static LicenceView getLicenceViewFromFieldLicence(FieldLicence fieldLicence) {
+    return new LicenceView(fieldLicence.getLicenceReference(), fieldLicence.getLicenceId(), null);
   }
 }

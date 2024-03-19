@@ -3,7 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.applicatio
 import java.util.Comparator;
 import java.util.function.Function;
 
-class LicenceViewByReferenceComparator implements Comparator<LicenceView> {
+public class LicenceViewByReferenceComparator implements Comparator<LicenceView> {
 
   /**
    * Compares licence views by their reference, if has same non-numeric part compares the number part of the reference

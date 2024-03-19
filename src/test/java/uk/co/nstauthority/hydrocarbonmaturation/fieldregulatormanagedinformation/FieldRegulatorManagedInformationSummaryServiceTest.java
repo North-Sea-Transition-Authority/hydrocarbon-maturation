@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
@@ -230,13 +231,63 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
     when(fieldPersistenceService.getFieldOrThrow(resource))
         .thenReturn(field);
 
-    var licenceView1 = new LicenceView("ref1", 1, null);
-    var licenceView2 = new LicenceView("ref2", 2, null);
-    when(fieldLicenceService.getFieldLicencesViewsIgnoreStatus(field))
-        .thenReturn(List.of(licenceView1, licenceView2));
+    when(fieldRegulatorManagedInformationService.resourceToFieldForm(resource))
+        .thenReturn(form);
+
+    List<LicenceView> pearsLicenceList = List.of();
+    var licenceView1 = new LicenceView("ref1", 1, LicenceStatus.EXTANT);
+    var licenceView2 = new LicenceView("ref2", 2, LicenceStatus.EXTANT);
+    var mostCurrentLicences = List.of(licenceView1, licenceView2);
+
+    when(fieldLicenceService.getPearsLicenceList(field)).thenReturn(pearsLicenceList);
+    when(fieldLicenceService.getMostCurrentLicencesForField(pearsLicenceList, field)).thenReturn(mostCurrentLicences);
+
+    var card = fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource);
+
+    assertThat(card)
+        .extracting(
+            SummaryCard::displayName,
+            SummaryCard::summaryCardType
+        ).contains(
+            FieldRegulatorManagedInformationSummaryService.REGULATOR_MANAGED_INFORMATION,
+            SummaryCardType.SIMPLE_SUMMARY
+        );
+
+    var summaryData = (SummaryDataView) card.summaryData();
+
+    assertThat(summaryData.keyValues())
+        .extracting(
+            SummaryKeyValue::key,
+            SummaryKeyValue::value)
+        .contains(
+            Tuple.tuple(
+              FieldRegulatorManagedInformationSummaryService.LICENCES_TENTATIVE,
+                "ref1, ref2"
+            )
+        );
+  }
+
+  @Test
+  void getFieldRegulatorManagedInformationSummaryCard_fieldHasPearLicences_thenShowPearsLicences() {
+    var form = getFieldFormWithMockedAssociatedDiscoveries();
+    form.setIsOnLicence(true);
+
+    var field = FieldTestUtils.createField(8000);
+
+    when(fieldPersistenceService.getFieldOrThrow(resource))
+        .thenReturn(field);
 
     when(fieldRegulatorManagedInformationService.resourceToFieldForm(resource))
         .thenReturn(form);
+
+    var pearsLicenceList = List.of(
+        new LicenceView("ref1", 1, LicenceStatus.EXTANT),
+        new LicenceView("ref2", 2, LicenceStatus.EXTANT)
+    );
+
+    when(fieldLicenceService.getPearsLicenceList(field)).thenReturn(pearsLicenceList);
+    when(fieldLicenceService.getMostCurrentLicencesForField(pearsLicenceList, field)).thenReturn(pearsLicenceList);
+    when(fieldLicenceService.fieldHasPearsLicences(pearsLicenceList)).thenReturn(true);
 
     var card = fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource);
 
@@ -260,6 +311,40 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
               FieldRegulatorManagedInformationSummaryService.LICENCES,
                 "ref1, ref2"
             )
+        );
+  }
+
+
+  @Test
+  void getLicenceDisplayNames_EmptyList() {
+    var result = fieldRegulatorManagedInformationSummaryService.getLicenceDisplayNames(List.of());
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void getLicenceDisplayNames_MultipleElements() {
+    var licenceList = List.of(
+        new LicenceView("license1", 1, LicenceStatus.EXTANT),
+        new LicenceView("license2", 2, LicenceStatus.EXTANT)
+    );
+    var result = fieldRegulatorManagedInformationSummaryService.getLicenceDisplayNames(licenceList);
+    assertThat(result).containsExactly("license1", "license2");
+  }
+
+  @Test
+  void getLicenceDisplayNames_shouldReturnLicencesSorted() {
+
+    var result = fieldRegulatorManagedInformationSummaryService.getLicenceDisplayNames(List.of(
+        new LicenceView("licenceRef100", 2, LicenceStatus.EXTANT),
+        new LicenceView("licenceRef2", 3, LicenceStatus.EXTANT),
+        new LicenceView("licenceRef1", 1, LicenceStatus.EXTANT)
+    ));
+
+    assertThat(result)
+        .containsExactly(
+            "licenceRef1",
+            "licenceRef2",
+            "licenceRef100"
         );
   }
 

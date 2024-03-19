@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.licence.FieldLicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
@@ -15,12 +17,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldForm;
 @Service
 public class FieldLicenceService {
   private final LicenceQueryService licenceQueryService;
+  private final FieldLicenceQueryService fieldLicenceQueryService;
   private final FieldLicenceRepository fieldLicenceRepository;
 
   @Autowired
   public FieldLicenceService(LicenceQueryService licenceQueryService,
+                             FieldLicenceQueryService fieldLicenceQueryService,
                              FieldLicenceRepository fieldLicenceRepository) {
     this.licenceQueryService = licenceQueryService;
+    this.fieldLicenceQueryService = fieldLicenceQueryService;
     this.fieldLicenceRepository = fieldLicenceRepository;
   }
 
@@ -38,10 +43,36 @@ public class FieldLicenceService {
    * @param field a FieldForm containing a list of licenceId's
    * @return A list of LicenceView's for the associated licences with all statuses set to null
    */
-  public List<LicenceView> getFieldLicencesViewsIgnoreStatus(Field field) {
+  @VisibleForTesting
+  List<LicenceView> getFieldLicencesViewsIgnoreStatus(Field field) {
     return fieldLicenceRepository.getLicencesByField(field)
         .stream()
         .map(fieldLicence -> new LicenceView(fieldLicence.getLicenceReference(), fieldLicence.getLicenceId(), null))
+        .toList();
+  }
+
+  public List<LicenceView> getPearsLicenceList(Field field) {
+    return fieldLicenceQueryService.getFieldLicencesByFieldIdentifier(field.getFieldIdentifier());
+  }
+
+  // TODO HM-932: remove/refactor this method once we know how to deal with pre-pears licences
+  public boolean fieldHasPearsLicences(List<LicenceView> pearsLicenceList) {
+    return ObjectUtils.isNotEmpty(pearsLicenceList);
+  }
+
+  // TODO HM-932: remove/refactor this method once we know how to deal with pre-pears licences
+  public List<LicenceView> getMostCurrentLicencesForField(List<LicenceView> pearsLicenceList, Field field) {
+    // if the field has been associated with a live PEARS licence
+    return fieldHasPearsLicences(pearsLicenceList)
+        // then return extant licences the field is associated with in PEARS at the current licence position
+        ? filterExtantLicences(pearsLicenceList)
+        // otherwise get licences in ReMI
+        : getFieldLicencesViewsIgnoreStatus(field);
+  }
+
+  private List<LicenceView> filterExtantLicences(List<LicenceView> licenceViewList) {
+    return licenceViewList.stream()
+        .filter(licence -> licence.licenceStatus() == LicenceStatus.EXTANT)
         .toList();
   }
 

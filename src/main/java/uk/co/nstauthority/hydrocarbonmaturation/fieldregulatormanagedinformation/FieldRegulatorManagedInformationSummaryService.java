@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -9,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceViewByReferenceComparator;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.field.DeterminationStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
@@ -39,6 +41,7 @@ public class FieldRegulatorManagedInformationSummaryService {
   public static final String ASSOCIATED_DISCOVERIES = "Associated discoveries";
   public static final String IS_ON_LICENCE = "Field is on licence";
   public static final String LICENCES = "Licences";
+  public static final String LICENCES_TENTATIVE = "Licences (tentative)";
 
   private final FieldRegulatorManagedInformationService fieldRegulatorManagedInformationService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
@@ -96,12 +99,14 @@ public class FieldRegulatorManagedInformationSummaryService {
     );
 
     if (BooleanUtils.isTrue(form.getIsOnLicence())) {
+      // TODO HM-932: remove/refactor this method once we know how to deal with pre-pears licences
       var field = fieldPersistenceService.getFieldOrThrow(resource);
-      var licenceDisplayNames = fieldLicenceService.getFieldLicencesViewsIgnoreStatus(field)
-          .stream().map(LicenceView::licenceRef)
-          .toList();
+      var pearsLicenceList = fieldLicenceService.getPearsLicenceList(field);
+      var licenceList = fieldLicenceService.getMostCurrentLicencesForField(pearsLicenceList, field);
+      var licenceDisplayNames = getLicenceDisplayNames(licenceList);
+
       summaryDataView.addKeyValue(
-          LICENCES,
+          fieldLicenceService.fieldHasPearsLicences(pearsLicenceList) ? LICENCES : LICENCES_TENTATIVE,
           StringUtils.join(licenceDisplayNames, ", ")
       );
     }
@@ -144,6 +149,15 @@ public class FieldRegulatorManagedInformationSummaryService {
     );
 
     return SummaryCard.simpleSummaryCardWithHeading(REGULATOR_MANAGED_INFORMATION, summaryDataView);
+  }
+
+  @VisibleForTesting
+  List<String> getLicenceDisplayNames(List<LicenceView> licenceList) {
+    return licenceList
+        .stream()
+        .sorted(new LicenceViewByReferenceComparator())
+        .map(LicenceView::licenceRef)
+        .toList();
   }
 
   private String resourceDetailIdListToResourceNamesString(@NotNull List<String> resourceDetailIds) {

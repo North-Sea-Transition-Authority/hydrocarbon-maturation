@@ -37,7 +37,7 @@ public class LicenceQueryService {
     return getLicenceListBy(searchReference)
         .stream()
         .filter(licence -> licence.getLicenceStatus() == licenceStatus)
-        .map(this::getLicenceView)
+        .map(LicenceView::fromLicence)
         .sorted(new LicenceViewByReferenceComparator())
         .toList();
   }
@@ -45,7 +45,7 @@ public class LicenceQueryService {
   public List<LicenceView> getLiveLicencesBy(String searchReference) {
     return getLicenceListBy(searchReference)
         .stream()
-        .map(this::getLicenceView)
+        .map(LicenceView::fromLicence)
         .sorted(new LicenceViewByReferenceComparator())
         .toList();
   }
@@ -92,7 +92,7 @@ public class LicenceQueryService {
             LICENCE_PROJECTION_ROOT,
             requestPurpose,
             logCorrelationId)))
-        .map(item -> new LicenceView(item.getLicenceRef(), item.getId(), item.getLicenceStatus()));
+        .map(LicenceView::fromLicence);
   }
 
   private List<LicenceView> findLicencesByIds(List<Integer> licenceIds) {
@@ -103,12 +103,8 @@ public class LicenceQueryService {
                 requestPurpose,
                 logCorrelationId)))
         .stream()
-        .map(item -> new LicenceView(item.getLicenceRef(), item.getId(), item.getLicenceStatus()))
+        .map(LicenceView::fromLicence)
         .toList();
-  }
-
-  private LicenceView getLicenceView(Licence licence) {
-    return new LicenceView(licence.getLicenceRef(), licence.getId(), licence.getLicenceStatus());
   }
 
   private List<Licence> getLicenceListBy(String searchReference) {

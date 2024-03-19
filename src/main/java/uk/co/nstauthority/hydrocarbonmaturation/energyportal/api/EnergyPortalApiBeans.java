@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyportal.api;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.co.fivium.energyportalapi.client.EnergyPortal;
+import uk.co.fivium.energyportalapi.client.field.FieldApi;
 import uk.co.fivium.energyportalapi.client.licence.application.LicenceApplicationApi;
 import uk.co.fivium.energyportalapi.client.licence.licence.LicenceApi;
 import uk.co.fivium.energyportalapi.client.organisation.OrganisationApi;
@@ -49,5 +50,10 @@ class EnergyPortalApiBeans {
   @Bean
   WellboreApi wellboreApi(EnergyPortal energyPortal) {
     return new WellboreApi(energyPortal);
+  }
+
+  @Bean
+  FieldApi fieldApi(EnergyPortal energyPortal) {
+    return new FieldApi(energyPortal);
   }
 }
