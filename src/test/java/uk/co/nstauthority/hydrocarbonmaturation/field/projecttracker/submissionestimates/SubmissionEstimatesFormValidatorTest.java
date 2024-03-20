@@ -257,13 +257,25 @@ class SubmissionEstimatesFormValidatorTest {
     }
 
     @Test
-    void whenEstimatedIsInTheFuture_thenFalse() {
+    void whenEstimatedIsInTheFuture_thenFalse_andErrorIsLast() {
+      form.setEarliestDateDay("not a date");
+
       form.setEstimatedDateDay("3");
       form.setEstimatedDateMonth("11");
       form.setEstimatedDateYear(String.valueOf(LocalDate.now().getYear() + 1));
 
       assertThat(submissionEstimatesFormValidator.isValid(form, bindingResult))
           .isFalse();
+
+      assertThat(bindingResult.getFieldErrors())
+          .extracting(FieldError::getField, FieldError::getCode, FieldError::getDefaultMessage)
+          .containsExactly(
+              Tuple.tuple("earliestDateDay", "earliestDateDay.invalid", "Earliest submission date must be a real date"),
+
+              Tuple.tuple("estimatedDateDay", "estimatedDateDay.notBeforeTargetDate", "Estimated date must be today or in the past"),
+              Tuple.tuple("estimatedDateMonth", "estimatedDateMonth.notBeforeTargetDate", ""),
+              Tuple.tuple("estimatedDateYear", "estimatedDateYear.notBeforeTargetDate", "")
+          );
     }
 
     @Test

@@ -89,12 +89,59 @@ class SubmissionEstimatesServiceTest {
   }
 
   @Test
-  void saveSubmissionEstimate_emptyDatesProvided_verifyCall() {
+  void saveSubmissionEstimate_emptyEarliestProvided_verifyCall() {
     var form = getPopulatedForm();
 
     form.setEarliestDateDay(null);
     form.setEarliestDateMonth(null);
     form.setEarliestDateYear(null);
+
+    var submissionEstimatesType = mock(SubmissionEstimatesType.class);
+
+    var captor = ArgumentCaptor.forClass(SubmissionEstimates.class);
+    submissionEstimatesService.saveSubmissionEstimateFromForm(form, project, submissionEstimatesType);
+
+    verify(submissionEstimatesRepository).save(captor.capture());
+    verifyNoMoreInteractions(submissionEstimatesRepository);
+
+    assertThat(captor.getValue())
+        .extracting(
+            SubmissionEstimates::getSubmissionEstimateStatus,
+            SubmissionEstimates::getProject,
+            SubmissionEstimates::getSubmissionEstimateType,
+
+            SubmissionEstimates::getMostLikelyDate,
+            SubmissionEstimates::getLatestDate,
+            SubmissionEstimates::getDateWhenEstimated
+        )
+        .contains(
+            SubmissionEstimateStatus.CREATED,
+            project,
+            submissionEstimatesType,
+
+            LocalDate.of(
+                Integer.parseInt(form.getMostLikelyDateYear()),
+                Integer.parseInt(form.getMostLikelyDateMonth()),
+                Integer.parseInt(form.getMostLikelyDateDay())
+            ),
+            LocalDate.of(
+                Integer.parseInt(form.getLatestDateYear()),
+                Integer.parseInt(form.getLatestDateMonth()),
+                Integer.parseInt(form.getLatestDateDay())
+            ),
+            LocalDate.of(
+                Integer.parseInt(form.getEstimatedDateYear()),
+                Integer.parseInt(form.getEstimatedDateMonth()),
+                Integer.parseInt(form.getEstimatedDateDay())
+            )
+        );
+
+    assertThat(captor.getValue().getEarliestDate()).isNull();
+  }
+
+  @Test
+  void saveSubmissionEstimate_emptyLatestProvided_verifyCall() {
+    var form = getPopulatedForm();
 
     form.setLatestDateDay(null);
     form.setLatestDateMonth(null);
@@ -116,27 +163,30 @@ class SubmissionEstimatesServiceTest {
 
             SubmissionEstimates::getEarliestDate,
             SubmissionEstimates::getMostLikelyDate,
-            SubmissionEstimates::getLatestDate,
             SubmissionEstimates::getDateWhenEstimated
         )
         .contains(
             SubmissionEstimateStatus.CREATED,
             project,
             submissionEstimatesType,
-
-            null,
+            LocalDate.of(
+                Integer.parseInt(form.getEarliestDateYear()),
+                Integer.parseInt(form.getEarliestDateMonth()),
+                Integer.parseInt(form.getEarliestDateDay()))
+            ,
             LocalDate.of(
                 Integer.parseInt(form.getMostLikelyDateYear()),
                 Integer.parseInt(form.getMostLikelyDateMonth()),
                 Integer.parseInt(form.getMostLikelyDateDay())
             ),
-            null,
             LocalDate.of(
                 Integer.parseInt(form.getEstimatedDateYear()),
                 Integer.parseInt(form.getEstimatedDateMonth()),
                 Integer.parseInt(form.getEstimatedDateDay())
             )
         );
+
+    assertThat(captor.getValue().getLatestDate()).isNull();
   }
 
   @Test

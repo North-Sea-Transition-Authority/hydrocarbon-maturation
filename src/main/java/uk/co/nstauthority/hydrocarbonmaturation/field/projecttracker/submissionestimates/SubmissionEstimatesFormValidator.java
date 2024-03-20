@@ -41,6 +41,9 @@ class SubmissionEstimatesFormValidator {
         errors
     );
 
+    validateEarliestAndMostLikelyOrder(form, errors, isValidEarliest, isValidMostLikely);
+    validateLatestDateOrder(form, errors, isValidLatest, isValidEarliest, isValidMostLikely);
+
     var isValidEstimated = DateValidationUtil.validateDate(
         ESTIMATED_DATE,
         "date these were the estimated submission dates",
@@ -49,9 +52,6 @@ class SubmissionEstimatesFormValidator {
         form.getEstimatedDateYear(),
         errors
     );
-
-    validateEarliestAndMostLikelyOrder(form, errors, isValidEarliest, isValidMostLikely);
-    validateLatestDateOrder(form, errors, isValidLatest, isValidEarliest, isValidMostLikely);
     validateEstimatedTodayOrInPast(form, errors, isValidEstimated);
 
     return !errors.hasErrors();

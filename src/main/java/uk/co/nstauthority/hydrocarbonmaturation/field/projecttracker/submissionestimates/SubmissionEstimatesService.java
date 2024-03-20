@@ -44,9 +44,9 @@ class SubmissionEstimatesService {
 
     LocalDate latestDate = null;
     if (ObjectUtils.allNotNull(
-        form.getEarliestDateDay(),
-        form.getEarliestDateMonth(),
-        form.getEarliestDateYear())) {
+        form.getLatestDateDay(),
+        form.getLatestDateMonth(),
+        form.getLatestDateYear())) {
       latestDate = LocalDate.of(
           Integer.parseInt(form.getLatestDateYear()),
           Integer.parseInt(form.getLatestDateMonth()),

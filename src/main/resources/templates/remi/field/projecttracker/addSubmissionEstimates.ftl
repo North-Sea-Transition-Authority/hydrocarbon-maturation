@@ -41,7 +41,7 @@ errorItems=errorList>
         labelText="On what date were these the estimated submission dates?"/>
 
         <@fdsAction.submitButtons
-        primaryButtonText="Save dates"
+        primaryButtonText="Save"
         secondaryLinkText="Cancel"
         linkSecondaryAction=true
         linkSecondaryActionUrl=springUrl(cancelUrl)/>
