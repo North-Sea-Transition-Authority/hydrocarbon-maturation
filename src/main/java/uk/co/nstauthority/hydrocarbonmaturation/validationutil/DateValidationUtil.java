@@ -28,6 +28,7 @@ public class DateValidationUtil {
   private DateValidationUtil() {
     throw new IllegalStateException("DateValidationUtil is an util class and should not be instantiated");
   }
+
   /**
    * Ensures that the date is valid.
    *
@@ -273,6 +274,24 @@ public class DateValidationUtil {
         year,
         LocalDate.now(),
         "in the past",
+        errors
+    );
+  }
+
+  public static boolean validateDateIsBeforeComparisonDate(String fieldPrefix,
+                                                           String displayPrefix,
+                                                           LocalDate date,
+                                                           LocalDate comparisonDate,
+                                                           String errorSuffix,
+                                                           Errors errors) {
+    return validateDateIsBeforeComparisonDate(
+        fieldPrefix,
+        displayPrefix,
+        String.valueOf(date.getDayOfMonth()),
+        String.valueOf(date.getMonthValue()),
+        String.valueOf(date.getYear()),
+        comparisonDate,
+        errorSuffix,
         errors
     );
   }

@@ -39,6 +39,13 @@ class SubmissionEstimates {
   @Enumerated(EnumType.STRING)
   private SubmissionEstimateStatus submissionEstimateStatus;
 
+  public SubmissionEstimates() {
+  }
+
+  public SubmissionEstimates(UUID id) {
+    this.id = id;
+  }
+
   public UUID getId() {
     return id;
   }

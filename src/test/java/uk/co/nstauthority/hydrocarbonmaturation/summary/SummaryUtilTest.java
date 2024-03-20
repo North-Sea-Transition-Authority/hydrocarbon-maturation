@@ -54,7 +54,7 @@ class SummaryUtilTest {
   void format_LocalDate() {
     LocalDate localDateValue = LocalDate.now();
     assertThat(SummaryUtil.format(localDateValue))
-        .isEqualTo(DateUtil.formatDate(localDateValue));
+        .isEqualTo(DateUtil.formatLongDate(localDateValue));
   }
 
   @Test

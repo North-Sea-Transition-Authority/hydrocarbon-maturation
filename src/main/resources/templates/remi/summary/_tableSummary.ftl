@@ -1,8 +1,17 @@
 <#include '../layout/layout.ftl'>
 
-<#macro tableSummary summaryTableView summaryHeading>
+<#macro tableSummary summaryTableView summaryHeading summaryActions={}>
+  <#assign content>
+    <@fdsSummaryList.summaryListCardActionList>
+      <#list summaryActions as actionText, actionUrl>
+        <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(actionUrl) itemText=actionText itemScreenReaderText=""/>
+      </#list>
+    </@fdsSummaryList.summaryListCardActionList>
+  </#assign>
+
   <@fdsSummaryList.summaryListCard
     headingText=summaryHeading
+    cardActionsContent=content
     headingSize="h3"
     summaryListId="table-summary-card-list">
     <table class="govuk-table">
@@ -20,12 +29,24 @@
           <#if tableRow?index != 0>
             <tr class="govuk-table__row">
               <#list tableRow.rowValues() as rowValue>
+<#--                TODO - HM-957 investigate why this is needed?-->
                   <#if rowValue?index == 0>
                     <th scope="row" class="govuk-table__header">${rowValue!""}</th>
                   <#else>
                     <td class="govuk-table__cell">${rowValue!""}</td>
                   </#if>
               </#list>
+              <#if tableRow.rowActions()?has_content>
+                <td class="govuk-table__cell">
+                  <ol class="govuk-list govuk-!-margin-bottom-0">
+                    <#list tableRow.rowActions() as rowAction>
+                      <li class="govuk-list__item">
+                        <@fdsAction.link linkText=rowAction.label() linkUrl=springUrl(rowAction.url()) />
+                      </li>
+                    </#list>
+                  </ol>
+                </td>
+              </#if>
             </tr>
           </#if>
         </#list>

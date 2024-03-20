@@ -7,8 +7,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 public record SummaryCard(
     String displayName,
     SummaryCardType summaryCardType,
-    Object summaryData
+    Object summaryData,
+    Map<String, String> actionsMap
 ) {
+
+  public SummaryCard(String displayName, SummaryCardType summaryCardType, Object summaryData) {
+    this(displayName, summaryCardType, summaryData, null);
+  }
 
   public static SummaryCard simpleSummaryCardWithHeading(String displayName,
                                                          SummaryDataView summaryData) {
@@ -115,6 +120,7 @@ public record SummaryCard(
   }
 
   public static SummaryCard emptySummaryCardWithActions(String heading, Map<String, String> actionsMap) {
+    // TODO - HM-957 make the actions map set on the SummaryCard.actionsMap
     return new SummaryCard(
         heading,
         SummaryCardType.EMPTY_SUMMARY_WITH_ACTIONS,

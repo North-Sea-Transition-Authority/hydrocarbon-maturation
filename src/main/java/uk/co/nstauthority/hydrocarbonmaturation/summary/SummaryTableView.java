@@ -15,7 +15,12 @@ public record SummaryTableView(
   public SummaryTableView addRow(Object... rowValues) {
     valueCountCheck(rowValues.length);
     var formattedRowValueStrings = Arrays.stream(rowValues).map(SummaryUtil::format).toList();
-    tableRows.add(new SummaryTableRow(formattedRowValueStrings));
+    tableRows.add(new SummaryTableRow(formattedRowValueStrings, List.of()));
+    return this;
+  }
+
+  public SummaryTableView addRow(SummaryTableRow summaryTableRow) {
+    tableRows.add(summaryTableRow);
     return this;
   }
 

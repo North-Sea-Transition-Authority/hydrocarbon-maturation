@@ -24,7 +24,7 @@ class SummaryUtil {
     } else if (value instanceof Boolean booleanValue) {
       return BooleanUtil.yesNoFromBoolean(booleanValue);
     } else if (value instanceof LocalDate localDateValue) {
-      return DateUtil.formatDate(localDateValue);
+      return DateUtil.formatLongDate(localDateValue);
     } else if (value instanceof BigDecimal bigDecimalValue) {
       return DecimalFormatUtil.bigDecimalToFormattedString(bigDecimalValue);
     } else if (value instanceof DecimalInput decimalInput) {

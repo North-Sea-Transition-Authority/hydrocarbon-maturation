@@ -2,6 +2,7 @@
 <#import '_simpleSummary.ftl' as simpleSummary>
 <#import '_timelineSummary.ftl' as timelineSummary>
 <#import '_emptySummary.ftl' as emptySummary>
+<#import '_tableSummary.ftl' as tableSummary>
 
 <#-- @ftlvariable name="summarySections" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection>" -->
 <#-- @ftlvariable name="summaryItem" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem>" -->
@@ -26,6 +27,11 @@
                             <@emptySummary.emptySummaryWithActions
                             heading=summaryCard.displayName()
                             actionsMap=summaryCard.summaryData()/>
+                        <#elseif summaryCard.summaryCardType() == "TABLE_SUMMARY">
+                            <@tableSummary.tableSummary
+                            summaryTableView=summaryCard.summaryData()
+                            summaryHeading=summaryCard.displayName()!""
+                            summaryActions=summaryCard.actionsMap()/>
                         </#if>
                     </#list>
                 </@fdsAccordion.accordionSection>
