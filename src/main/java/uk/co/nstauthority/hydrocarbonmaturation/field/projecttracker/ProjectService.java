@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,7 @@ public class ProjectService {
   @Transactional
   public Project saveNewProject(Field field, ProjectForm form) {
     var project = new Project();
+    project.setProjectStatus(ProjectStatus.EXTANT);
 
     project.setField(field);
     project.setCreatedTimestamp(clock.instant());
@@ -75,9 +77,10 @@ public class ProjectService {
     return projectRepository.save(project);
   }
 
-  public List<ProjectListView> getProjectListViews(Field field) {
+  public List<ProjectListView> getCreatedProjectListViews(Field field) {
     return projectRepository.findAllByField(field)
         .stream()
+        .filter(project -> ProjectStatus.EXTANT.equals(project.getProjectStatus()))
         .map(project -> new ProjectListView(
             project.getProjectName(),
             "%s created on %s".formatted(
@@ -85,7 +88,7 @@ public class ProjectService {
                 DateUtil.formatLongDate(project.getCreatedTimestamp())
             ),
             ReverseRouter.route(on(ViewProjectController.class)
-                .getViewProject(project.getField().getResource().getId(), project.getId()))
+                .getViewProject(project.getField().getResource().getId(), project.getId(), null))
             )
         )
         .sorted(Comparator.comparing(ProjectListView::projectName))
@@ -97,11 +100,15 @@ public class ProjectService {
         .orElseThrow(() -> new RemiEntityNotFoundException("There is no project with id %s".formatted(projectId)));
   }
 
+  public Optional<Project> getProject(UUID projectId) {
+    return projectRepository.findById(projectId);
+  }
+
   public ProjectForm projectToForm(Project project) {
     var form = new ProjectForm();
 
     form.setProjectName(project.getProjectName());
-    form.setProjectStatus(project.getProjectStatus());
+    form.setProjectPhase(project.getProjectPhase());
     form.setProjectType(project.getProjectType());
     form.setIsPartOfPipeline(project.getPartOfPipeline());
 
@@ -135,8 +142,14 @@ public class ProjectService {
 
   private void setCommonProjectInformation(Project project, ProjectForm form) {
     project.setProjectName(form.getProjectName());
-    project.setProjectStatus(form.getProjectStatus());
+    project.setProjectPhase(form.getProjectPhase());
     project.setPartOfPipeline(form.getIsPartOfPipeline());
     setSubmissionDetailIfSelected(form, project);
+  }
+
+  @Transactional
+  public void deleteProject(Project project) {
+    project.setProjectStatus(ProjectStatus.DELETED);
+    projectRepository.save(project);
   }
 }

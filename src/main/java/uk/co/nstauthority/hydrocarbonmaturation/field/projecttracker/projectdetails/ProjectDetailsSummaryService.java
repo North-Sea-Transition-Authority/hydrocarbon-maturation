@@ -10,6 +10,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
@@ -32,7 +33,7 @@ public class ProjectDetailsSummaryService implements SummarySectionService<Proje
 
   static final String PROJECT_NAME = "Project name";
   static final String PROJECT_TYPE = "Project type";
-  static final String PROJECT_STATUS = "Project status";
+  static final String PROJECT_PHASE = "Project status";
   static final String PROJECT_PIPELINE = "Part of project pipeline";
   static final String ASSOCIATED_SUBMISSION = "Associated submission";
   static final String NO_ASSOCIATED_SUBMISSION = "No associated submission";
@@ -49,17 +50,21 @@ public class ProjectDetailsSummaryService implements SummarySectionService<Proje
 
   @Override
   public Optional<SummarySection> getSummarySection(Project project) {
-    var summaryItems = List.of(SummaryItem.withCard(PROJECT_DETAILS, getProjectDetailsSummaryCard(project)));
+    var includeActions = true;
+    var summaryItems = List.of(
+        SummaryItem.withCard(
+            PROJECT_DETAILS,
+            getSummaryCard(project, includeActions))
+    );
 
     return Optional.of(new SummarySection(DISPLAY_ORDER, summaryItems, ""));
   }
 
-  private SummaryCard getProjectDetailsSummaryCard(Project project) {
+  private SummaryCard getSummaryCard(Project project, boolean includeCardActions) {
+    Map<String, String> actionsMap = new HashMap<>(Map.of());
 
     var user = userService.getUser();
-
-    Map<String, String> actionsMap = new HashMap<>(Map.of());
-    if (permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))) {
+    if (includeCardActions && userCanViewActions(user)) {
       actionsMap.put(
           "Change",
           ReverseRouter.route(on(ProjectDetailsController.class)
@@ -71,7 +76,7 @@ public class ProjectDetailsSummaryService implements SummarySectionService<Proje
 
     summaryData.addKeyValue(PROJECT_NAME, project.getProjectName());
     summaryData.addKeyValue(PROJECT_TYPE, project.getProjectType().getDisplayName());
-    summaryData.addKeyValue(PROJECT_STATUS, project.getProjectStatus().getDisplayName());
+    summaryData.addKeyValue(PROJECT_PHASE, project.getProjectPhase().getDisplayName());
     summaryData.addKeyValue(PROJECT_PIPELINE, BooleanUtil.yesNoFromBoolean(project.getPartOfPipeline()));
 
     var submissionDetail = project.getSubmissionDetail();
@@ -96,4 +101,18 @@ public class ProjectDetailsSummaryService implements SummarySectionService<Proje
         summaryData
     );
   }
+
+  /** Return a summary card that never has any actions for the project.
+   * @param project the project to create a summary for
+   * @return a summary card with the project details with no actions
+   */
+  public SummaryCard getProjectSummaryCard(Project project) {
+    var includeActions = false;
+    return getSummaryCard(project, includeActions);
+  }
+
+  private boolean userCanViewActions(User user) {
+    return permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST));
+  }
+
 }

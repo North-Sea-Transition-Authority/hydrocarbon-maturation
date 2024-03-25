@@ -46,4 +46,22 @@ class TestControllers {
     }
   }
 
+  @Controller
+  @AccessibleByServiceUsers
+  static class ControllerWithoutProjectId {
+    @GetMapping("/without-project")
+    String get() {
+      return "some data";
+    }
+  }
+
+  @Controller
+  @RequestMapping("{projectId}/end-point-test")
+  @AccessibleByServiceUsers
+  static class ControllerWithProjectId {
+    @GetMapping("/with-project")
+    String get(@PathVariable UUID projectId) {
+      return "some data";
+    }
+  }
 }

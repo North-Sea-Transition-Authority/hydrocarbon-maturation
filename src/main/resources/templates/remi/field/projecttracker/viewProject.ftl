@@ -11,5 +11,9 @@ caption=pageCaption
 pageSize=PageSize.TWO_THIRDS_COLUMN
 errorItems=errorList
 breadcrumbsMap=breadcrumbsMap>
+     <#if deleteUrl?has_content>
+         <@fdsAction.link linkText="Delete project" linkUrl="${springUrl(deleteUrl)}" linkClass="govuk-button govuk-button--secondary"/>
+     </#if>
+
      <@sectionsSummary.projectSummary accordionId />
 </@defaultPage>

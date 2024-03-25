@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsExtantProject;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
@@ -23,8 +24,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectListController;
+import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectPhase;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectService;
-import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ViewProjectController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -33,6 +34,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}/project-tracker")
 @HasPermission(permissions = RolePermission.PROJECT_ANALYST)
+@IsExtantProject
 public class ProjectDetailsController {
   public static final String CREATE_PROJECT_TITLE = "Create a new project";
   public static final String UPDATE_PROJECT_TITLE = "Update project";
@@ -109,7 +111,7 @@ public class ProjectDetailsController {
           redirectAttributes, "Success", "Updated project details for '%s'"
               .formatted(savedProject.getProjectName()));
 
-      return ReverseRouter.redirect(on(ViewProjectController.class).getViewProject(resourceId, projectId));
+      return ReverseRouter.redirect(on(ViewProjectController.class).getViewProject(resourceId, projectId, null));
     }
 
     return getUpdateProjectModelAndView(form, project);
@@ -120,7 +122,7 @@ public class ProjectDetailsController {
         .addObject("pageCaption", field.getCorrectedLegalFieldName())
         .addObject("form", form)
         .addObject("projectTypeOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectType.class))
-        .addObject("projectStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectStatus.class))
+        .addObject("projectStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectPhase.class))
         .addObject("acceptedSubmissionOptions", projectService.getAcceptedSubmissionsMapForField(field));
   }
 
@@ -137,7 +139,7 @@ public class ProjectDetailsController {
         .addObject("pageTitle", UPDATE_PROJECT_TITLE)
         .addObject("cancelUrl",
             ReverseRouter.route(on(ViewProjectController.class)
-                .getViewProject(project.getField().getResource().getId(), project.getId())))
+                .getViewProject(project.getField().getResource().getId(), project.getId(), null)))
         .addObject("isUpdate", true)
         .addObject("projectType", project.getProjectType());
   }

@@ -5,6 +5,7 @@ import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
+import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectPhase;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.projectstagehistory.ProjectStageHistory;
@@ -15,18 +16,19 @@ public class ProjectTestUtils {
 
   public static Project createPopulatedProject(String projectName,
                                                ProjectType projectType,
-                                               ProjectStatus projectStatus,
+                                               ProjectPhase projectPhase,
                                                Boolean isPartOfPipeline,
                                                Instant createdTimestamp) {
     var project = new Project();
 
     project.setId(UUID.randomUUID());
     var field = FieldTestUtils.createField(8000);
+    project.setProjectStatus(ProjectStatus.EXTANT);
     project.setField(field);
 
     project.setProjectName(projectName);
     project.setProjectType(projectType);
-    project.setProjectStatus(projectStatus);
+    project.setProjectPhase(projectPhase);
     project.setPartOfPipeline(isPartOfPipeline);
     project.setCreatedTimestamp(createdTimestamp);
 
@@ -35,6 +37,7 @@ public class ProjectTestUtils {
 
   public static Project createProject(Field field, UUID projectId) {
     var project = new Project();
+    project.setProjectStatus(ProjectStatus.EXTANT);
 
     project.setId(projectId);
     project.setField(field);

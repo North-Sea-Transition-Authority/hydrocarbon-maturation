@@ -44,8 +44,8 @@ public class ProjectFormValidator {
   private void validateProjectStatus(Errors errors) {
     ValidationUtils.rejectIfEmpty(
         errors,
-        "projectStatus",
-        "projectStatus.required",
+        "projectPhase",
+        "projectPhase.required",
         "Select a project status");
   }
 

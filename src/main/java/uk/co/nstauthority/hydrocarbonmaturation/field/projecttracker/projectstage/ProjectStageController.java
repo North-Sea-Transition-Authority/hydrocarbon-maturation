@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsExtantProject;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
@@ -29,6 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}/project-tracker/{projectId}")
 @HasPermission(permissions = RolePermission.PROJECT_ANALYST)
+@IsExtantProject
 class ProjectStageController {
   static final String PROJECT_STAGE_TITLE = "Project stage";
   static final String REMOVE_PROJECT_STAGE_TITLE = "Are you sure you want to remove this project stage entry?";
@@ -74,7 +76,7 @@ class ProjectStageController {
               .formatted(form.getStage().getDisplayName()));
 
       return ReverseRouter.redirect(on(ViewProjectController.class)
-          .getViewProject(resourceId, projectId));
+          .getViewProject(resourceId, projectId, null));
     }
 
     return getCreateProjectStageUpdateModelAndView(form, project);
@@ -103,7 +105,7 @@ class ProjectStageController {
         .addObject("pageCaption", project.getProjectName())
         .addObject("projectStageHistory", getProjectStageView(projectStageHistory))
         .addObject("cancelUrl", ReverseRouter.route(on(ViewProjectController.class)
-            .getViewProject(resourceId, projectId)));
+            .getViewProject(resourceId, projectId, null)));
   }
 
   @PostMapping("/project-stage/{projectStageHistoryId}/remove")
@@ -137,7 +139,7 @@ class ProjectStageController {
     );
 
     return ReverseRouter.redirect(on(ViewProjectController.class)
-        .getViewProject(resourceId, projectId));
+        .getViewProject(resourceId, projectId, null));
   }
 
   private ModelAndView getCreateProjectStageUpdateModelAndView(ProjectStageForm projectStageForm, Project project) {
@@ -147,7 +149,7 @@ class ProjectStageController {
         .addObject("form", projectStageForm)
         .addObject("projectStageOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectStage.class))
         .addObject("cancelUrl", ReverseRouter.route(on(ViewProjectController.class)
-            .getViewProject(project.getField().getResource().getId(), project.getId())));
+            .getViewProject(project.getField().getResource().getId(), project.getId(), null)));
   }
 
   private Project getProjectForResourceOrThrow(UUID resourceId, UUID projectId) {

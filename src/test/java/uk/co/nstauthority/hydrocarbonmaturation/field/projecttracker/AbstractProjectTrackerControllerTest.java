@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -29,9 +30,6 @@ public abstract class AbstractProjectTrackerControllerTest extends AbstractContr
   protected PermissionService permissionService;
 
   @MockBean
-  protected ProjectService projectService;
-
-  @MockBean
   protected FieldPersistenceService fieldPersistenceService;
 
   protected static final User USER = UserTestUtil.Builder().build();
@@ -50,8 +48,11 @@ public abstract class AbstractProjectTrackerControllerTest extends AbstractContr
         .thenReturn(field);
 
     project = ProjectTestUtils.createProject(field, PROJECT_ID);
+    project.setProjectStatus(ProjectStatus.EXTANT);
     when(projectService.getProjectOrThrow(PROJECT_ID))
         .thenReturn(project);
+    when(projectService.getProject(PROJECT_ID))
+        .thenReturn(Optional.of(project));
   }
 
   protected void setupUserIsProjectAnalyst(User user) {

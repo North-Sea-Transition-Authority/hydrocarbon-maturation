@@ -21,7 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
-import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectPhase;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -52,11 +52,10 @@ class ProjectDetailsSummaryServiceTest {
     project = ProjectTestUtils.createPopulatedProject(
         "Project",
         ProjectType.FIELD_DEVELOPMENT_PLAN,
-        ProjectStatus.ASSESSMENT_PHASE,
+        ProjectPhase.ASSESSMENT_PHASE,
         true,
         FIXED_INSTANT);
   }
-
 
   @Nested
   class GivenAnyUser {
@@ -109,7 +108,7 @@ class ProjectDetailsSummaryServiceTest {
       var expectedKeyValues = List.of(
           new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_NAME, project.getProjectName()),
           new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_TYPE, project.getProjectType().getDisplayName()),
-          new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_STATUS, project.getProjectStatus().getDisplayName()),
+          new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_PHASE, project.getProjectPhase().getDisplayName()),
           new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_PIPELINE, "Yes"),
           new SummaryKeyValue(ProjectDetailsSummaryService.ASSOCIATED_SUBMISSION,
               "Concept select report accepted on 1 December 2023")
@@ -173,7 +172,86 @@ class ProjectDetailsSummaryServiceTest {
       var expectedKeyValues = List.of(
           new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_NAME, project.getProjectName()),
           new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_TYPE, project.getProjectType().getDisplayName()),
-          new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_STATUS, project.getProjectStatus().getDisplayName()),
+          new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_PHASE, project.getProjectPhase().getDisplayName()),
+          new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_PIPELINE, "Yes"),
+          new SummaryKeyValue(ProjectDetailsSummaryService.ASSOCIATED_SUBMISSION,
+              "Concept select report accepted on 1 December 2023"),
+          new SummaryKeyValue(ProjectDetailsSummaryService.FDPA_START_UP_DATE,
+              "5 March 2024")
+      );
+
+      var summaryDataWithActions = (SummaryDataViewWithActions) summaryData;
+      assertThat(summaryDataWithActions.keyValues())
+          .usingRecursiveComparison()
+          .isEqualTo(expectedKeyValues);
+    }
+
+    @Test
+    void whenGetProjectSummaryCard_forNonFdpa_thenAssertCommonProperties() {
+      var acceptedSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+      acceptedSubmissionDetail.setAcceptedTimestamp(Instant.parse("2023-12-01T00:00:00.00Z"));
+      project.setSubmissionDetail(acceptedSubmissionDetail);
+
+      var summaryCard = projectDetailsSummaryService.getProjectSummaryCard(project);
+
+      assertThat(summaryCard)
+          .extracting(
+              SummaryCard::displayName,
+              SummaryCard::summaryCardType
+          )
+          .contains(
+              ProjectDetailsSummaryService.PROJECT_DETAILS,
+              SummaryCardType.SIMPLE_SUMMARY_WITH_ACTIONS
+          );
+
+      var summaryData = summaryCard.summaryData();
+      assertThat(summaryData)
+          .isInstanceOf(SummaryDataViewWithActions.class);
+
+      var expectedKeyValues = List.of(
+          new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_NAME, project.getProjectName()),
+          new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_TYPE, project.getProjectType().getDisplayName()),
+          new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_PHASE, project.getProjectPhase().getDisplayName()),
+          new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_PIPELINE, "Yes"),
+          new SummaryKeyValue(ProjectDetailsSummaryService.ASSOCIATED_SUBMISSION,
+              "Concept select report accepted on 1 December 2023")
+      );
+
+      var summaryDataWithActions = (SummaryDataViewWithActions) summaryData;
+      assertThat(summaryDataWithActions.keyValues())
+          .usingRecursiveComparison()
+          .isEqualTo(expectedKeyValues);
+    }
+
+    @Test
+    void whenGetProjectSummaryCard_forFdpa_thenAssertCommonProperties() {
+      var acceptedSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+      acceptedSubmissionDetail.setAcceptedTimestamp(Instant.parse("2023-12-01T00:00:00.00Z"));
+      project.setSubmissionDetail(acceptedSubmissionDetail);
+
+      var fdpaStartUpDate = LocalDate.of(2024, Month.MARCH, 5);
+      project.setFdpaStartUpDate(fdpaStartUpDate);
+
+      var summaryCard = projectDetailsSummaryService.getProjectSummaryCard(project);
+
+      assertThat(summaryCard)
+          .extracting(
+              SummaryCard::displayName,
+              SummaryCard::summaryCardType
+          )
+          .contains(
+              ProjectDetailsSummaryService.PROJECT_DETAILS,
+              SummaryCardType.SIMPLE_SUMMARY_WITH_ACTIONS
+          );
+
+      var summaryData = summaryCard.summaryData();
+      assertThat(summaryData)
+          .isInstanceOf(SummaryDataViewWithActions.class);
+
+      var expectedKeyValues = List.of(
+          new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_NAME, project.getProjectName()),
+          new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_TYPE, project.getProjectType().getDisplayName()),
+          new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_PHASE, project.getProjectPhase().getDisplayName()),
           new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_PIPELINE, "Yes"),
           new SummaryKeyValue(ProjectDetailsSummaryService.ASSOCIATED_SUBMISSION,
               "Concept select report accepted on 1 December 2023"),
@@ -212,6 +290,15 @@ class ProjectDetailsSummaryServiceTest {
           .usingRecursiveComparison()
           .isEqualTo(expectedActionsMap);
     }
+
+    @Test
+    void whenGetProjectSummaryCard_thenEmptyActionMap() {
+      var summaryCard = projectDetailsSummaryService.getProjectSummaryCard(project);
+
+      var summaryData = (SummaryDataViewWithActions) summaryCard.summaryData();
+      assertThat(summaryData.actionsMap())
+          .isEmpty();
+    }
   }
 
   @Nested
@@ -233,6 +320,15 @@ class ProjectDetailsSummaryServiceTest {
       assertThat(summaryDataViewWithActions.actionsMap())
           .usingRecursiveComparison()
           .isEqualTo(expectedActionsMap);
+    }
+
+    @Test
+    void whenGetProjectSummaryCard_thenEmptyActionMap() {
+      var summaryCard = projectDetailsSummaryService.getProjectSummaryCard(project);
+
+      var summaryData = (SummaryDataViewWithActions) summaryCard.summaryData();
+      assertThat(summaryData.actionsMap())
+          .isEmpty();
     }
   }
 

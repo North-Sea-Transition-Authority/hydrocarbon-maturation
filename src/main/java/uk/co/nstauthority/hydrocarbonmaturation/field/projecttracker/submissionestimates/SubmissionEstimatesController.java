@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsExtantProject;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
@@ -25,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}/project-tracker/{projectId}")
 @HasPermission(permissions = RolePermission.PROJECT_ANALYST)
+@IsExtantProject
 class SubmissionEstimatesController {
   static final String ESTIMATED_CSR = "Estimated CSR first draft submitted date";
   public static final String CSR_ESTIMATE_DATE = "estimated CSR first draft submission date";
@@ -65,7 +67,7 @@ class SubmissionEstimatesController {
           redirectAttributes, "Success", "Saved estimated CSR first draft information");
 
       return ReverseRouter.redirect(on(ViewProjectController.class)
-          .getViewProject(resourceId, projectId));
+          .getViewProject(resourceId, projectId, null));
     }
 
     return getSubmissionEstimatesModelAndView(ESTIMATED_CSR, project, form);
@@ -91,7 +93,7 @@ class SubmissionEstimatesController {
         .addObject("pageCaption", project.getProjectName())
         .addObject("estimates", SubmissionEstimatesView.from(estimates))
         .addObject("cancelUrl", ReverseRouter.route(on(ViewProjectController.class)
-            .getViewProject(project.getField().getResource().getId(), project.getId())));
+            .getViewProject(project.getField().getResource().getId(), project.getId(), null)));
   }
 
   @PostMapping("/{submissionEstimateId}/delete")
@@ -119,7 +121,7 @@ class SubmissionEstimatesController {
     );
 
     return ReverseRouter.redirect(on(ViewProjectController.class)
-        .getViewProject(resourceId, projectId));
+        .getViewProject(resourceId, projectId, null));
   }
 
   private static ModelAndView getSubmissionEstimatesModelAndView(String pageTitle,
@@ -130,6 +132,6 @@ class SubmissionEstimatesController {
         .addObject("pageCaption", project.getProjectName())
         .addObject("form", form)
         .addObject("cancelUrl", ReverseRouter.route(on(ViewProjectController.class)
-            .getViewProject(project.getField().getResource().getId(), project.getId())));
+            .getViewProject(project.getField().getResource().getId(), project.getId(), null)));
   }
 }

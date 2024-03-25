@@ -91,7 +91,6 @@ public class SearchFieldRecordsController {
         .addObject("resourceName", searchResourceRecordsService.getPreSelectedFieldName(form))
         .addObject("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class))
         .addObject("parentFieldName", searchResourceRecordsService.getPreSelectedParentFieldName(form));
-
   }
 
   @ModelAttribute("searchFieldRecordsFilter")

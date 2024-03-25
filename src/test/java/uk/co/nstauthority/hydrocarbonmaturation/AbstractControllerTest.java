@@ -21,13 +21,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegula
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasTeamPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ProjectHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SubmissionHandlerInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.IsProjectExtantInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionInterceptorSecurityRule;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionStatusInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.IncludeServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.configuration.ExternalApiAuthenticationEntryPoint;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.IncludeEnergyPortalConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ErrorSummaryHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ValidationTypeArgumentResolver;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
@@ -57,7 +60,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnica
     SubmissionStatusInterceptorRule.class,
     UserArgumentResolver.class,
     ValidationTypeArgumentResolver.class,
-    ErrorSummaryHandlerInterceptor.class
+    ErrorSummaryHandlerInterceptor.class,
+    ProjectHandlerInterceptor.class,
+    IsProjectExtantInterceptorRule.class
 })
 @ActiveProfiles("test")
 @IncludeServiceBrandingConfigurationProperties
@@ -80,6 +85,9 @@ public abstract class AbstractControllerTest {
 
   @MockBean
   protected SubmissionDetailService submissionDetailService;
+
+  @MockBean
+  protected ProjectService projectService;
 
   @MockBean
   protected RegulatorTeamService regulatorTeamService;

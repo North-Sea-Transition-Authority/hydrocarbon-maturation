@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserArgumentResol
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorUsersInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasTeamPermissionInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ProjectHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SubmissionHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.PermissionManagementHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryPermissionManagementHandlerInterceptor;
@@ -28,6 +29,8 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
   private static final String SUBMISSION_DETAILS_PATH = "/submission-details/**";
   private static final String REVIEW_ACTION_SUBMISSION_PATH = "/review/**/*";
   private static final String REVIEW_VIEW_SUBMISSION_PATH = "/review/resource/**";
+  private static final String PROJECT_TRACKER_PATH = "/view-resource-record/*/project-tracker/*/**";
+  private static final String CREATE_PROJECT_PATH = "/view-resource-record/*/project-tracker/create-project";
 
   private final PermissionManagementHandlerInterceptor permissionManagementHandlerInterceptor;
   private final RegulatorPermissionManagementHandlerInterceptor regulatorPermissionManagementHandlerInterceptor;
@@ -39,6 +42,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
   private final ValidationTypeArgumentResolver validationTypeArgumentResolver;
   private final UserArgumentResolver userArgumentResolver;
   private final ErrorSummaryHandlerInterceptor errorSummaryHandlerInterceptor;
+  private final ProjectHandlerInterceptor projectHandlerInterceptor;
 
   @Autowired
   public WebMvcConfiguration(PermissionManagementHandlerInterceptor permissionManagementHandlerInterceptor,
@@ -50,7 +54,8 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                              AccessibleByRegulatorUsersInterceptor accessibleByRegulatorUsersInterceptor,
                              ValidationTypeArgumentResolver validationTypeArgumentResolver,
                              UserArgumentResolver userArgumentResolver,
-                             ErrorSummaryHandlerInterceptor errorSummaryHandlerInterceptor) {
+                             ErrorSummaryHandlerInterceptor errorSummaryHandlerInterceptor,
+                             ProjectHandlerInterceptor projectHandlerInterceptor) {
     this.permissionManagementHandlerInterceptor = permissionManagementHandlerInterceptor;
     this.regulatorPermissionManagementHandlerInterceptor = regulatorPermissionManagementHandlerInterceptor;
     this.industryPermissionManagementHandlerInterceptor = industryPermissionManagementHandlerInterceptor;
@@ -61,6 +66,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     this.validationTypeArgumentResolver = validationTypeArgumentResolver;
     this.userArgumentResolver = userArgumentResolver;
     this.errorSummaryHandlerInterceptor = errorSummaryHandlerInterceptor;
+    this.projectHandlerInterceptor = projectHandlerInterceptor;
   }
 
   @Override
@@ -93,6 +99,9 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     registry.addInterceptor(submissionHandlerInterceptor)
         .addPathPatterns(SUBMISSION_DETAILS_PATH, REVIEW_ACTION_SUBMISSION_PATH)
         .excludePathPatterns(REVIEW_VIEW_SUBMISSION_PATH);
+    registry.addInterceptor(projectHandlerInterceptor)
+        .addPathPatterns(PROJECT_TRACKER_PATH)
+            .excludePathPatterns(CREATE_PROJECT_PATH);
     registry.addInterceptor(hasPermissionInterceptor)
         .excludePathPatterns(ASSETS_PATH);
     registry.addInterceptor(accessibleByRegulatorUsersInterceptor)

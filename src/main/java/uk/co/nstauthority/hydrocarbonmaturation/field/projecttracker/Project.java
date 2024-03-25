@@ -36,7 +36,7 @@ public class Project {
   private ProjectType projectType;
 
   @Enumerated(value = EnumType.STRING)
-  private ProjectStatus projectStatus;
+  private ProjectPhase projectPhase;
 
   private Boolean isPartOfPipeline;
 
@@ -48,6 +48,9 @@ public class Project {
   private SubmissionDetail submissionDetail;
 
   private Instant createdTimestamp;
+
+  @Enumerated(value = EnumType.STRING)
+  private ProjectStatus projectStatus;
 
   public UUID getId() {
     return id;
@@ -81,12 +84,12 @@ public class Project {
     this.projectType = projectType;
   }
 
-  public ProjectStatus getProjectStatus() {
-    return projectStatus;
+  public ProjectPhase getProjectPhase() {
+    return projectPhase;
   }
 
-  public void setProjectStatus(ProjectStatus projectStatus) {
-    this.projectStatus = projectStatus;
+  public void setProjectPhase(ProjectPhase projectPhase) {
+    this.projectPhase = projectPhase;
   }
 
   public Boolean getPartOfPipeline() {
@@ -119,5 +122,13 @@ public class Project {
 
   public void setFdpaStartUpDate(LocalDate fdpaStartUpDate) {
     this.fdpaStartUpDate = fdpaStartUpDate;
+  }
+
+  public ProjectStatus getProjectStatus() {
+    return projectStatus;
+  }
+
+  public void setProjectStatus(ProjectStatus projectStatus) {
+    this.projectStatus = projectStatus;
   }
 }

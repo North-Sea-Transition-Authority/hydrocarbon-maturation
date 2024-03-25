@@ -23,7 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
-import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectPhase;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.projectstagehistory.ProjectStageHistory;
@@ -57,7 +57,7 @@ class ProjectStageSummaryServiceTest {
     project = ProjectTestUtils.createPopulatedProject(
         "Project",
         ProjectType.FIELD_DEVELOPMENT_PLAN,
-        ProjectStatus.ASSESSMENT_PHASE,
+        ProjectPhase.ASSESSMENT_PHASE,
         true,
         Instant.parse("2024-02-01T00:00:00.00Z"));
   }

@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -9,7 +10,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorUsers;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsExtantProject;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbItem;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
@@ -17,24 +21,30 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundExce
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchFieldRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}/project-tracker")
 @AccessibleByRegulatorUsers
+@IsExtantProject
 public class ViewProjectController {
   private final ProjectService projectService;
   private final ProjectSummaryService projectSummaryService;
+  private final PermissionService permissionService;
 
   @Autowired
   public ViewProjectController(ProjectService projectService,
-                               ProjectSummaryService projectSummaryService) {
+                               ProjectSummaryService projectSummaryService,
+                               PermissionService permissionService) {
     this.projectService = projectService;
     this.projectSummaryService = projectSummaryService;
+    this.permissionService = permissionService;
   }
 
   @GetMapping("/{projectId}")
   public ModelAndView getViewProject(@PathVariable("resourceId") UUID resourceId,
-                                     @PathVariable("projectId") UUID projectId) {
+                                     @PathVariable("projectId") UUID projectId,
+                                     User user) {
     var project = projectService.getProjectOrThrow(projectId);
 
     if (!resourceId.equals(project.getField().getResource().getId())) {
@@ -42,10 +52,10 @@ public class ViewProjectController {
           .formatted(resourceId, projectId));
     }
 
-    return getViewProjectModelAndView(project);
+    return getViewProjectModelAndView(project, user);
   }
 
-  private ModelAndView getViewProjectModelAndView(Project project) {
+  private ModelAndView getViewProjectModelAndView(Project project, User user) {
     var summarySections = projectSummaryService.getSummarySections(project);
 
     var modelAndView = new ModelAndView("remi/field/projecttracker/viewProject")
@@ -53,6 +63,14 @@ public class ViewProjectController {
         .addObject("pageCaption", project.getField().getCorrectedLegalFieldName())
         .addObject("summarySections", summarySections)
         .addObject("accordionId", project.getId().toString());
+
+    if (permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))) {
+      modelAndView.addObject(
+          "deleteUrl",
+          ReverseRouter.route(on(DeleteProjectController.class)
+              .getDeleteProjectConfirmation(project.getField().getResource().getId(), project.getId()))
+      );
+    }
 
     addViewProjectBreadcrumbs(project, modelAndView);
 

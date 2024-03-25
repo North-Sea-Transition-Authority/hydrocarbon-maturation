@@ -26,6 +26,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BindingResult;
@@ -39,6 +41,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.Notificat
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
+import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectTrackerControllerService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ViewProjectController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
@@ -68,6 +71,8 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
   @BeforeEach
   void setUp() {
     project = ProjectTestUtils.createProject(FieldTestUtils.createField(RESOURCE_ID, 8000), PROJECT_ID);
+    when(projectService.getProject(PROJECT_ID))
+        .thenReturn(Optional.of(project));
   }
 
   @SecurityTest
@@ -77,6 +82,93 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
                 .getCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = ProjectStatus.class,
+      names = "EXTANT",
+      mode = EnumSource.Mode.EXCLUDE
+  )
+  void getCsrSubmissionEstimates_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
+    project.setProjectStatus(status);
+
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
+        .thenReturn(true);
+    when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+        .thenReturn(project);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(SubmissionEstimatesController.class)
+                .getCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID)))
+                .with(user(USER)))
+        .andExpect(status().isNotFound());
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = ProjectStatus.class,
+      names = "EXTANT",
+      mode = EnumSource.Mode.EXCLUDE
+  )
+  void saveSubmissionEstimates_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
+    project.setProjectStatus(status);
+
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
+        .thenReturn(true);
+    when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+        .thenReturn(project);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(SubmissionEstimatesController.class)
+                .getCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID)))
+                .with(csrf())
+                .with(user(USER)))
+        .andExpect(status().isNotFound());
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = ProjectStatus.class,
+      names = "EXTANT",
+      mode = EnumSource.Mode.EXCLUDE
+  )
+  void getRemoveConfirmation_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
+    project.setProjectStatus(status);
+
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
+        .thenReturn(true);
+    when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+        .thenReturn(project);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(SubmissionEstimatesController.class)
+                .getRemoveConfirmation(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATES_ID)))
+                .with(csrf())
+                .with(user(USER)))
+        .andExpect(status().isNotFound());
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = ProjectStatus.class,
+      names = "EXTANT",
+      mode = EnumSource.Mode.EXCLUDE
+  )
+  void removeEstimates_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
+    project.setProjectStatus(status);
+
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
+        .thenReturn(true);
+    when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+        .thenReturn(project);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(SubmissionEstimatesController.class)
+                .removeEstimates(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATES_ID, null)))
+                .with(csrf())
+                .with(user(USER)))
+        .andExpect(status().isNotFound());
   }
 
   @Test
@@ -115,7 +207,7 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
             entry("pageTitle",SubmissionEstimatesController.ESTIMATED_CSR),
             entry("pageCaption", project.getProjectName()),
             entry("cancelUrl", ReverseRouter.route(on(ViewProjectController.class)
-                .getViewProject(project.getField().getResource().getId(), project.getId())))
+                .getViewProject(project.getField().getResource().getId(), project.getId(), null)))
             )
         .containsKey("form");
   }
@@ -191,7 +283,7 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
                 entry("pageTitle", SubmissionEstimatesController.ESTIMATED_CSR),
                 entry("pageCaption", project.getProjectName()),
                 entry("cancelUrl", ReverseRouter.route(on(ViewProjectController.class)
-                    .getViewProject(project.getField().getResource().getId(), project.getId())))
+                    .getViewProject(project.getField().getResource().getId(), project.getId(), null)))
             )
             .containsKey("form");
       }
@@ -230,7 +322,7 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
                 .with(csrf()))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl(ReverseRouter.route(on(ViewProjectController.class)
-                .getViewProject(RESOURCE_ID, PROJECT_ID))))
+                .getViewProject(RESOURCE_ID, PROJECT_ID, null))))
             .andExpect(notificationBanner(expectedBanner));
 
         verify(submissionEstimatesService).saveSubmissionEstimateFromForm(any(SubmissionEstimatesForm.class), eq(project), eq(SubmissionEstimatesType.CSR));
@@ -331,7 +423,7 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
                      ""
                 )),
                 entry("cancelUrl", ReverseRouter.route(on(ViewProjectController.class)
-                    .getViewProject(project.getField().getResource().getId(), project.getId())))
+                    .getViewProject(project.getField().getResource().getId(), project.getId(), null)))
             );
       }
     }
@@ -403,7 +495,7 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
                     .with(csrf()))
             .andExpect(status().is3xxRedirection())
             .andExpect(redirectedUrl(ReverseRouter.route(on(ViewProjectController.class)
-                .getViewProject(RESOURCE_ID, PROJECT_ID))))
+                .getViewProject(RESOURCE_ID, PROJECT_ID, null))))
             .andExpect(notificationBanner(expectedBanner));
 
         verify(submissionEstimatesService).removeEstimates(estimates);

@@ -50,7 +50,7 @@ public class ProjectListController {
     var modelAndView = new ModelAndView("remi/field/projecttracker/projectList")
         .addObject("pageTitle", PAGE_TITLE)
         .addObject("pageCaption", field.getCorrectedLegalFieldName())
-        .addObject("projectViews", projectService.getProjectListViews(field));
+        .addObject("projectViews", projectService.getCreatedProjectListViews(field));
 
     addProjectAnalystObjects(resourceId, user, modelAndView);
     addBreadCrumbs(resourceId, field, modelAndView);

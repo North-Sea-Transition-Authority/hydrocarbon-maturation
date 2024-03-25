@@ -22,6 +22,8 @@ import java.util.Objects;
 import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BindingResult;
@@ -35,6 +37,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectListController;
+import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectPhase;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ViewProjectController;
@@ -52,6 +55,24 @@ class ProjectDetailsControllerTest extends AbstractProjectTrackerControllerTest 
                 .getCreateProject(RESOURCE_ID)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = ProjectStatus.class,
+      names = "EXTANT",
+      mode = EnumSource.Mode.EXCLUDE
+  )
+  void getUpdateProject_whenProjectIsNotExtant_thenNotFound(ProjectStatus status) throws Exception {
+    project.setProjectStatus(status);
+
+    setupUserIsRegulator(user);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(ProjectDetailsController.class)
+                .getUpdateProject(RESOURCE_ID, PROJECT_ID)))
+                .with(user(USER)))
+        .andExpect(status().isNotFound());
   }
 
   @Nested
@@ -94,7 +115,7 @@ class ProjectDetailsControllerTest extends AbstractProjectTrackerControllerTest 
               entry("pageTitle", ProjectDetailsController.CREATE_PROJECT_TITLE),
               entry("pageCaption", field.getCorrectedLegalFieldName()),
               entry("projectTypeOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectType.class)),
-              entry("projectStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectStatus.class)),
+              entry("projectStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectPhase.class)),
               entry("acceptedSubmissionOptions", acceptedSubmissionOptions),
               entry("cancelUrl",
                   ReverseRouter.route(on(ProjectListController.class)
@@ -245,11 +266,11 @@ class ProjectDetailsControllerTest extends AbstractProjectTrackerControllerTest 
               entry("pageTitle", ProjectDetailsController.UPDATE_PROJECT_TITLE),
               entry("pageCaption", field.getCorrectedLegalFieldName()),
               entry("projectTypeOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectType.class)),
-              entry("projectStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectStatus.class)),
+              entry("projectStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectPhase.class)),
               entry("acceptedSubmissionOptions", acceptedSubmissionOptions),
               entry("cancelUrl",
                   ReverseRouter.route(on(ViewProjectController.class)
-                      .getViewProject(RESOURCE_ID, PROJECT_ID))),
+                      .getViewProject(RESOURCE_ID, PROJECT_ID, null))),
               entry("isUpdate", true)
           );
 
@@ -328,7 +349,7 @@ class ProjectDetailsControllerTest extends AbstractProjectTrackerControllerTest 
                   .with(csrf()))
           .andExpect(status().is3xxRedirection())
           .andExpect(redirectedUrl(ReverseRouter.route(on(ViewProjectController.class)
-              .getViewProject(RESOURCE_ID, PROJECT_ID))))
+              .getViewProject(RESOURCE_ID, PROJECT_ID, null))))
           .andExpect(notificationBanner(expectedBanner))
           .andReturn()
           .getModelAndView();

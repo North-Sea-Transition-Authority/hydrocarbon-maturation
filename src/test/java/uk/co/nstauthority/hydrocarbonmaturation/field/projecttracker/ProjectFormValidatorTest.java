@@ -38,7 +38,7 @@ class ProjectFormValidatorTest {
           .containsExactly(
               entry("projectName", Set.of("projectName.required")),
               entry("projectType", Set.of("projectType.required")),
-              entry("projectStatus", Set.of("projectStatus.required")),
+              entry("projectPhase", Set.of("projectPhase.required")),
               entry("isPartOfPipeline", Set.of("isPartOfPipeline.required"))
           );
     }
@@ -58,7 +58,7 @@ class ProjectFormValidatorTest {
       var form = new ProjectForm();
       form.setProjectName("Test name");
       form.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN);
-      form.setProjectStatus(ProjectStatus.ASSESSMENT_PHASE);
+      form.setProjectPhase(ProjectPhase.ASSESSMENT_PHASE);
       form.setIsPartOfPipeline(true);
       form.setSelectedSubmissionId(UUID.randomUUID().toString());
       return form;
@@ -95,7 +95,7 @@ class ProjectFormValidatorTest {
         assertThat(errors)
             .containsExactly(
                 entry("projectName", Set.of("projectName.required")),
-                entry("projectStatus", Set.of("projectStatus.required")),
+                entry("projectPhase", Set.of("projectPhase.required")),
                 entry("isPartOfPipeline", Set.of("isPartOfPipeline.required")),
                 entry("fdpaStartUpDateDay", Set.of("fdpaStartUpDateDay.required")),
                 entry("fdpaStartUpDateMonth", Set.of("fdpaStartUpDateMonth.required")),
@@ -120,7 +120,7 @@ class ProjectFormValidatorTest {
         assertThat(errors)
             .containsExactly(
                 entry("projectName", Set.of("projectName.required")),
-                entry("projectStatus", Set.of("projectStatus.required")),
+                entry("projectPhase", Set.of("projectPhase.required")),
                 entry("isPartOfPipeline", Set.of("isPartOfPipeline.required"))
             ).doesNotContainKeys(
                 "fdpaStartUpDateDay",
@@ -219,7 +219,7 @@ class ProjectFormValidatorTest {
       var form = new ProjectForm();
       form.setProjectName("Test name");
       form.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN);
-      form.setProjectStatus(ProjectStatus.ASSESSMENT_PHASE);
+      form.setProjectPhase(ProjectPhase.ASSESSMENT_PHASE);
       form.setIsPartOfPipeline(true);
       form.setSelectedSubmissionId(UUID.randomUUID().toString());
       form.setFdpaStartUpDateDay("3");
@@ -232,7 +232,7 @@ class ProjectFormValidatorTest {
       var form = new ProjectForm();
       form.setProjectName("Test name");
       form.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN);
-      form.setProjectStatus(ProjectStatus.ASSESSMENT_PHASE);
+      form.setProjectPhase(ProjectPhase.ASSESSMENT_PHASE);
       form.setIsPartOfPipeline(true);
       form.setSelectedSubmissionId(UUID.randomUUID().toString());
       form.setFdpaStartUpDateDay(null);

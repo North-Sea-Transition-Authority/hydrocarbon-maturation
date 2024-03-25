@@ -3,7 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker;
 public class ProjectForm {
   private String projectName;
   private ProjectType projectType;
-  private ProjectStatus projectStatus;
+  private ProjectPhase projectPhase;
   private Boolean isPartOfPipeline;
   private String selectedSubmissionId;
   private String fdpaStartUpDateDay;
@@ -26,12 +26,12 @@ public class ProjectForm {
     this.projectType = projectType;
   }
 
-  public ProjectStatus getProjectStatus() {
-    return projectStatus;
+  public ProjectPhase getProjectPhase() {
+    return projectPhase;
   }
 
-  public void setProjectStatus(ProjectStatus projectStatus) {
-    this.projectStatus = projectStatus;
+  public void setProjectPhase(ProjectPhase projectPhase) {
+    this.projectPhase = projectPhase;
   }
 
   public Boolean getIsPartOfPipeline() {

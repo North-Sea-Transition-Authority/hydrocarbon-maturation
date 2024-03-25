@@ -18,6 +18,7 @@ import java.time.Month;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +37,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectListView;
+import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectPhase;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectStatus;
@@ -190,17 +192,19 @@ class ProjectServiceTest {
 
       assertThat(captor.getValue())
           .extracting(
+              Project::getProjectStatus,
               Project::getField,
               Project::getProjectName,
               Project::getProjectType,
-              Project::getProjectStatus,
+              Project::getProjectPhase,
               Project::getPartOfPipeline,
               Project::getCreatedTimestamp
           ).containsExactly(
+              ProjectStatus.EXTANT,
               field,
               form.getProjectName(),
               form.getProjectType(),
-              form.getProjectStatus(),
+              form.getProjectPhase(),
               form.getIsPartOfPipeline(),
               FIXED_INSTANT
           );
@@ -229,18 +233,20 @@ class ProjectServiceTest {
 
       assertThat(captor.getValue())
           .extracting(
+              Project::getProjectStatus,
               Project::getField,
               Project::getProjectName,
               Project::getProjectType,
-              Project::getProjectStatus,
+              Project::getProjectPhase,
               Project::getPartOfPipeline,
               Project::getSubmissionDetail,
               Project::getCreatedTimestamp
           ).containsExactly(
+              ProjectStatus.EXTANT,
               field,
               form.getProjectName(),
               form.getProjectType(),
-              form.getProjectStatus(),
+              form.getProjectPhase(),
               form.getIsPartOfPipeline(),
               submissionDetail,
               FIXED_INSTANT
@@ -250,7 +256,7 @@ class ProjectServiceTest {
     private ProjectForm getPopulatedProjectForm() {
       var form = new ProjectForm();
       form.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN);
-      form.setProjectStatus(ProjectStatus.ASSESSMENT_PHASE);
+      form.setProjectPhase(ProjectPhase.ASSESSMENT_PHASE);
       form.setIsPartOfPipeline(true);
       form.setSelectedSubmissionId(submissionDetail.getId().toString());
       return form;
@@ -269,10 +275,11 @@ class ProjectServiceTest {
       project = ProjectTestUtils.createPopulatedProject(
           "Project name",
           ProjectType.FIELD_DEVELOPMENT_PLAN,
-          ProjectStatus.ON_HOLD,
+          ProjectPhase.ON_HOLD,
           true,
           Instant.now()
       );
+
       form = getPopulatedProjectForm();
     }
 
@@ -309,19 +316,21 @@ class ProjectServiceTest {
 
       assertThat(captor.getValue())
           .extracting(
+              Project::getProjectStatus,
               Project::getProjectType,
               Project::getCreatedTimestamp,
               Project::getField,
               Project::getProjectName,
-              Project::getProjectStatus,
+              Project::getProjectPhase,
               Project::getPartOfPipeline,
               Project::getSubmissionDetail
           ).containsExactly(
+              ProjectStatus.EXTANT,
               project.getProjectType(),
               project.getCreatedTimestamp(),
               project.getField(),
               form.getProjectName(),
-              form.getProjectStatus(),
+              form.getProjectPhase(),
               form.getIsPartOfPipeline(),
               null
           );
@@ -347,19 +356,21 @@ class ProjectServiceTest {
 
       assertThat(captor.getValue())
           .extracting(
+              Project::getProjectStatus,
               Project::getProjectType,
               Project::getCreatedTimestamp,
               Project::getField,
               Project::getProjectName,
-              Project::getProjectStatus,
+              Project::getProjectPhase,
               Project::getPartOfPipeline,
               Project::getSubmissionDetail
           ).containsExactly(
+              ProjectStatus.EXTANT,
               project.getProjectType(),
               project.getCreatedTimestamp(),
               project.getField(),
               form.getProjectName(),
-              form.getProjectStatus(),
+              form.getProjectPhase(),
               form.getIsPartOfPipeline(),
               submissionDetail
           );
@@ -382,19 +393,21 @@ class ProjectServiceTest {
 
       assertThat(captor.getValue())
           .extracting(
+              Project::getProjectStatus,
               Project::getProjectType,
               Project::getCreatedTimestamp,
               Project::getField,
               Project::getProjectName,
-              Project::getProjectStatus,
+              Project::getProjectPhase,
               Project::getPartOfPipeline,
               Project::getFdpaStartUpDate
           ).containsExactly(
+              ProjectStatus.EXTANT,
               project.getProjectType(),
               project.getCreatedTimestamp(),
               project.getField(),
               form.getProjectName(),
-              form.getProjectStatus(),
+              form.getProjectPhase(),
               form.getIsPartOfPipeline(),
               LocalDate.of(2002, 11, 3)
           );
@@ -443,7 +456,7 @@ class ProjectServiceTest {
     private ProjectForm getPopulatedProjectForm() {
       var form = new ProjectForm();
       form.setProjectType(ProjectType.CESSATION_OF_PRODUCTION);
-      form.setProjectStatus(ProjectStatus.ON_HOLD);
+      form.setProjectPhase(ProjectPhase.ON_HOLD);
       form.setIsPartOfPipeline(true);
       form.setSelectedSubmissionId(submissionDetail.getId().toString());
       form.setFdpaStartUpDateDay("3");
@@ -454,10 +467,10 @@ class ProjectServiceTest {
   }
 
   @Nested
-  class GivenGetProjectListViews {
+  class GivenGetCreatedProjectListViews {
     @Test
     void whenNoProjectsForField_thenEmptyList() {
-      assertThat(projectService.getProjectListViews(field))
+      assertThat(projectService.getCreatedProjectListViews(field))
           .isEmpty();
     }
 
@@ -466,7 +479,7 @@ class ProjectServiceTest {
       var project = ProjectTestUtils.createPopulatedProject(
           "Project name",
           ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM,
-          ProjectStatus.AUTHORISE_PHASE,
+          ProjectPhase.AUTHORISE_PHASE,
           true,
           FIXED_INSTANT
       );
@@ -475,7 +488,7 @@ class ProjectServiceTest {
 
       when(projectRepository.findAllByField(field))
           .thenReturn(List.of(project));
-      assertThat(projectService.getProjectListViews(field))
+      assertThat(projectService.getCreatedProjectListViews(field))
           .extracting(
               ProjectListView::projectName,
               ProjectListView::projectCaption,
@@ -486,38 +499,46 @@ class ProjectServiceTest {
                   expectedCaption,
                   ReverseRouter.route(on(ViewProjectController.class).getViewProject(
                       project.getField().getResource().getId(),
-                      project.getId())
+                      project.getId(), null)
                   )
               )
           );
     }
 
     @Test
-    void whenMultipleProjectsForField_thenOrderedList() {
+    void whenMultipleProjectsForField_thenOnlyCreatedProjectsInOrderedList() {
       var firstCreatedProject = ProjectTestUtils.createPopulatedProject(
           "Project 1",
           ProjectType.FIELD_DEVELOPMENT_PLAN,
-          ProjectStatus.AUTHORISE_PHASE,
+          ProjectPhase.AUTHORISE_PHASE,
           false,
           FIXED_INSTANT);
 
       var secondCreatedProject = ProjectTestUtils.createPopulatedProject(
           "Project 2",
           ProjectType.CESSATION_OF_PRODUCTION,
-          ProjectStatus.ASSESSMENT_PHASE,
+          ProjectPhase.ASSESSMENT_PHASE,
           false,
           FIXED_INSTANT.plus(1, ChronoUnit.HOURS));
 
       var thirdCreatedProject = ProjectTestUtils.createPopulatedProject(
           "Project 3",
           ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM,
-          ProjectStatus.ON_HOLD,
+          ProjectPhase.ON_HOLD,
           true,
           FIXED_INSTANT.plus(10, ChronoUnit.DAYS));
 
+      var deletedProject = ProjectTestUtils.createPopulatedProject(
+          "Project 4",
+          ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM,
+          ProjectPhase.ON_HOLD,
+          true,
+          FIXED_INSTANT.plus(10, ChronoUnit.DAYS));
+      deletedProject.setProjectStatus(ProjectStatus.DELETED);
+
       when(projectRepository.findAllByField(field))
-          .thenReturn(List.of(thirdCreatedProject, secondCreatedProject, firstCreatedProject));
-      assertThat(projectService.getProjectListViews(field))
+          .thenReturn(List.of(deletedProject, thirdCreatedProject, secondCreatedProject, firstCreatedProject));
+      assertThat(projectService.getCreatedProjectListViews(field))
           .extracting(
               ProjectListView::projectName,
               ProjectListView::linkUrl
@@ -526,22 +547,22 @@ class ProjectServiceTest {
                   firstCreatedProject.getProjectName(),
                   ReverseRouter.route(on(ViewProjectController.class).getViewProject(
                       firstCreatedProject.getField().getResource().getId(),
-                      firstCreatedProject.getId()
-                  ))
+                      firstCreatedProject.getId(),
+                      null))
               ),
               Tuple.tuple(
                   secondCreatedProject.getProjectName(),
                   ReverseRouter.route(on(ViewProjectController.class).getViewProject(
                       secondCreatedProject.getField().getResource().getId(),
-                      secondCreatedProject.getId()
-                  ))
+                      secondCreatedProject.getId(),
+                      null))
               ),
               Tuple.tuple(
                   thirdCreatedProject.getProjectName(),
                   ReverseRouter.route(on(ViewProjectController.class).getViewProject(
                       thirdCreatedProject.getField().getResource().getId(),
-                      thirdCreatedProject.getId()
-                  ))
+                      thirdCreatedProject.getId(),
+                      null))
               )
           );
     }
@@ -559,7 +580,7 @@ class ProjectServiceTest {
       var project = ProjectTestUtils.createPopulatedProject(
           "Project name",
           projectType,
-          ProjectStatus.ON_HOLD,
+          ProjectPhase.ON_HOLD,
           true,
           Instant.now()
       );
@@ -569,7 +590,7 @@ class ProjectServiceTest {
           .extracting(
               ProjectForm::getProjectName,
               ProjectForm::getProjectType,
-              ProjectForm::getProjectStatus,
+              ProjectForm::getProjectPhase,
               ProjectForm::getIsPartOfPipeline,
               ProjectForm::getSelectedSubmissionId,
               ProjectForm::getFdpaStartUpDateDay,
@@ -578,7 +599,7 @@ class ProjectServiceTest {
           ).containsExactly(
               project.getProjectName(),
               project.getProjectType(),
-              project.getProjectStatus(),
+              project.getProjectPhase(),
               project.getPartOfPipeline(),
               project.getSubmissionDetail().getId().toString(),
               null,
@@ -592,7 +613,7 @@ class ProjectServiceTest {
       var project = ProjectTestUtils.createPopulatedProject(
           "Project name",
           ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM,
-          ProjectStatus.ON_HOLD,
+          ProjectPhase.ON_HOLD,
           true,
           Instant.now()
       );
@@ -603,7 +624,7 @@ class ProjectServiceTest {
           .extracting(
               ProjectForm::getProjectName,
               ProjectForm::getProjectType,
-              ProjectForm::getProjectStatus,
+              ProjectForm::getProjectPhase,
               ProjectForm::getIsPartOfPipeline,
               ProjectForm::getFdpaStartUpDateDay,
               ProjectForm::getFdpaStartUpDateMonth,
@@ -611,7 +632,7 @@ class ProjectServiceTest {
           ).containsExactly(
               project.getProjectName(),
               project.getProjectType(),
-              project.getProjectStatus(),
+              project.getProjectPhase(),
               project.getPartOfPipeline(),
               String.valueOf(fdpaStartUpDate.getDayOfMonth()),
               String.valueOf(fdpaStartUpDate.getMonthValue()),
@@ -624,7 +645,7 @@ class ProjectServiceTest {
       var project = ProjectTestUtils.createPopulatedProject(
           "Project name",
           ProjectType.CESSATION_OF_PRODUCTION,
-          ProjectStatus.ON_HOLD,
+          ProjectPhase.ON_HOLD,
           true,
           Instant.now()
       );
@@ -633,5 +654,38 @@ class ProjectServiceTest {
 
       assertThat(projectService.projectToForm(project).getSelectedSubmissionId()).isNull();
     }
+  }
+
+  @Test
+  void givenDeleteProject_thenProjectExtantStatusChanges() {
+    var project = new Project();
+    project.setProjectStatus(ProjectStatus.EXTANT);
+
+    projectService.deleteProject(project);
+    verify(projectRepository).save(project);
+    verifyNoMoreInteractions(projectRepository);
+
+    assertThat(project.getProjectStatus()).isEqualTo(ProjectStatus.DELETED);
+  }
+
+  @Test
+  void givenGetProject_whenProjectDoesNotExist_thenEmpty() {
+    var projectId = UUID.randomUUID();
+    when(projectRepository.findById(projectId))
+        .thenReturn(Optional.empty());
+    assertThat(projectService.getProject(projectId))
+        .isEmpty();
+  }
+
+  @Test
+  void givenGetProject_whenProjectExists_thenPresent() {
+    var projectId = UUID.randomUUID();
+    var project = new Project();
+    when(projectRepository.findById(projectId))
+        .thenReturn(Optional.of(project));
+    assertThat(projectService.getProject(projectId))
+        .isPresent()
+        .get()
+        .isEqualTo(project);
   }
 }

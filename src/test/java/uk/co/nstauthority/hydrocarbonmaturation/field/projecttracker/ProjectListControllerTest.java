@@ -71,7 +71,7 @@ class ProjectListControllerTest extends AbstractProjectTrackerControllerTest {
     setupUserIsRegulator(user);
 
     var views = List.of(new ProjectListView("name", "caption", "url"));
-    when(projectService.getProjectListViews(field))
+    when(projectService.getCreatedProjectListViews(field))
         .thenReturn(views);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -96,7 +96,7 @@ class ProjectListControllerTest extends AbstractProjectTrackerControllerTest {
     setupUserIsProjectAnalyst(user);
 
     var views = List.of(new ProjectListView("name", "caption", "url"));
-    when(projectService.getProjectListViews(field))
+    when(projectService.getCreatedProjectListViews(field))
         .thenReturn(views);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -122,7 +122,7 @@ class ProjectListControllerTest extends AbstractProjectTrackerControllerTest {
     setupUserIsProjectAnalyst(user);
 
     var views = List.of(new ProjectListView("name", "caption", "url"));
-    when(projectService.getProjectListViews(field))
+    when(projectService.getCreatedProjectListViews(field))
         .thenReturn(views);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(

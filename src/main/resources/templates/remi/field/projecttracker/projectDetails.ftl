@@ -23,7 +23,7 @@ errorItems=errorList>
         </#if>
 
         <@fdsRadio.radio
-        path="form.projectStatus"
+        path="form.projectPhase"
         labelText="Current project status"
         radioItems=projectStatusOptions/>
 

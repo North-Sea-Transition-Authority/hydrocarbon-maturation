@@ -2,8 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectsta
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -28,9 +26,9 @@ import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BindingResult;
@@ -45,7 +43,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.Notificat
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
-import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ViewProjectController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.projectstagehistory.ProjectStageHistory;
@@ -57,8 +55,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 class ProjectStageControllerTest extends AbstractControllerTest {
   @MockBean
   private PermissionService permissionService;
-  @MockBean
-  private ProjectService projectService;
   @MockBean
   private ProjectStageService projectStageService;
   @MockBean
@@ -76,6 +72,12 @@ class ProjectStageControllerTest extends AbstractControllerTest {
   private final Project project = ProjectTestUtils.createProject(FieldTestUtils.createField(RESOURCE_ID, FIELD_IDENTIFIER), PROJECT_ID);
   private final ProjectStageHistory projectStageHistory = ProjectTestUtils.createProjectStageHistory(project, PROJECT_STAGE_HISTORY_ID);
 
+  @BeforeEach
+  void setUp() {
+    when(projectService.getProject(PROJECT_ID))
+        .thenReturn(Optional.of(project));
+  }
+
   @SecurityTest
   void getCreateProjectStageUpdate_withoutProjectAnalystPermission_thenForbidden() throws Exception {
     mockMvc.perform(
@@ -83,6 +85,27 @@ class ProjectStageControllerTest extends AbstractControllerTest {
                 .getCreateProjectStageUpdate(RESOURCE_ID, PROJECT_ID)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = ProjectStatus.class,
+      names = "EXTANT",
+      mode = EnumSource.Mode.EXCLUDE
+  )
+  void getCreateProjectStageUpdate_andProjectIsNotExtant_thenNotFound(ProjectStatus status) throws Exception {
+    project.setProjectStatus(status);
+
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
+        .thenReturn(true);
+    when(projectService.getProjectOrThrow(PROJECT_ID))
+        .thenReturn(project);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(ProjectStageController.class)
+                .getCreateProjectStageUpdate(RESOURCE_ID, PROJECT_ID)))
+                .with(user(USER)))
+        .andExpect(status().isNotFound());
   }
 
   @SecurityTest
@@ -94,6 +117,28 @@ class ProjectStageControllerTest extends AbstractControllerTest {
         .andExpect(status().isForbidden());
   }
 
+  @ParameterizedTest
+  @EnumSource(
+      value = ProjectStatus.class,
+      names = "EXTANT",
+      mode = EnumSource.Mode.EXCLUDE
+  )
+  void saveProjectStageUpdate_andProjectIsNotExtant_thenNotFound(ProjectStatus status) throws Exception {
+    project.setProjectStatus(status);
+
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
+        .thenReturn(true);
+    when(projectService.getProjectOrThrow(PROJECT_ID))
+        .thenReturn(project);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(ProjectStageController.class)
+                .saveProjectStageUpdate(RESOURCE_ID, PROJECT_ID, null, null, null)))
+                .with(csrf())
+                .with(user(USER)))
+        .andExpect(status().isNotFound());
+  }
+
   @SecurityTest
   void getRemoveProjectStageUpdate_withoutProjectAnalystPermission_thenForbidden() throws Exception {
     mockMvc.perform(
@@ -101,6 +146,27 @@ class ProjectStageControllerTest extends AbstractControllerTest {
                 .getRemoveProjectStageConfirmation(RESOURCE_ID, PROJECT_ID, PROJECT_STAGE_HISTORY_ID)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = ProjectStatus.class,
+      names = "EXTANT",
+      mode = EnumSource.Mode.EXCLUDE
+  )
+  void getRemoveProjectStageUpdate_andProjectIsNotExtant_thenNotFound(ProjectStatus status) throws Exception {
+    project.setProjectStatus(status);
+
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
+        .thenReturn(true);
+    when(projectService.getProjectOrThrow(PROJECT_ID))
+        .thenReturn(project);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(ProjectStageController.class)
+                .getRemoveProjectStageConfirmation(RESOURCE_ID, PROJECT_ID, PROJECT_STAGE_HISTORY_ID)))
+                .with(user(USER)))
+        .andExpect(status().isNotFound());
   }
 
   @SecurityTest
@@ -112,12 +178,33 @@ class ProjectStageControllerTest extends AbstractControllerTest {
         .andExpect(status().isForbidden());
   }
 
+  @ParameterizedTest
+  @EnumSource(
+      value = ProjectStatus.class,
+      names = "EXTANT",
+      mode = EnumSource.Mode.EXCLUDE
+  )
+  void removeProjectStage_andProjectIsNotExtant_thenNotFound(ProjectStatus status) throws Exception {
+    project.setProjectStatus(status);
+
+    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
+        .thenReturn(true);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(ProjectStageController.class)
+                .removeProjectStage(RESOURCE_ID, PROJECT_ID, PROJECT_STAGE_HISTORY_ID, null)))
+                .with(csrf())
+                .with(user(USER)))
+        .andExpect(status().isNotFound());
+  }
+
   @Nested
-  class GivenIsProjectAnalyst {
+  class GivenIsProjectAnalystAndProjectIsExtant {
     @BeforeEach
     void setUp() {
       when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
           .thenReturn(true);
+      project.setProjectStatus(ProjectStatus.EXTANT);
     }
 
     @Nested
@@ -197,7 +284,7 @@ class ProjectStageControllerTest extends AbstractControllerTest {
                 entry("projectStageOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectStage.class)),
                 entry("cancelUrl",
                     ReverseRouter.route(on(ViewProjectController.class)
-                        .getViewProject(RESOURCE_ID, PROJECT_ID)))
+                        .getViewProject(RESOURCE_ID, PROJECT_ID, null)))
             );
       }
 
@@ -247,7 +334,7 @@ class ProjectStageControllerTest extends AbstractControllerTest {
             .andExpect(status().is3xxRedirection())
             .andExpect(notificationBanner(expectedBanner))
             .andExpect(redirectedUrl(ReverseRouter.route(on(ViewProjectController.class)
-                .getViewProject(RESOURCE_ID, PROJECT_ID))))
+                .getViewProject(RESOURCE_ID, PROJECT_ID, null))))
             .andReturn()
             .getModelAndView();
 
@@ -358,7 +445,7 @@ class ProjectStageControllerTest extends AbstractControllerTest {
                   entry("projectStageHistory",expectedStageDto),
                   entry("cancelUrl",
                       ReverseRouter.route(on(ViewProjectController.class)
-                          .getViewProject(RESOURCE_ID, PROJECT_ID)))
+                          .getViewProject(RESOURCE_ID, PROJECT_ID, null)))
               );
         }
         @Test
@@ -380,7 +467,7 @@ class ProjectStageControllerTest extends AbstractControllerTest {
               .andExpect(status().is3xxRedirection())
               .andExpect(notificationBanner(expectedBanner))
               .andExpect(redirectedUrl(ReverseRouter.route(on(ViewProjectController.class)
-                  .getViewProject(RESOURCE_ID, PROJECT_ID))))
+                  .getViewProject(RESOURCE_ID, PROJECT_ID, null))))
               .andReturn()
               .getModelAndView();
 
