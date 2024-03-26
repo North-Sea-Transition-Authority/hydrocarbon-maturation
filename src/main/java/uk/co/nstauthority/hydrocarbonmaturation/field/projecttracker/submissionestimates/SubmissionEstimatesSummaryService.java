@@ -10,11 +10,13 @@ import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
@@ -42,14 +44,17 @@ class SubmissionEstimatesSummaryService implements SummarySectionService<Project
   private final SubmissionEstimatesService submissionEstimatesService;
   private final UserService userService;
   private final PermissionService permissionService;
+  private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @Autowired
   SubmissionEstimatesSummaryService(SubmissionEstimatesService submissionEstimatesService,
                                     UserService userService,
-                                    PermissionService permissionService) {
+                                    PermissionService permissionService,
+                                    RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService) {
     this.submissionEstimatesService = submissionEstimatesService;
     this.userService = userService;
     this.permissionService = permissionService;
+    this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
   }
 
   @Override
@@ -67,8 +72,10 @@ class SubmissionEstimatesSummaryService implements SummarySectionService<Project
     var user = userService.getUser();
     var isProjectAnalyst = permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST));
 
+    var canModifyDates = isProjectAnalyst || isInResponsibleTeamForField(project, user);
+
     var headings = getHeadingRow();
-    if (isProjectAnalyst) {
+    if (canModifyDates) {
       headings.add(ACTIONS);
     }
     var summaryTableView = SummaryTableView.newWithHeading(headings.toArray());
@@ -86,7 +93,7 @@ class SubmissionEstimatesSummaryService implements SummarySectionService<Project
                       submissionEstimates.getLatestDate()
                   );
 
-              if (isProjectAnalyst) {
+              if (canModifyDates) {
                 row.withAction("Remove", ReverseRouter.route(on(SubmissionEstimatesController.class)
                     .removeEstimates(
                         project.getField().getResource().getId(),
@@ -99,7 +106,7 @@ class SubmissionEstimatesSummaryService implements SummarySectionService<Project
         );
 
     var cardActions = new HashMap<String, String>();
-    if (isProjectAnalyst) {
+    if (canModifyDates) {
       cardActions.put(
           "Add",
           ReverseRouter.route(on(SubmissionEstimatesController.class)
@@ -111,6 +118,15 @@ class SubmissionEstimatesSummaryService implements SummarySectionService<Project
       return SummaryCard.emptySummaryCardWithActions(CSR_ESTIMATES, cardActions);
     }
     return new SummaryCard(CSR_ESTIMATES, SummaryCardType.TABLE_SUMMARY, summaryTableView, cardActions);
+  }
+
+  private boolean isInResponsibleTeamForField(Project project, User user) {
+    var responsibleTeamPermissions = regulatorManagedInformationPersistenceService
+        .getRegulatorManagedInformationByResourceOrThrow(project.getField().getResource())
+        .getResponsibleTeamType()
+        .getRolePermissions();
+
+    return permissionService.hasPermission(user, responsibleTeamPermissions);
   }
 
   private ArrayList<String> getHeadingRow() {

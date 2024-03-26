@@ -27,6 +27,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
@@ -44,6 +47,8 @@ class SubmissionEstimatesSummaryServiceTest {
   private UserService userService;
   @Mock
   private PermissionService permissionService;
+  @Mock
+  private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   @InjectMocks
   SubmissionEstimatesSummaryService submissionEstimatesSummaryService;
 
@@ -53,8 +58,10 @@ class SubmissionEstimatesSummaryServiceTest {
   private SubmissionEstimates firstEstimates;
   private SubmissionEstimates secondEstimates;
   private SubmissionEstimates lastEstimates;
+  private Set<RolePermission> responsibleRegPermissions;
 
   @BeforeEach
+  @SuppressWarnings("unchecked")
   void setUp() {
     project = ProjectTestUtils.createProject(FieldTestUtils.createField(8000), UUID.randomUUID());
     project.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM);
@@ -73,13 +80,14 @@ class SubmissionEstimatesSummaryServiceTest {
   }
 
   @Test
-  void getSummarySection_isNotProjectAnalyst_noEstimatesProvided_thenEmptyCard() {
+  void getSummarySection_cannotModifyDates_noEstimatesProvided_thenEmptyCard() {
     when(submissionEstimatesService.getCreatedEstimates(project, SubmissionEstimatesType.CSR))
         .thenReturn(List.of());
 
-    var summarySection = submissionEstimatesSummaryService.getSummarySection(project);
+    mockGetRegulatorMangedTeamPermissions();
+    var summarySection = submissionEstimatesSummaryService.getSummarySection(project).orElseThrow();
 
-    var summaryItems = summarySection.get().summaryItems();
+    var summaryItems = summarySection.summaryItems();
     assertThat(summaryItems)
         .hasSize(1)
         .extracting(SummaryItem::displayName)
@@ -107,39 +115,33 @@ class SubmissionEstimatesSummaryServiceTest {
   void getSummarySection_isProjectAnalyst_noEstimatesProvided_thenEmptyCard() {
     var user = mock(User.class);
     when(userService.getUser()).thenReturn(user);
+
     when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))).thenReturn(true);
 
     when(submissionEstimatesService.getCreatedEstimates(project, SubmissionEstimatesType.CSR))
         .thenReturn(List.of());
 
-    var summarySection = submissionEstimatesSummaryService.getSummarySection(project);
+    var summarySection = submissionEstimatesSummaryService.getSummarySection(project).orElseThrow();
 
-    var summaryItems = summarySection.get().summaryItems();
-    assertThat(summaryItems)
-        .hasSize(1)
-        .extracting(SummaryItem::displayName)
-        .containsExactly(SubmissionEstimatesSummaryService.CSR_ESTIMATES);
+    assertSummarySectionWithActions(summarySection);
+  }
 
-    var summaryCards = summaryItems.get(0).summaryCards();
-    assertThat(summaryCards)
-        .extracting(
-            SummaryCard::summaryCardType,
-            SummaryCard::displayName
-        )
-        .containsExactly(
-            Tuple.tuple(
-                SummaryCardType.EMPTY_SUMMARY_WITH_ACTIONS,
-                SubmissionEstimatesSummaryService.CSR_ESTIMATES
-            )
-        );
+  @Test
+  @SuppressWarnings("unchecked")
+  void getSummarySection_isResponsibleRegulatorForField_noEstimatesProvided_thenEmptyCard() {
+    var user = mock(User.class);
+    when(userService.getUser()).thenReturn(user);
+    when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))).thenReturn(false);
 
-    // check actions on card has add
-    assertThat(summaryCards.get(0).summaryData())
-        .isEqualTo(Map.of(
-            "Add",
-            ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .getCsrSubmissionEstimates(project.getField().getResource().getId(), project.getId()))
-        ));
+    mockGetRegulatorMangedTeamPermissions();
+    when(permissionService.hasPermission(user, responsibleRegPermissions)).thenReturn(true);
+
+    when(submissionEstimatesService.getCreatedEstimates(project, SubmissionEstimatesType.CSR))
+        .thenReturn(List.of());
+
+    var summarySection = submissionEstimatesSummaryService.getSummarySection(project).orElseThrow();
+
+    assertSummarySectionWithActions(summarySection);
   }
 
   @ParameterizedTest
@@ -151,12 +153,10 @@ class SubmissionEstimatesSummaryServiceTest {
   void getSummarySection_projectTypeForSection_assertCommon(ProjectType projectType) {
     project.setProjectType(projectType);
     createAndMockSubmissionEstimates();
+    mockGetRegulatorMangedTeamPermissions();
 
-    var summarySection = submissionEstimatesSummaryService.getSummarySection(project);
-
+    var summarySection = submissionEstimatesSummaryService.getSummarySection(project).orElseThrow();
     assertThat(summarySection)
-        .isPresent()
-        .get()
         .extracting(
             SummarySection::displayOrder,
             SummarySection::summaryText
@@ -166,7 +166,7 @@ class SubmissionEstimatesSummaryServiceTest {
             ""
         );
 
-    var summaryItems = summarySection.get().summaryItems();
+    var summaryItems = summarySection.summaryItems();
     assertThat(summaryItems)
         .hasSize(1)
         .extracting(SummaryItem::displayName)
@@ -220,66 +220,34 @@ class SubmissionEstimatesSummaryServiceTest {
   void givenIsProjectAnalyst_assertHeaderAndActions() {
     var user = mock(User.class);
     when(userService.getUser()).thenReturn(user);
+
     when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
         .thenReturn(true);
 
-    var actionsMap = Map.of(
-        "Add",
-        ReverseRouter.route(on(SubmissionEstimatesController.class)
-            .getCsrSubmissionEstimates(project.getField().getResource().getId(), project.getId()))
-    );
+    var summaryCard = invokeAndReturnSummaryCard();
+    assertSummaryTableWithActions(summaryCard);
+  }
+
+  @Test
+  void givenIsResponsibleRegulator_assertHeaderAndActions() {
+    var user = mock(User.class);
+    when(userService.getUser()).thenReturn(user);
+    when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))).thenReturn(false);
+
+    mockGetRegulatorMangedTeamPermissions();
+    when(permissionService.hasPermission(user, responsibleRegPermissions))
+        .thenReturn(true);
 
     var summaryCard = invokeAndReturnSummaryCard();
-    assertThat(summaryCard)
-        .extracting(SummaryCard::actionsMap)
-        .usingRecursiveComparison()
-        .isEqualTo(actionsMap);
-
-
-    var summaryTable = (SummaryTableView) summaryCard.summaryData();
-    assertThat(summaryTable.tableRows())
-        .extracting(SummaryTableRow::rowValues)
-        .contains(
-            List.of(
-              SubmissionEstimatesSummaryService.ESTIMATED_DATES_ON,
-              SubmissionEstimatesSummaryService.EARLIEST,
-              SubmissionEstimatesSummaryService.MOST_LIKELY,
-              SubmissionEstimatesSummaryService.LATEST,
-              SubmissionEstimatesSummaryService.ACTIONS
-            )
-        );
-
-    assertThat(summaryTable.tableRows())
-        .extracting(SummaryTableRow::rowActions)
-        .containsExactly(
-            // first row is table header with no actions
-            List.of(),
-
-            List.of(
-                new SummaryTableRow.SummaryTableRowAction(
-                    "Remove",
-                    ReverseRouter.route(on(SubmissionEstimatesController.class)
-                        .getRemoveConfirmation(project.getField().getResource().getId(), project.getId(), firstEstimates.getId())))
-            ),
-            List.of(
-                new SummaryTableRow.SummaryTableRowAction(
-                    "Remove",
-                    ReverseRouter.route(on(SubmissionEstimatesController.class)
-                        .getRemoveConfirmation(project.getField().getResource().getId(), project.getId(), secondEstimates.getId())))
-            ),
-            List.of(
-                new SummaryTableRow.SummaryTableRowAction(
-                    "Remove",
-                    ReverseRouter.route(on(SubmissionEstimatesController.class)
-                        .getRemoveConfirmation(project.getField().getResource().getId(), project.getId(), lastEstimates.getId())))
-            )
-        );
+    assertSummaryTableWithActions(summaryCard);
   }
 
   @Test
   void givenIsNotProjectAnalyst_assertHeaderAndActions() {
     var user = mock(User.class);
     when(userService.getUser()).thenReturn(user);
+
+    mockGetRegulatorMangedTeamPermissions();
     when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
         .thenReturn(false);
 
@@ -333,10 +301,103 @@ class SubmissionEstimatesSummaryServiceTest {
   private SummaryCard invokeAndReturnSummaryCard() {
     createAndMockSubmissionEstimates();
 
-    var summarySection = submissionEstimatesSummaryService.getSummarySection(project);
-    var summaryItems = summarySection.get().summaryItems();
+    var summarySection = submissionEstimatesSummaryService.getSummarySection(project).orElseThrow();
+    var summaryItems = summarySection.summaryItems();
     var summaryCards = summaryItems.get(0).summaryCards();
 
     return summaryCards.get(0);
+  }
+
+  @SuppressWarnings("unchecked")
+  private void mockGetRegulatorMangedTeamPermissions() {
+    var regulatorManagedInformation = mock(RegulatorManagedInformation.class);
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(project.getField().getResource()))
+        .thenReturn(regulatorManagedInformation);
+    var responsibleTeamType = mock(ResponsibleTeamType.class);
+    when(regulatorManagedInformation.getResponsibleTeamType())
+        .thenReturn(responsibleTeamType);
+    responsibleRegPermissions = mock(Set.class);
+    when(responsibleTeamType.getRolePermissions())
+        .thenReturn(responsibleRegPermissions);
+  }
+  private void assertSummarySectionWithActions(SummarySection summarySection) {
+    var summaryItems = summarySection.summaryItems();
+    assertThat(summaryItems)
+        .hasSize(1)
+        .extracting(SummaryItem::displayName)
+        .containsExactly(SubmissionEstimatesSummaryService.CSR_ESTIMATES);
+
+    var summaryCards = summaryItems.get(0).summaryCards();
+    assertThat(summaryCards)
+        .extracting(
+            SummaryCard::summaryCardType,
+            SummaryCard::displayName
+        )
+        .containsExactly(
+            Tuple.tuple(
+                SummaryCardType.EMPTY_SUMMARY_WITH_ACTIONS,
+                SubmissionEstimatesSummaryService.CSR_ESTIMATES
+            )
+        );
+
+    // check actions on card has add
+    assertThat(summaryCards.get(0).summaryData())
+        .isEqualTo(Map.of(
+            "Add",
+            ReverseRouter.route(on(SubmissionEstimatesController.class)
+                .getCsrSubmissionEstimates(project.getField().getResource().getId(), project.getId()))
+        ));
+  }
+
+  private void assertSummaryTableWithActions(SummaryCard summaryCard) {
+    var actionsMap = Map.of(
+        "Add",
+        ReverseRouter.route(on(SubmissionEstimatesController.class)
+            .getCsrSubmissionEstimates(project.getField().getResource().getId(), project.getId()))
+    );
+
+    assertThat(summaryCard)
+        .extracting(SummaryCard::actionsMap)
+        .usingRecursiveComparison()
+        .isEqualTo(actionsMap);
+
+    var summaryTable = (SummaryTableView) summaryCard.summaryData();
+    assertThat(summaryTable.tableRows())
+        .extracting(SummaryTableRow::rowValues)
+        .contains(
+            List.of(
+                SubmissionEstimatesSummaryService.ESTIMATED_DATES_ON,
+                SubmissionEstimatesSummaryService.EARLIEST,
+                SubmissionEstimatesSummaryService.MOST_LIKELY,
+                SubmissionEstimatesSummaryService.LATEST,
+                SubmissionEstimatesSummaryService.ACTIONS
+            )
+        );
+
+    assertThat(summaryTable.tableRows())
+        .extracting(SummaryTableRow::rowActions)
+        .containsExactly(
+            // first row is table header with no actions
+            List.of(),
+
+            List.of(
+                new SummaryTableRow.SummaryTableRowAction(
+                    "Remove",
+                    ReverseRouter.route(on(SubmissionEstimatesController.class)
+                        .getRemoveConfirmation(project.getField().getResource().getId(), project.getId(), firstEstimates.getId())))
+            ),
+            List.of(
+                new SummaryTableRow.SummaryTableRowAction(
+                    "Remove",
+                    ReverseRouter.route(on(SubmissionEstimatesController.class)
+                        .getRemoveConfirmation(project.getField().getResource().getId(), project.getId(), secondEstimates.getId())))
+            ),
+            List.of(
+                new SummaryTableRow.SummaryTableRowAction(
+                    "Remove",
+                    ReverseRouter.route(on(SubmissionEstimatesController.class)
+                        .getRemoveConfirmation(project.getField().getResource().getId(), project.getId(), lastEstimates.getId())))
+            )
+        );
   }
 }

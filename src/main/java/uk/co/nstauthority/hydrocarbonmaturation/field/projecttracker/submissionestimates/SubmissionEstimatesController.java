@@ -13,20 +13,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsExtantProject;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsRegulatorForProjectField;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectTrackerControllerService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ViewProjectController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}/project-tracker/{projectId}")
-@HasPermission(permissions = RolePermission.PROJECT_ANALYST)
 @IsExtantProject
+@IsRegulatorForProjectField
 class SubmissionEstimatesController {
   static final String ESTIMATED_CSR = "Estimated CSR first draft submitted date";
   public static final String CSR_ESTIMATE_DATE = "estimated CSR first draft submission date";

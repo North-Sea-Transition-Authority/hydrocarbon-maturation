@@ -115,7 +115,7 @@ class ProjectDetailsControllerTest extends AbstractProjectTrackerControllerTest 
               entry("pageTitle", ProjectDetailsController.CREATE_PROJECT_TITLE),
               entry("pageCaption", field.getCorrectedLegalFieldName()),
               entry("projectTypeOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectType.class)),
-              entry("projectStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectPhase.class)),
+              entry("projectPhaseOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectPhase.class)),
               entry("acceptedSubmissionOptions", acceptedSubmissionOptions),
               entry("cancelUrl",
                   ReverseRouter.route(on(ProjectListController.class)
@@ -266,7 +266,7 @@ class ProjectDetailsControllerTest extends AbstractProjectTrackerControllerTest 
               entry("pageTitle", ProjectDetailsController.UPDATE_PROJECT_TITLE),
               entry("pageCaption", field.getCorrectedLegalFieldName()),
               entry("projectTypeOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectType.class)),
-              entry("projectStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectPhase.class)),
+              entry("projectPhaseOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectPhase.class)),
               entry("acceptedSubmissionOptions", acceptedSubmissionOptions),
               entry("cancelUrl",
                   ReverseRouter.route(on(ViewProjectController.class)

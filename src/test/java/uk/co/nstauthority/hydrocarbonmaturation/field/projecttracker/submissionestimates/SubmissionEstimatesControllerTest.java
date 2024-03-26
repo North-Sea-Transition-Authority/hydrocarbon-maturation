@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -46,6 +47,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectTrac
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ViewProjectController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @ContextConfiguration(classes = SubmissionEstimatesController.class)
@@ -71,17 +74,39 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
   @BeforeEach
   void setUp() {
     project = ProjectTestUtils.createProject(FieldTestUtils.createField(RESOURCE_ID, 8000), PROJECT_ID);
+    project.setProjectName("Test project");
     when(projectService.getProject(PROJECT_ID))
         .thenReturn(Optional.of(project));
   }
 
   @SecurityTest
-  void getCsrSubmissionEstimates_withoutProjectAnalystPermission_thenForbidden() throws Exception {
+  void getCsrSubmissionEstimates_whenNotResponsibleRegulator_thenForbidden() throws Exception {
+    var rolePermissions = mockAndGetRolePermissionsForField();
+
+    when(permissionService.hasPermission(USER, rolePermissions))
+        .thenReturn(false);
+
     mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionEstimatesController.class)
                 .getCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getCsrSubmissionEstimates_whenResponsibleRegulator() throws Exception {
+    var rolePermissions = mockAndGetRolePermissionsForField();
+
+    when(permissionService.hasPermission(USER, rolePermissions))
+        .thenReturn(true);
+    when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+        .thenReturn(project);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(SubmissionEstimatesController.class)
+                .getCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID)))
+                .with(user(USER)))
+        .andExpect(status().isOk());
   }
 
   @ParameterizedTest
@@ -127,6 +152,38 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
         .andExpect(status().isNotFound());
   }
 
+  @SecurityTest
+  void saveSubmissionEstimates_whenNotResponsibleRegulator_thenForbidden() throws Exception {
+    var rolePermissions = mockAndGetRolePermissionsForField();
+
+    when(permissionService.hasPermission(USER, rolePermissions))
+        .thenReturn(false);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(SubmissionEstimatesController.class)
+                .saveCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID, null, null, null)))
+                .with(csrf())
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void saveSubmissionEstimates_whenResponsibleRegulator_thenOk() throws Exception {
+    var rolePermissions = mockAndGetRolePermissionsForField();
+
+    when(permissionService.hasPermission(USER, rolePermissions))
+        .thenReturn(true);
+    when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+        .thenReturn(project);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(SubmissionEstimatesController.class)
+                .saveCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID, null, null, null)))
+                .with(csrf())
+                .with(user(USER)))
+        .andExpect(status().isOk());
+  }
+
   @ParameterizedTest
   @EnumSource(
       value = ProjectStatus.class,
@@ -149,6 +206,44 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
         .andExpect(status().isNotFound());
   }
 
+  @SecurityTest
+  void getRemoveConfirmation_whenResponsibleRegulator_thenOk() throws Exception {
+    var rolePermissions = mockAndGetRolePermissionsForField();
+
+    when(permissionService.hasPermission(USER, rolePermissions))
+        .thenReturn(true);
+    when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+        .thenReturn(project);
+
+    var estimates = new SubmissionEstimates();
+    estimates.setProject(project);
+    estimates.setDateWhenEstimated(LocalDate.now());
+    estimates.setMostLikelyDate(LocalDate.now());
+
+    when(submissionEstimatesService.getSubmissionEstimates(SUBMISSION_ESTIMATES_ID))
+        .thenReturn(Optional.of(estimates));
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(SubmissionEstimatesController.class)
+                .getRemoveConfirmation(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATES_ID)))
+                .with(user(USER)))
+        .andExpect(status().isOk());
+  }
+
+  @SecurityTest
+  void getRemoveConfirmation_whenNotResponsibleRegulator_assertForbidden() throws Exception {
+    var rolePermissions = mockAndGetRolePermissionsForField();
+
+    when(permissionService.hasPermission(USER, rolePermissions))
+        .thenReturn(false);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(SubmissionEstimatesController.class)
+                .getRemoveConfirmation(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATES_ID)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
   @ParameterizedTest
   @EnumSource(
       value = ProjectStatus.class,
@@ -169,6 +264,46 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
                 .with(csrf())
                 .with(user(USER)))
         .andExpect(status().isNotFound());
+  }
+
+  @SecurityTest
+  void removeSubmissionEstimates_whenNotResponsibleRegulator_thenForbidden() throws Exception {
+    var rolePermissions = mockAndGetRolePermissionsForField();
+
+    when(permissionService.hasPermission(USER, rolePermissions))
+        .thenReturn(false);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(SubmissionEstimatesController.class)
+                .removeEstimates(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATES_ID, null)))
+                .with(csrf())
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void removeSubmissionEstimates_whenResponsibleRegulator_thenRedirect() throws Exception {
+    var rolePermissions = mockAndGetRolePermissionsForField();
+
+    when(permissionService.hasPermission(USER, rolePermissions))
+        .thenReturn(true);
+    when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+        .thenReturn(project);
+
+    var estimates = new SubmissionEstimates();
+    estimates.setProject(project);
+    estimates.setDateWhenEstimated(LocalDate.now());
+    estimates.setMostLikelyDate(LocalDate.now());
+
+    when(submissionEstimatesService.getSubmissionEstimates(SUBMISSION_ESTIMATES_ID))
+        .thenReturn(Optional.of(estimates));
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(SubmissionEstimatesController.class)
+                .removeEstimates(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATES_ID, null)))
+                .with(csrf())
+                .with(user(USER)))
+        .andExpect(status().is3xxRedirection());
   }
 
   @Test
@@ -211,36 +346,6 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
             )
         .containsKey("form");
   }
-
-  @SecurityTest
-  void saveCsrSubmissionEstimates_withoutProjectAnalystPermission_thenForbidden() throws Exception {
-    mockMvc.perform(
-            post(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .saveCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID, null, null, null)))
-                .with(user(USER))
-                .with(csrf()))
-        .andExpect(status().isForbidden());
-  }
-
-  @SecurityTest
-  void getRemoveConfirmation_withoutProjectAnalystPermission_thenForbidden() throws Exception {
-    mockMvc.perform(
-            get(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .getRemoveConfirmation(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATES_ID)))
-                .with(user(USER)))
-        .andExpect(status().isForbidden());
-  }
-
-  @SecurityTest
-  void removeEstimates_withoutProjectAnalystPermission_thenForbidden() throws Exception {
-    mockMvc.perform(
-            post(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .removeEstimates(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATES_ID,null)))
-                .with(user(USER))
-                .with(csrf()))
-        .andExpect(status().isForbidden());
-  }
-
 
   @Nested
   class GivenIsProjectAnalyst {
@@ -501,5 +606,19 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
         verify(submissionEstimatesService).removeEstimates(estimates);
       }
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private Set<RolePermission> mockAndGetRolePermissionsForField() {
+    var regulatorManagedInformation = mock(RegulatorManagedInformation.class);
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(project.getField().getResource()))
+        .thenReturn(regulatorManagedInformation);
+    var responsibleTeamType = mock(ResponsibleTeamType.class);
+    when(regulatorManagedInformation.getResponsibleTeamType())
+        .thenReturn(responsibleTeamType);
+    Set<RolePermission> rolePermissions = mock(Set.class);
+    when(responsibleTeamType.getRolePermissions())
+        .thenReturn(rolePermissions);
+    return rolePermissions;
   }
 }

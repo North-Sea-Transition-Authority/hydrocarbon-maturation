@@ -35,7 +35,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -73,9 +72,6 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
 
   @MockBean
   protected ResourceDetailsPersistenceService resourceDetailsPersistenceService;
-
-  @MockBean
-  protected RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @MockBean
   protected OrganisationUnitQueryService organisationUnitQueryService;

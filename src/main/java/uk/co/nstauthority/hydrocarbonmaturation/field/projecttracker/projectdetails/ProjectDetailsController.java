@@ -122,7 +122,7 @@ public class ProjectDetailsController {
         .addObject("pageCaption", field.getCorrectedLegalFieldName())
         .addObject("form", form)
         .addObject("projectTypeOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectType.class))
-        .addObject("projectStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectPhase.class))
+        .addObject("projectPhaseOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ProjectPhase.class))
         .addObject("acceptedSubmissionOptions", projectService.getAcceptedSubmissionsMapForField(field));
   }
 

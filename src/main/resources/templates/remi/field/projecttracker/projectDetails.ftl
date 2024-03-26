@@ -25,7 +25,7 @@ errorItems=errorList>
         <@fdsRadio.radio
         path="form.projectPhase"
         labelText="Current project status"
-        radioItems=projectStatusOptions/>
+        radioItems=projectPhaseOptions/>
 
         <@fdsRadio.radioGroup
         path="form.isPartOfPipeline"
