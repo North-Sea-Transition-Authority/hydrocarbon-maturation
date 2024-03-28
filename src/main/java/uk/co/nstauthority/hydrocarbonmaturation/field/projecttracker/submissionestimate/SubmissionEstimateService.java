@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimates;
+package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimate;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -12,18 +12,18 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 
 @Service
-class SubmissionEstimatesService {
-  private final SubmissionEstimatesRepository submissionEstimatesRepository;
+class SubmissionEstimateService {
+  private final SubmissionEstimateRepository submissionEstimateRepository;
 
   @Autowired
-  SubmissionEstimatesService(SubmissionEstimatesRepository submissionEstimatesRepository) {
-    this.submissionEstimatesRepository = submissionEstimatesRepository;
+  SubmissionEstimateService(SubmissionEstimateRepository submissionEstimateRepository) {
+    this.submissionEstimateRepository = submissionEstimateRepository;
   }
 
   @Transactional
-  public void saveSubmissionEstimateFromForm(SubmissionEstimatesForm form,
+  public void saveSubmissionEstimateFromForm(SubmissionEstimateForm form,
                                              Project project,
-                                             SubmissionEstimatesType submissionEstimatesType) {
+                                             SubmissionEstimateType submissionEstimateType) {
     LocalDate earliestDate = null;
     if (ObjectUtils.allNotNull(
         form.getEarliestDateDay(),
@@ -59,36 +59,36 @@ class SubmissionEstimatesService {
         Integer.parseInt(form.getEstimatedDateDay())
     );
 
-    var submissionEstimates = new SubmissionEstimates();
-    submissionEstimates.setSubmissionEstimateStatus(SubmissionEstimateStatus.CREATED);
+    var submissionEstimate = new SubmissionEstimate();
+    submissionEstimate.setSubmissionEstimateStatus(SubmissionEstimateStatus.CREATED);
 
-    submissionEstimates.setProject(project);
-    submissionEstimates.setSubmissionEstimateType(submissionEstimatesType);
+    submissionEstimate.setProject(project);
+    submissionEstimate.setSubmissionEstimateType(submissionEstimateType);
 
-    submissionEstimates.setMostLikelyDate(mostLikelyDate);
-    submissionEstimates.setEarliestDate(earliestDate);
-    submissionEstimates.setLatestDate(latestDate);
-    submissionEstimates.setDateWhenEstimated(estimatedDate);
+    submissionEstimate.setMostLikelyDate(mostLikelyDate);
+    submissionEstimate.setEarliestDate(earliestDate);
+    submissionEstimate.setLatestDate(latestDate);
+    submissionEstimate.setDateWhenEstimated(estimatedDate);
 
-    submissionEstimatesRepository.save(submissionEstimates);
+    submissionEstimateRepository.save(submissionEstimate);
   }
 
-  List<SubmissionEstimates> getCreatedEstimates(Project project, SubmissionEstimatesType type) {
-    return submissionEstimatesRepository.getAllByProjectAndSubmissionEstimateType(project, type)
+  List<SubmissionEstimate> getCreatedEstimates(Project project, SubmissionEstimateType type) {
+    return submissionEstimateRepository.getAllByProjectAndSubmissionEstimateType(project, type)
         .stream()
-        .filter(submissionEstimates -> SubmissionEstimateStatus.CREATED.equals(submissionEstimates.getSubmissionEstimateStatus()))
-        .sorted(Comparator.comparing(SubmissionEstimates::getDateWhenEstimated))
+        .filter(submissionEstimate -> SubmissionEstimateStatus.CREATED.equals(submissionEstimate.getSubmissionEstimateStatus()))
+        .sorted(Comparator.comparing(SubmissionEstimate::getDateWhenEstimated))
         .toList();
   }
 
-  public Optional<SubmissionEstimates> getSubmissionEstimates(UUID submissionEstimateId) {
-    return submissionEstimatesRepository.findById(submissionEstimateId);
+  public Optional<SubmissionEstimate> getSubmissionEstimate(UUID submissionEstimateId) {
+    return submissionEstimateRepository.findById(submissionEstimateId);
   }
 
   @Transactional
-  public void removeEstimates(SubmissionEstimates estimates) {
+  public void removeEstimate(SubmissionEstimate estimates) {
     estimates.setSubmissionEstimateStatus(SubmissionEstimateStatus.REMOVED);
 
-    submissionEstimatesRepository.save(estimates);
+    submissionEstimateRepository.save(estimates);
   }
 }

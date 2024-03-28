@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimates;
+package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -40,9 +40,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RoleP
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @ExtendWith(MockitoExtension.class)
-class SubmissionEstimatesSummaryServiceTest {
+class SubmissionEstimateSummaryServiceTest {
   @Mock
-  private SubmissionEstimatesService submissionEstimatesService;
+  private SubmissionEstimateService submissionEstimatesService;
   @Mock
   private UserService userService;
   @Mock
@@ -50,14 +50,14 @@ class SubmissionEstimatesSummaryServiceTest {
   @Mock
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   @InjectMocks
-  SubmissionEstimatesSummaryService submissionEstimatesSummaryService;
+  SubmissionEstimateSummaryService submissionEstimatesSummaryService;
 
   private final LocalDate FIXED_DATE = LocalDate.of(2023, 3, 19);
 
   private Project project;
-  private SubmissionEstimates firstEstimates;
-  private SubmissionEstimates secondEstimates;
-  private SubmissionEstimates lastEstimates;
+  private SubmissionEstimate firstEstimates;
+  private SubmissionEstimate secondEstimates;
+  private SubmissionEstimate lastEstimates;
   private Set<RolePermission> responsibleRegPermissions;
 
   @BeforeEach
@@ -81,7 +81,7 @@ class SubmissionEstimatesSummaryServiceTest {
 
   @Test
   void getSummarySection_cannotModifyDates_noEstimatesProvided_thenEmptyCard() {
-    when(submissionEstimatesService.getCreatedEstimates(project, SubmissionEstimatesType.CSR))
+    when(submissionEstimatesService.getCreatedEstimates(project, SubmissionEstimateType.CSR))
         .thenReturn(List.of());
 
     mockGetRegulatorMangedTeamPermissions();
@@ -91,7 +91,7 @@ class SubmissionEstimatesSummaryServiceTest {
     assertThat(summaryItems)
         .hasSize(1)
         .extracting(SummaryItem::displayName)
-        .containsExactly(SubmissionEstimatesSummaryService.CSR_ESTIMATES);
+        .containsExactly(SubmissionEstimateSummaryService.CSR_ESTIMATES);
 
     var summaryCards = summaryItems.get(0).summaryCards();
     assertThat(summaryCards)
@@ -102,7 +102,7 @@ class SubmissionEstimatesSummaryServiceTest {
         .containsExactly(
             Tuple.tuple(
                 SummaryCardType.EMPTY_SUMMARY_WITH_ACTIONS,
-                SubmissionEstimatesSummaryService.CSR_ESTIMATES
+                SubmissionEstimateSummaryService.CSR_ESTIMATES
             )
         );
 
@@ -118,7 +118,7 @@ class SubmissionEstimatesSummaryServiceTest {
 
     when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))).thenReturn(true);
 
-    when(submissionEstimatesService.getCreatedEstimates(project, SubmissionEstimatesType.CSR))
+    when(submissionEstimatesService.getCreatedEstimates(project, SubmissionEstimateType.CSR))
         .thenReturn(List.of());
 
     var summarySection = submissionEstimatesSummaryService.getSummarySection(project).orElseThrow();
@@ -136,7 +136,7 @@ class SubmissionEstimatesSummaryServiceTest {
     mockGetRegulatorMangedTeamPermissions();
     when(permissionService.hasPermission(user, responsibleRegPermissions)).thenReturn(true);
 
-    when(submissionEstimatesService.getCreatedEstimates(project, SubmissionEstimatesType.CSR))
+    when(submissionEstimatesService.getCreatedEstimates(project, SubmissionEstimateType.CSR))
         .thenReturn(List.of());
 
     var summarySection = submissionEstimatesSummaryService.getSummarySection(project).orElseThrow();
@@ -152,7 +152,7 @@ class SubmissionEstimatesSummaryServiceTest {
   )
   void getSummarySection_projectTypeForSection_assertCommon(ProjectType projectType) {
     project.setProjectType(projectType);
-    createAndMockSubmissionEstimates();
+    createAndMockSubmissionEstimate();
     mockGetRegulatorMangedTeamPermissions();
 
     var summarySection = submissionEstimatesSummaryService.getSummarySection(project).orElseThrow();
@@ -162,7 +162,7 @@ class SubmissionEstimatesSummaryServiceTest {
             SummarySection::summaryText
         )
         .containsExactly(
-            SubmissionEstimatesSummaryService.DISPLAY_ORDER,
+            SubmissionEstimateSummaryService.DISPLAY_ORDER,
             ""
         );
 
@@ -170,7 +170,7 @@ class SubmissionEstimatesSummaryServiceTest {
     assertThat(summaryItems)
         .hasSize(1)
         .extracting(SummaryItem::displayName)
-        .containsExactly(SubmissionEstimatesSummaryService.CSR_ESTIMATES);
+        .containsExactly(SubmissionEstimateSummaryService.CSR_ESTIMATES);
 
     var summaryCards = summaryItems.get(0).summaryCards();
     assertThat(summaryCards)
@@ -181,7 +181,7 @@ class SubmissionEstimatesSummaryServiceTest {
         .containsExactly(
             Tuple.tuple(
                 SummaryCardType.TABLE_SUMMARY,
-                SubmissionEstimatesSummaryService.CSR_ESTIMATES
+                SubmissionEstimateSummaryService.CSR_ESTIMATES
             )
         );
 
@@ -190,10 +190,10 @@ class SubmissionEstimatesSummaryServiceTest {
         .extracting(SummaryTableRow::rowValues)
         .containsExactly(
             List.of(
-                SubmissionEstimatesSummaryService.ESTIMATED_DATES_ON,
-                SubmissionEstimatesSummaryService.EARLIEST,
-                SubmissionEstimatesSummaryService.MOST_LIKELY,
-                SubmissionEstimatesSummaryService.LATEST
+                SubmissionEstimateSummaryService.ESTIMATED_DATES_ON,
+                SubmissionEstimateSummaryService.EARLIEST,
+                SubmissionEstimateSummaryService.MOST_LIKELY,
+                SubmissionEstimateSummaryService.LATEST
             ),
             List.of(
                 DateUtil.formatLongDate(firstEstimates.getDateWhenEstimated()),
@@ -263,10 +263,10 @@ class SubmissionEstimatesSummaryServiceTest {
         .extracting(SummaryTableRow::rowValues)
         .contains(
             List.of(
-                SubmissionEstimatesSummaryService.ESTIMATED_DATES_ON,
-                SubmissionEstimatesSummaryService.EARLIEST,
-                SubmissionEstimatesSummaryService.MOST_LIKELY,
-                SubmissionEstimatesSummaryService.LATEST
+                SubmissionEstimateSummaryService.ESTIMATED_DATES_ON,
+                SubmissionEstimateSummaryService.EARLIEST,
+                SubmissionEstimateSummaryService.MOST_LIKELY,
+                SubmissionEstimateSummaryService.LATEST
             )
         );
 
@@ -275,31 +275,31 @@ class SubmissionEstimatesSummaryServiceTest {
         .containsOnly(List.of());
   }
 
-  private void createAndMockSubmissionEstimates() {
-    firstEstimates = new SubmissionEstimates(UUID.randomUUID());
+  private void createAndMockSubmissionEstimate() {
+    firstEstimates = new SubmissionEstimate(UUID.randomUUID());
     firstEstimates.setDateWhenEstimated(FIXED_DATE);
     firstEstimates.setEarliestDate(FIXED_DATE);
     firstEstimates.setMostLikelyDate(FIXED_DATE);
     firstEstimates.setLatestDate(FIXED_DATE);
 
-    secondEstimates = new SubmissionEstimates(UUID.randomUUID());
+    secondEstimates = new SubmissionEstimate(UUID.randomUUID());
     secondEstimates.setDateWhenEstimated(FIXED_DATE);
     secondEstimates.setEarliestDate(FIXED_DATE);
     secondEstimates.setMostLikelyDate(FIXED_DATE);
     secondEstimates.setLatestDate(FIXED_DATE);
 
-    lastEstimates = new SubmissionEstimates(UUID.randomUUID());
+    lastEstimates = new SubmissionEstimate(UUID.randomUUID());
     lastEstimates.setDateWhenEstimated(FIXED_DATE);
     lastEstimates.setEarliestDate(FIXED_DATE);
     lastEstimates.setMostLikelyDate(FIXED_DATE);
     lastEstimates.setLatestDate(FIXED_DATE);
 
-    when(submissionEstimatesService.getCreatedEstimates(project, SubmissionEstimatesType.CSR))
+    when(submissionEstimatesService.getCreatedEstimates(project, SubmissionEstimateType.CSR))
         .thenReturn(List.of(firstEstimates, secondEstimates, lastEstimates));
   }
 
   private SummaryCard invokeAndReturnSummaryCard() {
-    createAndMockSubmissionEstimates();
+    createAndMockSubmissionEstimate();
 
     var summarySection = submissionEstimatesSummaryService.getSummarySection(project).orElseThrow();
     var summaryItems = summarySection.summaryItems();
@@ -325,7 +325,7 @@ class SubmissionEstimatesSummaryServiceTest {
     assertThat(summaryItems)
         .hasSize(1)
         .extracting(SummaryItem::displayName)
-        .containsExactly(SubmissionEstimatesSummaryService.CSR_ESTIMATES);
+        .containsExactly(SubmissionEstimateSummaryService.CSR_ESTIMATES);
 
     var summaryCards = summaryItems.get(0).summaryCards();
     assertThat(summaryCards)
@@ -336,7 +336,7 @@ class SubmissionEstimatesSummaryServiceTest {
         .containsExactly(
             Tuple.tuple(
                 SummaryCardType.EMPTY_SUMMARY_WITH_ACTIONS,
-                SubmissionEstimatesSummaryService.CSR_ESTIMATES
+                SubmissionEstimateSummaryService.CSR_ESTIMATES
             )
         );
 
@@ -344,16 +344,16 @@ class SubmissionEstimatesSummaryServiceTest {
     assertThat(summaryCards.get(0).summaryData())
         .isEqualTo(Map.of(
             "Add",
-            ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .getCsrSubmissionEstimates(project.getField().getResource().getId(), project.getId()))
+            ReverseRouter.route(on(SubmissionEstimateController.class)
+                .getCsrSubmissionEstimate(project.getField().getResource().getId(), project.getId()))
         ));
   }
 
   private void assertSummaryTableWithActions(SummaryCard summaryCard) {
     var actionsMap = Map.of(
         "Add",
-        ReverseRouter.route(on(SubmissionEstimatesController.class)
-            .getCsrSubmissionEstimates(project.getField().getResource().getId(), project.getId()))
+        ReverseRouter.route(on(SubmissionEstimateController.class)
+            .getCsrSubmissionEstimate(project.getField().getResource().getId(), project.getId()))
     );
 
     assertThat(summaryCard)
@@ -366,11 +366,11 @@ class SubmissionEstimatesSummaryServiceTest {
         .extracting(SummaryTableRow::rowValues)
         .contains(
             List.of(
-                SubmissionEstimatesSummaryService.ESTIMATED_DATES_ON,
-                SubmissionEstimatesSummaryService.EARLIEST,
-                SubmissionEstimatesSummaryService.MOST_LIKELY,
-                SubmissionEstimatesSummaryService.LATEST,
-                SubmissionEstimatesSummaryService.ACTIONS
+                SubmissionEstimateSummaryService.ESTIMATED_DATES_ON,
+                SubmissionEstimateSummaryService.EARLIEST,
+                SubmissionEstimateSummaryService.MOST_LIKELY,
+                SubmissionEstimateSummaryService.LATEST,
+                SubmissionEstimateSummaryService.ACTIONS
             )
         );
 
@@ -383,19 +383,19 @@ class SubmissionEstimatesSummaryServiceTest {
             List.of(
                 new SummaryTableRow.SummaryTableRowAction(
                     "Remove",
-                    ReverseRouter.route(on(SubmissionEstimatesController.class)
+                    ReverseRouter.route(on(SubmissionEstimateController.class)
                         .getRemoveConfirmation(project.getField().getResource().getId(), project.getId(), firstEstimates.getId())))
             ),
             List.of(
                 new SummaryTableRow.SummaryTableRowAction(
                     "Remove",
-                    ReverseRouter.route(on(SubmissionEstimatesController.class)
+                    ReverseRouter.route(on(SubmissionEstimateController.class)
                         .getRemoveConfirmation(project.getField().getResource().getId(), project.getId(), secondEstimates.getId())))
             ),
             List.of(
                 new SummaryTableRow.SummaryTableRowAction(
                     "Remove",
-                    ReverseRouter.route(on(SubmissionEstimatesController.class)
+                    ReverseRouter.route(on(SubmissionEstimateController.class)
                         .getRemoveConfirmation(project.getField().getResource().getId(), project.getId(), lastEstimates.getId())))
             )
         );

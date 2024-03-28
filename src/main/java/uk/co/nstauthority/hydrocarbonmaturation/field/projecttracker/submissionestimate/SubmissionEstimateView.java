@@ -1,15 +1,15 @@
-package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimates;
+package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimate;
 
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
-public record SubmissionEstimatesView(
+public record SubmissionEstimateView(
     String estimatedOn,
     String earliest,
     String mostLikely,
     String latest
 ) {
-  static SubmissionEstimatesView from(SubmissionEstimates estimates) {
-    return new SubmissionEstimatesView(
+  static SubmissionEstimateView from(SubmissionEstimate estimates) {
+    return new SubmissionEstimateView(
         DateUtil.formatLongDate(estimates.getDateWhenEstimated()),
         estimates.getEarliestDate() != null
             ? DateUtil.formatLongDate(estimates.getEarliestDate())

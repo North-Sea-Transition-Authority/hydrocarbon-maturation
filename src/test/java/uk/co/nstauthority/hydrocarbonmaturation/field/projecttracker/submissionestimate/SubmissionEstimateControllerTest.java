@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimates;
+package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -51,22 +51,22 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Regu
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
-@ContextConfiguration(classes = SubmissionEstimatesController.class)
-class SubmissionEstimatesControllerTest extends AbstractControllerTest {
+@ContextConfiguration(classes = SubmissionEstimateController.class)
+class SubmissionEstimateControllerTest extends AbstractControllerTest {
   @MockBean
   private PermissionService permissionService;
   @MockBean
   private ProjectTrackerControllerService projectTrackerControllerService;
   @MockBean
-  private SubmissionEstimatesFormValidator submissionEstimatesFormValidator;
+  private SubmissionEstimateFormValidator submissionEstimateFormValidator;
   @MockBean
-  private SubmissionEstimatesService submissionEstimatesService;
+  private SubmissionEstimateService submissionEstimateService;
 
   private final User USER = UserTestUtil.Builder().build();
 
   private final UUID PROJECT_ID = UUID.randomUUID();
   private final UUID RESOURCE_ID = UUID.randomUUID();
-  private final UUID SUBMISSION_ESTIMATES_ID = UUID.randomUUID();
+  private final UUID SUBMISSION_ESTIMATE_ID = UUID.randomUUID();
   private final UUID UNRELATED_ID = UUID.randomUUID();
 
   private Project project;
@@ -80,21 +80,21 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
-  void getCsrSubmissionEstimates_whenNotResponsibleRegulator_thenForbidden() throws Exception {
+  void getCsrSubmissionEstimate_whenNotResponsibleRegulator_thenForbidden() throws Exception {
     var rolePermissions = mockAndGetRolePermissionsForField();
 
     when(permissionService.hasPermission(USER, rolePermissions))
         .thenReturn(false);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .getCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID)))
+            get(ReverseRouter.route(on(SubmissionEstimateController.class)
+                .getCsrSubmissionEstimate(RESOURCE_ID, PROJECT_ID)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
   @SecurityTest
-  void getCsrSubmissionEstimates_whenResponsibleRegulator() throws Exception {
+  void getCsrSubmissionEstimate_whenResponsibleRegulator() throws Exception {
     var rolePermissions = mockAndGetRolePermissionsForField();
 
     when(permissionService.hasPermission(USER, rolePermissions))
@@ -103,8 +103,8 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
         .thenReturn(project);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .getCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID)))
+            get(ReverseRouter.route(on(SubmissionEstimateController.class)
+                .getCsrSubmissionEstimate(RESOURCE_ID, PROJECT_ID)))
                 .with(user(USER)))
         .andExpect(status().isOk());
   }
@@ -115,7 +115,7 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
       names = "EXTANT",
       mode = EnumSource.Mode.EXCLUDE
   )
-  void getCsrSubmissionEstimates_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
+  void getCsrSubmissionEstimate_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
     when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
@@ -124,8 +124,8 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
         .thenReturn(project);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .getCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID)))
+            get(ReverseRouter.route(on(SubmissionEstimateController.class)
+                .getCsrSubmissionEstimate(RESOURCE_ID, PROJECT_ID)))
                 .with(user(USER)))
         .andExpect(status().isNotFound());
   }
@@ -136,7 +136,7 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
       names = "EXTANT",
       mode = EnumSource.Mode.EXCLUDE
   )
-  void saveSubmissionEstimates_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
+  void saveSubmissionEstimate_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
     when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
@@ -145,30 +145,30 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
         .thenReturn(project);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .getCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID)))
+            post(ReverseRouter.route(on(SubmissionEstimateController.class)
+                .getCsrSubmissionEstimate(RESOURCE_ID, PROJECT_ID)))
                 .with(csrf())
                 .with(user(USER)))
         .andExpect(status().isNotFound());
   }
 
   @SecurityTest
-  void saveSubmissionEstimates_whenNotResponsibleRegulator_thenForbidden() throws Exception {
+  void saveSubmissionEstimate_whenNotResponsibleRegulator_thenForbidden() throws Exception {
     var rolePermissions = mockAndGetRolePermissionsForField();
 
     when(permissionService.hasPermission(USER, rolePermissions))
         .thenReturn(false);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .saveCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID, null, null, null)))
+            post(ReverseRouter.route(on(SubmissionEstimateController.class)
+                .saveCsrSubmissionEstimate(RESOURCE_ID, PROJECT_ID, null, null, null)))
                 .with(csrf())
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
   @SecurityTest
-  void saveSubmissionEstimates_whenResponsibleRegulator_thenOk() throws Exception {
+  void saveSubmissionEstimate_whenResponsibleRegulator_thenOk() throws Exception {
     var rolePermissions = mockAndGetRolePermissionsForField();
 
     when(permissionService.hasPermission(USER, rolePermissions))
@@ -177,8 +177,8 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
         .thenReturn(project);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .saveCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID, null, null, null)))
+            post(ReverseRouter.route(on(SubmissionEstimateController.class)
+                .saveCsrSubmissionEstimate(RESOURCE_ID, PROJECT_ID, null, null, null)))
                 .with(csrf())
                 .with(user(USER)))
         .andExpect(status().isOk());
@@ -199,8 +199,8 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
         .thenReturn(project);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .getRemoveConfirmation(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATES_ID)))
+            get(ReverseRouter.route(on(SubmissionEstimateController.class)
+                .getRemoveConfirmation(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATE_ID)))
                 .with(csrf())
                 .with(user(USER)))
         .andExpect(status().isNotFound());
@@ -215,17 +215,17 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 
-    var estimates = new SubmissionEstimates();
+    var estimates = new SubmissionEstimate();
     estimates.setProject(project);
     estimates.setDateWhenEstimated(LocalDate.now());
     estimates.setMostLikelyDate(LocalDate.now());
 
-    when(submissionEstimatesService.getSubmissionEstimates(SUBMISSION_ESTIMATES_ID))
+    when(submissionEstimateService.getSubmissionEstimate(SUBMISSION_ESTIMATE_ID))
         .thenReturn(Optional.of(estimates));
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .getRemoveConfirmation(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATES_ID)))
+            get(ReverseRouter.route(on(SubmissionEstimateController.class)
+                .getRemoveConfirmation(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATE_ID)))
                 .with(user(USER)))
         .andExpect(status().isOk());
   }
@@ -238,8 +238,8 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
         .thenReturn(false);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .getRemoveConfirmation(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATES_ID)))
+            get(ReverseRouter.route(on(SubmissionEstimateController.class)
+                .getRemoveConfirmation(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATE_ID)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -250,7 +250,7 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
       names = "EXTANT",
       mode = EnumSource.Mode.EXCLUDE
   )
-  void removeEstimates_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
+  void removeEstimate_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
     when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
@@ -259,30 +259,30 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
         .thenReturn(project);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .removeEstimates(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATES_ID, null)))
+            post(ReverseRouter.route(on(SubmissionEstimateController.class)
+                .removeEstimate(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATE_ID, null)))
                 .with(csrf())
                 .with(user(USER)))
         .andExpect(status().isNotFound());
   }
 
   @SecurityTest
-  void removeSubmissionEstimates_whenNotResponsibleRegulator_thenForbidden() throws Exception {
+  void removeSubmissionEstimate_whenNotResponsibleRegulator_thenForbidden() throws Exception {
     var rolePermissions = mockAndGetRolePermissionsForField();
 
     when(permissionService.hasPermission(USER, rolePermissions))
         .thenReturn(false);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .removeEstimates(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATES_ID, null)))
+            post(ReverseRouter.route(on(SubmissionEstimateController.class)
+                .removeEstimate(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATE_ID, null)))
                 .with(csrf())
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
   @SecurityTest
-  void removeSubmissionEstimates_whenResponsibleRegulator_thenRedirect() throws Exception {
+  void removeSubmissionEstimate_whenResponsibleRegulator_thenRedirect() throws Exception {
     var rolePermissions = mockAndGetRolePermissionsForField();
 
     when(permissionService.hasPermission(USER, rolePermissions))
@@ -290,56 +290,56 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 
-    var estimates = new SubmissionEstimates();
+    var estimates = new SubmissionEstimate();
     estimates.setProject(project);
     estimates.setDateWhenEstimated(LocalDate.now());
     estimates.setMostLikelyDate(LocalDate.now());
 
-    when(submissionEstimatesService.getSubmissionEstimates(SUBMISSION_ESTIMATES_ID))
+    when(submissionEstimateService.getSubmissionEstimate(SUBMISSION_ESTIMATE_ID))
         .thenReturn(Optional.of(estimates));
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .removeEstimates(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATES_ID, null)))
+            post(ReverseRouter.route(on(SubmissionEstimateController.class)
+                .removeEstimate(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATE_ID, null)))
                 .with(csrf())
                 .with(user(USER)))
         .andExpect(status().is3xxRedirection());
   }
 
   @Test
-  void getCsrSubmissionEstimates_whenProjectDoesNotMatchResource_thenNotFound() throws Exception {
+  void getCsrSubmissionEstimate_whenProjectDoesNotMatchResource_thenNotFound() throws Exception {
     when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
         .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenThrow(RemiEntityNotFoundException.class);
 
     mockMvc.perform(
-                get(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                    .getCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID)))
+                get(ReverseRouter.route(on(SubmissionEstimateController.class)
+                    .getCsrSubmissionEstimate(RESOURCE_ID, PROJECT_ID)))
                     .with(user(USER)))
             .andExpect(status().isNotFound());
   }
 
   @Test
-  void getCsrSubmissionEstimates_whenProjectAnalyst_andProjectMatchesResource_assertProperties() throws Exception {
+  void getCsrSubmissionEstimate_whenProjectAnalyst_andProjectMatchesResource_assertProperties() throws Exception {
     when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
         .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-                get(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                    .getCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID)))
+                get(ReverseRouter.route(on(SubmissionEstimateController.class)
+                    .getCsrSubmissionEstimate(RESOURCE_ID, PROJECT_ID)))
                     .with(user(USER)))
             .andExpect(status().isOk())
-            .andExpect(view().name("remi/field/projecttracker/addSubmissionEstimates"))
+            .andExpect(view().name("remi/field/projecttracker/addSubmissionEstimate"))
             .andReturn()
             .getModelAndView())
         .getModelMap();
 
     assertThat(modelMap)
         .contains(
-            entry("pageTitle",SubmissionEstimatesController.ESTIMATED_CSR),
+            entry("pageTitle", SubmissionEstimateController.ESTIMATED_CSR),
             entry("pageCaption", project.getProjectName()),
             entry("cancelUrl", ReverseRouter.route(on(ViewProjectController.class)
                 .getViewProject(project.getField().getResource().getId(), project.getId(), null)))
@@ -358,15 +358,15 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
     }
 
     @Nested
-    class WhenGetCsrSubmissionEstimates {
+    class WhenGetCsrSubmissionEstimate {
       @Test
       void andProjectForResourceDoesNotExist_thenNotFound() throws Exception {
         when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, UNRELATED_ID))
             .thenThrow(RemiEntityNotFoundException.class);
 
         mockMvc.perform(
-                get(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                    .getCsrSubmissionEstimates(RESOURCE_ID, UNRELATED_ID)))
+                get(ReverseRouter.route(on(SubmissionEstimateController.class)
+                    .getCsrSubmissionEstimate(RESOURCE_ID, UNRELATED_ID)))
                     .with(user(USER)))
             .andExpect(status().isNotFound());
       }
@@ -374,18 +374,18 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
       @Test
       void andProjectMatchesResourceFound_assertProperties() throws Exception {
         var modelMap = Objects.requireNonNull(mockMvc.perform(
-                    get(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                        .getCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID)))
+                    get(ReverseRouter.route(on(SubmissionEstimateController.class)
+                        .getCsrSubmissionEstimate(RESOURCE_ID, PROJECT_ID)))
                         .with(user(USER)))
                 .andExpect(status().isOk())
-                .andExpect(view().name("remi/field/projecttracker/addSubmissionEstimates"))
+                .andExpect(view().name("remi/field/projecttracker/addSubmissionEstimate"))
                 .andReturn()
                 .getModelAndView())
             .getModelMap();
 
         assertThat(modelMap)
             .contains(
-                entry("pageTitle", SubmissionEstimatesController.ESTIMATED_CSR),
+                entry("pageTitle", SubmissionEstimateController.ESTIMATED_CSR),
                 entry("pageCaption", project.getProjectName()),
                 entry("cancelUrl", ReverseRouter.route(on(ViewProjectController.class)
                     .getViewProject(project.getField().getResource().getId(), project.getId(), null)))
@@ -395,15 +395,15 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
     }
 
     @Nested
-    class WhenSaveCsrSubmissionEstimates {
+    class WhenSaveCsrSubmissionEstimate {
       @Test
       void andProjectForResourceDoesNotExist_thenNotFound() throws Exception {
         when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, UNRELATED_ID))
             .thenThrow(RemiEntityNotFoundException.class);
 
         mockMvc.perform(
-                post(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                    .saveCsrSubmissionEstimates(RESOURCE_ID, UNRELATED_ID, null, null, null)))
+                post(ReverseRouter.route(on(SubmissionEstimateController.class)
+                    .saveCsrSubmissionEstimate(RESOURCE_ID, UNRELATED_ID, null, null, null)))
                     .with(user(USER))
                     .with(csrf()))
             .andExpect(status().isNotFound());
@@ -411,7 +411,7 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
 
       @Test
       void andProjectMatchesResource_andValidForm_thenAssertPropertiesAndVerifyCall() throws Exception {
-        when(submissionEstimatesFormValidator.isValid(any(SubmissionEstimatesForm.class), any(BindingResult.class)))
+        when(submissionEstimateFormValidator.isValid(any(SubmissionEstimateForm.class), any(BindingResult.class)))
             .thenReturn(true);
 
         var expectedBanner = NotificationBanner.builder()
@@ -421,8 +421,8 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
             .build();
 
         mockMvc.perform(
-            post(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                .getCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID)))
+            post(ReverseRouter.route(on(SubmissionEstimateController.class)
+                .getCsrSubmissionEstimate(RESOURCE_ID, PROJECT_ID)))
                 .with(user(USER))
                 .with(csrf()))
             .andExpect(status().is3xxRedirection())
@@ -430,24 +430,24 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
                 .getViewProject(RESOURCE_ID, PROJECT_ID, null))))
             .andExpect(notificationBanner(expectedBanner));
 
-        verify(submissionEstimatesService).saveSubmissionEstimateFromForm(any(SubmissionEstimatesForm.class), eq(project), eq(SubmissionEstimatesType.CSR));
-        verifyNoMoreInteractions(submissionEstimatesService);
+        verify(submissionEstimateService).saveSubmissionEstimateFromForm(any(SubmissionEstimateForm.class), eq(project), eq(SubmissionEstimateType.CSR));
+        verifyNoMoreInteractions(submissionEstimateService);
       }
 
       @Test
       void andProjectMatchesResource_andInvalidForm_thenAssertPropertiesAndVerifyCall() throws Exception {
-        when(submissionEstimatesFormValidator.isValid(any(SubmissionEstimatesForm.class), any(BindingResult.class)))
+        when(submissionEstimateFormValidator.isValid(any(SubmissionEstimateForm.class), any(BindingResult.class)))
             .thenReturn(false);
 
         mockMvc.perform(
-                post(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                    .getCsrSubmissionEstimates(RESOURCE_ID, PROJECT_ID)))
+                post(ReverseRouter.route(on(SubmissionEstimateController.class)
+                    .getCsrSubmissionEstimate(RESOURCE_ID, PROJECT_ID)))
                     .with(user(USER))
                     .with(csrf()))
             .andExpect(status().isOk())
-            .andExpect(view().name("remi/field/projecttracker/addSubmissionEstimates"));
+            .andExpect(view().name("remi/field/projecttracker/addSubmissionEstimate"));
 
-        verify(submissionEstimatesService, never()).saveSubmissionEstimateFromForm(any(), any(), any());
+        verify(submissionEstimateService, never()).saveSubmissionEstimateFromForm(any(), any(), any());
       }
     }
 
@@ -459,19 +459,19 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
             .thenThrow(RemiEntityNotFoundException.class);
 
         mockMvc.perform(
-                get(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                    .getRemoveConfirmation(RESOURCE_ID, UNRELATED_ID, SUBMISSION_ESTIMATES_ID)))
+                get(ReverseRouter.route(on(SubmissionEstimateController.class)
+                    .getRemoveConfirmation(RESOURCE_ID, UNRELATED_ID, SUBMISSION_ESTIMATE_ID)))
                     .with(user(USER)))
             .andExpect(status().isNotFound());
       }
 
       @Test
       void andSubmissionEstimateDoesNotExist_thenNotFound() throws Exception {
-        when(submissionEstimatesService.getSubmissionEstimates(UNRELATED_ID))
+        when(submissionEstimateService.getSubmissionEstimate(UNRELATED_ID))
             .thenReturn(Optional.empty());
 
         mockMvc.perform(
-                get(ReverseRouter.route(on(SubmissionEstimatesController.class)
+                get(ReverseRouter.route(on(SubmissionEstimateController.class)
                     .getRemoveConfirmation(RESOURCE_ID, PROJECT_ID, UNRELATED_ID)))
                     .with(user(USER)))
             .andExpect(status().isNotFound());
@@ -479,17 +479,17 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
 
       @Test
       void andSubmissionEstimateDoesNotMatchProject_thenNotFound() throws Exception {
-        var unrelatedEstimate = new SubmissionEstimates();
+        var unrelatedEstimate = new SubmissionEstimate();
 
         var unrelatedProject = new Project();
         unrelatedProject.setId(UUID.randomUUID());
         unrelatedEstimate.setProject(unrelatedProject);
 
-        when(submissionEstimatesService.getSubmissionEstimates(UNRELATED_ID))
+        when(submissionEstimateService.getSubmissionEstimate(UNRELATED_ID))
             .thenReturn(Optional.of(unrelatedEstimate));
 
         mockMvc.perform(
-                get(ReverseRouter.route(on(SubmissionEstimatesController.class)
+                get(ReverseRouter.route(on(SubmissionEstimateController.class)
                     .getRemoveConfirmation(RESOURCE_ID, PROJECT_ID, UNRELATED_ID)))
                     .with(user(USER)))
             .andExpect(status().isNotFound());
@@ -499,17 +499,17 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
       void andProjectMatchesResourceFound_assertProperties() throws Exception {
         final var FIXED_DATE = LocalDate.of(2024, 11, 3);
 
-        var estimates = new SubmissionEstimates();
+        var estimates = new SubmissionEstimate();
         estimates.setProject(project);
         estimates.setDateWhenEstimated(FIXED_DATE);
         estimates.setMostLikelyDate(FIXED_DATE.minusDays(2));
 
-        when(submissionEstimatesService.getSubmissionEstimates(SUBMISSION_ESTIMATES_ID))
+        when(submissionEstimateService.getSubmissionEstimate(SUBMISSION_ESTIMATE_ID))
             .thenReturn(Optional.of(estimates));
 
         var modelMap = Objects.requireNonNull(mockMvc.perform(
-                    get(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                        .getRemoveConfirmation(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATES_ID)))
+                    get(ReverseRouter.route(on(SubmissionEstimateController.class)
+                        .getRemoveConfirmation(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATE_ID)))
                         .with(user(USER)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("remi/field/projecttracker/removeEstimateConfirmation"))
@@ -521,7 +521,7 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
             .contains(
                 entry("pageTitle", "Are you sure you want to remove this estimated CSR first draft submission date?"),
                 entry("pageCaption", project.getProjectName()),
-                entry("estimates", new SubmissionEstimatesView(
+                entry("estimates", new SubmissionEstimateView(
                     "3 November 2024",
                     "",
                     "1 November 2024",
@@ -534,15 +534,15 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
     }
 
     @Nested
-    class WhenRemoveEstimates {
+    class WhenRemoveEstimate {
       @Test
       void andProjectForResourceDoesNotExist_thenNotFound() throws Exception {
         when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, UNRELATED_ID))
             .thenThrow(RemiEntityNotFoundException.class);
 
         mockMvc.perform(
-                post(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                    .getRemoveConfirmation(RESOURCE_ID, UNRELATED_ID, SUBMISSION_ESTIMATES_ID)))
+                post(ReverseRouter.route(on(SubmissionEstimateController.class)
+                    .getRemoveConfirmation(RESOURCE_ID, UNRELATED_ID, SUBMISSION_ESTIMATE_ID)))
                     .with(user(USER))
                     .with(csrf()))
             .andExpect(status().isNotFound());
@@ -550,12 +550,12 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
 
       @Test
       void andSubmissionEstimateDoesNotExist_thenNotFound() throws Exception {
-        when(submissionEstimatesService.getSubmissionEstimates(UNRELATED_ID))
+        when(submissionEstimateService.getSubmissionEstimate(UNRELATED_ID))
             .thenReturn(Optional.empty());
 
         mockMvc.perform(
-                post(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                    .removeEstimates(RESOURCE_ID, PROJECT_ID, UNRELATED_ID, null)))
+                post(ReverseRouter.route(on(SubmissionEstimateController.class)
+                    .removeEstimate(RESOURCE_ID, PROJECT_ID, UNRELATED_ID, null)))
                     .with(user(USER))
                     .with(csrf()))
             .andExpect(status().isNotFound());
@@ -563,18 +563,18 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
 
       @Test
       void andSubmissionEstimateDoesNotMatchProject_thenNotFound() throws Exception {
-        var unrelatedEstimate = new SubmissionEstimates();
+        var unrelatedEstimate = new SubmissionEstimate();
 
         var unrelatedProject = new Project();
         unrelatedProject.setId(UUID.randomUUID());
         unrelatedEstimate.setProject(unrelatedProject);
 
-        when(submissionEstimatesService.getSubmissionEstimates(UNRELATED_ID))
+        when(submissionEstimateService.getSubmissionEstimate(UNRELATED_ID))
             .thenReturn(Optional.of(unrelatedEstimate));
 
         mockMvc.perform(
-                post(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                    .removeEstimates(RESOURCE_ID, PROJECT_ID, UNRELATED_ID, null)))
+                post(ReverseRouter.route(on(SubmissionEstimateController.class)
+                    .removeEstimate(RESOURCE_ID, PROJECT_ID, UNRELATED_ID, null)))
                     .with(user(USER))
                     .with(csrf()))
             .andExpect(status().isNotFound());
@@ -582,20 +582,20 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
 
       @Test
       void andSubmissionEstimateDoesExist_assertProperties() throws Exception {
-        var estimates = new SubmissionEstimates();
+        var estimates = new SubmissionEstimate();
         estimates.setProject(project);
-        when(submissionEstimatesService.getSubmissionEstimates(SUBMISSION_ESTIMATES_ID))
+        when(submissionEstimateService.getSubmissionEstimate(SUBMISSION_ESTIMATE_ID))
             .thenReturn(Optional.of(estimates));
 
         var expectedBanner = NotificationBanner.builder()
             .withBannerType(NotificationBannerType.SUCCESS)
             .withTitle("Success")
-            .withContent("Removed CSR first draft submission estimates")
+            .withContent("Removed CSR first draft submission estimate")
             .build();
 
         mockMvc.perform(
-                post(ReverseRouter.route(on(SubmissionEstimatesController.class)
-                    .removeEstimates(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATES_ID, null)))
+                post(ReverseRouter.route(on(SubmissionEstimateController.class)
+                    .removeEstimate(RESOURCE_ID, PROJECT_ID, SUBMISSION_ESTIMATE_ID, null)))
                     .with(user(USER))
                     .with(csrf()))
             .andExpect(status().is3xxRedirection())
@@ -603,7 +603,7 @@ class SubmissionEstimatesControllerTest extends AbstractControllerTest {
                 .getViewProject(RESOURCE_ID, PROJECT_ID, null))))
             .andExpect(notificationBanner(expectedBanner));
 
-        verify(submissionEstimatesService).removeEstimates(estimates);
+        verify(submissionEstimateService).removeEstimate(estimates);
       }
     }
   }

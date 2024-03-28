@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimates;
+package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,13 +17,13 @@ import org.springframework.validation.FieldError;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 
 @ExtendWith(MockitoExtension.class)
-class SubmissionEstimatesFormValidatorTest {
+class SubmissionEstimateFormValidatorTest {
   @Mock
-  private SubmissionEstimatesService submissionEstimatesService;
+  private SubmissionEstimateService submissionEstimateService;
   @InjectMocks
-  private SubmissionEstimatesFormValidator submissionEstimatesFormValidator;
+  private SubmissionEstimateFormValidator submissionEstimateFormValidator;
 
-  private SubmissionEstimatesForm form;
+  private SubmissionEstimateForm form;
   private BindingResult bindingResult;
   private Project project;
 
@@ -37,7 +37,7 @@ class SubmissionEstimatesFormValidatorTest {
   class GivenIsValid {
     @Test
     void whenValidForm_thenTrue() {
-      assertThat(submissionEstimatesFormValidator.isValid(form, bindingResult))
+      assertThat(submissionEstimateFormValidator.isValid(form, bindingResult))
           .isTrue();
 
       assertThat(bindingResult.hasErrors()).isFalse();
@@ -53,9 +53,9 @@ class SubmissionEstimatesFormValidatorTest {
 
     @Test
     void whenNoneProvided_thenFalse() {
-      form = new SubmissionEstimatesForm();
+      form = new SubmissionEstimateForm();
 
-      assertThat(submissionEstimatesFormValidator.isValid(form, bindingResult))
+      assertThat(submissionEstimateFormValidator.isValid(form, bindingResult))
           .isFalse();
 
       assertThat(bindingResult.getFieldErrors())
@@ -77,7 +77,7 @@ class SubmissionEstimatesFormValidatorTest {
       form.setEarliestDateMonth(null);
       form.setEarliestDateYear(null);
 
-      assertThat(submissionEstimatesFormValidator.isValid(form, bindingResult))
+      assertThat(submissionEstimateFormValidator.isValid(form, bindingResult))
           .isTrue();
     }
 
@@ -87,7 +87,7 @@ class SubmissionEstimatesFormValidatorTest {
       form.setMostLikelyDateMonth(null);
       form.setMostLikelyDateYear(null);
 
-      assertThat(submissionEstimatesFormValidator.isValid(form, bindingResult))
+      assertThat(submissionEstimateFormValidator.isValid(form, bindingResult))
           .isFalse();
 
       assertThat(bindingResult.getFieldErrors())
@@ -105,7 +105,7 @@ class SubmissionEstimatesFormValidatorTest {
       form.setLatestDateMonth(null);
       form.setLatestDateYear(null);
 
-      assertThat(submissionEstimatesFormValidator.isValid(form, bindingResult))
+      assertThat(submissionEstimateFormValidator.isValid(form, bindingResult))
           .isTrue();
     }
 
@@ -115,7 +115,7 @@ class SubmissionEstimatesFormValidatorTest {
       form.setEstimatedDateMonth(null);
       form.setEstimatedDateYear(null);
 
-      assertThat(submissionEstimatesFormValidator.isValid(form, bindingResult))
+      assertThat(submissionEstimateFormValidator.isValid(form, bindingResult))
           .isFalse();
 
       assertThat(bindingResult.getFieldErrors())
@@ -145,7 +145,7 @@ class SubmissionEstimatesFormValidatorTest {
       form.setLatestDateMonth("11");
       form.setLatestDateYear("2010");
 
-      assertThat(submissionEstimatesFormValidator.isValid(form, bindingResult))
+      assertThat(submissionEstimateFormValidator.isValid(form, bindingResult))
           .isFalse();
 
       assertThat(bindingResult.getFieldErrors())
@@ -176,7 +176,7 @@ class SubmissionEstimatesFormValidatorTest {
       form.setLatestDateMonth("11");
       form.setLatestDateYear("2024");
 
-      assertThat(submissionEstimatesFormValidator.isValid(form, bindingResult))
+      assertThat(submissionEstimateFormValidator.isValid(form, bindingResult))
           .isTrue();
     }
 
@@ -194,7 +194,7 @@ class SubmissionEstimatesFormValidatorTest {
       form.setLatestDateMonth("11");
       form.setLatestDateYear("2025");
 
-      assertThat(submissionEstimatesFormValidator.isValid(form, bindingResult))
+      assertThat(submissionEstimateFormValidator.isValid(form, bindingResult))
           .isFalse();
 
       assertThat(bindingResult.getFieldErrors())
@@ -216,7 +216,7 @@ class SubmissionEstimatesFormValidatorTest {
       form.setMostLikelyDateMonth("11");
       form.setMostLikelyDateYear("2024");
 
-      assertThat(submissionEstimatesFormValidator.isValid(form, bindingResult))
+      assertThat(submissionEstimateFormValidator.isValid(form, bindingResult))
           .isTrue();
     }
 
@@ -230,7 +230,7 @@ class SubmissionEstimatesFormValidatorTest {
       form.setLatestDateMonth("11");
       form.setLatestDateYear("2023");
 
-      assertThat(submissionEstimatesFormValidator.isValid(form, bindingResult))
+      assertThat(submissionEstimateFormValidator.isValid(form, bindingResult))
           .isFalse();
 
       assertThat(bindingResult.getFieldErrors())
@@ -252,7 +252,7 @@ class SubmissionEstimatesFormValidatorTest {
       form.setLatestDateMonth("11");
       form.setLatestDateYear("2024");
 
-      assertThat(submissionEstimatesFormValidator.isValid(form, bindingResult))
+      assertThat(submissionEstimateFormValidator.isValid(form, bindingResult))
           .isFalse();
     }
 
@@ -264,7 +264,7 @@ class SubmissionEstimatesFormValidatorTest {
       form.setEstimatedDateMonth("11");
       form.setEstimatedDateYear(String.valueOf(LocalDate.now().getYear() + 1));
 
-      assertThat(submissionEstimatesFormValidator.isValid(form, bindingResult))
+      assertThat(submissionEstimateFormValidator.isValid(form, bindingResult))
           .isFalse();
 
       assertThat(bindingResult.getFieldErrors())
@@ -286,7 +286,7 @@ class SubmissionEstimatesFormValidatorTest {
       form.setEstimatedDateMonth(String.valueOf(today.getMonthValue()));
       form.setEstimatedDateYear(String.valueOf(today.getYear()));
 
-      assertThat(submissionEstimatesFormValidator.isValid(form, bindingResult))
+      assertThat(submissionEstimateFormValidator.isValid(form, bindingResult))
           .isTrue();
     }
   }
@@ -295,7 +295,7 @@ class SubmissionEstimatesFormValidatorTest {
   void givenDatesAreNotRealDates_thenErrors() {
     form = getInvalidForm();
 
-    assertThat(submissionEstimatesFormValidator.isValid(form, bindingResult))
+    assertThat(submissionEstimateFormValidator.isValid(form, bindingResult))
         .isFalse();
 
     assertThat(bindingResult.getFieldErrors())
@@ -328,7 +328,7 @@ class SubmissionEstimatesFormValidatorTest {
     form.setLatestDateDay(null);
     form.setEstimatedDateDay(null);
 
-    assertThat(submissionEstimatesFormValidator.isValid(form, bindingResult))
+    assertThat(submissionEstimateFormValidator.isValid(form, bindingResult))
         .isFalse();
 
     assertThat(bindingResult.getFieldErrors())
@@ -344,8 +344,8 @@ class SubmissionEstimatesFormValidatorTest {
         );
   }
 
-  private SubmissionEstimatesForm getInvalidForm() {
-    var form = new SubmissionEstimatesForm();
+  private SubmissionEstimateForm getInvalidForm() {
+    var form = new SubmissionEstimateForm();
 
     form.setEarliestDateDay("not a date");
     form.setEarliestDateMonth("not a date");
@@ -366,8 +366,8 @@ class SubmissionEstimatesFormValidatorTest {
     return form;
   }
 
-  private SubmissionEstimatesForm getValidForm() {
-    var form = new SubmissionEstimatesForm();
+  private SubmissionEstimateForm getValidForm() {
+    var form = new SubmissionEstimateForm();
 
     form.setEarliestDateDay("3");
     form.setEarliestDateMonth("11");

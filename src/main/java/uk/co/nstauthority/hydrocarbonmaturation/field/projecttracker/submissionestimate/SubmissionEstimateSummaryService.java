@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimates;
+package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimate;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -27,7 +27,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @Service
-class SubmissionEstimatesSummaryService implements SummarySectionService<Project> {
+class SubmissionEstimateSummaryService implements SummarySectionService<Project> {
   static final Set<ProjectType> PROJECT_TYPES_FOR_SECTION = Set.of(
       ProjectType.FIELD_DEVELOPMENT_PLAN,
       ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM
@@ -41,17 +41,17 @@ class SubmissionEstimatesSummaryService implements SummarySectionService<Project
   static final String LATEST = "Latest";
   static final String ACTIONS = "Actions";
 
-  private final SubmissionEstimatesService submissionEstimatesService;
+  private final SubmissionEstimateService submissionEstimateService;
   private final UserService userService;
   private final PermissionService permissionService;
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @Autowired
-  SubmissionEstimatesSummaryService(SubmissionEstimatesService submissionEstimatesService,
-                                    UserService userService,
-                                    PermissionService permissionService,
-                                    RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService) {
-    this.submissionEstimatesService = submissionEstimatesService;
+  SubmissionEstimateSummaryService(SubmissionEstimateService submissionEstimateService,
+                                   UserService userService,
+                                   PermissionService permissionService,
+                                   RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService) {
+    this.submissionEstimateService = submissionEstimateService;
     this.userService = userService;
     this.permissionService = permissionService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
@@ -80,25 +80,25 @@ class SubmissionEstimatesSummaryService implements SummarySectionService<Project
     }
     var summaryTableView = SummaryTableView.newWithHeading(headings.toArray());
 
-    submissionEstimatesService.getCreatedEstimates(project, SubmissionEstimatesType.CSR)
+    submissionEstimateService.getCreatedEstimates(project, SubmissionEstimateType.CSR)
         .stream()
-        .sorted(Comparator.comparing(SubmissionEstimates::getDateWhenEstimated))
+        .sorted(Comparator.comparing(SubmissionEstimate::getDateWhenEstimated))
         .forEach(
-            submissionEstimates -> {
+            submissionEstimate -> {
               var row = SummaryTableRow.builder()
                   .withValues(
-                      submissionEstimates.getDateWhenEstimated(),
-                      submissionEstimates.getEarliestDate(),
-                      submissionEstimates.getMostLikelyDate(),
-                      submissionEstimates.getLatestDate()
+                      submissionEstimate.getDateWhenEstimated(),
+                      submissionEstimate.getEarliestDate(),
+                      submissionEstimate.getMostLikelyDate(),
+                      submissionEstimate.getLatestDate()
                   );
 
               if (canModifyDates) {
-                row.withAction("Remove", ReverseRouter.route(on(SubmissionEstimatesController.class)
-                    .removeEstimates(
+                row.withAction("Remove", ReverseRouter.route(on(SubmissionEstimateController.class)
+                    .removeEstimate(
                         project.getField().getResource().getId(),
                         project.getId(),
-                        submissionEstimates.getId(),
+                        submissionEstimate.getId(),
                         null)));
               }
               summaryTableView.addRow(row.build());
@@ -109,8 +109,8 @@ class SubmissionEstimatesSummaryService implements SummarySectionService<Project
     if (canModifyDates) {
       cardActions.put(
           "Add",
-          ReverseRouter.route(on(SubmissionEstimatesController.class)
-              .getCsrSubmissionEstimates(project.getField().getResource().getId(), project.getId()))
+          ReverseRouter.route(on(SubmissionEstimateController.class)
+              .getCsrSubmissionEstimate(project.getField().getResource().getId(), project.getId()))
       );
     }
 

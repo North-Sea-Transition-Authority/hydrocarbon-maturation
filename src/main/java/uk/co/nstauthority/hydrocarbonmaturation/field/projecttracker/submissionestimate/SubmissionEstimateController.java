@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimates;
+package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimate;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -26,41 +26,41 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 @RequestMapping("/view-resource-record/{resourceId}/project-tracker/{projectId}")
 @IsExtantProject
 @IsRegulatorForProjectField
-class SubmissionEstimatesController {
+class SubmissionEstimateController {
   static final String ESTIMATED_CSR = "Estimated CSR first draft submitted date";
   public static final String CSR_ESTIMATE_DATE = "estimated CSR first draft submission date";
 
   private final ProjectTrackerControllerService projectTrackerControllerService;
-  private final SubmissionEstimatesFormValidator submissionEstimatesFormValidator;
-  private final SubmissionEstimatesService submissionEstimatesService;
+  private final SubmissionEstimateFormValidator submissionEstimateFormValidator;
+  private final SubmissionEstimateService submissionEstimateService;
 
   @Autowired
-  SubmissionEstimatesController(ProjectTrackerControllerService projectTrackerControllerService,
-                                SubmissionEstimatesFormValidator submissionEstimatesFormValidator,
-                                SubmissionEstimatesService submissionEstimatesService) {
+  SubmissionEstimateController(ProjectTrackerControllerService projectTrackerControllerService,
+                               SubmissionEstimateFormValidator submissionEstimateFormValidator,
+                               SubmissionEstimateService submissionEstimateService) {
     this.projectTrackerControllerService = projectTrackerControllerService;
-    this.submissionEstimatesFormValidator = submissionEstimatesFormValidator;
-    this.submissionEstimatesService = submissionEstimatesService;
+    this.submissionEstimateFormValidator = submissionEstimateFormValidator;
+    this.submissionEstimateService = submissionEstimateService;
   }
 
   @GetMapping("/csr-submission-estimates")
-  ModelAndView getCsrSubmissionEstimates(@PathVariable("resourceId") UUID resourceId,
-                                         @PathVariable("projectId") UUID projectId) {
+  ModelAndView getCsrSubmissionEstimate(@PathVariable("resourceId") UUID resourceId,
+                                        @PathVariable("projectId") UUID projectId) {
     var project = projectTrackerControllerService.getProjectForResourceOrThrow(resourceId, projectId);
 
-    return getSubmissionEstimatesModelAndView(ESTIMATED_CSR, project, new SubmissionEstimatesForm());
+    return getSubmissionEstimateModelAndView(ESTIMATED_CSR, project, new SubmissionEstimateForm());
   }
 
   @PostMapping("/csr-submission-estimates")
-  ModelAndView saveCsrSubmissionEstimates(@PathVariable("resourceId") UUID resourceId,
-                                          @PathVariable("projectId") UUID projectId,
-                                          @ModelAttribute("form") SubmissionEstimatesForm form,
-                                          BindingResult bindingResult,
-                                          RedirectAttributes redirectAttributes) {
+  ModelAndView saveCsrSubmissionEstimate(@PathVariable("resourceId") UUID resourceId,
+                                         @PathVariable("projectId") UUID projectId,
+                                         @ModelAttribute("form") SubmissionEstimateForm form,
+                                         BindingResult bindingResult,
+                                         RedirectAttributes redirectAttributes) {
     var project = projectTrackerControllerService.getProjectForResourceOrThrow(resourceId, projectId);
 
-    if (submissionEstimatesFormValidator.isValid(form, bindingResult)) {
-      submissionEstimatesService.saveSubmissionEstimateFromForm(form, project, SubmissionEstimatesType.CSR);
+    if (submissionEstimateFormValidator.isValid(form, bindingResult)) {
+      submissionEstimateService.saveSubmissionEstimateFromForm(form, project, SubmissionEstimateType.CSR);
 
       NotificationBannerUtil.addSuccessNotification(
           redirectAttributes, "Success", "Saved estimated CSR first draft information");
@@ -69,7 +69,7 @@ class SubmissionEstimatesController {
           .getViewProject(resourceId, projectId, null));
     }
 
-    return getSubmissionEstimatesModelAndView(ESTIMATED_CSR, project, form);
+    return getSubmissionEstimateModelAndView(ESTIMATED_CSR, project, form);
   }
 
   @GetMapping("/{submissionEstimateId}/delete")
@@ -78,7 +78,7 @@ class SubmissionEstimatesController {
                                      @PathVariable("submissionEstimateId") UUID submissionEstimateId) {
     var project = projectTrackerControllerService.getProjectForResourceOrThrow(resourceId, projectId);
 
-    var estimates = submissionEstimatesService.getSubmissionEstimates(submissionEstimateId)
+    var estimates = submissionEstimateService.getSubmissionEstimate(submissionEstimateId)
         .orElseThrow(() -> new RemiEntityNotFoundException("There is no submission estimate with id %s"
             .formatted(submissionEstimateId)));
 
@@ -90,43 +90,43 @@ class SubmissionEstimatesController {
     return new ModelAndView("remi/field/projecttracker/removeEstimateConfirmation")
         .addObject("pageTitle", "Are you sure you want to remove this " + CSR_ESTIMATE_DATE + "?")
         .addObject("pageCaption", project.getProjectName())
-        .addObject("estimates", SubmissionEstimatesView.from(estimates))
+        .addObject("estimates", SubmissionEstimateView.from(estimates))
         .addObject("cancelUrl", ReverseRouter.route(on(ViewProjectController.class)
             .getViewProject(project.getField().getResource().getId(), project.getId(), null)));
   }
 
   @PostMapping("/{submissionEstimateId}/delete")
-  ModelAndView removeEstimates(@PathVariable("resourceId") UUID resourceId,
-                               @PathVariable("projectId") UUID projectId,
-                               @PathVariable("submissionEstimateId") UUID submissionEstimateId,
-                               RedirectAttributes redirectAttributes) {
+  ModelAndView removeEstimate(@PathVariable("resourceId") UUID resourceId,
+                              @PathVariable("projectId") UUID projectId,
+                              @PathVariable("submissionEstimateId") UUID submissionEstimateId,
+                              RedirectAttributes redirectAttributes) {
     var project = projectTrackerControllerService.getProjectForResourceOrThrow(resourceId, projectId);
 
-    var estimates = submissionEstimatesService.getSubmissionEstimates(submissionEstimateId)
+    var submissionEstimate = submissionEstimateService.getSubmissionEstimate(submissionEstimateId)
         .orElseThrow(() -> new RemiEntityNotFoundException("There is no submission estimate with id %s"
             .formatted(submissionEstimateId)));
 
-    if (!estimates.getProject().getId().equals(project.getId())) {
+    if (!submissionEstimate.getProject().getId().equals(project.getId())) {
       throw new RemiEntityNotFoundException("There is no submissionEstimate with id %s for project with id %s"
           .formatted(submissionEstimateId, projectId));
     }
 
-    submissionEstimatesService.removeEstimates(estimates);
+    submissionEstimateService.removeEstimate(submissionEstimate);
 
     NotificationBannerUtil.addSuccessNotification(
         redirectAttributes,
         "Success",
-        "Removed CSR first draft submission estimates"
+        "Removed CSR first draft submission estimate"
     );
 
     return ReverseRouter.redirect(on(ViewProjectController.class)
         .getViewProject(resourceId, projectId, null));
   }
 
-  private static ModelAndView getSubmissionEstimatesModelAndView(String pageTitle,
-                                                                 Project project,
-                                                                 SubmissionEstimatesForm form) {
-    return new ModelAndView("remi/field/projecttracker/addSubmissionEstimates")
+  private static ModelAndView getSubmissionEstimateModelAndView(String pageTitle,
+                                                                Project project,
+                                                                SubmissionEstimateForm form) {
+    return new ModelAndView("remi/field/projecttracker/addSubmissionEstimate")
         .addObject("pageTitle", pageTitle)
         .addObject("pageCaption", project.getProjectName())
         .addObject("form", form)

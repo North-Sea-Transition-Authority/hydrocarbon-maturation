@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimates;
+package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimate;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -7,13 +7,13 @@ import org.springframework.validation.Errors;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DateValidationUtil;
 
 @Service
-class SubmissionEstimatesFormValidator {
+class SubmissionEstimateFormValidator {
   public static final String EARLIEST_DATE = "earliestDate";
   public static final String MOST_LIKELY_DATE = "mostLikelyDate";
   public static final String LATEST_DATE = "latestDate";
   public static final String ESTIMATED_DATE = "estimatedDate";
 
-  boolean isValid(SubmissionEstimatesForm form, Errors errors) {
+  boolean isValid(SubmissionEstimateForm form, Errors errors) {
     var isValidEarliest = DateValidationUtil.validateOptionalDate(
         EARLIEST_DATE,
         "earliest submission date",
@@ -57,7 +57,7 @@ class SubmissionEstimatesFormValidator {
     return !errors.hasErrors();
   }
 
-  private void validateEstimatedTodayOrInPast(SubmissionEstimatesForm form, Errors errors, boolean isValidEstimated) {
+  private void validateEstimatedTodayOrInPast(SubmissionEstimateForm form, Errors errors, boolean isValidEstimated) {
     if (isValidEstimated) {
       DateValidationUtil.validateDateIsTodayOrInThePast(
           ESTIMATED_DATE,
@@ -70,7 +70,7 @@ class SubmissionEstimatesFormValidator {
     }
   }
 
-  private void validateEarliestAndMostLikelyOrder(SubmissionEstimatesForm form,
+  private void validateEarliestAndMostLikelyOrder(SubmissionEstimateForm form,
                                                   Errors errors,
                                                   boolean isValidEarliest,
                                                   boolean isValidMostLikely) {
@@ -93,7 +93,7 @@ class SubmissionEstimatesFormValidator {
     }
   }
 
-  private void validateLatestDateOrder(SubmissionEstimatesForm form,
+  private void validateLatestDateOrder(SubmissionEstimateForm form,
                                        Errors errors,
                                        boolean isValidLatest,
                                        boolean isValidEarliest,
@@ -138,7 +138,7 @@ class SubmissionEstimatesFormValidator {
     }
   }
 
-  private Optional<LocalDate> getMostLikelyDate(SubmissionEstimatesForm form) {
+  private Optional<LocalDate> getMostLikelyDate(SubmissionEstimateForm form) {
     try {
       return Optional.of(LocalDate.of(
           Integer.parseInt(form.getMostLikelyDateYear()),
@@ -150,7 +150,7 @@ class SubmissionEstimatesFormValidator {
     }
   }
 
-  private Optional<LocalDate> getLatestDate(SubmissionEstimatesForm form) {
+  private Optional<LocalDate> getLatestDate(SubmissionEstimateForm form) {
     try {
       return Optional.of(LocalDate.of(
           Integer.parseInt(form.getLatestDateYear()),
@@ -162,7 +162,7 @@ class SubmissionEstimatesFormValidator {
     }
   }
 
-  private Optional<LocalDate> getEarliestDate(SubmissionEstimatesForm form) {
+  private Optional<LocalDate> getEarliestDate(SubmissionEstimateForm form) {
     try {
       return Optional.of(LocalDate.of(
           Integer.parseInt(form.getEarliestDateYear()),

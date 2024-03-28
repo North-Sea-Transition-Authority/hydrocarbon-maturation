@@ -1,6 +1,6 @@
-package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimates;
+package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimate;
 
-class SubmissionEstimatesForm {
+class SubmissionEstimateForm {
   private String earliestDateDay;
   private String earliestDateMonth;
   private String earliestDateYear;

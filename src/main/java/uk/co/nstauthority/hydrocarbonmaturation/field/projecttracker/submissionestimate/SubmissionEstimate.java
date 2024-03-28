@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimates;
+package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimate;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,7 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 @Entity
 @Table(name = "project_submission_estimates")
 @Audited
-class SubmissionEstimates {
+class SubmissionEstimate {
   @Id
   @UuidGenerator
   private UUID id;
@@ -26,7 +26,7 @@ class SubmissionEstimates {
   private Project project;
 
   @Enumerated(EnumType.STRING)
-  private SubmissionEstimatesType submissionEstimateType;
+  private SubmissionEstimateType submissionEstimateType;
 
   private LocalDate earliestDate;
 
@@ -39,10 +39,10 @@ class SubmissionEstimates {
   @Enumerated(EnumType.STRING)
   private SubmissionEstimateStatus submissionEstimateStatus;
 
-  public SubmissionEstimates() {
+  public SubmissionEstimate() {
   }
 
-  public SubmissionEstimates(UUID id) {
+  public SubmissionEstimate(UUID id) {
     this.id = id;
   }
 
@@ -58,12 +58,12 @@ class SubmissionEstimates {
     this.project = project;
   }
 
-  public SubmissionEstimatesType getSubmissionEstimateType() {
+  public SubmissionEstimateType getSubmissionEstimateType() {
     return submissionEstimateType;
   }
 
-  public void setSubmissionEstimateType(SubmissionEstimatesType submissionEstimatesType) {
-    this.submissionEstimateType = submissionEstimatesType;
+  public void setSubmissionEstimateType(SubmissionEstimateType submissionEstimateType) {
+    this.submissionEstimateType = submissionEstimateType;
   }
 
   public LocalDate getEarliestDate() {

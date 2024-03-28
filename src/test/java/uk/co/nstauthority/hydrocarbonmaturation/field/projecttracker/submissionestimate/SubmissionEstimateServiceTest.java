@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimates;
+package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -20,50 +20,50 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 
 @ExtendWith(MockitoExtension.class)
-class SubmissionEstimatesServiceTest {
+class SubmissionEstimateServiceTest {
   @Mock
-  private SubmissionEstimatesRepository submissionEstimatesRepository;
+  private SubmissionEstimateRepository submissionEstimateRepository;
   @InjectMocks
-  private SubmissionEstimatesService submissionEstimatesService;
+  private SubmissionEstimateService submissionEstimateService;
 
   private final LocalDate FIXED_DATE = LocalDate.of(2023, 11, 3);
-  private final UUID SUBMISSION_ESTIMATES_ID = UUID.randomUUID();
+  private final UUID SUBMISSION_ESTIMATE_ID = UUID.randomUUID();
 
   private Project project;
-  private SubmissionEstimates submissionEstimates;
-  private SubmissionEstimatesType submissionEstimatesType;
+  private SubmissionEstimate submissionEstimate;
+  private SubmissionEstimateType submissionEstimateType;
 
   @BeforeEach
   void setUp() {
-    submissionEstimatesType = mock(SubmissionEstimatesType.class);
+    submissionEstimateType = mock(SubmissionEstimateType.class);
   }
 
   @Test
   void saveSubmissionEstimate_allDatesProvided_verifyCall() {
     var form = getPopulatedForm();
-    var submissionEstimatesType = mock(SubmissionEstimatesType.class);
+    var submissionEstimateType = mock(SubmissionEstimateType.class);
 
-    var captor = ArgumentCaptor.forClass(SubmissionEstimates.class);
-    submissionEstimatesService.saveSubmissionEstimateFromForm(form, project, submissionEstimatesType);
+    var captor = ArgumentCaptor.forClass(SubmissionEstimate.class);
+    submissionEstimateService.saveSubmissionEstimateFromForm(form, project, submissionEstimateType);
 
-    verify(submissionEstimatesRepository).save(captor.capture());
-    verifyNoMoreInteractions(submissionEstimatesRepository);
+    verify(submissionEstimateRepository).save(captor.capture());
+    verifyNoMoreInteractions(submissionEstimateRepository);
 
     assertThat(captor.getValue())
         .extracting(
-            SubmissionEstimates::getSubmissionEstimateStatus,
-            SubmissionEstimates::getProject,
-            SubmissionEstimates::getSubmissionEstimateType,
+            SubmissionEstimate::getSubmissionEstimateStatus,
+            SubmissionEstimate::getProject,
+            SubmissionEstimate::getSubmissionEstimateType,
 
-            SubmissionEstimates::getEarliestDate,
-            SubmissionEstimates::getMostLikelyDate,
-            SubmissionEstimates::getLatestDate,
-            SubmissionEstimates::getDateWhenEstimated
+            SubmissionEstimate::getEarliestDate,
+            SubmissionEstimate::getMostLikelyDate,
+            SubmissionEstimate::getLatestDate,
+            SubmissionEstimate::getDateWhenEstimated
         )
         .contains(
             SubmissionEstimateStatus.CREATED,
             project,
-            submissionEstimatesType,
+            submissionEstimateType,
 
             LocalDate.of(
                 Integer.parseInt(form.getEarliestDateYear()),
@@ -96,28 +96,28 @@ class SubmissionEstimatesServiceTest {
     form.setEarliestDateMonth(null);
     form.setEarliestDateYear(null);
 
-    var submissionEstimatesType = mock(SubmissionEstimatesType.class);
+    var submissionEstimateType = mock(SubmissionEstimateType.class);
 
-    var captor = ArgumentCaptor.forClass(SubmissionEstimates.class);
-    submissionEstimatesService.saveSubmissionEstimateFromForm(form, project, submissionEstimatesType);
+    var captor = ArgumentCaptor.forClass(SubmissionEstimate.class);
+    submissionEstimateService.saveSubmissionEstimateFromForm(form, project, submissionEstimateType);
 
-    verify(submissionEstimatesRepository).save(captor.capture());
-    verifyNoMoreInteractions(submissionEstimatesRepository);
+    verify(submissionEstimateRepository).save(captor.capture());
+    verifyNoMoreInteractions(submissionEstimateRepository);
 
     assertThat(captor.getValue())
         .extracting(
-            SubmissionEstimates::getSubmissionEstimateStatus,
-            SubmissionEstimates::getProject,
-            SubmissionEstimates::getSubmissionEstimateType,
+            SubmissionEstimate::getSubmissionEstimateStatus,
+            SubmissionEstimate::getProject,
+            SubmissionEstimate::getSubmissionEstimateType,
 
-            SubmissionEstimates::getMostLikelyDate,
-            SubmissionEstimates::getLatestDate,
-            SubmissionEstimates::getDateWhenEstimated
+            SubmissionEstimate::getMostLikelyDate,
+            SubmissionEstimate::getLatestDate,
+            SubmissionEstimate::getDateWhenEstimated
         )
         .contains(
             SubmissionEstimateStatus.CREATED,
             project,
-            submissionEstimatesType,
+            submissionEstimateType,
 
             LocalDate.of(
                 Integer.parseInt(form.getMostLikelyDateYear()),
@@ -147,28 +147,28 @@ class SubmissionEstimatesServiceTest {
     form.setLatestDateMonth(null);
     form.setLatestDateYear(null);
 
-    var submissionEstimatesType = mock(SubmissionEstimatesType.class);
+    var submissionEstimateType = mock(SubmissionEstimateType.class);
 
-    var captor = ArgumentCaptor.forClass(SubmissionEstimates.class);
-    submissionEstimatesService.saveSubmissionEstimateFromForm(form, project, submissionEstimatesType);
+    var captor = ArgumentCaptor.forClass(SubmissionEstimate.class);
+    submissionEstimateService.saveSubmissionEstimateFromForm(form, project, submissionEstimateType);
 
-    verify(submissionEstimatesRepository).save(captor.capture());
-    verifyNoMoreInteractions(submissionEstimatesRepository);
+    verify(submissionEstimateRepository).save(captor.capture());
+    verifyNoMoreInteractions(submissionEstimateRepository);
 
     assertThat(captor.getValue())
         .extracting(
-            SubmissionEstimates::getSubmissionEstimateStatus,
-            SubmissionEstimates::getProject,
-            SubmissionEstimates::getSubmissionEstimateType,
+            SubmissionEstimate::getSubmissionEstimateStatus,
+            SubmissionEstimate::getProject,
+            SubmissionEstimate::getSubmissionEstimateType,
 
-            SubmissionEstimates::getEarliestDate,
-            SubmissionEstimates::getMostLikelyDate,
-            SubmissionEstimates::getDateWhenEstimated
+            SubmissionEstimate::getEarliestDate,
+            SubmissionEstimate::getMostLikelyDate,
+            SubmissionEstimate::getDateWhenEstimated
         )
         .contains(
             SubmissionEstimateStatus.CREATED,
             project,
-            submissionEstimatesType,
+            submissionEstimateType,
             LocalDate.of(
                 Integer.parseInt(form.getEarliestDateYear()),
                 Integer.parseInt(form.getEarliestDateMonth()),
@@ -191,51 +191,51 @@ class SubmissionEstimatesServiceTest {
 
   @Test
   void getCreatedEstimates_assertOrderedOnlyCreatedEstimatesReturned() {
-    var firstEstimates = new SubmissionEstimates();
+    var firstEstimates = new SubmissionEstimate();
     firstEstimates.setDateWhenEstimated(FIXED_DATE);
     firstEstimates.setSubmissionEstimateStatus(SubmissionEstimateStatus.CREATED);
 
-    var laterEstimates = new SubmissionEstimates();
+    var laterEstimates = new SubmissionEstimate();
     laterEstimates.setDateWhenEstimated(FIXED_DATE.plusDays(1));
     laterEstimates.setSubmissionEstimateStatus(SubmissionEstimateStatus.CREATED);
 
-    var removedEstimates = new SubmissionEstimates();
+    var removedEstimates = new SubmissionEstimate();
     removedEstimates.setDateWhenEstimated(FIXED_DATE.plusDays(5));
     removedEstimates.setSubmissionEstimateStatus(SubmissionEstimateStatus.REMOVED);
 
-    var latestEstimates = new SubmissionEstimates();
+    var latestEstimates = new SubmissionEstimate();
     latestEstimates.setDateWhenEstimated(FIXED_DATE.plusDays(10));
     latestEstimates.setSubmissionEstimateStatus(SubmissionEstimateStatus.CREATED);
 
-    when(submissionEstimatesRepository.getAllByProjectAndSubmissionEstimateType(project, submissionEstimatesType))
+    when(submissionEstimateRepository.getAllByProjectAndSubmissionEstimateType(project, submissionEstimateType))
         .thenReturn(List.of(latestEstimates, removedEstimates, firstEstimates, laterEstimates));
 
-    assertThat(submissionEstimatesService.getCreatedEstimates(project, submissionEstimatesType))
+    assertThat(submissionEstimateService.getCreatedEstimates(project, submissionEstimateType))
         .isEqualTo(List.of(firstEstimates, laterEstimates, latestEstimates));
   }
 
   @Test
   void getSubmissionEstimate_present() {
-    submissionEstimates = new SubmissionEstimates();
-    when(submissionEstimatesRepository.findById(SUBMISSION_ESTIMATES_ID))
-        .thenReturn(Optional.of(submissionEstimates));
+    submissionEstimate = new SubmissionEstimate();
+    when(submissionEstimateRepository.findById(SUBMISSION_ESTIMATE_ID))
+        .thenReturn(Optional.of(submissionEstimate));
 
-    assertThat(submissionEstimatesService.getSubmissionEstimates(SUBMISSION_ESTIMATES_ID))
+    assertThat(submissionEstimateService.getSubmissionEstimate(SUBMISSION_ESTIMATE_ID))
         .get()
-        .isEqualTo(submissionEstimates);
+        .isEqualTo(submissionEstimate);
   }
 
   @Test
   void getSubmissionEstimate_notPresent() {
-    when(submissionEstimatesRepository.findById(SUBMISSION_ESTIMATES_ID))
+    when(submissionEstimateRepository.findById(SUBMISSION_ESTIMATE_ID))
         .thenReturn(Optional.empty());
 
-    assertThat(submissionEstimatesService.getSubmissionEstimates(SUBMISSION_ESTIMATES_ID))
+    assertThat(submissionEstimateService.getSubmissionEstimate(SUBMISSION_ESTIMATE_ID))
         .isEmpty();
   }
 
-  private SubmissionEstimatesForm getPopulatedForm() {
-    var form = new SubmissionEstimatesForm();
+  private SubmissionEstimateForm getPopulatedForm() {
+    var form = new SubmissionEstimateForm();
     form.setEarliestDateDay("3");
     form.setEarliestDateMonth("11");
     form.setEarliestDateYear("2023");
