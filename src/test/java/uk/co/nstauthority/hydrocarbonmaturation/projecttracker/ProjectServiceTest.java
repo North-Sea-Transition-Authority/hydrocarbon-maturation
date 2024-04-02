@@ -196,7 +196,6 @@ class ProjectServiceTest {
               Project::getField,
               Project::getProjectName,
               Project::getProjectType,
-              Project::getProjectPhase,
               Project::getPartOfPipeline,
               Project::getCreatedTimestamp
           ).containsExactly(
@@ -204,7 +203,6 @@ class ProjectServiceTest {
               field,
               form.getProjectName(),
               form.getProjectType(),
-              form.getProjectPhase(),
               form.getIsPartOfPipeline(),
               FIXED_INSTANT
           );
@@ -237,7 +235,6 @@ class ProjectServiceTest {
               Project::getField,
               Project::getProjectName,
               Project::getProjectType,
-              Project::getProjectPhase,
               Project::getPartOfPipeline,
               Project::getSubmissionDetail,
               Project::getCreatedTimestamp
@@ -246,11 +243,68 @@ class ProjectServiceTest {
               field,
               form.getProjectName(),
               form.getProjectType(),
-              form.getProjectPhase(),
               form.getIsPartOfPipeline(),
               submissionDetail,
               FIXED_INSTANT
           );
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = ProjectType.class,
+        names = {"FIELD_DEVELOPMENT_PLAN", "FIELD_DEVELOPMENT_PLAN_ADDENDUM"}
+    )
+    void whenFdpOrFdpa_thenDefaultProjectPhase(ProjectType projectType) {
+      form.setProjectType(projectType);
+
+      when(clock.instant())
+          .thenReturn(FIXED_INSTANT);
+      var savedProject = new Project();
+      when(projectRepository.save(any(Project.class)))
+          .thenReturn(savedProject);
+
+      assertThat(projectService.saveNewProject(field, form))
+          .isEqualTo(savedProject);
+
+      var captor = ArgumentCaptor.forClass(Project.class);
+      verify(projectRepository).save(captor.capture());
+      verifyNoMoreInteractions(projectRepository);
+
+      verify(submissionDetailService).getSubmissionDetailForIdOrError(submissionDetail.getId());
+      verifyNoMoreInteractions(submissionDetailService);
+
+      assertThat(captor.getValue().getProjectPhase())
+          .isEqualTo(
+              ProjectPhase.ASSESSMENT_PHASE
+          );
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = ProjectType.class,
+        names = {"FIELD_DEVELOPMENT_PLAN", "FIELD_DEVELOPMENT_PLAN_ADDENDUM"},
+        mode = EnumSource.Mode.EXCLUDE
+    )
+    void whenFdpOrFdpa_thenNoProjectPhase(ProjectType projectType) {
+      form.setProjectType(projectType);
+
+      when(clock.instant())
+          .thenReturn(FIXED_INSTANT);
+      var savedProject = new Project();
+      when(projectRepository.save(any(Project.class)))
+          .thenReturn(savedProject);
+
+      assertThat(projectService.saveNewProject(field, form))
+          .isEqualTo(savedProject);
+
+      var captor = ArgumentCaptor.forClass(Project.class);
+      verify(projectRepository).save(captor.capture());
+      verifyNoMoreInteractions(projectRepository);
+
+      verify(submissionDetailService).getSubmissionDetailForIdOrError(submissionDetail.getId());
+      verifyNoMoreInteractions(submissionDetailService);
+
+      assertThat(captor.getValue().getProjectPhase()).isNull();
     }
 
     private ProjectForm getPopulatedProjectForm() {
@@ -451,6 +505,56 @@ class ProjectServiceTest {
       verifyNoMoreInteractions(projectRepository);
 
       assertThat(captor.getValue().getFdpaStartUpDate()).isNull();
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = ProjectType.class,
+        names = {"FIELD_DEVELOPMENT_PLAN", "FIELD_DEVELOPMENT_PLAN_ADDENDUM"}
+    )
+    void whenFdpOrFdpaProject_thenSaveProjectPhase(ProjectType projectType) {
+      project.setProjectType(projectType);
+
+      project.setProjectPhase(ProjectPhase.ASSESSMENT_PHASE);
+      form.setProjectPhase(ProjectPhase.EXECUTE_PHASE);
+
+      var savedProject = new Project();
+      when(projectRepository.save(any(Project.class)))
+          .thenReturn(savedProject);
+
+      assertThat(projectService.saveProjectUpdate(project, form))
+          .isEqualTo(savedProject);
+
+      var captor = ArgumentCaptor.forClass(Project.class);
+      verify(projectRepository).save(captor.capture());
+      verifyNoMoreInteractions(projectRepository);
+
+      assertThat(captor.getValue().getProjectPhase()).isEqualTo(form.getProjectPhase());
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = ProjectType.class,
+        names = {"FIELD_DEVELOPMENT_PLAN", "FIELD_DEVELOPMENT_PLAN_ADDENDUM"},
+        mode = EnumSource.Mode.EXCLUDE
+    )
+    void whenNotFdpOrFdpaProject_thenDoNotSaveProjectPhase(ProjectType projectType) {
+      project.setProjectType(projectType);
+
+      project.setProjectPhase(null);
+
+      var savedProject = new Project();
+      when(projectRepository.save(any(Project.class)))
+          .thenReturn(savedProject);
+
+      assertThat(projectService.saveProjectUpdate(project, form))
+          .isEqualTo(savedProject);
+
+      var captor = ArgumentCaptor.forClass(Project.class);
+      verify(projectRepository).save(captor.capture());
+      verifyNoMoreInteractions(projectRepository);
+
+      assertThat(captor.getValue().getProjectPhase()).isNull();
     }
 
     private ProjectForm getPopulatedProjectForm() {

@@ -11,8 +11,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 
@@ -38,7 +36,6 @@ class ProjectFormValidatorTest {
           .containsExactly(
               entry("projectName", Set.of("projectName.required")),
               entry("projectType", Set.of("projectType.required")),
-              entry("projectPhase", Set.of("projectPhase.required")),
               entry("isPartOfPipeline", Set.of("isPartOfPipeline.required"))
           );
     }
@@ -58,7 +55,6 @@ class ProjectFormValidatorTest {
       var form = new ProjectForm();
       form.setProjectName("Test name");
       form.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN);
-      form.setProjectPhase(ProjectPhase.ASSESSMENT_PHASE);
       form.setIsPartOfPipeline(true);
       form.setSelectedSubmissionId(UUID.randomUUID().toString());
       return form;
@@ -103,14 +99,9 @@ class ProjectFormValidatorTest {
             );
       }
 
-      @ParameterizedTest
-      @EnumSource(
-          value = ProjectType.class,
-          names = "FIELD_DEVELOPMENT_PLAN_ADDENDUM",
-          mode = EnumSource.Mode.EXCLUDE
-      )
-      void andProjectTypeNotFdpa_thenErrors(ProjectType projectType) {
-        project.setProjectType(projectType);
+      @Test
+      void andProjectTypeFdp_thenErrors() {
+        project.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN);
 
         var bindingResult = new BeanPropertyBindingResult(form, "form");
 
@@ -122,10 +113,27 @@ class ProjectFormValidatorTest {
                 entry("projectName", Set.of("projectName.required")),
                 entry("projectPhase", Set.of("projectPhase.required")),
                 entry("isPartOfPipeline", Set.of("isPartOfPipeline.required"))
+             );
+      }
+
+      @Test
+      void andProjectTypeCop_thenErrors() {
+        project.setProjectType(ProjectType.CESSATION_OF_PRODUCTION);
+
+        var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+        assertFalse(projectFormValidator.isValidProjectUpdate(project, form, bindingResult));
+
+        var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+        assertThat(errors)
+            .containsExactly(
+                entry("projectName", Set.of("projectName.required")),
+                entry("isPartOfPipeline", Set.of("isPartOfPipeline.required"))
             ).doesNotContainKeys(
                 "fdpaStartUpDateDay",
                 "fdpaStartUpDateMonth",
-                "fdpaStartUpDateYear"
+                "fdpaStartUpDateYear",
+                "projectPhase"
             );
       }
     }
@@ -162,7 +170,7 @@ class ProjectFormValidatorTest {
 
         @Test
         void becauseFdpaStartUpDateIsNotDate_thenErrors() {
-          var form = getValidNonFdpaForm();
+          var form = getValidFdpaForm();
           form.setFdpaStartUpDateDay("Not a day");
           form.setFdpaStartUpDateMonth("Not a month");
           form.setFdpaStartUpDateYear("Not a year");
@@ -197,15 +205,22 @@ class ProjectFormValidatorTest {
         assertThat(errors).isEmpty();
       }
 
-      @ParameterizedTest
-      @EnumSource(
-          value = ProjectType.class,
-          names = "FIELD_DEVELOPMENT_PLAN_ADDENDUM",
-          mode = EnumSource.Mode.EXCLUDE
-      )
-      void andNonFdpaProjectType_thenNoErrors(ProjectType projectType) {
-        project.setProjectType(projectType);
-        var form = getValidNonFdpaForm();
+      @Test
+      void andFdpProjectType_thenNoErrors() {
+        project.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN);
+        var form = getValidFdpForm();
+        var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+        assertTrue(projectFormValidator.isValidProjectUpdate(project, form, bindingResult));
+
+        var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+        assertThat(errors).isEmpty();
+      }
+
+      @Test
+      void andCopProjectType_thenNoErrors() {
+        project.setProjectType(ProjectType.CESSATION_OF_PRODUCTION);
+        var form = getValidCopForm();
         var bindingResult = new BeanPropertyBindingResult(form, "form");
 
         assertTrue(projectFormValidator.isValidProjectUpdate(project, form, bindingResult));
@@ -228,16 +243,22 @@ class ProjectFormValidatorTest {
       return form;
     }
 
-    private ProjectForm getValidNonFdpaForm() {
+    private ProjectForm getValidFdpForm() {
       var form = new ProjectForm();
       form.setProjectName("Test name");
       form.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN);
-      form.setProjectPhase(ProjectPhase.ASSESSMENT_PHASE);
+      form.setProjectPhase(ProjectPhase.EXECUTE_PHASE);
       form.setIsPartOfPipeline(true);
       form.setSelectedSubmissionId(UUID.randomUUID().toString());
-      form.setFdpaStartUpDateDay(null);
-      form.setFdpaStartUpDateMonth(null);
-      form.setFdpaStartUpDateYear(null);
+      return form;
+    }
+
+    private ProjectForm getValidCopForm() {
+      var form = new ProjectForm();
+      form.setProjectName("Test name");
+      form.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN);
+      form.setIsPartOfPipeline(true);
+      form.setSelectedSubmissionId(UUID.randomUUID().toString());
       return form;
     }
   }

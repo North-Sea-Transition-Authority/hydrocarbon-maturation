@@ -53,6 +53,11 @@ public class ProjectService {
     var project = new Project();
     project.setProjectStatus(ProjectStatus.EXTANT);
 
+    if (isFdpProject(form.getProjectType()) || isFdpaProject(form.getProjectType())) {
+      // set default value that can be changed on an update
+      project.setProjectPhase(ProjectPhase.ASSESSMENT_PHASE);
+    }
+
     project.setField(field);
     project.setCreatedTimestamp(clock.instant());
     project.setProjectType(form.getProjectType());
@@ -66,12 +71,16 @@ public class ProjectService {
   public Project saveProjectUpdate(Project project, ProjectForm form) {
     setCommonProjectInformation(project, form);
 
-    if (ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM.equals(project.getProjectType())) {
+    if (isFdpaProject(project.getProjectType())) {
       project.setFdpaStartUpDate(LocalDate.of(
           Integer.parseInt(form.getFdpaStartUpDateYear()),
           Integer.parseInt(form.getFdpaStartUpDateMonth()),
           Integer.parseInt(form.getFdpaStartUpDateDay())
       ));
+    }
+
+    if (isFdpProject(project.getProjectType()) || isFdpaProject(project.getProjectType())) {
+      project.setProjectPhase(form.getProjectPhase());
     }
 
     return projectRepository.save(project);
@@ -117,8 +126,7 @@ public class ProjectService {
     }
 
     var fdpaStartUpDate = project.getFdpaStartUpDate();
-    if (fdpaStartUpDate != null
-        && ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM.equals(project.getProjectType())) {
+    if (fdpaStartUpDate != null && isFdpaProject(project.getProjectType())) {
       form.setFdpaStartUpDateDay(String.valueOf(fdpaStartUpDate.getDayOfMonth()));
       form.setFdpaStartUpDateMonth(String.valueOf(fdpaStartUpDate.getMonthValue()));
       form.setFdpaStartUpDateYear(String.valueOf(fdpaStartUpDate.getYear()));
@@ -142,7 +150,6 @@ public class ProjectService {
 
   private void setCommonProjectInformation(Project project, ProjectForm form) {
     project.setProjectName(form.getProjectName());
-    project.setProjectPhase(form.getProjectPhase());
     project.setPartOfPipeline(form.getIsPartOfPipeline());
     setSubmissionDetailIfSelected(form, project);
   }
@@ -151,5 +158,13 @@ public class ProjectService {
   public void deleteProject(Project project) {
     project.setProjectStatus(ProjectStatus.DELETED);
     projectRepository.save(project);
+  }
+
+  private static boolean isFdpProject(ProjectType projectType) {
+    return ProjectType.FIELD_DEVELOPMENT_PLAN.equals(projectType);
+  }
+
+  private static boolean isFdpaProject(ProjectType projectType) {
+    return ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM.equals(projectType);
   }
 }

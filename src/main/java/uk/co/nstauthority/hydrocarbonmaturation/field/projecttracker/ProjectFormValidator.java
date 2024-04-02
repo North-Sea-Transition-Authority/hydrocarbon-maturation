@@ -9,7 +9,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DateValidationUti
 public class ProjectFormValidator {
   public boolean isValidProjectUpdate(Project project, ProjectForm form, Errors errors) {
     validateProjectName(errors);
-    validateProjectStatus(errors);
+    if (ProjectType.FIELD_DEVELOPMENT_PLAN.equals(project.getProjectType())
+        || ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM.equals(project.getProjectType())) {
+      validateProjectStatus(errors);
+    }
     validateIsPartOfPipeline(errors);
     if (ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM.equals(project.getProjectType())) {
       validateFdpaStartUpDate(form, errors);
@@ -20,7 +23,6 @@ public class ProjectFormValidator {
   public boolean isValidNewProject(Errors errors) {
     validateProjectName(errors);
     validateProjectType(errors);
-    validateProjectStatus(errors);
     validateIsPartOfPipeline(errors);
     return !errors.hasErrors();
   }

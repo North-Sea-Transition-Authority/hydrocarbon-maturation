@@ -14,6 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
+import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
@@ -76,7 +77,12 @@ public class ProjectDetailsSummaryService implements SummarySectionService<Proje
 
     summaryData.addKeyValue(PROJECT_NAME, project.getProjectName());
     summaryData.addKeyValue(PROJECT_TYPE, project.getProjectType().getDisplayName());
-    summaryData.addKeyValue(PROJECT_PHASE, project.getProjectPhase().getDisplayName());
+
+    if (ProjectType.FIELD_DEVELOPMENT_PLAN.equals(project.getProjectType())
+        || ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM.equals(project.getProjectType())) {
+      summaryData.addKeyValue(PROJECT_PHASE, project.getProjectPhase());
+    }
+
     summaryData.addKeyValue(PROJECT_PIPELINE, BooleanUtil.yesNoFromBoolean(project.getPartOfPipeline()));
 
     var submissionDetail = project.getSubmissionDetail();

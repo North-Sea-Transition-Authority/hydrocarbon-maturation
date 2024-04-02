@@ -22,10 +22,16 @@ errorItems=errorList>
             radioItems=projectTypeOptions/>
         </#if>
 
-        <@fdsRadio.radio
-        path="form.projectPhase"
-        labelText="Current project status"
-        radioItems=projectPhaseOptions/>
+        <#assign isFdpOrFdpa =
+            ((projectType!"") == "FIELD_DEVELOPMENT_PLAN")
+         || ((projectType!"") == "FIELD_DEVELOPMENT_PLAN_ADDENDUM")
+        />
+        <#if isUpdate && isFdpOrFdpa>
+            <@fdsRadio.radio
+            path="form.projectPhase"
+            labelText="Current project status"
+            radioItems=projectPhaseOptions/>
+        </#if>
 
         <@fdsRadio.radioGroup
         path="form.isPartOfPipeline"

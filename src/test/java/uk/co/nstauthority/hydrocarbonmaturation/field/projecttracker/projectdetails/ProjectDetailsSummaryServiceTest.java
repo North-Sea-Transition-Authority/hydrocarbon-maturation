@@ -60,7 +60,9 @@ class ProjectDetailsSummaryServiceTest {
   @Nested
   class GivenAnyUser {
     @Test
-    void whenGetSummarySection_forNonFdpa_thenAssertCommonProperties() {
+    void whenGetSummarySection_projectTypeCop_thenAssertCommonProperties() {
+      project.setProjectType(ProjectType.CESSATION_OF_PRODUCTION);
+
       var acceptedSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
       acceptedSubmissionDetail.setAcceptedTimestamp(Instant.parse("2023-12-01T00:00:00.00Z"));
       project.setSubmissionDetail(acceptedSubmissionDetail);
@@ -108,7 +110,6 @@ class ProjectDetailsSummaryServiceTest {
       var expectedKeyValues = List.of(
           new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_NAME, project.getProjectName()),
           new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_TYPE, project.getProjectType().getDisplayName()),
-          new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_PHASE, project.getProjectPhase().getDisplayName()),
           new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_PIPELINE, "Yes"),
           new SummaryKeyValue(ProjectDetailsSummaryService.ASSOCIATED_SUBMISSION,
               "Concept select report accepted on 1 December 2023")
@@ -187,7 +188,47 @@ class ProjectDetailsSummaryServiceTest {
     }
 
     @Test
-    void whenGetProjectSummaryCard_forNonFdpa_thenAssertCommonProperties() {
+    void whenGetProjectSummaryCard_forCop_thenAssertCommonProperties() {
+      project.setProjectType(ProjectType.CESSATION_OF_PRODUCTION);
+
+      var acceptedSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+      acceptedSubmissionDetail.setAcceptedTimestamp(Instant.parse("2023-12-01T00:00:00.00Z"));
+      project.setSubmissionDetail(acceptedSubmissionDetail);
+
+      var summaryCard = projectDetailsSummaryService.getProjectSummaryCard(project);
+
+      assertThat(summaryCard)
+          .extracting(
+              SummaryCard::displayName,
+              SummaryCard::summaryCardType
+          )
+          .contains(
+              ProjectDetailsSummaryService.PROJECT_DETAILS,
+              SummaryCardType.SIMPLE_SUMMARY_WITH_ACTIONS
+          );
+
+      var summaryData = summaryCard.summaryData();
+      assertThat(summaryData)
+          .isInstanceOf(SummaryDataViewWithActions.class);
+
+      var expectedKeyValues = List.of(
+          new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_NAME, project.getProjectName()),
+          new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_TYPE, project.getProjectType().getDisplayName()),
+          new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_PIPELINE, "Yes"),
+          new SummaryKeyValue(ProjectDetailsSummaryService.ASSOCIATED_SUBMISSION,
+              "Concept select report accepted on 1 December 2023")
+      );
+
+      var summaryDataWithActions = (SummaryDataViewWithActions) summaryData;
+      assertThat(summaryDataWithActions.keyValues())
+          .usingRecursiveComparison()
+          .isEqualTo(expectedKeyValues);
+    }
+
+    @Test
+    void whenGetProjectSummaryCard_forFdp_thenAssertCommonProperties() {
+      project.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN);
+
       var acceptedSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
       acceptedSubmissionDetail.setAcceptedTimestamp(Instant.parse("2023-12-01T00:00:00.00Z"));
       project.setSubmissionDetail(acceptedSubmissionDetail);
@@ -224,15 +265,38 @@ class ProjectDetailsSummaryServiceTest {
     }
 
     @Test
-    void whenGetProjectSummaryCard_forFdpa_thenAssertCommonProperties() {
+    void whenGetSummarySection_forFdp_thenAssertCommonProperties() {
+      project.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN);
+
       var acceptedSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
       acceptedSubmissionDetail.setAcceptedTimestamp(Instant.parse("2023-12-01T00:00:00.00Z"));
       project.setSubmissionDetail(acceptedSubmissionDetail);
 
-      var fdpaStartUpDate = LocalDate.of(2024, Month.MARCH, 5);
-      project.setFdpaStartUpDate(fdpaStartUpDate);
+      var summarySectionOptional = projectDetailsSummaryService.getSummarySection(project);
 
-      var summaryCard = projectDetailsSummaryService.getProjectSummaryCard(project);
+      assertThat(summarySectionOptional)
+          .isPresent()
+          .get()
+          .extracting(
+              SummarySection::summaryText,
+              SummarySection::displayOrder
+          ).containsExactly(
+              "",
+              ProjectDetailsSummaryService.DISPLAY_ORDER
+          );
+
+      var summaryItems = summarySectionOptional.get().summaryItems();
+
+      assertThat(summaryItems)
+          .hasSize(1)
+          .extracting(SummaryItem::displayName)
+          .contains(ProjectDetailsSummaryService.PROJECT_DETAILS);
+
+      var summaryItem = summaryItems.get(0);
+      assertThat(summaryItem.displayName()).isEqualTo(ProjectDetailsSummaryService.PROJECT_DETAILS);
+      assertThat(summaryItem.summaryCards()).hasSize(1);
+
+      var summaryCard = summaryItem.summaryCards().get(0);
 
       assertThat(summaryCard)
           .extracting(
@@ -254,9 +318,7 @@ class ProjectDetailsSummaryServiceTest {
           new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_PHASE, project.getProjectPhase().getDisplayName()),
           new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_PIPELINE, "Yes"),
           new SummaryKeyValue(ProjectDetailsSummaryService.ASSOCIATED_SUBMISSION,
-              "Concept select report accepted on 1 December 2023"),
-          new SummaryKeyValue(ProjectDetailsSummaryService.FDPA_START_UP_DATE,
-              "5 March 2024")
+              "Concept select report accepted on 1 December 2023")
       );
 
       var summaryDataWithActions = (SummaryDataViewWithActions) summaryData;
