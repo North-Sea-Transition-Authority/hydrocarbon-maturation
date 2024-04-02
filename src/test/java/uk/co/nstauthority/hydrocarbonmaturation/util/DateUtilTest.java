@@ -60,4 +60,41 @@ class DateUtilTest {
         .toInstant(ZoneOffset.UTC);
     assertThat(DateUtil.formatInstantOrBlank(instant3)).isEqualTo("1 Jan 2000 09:20 GMT");
   }
+
+  @Test
+  void createLocalDate_validDateStrings() {
+    assertThat(DateUtil.createLocalDate("2024", "4", "2"))
+        .get()
+        .isEqualTo(LocalDate.of(2024, 4, 2));
+  }
+
+  @Test
+  void createLocalDate_nonNumericDay() {
+    assertThat(DateUtil.createLocalDate("2024", "4", "a"))
+        .isEmpty();
+  }
+
+  @Test
+  void createLocalDate_nonNumericMonth() {
+    assertThat(DateUtil.createLocalDate("2024", "a", "2"))
+        .isEmpty();
+  }
+
+  @Test
+  void createLocalDate_nonNumericYear() {
+    assertThat(DateUtil.createLocalDate("a", "4", "2"))
+        .isEmpty();
+  }
+
+  @Test
+  void createLocalDate_emptyStrings() {
+    assertThat(DateUtil.createLocalDate("", "", ""))
+        .isEmpty();
+  }
+
+  @Test
+  void createLocalDate_nullStrings() {
+    assertThat(DateUtil.createLocalDate(null, null, null))
+        .isEmpty();
+  }
 }

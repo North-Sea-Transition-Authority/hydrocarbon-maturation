@@ -1,9 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.util;
 
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
 
 public class DateUtil {
@@ -73,6 +75,27 @@ public class DateUtil {
       return DATE_TIME_FORMATTER.format(instant);
     } else {
       return "";
+    }
+  }
+
+  /**
+   * Produce an optional containing a local date from some string values or
+   * empty if one could not be created.
+   * @param yearValue the year e.g. 2024
+   * @param monthValue the numeric month e.g. 3 (March)
+   * @param dayOfMonthValue the numeric day of the month e.g. 15 (15th of the month)
+   * @return optional of local date or empty if one cannot be created from the inputs
+   */
+  public static Optional<LocalDate> createLocalDate(String yearValue, String monthValue, String dayOfMonthValue) {
+    try {
+      return Optional.of(
+          LocalDate.of(
+              Integer.parseInt(yearValue),
+              Integer.parseInt(monthValue),
+              Integer.parseInt(dayOfMonthValue))
+      );
+    } catch (NumberFormatException | DateTimeException e) {
+      return Optional.empty();
     }
   }
 }
