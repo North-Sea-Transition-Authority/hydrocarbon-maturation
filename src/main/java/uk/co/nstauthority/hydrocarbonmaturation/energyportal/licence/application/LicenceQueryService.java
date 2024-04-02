@@ -14,6 +14,7 @@ import uk.co.fivium.energyportalapi.generated.client.LicencesProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.Licence;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
+import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
 @Service
 public class LicenceQueryService {
@@ -68,9 +69,9 @@ public class LicenceQueryService {
   }
 
   public List<LicenceView> getExtantLicencesByIds(List<String> searchIdStrings) {
-    return searchIdStrings.stream()
-        .map(id -> findLicence(Integer.parseInt(id)))
-        .flatMap(Optional::stream)
+    var idList = NumberUtil.toListOfIntegers(searchIdStrings);
+
+    return findLicencesByIds(idList).stream()
         .distinct()
         .filter(licence -> licence.licenceStatus() == LicenceStatus.EXTANT)
         .sorted(new LicenceViewByReferenceComparator())

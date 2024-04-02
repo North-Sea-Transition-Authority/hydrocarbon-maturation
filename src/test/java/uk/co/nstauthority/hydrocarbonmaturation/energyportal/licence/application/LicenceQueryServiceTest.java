@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -17,6 +18,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.client.licence.licence.LicenceApi;
+import uk.co.fivium.energyportalapi.generated.types.Licence;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
@@ -164,8 +166,7 @@ class LicenceQueryServiceTest {
         any()
     )).thenReturn(Optional.of(licence));
 
-    var expectedLicence = licenceQueryService
-        .getLicenceById(licenceId);
+    var expectedLicence = licenceQueryService.getLicenceById(licenceId);
 
     assertThat(expectedLicence.get())
         .extracting(
@@ -173,5 +174,68 @@ class LicenceQueryServiceTest {
             LicenceView::getSelectionText)
         .containsExactly(
             licenceId.toString(), licenceRef);
+  }
+
+  @Test
+  void getExtantLicencesByIds_WhenIdsExist_ReturnExtantLicences() {
+    var searchIdStrings = List.of("1", "2", "3");
+    var idList = List.of(1, 2, 3);
+    var licences = List.of(
+        createLicence("Licence 1", 1, LicenceStatus.EXTANT),
+        createLicence("Licence 2", 2, LicenceStatus.EXPIRED),
+        createLicence("Licence 3", 3, LicenceStatus.EXTANT)
+    );
+    when(licenceApi.searchLicencesById(
+        eq(idList),
+        eq(LicenceQueryService.LICENCES_PROJECTION_ROOT),
+        any(),
+        any()
+    )).thenReturn(licences);
+
+    var result = licenceQueryService.getExtantLicencesByIds(searchIdStrings);
+
+    assertThat(result)
+        .hasSize(2)
+        .extracting(
+          LicenceView::licenceId,
+          LicenceView::licenceRef,
+          LicenceView::licenceStatus
+        )
+        .containsExactly(
+            tuple(1, "Licence 1", LicenceStatus.EXTANT),
+            tuple(3, "Licence 3", LicenceStatus.EXTANT)
+        );
+    verify(licenceApi).searchLicencesById(eq(idList),
+        eq(LicenceQueryService.LICENCES_PROJECTION_ROOT),
+        any(),
+        any());
+  }
+
+  private Licence createLicence(String licenceRef, Integer id, LicenceStatus licenceStatus) {
+    var licence = new Licence();
+    licence.setLicenceRef(licenceRef);
+    licence.setId(id);
+    licence.setLicenceStatus(licenceStatus);
+    return licence;
+  }
+
+  @Test
+  void getExtantLicencesByIds_WhenNoIdsExist_ReturnEmptyList() {
+    var searchIdStrings = List.of("1", "2", "3");
+    var idList = List.of(1, 2, 3);
+    when(licenceApi.searchLicencesById(
+        eq(idList),
+        eq(LicenceQueryService.LICENCES_PROJECTION_ROOT),
+        any(),
+        any()
+    )).thenReturn(List.of());
+
+    var result = licenceQueryService.getExtantLicencesByIds(searchIdStrings);
+
+    assertThat(result).isEmpty();
+    verify(licenceApi).searchLicencesById(eq(idList),
+        eq(LicenceQueryService.LICENCES_PROJECTION_ROOT),
+        any(),
+        any());
   }
 }
