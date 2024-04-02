@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsExtantProject;
@@ -27,8 +30,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 @IsExtantProject
 @IsRegulatorForProjectField
 class SubmissionEstimateController {
-  static final String ESTIMATED_CSR = "Estimated CSR first draft submitted date";
-  public static final String CSR_ESTIMATE_DATE = "estimated CSR first draft submission date";
+  static final String CSR_ESTIMATE_TITLE = "Estimated CSR first draft submitted date";
+  static final String FDP_ESTIMATE_TITLE = "Estimated FDP first draft submitted date";
+
+  static final String CSR_SUBMITTED_DISPLAY = "estimated CSR first draft submission date";
+  static final String FDP_SUBMITTED_DISPLAY = "estimated FDP first draft submission date";
 
   private final ProjectTrackerControllerService projectTrackerControllerService;
   private final SubmissionEstimateFormValidator submissionEstimateFormValidator;
@@ -43,39 +49,48 @@ class SubmissionEstimateController {
     this.submissionEstimateService = submissionEstimateService;
   }
 
-  @GetMapping("/csr-submission-estimates")
-  ModelAndView getCsrSubmissionEstimate(@PathVariable("resourceId") UUID resourceId,
-                                        @PathVariable("projectId") UUID projectId) {
+  @GetMapping("/estimates")
+  ModelAndView getCreateSubmissionEstimate(
+      @PathVariable("resourceId") UUID resourceId,
+      @PathVariable("projectId") UUID projectId,
+      @RequestParam("type") String type) {
     var project = projectTrackerControllerService.getProjectForResourceOrThrow(resourceId, projectId);
 
-    return getSubmissionEstimateModelAndView(ESTIMATED_CSR, project, new SubmissionEstimateForm());
+    var submissionEstimateType = parseSubmissionEstimateTypeOrThrow(type);
+
+    var pageTitle = getEstimatePageTitle(submissionEstimateType);
+
+    return getSubmissionEstimateModelAndView(pageTitle, project, new SubmissionEstimateForm());
   }
 
-  @PostMapping("/csr-submission-estimates")
-  ModelAndView saveCsrSubmissionEstimate(@PathVariable("resourceId") UUID resourceId,
-                                         @PathVariable("projectId") UUID projectId,
-                                         @ModelAttribute("form") SubmissionEstimateForm form,
-                                         BindingResult bindingResult,
-                                         RedirectAttributes redirectAttributes) {
+  @PostMapping("/estimates")
+  ModelAndView saveSubmissionEstimate(@PathVariable("resourceId") UUID resourceId,
+                                      @PathVariable("projectId") UUID projectId,
+                                      @RequestParam("type") String type,
+                                      @ModelAttribute("form") SubmissionEstimateForm form,
+                                      BindingResult bindingResult,
+                                      RedirectAttributes redirectAttributes) {
+    var submissionEstimateType = parseSubmissionEstimateTypeOrThrow(type);
     var project = projectTrackerControllerService.getProjectForResourceOrThrow(resourceId, projectId);
 
     if (submissionEstimateFormValidator.isValid(form, bindingResult)) {
-      submissionEstimateService.saveSubmissionEstimateFromForm(form, project, SubmissionEstimateType.CSR);
+      submissionEstimateService.saveSubmissionEstimateFromForm(form, project, submissionEstimateType);
 
       NotificationBannerUtil.addSuccessNotification(
-          redirectAttributes, "Success", "Saved estimated CSR first draft information");
+          redirectAttributes, "Success", "Saved %s".formatted(getEstimateSubmittedDisplay(submissionEstimateType)));
 
       return ReverseRouter.redirect(on(ViewProjectController.class)
           .getViewProject(resourceId, projectId, null));
     }
 
-    return getSubmissionEstimateModelAndView(ESTIMATED_CSR, project, form);
+    return getSubmissionEstimateModelAndView(getEstimatePageTitle(submissionEstimateType), project, form);
   }
 
   @GetMapping("/{submissionEstimateId}/delete")
   ModelAndView getRemoveConfirmation(@PathVariable("resourceId") UUID resourceId,
                                      @PathVariable("projectId") UUID projectId,
-                                     @PathVariable("submissionEstimateId") UUID submissionEstimateId) {
+                                     @PathVariable("submissionEstimateId") UUID submissionEstimateId,
+                                     @RequestParam("type") String type) {
     var project = projectTrackerControllerService.getProjectForResourceOrThrow(resourceId, projectId);
 
     var estimates = submissionEstimateService.getSubmissionEstimate(submissionEstimateId)
@@ -87,8 +102,11 @@ class SubmissionEstimateController {
           .formatted(submissionEstimateId, projectId));
     }
 
-    return new ModelAndView("remi/field/projecttracker/removeEstimateConfirmation")
-        .addObject("pageTitle", "Are you sure you want to remove this " + CSR_ESTIMATE_DATE + "?")
+    var submissionEstimateType = parseSubmissionEstimateTypeOrThrow(type);
+
+    return new ModelAndView("remi/field/projecttracker/submissionestimates/removeEstimateConfirmation")
+        .addObject("pageTitle", "Are you sure you want to remove this " +
+            getEstimateSubmittedDisplay(submissionEstimateType) + "?")
         .addObject("pageCaption", project.getProjectName())
         .addObject("estimates", SubmissionEstimateView.from(estimates))
         .addObject("cancelUrl", ReverseRouter.route(on(ViewProjectController.class)
@@ -116,7 +134,7 @@ class SubmissionEstimateController {
     NotificationBannerUtil.addSuccessNotification(
         redirectAttributes,
         "Success",
-        "Removed CSR first draft submission estimate"
+        "Removed %s".formatted(getEstimateSubmittedDisplay(submissionEstimate.getSubmissionEstimateType()))
     );
 
     return ReverseRouter.redirect(on(ViewProjectController.class)
@@ -126,11 +144,37 @@ class SubmissionEstimateController {
   private static ModelAndView getSubmissionEstimateModelAndView(String pageTitle,
                                                                 Project project,
                                                                 SubmissionEstimateForm form) {
-    return new ModelAndView("remi/field/projecttracker/addSubmissionEstimate")
+    return new ModelAndView("remi/field/projecttracker/submissionestimates/addEstimate")
         .addObject("pageTitle", pageTitle)
         .addObject("pageCaption", project.getProjectName())
         .addObject("form", form)
         .addObject("cancelUrl", ReverseRouter.route(on(ViewProjectController.class)
             .getViewProject(project.getField().getResource().getId(), project.getId(), null)));
+  }
+
+  private SubmissionEstimateType parseSubmissionEstimateTypeOrThrow(String type) {
+    SubmissionEstimateType submissionEstimateType;
+    try {
+      submissionEstimateType = SubmissionEstimateType.valueOf(type);
+      return submissionEstimateType;
+    } catch (IllegalArgumentException e) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Type %s does not exist".formatted(type));
+    }
+  }
+
+  private String getEstimatePageTitle(SubmissionEstimateType submissionEstimateType) {
+    return switch (submissionEstimateType) {
+      case CSR -> CSR_ESTIMATE_TITLE;
+      case FDP -> FDP_ESTIMATE_TITLE;
+      default -> "";
+    };
+  }
+
+  private String getEstimateSubmittedDisplay(SubmissionEstimateType submissionEstimateType) {
+    return switch (submissionEstimateType) {
+      case CSR -> CSR_SUBMITTED_DISPLAY;
+      case FDP -> FDP_SUBMITTED_DISPLAY;
+      default -> "";
+    };
   }
 }

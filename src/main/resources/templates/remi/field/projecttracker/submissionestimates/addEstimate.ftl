@@ -1,5 +1,5 @@
-<#include '../../layout/layout.ftl'>
-<#import '../../systemofrecord/submissionHistorySearchSelector.ftl' as submissionSelector>
+<#include '../../../layout/layout.ftl'>
+<#import '../../../systemofrecord/submissionHistorySearchSelector.ftl' as submissionSelector>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 

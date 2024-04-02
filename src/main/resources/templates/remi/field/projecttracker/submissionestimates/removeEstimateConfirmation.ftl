@@ -1,4 +1,4 @@
-<#include '../../layout/layout.ftl'>
+<#include '../../../layout/layout.ftl'>
 
 <#-- @ftlvariable name="backLinkUrl" type="String" -->
 <#-- @ftlvariable name="projectStageHistory" type="uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.ProjectStageView" -->
