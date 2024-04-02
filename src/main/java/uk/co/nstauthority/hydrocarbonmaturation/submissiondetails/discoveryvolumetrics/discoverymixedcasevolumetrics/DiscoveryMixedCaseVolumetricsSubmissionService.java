@@ -28,6 +28,10 @@ public class DiscoveryMixedCaseVolumetricsSubmissionService implements Reservoir
 
   @Override
   public boolean isSectionSubmittable(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    if (!reservoirSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()) {
+      return true;
+    }
+
     if (generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail)) {
       var form = discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail);
       BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");

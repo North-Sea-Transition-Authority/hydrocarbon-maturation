@@ -29,6 +29,11 @@ public class GasFluidPropertySubmissionService implements ReservoirSectionSubmis
 
   @Override
   public boolean isSectionSubmittable(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    // section is not present on CoP so can always submit
+    if (reservoirSubmissionDetail.getSubmissionDetail().isCessationOfProductionSubmission()) {
+      return true;
+    }
+
     if (generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)
         || generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail)) {
       var form = gasFluidPropertyFormService.getGasFluidPropertyForm(reservoirSubmissionDetail);
