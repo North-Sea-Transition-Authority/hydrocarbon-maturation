@@ -44,18 +44,18 @@ class OperatorSubmissionWorkAreaQueryService implements SubmissionWorkAreaQueryS
 
   @Override
   public List<SubmissionWorkAreaQueryResult> getWorkAreaSubmissionItems(User user) {
-    return submissionWorkAreaQueryCommonService.getWorkAreaQueryResults(getOperatorConditions(user));
+    var organisationUnitIds = industryTeamService.getOrganisationUnitIdsForUser(user);
+    return submissionWorkAreaQueryCommonService.getWorkAreaQueryResults(getConditions(organisationUnitIds));
   }
 
-  private List<Condition> getOperatorConditions(User user) {
-    var submissionTeamMembershipCondition = getSubmissionForResponsibleOrganisation(user);
+  private List<Condition> getConditions(List<Integer> organisationUnitIdsForUser) {
+    var submissionTeamMembershipCondition = getSubmissionForResponsibleOrganisation(organisationUnitIdsForUser);
     var workAreaVisibleSubmissionStatuses = submissionWorkAreaQueryCommonService.getVisibleSubmissions();
 
     return List.of(submissionTeamMembershipCondition, workAreaVisibleSubmissionStatuses);
   }
 
-  private Condition getSubmissionForResponsibleOrganisation(User user) {
-    var userOrgUnits = industryTeamService.getOrganisationUnitIdsForUser(user);
+  private Condition getSubmissionForResponsibleOrganisation(List<Integer> userOrgUnits) {
     return isIndustrySubmissionCondition()
         .and(isLatestApprovedSubmissionInUserResponsibleTeamCondition(userOrgUnits)
             .or(isInitialIndustrySubmissionInUserResponsibleTeamCondition(userOrgUnits)));

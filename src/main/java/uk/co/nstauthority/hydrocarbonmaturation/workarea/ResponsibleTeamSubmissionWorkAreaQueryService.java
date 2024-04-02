@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
 
@@ -28,19 +29,22 @@ class ResponsibleTeamSubmissionWorkAreaQueryService implements SubmissionWorkAre
 
   @Override
   public List<SubmissionWorkAreaQueryResult> getWorkAreaSubmissionItems(User user) {
-    return submissionWorkAreaQueryCommonService.getWorkAreaQueryResults(getConditions(user));
+    var responsibleTeamTypes = responsibleTeamService.getResponsibleTeamTypesForUser(user);
+    return submissionWorkAreaQueryCommonService.getWorkAreaQueryResults(getConditions(responsibleTeamTypes));
   }
 
-  private List<Condition> getConditions(User user) {
-    var submissionTeamMembershipCondition = getConditionForResponsibleTeam(user);
+  private List<Condition> getConditions(List<ResponsibleTeamType> responsibleTeamTypesForUser) {
+    var submissionTeamMembershipCondition = getConditionForResponsibleTeam(responsibleTeamTypesForUser);
     var workAreaVisibleSubmissionStatuses = submissionWorkAreaQueryCommonService.getVisibleSubmissions();
 
     return List.of(submissionTeamMembershipCondition, workAreaVisibleSubmissionStatuses);
   }
 
-  private Condition getConditionForResponsibleTeam(User user) {
-    var responsibleTeamTypeList = responsibleTeamService.getResponsibleTeamTypesForUser(user)
-        .stream().map(Enum::name).toList();
+  private Condition getConditionForResponsibleTeam(List<ResponsibleTeamType> responsibleTeamTypesForUser) {
+    var responsibleTeamTypeList = responsibleTeamTypesForUser
+        .stream()
+        .map(Enum::name)
+        .toList();
 
     if (!responsibleTeamTypeList.isEmpty()) {
       return REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM
