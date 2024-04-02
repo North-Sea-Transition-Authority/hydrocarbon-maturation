@@ -15,7 +15,7 @@ errorItems=errorList>
         dayPath="form.earliestDateDay"
         monthPath="form.earliestDateMonth"
         yearPath="form.earliestDateYear"
-        labelText="Earliest submission date"
+        labelText="Earliest date"
         optionalLabel=true/>
 
         <@fdsDateInput.dateInput
@@ -23,14 +23,14 @@ errorItems=errorList>
         dayPath="form.mostLikelyDateDay"
         monthPath="form.mostLikelyDateMonth"
         yearPath="form.mostLikelyDateYear"
-        labelText="Most likely submission"/>
+        labelText="Most likely date"/>
 
         <@fdsDateInput.dateInput
         formId="latestDate-date-input"
         dayPath="form.latestDateDay"
         monthPath="form.latestDateMonth"
         yearPath="form.latestDateYear"
-        labelText="Latest submission date"
+        labelText="Latest date"
         optionalLabel=true/>
 
         <@fdsDateInput.dateInput
@@ -38,7 +38,7 @@ errorItems=errorList>
         dayPath="form.estimatedDateDay"
         monthPath="form.estimatedDateMonth"
         yearPath="form.estimatedDateYear"
-        labelText="On what date were these the estimated submission dates?"/>
+        labelText="On what date were these the estimated dates?"/>
 
         <@fdsAction.submitButtons
         primaryButtonText="Save"

@@ -77,6 +77,7 @@ class SubmissionEstimateSummaryServiceTest {
 
     private List<SubmissionEstimate> csrEstimates;
     private List<SubmissionEstimate> fdpEstimates;
+    private List<SubmissionEstimate> firstProductionEstimates;
 
     @BeforeEach
     void setUp() {
@@ -89,8 +90,9 @@ class SubmissionEstimateSummaryServiceTest {
       void thenEmptySummaryCards() {
         var summarySection = submissionEstimateSummaryService.getSummarySection(project).orElseThrow();
 
-        assertEmptySummaryCardOnSection(SubmissionEstimateSummaryService.CSR_ESTIMATES, summarySection);
-        assertEmptySummaryCardOnSection(SubmissionEstimateSummaryService.FDP_ESTIMATES, summarySection);
+        assertEmptySummaryCardOnSection(SubmissionEstimateType.CSR.getDisplayName(), summarySection);
+        assertEmptySummaryCardOnSection(SubmissionEstimateType.FDP.getDisplayName(), summarySection);
+        assertEmptySummaryCardOnSection(SubmissionEstimateType.FIRST_PRODUCTION.getDisplayName(), summarySection);
       }
     }
 
@@ -100,6 +102,7 @@ class SubmissionEstimateSummaryServiceTest {
       void setUp() {
         csrEstimates = createAndMockSubmissionEstimates(SubmissionEstimateType.CSR);
         fdpEstimates = createAndMockSubmissionEstimates(SubmissionEstimateType.FDP);
+        firstProductionEstimates = createAndMockSubmissionEstimates(SubmissionEstimateType.FIRST_PRODUCTION);
       }
 
       @Test
@@ -108,13 +111,18 @@ class SubmissionEstimateSummaryServiceTest {
         var summarySection = submissionEstimateSummaryService.getSummarySection(project).orElseThrow();
 
         assertSummaryCardOnSection(
-            SubmissionEstimateSummaryService.CSR_ESTIMATES,
+            SubmissionEstimateType.CSR.getDisplayName(),
             csrEstimates,
             summarySection
         );
         assertSummaryCardOnSection(
-            SubmissionEstimateSummaryService.FDP_ESTIMATES,
+            SubmissionEstimateType.FDP.getDisplayName(),
             fdpEstimates,
+            summarySection
+        );
+        assertSummaryCardOnSection(
+            SubmissionEstimateType.FIRST_PRODUCTION.getDisplayName(),
+            firstProductionEstimates,
             summarySection
         );
       }
@@ -137,6 +145,12 @@ class SubmissionEstimateSummaryServiceTest {
         var fdpTableView = (SummaryTableView) fdpCard.summaryData();
         var fdpTableRows = fdpTableView.tableRows();
         assertSummaryTableRowsHaveActions(fdpTableRows, fdpEstimates);
+
+        var firstProductionCard = summaryCards.get(2);
+        assertSummaryCardHasActions(firstProductionCard, SubmissionEstimateType.FIRST_PRODUCTION);
+        var firstProductionTableView = (SummaryTableView) firstProductionCard.summaryData();
+        var firstProductionTableRows = firstProductionTableView.tableRows();
+        assertSummaryTableRowsHaveActions(firstProductionTableRows, firstProductionEstimates);
       }
 
       @Test
@@ -159,6 +173,12 @@ class SubmissionEstimateSummaryServiceTest {
         var fdpTableView = (SummaryTableView) fdpCard.summaryData();
         var fdpTableRows = fdpTableView.tableRows();
         assertSummaryTableRowsHaveActions(fdpTableRows, fdpEstimates);
+
+        var firstProductionCard = summaryCards.get(2);
+        assertSummaryCardHasActions(firstProductionCard, SubmissionEstimateType.FIRST_PRODUCTION);
+        var firstProductionTableView = (SummaryTableView) firstProductionCard.summaryData();
+        var firstProductionTableRows = firstProductionTableView.tableRows();
+        assertSummaryTableRowsHaveActions(firstProductionTableRows, firstProductionEstimates);
       }
 
       @Test
@@ -180,7 +200,13 @@ class SubmissionEstimateSummaryServiceTest {
         assertSummaryCardHasNoActions(fdpCard);
         var fdpTableView = (SummaryTableView) fdpCard.summaryData();
         var fdpTableRows = fdpTableView.tableRows();
-        assertSummaryTableRowsHaveActions(fdpTableRows, fdpEstimates);
+        assertSummaryTableRowsHaveNoActions(fdpTableRows);
+
+        var firstProductionCard = summaryCards.get(1);
+        assertSummaryCardHasNoActions(firstProductionCard);
+        var firstProductionTableView = (SummaryTableView) firstProductionCard.summaryData();
+        var firstProductionTableRows = firstProductionTableView.tableRows();
+        assertSummaryTableRowsHaveNoActions(firstProductionTableRows);
       }
     }
   }
@@ -189,6 +215,8 @@ class SubmissionEstimateSummaryServiceTest {
   class GivenFdpaProject {
 
     private List<SubmissionEstimate> csrEstimates;
+    private List<SubmissionEstimate> fdpaEstimates;
+    private List<SubmissionEstimate> fdpaStartUpEstimates;
 
     @BeforeEach
     void setUp() {
@@ -201,7 +229,9 @@ class SubmissionEstimateSummaryServiceTest {
       void thenEmptySummaryCards() {
         var summarySection = submissionEstimateSummaryService.getSummarySection(project).orElseThrow();
 
-        assertEmptySummaryCardOnSection(SubmissionEstimateSummaryService.CSR_ESTIMATES, summarySection);
+        assertEmptySummaryCardOnSection(SubmissionEstimateType.CSR.getDisplayName(), summarySection);
+        assertEmptySummaryCardOnSection(SubmissionEstimateType.FDPA.getDisplayName(), summarySection);
+        assertEmptySummaryCardOnSection(SubmissionEstimateType.FDPA_START_UP.getDisplayName(), summarySection);
       }
     }
 
@@ -210,6 +240,8 @@ class SubmissionEstimateSummaryServiceTest {
       @BeforeEach
       void setUp() {
         csrEstimates = createAndMockSubmissionEstimates(SubmissionEstimateType.CSR);
+        fdpaEstimates = createAndMockSubmissionEstimates(SubmissionEstimateType.FDPA);
+        fdpaStartUpEstimates = createAndMockSubmissionEstimates(SubmissionEstimateType.FDPA_START_UP);
       }
 
       @Test
@@ -218,8 +250,18 @@ class SubmissionEstimateSummaryServiceTest {
         var summarySection = submissionEstimateSummaryService.getSummarySection(project).orElseThrow();
 
         assertSummaryCardOnSection(
-            SubmissionEstimateSummaryService.CSR_ESTIMATES,
+            SubmissionEstimateType.CSR.getDisplayName(),
             csrEstimates,
+            summarySection
+        );
+        assertSummaryCardOnSection(
+            SubmissionEstimateType.FDPA.getDisplayName(),
+            fdpaEstimates,
+            summarySection
+        );
+        assertSummaryCardOnSection(
+            SubmissionEstimateType.FDPA_START_UP.getDisplayName(),
+            fdpaStartUpEstimates,
             summarySection
         );
       }
@@ -236,6 +278,18 @@ class SubmissionEstimateSummaryServiceTest {
         var csrTableView = (SummaryTableView) csrCard.summaryData();
         var csrTableRows = csrTableView.tableRows();
         assertSummaryTableRowsHaveActions(csrTableRows, csrEstimates);
+
+        var fdpaCard = summaryCards.get(1);
+        assertSummaryCardHasActions(fdpaCard, SubmissionEstimateType.FDPA);
+        var fdpaTableView = (SummaryTableView) fdpaCard.summaryData();
+        var fdpaTableRows = fdpaTableView.tableRows();
+        assertSummaryTableRowsHaveActions(fdpaTableRows, fdpaEstimates);
+
+        var fdpaStartUpCard = summaryCards.get(2);
+        assertSummaryCardHasActions(fdpaStartUpCard, SubmissionEstimateType.FDPA_START_UP);
+        var fdpaStartUpTableView = (SummaryTableView) fdpaStartUpCard.summaryData();
+        var fdpaStartUpTableRows = fdpaStartUpTableView.tableRows();
+        assertSummaryTableRowsHaveActions(fdpaStartUpTableRows, fdpaStartUpEstimates);
       }
 
       @Test
@@ -252,6 +306,18 @@ class SubmissionEstimateSummaryServiceTest {
         var csrTableView = (SummaryTableView) csrCard.summaryData();
         var csrTableRows = csrTableView.tableRows();
         assertSummaryTableRowsHaveActions(csrTableRows, csrEstimates);
+
+        var fdpaCard = summaryCards.get(1);
+        assertSummaryCardHasActions(fdpaCard, SubmissionEstimateType.FDPA);
+        var fdpaTableView = (SummaryTableView) fdpaCard.summaryData();
+        var fdpaTableRows = fdpaTableView.tableRows();
+        assertSummaryTableRowsHaveActions(fdpaTableRows, fdpaEstimates);
+
+        var fdpaStartUpCard = summaryCards.get(2);
+        assertSummaryCardHasActions(fdpaStartUpCard, SubmissionEstimateType.FDPA_START_UP);
+        var fdpaStartUpTableView = (SummaryTableView) fdpaStartUpCard.summaryData();
+        var fdpaStartUpTableRows = fdpaStartUpTableView.tableRows();
+        assertSummaryTableRowsHaveActions(fdpaStartUpTableRows, fdpaStartUpEstimates);
       }
 
       @Test
@@ -268,24 +334,126 @@ class SubmissionEstimateSummaryServiceTest {
         var csrTableView = (SummaryTableView) csrCard.summaryData();
         var csrTableRows = csrTableView.tableRows();
         assertSummaryTableRowsHaveNoActions(csrTableRows);
+
+        var fdpaCard = summaryCards.get(0);
+        assertSummaryCardHasNoActions(fdpaCard);
+        var fdpaTableView = (SummaryTableView) fdpaCard.summaryData();
+        var fdpaTableRows = fdpaTableView.tableRows();
+        assertSummaryTableRowsHaveNoActions(fdpaTableRows);
+
+        var fdpaStartUpCard = summaryCards.get(0);
+        assertSummaryCardHasNoActions(fdpaStartUpCard);
+        var fdpaStartUpTableView = (SummaryTableView) fdpaStartUpCard.summaryData();
+        var fdpaStartUpTableRows = fdpaStartUpTableView.tableRows();
+        assertSummaryTableRowsHaveNoActions(fdpaStartUpTableRows);
+      }
+    }
+  }
+
+  @Nested
+  class GivenCopProject {
+
+    private List<SubmissionEstimate> copEstimates;
+
+    @BeforeEach
+    void setUp() {
+      project.setProjectType(ProjectType.CESSATION_OF_PRODUCTION);
+    }
+
+    @Nested
+    class WhenNotAllEstimatesProvided {
+      @Test
+      void thenEmptySummaryCards() {
+        var summarySection = submissionEstimateSummaryService.getSummarySection(project).orElseThrow();
+
+        assertEmptySummaryCardOnSection(SubmissionEstimateType.COP.getDisplayName(), summarySection);
+      }
+    }
+
+    @Nested
+    class WhenAllEstimatesProvided {
+      @BeforeEach
+      void setUp() {
+        copEstimates = createAndMockSubmissionEstimates(SubmissionEstimateType.COP);
+      }
+
+      @Test
+      void whenAnyUser_andEstimatesAllProvided_assertPopulatedCards() {
+
+        var summarySection = submissionEstimateSummaryService.getSummarySection(project).orElseThrow();
+
+        assertSummaryCardOnSection(
+            SubmissionEstimateType.COP.getDisplayName(),
+            copEstimates,
+            summarySection
+        );
+      }
+
+      @Test
+      void whenProjectAnalyst_assertActionsAndHeader() {
+        when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
+            .thenReturn(true);
+
+        var summaryCards = invokeAndGetSummaryCards();
+
+        var copCard = summaryCards.get(0);
+        assertSummaryCardHasActions(copCard, SubmissionEstimateType.COP);
+        var copTableView = (SummaryTableView) copCard.summaryData();
+        var copTableRows = copTableView.tableRows();
+        assertSummaryTableRowsHaveActions(copTableRows, copEstimates);
+      }
+
+      @Test
+      void whenResponsibleRegulator_assertActionsAndHeader() {
+        when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
+            .thenReturn(false);
+        when(permissionService.hasPermission(user, responsibleRegPermissions))
+            .thenReturn(true);
+
+        var summaryCards = invokeAndGetSummaryCards();
+
+        var copCard = summaryCards.get(0);
+        assertSummaryCardHasActions(copCard, SubmissionEstimateType.COP);
+        var copTableView = (SummaryTableView) copCard.summaryData();
+        var copTableRows = copTableView.tableRows();
+        assertSummaryTableRowsHaveActions(copTableRows, copEstimates);
+      }
+
+      @Test
+      void whenCannotManageProject_assertActionsAndHeader() {
+        when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
+            .thenReturn(false);
+        when(permissionService.hasPermission(user, responsibleRegPermissions))
+            .thenReturn(false);
+
+        var summaryCards = invokeAndGetSummaryCards();
+
+        var copCard = summaryCards.get(0);
+        assertSummaryCardHasNoActions(copCard);
+        var copTableView = (SummaryTableView) copCard.summaryData();
+        var copTableRows = copTableView.tableRows();
+        assertSummaryTableRowsHaveNoActions(copTableRows);
       }
     }
   }
 
   private List<SubmissionEstimate> createAndMockSubmissionEstimates(SubmissionEstimateType type) {
     var firstCreatedEstimates = new SubmissionEstimate(UUID.randomUUID());
+    firstCreatedEstimates.setSubmissionEstimateType(type);
     firstCreatedEstimates.setDateWhenEstimated(getRandomDate());
     firstCreatedEstimates.setEarliestDate(getRandomDate());
     firstCreatedEstimates.setMostLikelyDate(getRandomDate());
     firstCreatedEstimates.setLatestDate(getRandomDate());
 
     var secondCreatedEstimates = new SubmissionEstimate(UUID.randomUUID());
+    secondCreatedEstimates.setSubmissionEstimateType(type);
     secondCreatedEstimates.setDateWhenEstimated(getRandomDate());
     secondCreatedEstimates.setEarliestDate(getRandomDate());
     secondCreatedEstimates.setMostLikelyDate(getRandomDate());
     secondCreatedEstimates.setLatestDate(getRandomDate());
 
     var lastCreatedEstimates = new SubmissionEstimate(UUID.randomUUID());
+    lastCreatedEstimates.setSubmissionEstimateType(type);
     lastCreatedEstimates.setDateWhenEstimated(getRandomDate());
     lastCreatedEstimates.setEarliestDate(getRandomDate());
     lastCreatedEstimates.setMostLikelyDate(getRandomDate());
@@ -387,15 +555,39 @@ class SubmissionEstimateSummaryServiceTest {
   }
 
   private void assertSummaryTableRowsHaveActions(List<SummaryTableRow> tableRows, List<SubmissionEstimate> estimates) {
-    List<SummaryTableRow.SummaryTableRowAction> expectedRowActions = estimates.stream()
-        .map(submissionEstimate -> new SummaryTableRow.SummaryTableRowAction(
+    // check heading has actions heading and no action links
+    assertThat(tableRows.get(0))
+        .extracting(
+            SummaryTableRow::rowValues,
+            SummaryTableRow::rowActions
+        )
+        .containsExactly(
+            List.of(
+                SubmissionEstimateSummaryService.ESTIMATED_DATES_ON,
+                SubmissionEstimateSummaryService.EARLIEST,
+                SubmissionEstimateSummaryService.MOST_LIKELY,
+                SubmissionEstimateSummaryService.LATEST,
+                SubmissionEstimateSummaryService.ACTIONS
+            ),
+            List.of()
+        );
+
+    // check each table data row has an action to remove
+    var expectedRowActions = estimates.stream()
+        .map(submissionEstimate -> List.of(new SummaryTableRow.SummaryTableRowAction(
             "Remove",
             ReverseRouter.route(on(SubmissionEstimateController.class)
                 .getRemoveConfirmation(
                     project.getField().getResource().getId(),
                     project.getId(),
                     submissionEstimate.getId(),
-                    String.valueOf(submissionEstimate.getSubmissionEstimateType()))))).toList();
+                    String.valueOf(submissionEstimate.getSubmissionEstimateType())))))).toList();
+
+    tableRows.remove(0);
+    assertThat(tableRows)
+        .extracting(SummaryTableRow::rowActions)
+        .usingRecursiveComparison()
+        .isEqualTo(expectedRowActions);
   }
 
   private void assertSummaryTableRowsHaveNoActions(List<SummaryTableRow> tableRows) {

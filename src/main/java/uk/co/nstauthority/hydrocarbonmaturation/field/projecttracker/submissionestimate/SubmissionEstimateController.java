@@ -24,18 +24,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectTrackerControllerService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ViewProjectController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.util.StringUtil;
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}/project-tracker/{projectId}")
 @IsExtantProject
 @IsRegulatorForProjectField
 class SubmissionEstimateController {
-  static final String CSR_ESTIMATE_TITLE = "Estimated CSR first draft submitted date";
-  static final String FDP_ESTIMATE_TITLE = "Estimated FDP first draft submitted date";
-
-  static final String CSR_SUBMITTED_DISPLAY = "estimated CSR first draft submission date";
-  static final String FDP_SUBMITTED_DISPLAY = "estimated FDP first draft submission date";
-
   private final ProjectTrackerControllerService projectTrackerControllerService;
   private final SubmissionEstimateFormValidator submissionEstimateFormValidator;
   private final SubmissionEstimateService submissionEstimateService;
@@ -58,7 +53,7 @@ class SubmissionEstimateController {
 
     var submissionEstimateType = parseSubmissionEstimateTypeOrThrow(type);
 
-    var pageTitle = getEstimatePageTitle(submissionEstimateType);
+    var pageTitle = submissionEstimateType.getDisplayName();
 
     return getSubmissionEstimateModelAndView(pageTitle, project, new SubmissionEstimateForm());
   }
@@ -77,13 +72,14 @@ class SubmissionEstimateController {
       submissionEstimateService.saveSubmissionEstimateFromForm(form, project, submissionEstimateType);
 
       NotificationBannerUtil.addSuccessNotification(
-          redirectAttributes, "Success", "Saved %s".formatted(getEstimateSubmittedDisplay(submissionEstimateType)));
+          redirectAttributes, "Success", "Saved %s"
+              .formatted(StringUtil.withFirstLetterLowerCase(submissionEstimateType.getDisplayName())));
 
       return ReverseRouter.redirect(on(ViewProjectController.class)
           .getViewProject(resourceId, projectId, null));
     }
 
-    return getSubmissionEstimateModelAndView(getEstimatePageTitle(submissionEstimateType), project, form);
+    return getSubmissionEstimateModelAndView(submissionEstimateType.getDisplayName(), project, form);
   }
 
   @GetMapping("/{submissionEstimateId}/delete")
@@ -106,7 +102,7 @@ class SubmissionEstimateController {
 
     return new ModelAndView("remi/field/projecttracker/submissionestimates/removeEstimateConfirmation")
         .addObject("pageTitle", "Are you sure you want to remove this " +
-            getEstimateSubmittedDisplay(submissionEstimateType) + "?")
+            StringUtil.withFirstLetterLowerCase(submissionEstimateType.getDisplayName()) + "?")
         .addObject("pageCaption", project.getProjectName())
         .addObject("estimates", SubmissionEstimateView.from(estimates))
         .addObject("cancelUrl", ReverseRouter.route(on(ViewProjectController.class)
@@ -134,7 +130,9 @@ class SubmissionEstimateController {
     NotificationBannerUtil.addSuccessNotification(
         redirectAttributes,
         "Success",
-        "Removed %s".formatted(getEstimateSubmittedDisplay(submissionEstimate.getSubmissionEstimateType()))
+        "Removed %s".formatted(StringUtil.withFirstLetterLowerCase(
+            submissionEstimate.getSubmissionEstimateType().getDisplayName())
+        )
     );
 
     return ReverseRouter.redirect(on(ViewProjectController.class)
@@ -156,25 +154,9 @@ class SubmissionEstimateController {
     SubmissionEstimateType submissionEstimateType;
     try {
       submissionEstimateType = SubmissionEstimateType.valueOf(type);
-      return submissionEstimateType;
     } catch (IllegalArgumentException e) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Type %s does not exist".formatted(type));
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "There is no page to create estimates for type %s".formatted(type));
     }
-  }
-
-  private String getEstimatePageTitle(SubmissionEstimateType submissionEstimateType) {
-    return switch (submissionEstimateType) {
-      case CSR -> CSR_ESTIMATE_TITLE;
-      case FDP -> FDP_ESTIMATE_TITLE;
-      default -> "";
-    };
-  }
-
-  private String getEstimateSubmittedDisplay(SubmissionEstimateType submissionEstimateType) {
-    return switch (submissionEstimateType) {
-      case CSR -> CSR_SUBMITTED_DISPLAY;
-      case FDP -> FDP_SUBMITTED_DISPLAY;
-      default -> "";
-    };
+    return submissionEstimateType;
   }
 }

@@ -61,11 +61,11 @@ class SubmissionEstimateFormValidatorTest {
       assertThat(bindingResult.getFieldErrors())
           .extracting(FieldError::getField, FieldError::getCode, FieldError::getDefaultMessage)
           .containsExactly(
-              Tuple.tuple("mostLikelyDateDay", "mostLikelyDateDay.required", "Enter a most likely submission date"),
+              Tuple.tuple("mostLikelyDateDay", "mostLikelyDateDay.required", "Enter a most likely date"),
               Tuple.tuple("mostLikelyDateMonth", "mostLikelyDateMonth.required", ""),
               Tuple.tuple("mostLikelyDateYear", "mostLikelyDateYear.required", ""),
 
-              Tuple.tuple("estimatedDateDay", "estimatedDateDay.required", "Enter a date these were the estimated submission dates"),
+              Tuple.tuple("estimatedDateDay", "estimatedDateDay.required", "Enter a date these were the estimated dates"),
               Tuple.tuple("estimatedDateMonth", "estimatedDateMonth.required", ""),
               Tuple.tuple("estimatedDateYear", "estimatedDateYear.required", "")
           );
@@ -93,7 +93,7 @@ class SubmissionEstimateFormValidatorTest {
       assertThat(bindingResult.getFieldErrors())
           .extracting(FieldError::getField, FieldError::getCode, FieldError::getDefaultMessage)
           .containsExactly(
-              Tuple.tuple("mostLikelyDateDay", "mostLikelyDateDay.required", "Enter a most likely submission date"),
+              Tuple.tuple("mostLikelyDateDay", "mostLikelyDateDay.required", "Enter a most likely date"),
               Tuple.tuple("mostLikelyDateMonth", "mostLikelyDateMonth.required", ""),
               Tuple.tuple("mostLikelyDateYear", "mostLikelyDateYear.required", "")
           );
@@ -121,7 +121,7 @@ class SubmissionEstimateFormValidatorTest {
       assertThat(bindingResult.getFieldErrors())
           .extracting(FieldError::getField, FieldError::getCode, FieldError::getDefaultMessage)
           .containsExactly(
-              Tuple.tuple("estimatedDateDay", "estimatedDateDay.required", "Enter a date these were the estimated submission dates"),
+              Tuple.tuple("estimatedDateDay", "estimatedDateDay.required", "Enter a date these were the estimated dates"),
               Tuple.tuple("estimatedDateMonth", "estimatedDateMonth.required", ""),
               Tuple.tuple("estimatedDateYear", "estimatedDateYear.required", "")
           );
@@ -270,7 +270,7 @@ class SubmissionEstimateFormValidatorTest {
       assertThat(bindingResult.getFieldErrors())
           .extracting(FieldError::getField, FieldError::getCode, FieldError::getDefaultMessage)
           .containsExactly(
-              Tuple.tuple("earliestDateDay", "earliestDateDay.invalid", "Earliest submission date must be a real date"),
+              Tuple.tuple("earliestDateDay", "earliestDateDay.invalid", "Earliest date must be a real date"),
 
               Tuple.tuple("estimatedDateDay", "estimatedDateDay.notBeforeTargetDate", "Estimated date must be today or in the past"),
               Tuple.tuple("estimatedDateMonth", "estimatedDateMonth.notBeforeTargetDate", ""),
@@ -301,19 +301,19 @@ class SubmissionEstimateFormValidatorTest {
     assertThat(bindingResult.getFieldErrors())
         .extracting(FieldError::getField, FieldError::getCode, FieldError::getDefaultMessage)
         .containsExactly(
-            Tuple.tuple("earliestDateDay", "earliestDateDay.invalid", "Earliest submission date must be a real date"),
+            Tuple.tuple("earliestDateDay", "earliestDateDay.invalid", "Earliest date must be a real date"),
             Tuple.tuple("earliestDateMonth", "earliestDateMonth.invalid", ""),
             Tuple.tuple("earliestDateYear", "earliestDateYear.invalid", ""),
 
-            Tuple.tuple("mostLikelyDateDay", "mostLikelyDateDay.invalid", "Most likely submission date must be a real date"),
+            Tuple.tuple("mostLikelyDateDay", "mostLikelyDateDay.invalid", "Most likely date must be a real date"),
             Tuple.tuple("mostLikelyDateMonth", "mostLikelyDateMonth.invalid", ""),
             Tuple.tuple("mostLikelyDateYear", "mostLikelyDateYear.invalid", ""),
 
-            Tuple.tuple("latestDateDay", "latestDateDay.invalid", "Latest submission date must be a real date"),
+            Tuple.tuple("latestDateDay", "latestDateDay.invalid", "Latest date must be a real date"),
             Tuple.tuple("latestDateMonth", "latestDateMonth.invalid", ""),
             Tuple.tuple("latestDateYear", "latestDateYear.invalid", ""),
 
-            Tuple.tuple("estimatedDateDay", "estimatedDateDay.invalid", "Date these were the estimated submission dates must be a real date"),
+            Tuple.tuple("estimatedDateDay", "estimatedDateDay.invalid", "Date these were the estimated dates must be a real date"),
             Tuple.tuple("estimatedDateMonth", "estimatedDateMonth.invalid", ""),
             Tuple.tuple("estimatedDateYear", "estimatedDateYear.invalid", "")
         );
@@ -334,13 +334,13 @@ class SubmissionEstimateFormValidatorTest {
     assertThat(bindingResult.getFieldErrors())
         .extracting(FieldError::getField, FieldError::getCode, FieldError::getDefaultMessage)
         .containsExactly(
-            Tuple.tuple("earliestDateDay", "earliestDateDay.required", "Enter a complete earliest submission date"),
+            Tuple.tuple("earliestDateDay", "earliestDateDay.required", "Enter a complete earliest date"),
 
-            Tuple.tuple("mostLikelyDateDay", "mostLikelyDateDay.required", "Enter a complete most likely submission date"),
+            Tuple.tuple("mostLikelyDateDay", "mostLikelyDateDay.required", "Enter a complete most likely date"),
 
-            Tuple.tuple("latestDateDay", "latestDateDay.required", "Enter a complete latest submission date"),
+            Tuple.tuple("latestDateDay", "latestDateDay.required", "Enter a complete latest date"),
 
-            Tuple.tuple("estimatedDateDay", "estimatedDateDay.required", "Enter a complete date these were the estimated submission dates")
+            Tuple.tuple("estimatedDateDay", "estimatedDateDay.required", "Enter a complete date these were the estimated dates")
         );
   }
 

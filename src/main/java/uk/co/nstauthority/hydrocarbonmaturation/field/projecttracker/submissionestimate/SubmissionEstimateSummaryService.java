@@ -29,9 +29,6 @@ class SubmissionEstimateSummaryService implements SummarySectionService<Project>
   static final int DISPLAY_ORDER = 30;
   static final String ESTIMATED_DATES = "Estimated dates";
 
-  static final String CSR_ESTIMATES = "Estimated CSR first draft submission date";
-  static final String FDP_ESTIMATES = "Estimated FDP first draft submission date";
-
   static final String ESTIMATED_DATES_ON = "Estimated dates on";
   static final String EARLIEST = "Earliest";
   static final String MOST_LIKELY = "Most likely";
@@ -56,11 +53,7 @@ class SubmissionEstimateSummaryService implements SummarySectionService<Project>
 
   @Override
   public Optional<SummarySection> getSummarySection(Project project) {
-    List<SubmissionEstimateType> estimateTypesToCollect = switch (project.getProjectType()) {
-      case FIELD_DEVELOPMENT_PLAN -> List.of(SubmissionEstimateType.CSR, SubmissionEstimateType.FDP);
-      case FIELD_DEVELOPMENT_PLAN_ADDENDUM -> List.of(SubmissionEstimateType.CSR);
-      default -> List.of();
-    };
+    List<SubmissionEstimateType> estimateTypesToCollect = getEstimateTypesForProjectType(project);
 
     var summaryCards = estimateTypesToCollect.stream()
         .map(estimateType -> getEstimateSummaryCard(project, estimateType))
@@ -121,22 +114,25 @@ class SubmissionEstimateSummaryService implements SummarySectionService<Project>
       );
     }
 
-    var cardTitle = getCardTitle(type);
+    var cardTitle = type.getDisplayName();
     if (summaryTableView.tableRows().size() == 1) {
       return SummaryCard.emptySummaryCardWithActions(cardTitle, cardActions);
     }
     return new SummaryCard(cardTitle, SummaryCardType.TABLE_SUMMARY, summaryTableView, cardActions);
   }
 
-  private String getCardTitle(SubmissionEstimateType type) {
-    return switch (type) {
-      case CSR -> CSR_ESTIMATES;
-      case FDP -> FDP_ESTIMATES;
-      default -> "";
-    };
-  }
-
   private ArrayList<String> getHeadingRow() {
     return new ArrayList<>(List.of(ESTIMATED_DATES_ON, EARLIEST, MOST_LIKELY, LATEST));
+  }
+
+  private List<SubmissionEstimateType> getEstimateTypesForProjectType(Project project) {
+    return switch (project.getProjectType()) {
+      case FIELD_DEVELOPMENT_PLAN ->
+          List.of(SubmissionEstimateType.CSR, SubmissionEstimateType.FDP, SubmissionEstimateType.FIRST_PRODUCTION);
+      case FIELD_DEVELOPMENT_PLAN_ADDENDUM ->
+          List.of(SubmissionEstimateType.CSR, SubmissionEstimateType.FDPA, SubmissionEstimateType.FDPA_START_UP);
+      case CESSATION_OF_PRODUCTION ->
+          List.of(SubmissionEstimateType.COP);
+    };
   }
 }

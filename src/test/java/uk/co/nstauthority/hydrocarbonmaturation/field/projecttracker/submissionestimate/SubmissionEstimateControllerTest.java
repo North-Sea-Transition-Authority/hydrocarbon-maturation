@@ -51,6 +51,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.util.StringUtil;
 
 @ContextConfiguration(classes = SubmissionEstimateController.class)
 class SubmissionEstimateControllerTest extends AbstractControllerTest {
@@ -325,7 +326,7 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   }
 
   @Nested
-  class GivenTypeInUrlIsInValid {
+  class GivenUrlIsInValid {
     @Test
     void whenGetAddEstimate_andInvalidSubmissionEstimateType_thenNotFound() throws Exception {
       when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
@@ -395,11 +396,12 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
             .andExpect(status().isNotFound());
       }
 
-      @Test
-      void andTypeIsCsr_assertProperties() throws Exception {
+      @ParameterizedTest
+      @EnumSource(value = SubmissionEstimateType.class)
+      void assertProperties(SubmissionEstimateType type) throws Exception {
         var modelMap = Objects.requireNonNull(mockMvc.perform(
                     get(ReverseRouter.route(on(SubmissionEstimateController.class)
-                        .getCreateSubmissionEstimate(RESOURCE_ID, PROJECT_ID, String.valueOf(SubmissionEstimateType.CSR))))
+                        .getCreateSubmissionEstimate(RESOURCE_ID, PROJECT_ID, String.valueOf(type))))
                         .with(user(USER)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("remi/field/projecttracker/submissionestimates/addEstimate"))
@@ -409,29 +411,7 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
 
         assertThat(modelMap)
             .contains(
-                entry("pageTitle", SubmissionEstimateController.CSR_ESTIMATE_TITLE),
-                entry("pageCaption", project.getProjectName()),
-                entry("cancelUrl", ReverseRouter.route(on(ViewProjectController.class)
-                    .getViewProject(project.getField().getResource().getId(), project.getId(), null)))
-            )
-            .containsKey("form");
-      }
-
-      @Test
-      void andTypeIsFdp_assertProperties() throws Exception {
-        var modelMap = Objects.requireNonNull(mockMvc.perform(
-                    get(ReverseRouter.route(on(SubmissionEstimateController.class)
-                        .getCreateSubmissionEstimate(RESOURCE_ID, PROJECT_ID, String.valueOf(SubmissionEstimateType.FDP))))
-                        .with(user(USER)))
-                .andExpect(status().isOk())
-                .andExpect(view().name("remi/field/projecttracker/submissionestimates/addEstimate"))
-                .andReturn()
-                .getModelAndView())
-            .getModelMap();
-
-        assertThat(modelMap)
-            .contains(
-                entry("pageTitle", SubmissionEstimateController.FDP_ESTIMATE_TITLE),
+                entry("pageTitle", type.getDisplayName()),
                 entry("pageCaption", project.getProjectName()),
                 entry("cancelUrl", ReverseRouter.route(on(ViewProjectController.class)
                     .getViewProject(project.getField().getResource().getId(), project.getId(), null)))
@@ -464,17 +444,18 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
               .thenReturn(true);
         }
 
-        @Test
-        void andEstimateIsCsr_andValidForm_thenAssertPropertiesAndVerifyCall() throws Exception {
+        @ParameterizedTest
+        @EnumSource(value = SubmissionEstimateType.class)
+        void andValidForm_thenAssertPropertiesAndVerifyCall(SubmissionEstimateType type) throws Exception {
           var expectedBanner = NotificationBanner.builder()
               .withBannerType(NotificationBannerType.SUCCESS)
               .withTitle("Success")
-              .withContent("Saved estimated CSR first draft submission date")
+              .withContent("Saved %s".formatted(StringUtil.withFirstLetterLowerCase(type.getDisplayName())))
               .build();
 
           mockMvc.perform(
                   post(ReverseRouter.route(on(SubmissionEstimateController.class)
-                      .getCreateSubmissionEstimate(RESOURCE_ID, PROJECT_ID, String.valueOf(SubmissionEstimateType.CSR))))
+                      .getCreateSubmissionEstimate(RESOURCE_ID, PROJECT_ID, String.valueOf(type))))
                       .with(user(USER))
                       .with(csrf()))
               .andExpect(status().is3xxRedirection())
@@ -482,29 +463,7 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
                   .getViewProject(RESOURCE_ID, PROJECT_ID, null))))
               .andExpect(notificationBanner(expectedBanner));
 
-          verify(submissionEstimateService).saveSubmissionEstimateFromForm(any(SubmissionEstimateForm.class), eq(project), eq(SubmissionEstimateType.CSR));
-          verifyNoMoreInteractions(submissionEstimateService);
-        }
-
-        @Test
-        void andEstimateIsFdp_andValidForm_thenAssertPropertiesAndVerifyCall() throws Exception {
-          var expectedBanner = NotificationBanner.builder()
-              .withBannerType(NotificationBannerType.SUCCESS)
-              .withTitle("Success")
-              .withContent("Saved estimated FDP first draft submission date")
-              .build();
-
-          mockMvc.perform(
-                  post(ReverseRouter.route(on(SubmissionEstimateController.class)
-                      .getCreateSubmissionEstimate(RESOURCE_ID, PROJECT_ID, String.valueOf(SubmissionEstimateType.FDP))))
-                      .with(user(USER))
-                      .with(csrf()))
-              .andExpect(status().is3xxRedirection())
-              .andExpect(redirectedUrl(ReverseRouter.route(on(ViewProjectController.class)
-                  .getViewProject(RESOURCE_ID, PROJECT_ID, null))))
-              .andExpect(notificationBanner(expectedBanner));
-
-          verify(submissionEstimateService).saveSubmissionEstimateFromForm(any(SubmissionEstimateForm.class), eq(project), eq(SubmissionEstimateType.FDP));
+          verify(submissionEstimateService).saveSubmissionEstimateFromForm(any(SubmissionEstimateForm.class), eq(project), eq(type));
           verifyNoMoreInteractions(submissionEstimateService);
         }
       }
@@ -580,27 +539,19 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
             .andExpect(status().isNotFound());
       }
 
-      @Test
-      void andProjectIsCsr_assertProperties() throws Exception {
-        var modelMap = assertPropertiesAndReturnModelMap(SubmissionEstimateType.CSR);
+      @ParameterizedTest
+      @EnumSource(value = SubmissionEstimateType.class)
+      void assertProperties(SubmissionEstimateType type) throws Exception {
+        var modelMap = assertPropertiesAndReturnModelMap(type);
 
         assertThat(modelMap)
             .contains(
-                entry("pageTitle", "Are you sure you want to remove this estimated CSR first draft submission date?")
+                entry("pageTitle", "Are you sure you want to remove this %s?"
+                    .formatted(StringUtil.withFirstLetterLowerCase(type.getDisplayName())))
             );
       }
 
-      @Test
-      void andProjectIsFdp_assertProperties() throws Exception {
-        var modelMap = assertPropertiesAndReturnModelMap(SubmissionEstimateType.FDP);
-
-        assertThat(modelMap)
-            .contains(
-                entry("pageTitle", "Are you sure you want to remove this estimated FDP first draft submission date?")
-            );
-      }
-
-      /* Perform get and assert common properties for any submission estimate type
+      /* Perform get and assert common properties for any estimate type
        * and return the model map to check estimate type specific properties
        */
       private ModelMap assertPropertiesAndReturnModelMap(SubmissionEstimateType submissionEstimateType) throws Exception {
@@ -689,26 +640,16 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
             .andExpect(status().isNotFound());
       }
 
-      @Test
-      void andEstimateIsCsr_assertProperties() throws Exception {
+      @ParameterizedTest
+      @EnumSource(value = SubmissionEstimateType.class)
+      void assertProperties(SubmissionEstimateType type) throws Exception {
         var expectedBanner = NotificationBanner.builder()
             .withBannerType(NotificationBannerType.SUCCESS)
             .withTitle("Success")
-            .withContent("Removed estimated CSR first draft submission date")
+            .withContent("Removed %s".formatted(StringUtil.withFirstLetterLowerCase(type.getDisplayName())))
             .build();
 
-        performRemoveAndAssertProperties(expectedBanner, SubmissionEstimateType.CSR);
-      }
-
-      @Test
-      void andEstimateIsFdp_assertProperties() throws Exception {
-        var expectedBanner = NotificationBanner.builder()
-            .withBannerType(NotificationBannerType.SUCCESS)
-            .withTitle("Success")
-            .withContent("Removed estimated FDP first draft submission date")
-            .build();
-
-        performRemoveAndAssertProperties(expectedBanner, SubmissionEstimateType.FDP);
+        performRemoveAndAssertProperties(expectedBanner, type);
       }
 
       private void performRemoveAndAssertProperties(NotificationBanner expectedBanner, SubmissionEstimateType type) throws Exception {

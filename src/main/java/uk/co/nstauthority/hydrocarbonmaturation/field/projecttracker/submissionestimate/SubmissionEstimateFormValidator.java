@@ -16,7 +16,7 @@ class SubmissionEstimateFormValidator {
   boolean isValid(SubmissionEstimateForm form, Errors errors) {
     var isValidEarliest = DateValidationUtil.validateOptionalDate(
         EARLIEST_DATE,
-        "earliest submission date",
+        "earliest date",
         form.getEarliestDateDay(),
         form.getEarliestDateMonth(),
         form.getEarliestDateYear(),
@@ -25,7 +25,7 @@ class SubmissionEstimateFormValidator {
 
     var isValidMostLikely = DateValidationUtil.validateDate(
         MOST_LIKELY_DATE,
-        "most likely submission date",
+        "most likely date",
         form.getMostLikelyDateDay(),
         form.getMostLikelyDateMonth(),
         form.getMostLikelyDateYear(),
@@ -34,7 +34,7 @@ class SubmissionEstimateFormValidator {
 
     var isValidLatest = DateValidationUtil.validateOptionalDate(
         LATEST_DATE,
-        "latest submission date",
+        "latest date",
         form.getLatestDateDay(),
         form.getLatestDateMonth(),
         form.getLatestDateYear(),
@@ -46,7 +46,7 @@ class SubmissionEstimateFormValidator {
 
     var isValidEstimated = DateValidationUtil.validateDate(
         ESTIMATED_DATE,
-        "date these were the estimated submission dates",
+        "date these were the estimated dates",
         form.getEstimatedDateDay(),
         form.getEstimatedDateMonth(),
         form.getEstimatedDateYear(),
