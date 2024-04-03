@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.enumutil;
 
 import static java.util.Arrays.stream;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
@@ -15,7 +16,14 @@ public class DisplayableEnumOptionUtil {
   public static Map<String, String> getDisplayableOptions(
       Class<? extends Displayable> displayableOptionEnum
   ) {
-    return stream((Displayable[]) displayableOptionEnum.getEnumConstants())
+    return getDisplayableOptions(stream(displayableOptionEnum.getEnumConstants()).toList());
+  }
+
+  public static Map<String, String> getDisplayableOptions(
+      Collection<? extends Displayable> displayableOptionEnumConstants
+  ) {
+    return displayableOptionEnumConstants
+        .stream()
         .sorted(Comparator.comparingInt(Displayable::getDisplayOrder))
         .collect(StreamUtil.toLinkedHashMap(
             Displayable::getEnumName,

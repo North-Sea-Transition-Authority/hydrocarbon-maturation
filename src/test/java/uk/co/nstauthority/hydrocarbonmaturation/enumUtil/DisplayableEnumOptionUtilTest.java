@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -12,10 +13,25 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUt
 
 @ExtendWith(MockitoExtension.class)
 class DisplayableEnumOptionUtilTest {
+  @Test
+  void getDisplayableOptions_fromClass_assertMapInRightOrder() {
+    var returnedMap = DisplayableEnumOptionUtil.getDisplayableOptions(DisplayableTestEnum.class);
+
+    assertThat(returnedMap.entrySet()).containsExactly(
+        entry(DisplayableTestEnum.OPTION_ONE.name(), DisplayableTestEnum.OPTION_ONE.getDisplayName()),
+        entry(DisplayableTestEnum.OPTION_TWO.name(), DisplayableTestEnum.OPTION_TWO.getDisplayName()),
+        entry(DisplayableTestEnum.OPTION_THREE.name(), DisplayableTestEnum.OPTION_THREE.getDisplayName())
+    );
+  }
 
   @Test
-  void getDisplayableOptions_assertMapInRightOrder() {
-    var returnedMap = DisplayableEnumOptionUtil.getDisplayableOptions(DisplayableTestEnum.class);
+  void getDisplayableOptions_fromCollection_assertMapInRightOrder() {
+    var collectionOfDisplayables = Set.of(
+        DisplayableTestEnum.OPTION_ONE,
+        DisplayableTestEnum.OPTION_TWO,
+        DisplayableTestEnum.OPTION_THREE
+    );
+    var returnedMap = DisplayableEnumOptionUtil.getDisplayableOptions(collectionOfDisplayables);
 
     assertThat(returnedMap.entrySet()).containsExactly(
         entry(DisplayableTestEnum.OPTION_ONE.name(), DisplayableTestEnum.OPTION_ONE.getDisplayName()),
