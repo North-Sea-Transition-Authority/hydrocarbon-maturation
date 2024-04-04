@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
+import uk.co.nstauthority.hydrocarbonmaturation.util.StringUtil;
 
 @Service
 public class PlannedUnsanctionedWellsSummaryService {
@@ -40,7 +41,7 @@ public class PlannedUnsanctionedWellsSummaryService {
   private String getFormattedTotalCapex(PlannedUnsanctionedWells plannedUnsanctionedWells) {
     var totalCapex = "";
     if (plannedUnsanctionedWells.getTotalCapex() != null) {
-      totalCapex = "£%s million".formatted(plannedUnsanctionedWells.getTotalCapex());
+      totalCapex = StringUtil.formatMoneyInMillions(plannedUnsanctionedWells.getTotalCapex());
     }
     return totalCapex;
   }

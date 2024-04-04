@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -52,5 +53,23 @@ class StringUtilTest {
   void withFirstLetterLowerCase_nonLetter() {
     var result = StringUtil.withFirstLetterLowerCase("1example");
     assertThat(result).isEqualTo("1example");
+  }
+
+  @Test
+  void formatMoney_noSuffix() {
+    assertThat(StringUtil.formatMoney(BigDecimal.valueOf(5.21), ""))
+        .isEqualTo("£5.21");
+  }
+
+  @Test
+  void formatMoney_withSuffix() {
+    assertThat(StringUtil.formatMoney(BigDecimal.valueOf(5.21), "billion"))
+        .isEqualTo("£5.21 billion");
+  }
+
+  @Test
+  void formatMoneyInMillions_withSuffix() {
+    assertThat(StringUtil.formatMoneyInMillions(BigDecimal.valueOf(5.21)))
+        .isEqualTo("£5.21 million");
   }
 }

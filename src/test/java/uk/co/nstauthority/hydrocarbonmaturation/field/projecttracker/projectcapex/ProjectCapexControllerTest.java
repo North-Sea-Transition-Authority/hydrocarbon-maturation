@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -52,10 +54,13 @@ class ProjectCapexControllerTest extends AbstractControllerTest{
   private ProjectTrackerControllerService projectTrackerControllerService;
   @MockBean
   private ProjectCapexFormValidator projectCapexFormValidator;
+  @MockBean
+  private ProjectCapexService projectCapexService;
 
   private final User USER = UserTestUtil.Builder().build();
   private final UUID RESOURCE_ID = UUID.randomUUID();
   private final UUID PROJECT_ID = UUID.randomUUID();
+  private final UUID PROJECT_CAPEX_ID = UUID.randomUUID();
 
   private Project project;
 
@@ -74,7 +79,7 @@ class ProjectCapexControllerTest extends AbstractControllerTest{
 
     mockMvc.perform(
             get(ReverseRouter.route(on(ProjectCapexController.class)
-                .getProjectCapex(RESOURCE_ID, PROJECT_ID)))
+                .getAddProjectCapex(RESOURCE_ID, PROJECT_ID)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -95,8 +100,39 @@ class ProjectCapexControllerTest extends AbstractControllerTest{
         .andExpect(status().isForbidden());
   }
 
+  @SecurityTest
+  void getRemoveProjectCapex_withoutProjectAnalystPermission_thenForbidden() throws Exception {
+    when(projectService.getProject(PROJECT_ID))
+        .thenReturn(Optional.of(project));
+
+    when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+        .thenReturn(project);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(ProjectCapexController.class)
+                .getRemoveProjectCapex(RESOURCE_ID, PROJECT_ID, PROJECT_CAPEX_ID)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void removeProjectCapex_withoutProjectAnalystPermission_thenForbidden() throws Exception {
+    when(projectService.getProject(PROJECT_ID))
+        .thenReturn(Optional.of(project));
+
+    when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+        .thenReturn(project);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(ProjectCapexController.class)
+                .removeProjectCapex(RESOURCE_ID, PROJECT_ID, PROJECT_CAPEX_ID, null)))
+                .with(csrf())
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
   @Nested
-  class GivenGetProjectCapexAndIsProjectAnalyst {
+  class GivenGetAddProjectCapexAndIsProjectAnalyst {
     @BeforeEach
     void setUp() {
       when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
@@ -110,7 +146,7 @@ class ProjectCapexControllerTest extends AbstractControllerTest{
 
       mockMvc.perform(
               get(ReverseRouter.route(on(ProjectCapexController.class)
-                  .getProjectCapex(RESOURCE_ID, PROJECT_ID)))
+                  .getAddProjectCapex(RESOURCE_ID, PROJECT_ID)))
                   .with(user(USER)))
           .andExpect(status().isNotFound());
     }
@@ -124,7 +160,7 @@ class ProjectCapexControllerTest extends AbstractControllerTest{
 
       mockMvc.perform(
               get(ReverseRouter.route(on(ProjectCapexController.class)
-                  .getProjectCapex(RESOURCE_ID, PROJECT_ID)))
+                  .getAddProjectCapex(RESOURCE_ID, PROJECT_ID)))
                   .with(user(USER)))
           .andExpect(status().isNotFound());
     }
@@ -141,7 +177,7 @@ class ProjectCapexControllerTest extends AbstractControllerTest{
 
       var modelMap = Objects.requireNonNull(mockMvc.perform(
                   get(ReverseRouter.route(on(ProjectCapexController.class)
-                      .getProjectCapex(RESOURCE_ID, PROJECT_ID)))
+                      .getAddProjectCapex(RESOURCE_ID, PROJECT_ID)))
                       .with(user(USER)))
               .andExpect(status().isOk())
               .andExpect(view().name("remi/field/projecttracker/addProjectCapex"))
@@ -151,7 +187,7 @@ class ProjectCapexControllerTest extends AbstractControllerTest{
 
       assertThat(modelMap)
           .contains(
-              entry("pageTitle", ProjectCapexController.PAGE_TITLE),
+              entry("pageTitle", ProjectCapexController.ADD_PAGE_TITLE),
               entry("pageCaption", project.getProjectName()),
               entry("projectCapexSourceOptions",
                   ProjectCapexSource.getDisplayableOptionsForProjectType(projectType)),
@@ -227,7 +263,7 @@ class ProjectCapexControllerTest extends AbstractControllerTest{
 
       assertThat(modelMap)
           .contains(
-              entry("pageTitle", ProjectCapexController.PAGE_TITLE),
+              entry("pageTitle", ProjectCapexController.ADD_PAGE_TITLE),
               entry("pageCaption", project.getProjectName()),
               entry("form", form),
               entry("projectCapexSourceOptions",
@@ -265,6 +301,179 @@ class ProjectCapexControllerTest extends AbstractControllerTest{
           .andExpect(redirectedUrl(ReverseRouter.route(on(ViewProjectController.class)
               .getViewProject(RESOURCE_ID, PROJECT_ID, null))))
           .andExpect(notificationBanner(expectedBanner));
+
+      verify(projectCapexService).saveNewProjectCapex(form, project);
+      verifyNoMoreInteractions(projectCapexService);
+    }
+  }
+
+  @Nested
+  class GivenGetRemoveProjectCapexAndIsProjectAnalyst {
+    @BeforeEach
+    void setUp() {
+      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
+          .thenReturn(true);
+    }
+
+    @SecurityTest
+    void whenProjectNotExtant_thenNotFound() throws Exception {
+      when(projectService.getProject(PROJECT_ID))
+          .thenReturn(Optional.empty());
+
+      mockMvc.perform(
+              get(ReverseRouter.route(on(ProjectCapexController.class)
+                  .getRemoveProjectCapex(RESOURCE_ID, PROJECT_ID, PROJECT_CAPEX_ID)))
+                  .with(user(USER)))
+          .andExpect(status().isNotFound());
+    }
+
+    @SecurityTest
+    void whenProjectNotForResource_thenNotFound() throws Exception {
+      when(projectService.getProject(PROJECT_ID))
+          .thenReturn(Optional.of(project));
+      when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+          .thenThrow(RemiEntityNotFoundException.class);
+
+      mockMvc.perform(
+              get(ReverseRouter.route(on(ProjectCapexController.class)
+                  .getRemoveProjectCapex(RESOURCE_ID, PROJECT_ID, PROJECT_CAPEX_ID)))
+                  .with(user(USER)))
+          .andExpect(status().isNotFound());
+    }
+
+    @SecurityTest
+    void whenProjectCapexDoesNotExist_thenNotFound() throws Exception {
+      when(projectService.getProject(PROJECT_ID))
+          .thenReturn(Optional.of(project));
+      when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+          .thenReturn(project);
+
+      when(projectCapexService.getProjectCapexView(PROJECT_ID))
+          .thenReturn(Optional.empty());
+
+      mockMvc.perform(
+              get(ReverseRouter.route(on(ProjectCapexController.class)
+                  .getRemoveProjectCapex(RESOURCE_ID, PROJECT_ID, PROJECT_CAPEX_ID)))
+                  .with(user(USER)))
+          .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void whenProjectForResource_thenAssertProperties() throws Exception {
+      when(projectService.getProject(PROJECT_ID))
+          .thenReturn(Optional.of(project));
+      when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+          .thenReturn(project);
+
+      var projectCapexView = new ProjectCapexView("3 November 2002", "£50 million", "Draft CSR");
+      when(projectCapexService.getProjectCapexView(PROJECT_CAPEX_ID))
+          .thenReturn(Optional.of(projectCapexView));
+
+      var modelMap = Objects.requireNonNull(mockMvc.perform(
+                  get(ReverseRouter.route(on(ProjectCapexController.class)
+                      .getRemoveProjectCapex(RESOURCE_ID, PROJECT_ID, PROJECT_CAPEX_ID)))
+                      .with(user(USER)))
+              .andExpect(status().isOk())
+              .andExpect(view().name("remi/field/projecttracker/removeProjectCapexConfirmation"))
+              .andReturn()
+              .getModelAndView())
+          .getModelMap();
+
+      assertThat(modelMap)
+          .contains(
+              entry("pageTitle", ProjectCapexController.REMOVE_PAGE_TITLE),
+              entry("pageCaption", project.getProjectName()),
+              entry("projectCapex", projectCapexView),
+              entry("cancelUrl",
+                  ReverseRouter.route(on(ViewProjectController.class)
+                      .getViewProject(RESOURCE_ID, PROJECT_ID, null)))
+          );
+    }
+  }
+
+  @Nested
+  class GivenRemoveProjectCapexAndIsProjectAnalyst {
+    @BeforeEach
+    void setUp() {
+      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
+          .thenReturn(true);
+    }
+
+    @SecurityTest
+    void whenProjectNotExtant_thenNotFound() throws Exception {
+      when(projectService.getProject(PROJECT_ID))
+          .thenReturn(Optional.empty());
+
+      mockMvc.perform(
+              post(ReverseRouter.route(on(ProjectCapexController.class)
+                  .removeProjectCapex(RESOURCE_ID, PROJECT_ID, PROJECT_CAPEX_ID, null)))
+                  .with(csrf())
+                  .with(user(USER)))
+          .andExpect(status().isNotFound());
+    }
+
+    @SecurityTest
+    void whenProjectNotForResource_thenNotFound() throws Exception {
+      when(projectService.getProject(PROJECT_ID))
+          .thenReturn(Optional.of(project));
+      when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+          .thenThrow(RemiEntityNotFoundException.class);
+
+      mockMvc.perform(
+              post(ReverseRouter.route(on(ProjectCapexController.class)
+                  .removeProjectCapex(RESOURCE_ID, PROJECT_ID, PROJECT_CAPEX_ID, null)))
+                  .with(csrf())
+                  .with(user(USER)))
+          .andExpect(status().isNotFound());
+    }
+
+    @SecurityTest
+    void whenProjectCapexDoesNotExist_thenNotFound() throws Exception {
+      when(projectService.getProject(PROJECT_ID))
+          .thenReturn(Optional.of(project));
+      when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+          .thenReturn(project);
+
+      when(projectCapexService.getProjectCapexView(PROJECT_ID))
+          .thenReturn(Optional.empty());
+
+      mockMvc.perform(
+              post(ReverseRouter.route(on(ProjectCapexController.class)
+                  .removeProjectCapex(RESOURCE_ID, PROJECT_ID, PROJECT_CAPEX_ID, null)))
+                  .with(csrf())
+                  .with(user(USER)))
+          .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void whenProjectForResource_thenAssertRedirection() throws Exception {
+      when(projectService.getProject(PROJECT_ID))
+          .thenReturn(Optional.of(project));
+      when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+          .thenReturn(project);
+
+      var projectCapex = new ProjectCapex(PROJECT_CAPEX_ID);
+      projectCapex.setStatus(ProjectCapexStatus.CREATED);
+      when(projectCapexService.getProjectCapex(PROJECT_CAPEX_ID))
+          .thenReturn(Optional.of(projectCapex));
+
+      var expectedBanner = NotificationBanner.builder()
+          .withBannerType(NotificationBannerType.SUCCESS)
+          .withTitle("Success")
+          .withContent("Removed total project CAPEX")
+          .build();
+
+      mockMvc.perform(
+              post(ReverseRouter.route(on(ProjectCapexController.class)
+                  .removeProjectCapex(RESOURCE_ID, PROJECT_ID, PROJECT_CAPEX_ID, null)))
+                  .with(csrf())
+                  .with(user(USER)))
+          .andExpect(status().is3xxRedirection())
+          .andExpect(redirectedUrl(ReverseRouter.route(on(ViewProjectController.class)
+              .getViewProject(RESOURCE_ID, PROJECT_ID, null))))
+          .andExpect(notificationBanner(expectedBanner));
+
+      verify(projectCapexService).removeProjectCapex(projectCapex);
     }
   }
 }

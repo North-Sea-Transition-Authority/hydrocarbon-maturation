@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.util;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 import org.jooq.tools.StringUtils;
@@ -27,5 +28,13 @@ public class StringUtil {
     var stringCharArray = string.toCharArray();
     stringCharArray[0] = Character.toLowerCase(stringCharArray[0]);
     return new String(stringCharArray);
+  }
+
+  public static String formatMoney(BigDecimal monetaryAmount, String suffix) {
+    return String.format("£%s %s", monetaryAmount, suffix).stripTrailing();
+  }
+
+  public static String formatMoneyInMillions(BigDecimal monetaryAmount) {
+    return formatMoney(monetaryAmount, "million");
   }
 }

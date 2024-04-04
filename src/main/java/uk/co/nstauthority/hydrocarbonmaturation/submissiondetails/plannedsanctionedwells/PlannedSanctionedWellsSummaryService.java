@@ -10,6 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.util.StringUtil;
 
 @Service
 public class PlannedSanctionedWellsSummaryService {
@@ -294,7 +295,7 @@ public class PlannedSanctionedWellsSummaryService {
   private String getFormattedTotalCapex(PlannedSanctionedWells plannedSanctionedWells) {
     var totalCapex = "";
     if (plannedSanctionedWells.getTotalCapex() != null) {
-      totalCapex = "£%s million".formatted(plannedSanctionedWells.getTotalCapex());
+      totalCapex = StringUtil.formatMoneyInMillions(plannedSanctionedWells.getTotalCapex());
     }
     return totalCapex;
   }
