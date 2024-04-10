@@ -8,11 +8,13 @@ import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.BooleanUtils;
 import org.assertj.core.groups.Tuple;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -43,6 +45,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
 
 @Transactional
@@ -65,11 +68,92 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
   @Autowired
   private OperatorSubmissionWorkAreaQueryService operatorSubmissionWorkAreaQueryService;
 
+  @BeforeEach
+  void setUp() {
+    SamlAuthenticationUtil.Builder()
+        .withUser(USER)
+        .setSecurityContext();
+
+    var team = TeamTestUtil.Builder()
+        .withTeamType(TeamType.INDUSTRY)
+        .withId(null)
+        .build();
+
+    entityManager.persist(team);
+    entityManager.flush();
+  }
+
+  @Test
+  void getSubmissions_whenNonSubmitterRole_asIndustryInResponsibleOrganisation_assertEmpty() {
+    var responsibleOrganisationIdForSubmission = 46;
+    var userOrgUnits = List.of(responsibleOrganisationIdForSubmission);
+    setUpIndustryNonSubmitterTest(USER);
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetail.setId(null);
+    submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
+    var createdTimestamp = Instant.now();
+    var resource = createResource(createdTimestamp, entityManager);
+    var responsibleTeam = new RegulatorManagedInformation();
+    responsibleTeam.setResource(resource);
+    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+    submissionDetail.setCreatedTimestamp(createdTimestamp);
+    entityManager.persist(responsibleTeam);
+    entityManager.flush();
+    submissionDetail.getSubmission().setResource(resource);
+    submissionDetail.setSubmission(SubmissionIntegrationTestUtils.createSubmission(resource, entityManager));
+
+    entityManager.persist(submissionDetail);
+    entityManager.flush();
+
+    var generalDetails = new GeneralDetail();
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setSubmissionDetail(submissionDetail);
+    resourceDetail.setResourceName("The resource name");
+    generalDetails.setSubmissionDetail(submissionDetail);
+    resourceDetail.setOrganisationId(responsibleOrganisationIdForSubmission);
+    entityManager.persist(generalDetails);
+    entityManager.flush();
+    entityManager.persist(resourceDetail);
+    entityManager.flush();
+
+    var quadBlocks = new QuadrantAndBlock();
+    quadBlocks.setGeneralDetail(generalDetails);
+    quadBlocks.setQuadrantBlockReference("25/12");
+    entityManager.persist(quadBlocks);
+    entityManager.flush();
+
+    var trapProperty = new TrapProperty();
+    trapProperty.setSubmissionDetail(submissionDetail);
+    trapProperty.setCentreOfInterestQuadrantBlock("25/12");
+    entityManager.persist(trapProperty);
+    entityManager.flush();
+
+    var licence = new Licence();
+    var licenceId1 = 953;
+    licence.setLicenceId(licenceId1);
+    licence.setLicenceReference("AL10");
+    licence.setGeneralDetail(generalDetails);
+    var licence2 = new Licence();
+    var licenceId2 = 951;
+    licence2.setLicenceId(licenceId2);
+    licence2.setLicenceReference("AL6");
+    licence2.setGeneralDetail(generalDetails);
+    entityManager.persist(licence);
+    entityManager.flush();
+    entityManager.persist(licence2);
+    entityManager.flush();
+
+    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER);
+
+    assertThat(results).isEmpty();
+  }
+
   @Test
   void getSubmissions_whenOneFullSubmittedSubmission_asIndustryInResponsibleOrganisation_assertAllValues() {
     var responsibleOrganisationIdForSubmission = 46;
     var userOrgUnits = List.of(responsibleOrganisationIdForSubmission);
-    setUpIndustryTest(userOrgUnits, USER);
+    setUpIndustrySubmitterTest(userOrgUnits, USER);
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setId(null);
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
@@ -161,7 +245,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
   void getSubmissions_whenOneFullFieldSubmission_asIndustryInResponsibleOrganisation_assertAllValues(SubmissionType submissionType) {
     var responsibleOrganisationIdForSubmission = 46;
     var userOrgUnits = List.of(responsibleOrganisationIdForSubmission);
-    setUpIndustryTest(userOrgUnits, USER);
+    setUpIndustrySubmitterTest(userOrgUnits, USER);
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     submissionDetail.setId(null);
     submissionDetail.setSubmissionType(submissionType);
@@ -272,7 +356,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
   void getSubmissions_whenTwoSubmissions_whenInResponsibleOrganisationOnLatestApprovedOnResource_assertReturn() {
     var responsibleOrganisationIdForApprovedSubmission = 46;
     var userOrgUnits = List.of(responsibleOrganisationIdForApprovedSubmission);
-    setUpIndustryTest(userOrgUnits, USER);
+    setUpIndustrySubmitterTest(userOrgUnits, USER);
     var submissionWithWrongResponsibleOrg = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionWithWrongResponsibleOrg.setId(null);
     submissionWithWrongResponsibleOrg.setStatus(SubmissionDetailStatus.SUBMITTED);
@@ -320,7 +404,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
   void getSubmissions_whenTwoSubmissions_whenOneHasUnresolvedUpdateAndOneResolved_assertUpdateRequested() {
     var responsibleOrganisationId = 46;
     var userOrgUnits = List.of(responsibleOrganisationId);
-    setUpIndustryTest(userOrgUnits, USER);
+    setUpIndustrySubmitterTest(userOrgUnits, USER);
     var submissionDetailWithResolvedUpdate = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetailWithResolvedUpdate.setId(null);
     submissionDetailWithResolvedUpdate.setStatus(SubmissionDetailStatus.SUBMITTED);
@@ -401,7 +485,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
   void getSubmissions_whenOneSubmittedSubmission_asIndustryWhenNotInResponsibleOrganisation_assertAllValues() {
     var responsibleOrganisationIdForSubmission = 46;
     var userOrgUnits = List.of(1,2,3,4);
-    setUpIndustryTest(userOrgUnits, USER);
+    setUpIndustrySubmitterTest(userOrgUnits, USER);
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setId(null);
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
@@ -438,7 +522,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
   void getSubmissions_whenOneHasUpdateInProgressAndOneHasSubmittedUpdate_assertCorrectSubmissionsReturned() {
     var responsibleOrganisationId = 46;
     var userOrgUnits = List.of(responsibleOrganisationId);
-    setUpIndustryTest(userOrgUnits, USER);
+    setUpIndustrySubmitterTest(userOrgUnits, USER);
 
     var resource = createResource(Instant.now(), entityManager);
     var submissionWithTwoSubmitted = SubmissionIntegrationTestUtils.createSubmission(resource, entityManager);
@@ -477,7 +561,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     }
     var responsibleOrganisationId = 46;
     var userOrgUnits = List.of(responsibleOrganisationId);
-    setUpIndustryTest(userOrgUnits, USER);
+    setUpIndustrySubmitterTest(userOrgUnits, USER);
 
     var resource = createResource(Instant.now(), entityManager);
     var submissionWithTwoSubmitted =
@@ -562,22 +646,13 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.flush();
   }
 
-  private void setUpIndustryTest(List<Integer> userResponsibleOrganisationUnitIds, User user) {
-    // Ensure user is treated as currently logged in
-    SamlAuthenticationUtil.Builder()
-        .withUser(user)
-        .setSecurityContext();
-
-    // Stub regulator team
-    var team = TeamTestUtil.Builder()
-        .withTeamType(TeamType.INDUSTRY)
-        .withId(null)
-        .build();
-
-    entityManager.persist(team);
-    entityManager.flush();
-
-    when(industryTeamService.getOrganisationUnitIdsForUser(user))
+  private void setUpIndustrySubmitterTest(List<Integer> userResponsibleOrganisationUnitIds, User user) {
+    when(industryTeamService.getOrganisationUnitIdsForUserWithIndustryTeamRoles(user, Collections.singleton(IndustryTeamRole.SUBMITTER)))
         .thenReturn(userResponsibleOrganisationUnitIds);
+  }
+
+  private void setUpIndustryNonSubmitterTest(User user) {
+    when(industryTeamService.getOrganisationUnitIdsForUserWithIndustryTeamRoles(user, Collections.singleton(IndustryTeamRole.SUBMITTER)))
+        .thenReturn(List.of());
   }
 }

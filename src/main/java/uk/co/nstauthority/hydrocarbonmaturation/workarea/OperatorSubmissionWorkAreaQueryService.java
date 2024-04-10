@@ -8,6 +8,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RES
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSIONS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
 
+import java.util.Collections;
 import java.util.List;
 import org.jooq.Condition;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submission
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamService;
 
 @Service
@@ -44,7 +46,8 @@ class OperatorSubmissionWorkAreaQueryService implements SubmissionWorkAreaQueryS
 
   @Override
   public List<SubmissionWorkAreaQueryResult> getWorkAreaSubmissionItems(User user) {
-    var organisationUnitIds = industryTeamService.getOrganisationUnitIdsForUser(user);
+    var organisationUnitIds = industryTeamService
+        .getOrganisationUnitIdsForUserWithIndustryTeamRoles(user, Collections.singleton(IndustryTeamRole.SUBMITTER));
     return submissionWorkAreaQueryCommonService.getWorkAreaQueryResults(getConditions(organisationUnitIds));
   }
 
