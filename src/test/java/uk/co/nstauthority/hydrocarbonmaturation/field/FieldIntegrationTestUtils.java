@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceIntegrationTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicence;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.FieldStatusHistory;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
@@ -74,5 +75,17 @@ public class FieldIntegrationTestUtils {
 
   public static FieldStatusHistory addFieldStatusHistory(Field field, FieldStatus fieldStatus, EntityManager entityManager) {
     return addFieldStatusHistory(field, fieldStatus, FIXED_DATE, entityManager);
+  }
+
+  public static FieldLicence createLicence(int id, String ref, Field field, EntityManager entityManager) {
+    var licence = new FieldLicence();
+    licence.setLicenceId(id);
+    licence.setLicenceReference(ref);
+    licence.setField(field);
+
+    entityManager.persist(licence);
+    entityManager.flush();
+
+    return licence;
   }
 }

@@ -33,7 +33,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicence;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -87,7 +90,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var generalDetailUserIsResponsibleFor = createGeneralDetail(submissionUserIsResponsibleFor);
     createResourceDetail(
         submissionUserIsResponsibleFor, resourceNameUserIsResponsibleFOr, organisationUnitIdUserIsInGroupFor);
-    createLicence(1, "not relevant", generalDetailUserIsResponsibleFor);
+    createProspectAndDiscoveryLicence(1, "not relevant", generalDetailUserIsResponsibleFor);
 
     var resourceUserIsNotResponsibleFor = buildProspectResource();
     var submissionUserIsNotResponsibleFor =
@@ -97,7 +100,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var generalDetailUserNotResponsibleFor = createGeneralDetail(submissionUserIsNotResponsibleFor);
     createResourceDetail(
         submissionUserIsNotResponsibleFor, resourceNameUserIsNotResponsibleFor, organisationIdUserIsNotResponsibleFor);
-    createLicence(1, "not relevant", generalDetailUserNotResponsibleFor);
+    createProspectAndDiscoveryLicence(1, "not relevant", generalDetailUserNotResponsibleFor);
     when(licenceQueryService.getExtantLicencesByIds(any()))
         .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));
     var form = new SearchResourceRecordsForm();
@@ -164,7 +167,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
         submissionUserIsResponsibleFor, resourceNameUserIsResponsibleFOr, organisationUnitIdUserIsInGroupFor);
     var extantLicenceId = 1;
 
-    var extantLicence = createLicence(extantLicenceId, "licenceRef", generalDetailUserIsResponsibleFor);
+    var extantLicence = createProspectAndDiscoveryLicence(extantLicenceId, "licenceRef", generalDetailUserIsResponsibleFor);
 
     var resourceUserIsNotResponsibleFor = buildProspectResource();
     var submissionUserIsNotResponsibleFor =
@@ -175,7 +178,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     createResourceDetail(
         submissionUserIsNotResponsibleFor, resourceNameUserIsNotResponsibleFor, organisationIdUserIsNotResponsibleFor);
 
-    var extantLicence2 = createLicence(extantLicenceId, "licenceRef", generalDetailUserIsNotResponsibleFor);
+    var extantLicence2 = createProspectAndDiscoveryLicence(extantLicenceId, "licenceRef", generalDetailUserIsNotResponsibleFor);
     when(licenceQueryService.getExtantLicencesByIds(any()))
         .thenReturn(List.of(new LicenceView(
             extantLicence.getLicenceReference(),
@@ -211,7 +214,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     createResourceDetail(
         submission1, resourceName1, organisationUnitIdUserIsInGroupFor);
     var extantLicenceId1 = 1;
-    var extantLicence1 = createLicence(extantLicenceId1, "licenceRef", generalDetail1);
+    var extantLicence1 = createProspectAndDiscoveryLicence(extantLicenceId1, "licenceRef", generalDetail1);
 
     var resource2 = buildDiscoveryResource();
     var submission2 =
@@ -221,7 +224,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     createResourceDetail(
         submission2, resourceName2, organisationUnitIdUserIsInGroupFor);
     var extantLicenceId2 = 1;
-    var extantLicence2 = createLicence(extantLicenceId2, "licenceRef", generalDetail2);
+    var extantLicence2 = createProspectAndDiscoveryLicence(extantLicenceId2, "licenceRef", generalDetail2);
 
     var resource3 = buildProspectResource();
     var submission3 =
@@ -231,7 +234,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     createResourceDetail(
         submission3, resourceName3, organisationUnitIdUserIsInGroupFor);
     var extantLicenceId3 = 1;
-    var extantLicence3 = createLicence(extantLicenceId3, "licenceRef", generalDetail3);
+    var extantLicence3 = createProspectAndDiscoveryLicence(extantLicenceId3, "licenceRef", generalDetail3);
 
     when(licenceQueryService.getExtantLicencesByIds(any()))
         .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));
@@ -264,7 +267,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
         submissionUserIsResponsibleFor, resourceNameUserIsResponsibleFOr, organisationUnitIdUserIsInGroupFor);
     var extantLicenceId = 1;
 
-    var extantLicence = createLicence(extantLicenceId, "licenceRef", generalDetailUserIsResponsibleFor);
+    var extantLicence = createProspectAndDiscoveryLicence(extantLicenceId, "licenceRef", generalDetailUserIsResponsibleFor);
 
     var resourceUserIsNotResponsibleFor = buildProspectResource();
     var submissionUserIsNotResponsibleFor =
@@ -275,7 +278,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var generalDetailUserIsNotResponsibleFor = createGeneralDetail(submissionUserIsNotResponsibleFor);
     createResourceDetail(
         submissionUserIsNotResponsibleFor, resourceNameUserIsNotResponsibleFor, organisationIdUserIsNotResponsibleFor);
-    var nonExtantLicence = createLicence(nonExtantLicenceId, "licenceRef", generalDetailUserIsNotResponsibleFor);
+    var nonExtantLicence = createProspectAndDiscoveryLicence(nonExtantLicenceId, "licenceRef", generalDetailUserIsNotResponsibleFor);
 
     when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence.getLicenceId().toString())))
         .thenReturn(List.of(
@@ -316,7 +319,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var generalDetailWithNonExtantLicence = createGeneralDetail(submissionWithNotExtantLicence);
     createResourceDetail(
         submissionWithNotExtantLicence, "Not relevant name", organisationUnitIdUserIsInGroupFor);
-    var notExtantLicence = createLicence(nonExtantLicenceId, "licenceRef", generalDetailWithNonExtantLicence);
+    var notExtantLicence = createProspectAndDiscoveryLicence(nonExtantLicenceId, "licenceRef", generalDetailWithNonExtantLicence);
     when(licenceQueryService.getExtantLicencesByIds(List.of(notExtantLicence.getLicenceId().toString())))
         .thenReturn(List.of());
     var form = new SearchResourceRecordsForm();
@@ -339,7 +342,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     createResourceDetail(
         submissionWithGeographicalArea, "Not relevant name", userOrgUnitId);
     var generalDetailWithGeographicalArea = createGeneralDetail(submissionWithGeographicalArea);
-    var extantLicence = createLicence(1, "licenceRef", generalDetailWithGeographicalArea);
+    var extantLicence = createProspectAndDiscoveryLicence(1, "licenceRef", generalDetailWithGeographicalArea);
     when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence.getLicenceId().toString())))
         .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
 
@@ -350,7 +353,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     createResourceDetail(
         submissionWithOnshoreGeographicalArea, "Not relevant name", userOrgUnitId);
     var generalDetailWithOnshoreGeographicalArea = createGeneralDetail(submissionWithOnshoreGeographicalArea);
-    var extantLicence2 = createLicence(1, "licenceRef", generalDetailWithOnshoreGeographicalArea);
+    var extantLicence2 = createProspectAndDiscoveryLicence(1, "licenceRef", generalDetailWithOnshoreGeographicalArea);
     when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence2.getLicenceId().toString())))
         .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
 
@@ -361,7 +364,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var generalDetailWithNoGeographicalArea = createGeneralDetail(submissionWithNoGeographicalArea);
     createResourceDetail(
         submissionWithNoGeographicalArea, "Not relevant name", userOrgUnitId);
-    var extantLicence3 = createLicence(1, "licenceRef", generalDetailWithNoGeographicalArea);
+    var extantLicence3 = createProspectAndDiscoveryLicence(1, "licenceRef", generalDetailWithNoGeographicalArea);
     when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence3.getLicenceId().toString())))
         .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
 
@@ -402,7 +405,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
         preferredViewSubmissionDetail, "Not relevant name", userOrgUnitId);
     buildResourceGroupLink(true, preferredViewResource);
     var preferredViewGeneralDetail = createGeneralDetail(preferredViewSubmissionDetail);
-    var extantLicence = createLicence(1, "licenceRef", preferredViewGeneralDetail);
+    var extantLicence = createProspectAndDiscoveryLicence(1, "licenceRef", preferredViewGeneralDetail);
     when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence.getLicenceId().toString())))
         .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
 
@@ -413,7 +416,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     createResourceDetail(
         nonPreferredSubmissionDetail, "Not relevant name", userOrgUnitId);
     var nonPreferredGeneralDetail = createGeneralDetail(nonPreferredSubmissionDetail);
-    var extantLicence2 = createLicence(1, "licenceRef", nonPreferredGeneralDetail);
+    var extantLicence2 = createProspectAndDiscoveryLicence(1, "licenceRef", nonPreferredGeneralDetail);
     when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence2.getLicenceId().toString())))
         .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
 
@@ -451,7 +454,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     createResourceDetail(
         submissionDetailWithWithdrawnSubmission, "Not relevant name", userOrgUnitId);
     var preferredViewGeneralDetail = createGeneralDetail(submissionDetailWithWithdrawnSubmission);
-    var extantLicence = createLicence(1, "licenceRef", preferredViewGeneralDetail);
+    var extantLicence = createProspectAndDiscoveryLicence(1, "licenceRef", preferredViewGeneralDetail);
     when(licenceQueryService.getExtantLicencesByIds(List.of(extantLicence.getLicenceId().toString())))
         .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
 
@@ -499,14 +502,13 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var resource = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
     var submission =
         buildSubmissionDetail(resource, SubmissionType.CREATE_CSR);
-    var generalDetail = createGeneralDetail(submission);
     var regulatorManagedInformation = SubmissionIntegrationTestUtils
         .createRegulatorManagedInformation(resource, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
     var field = SubmissionIntegrationTestUtils
         .createFieldWithParent(resource, fieldName, organisationUnitIdUserIsInGroupFor, entityManager);
     var fieldStatusHistoryForResponsibleField = SubmissionIntegrationTestUtils
         .createFieldStatusHistory(field, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
-    createLicence(1, "relevant", generalDetail);
+    createFieldLicence(1, "relevant", field);
     when(licenceQueryService.getExtantLicencesByIds(any()))
         .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));
   }
@@ -521,28 +523,26 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var submissionUserIsResponsibleFor =
         buildSubmissionDetail(resourceUserIsResponsibleFor, SubmissionType.CREATE_CSR);
     var resourceNameUserIsResponsibleFor = "Field A";
-    var generalDetailUserIsResponsibleFor = createGeneralDetail(submissionUserIsResponsibleFor);
     var regulatorManagedInformationUserIsResponsibleFor = SubmissionIntegrationTestUtils
         .createRegulatorManagedInformation(resourceUserIsResponsibleFor, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
     var fieldUserIsResponsibleFor = SubmissionIntegrationTestUtils
         .createFieldWithParent(resourceUserIsResponsibleFor, resourceNameUserIsResponsibleFor, organisationUnitIdUserIsInGroupFor, entityManager);
     var fieldStatusHistoryForResponsibleField = SubmissionIntegrationTestUtils
         .createFieldStatusHistory(fieldUserIsResponsibleFor, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
-    createLicence(1, "relevant", generalDetailUserIsResponsibleFor);
+    createFieldLicence(1, "relevant", fieldUserIsResponsibleFor);
 
     var resourceUserIsNotResponsibleFor =  SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
     var submissionUserIsNotResponsibleFor =
         buildSubmissionDetail(resourceUserIsNotResponsibleFor, SubmissionType.CREATE_CSR);
     var resourceNameUserIsNotResponsibleFor = "The resource name B";
     var organisationIdUserIsNotResponsibleFor = 48;
-    var generalDetailUserNotResponsibleFor = createGeneralDetail(submissionUserIsNotResponsibleFor);
     var regulatorManagedInformationUserIsNotResponsibleFor = SubmissionIntegrationTestUtils
         .createRegulatorManagedInformation(resourceUserIsNotResponsibleFor, ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA, GeographicalArea.CENTRAL_NORTH_SEA, entityManager);
     var fieldUserIsNotResponsibleFor = SubmissionIntegrationTestUtils
         .createFieldWithParent(resourceUserIsNotResponsibleFor, resourceNameUserIsNotResponsibleFor, organisationIdUserIsNotResponsibleFor, entityManager);
     var fieldStatusHistoryForNotResponsibleField = SubmissionIntegrationTestUtils
         .createFieldStatusHistory(fieldUserIsNotResponsibleFor, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
-    createLicence(2, "not relevant", generalDetailUserNotResponsibleFor);
+    createFieldLicence(2, "not relevant", fieldUserIsNotResponsibleFor);
     when(licenceQueryService.getExtantLicencesByIds(any()))
         .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));
 
@@ -583,20 +583,18 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var submissionDetail1 =
         buildSubmissionDetail(resource1, SubmissionType.CREATE_CSR);
     var resourceName1 = "Field A";
-    var generalDetail1 = createGeneralDetail(submissionDetail1);
     var regulatorManagedInformation1 = SubmissionIntegrationTestUtils
         .createRegulatorManagedInformation(resource1, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
     var field1 = SubmissionIntegrationTestUtils
         .createFieldWithParent(resource1, resourceName1, organisationUnitIdUserIsInGroupFor, entityManager);
     var fieldStatusHistoryForField1 = SubmissionIntegrationTestUtils
         .createFieldStatusHistory(field1, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
-    createLicence(1, "relevant", generalDetail1);
+    createFieldLicence(1, "relevant", field1);
 
     var resource2 =  SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
     var submissionDetail2 =
         buildSubmissionDetail(resource2, SubmissionType.CREATE_CSR);
     var resourceName2 = "The resource name B";
-    var generalDetail2 = createGeneralDetail(submissionDetail2);
     var regulatorManagedInformation2 = SubmissionIntegrationTestUtils
         .createRegulatorManagedInformation(resource2, ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
     var field2 = SubmissionIntegrationTestUtils
@@ -679,9 +677,14 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
         resource, responsibleTeamType, geographicalArea, entityManager);
   }
 
-  private Licence createLicence(int id, String ref, GeneralDetail generalDetails) {
+  private Licence createProspectAndDiscoveryLicence(int id, String ref, GeneralDetail generalDetails) {
 
     return SubmissionIntegrationTestUtils.createLicence(id, ref, generalDetails, entityManager);
+  }
+
+  private FieldLicence createFieldLicence(int id, String ref, Field field) {
+
+    return FieldIntegrationTestUtils.createLicence(id, ref, field, entityManager);
   }
 
   private GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail) {

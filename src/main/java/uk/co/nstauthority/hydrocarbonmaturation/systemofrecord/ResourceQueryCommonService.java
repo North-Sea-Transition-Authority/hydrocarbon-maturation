@@ -4,6 +4,7 @@ import static org.jooq.impl.DSL.and;
 import static org.jooq.impl.DSL.max;
 import static org.jooq.impl.DSL.select;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELDS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELD_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.OPPORTUNITY_DETAILS;
@@ -63,9 +64,9 @@ class ResourceQueryCommonService {
             FIELDS.CORRECTED_LEGAL_FIELD_NAME,
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
             FIELDS.RESPONSIBLE_ORGANISATION_ID,
-            DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
-                .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
-                .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
+            DSL.arrayAggDistinct(FIELD_LICENCES.LICENCE_ID)
+                .orderBy(FIELD_LICENCES.LICENCE_ID)
+                .filterWhere(FIELD_LICENCES.LICENCE_ID.isNotNull()),
             REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM,
             FIELDS_FOR_FINDING_PARENT.CORRECTED_LEGAL_FIELD_NAME,
             FIELD_STATUS_HISTORY.FIELD_STATUS)
@@ -94,9 +95,8 @@ class ResourceQueryCommonService {
                         .and(SUBMISSIONS.WITHDRAWN.isNull()))
                     .orderBy(SD_2.ACCEPTED_TIMESTAMP.desc().nullsLast())
                     .limit(1)))
-            .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
-            .leftJoin(GENERAL_DETAILS_LICENCES).on(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID.eq(GENERAL_DETAILS.ID))
+            .leftJoin(FIELD_LICENCES).on(FIELD_LICENCES.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
             .leftJoin(REGULATOR_MANAGED_INFORMATION).on(RESOURCES.ID.eq(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID))
             .leftJoin(FIELDS_FOR_FINDING_PARENT)
             .on(FIELDS_FOR_FINDING_PARENT.FIELD_IDENTIFIER.eq(FIELDS.PARENT_DETERMINED_FIELD_ID)))
@@ -104,7 +104,7 @@ class ResourceQueryCommonService {
         .groupBy(
             RESOURCES.ID,
             SUBMISSION_DETAILS.ID,
-            GENERAL_DETAILS.ID,
+            FIELD_LICENCES.ID,
             TRAP_PROPERTIES.ID,
             REGULATOR_MANAGED_INFORMATION.ID,
             FIELDS.FIELD_IDENTIFIER,

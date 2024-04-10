@@ -2,11 +2,10 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import static org.jooq.impl.DSL.falseCondition;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELDS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELD_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
-import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSIONS;
-import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,9 +106,9 @@ class OperatorResourceRecordQueryService implements ResourceRecordQueryServiceSt
             .map(LicenceView::getId)
             .toList());
 
-    return DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
-        .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
-        .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.in(userExtantLicences))
+    return DSL.arrayAggDistinct(FIELD_LICENCES.LICENCE_ID)
+        .orderBy(FIELD_LICENCES.LICENCE_ID)
+        .filterWhere(FIELD_LICENCES.LICENCE_ID.in(userExtantLicences))
         .isNotNull();
   }
 
@@ -134,12 +133,9 @@ class OperatorResourceRecordQueryService implements ResourceRecordQueryServiceSt
 
   private List<String> getFieldUserLicences(List<Integer> userOrganisationUnits) {
     return context
-        .selectDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
-        .from(GENERAL_DETAILS_LICENCES)
-        .join(GENERAL_DETAILS).on(GENERAL_DETAILS.ID.eq(GENERAL_DETAILS_LICENCES.GENERAL_DETAILS_ID))
-        .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(GENERAL_DETAILS.SUBMISSION_DETAIL_ID))
-        .join(SUBMISSIONS).on(SUBMISSIONS.ID.eq(SUBMISSION_DETAILS.SUBMISSION_ID))
-        .join(FIELDS).on(FIELDS.RESOURCE_ID.eq(SUBMISSIONS.RESOURCE_ID))
+        .selectDistinct(FIELD_LICENCES.LICENCE_ID)
+        .from(FIELD_LICENCES)
+        .join(FIELDS).on(FIELDS.FIELD_IDENTIFIER.eq(FIELD_LICENCES.FIELD_IDENTIFIER))
         .where(FIELDS.RESPONSIBLE_ORGANISATION_ID.in(userOrganisationUnits))
         .fetchInto(String.class);
   }
