@@ -159,7 +159,8 @@ breadcrumbsMap=breadcrumbsMap>
         <@fdsFieldset.fieldset
         legendHeading=fieldReportType
         legendHeadingSize="h2"
-        legendHeadingClass="govuk-fieldset__legend--m">
+        legendHeadingClass="govuk-fieldset__legend--m"
+        optionalLabel=(submissionType=="CREATE_COP")>
           <@fdsFileUpload.fileUpload
           id="fieldReport"
           path="form.fieldReport"

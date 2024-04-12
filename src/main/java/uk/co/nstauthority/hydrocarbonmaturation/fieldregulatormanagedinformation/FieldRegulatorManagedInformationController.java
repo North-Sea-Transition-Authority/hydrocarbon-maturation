@@ -58,7 +58,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 )
 @RequestMapping("review/resource/{resourceId}/field-regulator-managed-information/")
 public class FieldRegulatorManagedInformationController {
-  public static final String PAGE_NAME = "Regulator managed information";
+  public static final String PAGE_NAME = "Field information";
 
   private final UserService userService;
   private final ResponsibleTeamService responsibleTeamService;
