@@ -12,10 +12,11 @@ import java.util.UUID;
 import org.hibernate.annotations.GenericGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.ReservoirAdditionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
 
 @Entity
 @Table(name = "reservoir_additions")
-public class ReservoirAdditions {
+public class ReservoirAdditions implements SubmissionDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")
@@ -33,26 +34,25 @@ public class ReservoirAdditions {
     return id;
   }
 
-  public ReservoirAdditions setId(UUID id) {
+  @Override
+  public void setId(UUID id) {
     this.id = id;
-    return this;
   }
 
   public SubmissionDetail getSubmissionDetail() {
     return submissionDetail;
   }
 
-  public ReservoirAdditions setSubmissionDetail(SubmissionDetail submissionDetail) {
+  @Override
+  public void setSubmissionDetail(SubmissionDetail submissionDetail) {
     this.submissionDetail = submissionDetail;
-    return this;
   }
 
   public ReservoirAdditionStatus getReservoirAdditionStatus() {
     return reservoirAdditionStatus;
   }
 
-  public ReservoirAdditions setReservoirAdditionStatus(ReservoirAdditionStatus reservoirAdditionStatus) {
+  public void setReservoirAdditionStatus(ReservoirAdditionStatus reservoirAdditionStatus) {
     this.reservoirAdditionStatus = reservoirAdditionStatus;
-    return this;
   }
 }

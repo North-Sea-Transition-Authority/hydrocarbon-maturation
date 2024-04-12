@@ -16,7 +16,8 @@ public class ReservoirAdditionsFormService {
 
   public void updateReservoirAdditionStatus(SubmissionDetail submissionDetail, ReservoirAdditionStatus reservoirAdditionStatus) {
     var reservoirAdditions = reservoirAdditionsRepository.findBySubmissionDetail(submissionDetail)
-            .orElse(new ReservoirAdditions().setSubmissionDetail(submissionDetail));
+            .orElse(new ReservoirAdditions());
+    reservoirAdditions.setSubmissionDetail(submissionDetail);
     reservoirAdditions.setReservoirAdditionStatus(reservoirAdditionStatus);
     reservoirAdditionsRepository.save(reservoirAdditions);
   }

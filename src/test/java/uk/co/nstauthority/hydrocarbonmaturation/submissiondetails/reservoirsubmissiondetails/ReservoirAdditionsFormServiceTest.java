@@ -35,8 +35,8 @@ class ReservoirAdditionsFormServiceTest {
   void setUp() {
     submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
 
-    reservoirAdditions = new ReservoirAdditions()
-        .setReservoirAdditionStatus(ReservoirAdditionStatus.NO);
+    reservoirAdditions = new ReservoirAdditions();
+    reservoirAdditions.setReservoirAdditionStatus(ReservoirAdditionStatus.NO);
   }
 
   @Test

@@ -206,4 +206,11 @@ public enum SubmissionType implements Displayable {
     return hintText;
   }
 
+  public static boolean isUpdateType(SubmissionType submissionType) {
+    return switch (submissionType) {
+      case  PROSPECT_UPDATE, UPDATE_DISCOVERY -> true;
+      default -> false;
+    };
+  }
+
 }
