@@ -35,15 +35,11 @@ public class GeneralReservoirInformationSummarySectionService implements Summary
   }
 
   private SummaryItem getGeneralInformationSummary(ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    var hydrocarbonsDiscovered = generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail);
-    String hydrocarbonDisplayName;
-    if (hydrocarbonsDiscovered.isPresent()) {
-      hydrocarbonDisplayName = hydrocarbonsDiscovered.get().getHydrocarbonsDiscovered().getDisplayName();
-    } else {
-      hydrocarbonDisplayName = "";
-    }
+    var hydrocarbonsDiscovered = generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)
+        .map(ReservoirHydrocarbons::getHydrocarbonsDiscovered)
+        .orElse(null);
 
-    var summaryDataView = SummaryDataView.newWithKeyValue(HYDROCARBONS_DISCOVERED, hydrocarbonDisplayName);
+    var summaryDataView = SummaryDataView.newWithKeyValue(HYDROCARBONS_DISCOVERED, hydrocarbonsDiscovered);
 
     if (reservoirSubmissionDetail.getSubmissionDetail().isFieldSubmission()) {
       var linkedDiscoveryReservoirs = generalReservoirInformationService.getLinkedDiscoveryReservoirViewsForField(

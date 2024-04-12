@@ -60,7 +60,26 @@ class GeneralReservoirInformationSummarySectionServiceTest {
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), GeneralReservoirInformationSummarySectionService.GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER);
-    var summaryDataView = SummaryDataView.newWithKeyValue(GeneralReservoirInformationSummarySectionService.HYDROCARBONS_DISCOVERED, "");
+    var summaryDataView = SummaryDataView.newWithKeyValue(GeneralReservoirInformationSummarySectionService.HYDROCARBONS_DISCOVERED, null);
+    var summaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
+    var summaryItem = SummaryItem.withCard(GeneralReservoirInformationSummarySectionService.RESERVOIR_INFORMATION, summaryCard);
+    assertThat(summarySection.get().summaryItems()).containsExactly(summaryItem);
+  }
+
+  @Test
+  void getSummarySection_noHydrocarbonsDiscoveredType() {
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(null);
+
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirHydrocarbons));
+
+    var summarySection = generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail);
+
+    assertThat(summarySection).isPresent();
+    assertSummarySection(summarySection.get(), GeneralReservoirInformationSummarySectionService.GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER);
+    var summaryDataView = SummaryDataView.newWithKeyValue(GeneralReservoirInformationSummarySectionService.HYDROCARBONS_DISCOVERED, null);
     var summaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
     var summaryItem = SummaryItem.withCard(GeneralReservoirInformationSummarySectionService.RESERVOIR_INFORMATION, summaryCard);
     assertThat(summarySection.get().summaryItems()).containsExactly(summaryItem);
