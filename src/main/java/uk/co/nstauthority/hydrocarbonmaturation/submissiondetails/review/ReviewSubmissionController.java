@@ -24,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundExce
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.ViewFieldStatusHistoryController;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationController;
+import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
@@ -54,18 +55,21 @@ public class ReviewSubmissionController {
   private final ResourceGroupSummaryService resourceGroupSummaryService;
   private final ResponsibleTeamService responsibleTeamService;
   private final FieldPersistenceService fieldPersistenceService;
+  private final FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
 
   @Autowired
-  public ReviewSubmissionController(ReviewSubmissionService reviewSubmissionService,
-                                    SubmissionSummaryModelService submissionSummaryModelService,
-                                    SubmissionDetailService submissionDetailService,
-                                    UserService userService,
-                                    SubmissionHistoryQueryService submissionHistoryQueryService,
-                                    RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
-                                    ResourceService resourceService,
-                                    ResourceGroupSummaryService resourceGroupSummaryService,
-                                    ResponsibleTeamService responsibleTeamService,
-                                    FieldPersistenceService fieldPersistenceService) {
+  public ReviewSubmissionController(
+      ReviewSubmissionService reviewSubmissionService,
+      SubmissionSummaryModelService submissionSummaryModelService,
+      SubmissionDetailService submissionDetailService,
+      UserService userService,
+      SubmissionHistoryQueryService submissionHistoryQueryService,
+      RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
+      ResourceService resourceService,
+      ResourceGroupSummaryService resourceGroupSummaryService,
+      ResponsibleTeamService responsibleTeamService,
+      FieldPersistenceService fieldPersistenceService,
+      FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService) {
     this.reviewSubmissionService = reviewSubmissionService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
@@ -76,6 +80,7 @@ public class ReviewSubmissionController {
     this.resourceGroupSummaryService = resourceGroupSummaryService;
     this.responsibleTeamService = responsibleTeamService;
     this.fieldPersistenceService = fieldPersistenceService;
+    this.fieldRegulatorManagedInformationSummaryService = fieldRegulatorManagedInformationSummaryService;
   }
 
   @GetMapping
@@ -210,9 +215,8 @@ public class ReviewSubmissionController {
     var resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
             .formatted(resourceId)));
+
     modelAndView
-        .addObject("regulatorManagedInformationSummaryView",
-            regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
         .addObject("resourceGroupsSummaryView",
             resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
         .addObject("canRequestUpdate", reviewSubmissionService
@@ -229,6 +233,8 @@ public class ReviewSubmissionController {
     if (selectedSubmissionDetail.isFieldSubmission()) {
       var field = fieldPersistenceService.getFieldOrThrow(resource);
       modelAndView
+          .addObject("fieldRegulatorManagedInformationSummaryCard",
+              fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
           .addObject("regulatorManagedInformationUrl",
               ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
                   .getRegulatorManagedInformationPageWithSubmissionDetail(resourceId, selectedSubmissionDetail.getId(), null)))
@@ -238,12 +244,13 @@ public class ReviewSubmissionController {
                   field.getFieldIdentifier(), selectedSubmissionDetail.getId(), null)));
     } else {
       modelAndView
+          .addObject("regulatorManagedInformationSummaryView",
+              regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
           .addObject("regulatorManagedInformationUrl",
               ReverseRouter.route(on(RegulatorManagedInformationController.class)
                   .getRegulatorManagedInformationPage(
                       resourceId)))
           .addObject("manageResourceInformationText", "Manage resource information");
-
     }
 
     return modelAndView;

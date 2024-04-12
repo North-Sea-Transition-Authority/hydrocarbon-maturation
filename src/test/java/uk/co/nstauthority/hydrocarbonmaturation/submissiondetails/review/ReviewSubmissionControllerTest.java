@@ -40,6 +40,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.ViewFieldStatusHistoryController;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationController;
+import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
@@ -55,6 +56,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistoryQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistorySelectorUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
@@ -86,6 +89,8 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
   private ResponsibleTeamService responsibleTeamService;
   @MockBean
   FieldPersistenceService fieldPersistenceService;
+  @MockBean
+  private FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
 
   private Resource resource;
   private UUID resourceId;
@@ -343,6 +348,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("regulatorManagedInformationSummaryView", regulatorSummary),
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(
@@ -371,15 +377,16 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
         .thenReturn(true);
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
-    var regulatorSummary = RegulatorManagedInformationSummaryView.empty(false);
-    when(regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(any()))
-        .thenReturn(regulatorSummary);
+    var summaryCard = new SummaryCard("Test", SummaryCardType.SIMPLE_SUMMARY, null);
+    when(fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
+        .thenReturn(summaryCard);
     var resourceGroupSummary = new ResourceGroupSummaryView(List.of(), ResourceType.PROSPECT, "");
     when(resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
         .thenReturn(resourceGroupSummary);
     var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(submissionDetail));
     mockModelAndViewCreation(submissionDetail, queryResult);
     when(responsibleTeamService.isInResponsibleTeam(USER, submissionRecordSummaryView.responsibleTeamType())).thenReturn(true);
+
 
     var field = new Field();
     field.setFieldIdentifier(8000);
@@ -393,6 +400,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
 
     assertThat(modelMap)
         .contains(
+            entry("fieldRegulatorManagedInformationSummaryCard", summaryCard),
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
                   .getRegulatorManagedInformationPageWithSubmissionDetail(resourceId, submissionDetail.getId(), null))),
