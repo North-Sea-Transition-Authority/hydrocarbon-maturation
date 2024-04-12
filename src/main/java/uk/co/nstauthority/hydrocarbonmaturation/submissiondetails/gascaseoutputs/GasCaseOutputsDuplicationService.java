@@ -10,18 +10,22 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
 public class GasCaseOutputsDuplicationService implements ReservoirSectionDuplicationService {
+  private final GeneralReservoirInformationService generalReservoirInformationService;
   private final GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @Autowired
-  GasCaseOutputsDuplicationService(GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService,
+  GasCaseOutputsDuplicationService(GeneralReservoirInformationService generalReservoirInformationService,
+                                   GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService,
                                    ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
                                    ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
+    this.generalReservoirInformationService = generalReservoirInformationService;
     this.gasCaseOutputsPersistenceService = gasCaseOutputsPersistenceService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.reservoirDuplicationPersistenceService = reservoirDuplicationPersistenceService;
@@ -36,6 +40,11 @@ public class GasCaseOutputsDuplicationService implements ReservoirSectionDuplica
 
     var isDiscoveryOrProspect = newSubmissionDetail.isDiscoverySubmission() || newSubmissionDetail.isProspectSubmission();
     if (!isDiscoveryOrProspect) {
+      return;
+    }
+
+    if (newSubmissionDetail.isDiscoverySubmission()
+        && !generalReservoirInformationService.isGasOnly(oldReservoirSubmissionDetail)) {
       return;
     }
 

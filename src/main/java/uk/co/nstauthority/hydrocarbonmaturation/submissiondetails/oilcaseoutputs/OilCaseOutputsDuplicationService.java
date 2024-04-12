@@ -10,18 +10,22 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
 public class OilCaseOutputsDuplicationService implements ReservoirSectionDuplicationService {
+  private final GeneralReservoirInformationService generalReservoirInformationService;
   private final OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @Autowired
-  OilCaseOutputsDuplicationService(OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService,
+  OilCaseOutputsDuplicationService(GeneralReservoirInformationService generalReservoirInformationService,
+                                   OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService,
                                    ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
                                    ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
+    this.generalReservoirInformationService = generalReservoirInformationService;
     this.oilCaseOutputsPersistenceService = oilCaseOutputsPersistenceService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.reservoirDuplicationPersistenceService = reservoirDuplicationPersistenceService;
@@ -36,6 +40,11 @@ public class OilCaseOutputsDuplicationService implements ReservoirSectionDuplica
 
     var isDiscoveryOrProspect = newSubmissionDetail.isDiscoverySubmission() || newSubmissionDetail.isProspectSubmission();
     if (!isDiscoveryOrProspect) {
+      return;
+    }
+
+    if (newSubmissionDetail.isDiscoverySubmission()
+        && !generalReservoirInformationService.isOilOnly(oldReservoirSubmissionDetail)) {
       return;
     }
 
