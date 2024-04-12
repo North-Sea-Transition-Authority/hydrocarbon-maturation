@@ -41,32 +41,43 @@ public class FieldReservoirVolumetricsDuplicationService implements ReservoirSec
     }
 
     if (oldSubmissionDetail.hasSameResourceType(newSubmissionDetail)) {
-      var applicableInstances = new java.util.HashSet<ProbabilityDistributionFieldInstance>(Set.of());
-      var newReservoirHydrocarbons = generalReservoirInformationService
-          .getReservoirHydrocarbons(newReservoirSubmissionDetail)
-          .orElse(new ReservoirHydrocarbons());
-      if (generalReservoirInformationService.isOilOnly(newReservoirHydrocarbons)
-          || generalReservoirInformationService.isCombinedOilAndGas(newReservoirHydrocarbons)) {
-        applicableInstances.add(ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD);
-      }
-
-      if (generalReservoirInformationService.isGasOnly(newReservoirHydrocarbons)
-          || generalReservoirInformationService.isCombinedOilAndGas(newReservoirHydrocarbons)) {
-        applicableInstances.add(ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD);
-      }
-
-      probabilityDistributionPersistenceService
-          .getAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail, applicableInstances)
-          .forEach(probabilityDistribution -> reservoirDuplicationPersistenceService
-              .duplicateChildAndReplaceParent(
-                  newReservoirSubmissionDetail,
-                  probabilityDistribution,
-                  ProbabilityDistribution.class)
-          );
-
-      probabilityDistributionPersistenceService
-          .getAllProbabilityDistributionsForInstances(newReservoirSubmissionDetail, applicableInstances)
-          .forEach(probabilityDistribution -> probabilityDistribution.setSubmissionDetail(newSubmissionDetail));
+      generalReservoirInformationService
+          .getReservoirHydrocarbons(oldReservoirSubmissionDetail)
+          .ifPresent(oldReservoirHydrocarbons ->
+            copyVolumetricsForHydrocarbons(
+                oldReservoirSubmissionDetail,
+                newReservoirSubmissionDetail,
+                oldReservoirHydrocarbons
+            ));
     }
+  }
+
+  private void copyVolumetricsForHydrocarbons(ReservoirSubmissionDetail oldReservoirSubmissionDetail,
+                                              ReservoirSubmissionDetail newReservoirSubmissionDetail,
+                                              ReservoirHydrocarbons oldReservoirHydrocarbons) {
+    var applicableInstances = new java.util.HashSet<ProbabilityDistributionFieldInstance>(Set.of());
+    if (generalReservoirInformationService.isOilOnly(oldReservoirHydrocarbons)
+        || generalReservoirInformationService.isCombinedOilAndGas(oldReservoirHydrocarbons)) {
+      applicableInstances.add(ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD);
+    }
+
+    if (generalReservoirInformationService.isGasOnly(oldReservoirHydrocarbons)
+        || generalReservoirInformationService.isCombinedOilAndGas(oldReservoirHydrocarbons)) {
+      applicableInstances.add(ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD);
+    }
+
+    probabilityDistributionPersistenceService
+        .getAllProbabilityDistributionsForInstances(oldReservoirSubmissionDetail, applicableInstances)
+        .forEach(probabilityDistribution -> reservoirDuplicationPersistenceService
+            .duplicateChildAndReplaceParent(
+                newReservoirSubmissionDetail,
+                probabilityDistribution,
+                ProbabilityDistribution.class)
+        );
+
+    probabilityDistributionPersistenceService
+        .getAllProbabilityDistributionsForInstances(newReservoirSubmissionDetail, applicableInstances)
+        .forEach(probabilityDistribution ->
+            probabilityDistribution.setSubmissionDetail(newReservoirSubmissionDetail.getSubmissionDetail()));
   }
 }

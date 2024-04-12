@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -61,7 +62,7 @@ class FieldReservoirVolumetricsDuplicationServiceTest {
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
     var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
-    when(generalReservoirInformationService.getReservoirHydrocarbons(newReservoirSubmissionDetail))
+    when(generalReservoirInformationService.getReservoirHydrocarbons(oldReservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirHydrocarbons));
     when(generalReservoirInformationService.isOilOnly(reservoirHydrocarbons))
         .thenReturn(true);
@@ -97,7 +98,7 @@ class FieldReservoirVolumetricsDuplicationServiceTest {
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
     var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
-    when(generalReservoirInformationService.getReservoirHydrocarbons(newReservoirSubmissionDetail))
+    when(generalReservoirInformationService.getReservoirHydrocarbons(oldReservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirHydrocarbons));
     when(generalReservoirInformationService.isGasOnly(reservoirHydrocarbons))
         .thenReturn(true);
@@ -133,7 +134,7 @@ class FieldReservoirVolumetricsDuplicationServiceTest {
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
 
     var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
-    when(generalReservoirInformationService.getReservoirHydrocarbons(newReservoirSubmissionDetail))
+    when(generalReservoirInformationService.getReservoirHydrocarbons(oldReservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirHydrocarbons));
     when(generalReservoirInformationService.isOilOnly(reservoirHydrocarbons))
         .thenReturn(true);
@@ -157,6 +158,24 @@ class FieldReservoirVolumetricsDuplicationServiceTest {
     var reservoir = new Reservoir();
     var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
     var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    fieldReservoirVolumetricsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
+
+    verify(reservoirDuplicationPersistenceService, never())
+        .duplicateChildAndReplaceParent(eq(newReservoirSubmissionDetail), any(ProbabilityDistribution.class), eq(ProbabilityDistribution.class));
+  }
+
+  @Test
+  void duplicateReservoirSection_noReservoirHydrocarbons() {
+    var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_CSR);
+    var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(SubmissionType.CREATE_FDP);
+
+    var reservoir = new Reservoir();
+    var oldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, oldSubmissionDetail);
+    var newReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(reservoir, newSubmissionDetail);
+
+    when(generalReservoirInformationService.getReservoirHydrocarbons(oldReservoirSubmissionDetail))
+        .thenReturn(Optional.empty());
 
     fieldReservoirVolumetricsDuplicationService.duplicateReservoirSection(oldReservoirSubmissionDetail, newReservoirSubmissionDetail);
 
