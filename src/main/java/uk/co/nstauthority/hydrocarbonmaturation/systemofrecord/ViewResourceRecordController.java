@@ -150,7 +150,7 @@ public class ViewResourceRecordController {
       addRegulatorOnlyProperties(resourceId, isFieldResource, modelAndView, resource);
     }
 
-    if (correctionService.canStartCorrection(resource, user)) {
+    if (!isFieldResource && correctionService.canStartCorrection(resource, user)) {
       modelAndView.addObject("correctionUrl",
           ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resourceId, null)));
     }
