@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.configuration.AnalyticsConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.cookies.CookiesController;
 import uk.co.nstauthority.hydrocarbonmaturation.feedback.FeedbackController;
 import uk.co.nstauthority.hydrocarbonmaturation.footer.AccessibilityStatementController;
 import uk.co.nstauthority.hydrocarbonmaturation.footer.ContactInformationController;
@@ -107,6 +108,8 @@ public class ErrorService {
         .getFeedback(null)));
     modelAndView.addObject("contactInformationUrl", ReverseRouter.route(on(ContactInformationController.class)
         .getContactInformationPage()));
+    modelAndView.addObject("cookiesStatementUrl", ReverseRouter.route(on(CookiesController.class)
+        .getCookiePreferences()));
   }
 
   private void addAnalytics(ModelAndView modelAndView) {

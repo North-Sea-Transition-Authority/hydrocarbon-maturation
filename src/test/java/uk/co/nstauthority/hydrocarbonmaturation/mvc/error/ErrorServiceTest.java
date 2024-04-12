@@ -46,6 +46,7 @@ class ErrorServiceTest {
   private static final String TECHNICAL_SUPPORT_ATTRIBUTE = "technicalSupport";
   private static final String UNSAFE_CHARACTERS = "0125AEIOULNSZ";
   private static final String ANALYTICS = "analytics";
+  private static final String COOKIES_STATEMENT_URL = "cookiesStatementUrl";
 
   @Autowired
   private ErrorConfiguration errorConfiguration;
@@ -88,7 +89,8 @@ class ErrorServiceTest {
         FEEDBACK_PAGE_URL,
         STACK_TRACE_ATTRIBUTE,
         CONTACT_URL,
-        ANALYTICS
+        ANALYTICS,
+        COOKIES_STATEMENT_URL
     );
     Object errorRef = resultingModelMap.get(ERROR_REF_ATTRIBUTE_NAME);
     assertThat(errorRef).isNotNull();
@@ -115,7 +117,8 @@ class ErrorServiceTest {
         FEEDBACK_PAGE_URL,
         STACK_TRACE_ATTRIBUTE,
         CONTACT_URL,
-        ANALYTICS
+        ANALYTICS,
+        COOKIES_STATEMENT_URL
     );
     Object errorRef = resultingModelMap.get(ERROR_REF_ATTRIBUTE_NAME);
     assertThat(errorRef).isNotNull();
@@ -140,7 +143,8 @@ class ErrorServiceTest {
         ACCESSIBILITY_STATEMENT_URL,
         CONTACT_URL,
         FEEDBACK_PAGE_URL,
-        ANALYTICS
+        ANALYTICS,
+        COOKIES_STATEMENT_URL
     );
   }
 
@@ -161,7 +165,8 @@ class ErrorServiceTest {
         ACCESSIBILITY_STATEMENT_URL,
         CONTACT_URL,
         FEEDBACK_PAGE_URL,
-        ANALYTICS
+        ANALYTICS,
+        COOKIES_STATEMENT_URL
     );
   }
 }

@@ -26,7 +26,7 @@
 
 <@fdsCookieBanner.analyticsCookieBanner
 serviceName=serviceBranding.mnemonic()
-cookieSettingsUrl=springUrl(cookiesStatementUrl)
+cookieSettingsUrl=COOKIES_PAGE_URL
 />
 
 <#macro defaultPage
