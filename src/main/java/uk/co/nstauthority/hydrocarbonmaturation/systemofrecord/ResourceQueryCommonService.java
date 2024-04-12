@@ -112,8 +112,8 @@ class ResourceQueryCommonService {
             FIELD_STATUS_HISTORY.ID
         )
         .having(aggregateConditionList)
-        .orderBy(SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP.desc().nullsLast(),
-            SUBMISSION_DETAILS.CREATED_TIMESTAMP.desc(),
+        .orderBy(
+            FIELD_STATUS_HISTORY.STATUS_DATE.desc(),
             FIELDS.CORRECTED_LEGAL_FIELD_NAME)
         .limit(ResourceQueryCommonService.MAX_RESULTS)
         .fetchInto(ResourceRecordQueryResult.class);

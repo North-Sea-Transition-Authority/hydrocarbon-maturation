@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import jakarta.persistence.EntityManager;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -47,6 +48,57 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
     setUpRegulatorTest();
 
     form = SearchResourceRecordsForm.from(SearchFieldRecordsFilter.createInstance());
+  }
+
+  @Nested
+  class GivenNoFilters {
+    private final LocalDate FIXED_DATE = LocalDate.of(2002, 11, 3);
+
+    @Test
+    void whenFieldStatusDatesAreSequential_assertOrderedByFieldStatusDate() {
+      var statusUpdatedLast = FieldIntegrationTestUtils.createField("Field status 500", entityManager);
+      FieldIntegrationTestUtils.addFieldStatusHistory(statusUpdatedLast, FieldStatus.STATUS_500, FIXED_DATE, entityManager);
+
+      var statusUpdateEarlier = FieldIntegrationTestUtils.createField("Field status 300 1", entityManager);
+      FieldIntegrationTestUtils.addFieldStatusHistory(statusUpdateEarlier, FieldStatus.STATUS_300, FIXED_DATE.minusDays(2), entityManager);
+      FieldIntegrationTestUtils.addFieldStatusHistory(statusUpdateEarlier, FieldStatus.STATUS_600, FIXED_DATE.minusDays(1), entityManager);
+
+      var statusUpdatedFirst = FieldIntegrationTestUtils.createField("Field status 300 2", entityManager);
+      FieldIntegrationTestUtils.addFieldStatusHistory(statusUpdatedFirst, FieldStatus.STATUS_500, FIXED_DATE.minusMonths(1), entityManager);
+
+      var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+
+      assertThat(results)
+          .extracting(ResourceRecordQueryResult::resourceId)
+          .containsExactly(
+              statusUpdatedLast.getResource().getId(),
+              statusUpdateEarlier.getResource().getId(),
+              statusUpdatedFirst.getResource().getId()
+          );
+    }
+
+    @Test
+    void whenFieldStatuseDatesAreEqual_assertOrderedByFieldName() {
+      var fieldAlpha = FieldIntegrationTestUtils.createField("Field alpha", entityManager);
+      FieldIntegrationTestUtils.addFieldStatusHistory(fieldAlpha, FieldStatus.STATUS_500, FIXED_DATE, entityManager);
+
+      var fieldBeta = FieldIntegrationTestUtils.createField("Field beta", entityManager);
+      FieldIntegrationTestUtils.addFieldStatusHistory(fieldBeta, FieldStatus.STATUS_300, FIXED_DATE.minusDays(2), entityManager);
+      FieldIntegrationTestUtils.addFieldStatusHistory(fieldBeta, FieldStatus.STATUS_600, FIXED_DATE, entityManager);
+
+      var fieldAlpha1 = FieldIntegrationTestUtils.createField("Field alpha 1", entityManager);
+      FieldIntegrationTestUtils.addFieldStatusHistory(fieldAlpha1, FieldStatus.STATUS_500, FIXED_DATE, entityManager);
+
+      var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+
+      assertThat(results)
+          .extracting(ResourceRecordQueryResult::resourceId)
+          .containsExactly(
+              fieldAlpha.getResource().getId(),
+              fieldAlpha1.getResource().getId(),
+              fieldBeta.getResource().getId()
+          );
+    }
   }
 
   @Nested
