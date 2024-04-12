@@ -2,11 +2,13 @@
 <#import '_pageSizes.ftl' as PageSize>
 <#import '/spring.ftl' as spring>
 <#import '_header.ftl' as pageHeader>
+<#import '../cookies/_cookieBanner.ftl' as cookies>
 
 <#-- @ftlvariable name="serviceBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties" -->
 <#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->
 <#-- @ftlvariable name="serviceHomeUrl" type="String" -->
 <#-- @ftlvariable name="loggedInUser" type="uk.co.nstauthority.hydrocarbonmaturation.authentication.User" -->
+<#-- @ftlvariable name="analytics" type="uk.co.nstauthority.hydrocarbonmaturation.configuration.AnalyticsConfigurationProperties" -->
 
 <#function springUrl url>
   <#local springUrl>
@@ -48,8 +50,11 @@
     serviceUrl=SERVICE_HOME_URL
     logoProductText=CUSTOMER_MNEMONIC
     headerContent=serviceHeader
-    customScriptContent=customScriptContent>
+    customScriptContent=customScriptContent
+    cookieBannerMacro=cookies.cookieBanner>
 
+    <@fdsGoogleAnalytics.googleAnalytics measurementId=analytics.serviceAnalyticIdentifier() />
+    <@fdsGoogleAnalytics.googleAnalytics measurementId=analytics.energyPortalAnalyticIdentifier() />
     <#nested>
   </@fdsLeftSubNavPageTemplate>
 </#macro>

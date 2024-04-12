@@ -26,6 +26,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.IncludeServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.configuration.AnalyticsConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.configuration.IncludeAnalyticsConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.cookies.CookiesController;
 import uk.co.nstauthority.hydrocarbonmaturation.feedback.FeedbackController;
 import uk.co.nstauthority.hydrocarbonmaturation.footer.AccessibilityStatementController;
 import uk.co.nstauthority.hydrocarbonmaturation.footer.ContactInformationController;
@@ -39,6 +42,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @ActiveProfiles("test")
 @IncludeServiceBrandingConfigurationProperties
 @IncludeTechnicalSupportConfigurationProperties
+@IncludeAnalyticsConfigurationProperties
 @ContextConfiguration(classes = {
     DefaultPageControllerAdviceTest.TestController.class,
     DefaultPageControllerAdvice.class,
@@ -84,12 +88,16 @@ class DefaultPageControllerAdviceTest {
         "feedbackPageUrl",
         "contactInformationUrl",
         "accessibilityStatementUrl",
-        "org.springframework.validation.BindingResult.loggedInUser"
+        "org.springframework.validation.BindingResult.loggedInUser",
+        "cookiesStatementUrl",
+        "analytics",
+        "org.springframework.validation.BindingResult.analytics"
     );
 
     assertThat((CustomerConfigurationProperties) modelMap.get("customerBranding")).hasNoNullFieldsOrProperties();
     assertThat((ServiceConfigurationProperties) modelMap.get("serviceBranding")).hasNoNullFieldsOrProperties();
     assertThat((TechnicalSupportConfigurationProperties) modelMap.get("technicalSupport")).hasNoNullFieldsOrProperties();
+    assertThat((AnalyticsConfigurationProperties) modelMap.get("analytics")).hasNoNullFieldsOrProperties();
     Map<String, Object> commonPropertiesMap = new HashMap<>();
     commonPropertiesMap.put("serviceHomeUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)));
     commonPropertiesMap.put("submitPrimaryButtonText", "Save and complete");
@@ -101,6 +109,8 @@ class DefaultPageControllerAdviceTest {
         ReverseRouter.route(on(ContactInformationController.class).getContactInformationPage()));
     commonPropertiesMap.put("accessibilityStatementUrl",
         ReverseRouter.route(on(AccessibilityStatementController.class).getAccessibilityStatement()));
+    commonPropertiesMap.put("cookiesStatementUrl",
+        ReverseRouter.route(on(CookiesController.class).getCookiePreferences()));
     assertThat(modelMap).containsAllEntriesOf(commonPropertiesMap);
   }
 

@@ -17,6 +17,8 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.configuration.AnalyticsConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.configuration.AnalyticsPropertiesTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfigurationProperties;
 
@@ -43,6 +45,7 @@ class ErrorServiceTest {
   private static final String CUSTOMER_BRANDING_ATTRIBUTE = "customerBranding";
   private static final String TECHNICAL_SUPPORT_ATTRIBUTE = "technicalSupport";
   private static final String UNSAFE_CHARACTERS = "0125AEIOULNSZ";
+  private static final String ANALYTICS = "analytics";
 
   @Autowired
   private ErrorConfiguration errorConfiguration;
@@ -53,6 +56,8 @@ class ErrorServiceTest {
   @Autowired
   private TechnicalSupportConfiguration technicalSupportConfiguration;
 
+  private final AnalyticsConfigurationProperties analyticsConfigurationProperties = AnalyticsPropertiesTestUtil.builder().build();
+
   private ErrorService errorService;
 
   @BeforeEach
@@ -60,7 +65,8 @@ class ErrorServiceTest {
     errorService = new ErrorService(
         errorConfiguration,
         serviceBrandingConfigurationProperties,
-        technicalSupportConfiguration);
+        technicalSupportConfiguration,
+        analyticsConfigurationProperties);
   }
 
   @Test
@@ -81,7 +87,8 @@ class ErrorServiceTest {
         ACCESSIBILITY_STATEMENT_URL,
         FEEDBACK_PAGE_URL,
         STACK_TRACE_ATTRIBUTE,
-        CONTACT_URL
+        CONTACT_URL,
+        ANALYTICS
     );
     Object errorRef = resultingModelMap.get(ERROR_REF_ATTRIBUTE_NAME);
     assertThat(errorRef).isNotNull();
@@ -107,7 +114,8 @@ class ErrorServiceTest {
         ACCESSIBILITY_STATEMENT_URL,
         FEEDBACK_PAGE_URL,
         STACK_TRACE_ATTRIBUTE,
-        CONTACT_URL
+        CONTACT_URL,
+        ANALYTICS
     );
     Object errorRef = resultingModelMap.get(ERROR_REF_ATTRIBUTE_NAME);
     assertThat(errorRef).isNotNull();
@@ -131,7 +139,8 @@ class ErrorServiceTest {
         TECHNICAL_SUPPORT_ATTRIBUTE,
         ACCESSIBILITY_STATEMENT_URL,
         CONTACT_URL,
-        FEEDBACK_PAGE_URL
+        FEEDBACK_PAGE_URL,
+        ANALYTICS
     );
   }
 
@@ -151,7 +160,8 @@ class ErrorServiceTest {
         TECHNICAL_SUPPORT_ATTRIBUTE,
         ACCESSIBILITY_STATEMENT_URL,
         CONTACT_URL,
-        FEEDBACK_PAGE_URL
+        FEEDBACK_PAGE_URL,
+        ANALYTICS
     );
   }
 }

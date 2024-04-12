@@ -29,6 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionIn
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.SubmissionStatusInterceptorRule;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.IncludeServiceBrandingConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.configuration.ExternalApiAuthenticationEntryPoint;
+import uk.co.nstauthority.hydrocarbonmaturation.configuration.IncludeAnalyticsConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.IncludeEnergyPortalConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectService;
@@ -65,12 +66,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnica
     ErrorSummaryHandlerInterceptor.class,
     ProjectHandlerInterceptor.class,
     IsProjectExtantInterceptorRule.class,
-    RegulatorForProjectFieldInterceptorRule.class
+    RegulatorForProjectFieldInterceptorRule.class,
 })
 @ActiveProfiles("test")
 @IncludeServiceBrandingConfigurationProperties
 @IncludeTechnicalSupportConfigurationProperties
 @IncludeEnergyPortalConfigurationProperties
+@IncludeAnalyticsConfigurationProperties
 @WithDefaultPageControllerAdvice
 public abstract class AbstractControllerTest {
 

@@ -2,6 +2,7 @@
 <#import '_pageSizes.ftl' as PageSize>
 <#import '/spring.ftl' as spring>
 <#import '_header.ftl' as pageHeader>
+<#import '../cookies/_cookieBanner.ftl' as cookies>
 
 <#-- @ftlvariable name="serviceBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties" -->
 <#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->
@@ -10,8 +11,10 @@
 <#-- @ftlvariable name="accessibilityStatementUrl" type="String" -->
 <#-- @ftlvariable name="singleErrorMessage" type="String" -->
 <#-- @ftlvariable name="contactInformationUrl" type="String" -->
+<#-- @ftlvariable name="cookiesStatementUrl" type="String" -->
 <#-- @ftlvariable name="loggedInUser" type="uk.co.nstauthority.hydrocarbonmaturation.authentication.User" -->
 <#-- @ftlvariable name="flash" type="uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner" -->
+<#-- @ftlvariable name="analytics" type="uk.co.nstauthority.hydrocarbonmaturation.configuration.AnalyticsConfigurationProperties" -->
 
 <#assign SERVICE_NAME = serviceBranding.name() />
 <#assign CUSTOMER_MNEMONIC = customerBranding.mnemonic() />
@@ -19,6 +22,12 @@
 <#assign FEEDBACK_PAGE_URL = springUrl(feedbackPageUrl) />
 <#assign ACCESSIBILITY_PAGE_URL = springUrl(accessibilityStatementUrl) />
 <#assign CONTACT_PAGE_URL = springUrl(contactInformationUrl) />
+<#assign COOKIES_PAGE_URL = springUrl(cookiesStatementUrl) />
+
+<@fdsCookieBanner.analyticsCookieBanner
+serviceName=serviceBranding.mnemonic()
+cookieSettingsUrl=springUrl(cookiesStatementUrl)
+/>
 
 <#macro defaultPage
   htmlTitle
@@ -101,6 +110,10 @@
       <#assign gisScript = springUrl('/assets/static/js/remi-gis-bundle.js')/>
       <script type="module" src="${gisScript}"></script>
       <link rel="stylesheet" href="<@spring.url'/assets/static/css/ol.css'/>">
+
+      <#assign analyticsScript>
+        <script src="<@spring.url'/assets/javascript/googleAnalyticsEventTracking.js'/>"></script>
+      </#assign>
     </#assign>
 
     <#local footerMetaContent>
@@ -108,6 +121,7 @@
         <@fdsFooter.footerMetaLink linkText="Accessibility statement" linkUrl=ACCESSIBILITY_PAGE_URL/>
         <@fdsFooter.footerMetaLink linkText="Contact" linkUrl=CONTACT_PAGE_URL/>
         <@fdsFooter.footerMetaLink linkText="Feedback" linkUrl=FEEDBACK_PAGE_URL/>
+        <@fdsFooter.footerMetaLink linkText="Cookies" linkUrl=COOKIES_PAGE_URL/>
       </@fdsFooter.footerMeta>
     </#local>
 
@@ -157,7 +171,10 @@
       customScriptContent=hydrocarbonScripts
       singleErrorMessage=singleErrorMessage
       noIndex=noIndex
+      cookieBannerMacro=cookies.cookieBanner
     >
+        <@fdsGoogleAnalytics.googleAnalytics measurementId=analytics.serviceAnalyticIdentifier() />
+        <@fdsGoogleAnalytics.googleAnalytics measurementId=analytics.energyPortalAnalyticIdentifier() />
         <#nested />
     </@fdsDefaultPageTemplate>
 </#macro>

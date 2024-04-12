@@ -80,7 +80,8 @@ track changes over time.
 | FMS_PRESHARED_KEY                           | This is the api key used when making requests                                                      |
 | FMS_CONNECTION_TIMEOUT                      | Connection timeout in seconds. Defaults to 20                                                      |
 | REMI_API_PRE_SHARED_KEY                     | The API key used to validate requests from the Energy Portal API                                   |
-
+| REMI_ANALYTICS_ENERGY_PORTAL_IDENTIFIER     | The google analytics tag used for all apps                                                          |
+| REMI_ANALYTICS_SERVICE_IDENTIFIER           | The service specific google analytics tag                                                           |
 ### 3. Initialise the Fivium Design System
 - `git submodule update --init --recursive`
 - `cd fivium-design-system-core && npm install && npx gulp build && cd ..`

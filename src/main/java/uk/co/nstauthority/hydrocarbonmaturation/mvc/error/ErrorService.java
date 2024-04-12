@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.configuration.AnalyticsConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.feedback.FeedbackController;
 import uk.co.nstauthority.hydrocarbonmaturation.footer.AccessibilityStatementController;
 import uk.co.nstauthority.hydrocarbonmaturation.footer.ContactInformationController;
@@ -31,14 +32,17 @@ public class ErrorService {
   private final ErrorConfiguration errorConfiguration;
   private final ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties;
   private final TechnicalSupportConfiguration technicalSupportConfiguration;
+  private final AnalyticsConfigurationProperties analyticsConfigurationProperties;
 
   @Autowired
   public ErrorService(ErrorConfiguration errorConfiguration,
                       ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties,
-                      TechnicalSupportConfiguration technicalSupportConfiguration) {
+                      TechnicalSupportConfiguration technicalSupportConfiguration,
+                      AnalyticsConfigurationProperties analyticsConfigurationProperties) {
     this.errorConfiguration = errorConfiguration;
     this.serviceBrandingConfigurationProperties = serviceBrandingConfigurationProperties;
     this.technicalSupportConfiguration = technicalSupportConfiguration;
+    this.analyticsConfigurationProperties = analyticsConfigurationProperties;
   }
 
   public ModelAndView addErrorAttributesToModel(
@@ -54,6 +58,7 @@ public class ErrorService {
     addBrandingAttributes(modelAndView);
     addTechnicalSupportContactInfo(modelAndView);
     addCommonUrls(modelAndView);
+    addAnalytics(modelAndView);
     return modelAndView;
   }
 
@@ -102,6 +107,10 @@ public class ErrorService {
         .getFeedback(null)));
     modelAndView.addObject("contactInformationUrl", ReverseRouter.route(on(ContactInformationController.class)
         .getContactInformationPage()));
+  }
+
+  private void addAnalytics(ModelAndView modelAndView) {
+    modelAndView.addObject("analytics", analyticsConfigurationProperties);
   }
 
   private static List<Integer> expectedErrorStatuses() {

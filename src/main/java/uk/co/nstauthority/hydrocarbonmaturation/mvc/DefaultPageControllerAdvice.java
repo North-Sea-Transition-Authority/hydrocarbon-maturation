@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceBrandingConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.configuration.AnalyticsConfiguration;
+import uk.co.nstauthority.hydrocarbonmaturation.cookies.CookiesController;
 import uk.co.nstauthority.hydrocarbonmaturation.feedback.FeedbackController;
 import uk.co.nstauthority.hydrocarbonmaturation.footer.AccessibilityStatementController;
 import uk.co.nstauthority.hydrocarbonmaturation.footer.ContactInformationController;
@@ -30,16 +32,19 @@ public class DefaultPageControllerAdvice {
   private final TopNavigationService topNavigationService;
   private final TechnicalSupportConfiguration technicalSupportConfiguration;
   private final UserService userService;
+  private final AnalyticsConfiguration analyticsConfiguration;
 
   @Autowired
   DefaultPageControllerAdvice(ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties,
                               TopNavigationService topNavigationService,
                               TechnicalSupportConfiguration technicalSupportConfiguration,
-                              UserService userService) {
+                              UserService userService,
+                              AnalyticsConfiguration analyticsConfiguration) {
     this.serviceBrandingConfigurationProperties = serviceBrandingConfigurationProperties;
     this.topNavigationService = topNavigationService;
     this.technicalSupportConfiguration = technicalSupportConfiguration;
     this.userService = userService;
+    this.analyticsConfiguration = analyticsConfiguration;
   }
 
   @ModelAttribute
@@ -50,6 +55,7 @@ public class DefaultPageControllerAdvice {
     addSubmitButtonText(model);
     addTechnicalSupportContactInfo(model);
     addUser(model);
+    addAnalytics(model);
   }
 
   @InitBinder
@@ -82,6 +88,8 @@ public class DefaultPageControllerAdvice {
         .getFeedback(null)));
     model.addAttribute("contactInformationUrl", ReverseRouter.route(on(ContactInformationController.class)
         .getContactInformationPage()));
+    model.addAttribute("cookiesStatementUrl", ReverseRouter.route(on(CookiesController.class)
+        .getCookiePreferences()));
   }
 
   private void addSubmitButtonText(Model model) {
@@ -96,5 +104,9 @@ public class DefaultPageControllerAdvice {
   private void addUser(Model model) {
     userService.getOptionalUserDetail()
         .ifPresent(user -> model.addAttribute("loggedInUser", user));
+  }
+
+  private void addAnalytics(Model model) {
+    model.addAttribute("analytics", analyticsConfiguration.getAnalyticsConfigurationProperties());
   }
 }
