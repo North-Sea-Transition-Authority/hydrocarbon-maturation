@@ -16,16 +16,8 @@
         <@fdsAccordion.accordionSection sectionHeading=summaryItem.displayName() summaryText=summarySection.summaryText()
           openSection=(summarySection?index == 0 && summaryItem?index == 0)>
           <#list summaryItem.summaryCards() as summaryCard>
-            <#if summaryCard.summaryCardType() == "SIMPLE_SUMMARY">
-              <@simpleSummary.simpleSummary
-                summaryDataView=summaryCard.summaryData()
-                summaryHeading=summaryCard.displayName()!""/>
-            <#elseif summaryCard.summaryCardType() == "TABLE_SUMMARY">
-              <@tableSummary.tableSummary
-                summaryTableView=summaryCard.summaryData()
-                summaryHeading=summaryCard.displayName()!""/>
-            <#elseif summaryCard.summaryCardType() == "EMPTY_SUMMARY">
-              <@emptySummary.emptySummary
+            <#if summaryCard.summaryCardType() == "EMPTY_SUMMARY">
+              <@emptySummary.emptySummaryCard
                 heading=summaryCard.displayName()/>
             <#elseif summaryCard.summaryCardType() == "PROBABILITY_DISTRIBUTION_SUMMARY">
               <@probabilityDistributionSummary.probabilityDistributionTable
@@ -34,14 +26,34 @@
             <#elseif summaryCard.summaryCardType() == "FIELD_PROBABILITY_DISTRIBUTION_SUMMARY">
               <@probabilityDistributionSummary.fieldProbabilityDistributionTable
               probabilityDistributions=summaryCard.summaryData()/>
-            <#elseif summaryCard.summaryCardType() == "TABLE_FIXED_WIDTH_SUMMARY">
-              <@tableSummary.tableFixedWidthSummary
-              summaryTableView=summaryCard.summaryData()
-              summaryHeading=summaryCard.displayName()!""/>
-            <#elseif summaryCard.summaryCardType() == "FILES_SUMMARY">
-              <@filesSummary.fileSummary
-              heading=summaryCard.displayName()!""
-              fileViews=summaryCard.summaryData()/>
+            <#else>
+              <#assign actionsContent>
+                <@fdsSummaryList.summaryListCardActionList>
+                  <#list summaryCard.summaryActions() as action>
+                    <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(action.url()) itemText=action.label() itemScreenReaderText=""/>
+                  </#list>
+                </@fdsSummaryList.summaryListCardActionList>
+              </#assign>
+
+              <@fdsSummaryList.summaryListCard
+              headingText=summaryCard.displayName()
+              headingSize="h3"
+              summaryListId="summary-data-card-list"
+              cardActionsContent=actionsContent>
+                  <#if summaryCard.summaryCardType() == "SIMPLE_SUMMARY">
+                    <@simpleSummary.simpleSummary
+                    summaryDataView=summaryCard.summaryData()/>
+                  <#elseif summaryCard.summaryCardType() == "TABLE_SUMMARY">
+                    <@tableSummary.tableSummary
+                    summaryTableView=summaryCard.summaryData()/>
+                  <#elseif summaryCard.summaryCardType() == "FILES_SUMMARY">
+                    <@filesSummary.fileSummary
+                    fileViews=summaryCard.summaryData()/>
+                  <#elseif summaryCard.summaryCardType() == "TABLE_FIXED_WIDTH_SUMMARY">
+                    <@tableSummary.tableFixedWidthSummary
+                    summaryTableView=summaryCard.summaryData()/>
+                  </#if>
+              </@fdsSummaryList.summaryListCard>
             </#if>
           </#list>
         </@fdsAccordion.accordionSection>

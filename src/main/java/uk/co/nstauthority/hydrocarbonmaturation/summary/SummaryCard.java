@@ -1,18 +1,17 @@
 package uk.co.nstauthority.hydrocarbonmaturation.summary;
 
 import java.util.List;
-import java.util.Map;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 
 public record SummaryCard(
     String displayName,
     SummaryCardType summaryCardType,
     Object summaryData,
-    Map<String, String> actionsMap
+    List<SummaryAction> summaryActions
 ) {
 
   public SummaryCard(String displayName, SummaryCardType summaryCardType, Object summaryData) {
-    this(displayName, summaryCardType, summaryData, null);
+    this(displayName, summaryCardType, summaryData, List.of());
   }
 
   public static SummaryCard simpleSummaryCardWithHeading(String displayName,
@@ -111,20 +110,12 @@ public record SummaryCard(
     );
   }
 
-  public static SummaryCard timelineSummaryCardWithHeading(String heading, SummaryTimelineView summaryTimelineView) {
+  public static SummaryCard emptySummaryCardWithActions(String heading, List<SummaryAction> actions) {
     return new SummaryCard(
         heading,
-        SummaryCardType.TIMELINE_SUMMARY,
-        summaryTimelineView
-    );
-  }
-
-  public static SummaryCard emptySummaryCardWithActions(String heading, Map<String, String> actionsMap) {
-    // TODO - HM-957 make the actions map set on the SummaryCard.actionsMap
-    return new SummaryCard(
-        heading,
-        SummaryCardType.EMPTY_SUMMARY_WITH_ACTIONS,
-        actionsMap
+        SummaryCardType.EMPTY_SUMMARY,
+        null,
+        actions
     );
   }
 }

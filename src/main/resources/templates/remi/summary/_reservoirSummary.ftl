@@ -24,22 +24,36 @@
             <#assign summaryItemId = "reservoirsummaryitem" + summaryItem?index + summarySection?index/>
             <@fdsSummaryList.summaryListCard headingText="${summaryItem.displayName()}" summaryListId=summaryItemId>
                 <#list summaryItem.summaryCards() as summaryCard>
-                    <#if summaryCard.summaryCardType() == "SIMPLE_SUMMARY">
-                        <@simpleSummary.simpleSummary
-                        summaryDataView=summaryCard.summaryData()
-                        summaryHeading=summaryCard.displayName()!""/>
-                    <#elseif summaryCard.summaryCardType() == "TABLE_SUMMARY">
-                        <@tableSummary.tableSummary
-                        summaryTableView=summaryCard.summaryData()
-                        summaryHeading=summaryCard.displayName()!""/>
-                    <#elseif summaryCard.summaryCardType() == "PROBABILITY_DISTRIBUTION_SUMMARY">
+                    <#if summaryCard.summaryCardType() == "PROBABILITY_DISTRIBUTION_SUMMARY">
                         <@probabilityDistributionSummary.probabilityDistributionTable
                         probabilityDistributions=summaryCard.summaryData()/>
                     <#elseif summaryCard.summaryCardType() == "EMPTY_SUMMARY">
-                        <@emptySummary.emptySummary/>
+                        <@emptySummary.emptySummaryCard/>
                     <#elseif summaryCard.summaryCardType() == "MIN_MAX_MOST_LIKELY_SUMMARY">
                         <@probabilityDistributionSummary.minMaxMostLikelyTable
                         probabilityDistributions=summaryCard.summaryData()/>
+                    <#else>
+                        <#assign actionsContent>
+                            <@fdsSummaryList.summaryListCardActionList>
+                                <#list summaryCard.summaryActions() as action>
+                                    <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(action.url()) itemText=action.label() itemScreenReaderText=""/>
+                                </#list>
+                            </@fdsSummaryList.summaryListCardActionList>
+                        </#assign>
+
+                        <@fdsSummaryList.summaryListCard
+                        headingText=summaryCard.displayName()
+                        headingSize="h3"
+                        summaryListId="summary-data-card-list"
+                        cardActionsContent=actionsContent>
+                            <#if summaryCard.summaryCardType() == "SIMPLE_SUMMARY">
+                                <@simpleSummary.simpleSummary
+                                summaryDataView=summaryCard.summaryData()/>
+                            <#elseif summaryCard.summaryCardType() == "TABLE_SUMMARY">
+                                <@tableSummary.tableSummary
+                                summaryTableView=summaryCard.summaryData()/>
+                            </#if>
+                        </@fdsSummaryList.summaryListCard>
                     </#if>
                 </#list>
             </@fdsSummaryList.summaryListCard>

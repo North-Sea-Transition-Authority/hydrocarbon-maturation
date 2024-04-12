@@ -44,7 +44,7 @@ caption=resourceName>
     </#if>
     <@fdsForm.htmlForm>
         <#if isRegulatorOrAreaTeamUser>
-            <@simpleSummary.simpleSummary
+            <@simpleSummary.simpleSummaryCard
             summaryDataView=fieldRegulatorManagedInformationSummaryCard.summaryData()
             summaryHeading=fieldRegulatorManagedInformationSummaryCard.displayName()!""/>
         </#if>

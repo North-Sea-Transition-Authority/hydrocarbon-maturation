@@ -15,24 +15,32 @@
                 <@fdsAccordion.accordionSection sectionHeading=summaryItem.displayName() summaryText=summarySection.summaryText()
                 openSection=(summarySection?index == 0 && summaryItem?index == 0)>
                     <#list summaryItem.summaryCards() as summaryCard>
-                        <#if summaryCard.summaryCardType() == "SIMPLE_SUMMARY_WITH_ACTIONS">
-                            <@simpleSummary.simpleSummaryWithActions
-                            summaryDataViewWithActions=summaryCard.summaryData()
-                            summaryHeading=summaryCard.displayName()!""/>
-                        <#elseif summaryCard.summaryCardType() == "TIMELINE_SUMMARY">
-                            <@timelineSummary.timelineSummary
-                            summaryTimelineView=summaryCard.summaryData()
-                            summaryHeading=summaryCard.displayName()!""/>
-                        <#elseif summaryCard.summaryCardType() == "EMPTY_SUMMARY_WITH_ACTIONS">
-                            <@emptySummary.emptySummaryWithActions
-                            heading=summaryCard.displayName()
-                            actionsMap=summaryCard.summaryData()/>
-                        <#elseif summaryCard.summaryCardType() == "TABLE_SUMMARY">
-                            <@tableSummary.tableSummary
-                            summaryTableView=summaryCard.summaryData()
-                            summaryHeading=summaryCard.displayName()!""
-                            summaryActions=summaryCard.actionsMap()/>
-                        </#if>
+                        <#assign actionsContent>
+                            <@fdsSummaryList.summaryListCardActionList>
+                                <#list summaryCard.summaryActions() as action>
+                                    <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(action.url()) itemText=action.label() itemScreenReaderText=""/>
+                                </#list>
+                            </@fdsSummaryList.summaryListCardActionList>
+                        </#assign>
+
+                        <@fdsSummaryList.summaryListCard
+                        headingText=summaryCard.displayName()
+                        headingSize="h3"
+                        summaryListId="summary-data-card-list"
+                        cardActionsContent=actionsContent>
+                            <#if summaryCard.summaryCardType() == "SIMPLE_SUMMARY">
+                                <@simpleSummary.simpleSummary
+                                summaryDataView=summaryCard.summaryData()/>
+                            <#elseif summaryCard.summaryCardType() == "EMPTY_SUMMARY">
+                                <@emptySummary.emptySummary/>
+                            <#elseif summaryCard.summaryCardType() == "TIMELINE_SUMMARY">
+                                <@timelineSummary.timelineSummary
+                                summaryTimelineView=summaryCard.summaryData()/>
+                            <#elseif summaryCard.summaryCardType() == "TABLE_SUMMARY">
+                                <@tableSummary.tableSummary
+                                summaryTableView=summaryCard.summaryData()/>
+                            </#if>
+                        </@fdsSummaryList.summaryListCard>
                     </#list>
                 </@fdsAccordion.accordionSection>
             </#list>

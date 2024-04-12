@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -35,6 +34,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
@@ -534,23 +534,26 @@ class SubmissionEstimateSummaryServiceTest {
             SummaryCard::summaryCardType
         )
         .contains(
-            Tuple.tuple(cardTitle, SummaryCardType.EMPTY_SUMMARY_WITH_ACTIONS)
+            Tuple.tuple(cardTitle, SummaryCardType.EMPTY_SUMMARY)
         );
   }
 
   private void assertSummaryCardHasActions(SummaryCard summaryCard, SubmissionEstimateType type) {
-    assertThat(summaryCard.actionsMap())
+    assertThat(summaryCard.summaryActions())
         .isEqualTo(
-            Map.of(
-                "Add",
-                ReverseRouter.route(on(SubmissionEstimateController.class)
-                    .getCreateSubmissionEstimate(project.getField().getResource().getId(), project.getId(), String.valueOf(type)))
+            List.of(
+                new SummaryAction(
+                    "Add",
+                    ReverseRouter.route(on(SubmissionEstimateController.class)
+                        .getCreateSubmissionEstimate(project.getField().getResource().getId(), project.getId(), String.valueOf(type))),
+                    ""
+                )
             )
         );
   }
 
   private void assertSummaryCardHasNoActions(SummaryCard summaryCard) {
-    assertThat(summaryCard.actionsMap())
+    assertThat(summaryCard.summaryActions())
         .isEmpty();
   }
 
@@ -574,14 +577,16 @@ class SubmissionEstimateSummaryServiceTest {
 
     // check each table data row has an action to remove
     var expectedRowActions = estimates.stream()
-        .map(submissionEstimate -> List.of(new SummaryTableRow.SummaryTableRowAction(
+        .map(submissionEstimate -> List.of(new SummaryAction(
             "Remove",
             ReverseRouter.route(on(SubmissionEstimateController.class)
                 .getRemoveConfirmation(
                     project.getField().getResource().getId(),
                     project.getId(),
                     submissionEstimate.getId(),
-                    String.valueOf(submissionEstimate.getSubmissionEstimateType())))))).toList();
+                    String.valueOf(submissionEstimate.getSubmissionEstimateType()))),
+            "")))
+        .toList();
 
     tableRows.remove(0);
     assertThat(tableRows)

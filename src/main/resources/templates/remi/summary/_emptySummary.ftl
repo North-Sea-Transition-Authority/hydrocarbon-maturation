@@ -1,6 +1,6 @@
 <#include '../layout/layout.ftl'>
 
-<#macro emptySummary heading="">
+<#macro emptySummaryCard heading="">
     <#if heading?has_content>
         <@fdsSummaryList.summaryListCard
         headingText=heading
@@ -19,19 +19,6 @@
     </@fdsInsetText.insetText>
 </#macro>
 
-<#macro emptySummaryWithActions heading actionsMap>
-    <#assign content>
-        <@fdsSummaryList.summaryListCardActionList>
-            <#list actionsMap as actionText, actionUrl>
-                <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(actionUrl) itemText=actionText itemScreenReaderText=""/>
-            </#list>
-        </@fdsSummaryList.summaryListCardActionList>
-    </#assign>
-    <@fdsSummaryList.summaryListCard
-    headingText=heading
-    headingSize="h3"
-    summaryListId="summary-data-card-list"
-    cardActionsContent=content>
-        No information has been provided for this section
-    </@fdsSummaryList.summaryListCard>
+<#macro emptySummary>
+    You haven't started this section yet
 </#macro>

@@ -4,7 +4,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
@@ -63,28 +64,32 @@ class ProjectCapexSummaryService implements SummarySectionService<Project> {
         .toList();
 
     var user = userService.getUser();
-    Map<String, String> actionsMap = getActionsMapForUser(project, user);
+    var actions = getActionsForUser(project, user);
 
     if (timelineEvents.isEmpty()) {
-      return SummaryCard.emptySummaryCardWithActions(PROJECT_CAPEX, actionsMap);
+      return SummaryCard.emptySummaryCardWithActions(PROJECT_CAPEX, actions);
     }
 
-    return SummaryCard.timelineSummaryCardWithHeading(
+    return new SummaryCard(
         PROJECT_CAPEX,
-        new SummaryTimelineView(actionsMap, timelineEvents)
+        SummaryCardType.TIMELINE_SUMMARY,
+        new SummaryTimelineView(timelineEvents),
+        actions
     );
   }
 
-  private Map<String, String> getActionsMapForUser(Project project, User user) {
-    Map<String, String> actionsMap = new HashMap<>();
-    if (permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))) {
-      actionsMap.put(
-          "Add",
-          ReverseRouter.route(on(ProjectCapexController.class)
-              .getAddProjectCapex(project.getField().getResource().getId(), project.getId()))
-      );
+  private List<SummaryAction> getActionsForUser(Project project, User user) {
+    if (!permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))) {
+      return List.of();
     }
-    return actionsMap;
+    return List.of(
+        new SummaryAction(
+            "Add",
+            ReverseRouter.route(on(ProjectCapexController.class)
+                .getAddProjectCapex(project.getField().getResource().getId(), project.getId())),
+            ""
+        )
+    );
   }
 
   private TimelineEvent toTimelineEvent(ProjectCapex projectCapex) {

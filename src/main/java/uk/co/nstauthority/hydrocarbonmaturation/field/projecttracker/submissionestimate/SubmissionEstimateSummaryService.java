@@ -4,7 +4,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -15,6 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
@@ -105,13 +105,15 @@ class SubmissionEstimateSummaryService implements SummarySectionService<Project>
             }
         );
 
-    var cardActions = new HashMap<String, String>();
+    var cardActions = new ArrayList<SummaryAction>();
     if (canModifyDates) {
-      cardActions.put(
-          "Add",
-          ReverseRouter.route(on(SubmissionEstimateController.class)
-              .getCreateSubmissionEstimate(project.getField().getResource().getId(), project.getId(), String.valueOf(type)))
-      );
+      cardActions.add(
+          new SummaryAction(
+              "Add",
+              ReverseRouter.route(on(SubmissionEstimateController.class)
+                  .getCreateSubmissionEstimate(project.getField().getResource().getId(), project.getId(), String.valueOf(type))),
+              ""
+          ));
     }
 
     var cardTitle = type.getDisplayName();

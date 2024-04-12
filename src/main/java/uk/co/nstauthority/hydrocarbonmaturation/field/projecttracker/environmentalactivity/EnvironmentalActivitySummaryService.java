@@ -4,9 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.ObjectUtils;
@@ -17,9 +15,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataViewWithActions;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
@@ -64,18 +63,19 @@ class EnvironmentalActivitySummaryService implements SummarySectionService<Proje
   }
 
   private SummaryCard getEnvironmentalActivitySummaryCard(Project project) {
-    var actionsMap = new HashMap<String, String>(Map.of());
-
+    var actions = new ArrayList<SummaryAction>();
     var user = userService.getUser();
     if (permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))) {
-      actionsMap.put(
-          "Change",
-          ReverseRouter.route(on(EnvironmentalActivityController.class)
-              .getEnvironmentalActivity(project.getField().getResource().getId(), project.getId()))
-      );
+      actions.add(
+          new SummaryAction(
+              "Change",
+              ReverseRouter.route(on(EnvironmentalActivityController.class)
+                  .getEnvironmentalActivity(project.getField().getResource().getId(), project.getId())),
+              ""
+          ));
     }
 
-    var summaryDataView = new SummaryDataViewWithActions(actionsMap, new ArrayList<>());
+    var summaryDataView = new SummaryDataView(new ArrayList<>());
 
     var activity = environmentalActivityService.getEnvironmentalActivity(project)
         .orElse(new EnvironmentalActivity());
@@ -93,6 +93,6 @@ class EnvironmentalActivitySummaryService implements SummarySectionService<Proje
         ObjectUtils.defaultIfNull(activity.getConsultationClosingDate(), "")
     );
 
-    return new SummaryCard(ENVIRONMENTAL_ACTIVITY, SummaryCardType.SIMPLE_SUMMARY_WITH_ACTIONS, summaryDataView, actionsMap);
+    return new SummaryCard(ENVIRONMENTAL_ACTIVITY, SummaryCardType.SIMPLE_SUMMARY, summaryDataView, actions);
   }
 }

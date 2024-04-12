@@ -5,8 +5,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public record SummaryTableView(
-    List<SummaryTableRow> tableRows
+    List<SummaryTableRow> tableRows,
+    TableHeadingStyle tableHeadingStyle
 ) {
+  public SummaryTableView(List<SummaryTableRow> tableRows) {
+    this(tableRows, TableHeadingStyle.ROW);
+  }
+
   public static SummaryTableView newWithHeading(Object... rowValues) {
     var summaryTableView = new SummaryTableView(new ArrayList<>());
     return summaryTableView.addRow(rowValues);

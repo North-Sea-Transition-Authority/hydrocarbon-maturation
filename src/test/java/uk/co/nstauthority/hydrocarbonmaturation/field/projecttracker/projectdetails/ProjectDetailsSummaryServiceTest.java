@@ -8,7 +8,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -26,9 +25,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataViewWithActions;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryKeyValue;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
@@ -100,12 +100,12 @@ class ProjectDetailsSummaryServiceTest {
           )
           .contains(
               ProjectDetailsSummaryService.PROJECT_DETAILS,
-              SummaryCardType.SIMPLE_SUMMARY_WITH_ACTIONS
+              SummaryCardType.SIMPLE_SUMMARY
           );
 
       var summaryData = summaryCard.summaryData();
       assertThat(summaryData)
-          .isInstanceOf(SummaryDataViewWithActions.class);
+          .isInstanceOf(SummaryDataView.class);
 
       var expectedKeyValues = List.of(
           new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_NAME, project.getProjectName()),
@@ -115,8 +115,7 @@ class ProjectDetailsSummaryServiceTest {
               "Concept select report accepted on 1 December 2023")
       );
 
-      var summaryDataWithActions = (SummaryDataViewWithActions) summaryData;
-      assertThat(summaryDataWithActions.keyValues())
+            assertThat(((SummaryDataView) summaryData).keyValues())
           .usingRecursiveComparison()
           .isEqualTo(expectedKeyValues);
     }
@@ -163,12 +162,12 @@ class ProjectDetailsSummaryServiceTest {
           )
           .contains(
               ProjectDetailsSummaryService.PROJECT_DETAILS,
-              SummaryCardType.SIMPLE_SUMMARY_WITH_ACTIONS
+              SummaryCardType.SIMPLE_SUMMARY
           );
 
       var summaryData = summaryCard.summaryData();
       assertThat(summaryData)
-          .isInstanceOf(SummaryDataViewWithActions.class);
+          .isInstanceOf(SummaryDataView.class);
 
       var expectedKeyValues = List.of(
           new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_NAME, project.getProjectName()),
@@ -181,8 +180,7 @@ class ProjectDetailsSummaryServiceTest {
               "5 March 2024")
       );
 
-      var summaryDataWithActions = (SummaryDataViewWithActions) summaryData;
-      assertThat(summaryDataWithActions.keyValues())
+            assertThat(((SummaryDataView) summaryData).keyValues())
           .usingRecursiveComparison()
           .isEqualTo(expectedKeyValues);
     }
@@ -204,12 +202,12 @@ class ProjectDetailsSummaryServiceTest {
           )
           .contains(
               ProjectDetailsSummaryService.PROJECT_DETAILS,
-              SummaryCardType.SIMPLE_SUMMARY_WITH_ACTIONS
+              SummaryCardType.SIMPLE_SUMMARY
           );
 
       var summaryData = summaryCard.summaryData();
       assertThat(summaryData)
-          .isInstanceOf(SummaryDataViewWithActions.class);
+          .isInstanceOf(SummaryDataView.class);
 
       var expectedKeyValues = List.of(
           new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_NAME, project.getProjectName()),
@@ -219,8 +217,7 @@ class ProjectDetailsSummaryServiceTest {
               "Concept select report accepted on 1 December 2023")
       );
 
-      var summaryDataWithActions = (SummaryDataViewWithActions) summaryData;
-      assertThat(summaryDataWithActions.keyValues())
+            assertThat(((SummaryDataView) summaryData).keyValues())
           .usingRecursiveComparison()
           .isEqualTo(expectedKeyValues);
     }
@@ -242,12 +239,12 @@ class ProjectDetailsSummaryServiceTest {
           )
           .contains(
               ProjectDetailsSummaryService.PROJECT_DETAILS,
-              SummaryCardType.SIMPLE_SUMMARY_WITH_ACTIONS
+              SummaryCardType.SIMPLE_SUMMARY
           );
 
       var summaryData = summaryCard.summaryData();
       assertThat(summaryData)
-          .isInstanceOf(SummaryDataViewWithActions.class);
+          .isInstanceOf(SummaryDataView.class);
 
       var expectedKeyValues = List.of(
           new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_NAME, project.getProjectName()),
@@ -258,8 +255,7 @@ class ProjectDetailsSummaryServiceTest {
               "Concept select report accepted on 1 December 2023")
       );
 
-      var summaryDataWithActions = (SummaryDataViewWithActions) summaryData;
-      assertThat(summaryDataWithActions.keyValues())
+            assertThat(((SummaryDataView) summaryData).keyValues())
           .usingRecursiveComparison()
           .isEqualTo(expectedKeyValues);
     }
@@ -305,12 +301,12 @@ class ProjectDetailsSummaryServiceTest {
           )
           .contains(
               ProjectDetailsSummaryService.PROJECT_DETAILS,
-              SummaryCardType.SIMPLE_SUMMARY_WITH_ACTIONS
+              SummaryCardType.SIMPLE_SUMMARY
           );
 
       var summaryData = summaryCard.summaryData();
       assertThat(summaryData)
-          .isInstanceOf(SummaryDataViewWithActions.class);
+          .isInstanceOf(SummaryDataView.class);
 
       var expectedKeyValues = List.of(
           new SummaryKeyValue(ProjectDetailsSummaryService.PROJECT_NAME, project.getProjectName()),
@@ -321,10 +317,16 @@ class ProjectDetailsSummaryServiceTest {
               "Concept select report accepted on 1 December 2023")
       );
 
-      var summaryDataWithActions = (SummaryDataViewWithActions) summaryData;
-      assertThat(summaryDataWithActions.keyValues())
+            assertThat(((SummaryDataView) summaryData).keyValues())
           .usingRecursiveComparison()
           .isEqualTo(expectedKeyValues);
+    }
+
+    @Test
+    void whenGetProjectSummaryCard_thenEmptyActionMap() {
+      var summaryCard = projectDetailsSummaryService.getProjectSummaryCard(project);
+      assertThat(summaryCard.summaryActions())
+          .isEmpty();
     }
   }
 
@@ -332,34 +334,25 @@ class ProjectDetailsSummaryServiceTest {
   class GivenUserIsProjectAnalyst {
     private static final boolean IS_PROJECT_ANALYST = true;
 
-    private SummaryDataViewWithActions summaryDataViewWithActions;
-
     @BeforeEach
     void setUp() {
       mockUserCallsWithPermissions(IS_PROJECT_ANALYST);
-      summaryDataViewWithActions = getSummaryDataViewWithActions();
     }
 
     @Test
     void whenGetSummarySection_thenPopulatedActionMap() {
-      var expectedActionsMap = Map.of(
+      var expectedActions = List.of(
+          new SummaryAction(
           "Change",
           ReverseRouter.route(on(ProjectDetailsController.class)
-              .getUpdateProject(project.getField().getResource().getId(), project.getId()))
+              .getUpdateProject(project.getField().getResource().getId(), project.getId())),
+              ""
+          )
       );
 
-      assertThat(summaryDataViewWithActions.actionsMap())
+      assertThat(invokeGetSummarySectionAndReturnSummaryCard().summaryActions())
           .usingRecursiveComparison()
-          .isEqualTo(expectedActionsMap);
-    }
-
-    @Test
-    void whenGetProjectSummaryCard_thenEmptyActionMap() {
-      var summaryCard = projectDetailsSummaryService.getProjectSummaryCard(project);
-
-      var summaryData = (SummaryDataViewWithActions) summaryCard.summaryData();
-      assertThat(summaryData.actionsMap())
-          .isEmpty();
+          .isEqualTo(expectedActions);
     }
   }
 
@@ -367,30 +360,17 @@ class ProjectDetailsSummaryServiceTest {
   class GivenUserIsNotProjectAnalyst {
     private static final boolean IS_PROJECT_ANALYST = false;
 
-    private SummaryDataViewWithActions summaryDataViewWithActions;
-
     @BeforeEach
     void setUp() {
       mockUserCallsWithPermissions(IS_PROJECT_ANALYST);
-      summaryDataViewWithActions = getSummaryDataViewWithActions();
     }
 
     @Test
     void whenGetSummarySection_thenEmptyActionMap() {
-
-      var expectedActionsMap = Map.of();
-      assertThat(summaryDataViewWithActions.actionsMap())
+      var expectedActions = List.of();
+      assertThat(invokeGetSummarySectionAndReturnSummaryCard().summaryActions())
           .usingRecursiveComparison()
-          .isEqualTo(expectedActionsMap);
-    }
-
-    @Test
-    void whenGetProjectSummaryCard_thenEmptyActionMap() {
-      var summaryCard = projectDetailsSummaryService.getProjectSummaryCard(project);
-
-      var summaryData = (SummaryDataViewWithActions) summaryCard.summaryData();
-      assertThat(summaryData.actionsMap())
-          .isEmpty();
+          .isEqualTo(expectedActions);
     }
   }
 
@@ -402,17 +382,13 @@ class ProjectDetailsSummaryServiceTest {
         .thenReturn(isProjectAnalyst);
   }
 
-  private SummaryDataViewWithActions getSummaryDataViewWithActions() {
+  private SummaryCard invokeGetSummarySectionAndReturnSummaryCard() {
     var summarySectionOptional = projectDetailsSummaryService.getSummarySection(project);
 
     var summaryItems = summarySectionOptional.get().summaryItems();
 
     var summaryItem = summaryItems.get(0);
 
-    var summaryCard = summaryItem.summaryCards().get(0);
-
-    var summaryData = summaryCard.summaryData();
-
-    return (SummaryDataViewWithActions) summaryData;
+    return summaryItem.summaryCards().get(0);
   }
 }

@@ -7,7 +7,7 @@ import java.util.List;
 
 public record SummaryTableRow(
     List<String> rowValues,
-    List<SummaryTableRowAction> rowActions
+    List<SummaryAction> rowActions
 ) {
   public SummaryTableRow(List<String> rowValues) {
     this(rowValues, List.of());
@@ -17,16 +17,13 @@ public record SummaryTableRow(
     return this.rowValues.size();
   }
 
-  public record SummaryTableRowAction(String label, String url) {
-  }
-
   public static Builder builder() {
     return new Builder();
   }
 
   public static class Builder {
     List<String> rowValues = new ArrayList<>();
-    List<SummaryTableRowAction> rowActions = new ArrayList<>();
+    List<SummaryAction> rowActions = new ArrayList<>();
 
     private Builder() {
     }
@@ -41,10 +38,14 @@ public record SummaryTableRow(
     }
 
     public Builder withAction(String label, String url) {
-      return withActions(Collections.singletonList(new SummaryTableRowAction(label, url)));
+      return withActions(Collections.singletonList(new SummaryAction(label, url, "")));
     }
 
-    public Builder withActions(List<SummaryTableRowAction> actions) {
+    public Builder withAction(String label, String url, String screenReaderText) {
+      return withActions(Collections.singletonList(new SummaryAction(label, url, screenReaderText)));
+    }
+
+    public Builder withActions(List<SummaryAction> actions) {
       this.rowActions.addAll(actions);
       return this;
     }

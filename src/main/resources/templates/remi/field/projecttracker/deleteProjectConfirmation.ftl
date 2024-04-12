@@ -10,12 +10,9 @@ caption=pageCaption
 pageSize=PageSize.TWO_THIRDS_COLUMN>
     <@fdsForm.htmlForm>
 
-        <@fdsSummaryList.summaryListWrapper
-        summaryListId="summary-list-one">
-            <@simpleSummary.simpleSummaryWithActions
-            summaryDataViewWithActions=summaryCard.summaryData()
-            summaryHeading=summaryCard.displayName()!""/>
-        </@fdsSummaryList.summaryListWrapper>
+        <@simpleSummary.simpleSummaryCard
+        summaryDataView=summaryCard.summaryData()
+        summaryHeading=summaryCard.displayName()!""/>
 
         <@fdsAction.submitButtons
         primaryButtonText="Delete"

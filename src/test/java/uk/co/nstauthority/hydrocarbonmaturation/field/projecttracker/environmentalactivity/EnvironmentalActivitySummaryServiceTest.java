@@ -6,7 +6,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -28,9 +27,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataViewWithActions;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryKeyValue;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
@@ -126,7 +126,7 @@ class EnvironmentalActivitySummaryServiceTest {
           )
           .contains(
               EnvironmentalActivitySummaryService.ENVIRONMENTAL_ACTIVITY,
-              SummaryCardType.SIMPLE_SUMMARY_WITH_ACTIONS
+              SummaryCardType.SIMPLE_SUMMARY
           );
     }
 
@@ -147,8 +147,7 @@ class EnvironmentalActivitySummaryServiceTest {
           new SummaryKeyValue(EnvironmentalActivitySummaryService.CONSULTATION_CLOSING_DATE, "")
       );
 
-      var summaryDataWithActions = (SummaryDataViewWithActions) summaryData;
-      assertThat(summaryDataWithActions.keyValues())
+      assertThat(((SummaryDataView) summaryData).keyValues())
           .usingRecursiveComparison()
           .isEqualTo(expectedKeyValues);
     }
@@ -179,8 +178,7 @@ class EnvironmentalActivitySummaryServiceTest {
               "27 March 2021")
       );
 
-      var summaryDataWithActions = (SummaryDataViewWithActions) summaryData;
-      assertThat(summaryDataWithActions.keyValues())
+      assertThat(((SummaryDataView) summaryData).keyValues())
           .usingRecursiveComparison()
           .isEqualTo(expectedKeyValues);
     }
@@ -197,16 +195,18 @@ class EnvironmentalActivitySummaryServiceTest {
       var summaryItem = summaryItems.get(0);
       var summaryCard = summaryItem.summaryCards().get(0);
 
-      var expectedActionsMap = Map.of(
-          "Change",
-          ReverseRouter.route(on(EnvironmentalActivityController.class)
-              .getEnvironmentalActivity(project.getField().getResource().getId(), project.getId()))
-
+      var expectedActions = List.of(
+          new SummaryAction(
+              "Change",
+              ReverseRouter.route(on(EnvironmentalActivityController.class)
+                  .getEnvironmentalActivity(project.getField().getResource().getId(), project.getId())),
+              ""
+          )
       );
 
-      assertThat(summaryCard.actionsMap())
+      assertThat(summaryCard.summaryActions())
           .usingRecursiveComparison()
-          .isEqualTo(expectedActionsMap);
+          .isEqualTo(expectedActions);
     }
 
     @Test
@@ -221,7 +221,7 @@ class EnvironmentalActivitySummaryServiceTest {
       var summaryItem = summaryItems.get(0);
       var summaryCard = summaryItem.summaryCards().get(0);
 
-      assertThat(summaryCard.actionsMap())
+      assertThat(summaryCard.summaryActions())
           .isEmpty();
     }
   }

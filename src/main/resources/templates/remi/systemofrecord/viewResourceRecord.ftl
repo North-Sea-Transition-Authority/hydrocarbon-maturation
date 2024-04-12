@@ -94,7 +94,7 @@ wrapperWidth=true>
   <h2 class="govuk-heading-l">${regulatorManagedInformationHeading}</h2>
   <#if canViewRegulatorManagementInfo>
     <#if isFieldResource>
-      <@simpleSummary.simpleSummary
+      <@simpleSummary.simpleSummaryCard
       summaryDataView=fieldRegulatorManagedInformationSummaryCard.summaryData()
       summaryHeading=fieldRegulatorManagedInformationSummaryCard.displayName()!""/>
     <#else>

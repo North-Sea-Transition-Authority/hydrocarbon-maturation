@@ -15,7 +15,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import static uk.co.nstauthority.hydrocarbonmaturation.util.NotificationBannerTestUtil.notificationBanner;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -38,7 +37,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdeta
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataViewWithActions;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @ContextConfiguration(classes = DeleteProjectController.class)
@@ -134,8 +133,9 @@ class DeleteProjectControllerTest extends AbstractControllerTest {
 
     var summaryCard = new SummaryCard(
         "",
-        SummaryCardType.SIMPLE_SUMMARY_WITH_ACTIONS,
-        new SummaryDataViewWithActions(Map.of(), List.of()));
+        SummaryCardType.SIMPLE_SUMMARY,
+        new SummaryDataView(List.of()),
+        List.of());
 
     when(projectDetailsSummaryService.getProjectSummaryCard(project))
         .thenReturn(summaryCard);
@@ -166,14 +166,6 @@ class DeleteProjectControllerTest extends AbstractControllerTest {
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 
-    var summaryCard = new SummaryCard(
-        "",
-        SummaryCardType.SIMPLE_SUMMARY_WITH_ACTIONS,
-        new SummaryDataViewWithActions(Map.of(), List.of()));
-
-    when(projectDetailsSummaryService.getProjectSummaryCard(project))
-        .thenReturn(summaryCard);
-
     var expectedBanner = NotificationBanner.builder()
         .withBannerType(NotificationBannerType.SUCCESS)
         .withTitle("Success")
@@ -183,7 +175,7 @@ class DeleteProjectControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
                 post(ReverseRouter.route(on(DeleteProjectController.class)
-                    .getDeleteProjectConfirmation(RESOURCE_ID, PROJECT_ID)))
+                    .deleteProject(RESOURCE_ID, PROJECT_ID, null)))
                     .with(user(user))
                     .with(csrf()))
             .andExpect(status().is3xxRedirection())

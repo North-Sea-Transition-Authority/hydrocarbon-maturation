@@ -2,9 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdet
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -16,9 +15,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataViewWithActions;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
@@ -62,18 +62,19 @@ public class ProjectDetailsSummaryService implements SummarySectionService<Proje
   }
 
   private SummaryCard getSummaryCard(Project project, boolean includeCardActions) {
-    Map<String, String> actionsMap = new HashMap<>(Map.of());
-
+    var actions = new ArrayList<SummaryAction>();
     var user = userService.getUser();
     if (includeCardActions && userCanViewActions(user)) {
-      actionsMap.put(
-          "Change",
-          ReverseRouter.route(on(ProjectDetailsController.class)
-              .getUpdateProject(project.getField().getResource().getId(), project.getId()))
-      );
+      actions.add(
+          new SummaryAction(
+              "Change",
+              ReverseRouter.route(on(ProjectDetailsController.class)
+                  .getUpdateProject(project.getField().getResource().getId(), project.getId())),
+              ""
+          ));
     }
 
-    var summaryData = SummaryDataViewWithActions.newWithActionsMap(actionsMap);
+    var summaryData = new SummaryDataView(new ArrayList<>());
 
     summaryData.addKeyValue(PROJECT_NAME, project.getProjectName());
     summaryData.addKeyValue(PROJECT_TYPE, project.getProjectType().getDisplayName());
@@ -103,8 +104,9 @@ public class ProjectDetailsSummaryService implements SummarySectionService<Proje
 
     return new SummaryCard(
         PROJECT_DETAILS,
-        SummaryCardType.SIMPLE_SUMMARY_WITH_ACTIONS,
-        summaryData
+        SummaryCardType.SIMPLE_SUMMARY,
+        summaryData,
+        actions
     );
   }
 

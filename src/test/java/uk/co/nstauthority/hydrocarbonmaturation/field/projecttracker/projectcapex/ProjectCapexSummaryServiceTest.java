@@ -31,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectPhas
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
@@ -118,7 +119,7 @@ class ProjectCapexSummaryServiceTest {
           )
           .contains(
               ProjectCapexSummaryService.PROJECT_CAPEX,
-              SummaryCardType.EMPTY_SUMMARY_WITH_ACTIONS
+              SummaryCardType.EMPTY_SUMMARY
           );
     }
 
@@ -225,21 +226,21 @@ class ProjectCapexSummaryServiceTest {
 
     @Test
     void whenGetSummarySection_withStages_thenPopulatedCardActionMap() {
-      var expectedActionsMap = getProjectAnalystActionsMap();
+      var expectedActions = getProjectAnalystActions();
 
-      var summaryTimelineView = getSectionSummaryDataWhenStages();
-      assertThat(summaryTimelineView.cardActionsMap())
+      var summaryTimelineView = getSectionSummaryCardWhenStages();
+      assertThat(summaryTimelineView.summaryActions())
           .usingRecursiveComparison()
-          .isEqualTo(expectedActionsMap);
+          .isEqualTo(expectedActions);
     }
 
     @Test
     void whenGetSummarySection_withNoStages_thenPopulatedCardActionMap() {
-      var expectedActionsMap = getProjectAnalystActionsMap();
+      var expectedActions = getProjectAnalystActions();
 
-      assertThat(getSectionSummaryDataWhenNoStages())
+      assertThat(getSectionSummaryCardWhenNoStages().summaryActions())
           .usingRecursiveComparison()
-          .isEqualTo(expectedActionsMap);
+          .isEqualTo(expectedActions);
     }
 
     @Test
@@ -302,11 +303,14 @@ class ProjectCapexSummaryServiceTest {
               ));
     }
 
-    private Map<String, String> getProjectAnalystActionsMap() {
-      return Map.of(
-          "Add",
-          ReverseRouter.route(on(ProjectCapexController.class)
-              .getAddProjectCapex(project.getField().getResource().getId(), project.getId()))
+    private List<SummaryAction> getProjectAnalystActions() {
+      return List.of(
+          new SummaryAction(
+              "Add",
+              ReverseRouter.route(on(ProjectCapexController.class)
+                  .getAddProjectCapex(project.getField().getResource().getId(), project.getId())),
+              ""
+          )
       );
     }
   }
@@ -322,19 +326,18 @@ class ProjectCapexSummaryServiceTest {
 
     @Test
     void whenGetSummarySection_withStages_thenEmptyActionMap() {
-      var expectedActionsMap = Map.of();
-      assertThat(getSectionSummaryDataWhenStages().cardActionsMap())
+      var expectedActions = List.of();
+      assertThat(getSectionSummaryCardWhenStages().summaryActions())
           .usingRecursiveComparison()
-          .isEqualTo(expectedActionsMap);
+          .isEqualTo(expectedActions);
     }
 
     @Test
     void whenGetSummarySection_withNoStages_thenEmptyActionMap() {
-
-      var expectedActionsMap = Map.of();
-      assertThat(getSectionSummaryDataWhenNoStages())
+      var expectedActions = List.of();
+      assertThat(getSectionSummaryCardWhenNoStages().summaryActions())
           .usingRecursiveComparison()
-          .isEqualTo(expectedActionsMap);
+          .isEqualTo(expectedActions);
     }
 
     @Test
@@ -383,7 +386,7 @@ class ProjectCapexSummaryServiceTest {
         .thenReturn(isProjectAnalyst);
   }
 
-  private SummaryTimelineView getSectionSummaryDataWhenStages() {
+  private SummaryCard getSectionSummaryCardWhenStages() {
     var projectCapex = new ProjectCapex(UUID.randomUUID());
     projectCapex.setSourceOfInformation(ProjectCapexSource.UKSS);
     projectCapex.setDateProvided(LocalDate.now());
@@ -398,24 +401,16 @@ class ProjectCapexSummaryServiceTest {
 
     var summaryItem = summaryItems.get(0);
 
-    var summaryCard = summaryItem.summaryCards().get(0);
-
-    var summaryData = summaryCard.summaryData();
-
-    return (SummaryTimelineView) summaryData;
+    return summaryItem.summaryCards().get(0);
   }
 
-  private Map<String, String> getSectionSummaryDataWhenNoStages() {
+  private SummaryCard getSectionSummaryCardWhenNoStages() {
     var summarySectionOptional = projectStageSummaryService.getSummarySection(project);
 
     var summaryItems = summarySectionOptional.get().summaryItems();
 
     var summaryItem = summaryItems.get(0);
 
-    var summaryCard = summaryItem.summaryCards().get(0);
-
-    var summaryData = summaryCard.summaryData();
-
-    return (Map<String, String>) summaryData;
+    return summaryItem.summaryCards().get(0);
   }
 }

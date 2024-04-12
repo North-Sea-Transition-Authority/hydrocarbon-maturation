@@ -1,90 +1,78 @@
 <#include '../layout/layout.ftl'>
+<#macro tableSummary summaryTableView>
+    <#assign hasRowHeadings = summaryTableView.tableHeadingStyle() == "ROW"
+    || summaryTableView.tableHeadingStyle() == "ROW_AND_COLUMN" />
+    <#assign hasColumnHeadings = summaryTableView.tableHeadingStyle() == "COLUMN"
+    || summaryTableView.tableHeadingStyle() == "ROW_AND_COLUMN" />
 
-<#macro tableSummary summaryTableView summaryHeading summaryActions={}>
-  <#assign content>
-    <@fdsSummaryList.summaryListCardActionList>
-      <#list summaryActions as actionText, actionUrl>
-        <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(actionUrl) itemText=actionText itemScreenReaderText=""/>
-      </#list>
-    </@fdsSummaryList.summaryListCardActionList>
-  </#assign>
-
-  <@fdsSummaryList.summaryListCard
-    headingText=summaryHeading
-    cardActionsContent=content
-    headingSize="h3"
-    summaryListId="table-summary-card-list">
     <table class="govuk-table">
-      <thead class="govuk-table__head">
+        <thead class="govuk-table__head">
         <tr class="govuk-table__row">
-          <!-- the first row contains the headers -->
-          <#list summaryTableView.tableRows()[0].rowValues() as rowValue>
-            <th class="govuk-table__header">${rowValue!""}</th>
-          </#list>
-        </tr>
-      </thead>
-      <tbody class="govuk-table__body">
-        <#list summaryTableView.tableRows() as tableRow>
-          <!-- ignore the first row as this contains the headers -->
-          <#if tableRow?index != 0>
-            <tr class="govuk-table__row">
-              <#list tableRow.rowValues() as rowValue>
-<#--                TODO - HM-957 investigate why this is needed?-->
-                  <#if rowValue?index == 0>
-                    <th scope="row" class="govuk-table__header">${rowValue!""}</th>
-                  <#else>
+            <!-- the first row contains the headers -->
+            <#list summaryTableView.tableRows()[0].rowValues() as rowValue>
+                <#if hasRowHeadings>
+                    <th class="govuk-table__header">${rowValue!""}</th>
+                <#else>
                     <td class="govuk-table__cell">${rowValue!""}</td>
-                  </#if>
-              </#list>
-              <#if tableRow.rowActions()?has_content>
-                <td class="govuk-table__cell">
-                  <ol class="govuk-list govuk-!-margin-bottom-0">
-                    <#list tableRow.rowActions() as rowAction>
-                      <li class="govuk-list__item">
-                        <@fdsAction.link linkText=rowAction.label() linkUrl=springUrl(rowAction.url()) />
-                      </li>
+                </#if>
+            </#list>
+        </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+        <#list summaryTableView.tableRows() as tableRow>
+            <!-- ignore the first row as this contains the headers -->
+            <#if tableRow?index != 0>
+                <tr class="govuk-table__row">
+                    <#list tableRow.rowValues() as rowValue>
+                        <#if rowValue?index == 0 && hasColumnHeadings>
+                            <th class="govuk-table__header">${rowValue!""}</th>
+                        <#else>
+                            <td class="govuk-table__cell">${rowValue!""}</td>
+                        </#if>
                     </#list>
-                  </ol>
-                </td>
-              </#if>
-            </tr>
-          </#if>
+                    <#if tableRow.rowActions()?has_content>
+                        <td class="govuk-table__cell">
+                            <ol class="govuk-list govuk-!-margin-bottom-0">
+                                <#list tableRow.rowActions() as rowAction>
+                                    <li class="govuk-list__item">
+                                        <@fdsAction.link linkText=rowAction.label() linkUrl=springUrl(rowAction.url()) linkScreenReaderText=rowAction.screenReaderText()/>
+                                    </li>
+                                </#list>
+                            </ol>
+                        </td>
+                    </#if>
+                </tr>
+            </#if>
         </#list>
-      </tbody>
+        </tbody>
     </table>
-  </@fdsSummaryList.summaryListCard>
 </#macro>
 
-<#macro tableFixedWidthSummary summaryTableView summaryHeading>
-  <@fdsSummaryList.summaryListCard
-  headingText=summaryHeading
-  headingSize="h3"
-  summaryListId="table-summary-card-list">
-    <table class="govuk-table">
-      <thead class="govuk-table__head">
-      <tr class="govuk-table__row">
-        <!-- the first row contains the headers -->
-        <#list summaryTableView.tableRows()[0].rowValues() as rowValue>
-          <th class="govuk-table__header govuk-!-width-one-half">${rowValue!""}</th>
-        </#list>
-      </tr>
-      </thead>
-      <tbody class="govuk-table__body">
-      <#list summaryTableView.tableRows() as tableRow>
-        <!-- ignore the first row as this contains the headers -->
-        <#if tableRow?index != 0>
-          <tr class="govuk-table__row">
-            <#list tableRow.rowValues() as rowValue>
-              <#if rowValue?index == 0>
-                <th scope="row" class="govuk-table__header govuk-!-width-one-half">${rowValue!""}</th>
-              <#else>
-                <td class="govuk-table__cell">${rowValue!""}</td>
-              </#if>
-            </#list>
-          </tr>
-        </#if>
+<#macro tableFixedWidthSummary summaryTableView>
+  <table class="govuk-table">
+    <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+      <!-- the first row contains the headers -->
+      <#list summaryTableView.tableRows()[0].rowValues() as rowValue>
+        <th class="govuk-table__header govuk-!-width-one-half">${rowValue!""}</th>
       </#list>
-      </tbody>
-    </table>
-  </@fdsSummaryList.summaryListCard>
+    </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+    <#list summaryTableView.tableRows() as tableRow>
+      <!-- ignore the first row as this contains the headers -->
+      <#if tableRow?index != 0>
+        <tr class="govuk-table__row">
+          <#list tableRow.rowValues() as rowValue>
+            <#if rowValue?index == 0>
+              <th scope="row" class="govuk-table__header govuk-!-width-one-half">${rowValue!""}</th>
+            <#else>
+              <td class="govuk-table__cell">${rowValue!""}</td>
+            </#if>
+          </#list>
+        </tr>
+      </#if>
+    </#list>
+    </tbody>
+  </table>
 </#macro>
