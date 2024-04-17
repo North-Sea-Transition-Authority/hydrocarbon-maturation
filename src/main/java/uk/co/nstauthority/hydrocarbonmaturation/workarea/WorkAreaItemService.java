@@ -2,9 +2,11 @@ package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import com.google.common.base.Stopwatch;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
@@ -13,6 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.metrics.MetricsProvider;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
@@ -30,6 +33,7 @@ class WorkAreaItemService {
   private final FieldDisplayService fieldDisplayService;
   private final OrganisationUnitQueryService organisationUnitQueryService;
   private final LicenceQueryService licenceQueryService;
+  private final MetricsProvider metricsProvider;
 
 
   @Autowired
@@ -37,18 +41,26 @@ class WorkAreaItemService {
                       SubmissionDetailDisplayService submissionDetailDisplayService,
                       SubmissionDetailService submissionDetailService,
                       FieldDisplayService fieldDisplayService,
-                      OrganisationUnitQueryService organisationUnitQueryService, LicenceQueryService licenceQueryService) {
+                      OrganisationUnitQueryService organisationUnitQueryService,
+                      LicenceQueryService licenceQueryService,
+                      MetricsProvider metricsProvider) {
     this.submissionWorkAreaServiceFactory = submissionWorkAreaServiceFactory;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.submissionDetailService = submissionDetailService;
     this.fieldDisplayService = fieldDisplayService;
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.licenceQueryService = licenceQueryService;
+    this.metricsProvider = metricsProvider;
   }
 
   List<WorkAreaItem> getWorkAreaItems(User user) {
+    var checkStopWatch = Stopwatch.createStarted();
+
     var workAreaSubmissionItems = submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(user)
         .getWorkAreaSubmissionItems(user);
+
+    var elapsedMs = checkStopWatch.elapsed(TimeUnit.MILLISECONDS);
+    metricsProvider.getWorkAreaQueryTimer().record(elapsedMs, TimeUnit.MILLISECONDS);
 
     var organisationUnitIds = getOrganisationUnitIdsFromResults(workAreaSubmissionItems);
     var organisationUnitMap = organisationUnitQueryService.getOrganisationUnitMapByIds(organisationUnitIds);

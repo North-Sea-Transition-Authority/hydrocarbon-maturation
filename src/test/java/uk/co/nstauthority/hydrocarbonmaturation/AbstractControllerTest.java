@@ -33,6 +33,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.configuration.IncludeAnalyticsCo
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.IncludeEnergyPortalConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectService;
+import uk.co.nstauthority.hydrocarbonmaturation.metrics.MetricsProvider;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ErrorSummaryHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ValidationTypeArgumentResolver;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
@@ -67,6 +68,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnica
     ProjectHandlerInterceptor.class,
     IsProjectExtantInterceptorRule.class,
     RegulatorForProjectFieldInterceptorRule.class,
+    MetricsProvider.class
 })
 @ActiveProfiles("test")
 @IncludeServiceBrandingConfigurationProperties
@@ -105,6 +107,9 @@ public abstract class AbstractControllerTest {
 
   @MockBean
   protected ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+
+  @MockBean
+  protected MetricsProvider metricsProvider;
 
   @Autowired
   protected ControllerHelperService controllerHelperService;

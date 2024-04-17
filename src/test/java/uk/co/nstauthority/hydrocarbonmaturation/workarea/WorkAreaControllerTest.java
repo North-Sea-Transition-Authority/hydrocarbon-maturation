@@ -1,6 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.workarea;
 
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -9,8 +13,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import io.micrometer.core.instrument.Timer;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
@@ -32,6 +39,14 @@ class WorkAreaControllerTest extends AbstractControllerTest {
   private PermissionService permissionService;
 
   private static final User USER = UserTestUtil.Builder().build();
+
+  private Timer timer;
+
+  @BeforeEach
+  void setUp() {
+    timer = mock(Timer.class);
+    when(metricsProvider.getWorkAreaRequestTimer()).thenReturn(timer);
+  }
 
   @SecurityTest
   void getWorkArea_assertHttpOk() throws Exception {
@@ -83,5 +98,21 @@ class WorkAreaControllerTest extends AbstractControllerTest {
         .andExpect(status().isOk())
         .andExpect(view().name("remi/workarea/workArea"))
         .andExpect(model().attribute("canCreateSubmissions", false));
+  }
+
+  @Test
+  void getWorkArea_assertMonitoring() throws Exception {
+    List<WorkAreaItem> workAreaItems = List.of();
+    when(workAreaItemService.getWorkAreaItems(USER)).thenReturn(workAreaItems);
+    when(permissionService.hasPermission(eq(USER), any()))
+        .thenReturn(true);
+
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)))
+            .with(user(USER)))
+        .andExpect(status().isOk())
+        .andExpect(view().name("remi/workarea/workArea"))
+        .andExpect(model().attribute("canCreateSubmissions", true));
+
+    verify(timer).record(any(Long.class), eq(TimeUnit.MILLISECONDS));
   }
 }

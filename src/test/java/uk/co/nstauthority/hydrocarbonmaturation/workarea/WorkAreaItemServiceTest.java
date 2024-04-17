@@ -7,11 +7,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import io.micrometer.core.instrument.Timer;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.metrics.MetricsProvider;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
@@ -42,33 +47,29 @@ class WorkAreaItemServiceTest {
   private final static boolean UPDATE_REQUESTED = true;
   @Mock
   private SubmissionWorkAreaServiceFactory submissionWorkAreaServiceFactory;
-
   @Mock
   private OperatorSubmissionWorkAreaQueryService operatorSubmissionWorkAreaQueryService;
-
   @Mock
   private ResponsibleTeamSubmissionWorkAreaQueryService responsibleTeamSubmissionWorkAreaQueryService;
-
   @Mock
   private SubmissionDetailDisplayService submissionDetailDisplayService;
-
   @Mock
   private SubmissionDetailService submissionDetailService;
   @Mock
   private FieldDisplayService fieldDisplayService;
-
   @Mock
   private OrganisationUnitQueryService organisationUnitQueryService;
-
   @Mock
   private LicenceQueryService licenceQueryService;
-
+  @Mock
+  private MetricsProvider metricsProvider;
   @InjectMocks
   private WorkAreaItemService workAreaItemService;
 
   private List<SubmissionWorkAreaQueryResult> queryResults;
   private SubmissionWorkAreaQueryResult queryResultWithEverythingFilledIn;
   private SubmissionWorkAreaQueryResult queryResultWithoutLicencesAndBlock;
+  private Timer timer;
 
   private final Integer LICENCE_ID_1 = 1;
   private final Integer LICENCE_ID_2 = 2;
@@ -100,6 +101,9 @@ class WorkAreaItemServiceTest {
 
     when(organisationUnitQueryService.getOrganisationUnitMapByIds(anyList())).thenReturn(ORGANISATION_UNIT_MAP);
     when(licenceQueryService.getLicenceMapByIds(anyList())).thenReturn(LICENCE_MAP);
+
+    timer = mock(Timer.class);
+    when(metricsProvider.getWorkAreaQueryTimer()).thenReturn(timer);
   }
 
   @Test
@@ -572,5 +576,17 @@ class WorkAreaItemServiceTest {
             entry("licences", List.of()),
             entry("submissionStatus", "Draft"),
             entry("updateRequested", false));
+  }
+
+  @Test
+  void getWorkAreaItems_assertTimed() {
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
+        .thenReturn(operatorSubmissionWorkAreaQueryService);
+    when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
+        .thenReturn(List.of());
+
+    workAreaItemService.getWorkAreaItems(USER);
+
+    verify(timer).record(any(Long.class), eq(TimeUnit.MILLISECONDS));
   }
 }
