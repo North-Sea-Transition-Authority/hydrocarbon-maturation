@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
+import com.esri.core.geometry.NonSimpleResult;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -17,13 +18,12 @@ class ShapefileMigrationProgress {
   @GeneratedValue(generator = "uuid")
   @GenericGenerator(name = "uuid", strategy = "uuid2")
   private UUID id;
-
-  private Integer migrationRecordIndex;
-
   private String polygonId;
-
+  private String filename;
   @Enumerated(EnumType.STRING)
   private ShapefileMigrationStatus status;
+  @Enumerated(EnumType.STRING)
+  private NonSimpleResult.Reason invalidGeometryReason;
 
   public UUID getId() {
     return id;
@@ -31,14 +31,6 @@ class ShapefileMigrationProgress {
 
   public void setId(UUID id) {
     this.id = id;
-  }
-
-  public Integer getMigrationRecordIndex() {
-    return migrationRecordIndex;
-  }
-
-  public void setMigrationRecordIndex(Integer migrationRecordIndex) {
-    this.migrationRecordIndex = migrationRecordIndex;
   }
 
   public String getPolygonId() {
@@ -49,11 +41,27 @@ class ShapefileMigrationProgress {
     this.polygonId = polygonId;
   }
 
+  public String getFilename() {
+    return filename;
+  }
+
+  public void setFilename(String filename) {
+    this.filename = filename;
+  }
+
   public ShapefileMigrationStatus getStatus() {
     return status;
   }
 
   public void setStatus(ShapefileMigrationStatus status) {
     this.status = status;
+  }
+
+  public NonSimpleResult.Reason getInvalidGeometryReason() {
+    return invalidGeometryReason;
+  }
+
+  public void setInvalidGeometryReason(NonSimpleResult.Reason invalidGeometryReason) {
+    this.invalidGeometryReason = invalidGeometryReason;
   }
 }

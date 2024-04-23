@@ -43,7 +43,7 @@ public class SubmissionDetailService {
     return submissionDetailRepository.findById(id);
   }
 
-  public Optional<SubmissionDetail> getSubmissionDetailByLegacyResDataId(Integer legacyResDataId) {
+  public List<SubmissionDetail> getSubmissionDetailsByLegacyResDataId(Integer legacyResDataId) {
     return submissionDetailRepository.findByLegacyResDataId(legacyResDataId);
   }
 

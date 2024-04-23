@@ -35,5 +35,5 @@ public interface SubmissionDetailRepository extends CrudRepository<SubmissionDet
       Set<SubmissionDetailStatus> statuses, Resource resource
   );
 
-  Optional<SubmissionDetail> findByLegacyResDataId(Integer legacyResDataId);
+  List<SubmissionDetail> findByLegacyResDataId(Integer legacyResDataId);
 }

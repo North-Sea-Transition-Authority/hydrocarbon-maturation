@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
@@ -56,7 +58,8 @@ public class OutlineForMaximumCaseUploadController {
       OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService,
       SubmissionSupportingDocumentService supportingDocumentService,
       ResourceDetailsPersistenceService resourceDetailsPersistenceService,
-      OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService
+      OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService,
+      UserService userService
   ) {
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
@@ -84,7 +87,8 @@ public class OutlineForMaximumCaseUploadController {
   @PostMapping
   public ModelAndView saveOutlineForMaximumCaseUpload(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                                       @ModelAttribute("form") OutlineForMaximumCaseUploadForm form,
-                                                      BindingResult bindingResult) {
+                                                      BindingResult bindingResult,
+                                                      User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
 
     bindingResult = outlineForMaximumCaseFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
@@ -92,7 +96,7 @@ public class OutlineForMaximumCaseUploadController {
         getOutlineForMaximumCaseModelAndView(form, submissionDetail),
         () -> {
           outlineForMaximumCasePersistenceService
-              .saveOutlineForMaximumCaseUploads(submissionDetail, form.getOutlineForMaximumCase());
+              .saveOutlineForMaximumCaseUploads(submissionDetail, form.getOutlineForMaximumCase(), user);
           return ReverseRouter.redirect(on(OutlineForMaximumCaseVerifyController.class)
               .getOutlineForMaximumCaseVerify(submissionDetailId));
         });

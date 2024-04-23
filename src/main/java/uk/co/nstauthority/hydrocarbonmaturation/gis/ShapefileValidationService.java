@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
 import com.esri.core.geometry.Geometry;
+import com.esri.core.geometry.NonSimpleResult;
 import com.esri.core.geometry.OperatorSimplify;
 import com.esri.core.geometry.OperatorSimplifyOGC;
 import com.esri.core.geometry.SpatialReference;
@@ -36,6 +37,19 @@ class ShapefileValidationService {
    */
   boolean isGeometryValid(SpatialReference spatialReference, Geometry geometry) {
     return operatorSimplify.isSimpleAsFeature(geometry, spatialReference, false, null, null);
+  }
+
+  /**
+   * Get the reason for an invalid geometry based on spatial reference and geometry.
+   *
+   * @param  spatialReference  the spatial reference for the geometry
+   * @param  geometry          the geometry to check for invalidity
+   * @return                   the reason for the invalid geometry
+   */
+  NonSimpleResult.Reason getGeometryInvalidReason(SpatialReference spatialReference, Geometry geometry) {
+    var result = new NonSimpleResult();
+    operatorSimplify.isSimpleAsFeature(geometry, spatialReference, true, result, null);
+    return result.m_reason;
   }
 
   /**

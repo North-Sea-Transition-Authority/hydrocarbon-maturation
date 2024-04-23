@@ -2,8 +2,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.file.s3;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ListObjectsV2Request;
+import jakarta.annotation.Nullable;
 import java.io.InputStream;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.fivium.fileuploadlibrary.s3.S3Exception;
@@ -20,11 +21,25 @@ public class RemiS3FileService {
     this.s3FileService = s3FileService;
   }
 
-  public List<S3File> listS3Files(String bucket, String prefix) throws S3Exception {
+  public ListS3FilesResult listS3Files(String bucket, String prefix, @Nullable String continuationToken) throws S3Exception {
     try {
-      return amazonS3.listObjectsV2(bucket, prefix).getObjectSummaries().stream()
-          .map(S3File::from)
-          .toList();
+      var request = new ListObjectsV2Request()
+          .withBucketName(bucket)
+          .withPrefix(prefix);
+
+      if (continuationToken != null) {
+        request = request.withContinuationToken(continuationToken);
+      }
+
+      var listObjectsV2Result = amazonS3.listObjectsV2(request);
+
+      return new ListS3FilesResult(
+          listObjectsV2Result.isTruncated(),
+          listObjectsV2Result.getNextContinuationToken(),
+          listObjectsV2Result.getObjectSummaries().stream()
+              .map(S3File::from)
+              .toList()
+      );
     } catch (AmazonClientException e) {
       throw new S3Exception("Failed to retrieve S3 files", e);
     }

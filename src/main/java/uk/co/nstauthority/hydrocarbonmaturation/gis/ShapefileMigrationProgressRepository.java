@@ -12,6 +12,8 @@ interface ShapefileMigrationProgressRepository extends CrudRepository<ShapefileM
 
   Optional<ShapefileMigrationProgress> findByPolygonId(String polygonId);
 
+  Optional<ShapefileMigrationProgress> findByFilenameAndStatus(String filename, ShapefileMigrationStatus status);
+
   @Query(
       value =
           """

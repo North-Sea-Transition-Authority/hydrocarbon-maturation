@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -23,9 +24,9 @@ class ShapefileMigrationControllerTest extends RealSecurityAbstractControllerTes
   void assertRedirects() throws Exception {
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(ShapefileMigrationController.class).migrateShapefiles())))
+            get(ReverseRouter.route(on(ShapefileMigrationController.class).migrateShapefiles(null, null))))
         .andExpect(status().is3xxRedirection());
 
-    verify(shapefileMigrationService, never()).migrateShapefilesFromS3();
+    verify(shapefileMigrationService, never()).migrateShapefilesFromS3(any());
   }
 }

@@ -34,6 +34,14 @@ public class ShapefileConversionService {
     return getGeoJsonFromShapefileZip(shapefileZip);
   }
 
+  String getGeoJsonFromShapefileZip(ShapefileZipContents shapefileZip) {
+    return geoJsonExportService.exportGeometryAsGeoJson(
+        shapefileZip.thresholds(),
+        shapefileZip.coordinateReferenceSystem(),
+        shapefileZip.geometries()
+    );
+  }
+
   private InputStream getInputStream(UploadedFile shapefileZipDocument) {
     try {
       var shapefileZipDocumentResource = Optional.ofNullable(fileService.download(shapefileZipDocument).getBody())
@@ -51,13 +59,5 @@ public class ShapefileConversionService {
     } catch (IOException e) {
       throw new IllegalArgumentException("Could not read shapefile", e);
     }
-  }
-
-  private String getGeoJsonFromShapefileZip(ShapefileZipContents shapefileZip) {
-    return geoJsonExportService.exportGeometryAsGeoJson(
-        shapefileZip.thresholds(),
-        shapefileZip.coordinateReferenceSystem(),
-        shapefileZip.geometries()
-    );
   }
 }

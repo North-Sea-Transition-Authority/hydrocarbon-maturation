@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -30,10 +31,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.fileuploadlibrary.configuration.FileUploadProperties;
 import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.FileUploadResponse;
 import uk.co.fivium.fileuploadlibrary.fds.UploadErrorType;
 import uk.co.fivium.fileuploadlibrary.s3.S3Exception;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.file.s3.ListS3FilesResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.RemiS3FileService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3File;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -58,6 +61,8 @@ class ShapefileMigrationServiceTest {
   private FileUploadProperties fileUploadProperties;
   @Mock
   private OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
+  @Mock
+  private GeoJsonShapefileLinkService geoJsonShapefileLinkService;
   @InjectMocks
   private ShapefileMigrationService underTest;
 
@@ -190,7 +195,7 @@ class ShapefileMigrationServiceTest {
       when(shapefileMigrationProgressRepository.findByPolygonId(POLYGON_ID)).thenReturn(Optional.empty());
       when(shapefileMigrationProgressRepository.padiResDataHeaderExistsByPolygonId(POLYGON_ID)).thenReturn(true);
       when(shapefileMigrationProgressRepository.findResDatIdFromPadiResDataHeaderByPolygonId(POLYGON_ID)).thenReturn(List.of(RES_DATA_ID));
-      when(submissionDetailService.getSubmissionDetailByLegacyResDataId(RES_DATA_ID)).thenReturn(Optional.empty());
+      when(submissionDetailService.getSubmissionDetailsByLegacyResDataId(RES_DATA_ID)).thenReturn(List.of());
 
       var argumentCaptor = ArgumentCaptor.forClass(ShapefileMigrationProgress.class);
       underTest.migrateLegacyShapefile(INPUT_STREAM, FILE_NAME, FILE.length());
@@ -215,7 +220,7 @@ class ShapefileMigrationServiceTest {
       when(shapefileMigrationProgressRepository.findByPolygonId(POLYGON_ID)).thenReturn(Optional.empty());
       when(shapefileMigrationProgressRepository.padiResDataHeaderExistsByPolygonId(POLYGON_ID)).thenReturn(true);
       when(shapefileMigrationProgressRepository.findResDatIdFromPadiResDataHeaderByPolygonId(POLYGON_ID)).thenReturn(List.of(RES_DATA_ID));
-      when(submissionDetailService.getSubmissionDetailByLegacyResDataId(RES_DATA_ID)).thenReturn(Optional.of(SUBMISSION_DETAIL));
+      when(submissionDetailService.getSubmissionDetailsByLegacyResDataId(RES_DATA_ID)).thenReturn(List.of(SUBMISSION_DETAIL));
       when(shapefileValidationService.isGeometryValid(VALID_SHAPEFILE_ZIP_CONTENTS.thresholds(), VALID_SHAPEFILE_ZIP_CONTENTS.geometries().get(0))).thenReturn(false);
 
       var argumentCaptor = ArgumentCaptor.forClass(ShapefileMigrationProgress.class);
@@ -247,7 +252,7 @@ class ShapefileMigrationServiceTest {
       when(shapefileMigrationProgressRepository.findByPolygonId(POLYGON_ID)).thenReturn(Optional.empty());
       when(shapefileMigrationProgressRepository.padiResDataHeaderExistsByPolygonId(POLYGON_ID)).thenReturn(true);
       when(shapefileMigrationProgressRepository.findResDatIdFromPadiResDataHeaderByPolygonId(POLYGON_ID)).thenReturn(List.of(RES_DATA_ID));
-      when(submissionDetailService.getSubmissionDetailByLegacyResDataId(RES_DATA_ID)).thenReturn(Optional.of(SUBMISSION_DETAIL));
+      when(submissionDetailService.getSubmissionDetailsByLegacyResDataId(RES_DATA_ID)).thenReturn(List.of(SUBMISSION_DETAIL));
       when(shapefileValidationService.isGeometryValid(VALID_SHAPEFILE_ZIP_CONTENTS.thresholds(), VALID_SHAPEFILE_ZIP_CONTENTS.geometries().get(0))).thenReturn(true);
       when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(SUBMISSION_DETAIL)).thenReturn(documentType);
       when(fileService.upload(any(Function.class))).thenReturn(fileUploadResponse);
@@ -281,7 +286,7 @@ class ShapefileMigrationServiceTest {
       when(shapefileMigrationProgressRepository.findByPolygonId(POLYGON_ID)).thenReturn(Optional.empty());
       when(shapefileMigrationProgressRepository.padiResDataHeaderExistsByPolygonId(POLYGON_ID)).thenReturn(true);
       when(shapefileMigrationProgressRepository.findResDatIdFromPadiResDataHeaderByPolygonId(POLYGON_ID)).thenReturn(List.of(RES_DATA_ID));
-      when(submissionDetailService.getSubmissionDetailByLegacyResDataId(RES_DATA_ID)).thenReturn(Optional.of(SUBMISSION_DETAIL));
+      when(submissionDetailService.getSubmissionDetailsByLegacyResDataId(RES_DATA_ID)).thenReturn(List.of(SUBMISSION_DETAIL));
       when(shapefileValidationService.isGeometryValid(VALID_SHAPEFILE_ZIP_CONTENTS.thresholds(), VALID_SHAPEFILE_ZIP_CONTENTS.geometries().get(0))).thenReturn(true);
       when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(SUBMISSION_DETAIL)).thenReturn(documentType);
       when(fileService.upload(any(Function.class))).thenReturn(fileUploadResponse);
@@ -296,6 +301,8 @@ class ShapefileMigrationServiceTest {
 
       var documentType = FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE_OFFSHORE;
       var fileUploadResponse = mock(FileUploadResponse.class);
+      var fileId = UUID.randomUUID();
+      when(fileUploadResponse.getFileId()).thenReturn(fileId);
 
       when(INPUT_STREAM.markSupported()).thenReturn(true);
       when(shapefileZipService.getShapefileZipContents(INPUT_STREAM, FILE_NAME)).thenReturn(VALID_SHAPEFILE_ZIP_CONTENTS);
@@ -304,15 +311,18 @@ class ShapefileMigrationServiceTest {
       when(shapefileMigrationProgressRepository.findByPolygonId(POLYGON_ID)).thenReturn(Optional.empty());
       when(shapefileMigrationProgressRepository.padiResDataHeaderExistsByPolygonId(POLYGON_ID)).thenReturn(true);
       when(shapefileMigrationProgressRepository.findResDatIdFromPadiResDataHeaderByPolygonId(POLYGON_ID)).thenReturn(List.of(RES_DATA_ID));
-      when(submissionDetailService.getSubmissionDetailByLegacyResDataId(RES_DATA_ID)).thenReturn(Optional.of(SUBMISSION_DETAIL));
+      when(submissionDetailService.getSubmissionDetailsByLegacyResDataId(RES_DATA_ID)).thenReturn(List.of(SUBMISSION_DETAIL));
       when(shapefileValidationService.isGeometryValid(VALID_SHAPEFILE_ZIP_CONTENTS.thresholds(), VALID_SHAPEFILE_ZIP_CONTENTS.geometries().get(0))).thenReturn(true);
       when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(SUBMISSION_DETAIL)).thenReturn(documentType);
       when(fileService.upload(any(Function.class))).thenReturn(fileUploadResponse);
+      var uploadedFile = mock(UploadedFile.class);
+      when(fileService.find(fileId)).thenReturn(Optional.of(uploadedFile));
 
       var argumentCaptor = ArgumentCaptor.forClass(ShapefileMigrationProgress.class);
       underTest.migrateLegacyShapefile(INPUT_STREAM, FILE_NAME, FILE.length());
 
       verify(shapefileMigrationProgressRepository).save(argumentCaptor.capture());
+      verify(geoJsonShapefileLinkService).storeShapefileAsGeoJson(uploadedFile, VALID_SHAPEFILE_ZIP_CONTENTS);
       assertThat(argumentCaptor.getValue())
           .extracting(
               ShapefileMigrationProgress::getPolygonId,
@@ -353,13 +363,15 @@ class ShapefileMigrationServiceTest {
     void verifyCalls_MigratesZipsOnly() throws IOException, S3Exception {
       var s3File1 = new S3File(KEY, SIZE);
       var s3File2 = new S3File("KEY", 1L);
+      var continuationToken = "token";
       when(fileUploadProperties.s3()).thenReturn(S3);
-      when(remiS3FileService.listS3Files(BUCKET_NAME, ShapefileMigrationService.VIRTUAL_FOLDER)).thenReturn(List.of(s3File1, s3File2));
+      var listS3FilesResult = new ListS3FilesResult(false, "token2", List.of(s3File1, s3File2));
+      when(remiS3FileService.listS3Files(BUCKET_NAME, ShapefileMigrationService.VIRTUAL_FOLDER, continuationToken)).thenReturn(listS3FilesResult);
       when(remiS3FileService.downloadFile(BUCKET_NAME, KEY)).thenReturn(INPUT_STREAM);
       doReturn(BYTE_ARRAY_INPUT_STREAM).when(underTestSpy).getByteArrayInputStream(INPUT_STREAM);
       doNothing().when(underTestSpy).migrateLegacyShapefile(BYTE_ARRAY_INPUT_STREAM, KEY, SIZE);
 
-      underTestSpy.migrateShapefilesFromS3();
+      underTestSpy.migrateShapefilesFromS3(continuationToken);
 
       verify(underTestSpy).migrateLegacyShapefile(BYTE_ARRAY_INPUT_STREAM, KEY, SIZE);
     }

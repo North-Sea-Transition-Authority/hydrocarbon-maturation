@@ -174,12 +174,12 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
         .thenReturn(fileUploadComponentAttributes);
     mockMvc.perform(
             post(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class)
-                .saveOutlineForMaximumCaseUpload(submissionDetailId,null, null)))
+                .saveOutlineForMaximumCaseUpload(submissionDetailId,null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isForbidden());
 
-    verify(outlineForMaximumCasePersistenceService, never()).saveOutlineForMaximumCaseUploads(eq(submissionDetail), anyList());
+    verify(outlineForMaximumCasePersistenceService, never()).saveOutlineForMaximumCaseUploads(eq(submissionDetail), anyList(), any());
   }
 
   @Test
@@ -201,7 +201,7 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
     when(outlineForMaximumCaseFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).saveOutlineForMaximumCaseUpload(submissionDetailId, form, bindingResult)))
+        post(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).saveOutlineForMaximumCaseUpload(submissionDetailId, form, bindingResult, USER)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
@@ -221,7 +221,7 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
         .thenReturn(fileUploadComponentAttributes);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).saveOutlineForMaximumCaseUpload(submissionDetailId, form, bindingResult)))
+        post(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).saveOutlineForMaximumCaseUpload(submissionDetailId, form, bindingResult, USER)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))

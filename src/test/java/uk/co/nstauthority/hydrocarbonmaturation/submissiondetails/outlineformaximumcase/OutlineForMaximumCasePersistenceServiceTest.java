@@ -7,6 +7,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,7 +21,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.gis.GeoJsonShapefileLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.gis.ShapefileConversionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
@@ -35,6 +40,8 @@ class OutlineForMaximumCasePersistenceServiceTest {
   private OutlineForMaximumCaseRepository outlineForMaximumCaseRepository;
   @Mock
   private OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
+  @Mock
+  private GeoJsonShapefileLinkService geoJsonShapefileLinkService;
   @InjectMocks
   private OutlineForMaximumCasePersistenceService underTest;
   private static final FileDocumentType TYPE = FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE_OFFSHORE;
@@ -44,24 +51,23 @@ class OutlineForMaximumCasePersistenceServiceTest {
     @Mock
     private SubmissionDetail submissionDetail;
     private final UUID UPLOADED_FILE_ID = UUID.randomUUID();
+    private final UploadedFile uploadedFile = new UploadedFile();
 
     @BeforeEach
     void setup() {
-
-      var uploadedFile = new UploadedFile();
       uploadedFile.setId(UPLOADED_FILE_ID);
 
       when(supportingDocumentService.getUploadedFiles(submissionDetail, TYPE))
           .thenReturn(List.of(uploadedFile));
 
       when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail)).thenReturn(TYPE);
-
     }
 
     @Test
     void verifyCalls() {
       underTest.deleteOutlineForMaximumCase(submissionDetail);
 
+      verify(geoJsonShapefileLinkService).deleteGeojson(uploadedFile);
       verify(supportingDocumentService).deleteFile(UPLOADED_FILE_ID);
       verify(outlineForMaximumCaseRepository).deleteBySubmissionDetail(submissionDetail);
     }
@@ -205,6 +211,31 @@ class OutlineForMaximumCasePersistenceServiceTest {
       var result = underTest.getUploadedShapefileZip(submissionDetail);
 
       assertThat(result).isEqualTo(uploadedFile);
+    }
+  }
+
+  @Nested
+  class WhenSavingOutlineForMaximumCaseUploads {
+    @Mock
+    private SubmissionDetail submissionDetail;
+    @Mock
+    private Collection<UploadedFileForm> uploadedFileForms;
+    @Mock
+    private User user;
+    @Mock
+    private UploadedFile uploadedFile;
+
+    @Test
+    void saveDocumentsAndStoreGeoJson() throws IOException {
+      when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail)).thenReturn(TYPE);
+      when(supportingDocumentService.getUploadedFiles(submissionDetail, TYPE)).thenReturn(List.of(uploadedFile));
+      var geoJson = "GEO_JSON";
+      when(shapefileConversionService.convertShapefileToGeoJson(uploadedFile)).thenReturn(geoJson);
+
+      underTest.saveOutlineForMaximumCaseUploads(submissionDetail, uploadedFileForms, user);
+
+      verify(supportingDocumentService).saveDocuments(submissionDetail, uploadedFileForms, TYPE);
+      verify(geoJsonShapefileLinkService).storeGeoJson(uploadedFile, geoJson, user);
     }
   }
 }

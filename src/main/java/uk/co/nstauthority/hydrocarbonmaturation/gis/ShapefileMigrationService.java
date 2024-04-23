@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
 import com.google.common.annotations.VisibleForTesting;
+import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -9,7 +10,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +22,7 @@ import uk.co.fivium.fileuploadlibrary.fds.UploadErrorType;
 import uk.co.fivium.fileuploadlibrary.s3.S3Exception;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUsageType;
 import uk.co.nstauthority.hydrocarbonmaturation.file.MultipartFileInputStream;
+import uk.co.nstauthority.hydrocarbonmaturation.file.s3.ListS3FilesResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.RemiS3FileService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -41,6 +42,7 @@ public class ShapefileMigrationService {
   private final FileService fileService;
   private final FileUploadProperties fileUploadProperties;
   private final OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
+  private final GeoJsonShapefileLinkService geoJsonShapefileLinkService;
 
   @Autowired
   public ShapefileMigrationService(ShapefileValidationService shapefileValidationService,
@@ -50,7 +52,8 @@ public class ShapefileMigrationService {
                                    RemiS3FileService remiS3FileService,
                                    FileService fileService,
                                    FileUploadProperties fileUploadProperties,
-                                   OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService) {
+                                   OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService,
+                                   GeoJsonShapefileLinkService geoJsonShapefileLinkService) {
     this.shapefileValidationService = shapefileValidationService;
     this.shapefileZipService = shapefileZipService;
     this.shapefileMigrationProgressRepository = shapefileMigrationProgressRepository;
@@ -59,6 +62,7 @@ public class ShapefileMigrationService {
     this.fileService = fileService;
     this.fileUploadProperties = fileUploadProperties;
     this.outlineForMaximumCaseDocumentTypeService = outlineForMaximumCaseDocumentTypeService;
+    this.geoJsonShapefileLinkService = geoJsonShapefileLinkService;
   }
 
   @VisibleForTesting
@@ -69,19 +73,29 @@ public class ShapefileMigrationService {
     }
   }
 
-  void migrateShapefilesFromS3() throws S3Exception, IOException {
+  ListS3FilesResult migrateShapefilesFromS3(@Nullable String continuationToken) throws S3Exception, IOException {
     var bucketName = fileUploadProperties.s3().defaultBucket();
-    var fileKeys = remiS3FileService.listS3Files(bucketName, VIRTUAL_FOLDER).stream()
+    var listS3FilesResult = remiS3FileService.listS3Files(bucketName, VIRTUAL_FOLDER, continuationToken);
+    var fileKeys = listS3FilesResult.s3Files().stream()
         .filter(s3File -> s3File.key().startsWith(VIRTUAL_FOLDER) && s3File.key().endsWith(".zip"))
         .toList();
 
     for (var s3File : fileKeys) {
-      try (var byteArrayInputStream = getByteArrayInputStream(remiS3FileService.downloadFile(bucketName, s3File.key()))) {
-        migrateLegacyShapefile(byteArrayInputStream, s3File.key(), s3File.size());
+      var filename = s3File.key();
+      var shapefileMigrationProgress = shapefileMigrationProgressRepository
+          .findByFilenameAndStatus(filename, ShapefileMigrationStatus.COMPLETED);
+      if (shapefileMigrationProgress.isPresent()) {
+        LOGGER.info("Geometry already migrated for filename {}", filename);
+        continue;
+      }
+      try (var byteArrayInputStream = getByteArrayInputStream(remiS3FileService.downloadFile(bucketName, filename))) {
+        migrateLegacyShapefile(byteArrayInputStream, filename, s3File.size());
       } catch (IOException e) {
-        throw new IOException("Failed to migrate shapefile %s".formatted(s3File.key()), e);
+        throw new IOException("Failed to migrate shapefile %s".formatted(filename), e);
       }
     }
+
+    return listS3FilesResult;
   }
 
   @Transactional
@@ -104,32 +118,32 @@ public class ShapefileMigrationService {
           return progress;
         });
 
+    migrationProgress.setFilename(fileName);
+
     if (migrationProgress.getStatus() == ShapefileMigrationStatus.COMPLETED) {
       LOGGER.info("Geometry already migrated for polygon {}", polygonId);
       return;
     }
 
-    migrationProgress.setMigrationRecordIndex(0);
-
     if (!padiResDataHeaderExists(polygonId)) {
-      migrationProgress.setStatus(ShapefileMigrationStatus.FAILED_LEGACY_DATA_NOT_FOUND);
-      shapefileMigrationProgressRepository.save(migrationProgress);
+      setProgressStatusAndSave(migrationProgress, ShapefileMigrationStatus.FAILED_LEGACY_DATA_NOT_FOUND);
       return;
     }
 
     var submissionDetails = getSubmissionDetails(polygonId);
 
     if (submissionDetails.isEmpty()) {
-      migrationProgress.setStatus(ShapefileMigrationStatus.FAILED_LEGACY_DATA_NOT_LINKED_TO_SUBMISSION_DETAIL);
-      shapefileMigrationProgressRepository.save(migrationProgress);
+      setProgressStatusAndSave(migrationProgress, ShapefileMigrationStatus.FAILED_LEGACY_DATA_NOT_LINKED_TO_SUBMISSION_DETAIL);
       return;
     }
 
     var geometryIsValid = shapefileValidationService.isGeometryValid(shapefileZipContents.thresholds(), geometry);
     if (!geometryIsValid) {
+      var invalidReason = shapefileValidationService.getGeometryInvalidReason(shapefileZipContents.thresholds(), geometry);
+      migrationProgress.setInvalidGeometryReason(invalidReason);
+      setProgressStatusAndSave(migrationProgress, ShapefileMigrationStatus.FAILED_GEOMETRY_NOT_VALID);
 
-      migrationProgress.setStatus(ShapefileMigrationStatus.FAILED_GEOMETRY_NOT_VALID);
-      shapefileMigrationProgressRepository.save(migrationProgress);
+      LOGGER.info("Shapefile geometry not valid for polygon {} with reason {}", polygonId, invalidReason);
       return;
     }
 
@@ -152,16 +166,24 @@ public class ShapefileMigrationService {
           throw new IllegalArgumentException(message);
         }
 
-        migrationProgress.setStatus(ShapefileMigrationStatus.FAILED_TO_UPLOAD_FILE);
-        shapefileMigrationProgressRepository.save(migrationProgress);
+        setProgressStatusAndSave(migrationProgress, ShapefileMigrationStatus.FAILED_TO_UPLOAD_FILE);
         LOGGER.error(message);
         return;
       }
+
+      var uploadedFile = fileService.find(fileUploadResponse.getFileId()).orElseThrow(() ->
+          new IllegalStateException("Uploaded file not found for submission detail %s".formatted(submissionDetail.getId())));
+      geoJsonShapefileLinkService.storeShapefileAsGeoJson(uploadedFile, shapefileZipContents);
     }
 
-    migrationProgress.setStatus(ShapefileMigrationStatus.COMPLETED);
-    shapefileMigrationProgressRepository.save(migrationProgress);
+    setProgressStatusAndSave(migrationProgress, ShapefileMigrationStatus.COMPLETED);
     LOGGER.info("Shapefile migrated for polygon {}", polygonId);
+  }
+
+  private void setProgressStatusAndSave(ShapefileMigrationProgress migrationProgress,
+                                        ShapefileMigrationStatus shapefileMigrationStatus) {
+    migrationProgress.setStatus(shapefileMigrationStatus);
+    shapefileMigrationProgressRepository.save(migrationProgress);
   }
 
   private static void rewindShapefileInputStream(InputStream shapefileZipInputStream, String fileName) {
@@ -174,8 +196,7 @@ public class ShapefileMigrationService {
 
   private List<SubmissionDetail> getSubmissionDetails(String polygonId) {
     return shapefileMigrationProgressRepository.findResDatIdFromPadiResDataHeaderByPolygonId(polygonId).stream()
-        .map(submissionDetailService::getSubmissionDetailByLegacyResDataId)
-        .flatMap(Optional::stream)
+        .flatMap((var legacyResDataId) -> submissionDetailService.getSubmissionDetailsByLegacyResDataId(legacyResDataId).stream())
         .toList();
   }
 
