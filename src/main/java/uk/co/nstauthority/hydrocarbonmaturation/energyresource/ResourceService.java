@@ -29,6 +29,14 @@ public class ResourceService {
             new RemiEntityNotFoundException("Could not find resource with id %s".formatted(resourceId.toString())));
   }
 
+  public Optional<Resource> getResourceOfType(UUID resourceId, ResourceType resourceType) {
+    var resource = getResourceOrThrow(resourceId);
+    if (resource.getType() != resourceType) {
+      return Optional.empty();
+    }
+    return Optional.of(resource);
+  }
+
   public Resource createResource(ResourceType resourceType) {
     var resource = new Resource();
     resource.setType(resourceType);

@@ -81,6 +81,12 @@ wrapperWidth=true>
       linkClass="govuk-button govuk-button--secondary"
       linkUrl=springUrl(projectTrackerUrl)/>
     </#if>
+    <#if undevelopedDiscoveryUrl?has_content>
+        <@fdsAction.link
+        linkText="Undeveloped discovery"
+        linkClass="govuk-button govuk-button--secondary"
+        linkUrl=springUrl(undevelopedDiscoveryUrl)/>
+    </#if>
   </@fdsAction.buttonGroup>
   <#if submissionsOnResource?has_content>
     <@fdsForm.htmlForm actionUrl=springUrl(submissionSelectedUrl)>

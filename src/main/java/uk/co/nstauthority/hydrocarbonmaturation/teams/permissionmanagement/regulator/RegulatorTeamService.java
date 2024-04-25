@@ -96,4 +96,8 @@ public class RegulatorTeamService {
   public boolean isProjectAnalyst(User user) {
     return isRegulatorTeamRole(user, RegulatorTeamRole.PROJECT_ANALYST);
   }
+
+  public boolean isReservesAndResourcesAdvisor(User user) {
+    return isRegulatorTeamRole(user, RegulatorTeamRole.RESERVES_AND_RESOURCES_ADVISOR);
+  }
 }

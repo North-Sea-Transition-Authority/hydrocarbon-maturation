@@ -195,6 +195,34 @@ class RegulatorTeamServiceTest {
   }
 
   @Test
+  void isReservesAndResourcesAdvisor_whenReservesAndResourcesAdvisor_assertTrue() {
+    var teamId = new TeamId(UUID.randomUUID());
+
+    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, USER,
+        Set.of(RegulatorTeamRole.RESERVES_AND_RESOURCES_ADVISOR.name())))
+        .thenReturn(true);
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(USER, TeamType.REGULATOR))
+        .thenReturn(List.of(TeamTestUtil.Builder().withId(teamId.uuid()).build()));
+
+    assertTrue(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.RESERVES_AND_RESOURCES_ADVISOR));
+    assertTrue(regulatorTeamService.isReservesAndResourcesAdvisor(USER));
+  }
+
+  @Test
+  void isReservesAndResourcesAdvisor_whenNotReservesAndResourcesAdvisor_assertFalse() {
+    var teamId = new TeamId(UUID.randomUUID());
+
+    when(teamMemberService.isMemberOfTeamWithAnyRoleOf(teamId, USER,
+        Set.of(RegulatorTeamRole.RESERVES_AND_RESOURCES_ADVISOR.name())))
+        .thenReturn(false);
+    when(teamService.getTeamsOfTypeThatUserBelongsTo(USER, TeamType.REGULATOR))
+        .thenReturn(List.of(TeamTestUtil.Builder().withId(teamId.uuid()).build()));
+
+    assertFalse(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.RESERVES_AND_RESOURCES_ADVISOR));
+    assertFalse(regulatorTeamService.isReservesAndResourcesAdvisor(USER));
+  }
+
+  @Test
   void addUserTeamRoles_verifyRepositoryInteractions() {
 
     var team = TeamTestUtil.Builder().build();

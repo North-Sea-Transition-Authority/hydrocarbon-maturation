@@ -64,4 +64,23 @@ class TestControllers {
       return "some data";
     }
   }
+
+  @Controller
+  @AccessibleByServiceUsers
+  static class ControllerWithoutResourceId {
+    @GetMapping("/without-resource")
+    String get() {
+      return "some data";
+    }
+  }
+
+  @Controller
+  @AccessibleByServiceUsers
+  @RequestMapping("{resourceId}/end-point-test")
+  static class ControllerWithResourceId {
+    @GetMapping("/with-resource")
+    String get(@PathVariable UUID resourceId) {
+      return "some data";
+    }
+  }
 }

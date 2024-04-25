@@ -38,6 +38,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionSelectionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoverySummaryController;
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}")
@@ -55,6 +57,7 @@ public class ViewResourceRecordController {
   private final CorrectionService correctionService;
   private final FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
   private final FieldPersistenceService fieldPersistenceService;
+  private final RegulatorTeamService regulatorTeamService;
 
   @Autowired
   public ViewResourceRecordController(
@@ -69,7 +72,7 @@ public class ViewResourceRecordController {
       ResponsibleTeamService responsibleTeamService,
       CorrectionService correctionService,
       FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService,
-      FieldPersistenceService fieldPersistenceService) {
+      FieldPersistenceService fieldPersistenceService, RegulatorTeamService regulatorTeamService) {
     this.viewResourceRecordService = viewResourceRecordService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
@@ -82,6 +85,7 @@ public class ViewResourceRecordController {
     this.correctionService = correctionService;
     this.fieldRegulatorManagedInformationSummaryService = fieldRegulatorManagedInformationSummaryService;
     this.fieldPersistenceService = fieldPersistenceService;
+    this.regulatorTeamService = regulatorTeamService;
   }
 
   @GetMapping
@@ -136,6 +140,7 @@ public class ViewResourceRecordController {
     var isInResponsibleTeam = responsibleTeamService
         .isInResponsibleTeam(user, resourceRecord.responsibleTeam());
     var isFieldResource = ResourceType.FIELD.equals(resource.getType());
+    var isDiscovery = ResourceType.DISCOVERY.equals(resource.getType());
     var isRegulatorOrAreaUser = viewResourceRecordService.isRegulatorOrAreaTeamUser(user);
 
     ModelAndView modelAndView = getModelAndViewForSubmissionDetail(submissionDetailSelectedOptional, resource);
@@ -153,6 +158,11 @@ public class ViewResourceRecordController {
     if (!isFieldResource && correctionService.canStartCorrection(resource, user)) {
       modelAndView.addObject("correctionUrl",
           ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resourceId, null)));
+    }
+
+    if (isDiscovery && regulatorTeamService.isReservesAndResourcesAdvisor(user)) {
+      modelAndView.addObject("undevelopedDiscoveryUrl",
+          ReverseRouter.route(on(UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(resourceId)));
     }
 
     addBreadCrumbsForResourceType(resourceRecord, isFieldResource, modelAndView);
