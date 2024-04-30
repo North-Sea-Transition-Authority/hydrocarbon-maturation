@@ -1,0 +1,45 @@
+CREATE TABLE undeveloped_discovery_information (
+    id                            UUID PRIMARY KEY NOT NULL,
+    undeveloped_discovery_id      UUID             NOT NULL,
+    CONSTRAINT information_fk_resources FOREIGN KEY (undeveloped_discovery_id) REFERENCES undeveloped_discoveries(id),
+    information_date              DATE,
+    oil_in_place_p50              DECIMAL,
+    oil_recoverable_one_c         DECIMAL,
+    oil_recoverable_two_c         DECIMAL,
+    oil_recoverable_three_c       DECIMAL,
+    gas_in_place_p50              DECIMAL,
+    gas_recoverable_one_c         DECIMAL,
+    gas_recoverable_two_c         DECIMAL,
+    gas_recoverable_three_c       DECIMAL,
+    difference_reason             TEXT,
+    provided_discovery_complexity BOOLEAN,
+    viscosity_range               TEXT,
+    vertical_heterogeneity_range  TEXT,
+    areal_density_range           TEXT,
+    structural_complexity_range   TEXT
+);
+CREATE INDEX information_idx_undeveloped_discovery_idx ON undeveloped_discovery_information(undeveloped_discovery_id);
+
+CREATE TABLE undeveloped_discovery_information_aud (
+    rev                           INTEGER NOT NULL,
+    revtype                       INTEGER,
+    id                            UUID,
+    undeveloped_discovery_id      UUID,
+    information_date              DATE,
+    oil_in_place_p50              DECIMAL,
+    oil_recoverable_one_c         DECIMAL,
+    oil_recoverable_two_c         DECIMAL,
+    oil_recoverable_three_c       DECIMAL,
+    gas_in_place_p50              DECIMAL,
+    gas_recoverable_one_c         DECIMAL,
+    gas_recoverable_two_c         DECIMAL,
+    gas_recoverable_three_c       DECIMAL,
+    difference_reason             TEXT,
+    provided_discovery_complexity BOOLEAN,
+    viscosity_range               TEXT,
+    vertical_heterogeneity_range  TEXT,
+    areal_density_range           TEXT,
+    structural_complexity_range   TEXT,
+    PRIMARY KEY (rev, id),
+    FOREIGN KEY (rev) REFERENCES audit_revisions
+);

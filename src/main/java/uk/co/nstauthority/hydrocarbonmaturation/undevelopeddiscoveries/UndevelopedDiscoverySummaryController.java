@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchProspectAnd
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformationController;
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}/undeveloped-discovery")
@@ -68,7 +69,10 @@ public class UndevelopedDiscoverySummaryController {
 
     var modelAndView = new ModelAndView("remi/undevelopeddiscoveries/undevelopedDiscoverySummary")
         .addObject("pageTitle", PAGE_TITLE)
-        .addObject("summarySections", summarySections);
+        .addObject("summarySections", summarySections)
+        .addObject("addDiscoveryInformationUrl", ReverseRouter.route(
+            on(UndevelopedDiscoveryInformationController.class).getUndevelopedDiscoveryInformation(resourceId)))
+        .addObject("accordionId", undevelopedDiscovery.getId().toString());
 
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_TITLE)
         .addBreadcrumb(

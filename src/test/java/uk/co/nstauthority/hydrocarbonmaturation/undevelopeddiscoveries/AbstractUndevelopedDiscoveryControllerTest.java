@@ -45,6 +45,7 @@ public abstract class AbstractUndevelopedDiscoveryControllerTest extends Abstrac
     doCallRealMethod().when(userService).getUser();
 
     resource = ResourceTestUtils.buildResource(ResourceType.DISCOVERY);
+    resource.setId(RESOURCE_ID);
     undevelopedDiscovery = UndevelopedDiscoveryTestUtils.createUndevelopedDiscovery(resource, Boolean.TRUE);
   }
 

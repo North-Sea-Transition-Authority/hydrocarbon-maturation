@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCrossTabView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
@@ -28,6 +29,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceRecordSum
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchProspectAndDiscoveryRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordService;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformationController;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformationVolumetricsRow;
 
 @ContextConfiguration(classes = UndevelopedDiscoverySummaryController.class)
 class UndevelopedDiscoverySummaryControllerTest extends AbstractUndevelopedDiscoveryControllerTest {
@@ -44,13 +47,42 @@ class UndevelopedDiscoverySummaryControllerTest extends AbstractUndevelopedDisco
   @Test
   void getUndevelopedDiscoverySummary_assertModelProperties() throws Exception {
     setupUserIsReservesAndResourcesAdvisor(user);
-
     var resourceName = "Resource name";
-    var summaryDataView = SummaryDataView.newWithKeyValue("Included...", "Yes");
-    var summaryCard = new SummaryCard("Tracking details", SummaryCardType.SIMPLE_SUMMARY, summaryDataView,
-        List.of());
+
+    var trackingDetailsSummaryCard = new SummaryCard(
+        "Tracking details",
+        SummaryCardType.SIMPLE_SUMMARY,
+        SummaryDataView.newWithKeyValue("Included...", "Yes"),
+        List.of()
+    );
+
+    var volumetricSummaryCard = SummaryCard.crossTabSummaryCard(
+        "Discovery volumetrics",
+        new SummaryCrossTabView(
+            List.of("P50", "1C", "2C", "3C", "Units"),
+            List.of(new UndevelopedDiscoveryInformationVolumetricsRow(
+                "example row", "1", "1", "1", "1", "units"
+            ))
+        )
+    );
+
+    var justificationCard = SummaryCard.simpleSummaryCardWithHeading(
+        "Volumetrics difference reason",
+        SummaryDataView.newWithKeyValue("Reason key", "The reason")
+    );
+
     var summarySections = List.of(
-        new SummarySection(10, List.of(SummaryItem.withCard("Tracking details", summaryCard)), ""));
+        new SummarySection(
+            10, 
+            List.of(SummaryItem.withCard("Tracking details", trackingDetailsSummaryCard)),
+            ""
+        ),
+        new SummarySection(
+            20,
+            List.of(SummaryItem.withCards("Discovery for date", List.of(volumetricSummaryCard, justificationCard))),
+            ""
+        )
+    );
 
     when(resourceService.getResourceOfType(RESOURCE_ID, ResourceType.DISCOVERY))
         .thenReturn(Optional.of(resource));
@@ -75,14 +107,18 @@ class UndevelopedDiscoverySummaryControllerTest extends AbstractUndevelopedDisco
 
     assertThat(modelMap).contains(
         entry("pageTitle", UndevelopedDiscoverySummaryController.PAGE_TITLE),
-        entry("summarySections", summarySections)
+        entry("summarySections", summarySections),
+        entry("addDiscoveryInformationUrl", ReverseRouter.route(
+            on(UndevelopedDiscoveryInformationController.class).getUndevelopedDiscoveryInformation(RESOURCE_ID))),
+        entry("accordionId", undevelopedDiscovery.getId().toString())
     );
 
     @SuppressWarnings(value = "unchecked")
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
-            Map.entry(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).searchResourceRecords(null, null)),
+            Map.entry(ReverseRouter.route(
+                    on(SearchProspectAndDiscoveryRecordsController.class).searchResourceRecords(null, null)),
                 SearchProspectAndDiscoveryRecordsController.PAGE_TITLE),
             Map.entry(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID)),
                 resourceName)

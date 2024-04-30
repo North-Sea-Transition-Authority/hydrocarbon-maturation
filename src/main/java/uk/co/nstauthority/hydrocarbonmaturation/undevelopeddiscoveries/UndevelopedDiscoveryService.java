@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 
 @Service
 public class UndevelopedDiscoveryService {
@@ -18,6 +19,12 @@ public class UndevelopedDiscoveryService {
 
   public Optional<UndevelopedDiscovery> getUndevelopedDiscoveryForResource(Resource resource) {
     return undevelopedDiscoveryRepository.findByResource(resource);
+  }
+
+  public UndevelopedDiscovery getUndevelopedDiscoveryForResourceOrThrow(Resource resource) {
+    return undevelopedDiscoveryRepository.findByResource(resource).orElseThrow(() ->
+        new RemiEntityNotFoundException("No undeveloped discovery found for resource %s.".formatted(resource.getId()))
+    );
   }
 
   public UndevelopedDiscoveryTrackingDetailsForm discoveryToTrackingDetailsForm(UndevelopedDiscovery undevelopedDiscovery) {

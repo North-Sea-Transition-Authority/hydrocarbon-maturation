@@ -118,4 +118,12 @@ public record SummaryCard(
         actions
     );
   }
+
+  public static SummaryCard crossTabSummaryCard(String heading, SummaryCrossTabView crossTabView) {
+    return new SummaryCard(
+        heading,
+        SummaryCardType.CROSS_TAB,
+        crossTabView
+    );
+  }
 }

@@ -1,12 +1,14 @@
 package uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 class UndevelopedDiscoveryServiceTest {
@@ -48,6 +51,34 @@ class UndevelopedDiscoveryServiceTest {
 
       assertThat(undevelopedDiscoveryService.getUndevelopedDiscoveryForResource(resource))
           .isNotPresent();
+    }
+  }
+
+  @Nested
+  class getUndevelopedDiscoveryForResourceOrThrow {
+    @Test
+    void assertReturn() {
+      var undevelopedDiscovery = UndevelopedDiscoveryTestUtils.createUndevelopedDiscovery(resource, Boolean.TRUE);
+
+      when(undevelopedDiscoveryRepository.findByResource(resource))
+          .thenReturn(Optional.of(undevelopedDiscovery));
+
+      assertThat(undevelopedDiscoveryService.getUndevelopedDiscoveryForResourceOrThrow(resource))
+          .isEqualTo(undevelopedDiscovery);
+    }
+
+    @Test
+    void assertThrows() {
+      var uuid = UUID.randomUUID();
+
+      when(resource.getId())
+          .thenReturn(uuid);
+      when(undevelopedDiscoveryRepository.findByResource(resource))
+          .thenReturn(Optional.empty());
+
+      assertThatExceptionOfType(RemiEntityNotFoundException.class)
+          .isThrownBy(() -> undevelopedDiscoveryService.getUndevelopedDiscoveryForResourceOrThrow(resource))
+          .withMessage("No undeveloped discovery found for resource %s.".formatted(uuid.toString()));
     }
   }
 
