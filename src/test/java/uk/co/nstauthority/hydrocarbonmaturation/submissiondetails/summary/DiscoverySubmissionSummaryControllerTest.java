@@ -22,9 +22,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -56,6 +58,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.InternalTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscovery;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoveryService;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoveryTrackingDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
@@ -79,6 +84,9 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
   @MockBean
   private InternalTeamService internalTeamService;
 
+  @MockBean
+  private UndevelopedDiscoveryService undevelopedDiscoveryService;
+
   private static UUID submissionDetailId;
 
   private GasFluidPropertySummaryView gasFluidPropertySummaryView;
@@ -99,6 +107,8 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
   private ResourceDetailSummaryView resourceDetailSummaryView;
   private OutlineForMaximumCaseSummaryView outlineForMaximumCaseSummaryView;
   private List<ReservoirSummary> reservoirSummaries;
+  private ArgumentCaptor<UndevelopedDiscoveryTrackingDetailsForm> formArgumentCaptor = ArgumentCaptor.forClass(
+      UndevelopedDiscoveryTrackingDetailsForm.class);
 
   @BeforeEach
   void setUp() {
@@ -167,6 +177,9 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
 
   @SecurityTest
   void processSubmission_assertRedirection() throws Exception {
+    var resource = submissionDetail.getSubmission().getResource();
+    when(undevelopedDiscoveryService.getUndevelopedDiscoveryForResource(resource))
+        .thenReturn(Optional.empty());
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(submissionSummaryFormValidator.isValid(
         any(SubmissionSummaryForm.class),
@@ -184,6 +197,34 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
         .andExpect(redirectedUrl(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId))));
 
     verify(submissionApprovalService, times(1)).submitSubmission(submissionDetail);
+    verify(undevelopedDiscoveryService, times(1))
+        .saveUndevelopedDiscoveryTrackingDetails(eq(resource), formArgumentCaptor.capture());
+    assertThat(formArgumentCaptor.getValue().getIsUndevelopedDiscovery()).isNull();
+  }
+
+  @SecurityTest
+  void processSubmission_assertRedirection_undevelopedDiscoveryAlreadyExists() throws Exception {
+    var resource = submissionDetail.getSubmission().getResource();
+    when(undevelopedDiscoveryService.getUndevelopedDiscoveryForResource(resource))
+        .thenReturn(Optional.of(new UndevelopedDiscovery()));
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(submissionSummaryFormValidator.isValid(
+        any(SubmissionSummaryForm.class),
+        any(Errors.class),
+        eq(submissionDetail),
+        eq(ValidationType.FULL))
+    ).thenReturn(true);
+    mockCreateDiscoverySubmissionSummaryModelAndView();
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+    mockMvc.perform(
+            post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId))));
+
+    verify(submissionApprovalService, times(1)).submitSubmission(submissionDetail);
+    verify(undevelopedDiscoveryService, never()).saveUndevelopedDiscoveryTrackingDetails(any(), any());
   }
 
   @Test

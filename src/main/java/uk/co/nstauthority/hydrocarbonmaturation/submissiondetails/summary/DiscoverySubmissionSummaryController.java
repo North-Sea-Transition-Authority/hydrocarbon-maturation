@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -25,6 +26,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.Revie
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.InternalTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoveryService;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoveryTrackingDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -40,6 +43,7 @@ public class DiscoverySubmissionSummaryController {
   private final SubmissionApprovalService submissionApprovalService;
   private final SubmissionSummaryFormValidator submissionSummaryFormValidator;
   private final InternalTeamService internalTeamService;
+  private final UndevelopedDiscoveryService undevelopedDiscoveryService;
 
   public static final String PAGE_NAME = "Review your submission before submitting";
 
@@ -49,13 +53,15 @@ public class DiscoverySubmissionSummaryController {
                                               SubmissionReadyService submissionReadyService,
                                               SubmissionApprovalService submissionApprovalService,
                                               SubmissionSummaryFormValidator submissionSummaryFormValidator,
-                                              InternalTeamService internalTeamService) {
+                                              InternalTeamService internalTeamService,
+                                              UndevelopedDiscoveryService undevelopedDiscoveryService) {
     this.submissionDetailService = submissionDetailService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionReadyService = submissionReadyService;
     this.submissionApprovalService = submissionApprovalService;
     this.submissionSummaryFormValidator = submissionSummaryFormValidator;
     this.internalTeamService = internalTeamService;
+    this.undevelopedDiscoveryService = undevelopedDiscoveryService;
   }
 
   @GetMapping
@@ -73,6 +79,10 @@ public class DiscoverySubmissionSummaryController {
       return getSubmissionSummaryModelAndView(form, submissionDetail);
     } else {
       submissionApprovalService.submitSubmission(submissionDetail);
+
+      var resource = submissionDetail.getSubmission().getResource();
+      createUndevelopedDiscoveryIfNewSubmission(resource);
+
       return ReverseRouter.redirect(on(SubmissionConfirmationController.class)
           .showSubmissionConfirmation(submissionDetailId));
     }
@@ -98,5 +108,13 @@ public class DiscoverySubmissionSummaryController {
     );
 
     return modelAndView;
+  }
+
+  private void createUndevelopedDiscoveryIfNewSubmission(Resource resource) {
+    var undevelopedDiscovery = undevelopedDiscoveryService.getUndevelopedDiscoveryForResource(resource);
+    if (undevelopedDiscovery.isEmpty()) {
+      undevelopedDiscoveryService.saveUndevelopedDiscoveryTrackingDetails(resource,
+          new UndevelopedDiscoveryTrackingDetailsForm());
+    }
   }
 }
