@@ -141,6 +141,50 @@ class UndevelopedDiscoveryInformationFormValidatorTest {
         );
   }
 
+  @Test
+  void invalidForm_notDecimalInput() {
+    var form = new UndevelopedDiscoveryInformationForm();
+
+    var volumetricsForm = form.getVolumetricsForm();
+    var gasRecoverable = volumetricsForm.getGasRecoverable();
+    gasRecoverable.getOneC().setDecimalInputValue("x");
+    gasRecoverable.getTwoC().setDecimalInputValue("x");
+    gasRecoverable.getThreeC().setDecimalInputValue("x");
+
+    var oilRecoverable = volumetricsForm.getOilRecoverable();
+    oilRecoverable.getOneC().setDecimalInputValue("x");
+    oilRecoverable.getTwoC().setDecimalInputValue("x");
+    oilRecoverable.getThreeC().setDecimalInputValue("x");
+
+    volumetricsForm.getGasInPlace().setDecimalInputValue("x");
+    volumetricsForm.getOilInPlace().setDecimalInputValue("x");
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    assertThat(formValidator.isValid(form, bindingResult, undevelopedDiscovery)).isFalse();
+
+    var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(errors)
+        .contains(
+            entry("volumetricsForm.gasInPlace.decimalInputValue",
+                Set.of("volumetricsForm.gasInPlace.decimalInputValue.notNumeric")),
+            entry("volumetricsForm.gasRecoverable.oneC.decimalInputValue",
+                Set.of("volumetricsForm.gasRecoverable.oneC.decimalInputValue.notNumeric")),
+            entry("volumetricsForm.gasRecoverable.twoC.decimalInputValue",
+                Set.of("volumetricsForm.gasRecoverable.twoC.decimalInputValue.notNumeric")),
+            entry("volumetricsForm.gasRecoverable.threeC.decimalInputValue",
+                Set.of("volumetricsForm.gasRecoverable.threeC.decimalInputValue.notNumeric")),
+            entry("volumetricsForm.oilInPlace.decimalInputValue",
+                Set.of("volumetricsForm.oilInPlace.decimalInputValue.notNumeric")),
+            entry("volumetricsForm.oilRecoverable.oneC.decimalInputValue",
+                Set.of("volumetricsForm.oilRecoverable.oneC.decimalInputValue.notNumeric")),
+            entry("volumetricsForm.oilRecoverable.twoC.decimalInputValue",
+                Set.of("volumetricsForm.oilRecoverable.twoC.decimalInputValue.notNumeric")),
+            entry("volumetricsForm.oilRecoverable.threeC.decimalInputValue",
+                Set.of("volumetricsForm.oilRecoverable.threeC.decimalInputValue.notNumeric"))
+        );
+  }
+
   private UndevelopedDiscoveryInformationForm getValidForm() {
     var form = new UndevelopedDiscoveryInformationForm();
     form.setDiscoveryInformationDateDay("11");

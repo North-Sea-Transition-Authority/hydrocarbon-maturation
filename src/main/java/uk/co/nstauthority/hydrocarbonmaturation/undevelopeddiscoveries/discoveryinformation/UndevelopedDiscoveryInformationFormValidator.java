@@ -97,7 +97,7 @@ class UndevelopedDiscoveryInformationFormValidator {
             errors,
             twoCPath,
             "",
-            form.getOneC())
+            form.getTwoC())
         .setMaxDecimalPlaces(2)
         .setMinValue(BigDecimal.ZERO)
         .overrideDefaultErrorMessage(errorMessage)
@@ -107,7 +107,7 @@ class UndevelopedDiscoveryInformationFormValidator {
             errors,
             threeCPath,
             "",
-            form.getOneC())
+            form.getThreeC())
         .setMaxDecimalPlaces(2)
         .setMinValue(BigDecimal.ZERO)
         .overrideDefaultErrorMessage(errorMessage)
