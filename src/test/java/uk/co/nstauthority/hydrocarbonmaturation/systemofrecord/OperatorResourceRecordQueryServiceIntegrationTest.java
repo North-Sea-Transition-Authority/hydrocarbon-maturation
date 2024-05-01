@@ -37,6 +37,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicence;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamMemberRoleService;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamRoleUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.TeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -47,12 +53,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.Licence;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamRole;
 
 @Transactional
 @IntegrationTest

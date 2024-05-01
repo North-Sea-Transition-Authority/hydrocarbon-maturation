@@ -12,14 +12,14 @@ BEGIN
         AND NOT EXISTS (
             SELECT 1
             FROM remi.teams t
-            WHERE t.organisation_group_id = pom.org_grp_id
+            WHERE t.scope_id = pom.org_grp_id
         )
         GROUP BY pom.org_grp_id, pom.org_grp_name
     )
     LOOP
 
-        INSERT INTO remi.teams(uuid, type, organisation_group_id, display_name)
-        VALUES (gen_random_uuid(), 'INDUSTRY', org_groups.org_grp_id, org_groups.org_grp_name);
+        INSERT INTO remi.teams(id, type, name, scope_type, scope_id)
+        VALUES (gen_random_uuid(), 'INDUSTRY', org_groups.org_grp_name, 'ORGGRP', org_groups.org_grp_id);
 
     END LOOP;
 

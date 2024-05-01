@@ -3,28 +3,12 @@ package uk.co.nstauthority.hydrocarbonmaturation.teams;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-interface TeamRepository extends CrudRepository<Team, UUID> {
+public interface TeamRepository extends CrudRepository<Team, UUID> {
+  List<Team> findByTeamType(TeamType teamType);
 
-  Optional<Team> findByUuidAndTeamType(UUID uuid, TeamType teamType);
-
-  @Query(
-      """
-      SELECT DISTINCT tmr.team
-      FROM TeamMemberRole tmr
-      WHERE tmr.wuaId = :wuaId
-      AND tmr.team.teamType = :teamType
-      """
-  )
-  List<Team> findAllTeamsOfTypeThatUserIsMemberOf(Long wuaId, TeamType teamType);
-
-  Optional<Team> findByOrganisationGroupId(int organisationGroupId);
-
-  List<Team> findAll();
-
-  List<Team> findAllByTeamType(TeamType teamType);
+  Optional<Team> findByTeamTypeAndScopeTypeAndScopeId(TeamType teamType, String scopeType, String scopeId);
 }

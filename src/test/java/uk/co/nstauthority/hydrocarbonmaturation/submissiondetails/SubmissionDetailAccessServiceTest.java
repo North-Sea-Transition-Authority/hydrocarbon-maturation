@@ -11,10 +11,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.InternalTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.InternalTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryTeamMemberService;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionDetailAccessServiceTest {
@@ -43,7 +43,7 @@ class SubmissionDetailAccessServiceTest {
   }
 
   @Nested
-  class WhenCheckingIfCanViewSubmissionDetailAndNotRegulatorOrAreaTeamUser {
+  class WhenCheckingIfCanViewSubmissionDetailAndNotRegulatorOrAreaLegacyTeamUser {
     @Mock
     private ResourceDetail resourceDetail;
     @Mock

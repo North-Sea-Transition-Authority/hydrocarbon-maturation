@@ -7,15 +7,17 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.navigation.TopNavigationItem;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.LegacyTeamManagementController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SystemOfRecordLandingPageController;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamManagementController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.management.TeamManagementController;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Service
 public class TopNavigationService {
 
-  public static final String TEAM_MANAGEMENT_NAVIGATION_ITEM_TITLE = "Manage teams";
+  public static final String TEAMS = "Teams";
+  public static final String LEGACY_TEAMS = "Legacy teams";
   public static final String SEARCH_RESOURCE_RECORDS = "Search resource records";
 
   public List<TopNavigationItem> getTopNavigationItems() {
@@ -25,8 +27,13 @@ public class TopNavigationService {
     );
 
     navigationItems.add(
-        new TopNavigationItem(TEAM_MANAGEMENT_NAVIGATION_ITEM_TITLE,
-            ReverseRouter.route(on(TeamManagementController.class).renderTeamListOrRedirect()))
+        new TopNavigationItem(TEAMS,
+            ReverseRouter.route(on(TeamManagementController.class).renderTeamTypeList(null)))
+    );
+
+    navigationItems.add(
+        new TopNavigationItem(LEGACY_TEAMS,
+            ReverseRouter.route(on(LegacyTeamManagementController.class).renderTeamListOrRedirect()))
     );
 
     navigationItems.add(

@@ -20,11 +20,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamMemberRoleService;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 
 @Transactional
 @IntegrationTest

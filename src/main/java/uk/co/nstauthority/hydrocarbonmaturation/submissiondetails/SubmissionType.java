@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 
 public enum SubmissionType implements Displayable {
   CREATE_PROSPECT(

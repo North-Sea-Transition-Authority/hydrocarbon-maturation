@@ -28,8 +28,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectPhas
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ViewProjectController;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}/project-tracker")

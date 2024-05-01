@@ -10,10 +10,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamMemberService;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamMemberTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.TeamRole;
 
 public class HasPermissionSecurityTestUtil {
 

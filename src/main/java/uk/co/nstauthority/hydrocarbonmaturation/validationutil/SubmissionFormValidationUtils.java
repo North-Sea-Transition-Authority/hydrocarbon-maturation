@@ -2,9 +2,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.validationutil;
 
 import java.util.Arrays;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.TeamMemberEditRolesValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestResultFormValidatorHints;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamMemberEditRolesValidatorHints;
 
 public class SubmissionFormValidationUtils {
 

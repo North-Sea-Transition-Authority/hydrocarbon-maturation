@@ -1,0 +1,100 @@
+package uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.southernoffshore;
+
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
+import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasTeamPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamId;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamMemberRoleService;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamMemberView;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.TeamMemberEditRolesValidatorHints;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.TeamMemberRolesForm;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaEditMemberControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+
+@Controller
+@RequestMapping("/permission-management/southern-offshore-area/{teamId}/edit/{wuaId}")
+@HasTeamPermission(
+    anyTeamPermissionOf = RolePermission.GRANT_SOUTHERN_OFFSHORE_AREA_ROLES
+)
+public class SouthernOffshoreAreaEditMemberController extends AbstractSouthernOffshoreAreaPermissionManagement {
+
+  private final TeamMemberRoleService teamMemberRoleService;
+  private final ControllerHelperService controllerHelperService;
+  private final SouthernOffshoreAreaTeamMemberEditRolesValidator southernOffshoreAreaTeamMemberEditRolesValidator;
+  private final AreaEditMemberControllerHelperService areaEditMemberControllerHelperService;
+
+  private static final Map<String, String> ROLE_MAP = DisplayableEnumOptionUtil
+      .getDisplayableOptionsWithDescription(SouthernOffshoreAreaTeamRole.class);
+
+  @Autowired
+  public SouthernOffshoreAreaEditMemberController(SouthernOffshoreAreaTeamService southernOffshoreAreaTeamService,
+                                                  TeamMemberRoleService teamMemberRoleService,
+                                                  ControllerHelperService controllerHelperService,
+                                                  SouthernOffshoreAreaTeamMemberEditRolesValidator areaTeamMemberRolesValidator,
+                                                  AreaEditMemberControllerHelperService areaEditMemberControllerHelperService) {
+    super(southernOffshoreAreaTeamService);
+    this.teamMemberRoleService = teamMemberRoleService;
+    this.controllerHelperService = controllerHelperService;
+    this.southernOffshoreAreaTeamMemberEditRolesValidator = areaTeamMemberRolesValidator;
+    this.areaEditMemberControllerHelperService = areaEditMemberControllerHelperService;
+  }
+
+  @GetMapping
+  public ModelAndView renderEditMember(@PathVariable("teamId") TeamId teamId,
+                                       @PathVariable("wuaId") WebUserAccountId wuaId) {
+
+    var team = getAreaTeam(teamId);
+
+    return areaEditMemberControllerHelperService.renderEditMember(team, wuaId, ROLE_MAP,
+        ReverseRouter.route(on(
+            SouthernOffshoreAreaTeamManagementController.class).renderMemberList(teamId)));
+  }
+
+  @PostMapping
+  public ModelAndView editMember(@PathVariable("teamId") TeamId teamId,
+                                 @PathVariable("wuaId") WebUserAccountId wuaId,
+                                 @ModelAttribute("form") TeamMemberRolesForm form,
+                                 BindingResult bindingResult) {
+
+    var team = getAreaTeam(teamId);
+
+    var teamMember = areaEditMemberControllerHelperService.getTeamMemberOrThrow(team, wuaId);
+    var userView = areaEditMemberControllerHelperService.getTeamMemberViewOrThrow(teamMember);
+
+    southernOffshoreAreaTeamMemberEditRolesValidator.validate(form, bindingResult,
+        new TeamMemberEditRolesValidatorHints(team, teamMember));
+
+    return controllerHelperService.checkErrorsAndRedirect(
+        bindingResult,
+        getEditModelAndView(teamId, userView, form),
+        () -> {
+          teamMemberRoleService.updateUserTeamRoles(team, teamMember.wuaId(), form.getRoles());
+          return ReverseRouter.redirect(on(
+              SouthernOffshoreAreaTeamManagementController.class).renderMemberList(teamId));
+        });
+  }
+
+  private ModelAndView getEditModelAndView(TeamId teamId, TeamMemberView userView, TeamMemberRolesForm form) {
+    return new ModelAndView("remi/permissionmanagement/addTeamMemberRoles")
+        .addObject("form", form)
+        .addObject("pageTitle", userView.getDisplayName())
+        .addObject("roles", ROLE_MAP)
+        .addObject("backLinkUrl",
+            ReverseRouter.route(on(SouthernOffshoreAreaTeamManagementController.class).renderMemberList(teamId))
+        );
+  }
+}

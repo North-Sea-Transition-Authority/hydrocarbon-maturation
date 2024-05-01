@@ -1,35 +1,100 @@
 package uk.co.nstauthority.hydrocarbonmaturation.teams;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.management.ScopedTeamManagementController;
+
 public enum TeamType {
 
-  REGULATOR("Regulator", "Team for managing regulator users", 10),
-  INDUSTRY("Industry", "Teams for managing industry users", 20),
-  ONSHORE_AREA("Onshore area", "Teams for managing onshore area users", 30),
-  NORTHERN_OFFSHORE_AREA("Northern North Sea and West of Shetland",
-      "Teams for managing northern offshore area users", 40),
-  SOUTHERN_OFFSHORE_AREA("Central North Sea, Southern North Sea and East Irish Sea",
-      "Teams for managing southern offshore area users", 40);
+  REGULATOR(
+      "NSTA",
+      "regulator",
+      false,
+      List.of(
+          Role.MANAGE_TEAM,
+          Role.REGULATOR_MANAGE_ALL_ORGANISATIONS,
+          Role.EXPLORATION,
+          Role.VIEW_ANY_RESOURCE,
+          Role.RESERVES_AND_RESOURCES_ADVISOR,
+          Role.PROJECT_ANALYST),
+      null
+  ),
+  NORTHERN_OFFSHORE_AREA(
+      "Northern North Sea and West of Shetland",
+      "northern-offshore-area",
+      false,
+      List.of(Role.MANAGE_TEAM, Role.AREA_TEAM_MEMBER),
+      null
+  ),
+  SOUTHERN_OFFSHORE_AREA(
+      "Central North Sea, Southern North Sea and East Irish Sea",
+      "southern-offshore-area",
+      false,
+      List.of(Role.MANAGE_TEAM, Role.AREA_TEAM_MEMBER),
+      null
+  ),
+  ONSHORE_AREA(
+      "Onshore area",
+      "onshore-area",
+      false,
+      List.of(Role.MANAGE_TEAM, Role.AREA_TEAM_MEMBER),
+      null
+  ),
+  INDUSTRY(
+      "Industry",
+      "industry",
+      true,
+      List.of(Role.MANAGE_TEAM, Role.INDUSTRY_SUBMIT, Role.INDUSTRY_VIEWER),
+          () -> ReverseRouter.route(on(ScopedTeamManagementController.class).renderCreateNewOrgTeam(null))
+  );
 
-  private final String displayText;
-  private final String hintText;
-  private final int displayOrder;
+  private final String displayName;
+  private final String urlSlug;
+  private final boolean isScoped;
+  private final List<Role> allowedRoles;
+  private final Supplier<String> createNewInstanceRoute;
 
-  TeamType(String displayText, String hintText, int displayOrder) {
-    this.displayText = displayText;
-    this.hintText = hintText;
-    this.displayOrder = displayOrder;
+  TeamType(String displayName,
+           String urlSlug,
+           boolean isScoped,
+           List<Role> allowedRoles,
+           Supplier<String> createNewInstanceRoute) {
+    this.displayName = displayName;
+    this.urlSlug = urlSlug;
+    this.isScoped = isScoped;
+    this.allowedRoles = allowedRoles;
+    this.createNewInstanceRoute = createNewInstanceRoute;
   }
 
-  public String getDisplayText() {
-    return displayText;
+  public String getDisplayName() {
+    return displayName;
   }
 
-  public String getHintText() {
-    return hintText;
+  public String getUrlSlug() {
+    return urlSlug;
   }
 
-  public int getDisplayOrder() {
-    return displayOrder;
+  public boolean isScoped() {
+    return isScoped;
+  }
+
+  public List<Role> getAllowedRoles() {
+    return allowedRoles;
+  }
+
+  public String getCreateNewInstanceRoute() {
+    return createNewInstanceRoute.get();
+  }
+
+  public static Optional<TeamType> fromUrlSlug(String urlSlug) {
+    return Arrays.stream(values())
+        .filter(teamType -> teamType.urlSlug.equals(urlSlug))
+        .findFirst();
   }
 
 }

@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 
 public enum ResponsibleTeamType implements Displayable {
   EXPLORATION("Exploration team", RolePermission.EXPLORATION),

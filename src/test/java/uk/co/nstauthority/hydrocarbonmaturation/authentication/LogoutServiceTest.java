@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.authentication;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;

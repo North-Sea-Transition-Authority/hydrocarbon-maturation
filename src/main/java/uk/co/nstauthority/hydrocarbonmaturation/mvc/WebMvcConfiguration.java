@@ -18,9 +18,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInter
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasTeamPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ProjectHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SubmissionHandlerInterceptor;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.PermissionManagementHandlerInterceptor;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryPermissionManagementHandlerInterceptor;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorPermissionManagementHandlerInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.PermissionManagementHandlerInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryPermissionManagementHandlerInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorPermissionManagementHandlerInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.management.access.TeamManagementHandlerInterceptor;
 
 @Configuration
 public class WebMvcConfiguration implements WebMvcConfigurer {
@@ -43,6 +44,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
   private final UserArgumentResolver userArgumentResolver;
   private final ErrorSummaryHandlerInterceptor errorSummaryHandlerInterceptor;
   private final ProjectHandlerInterceptor projectHandlerInterceptor;
+  private final TeamManagementHandlerInterceptor teamManagementHandlerInterceptor;
 
   @Autowired
   public WebMvcConfiguration(PermissionManagementHandlerInterceptor permissionManagementHandlerInterceptor,
@@ -55,7 +57,8 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                              ValidationTypeArgumentResolver validationTypeArgumentResolver,
                              UserArgumentResolver userArgumentResolver,
                              ErrorSummaryHandlerInterceptor errorSummaryHandlerInterceptor,
-                             ProjectHandlerInterceptor projectHandlerInterceptor) {
+                             ProjectHandlerInterceptor projectHandlerInterceptor,
+                             TeamManagementHandlerInterceptor teamManagementHandlerInterceptor) {
     this.permissionManagementHandlerInterceptor = permissionManagementHandlerInterceptor;
     this.regulatorPermissionManagementHandlerInterceptor = regulatorPermissionManagementHandlerInterceptor;
     this.industryPermissionManagementHandlerInterceptor = industryPermissionManagementHandlerInterceptor;
@@ -67,6 +70,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     this.userArgumentResolver = userArgumentResolver;
     this.errorSummaryHandlerInterceptor = errorSummaryHandlerInterceptor;
     this.projectHandlerInterceptor = projectHandlerInterceptor;
+    this.teamManagementHandlerInterceptor = teamManagementHandlerInterceptor;
   }
 
   @Override
@@ -108,6 +112,8 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
         .excludePathPatterns(ASSETS_PATH);
     registry.addInterceptor(errorSummaryHandlerInterceptor)
         .excludePathPatterns(ASSETS_PATH);
+    registry.addInterceptor(teamManagementHandlerInterceptor)
+        .addPathPatterns("/team-management/**");
   }
 
   @Bean

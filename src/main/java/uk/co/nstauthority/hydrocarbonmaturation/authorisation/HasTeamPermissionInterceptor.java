@@ -16,12 +16,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.server.ResponseStatusException;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamId;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamMember;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamMemberService;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.PermissionManagementHandlerInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.AbstractHandlerInterceptor;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamId;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMember;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.PermissionManagementHandlerInterceptor;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
 
 @Component
 public class HasTeamPermissionInterceptor extends AbstractHandlerInterceptor {

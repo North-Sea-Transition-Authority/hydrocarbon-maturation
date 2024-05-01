@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import uk.co.fivium.fileuploadlibrary.core.FileService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 
 @Controller
 @RequestMapping("/resource/{resourceId}/resource-supporting-documents")

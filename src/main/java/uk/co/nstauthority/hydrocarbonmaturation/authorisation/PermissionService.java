@@ -6,10 +6,10 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMember;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RolePermission;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamMember;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamMemberService;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.TeamRole;
 
 @Service
 public class PermissionService {

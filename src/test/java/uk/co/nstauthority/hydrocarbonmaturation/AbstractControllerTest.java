@@ -33,6 +33,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.configuration.IncludeAnalyticsCo
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.IncludeEnergyPortalConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectService;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamMemberService;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.PermissionManagementHandlerInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryPermissionManagementHandlerInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorPermissionManagementHandlerInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.metrics.MetricsProvider;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ErrorSummaryHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ValidationTypeArgumentResolver;
@@ -41,13 +48,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.PermissionManagementHandlerInterceptor;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.area.AreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.industry.IndustryPermissionManagementHandlerInterceptor;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorPermissionManagementHandlerInterceptor;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.management.TeamManagementService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.management.access.TeamManagementHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnicalSupportConfigurationProperties;
 
 @WebMvcTest
@@ -68,7 +71,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnica
     ProjectHandlerInterceptor.class,
     IsProjectExtantInterceptorRule.class,
     RegulatorForProjectFieldInterceptorRule.class,
-    MetricsProvider.class
+    MetricsProvider.class,
+    TeamManagementHandlerInterceptor.class
 })
 @ActiveProfiles("test")
 @IncludeServiceBrandingConfigurationProperties
@@ -86,6 +90,12 @@ public abstract class AbstractControllerTest {
 
   @MockBean
   protected TeamService teamService;
+
+  @MockBean
+  protected TeamQueryService teamQueryService;
+
+  @MockBean
+  protected TeamManagementService teamManagementService;
 
   @MockBean
   protected UserService userService;
@@ -113,6 +123,9 @@ public abstract class AbstractControllerTest {
 
   @Autowired
   protected ControllerHelperService controllerHelperService;
+
+  @Autowired
+  protected TeamManagementHandlerInterceptor teamManagementHandlerInterceptor;
 
   protected User user;
 

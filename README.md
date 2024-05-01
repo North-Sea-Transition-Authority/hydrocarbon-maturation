@@ -100,25 +100,15 @@ track changes over time.
 - Connect to the remi db and use the following script in a console to add the admin user to the team member roles table as an `ACCESS_MANAGER`
 
 ```postgresql
-INSERT INTO remi.team_member_roles(uuid, team_id, wua_id, role) VALUES (
+INSERT INTO remi.team_roles(id, team_id, role, wua_id) VALUES (
     gen_random_uuid()
     , (
-     WITH iterable_teams AS (
-       SELECT
-         row_number() OVER () row
-            , t.*
+     SELECT t.id
        FROM remi.teams t
-     ), max_reg_team AS (
-       SELECT MAX(it.row), it.uuid
-       FROM iterable_teams it
-       WHERE it.type = 'REGULATOR'
-       GROUP BY it.uuid
-     )
-     SELECT mrt.uuid
-     FROM max_reg_team mrt
+       WHERE t.type = 'REGULATOR'
     )
-    , 53192 -- This is the ReMI NSTA Team Admin user account on the Energy Portal Dev environment
     , 'ACCESS_MANAGER'
+    , 53192 -- This is the ReMI NSTA Team Admin user account on the Energy Portal Dev environment
 );
 ```
 

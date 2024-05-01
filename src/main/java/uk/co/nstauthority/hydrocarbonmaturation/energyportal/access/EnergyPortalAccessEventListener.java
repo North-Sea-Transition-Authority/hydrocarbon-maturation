@@ -3,8 +3,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyportal.access;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.AddedToTeamEvent;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.RemovedFromTeamEvent;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.AddedToTeamEvent;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RemovedFromTeamEvent;
 
 @Component
 class EnergyPortalAccessEventListener {

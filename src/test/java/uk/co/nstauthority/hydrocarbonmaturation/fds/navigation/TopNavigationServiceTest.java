@@ -9,9 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.LegacyTeamManagementController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SystemOfRecordLandingPageController;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamManagementController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.management.TeamManagementController;
 import uk.co.nstauthority.hydrocarbonmaturation.topnavigation.TopNavigationService;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
@@ -36,9 +37,14 @@ class TopNavigationServiceTest {
                 StringUtils.stripEnd(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), "/")
             ),
             Tuple.tuple(
-                TopNavigationService.TEAM_MANAGEMENT_NAVIGATION_ITEM_TITLE,
+                TopNavigationService.TEAMS,
                 StringUtils.stripEnd(
-                    ReverseRouter.route(on(TeamManagementController.class).renderTeamListOrRedirect()), "/")
+                    ReverseRouter.route(on(TeamManagementController.class).renderTeamTypeList(null)), "/")
+            ),
+            Tuple.tuple(
+                TopNavigationService.LEGACY_TEAMS,
+                StringUtils.stripEnd(
+                    ReverseRouter.route(on(LegacyTeamManagementController.class).renderTeamListOrRedirect()), "/")
             ),
             Tuple.tuple(
                 TopNavigationService.SEARCH_RESOURCE_RECORDS,

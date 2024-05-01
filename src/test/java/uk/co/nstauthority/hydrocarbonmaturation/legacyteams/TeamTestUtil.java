@@ -1,0 +1,55 @@
+package uk.co.nstauthority.hydrocarbonmaturation.legacyteams;
+
+import java.util.UUID;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
+
+public class TeamTestUtil {
+
+  public static TeamView createTeamView(LegacyTeam legacyTeam) {
+    return new TeamView(legacyTeam.toTeamId(), legacyTeam.getTeamType(), legacyTeam.getDisplayName());
+  }
+
+  private TeamTestUtil() {
+    throw new IllegalUtilClassInstantiationException(this.getClass());
+  }
+
+  public static TeamBuilder Builder() {
+    return new TeamBuilder();
+  }
+
+  public static class TeamBuilder {
+
+    private UUID uuid = UUID.randomUUID();
+    private TeamType teamType = TeamType.REGULATOR;
+    private String displayName = "Team A";
+    private Integer organisationGroupId = 1;
+
+    public TeamBuilder withId(UUID uuid) {
+      this.uuid = uuid;
+      return this;
+    }
+
+    public TeamBuilder withTeamType(TeamType teamType) {
+      this.teamType = teamType;
+      return this;
+    }
+
+    public TeamBuilder withDisplayName(String displayName) {
+      this.displayName = displayName;
+      return this;
+    }
+
+    public TeamBuilder withOrganisationGroupId(Integer id) {
+      this.organisationGroupId = id;
+      return this;
+    }
+
+    public LegacyTeam build() {
+      var team = new LegacyTeam(uuid);
+      team.setTeamType(teamType);
+      team.setDisplayName(displayName);
+      team.setOrganisationGroupId(organisationGroupId);
+      return team;
+    }
+  }
+}

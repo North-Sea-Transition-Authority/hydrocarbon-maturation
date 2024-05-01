@@ -19,6 +19,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticatio
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamMemberRoleService;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamRoleUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.TeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -28,12 +34,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamMemberRoleService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.TeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.permissionmanagement.regulator.RegulatorTeamRole;
 
 @Transactional
 @IntegrationTest
