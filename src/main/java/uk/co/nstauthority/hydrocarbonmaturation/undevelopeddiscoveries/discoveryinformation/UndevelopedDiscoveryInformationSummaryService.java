@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.complexity.ComplexitySummaryUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -22,10 +23,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 public class UndevelopedDiscoveryInformationSummaryService implements SummarySectionService<UndevelopedDiscovery> {
 
   private static final int DISPLAY_ORDER = 20;
-  static final String DISCOVERY_VOLUMETRICS = "Discovery volumetrics";
+  static final String DISCOVERY_VOLUMETRICS = "Undeveloped discovery volumetrics";
   static final String VOLUMETRIC_DIFFERENCE_KEY = "Reasons why volumetrics are being provided where they differ from " +
       "the current operator provided figures";
   static final String VOLUMETRICS_DIFFERENCE_HEADING = "Volumetrics difference reason";
+  static final String DISCOVERY_COMPLEXITY = "Undeveloped discovery complexity";
   static final List<String> CROSS_TAB_HEADINGS = List.of("P50", "1C", "2C", "3C", "Units");
   private final UndevelopedDiscoveryInformationService informationService;
 
@@ -54,8 +56,9 @@ public class UndevelopedDiscoveryInformationSummaryService implements SummarySec
                                     List<SummaryAction> actions) {
     var volumetricCard = getVolumetricsCard(undevelopedDiscoveryInformation, actions);
     var justificationCard = getJustificationCard(undevelopedDiscoveryInformation, actions);
+    var complexityCard = getComplexityCard(undevelopedDiscoveryInformation, actions);
 
-    var cards = List.of(volumetricCard, justificationCard);
+    var cards = List.of(volumetricCard, justificationCard, complexityCard);
 
     var prettyDate = DateUtil.formatLongDate(undevelopedDiscoveryInformation.getInformationDate());
     return SummaryItem.withCards("Discovery information for %s".formatted(prettyDate), cards);
@@ -77,6 +80,22 @@ public class UndevelopedDiscoveryInformationSummaryService implements SummarySec
 
     return new SummaryCard(
         VOLUMETRICS_DIFFERENCE_HEADING,
+        SummaryCardType.SIMPLE_SUMMARY,
+        summaryData,
+        actions
+    );
+  }
+
+  private SummaryCard getComplexityCard(UndevelopedDiscoveryInformation information, List<SummaryAction> actions) {
+    var summaryData = ComplexitySummaryUtil.getComplexitySummaryDataView(
+        information.getViscosityRange(),
+        information.getVerticalHeterogeneityRange(),
+        information.getArealDensityRange(),
+        information.getStructuralComplexityRange()
+    );
+
+    return new SummaryCard(
+        DISCOVERY_COMPLEXITY,
         SummaryCardType.SIMPLE_SUMMARY,
         summaryData,
         actions

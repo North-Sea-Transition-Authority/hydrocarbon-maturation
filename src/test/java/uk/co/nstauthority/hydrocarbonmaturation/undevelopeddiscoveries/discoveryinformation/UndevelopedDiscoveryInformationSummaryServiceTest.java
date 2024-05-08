@@ -12,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.complexity.ComplexitySummaryUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -68,30 +70,11 @@ class UndevelopedDiscoveryInformationSummaryServiceTest {
         )
         .containsExactly(tuple(
             "Discovery information for 11 January 2002",
-            2
+            3
         ));
 
-    var expectedVolumetricData = new SummaryCrossTabView(UndevelopedDiscoveryInformationSummaryService.CROSS_TAB_HEADINGS);
-    expectedVolumetricData.addRow("Oil in place", "1", null, null, null, "mmbbl");
-    expectedVolumetricData.addRow("Oil recoverable resources", null, "1", "1", "1", "mmbbl");
-    expectedVolumetricData.addRow("Gas in place", "1", null, null, null, "bcf");
-    expectedVolumetricData.addRow("Gas recoverable resources", null, "1", "1", "1", "bcf");
-
-    var expectedSummaryActions = List.of(
-        new SummaryAction(
-            "Change",
-            ReverseRouter.route(on(UndevelopedDiscoveryInformationController.class)
-                .getExistingUndevelopedDiscoveryInformation(resource.getId(), undevelopedDiscoveryInformation.getId())),
-            "Change undeveloped discovery information"
-        ),
-        new SummaryAction(
-            "Remove",
-            ReverseRouter.route(on(UndevelopedDiscoveryRemoveInformationController.class)
-                .getRemoveInformationConfirmation(resource.getId(), undevelopedDiscoveryInformation.getId())),
-            "Remove undeveloped discovery information"
-        )
-    );
-
+    var expectedSummaryActions = getExpectedSummaryActions(resource, undevelopedDiscoveryInformation);
+    var expectedVolumetricData = getExpectedVolumetricData();
     var volumetricsCard = summaryItems.get(0).summaryCards().get(0);
     assertThat(volumetricsCard)
         .extracting(
@@ -107,10 +90,7 @@ class UndevelopedDiscoveryInformationSummaryServiceTest {
             expectedVolumetricData
         );
 
-    var expectedJustificationData = new SummaryDataView(List.of(
-        new SummaryKeyValue(UndevelopedDiscoveryInformationSummaryService.VOLUMETRIC_DIFFERENCE_KEY,
-            undevelopedDiscoveryInformation.getDifferenceReason())
-    ));
+    var expectedJustificationData = getExpectedJustificationData(undevelopedDiscoveryInformation);
     var justificationCard = summaryItems.get(0).summaryCards().get(1);
     assertThat(justificationCard)
         .extracting(
@@ -125,5 +105,77 @@ class UndevelopedDiscoveryInformationSummaryServiceTest {
             SummaryCardType.SIMPLE_SUMMARY,
             expectedJustificationData
         );
+
+    var expectedComplexityData = getExpectedComplexityData(undevelopedDiscoveryInformation);
+    var complexityCard = summaryItems.get(0).summaryCards().get(2);
+    assertThat(complexityCard)
+        .extracting(
+            SummaryCard::displayName,
+            SummaryCard::summaryActions,
+            SummaryCard::summaryCardType,
+            SummaryCard::summaryData
+        )
+        .containsExactly(
+            UndevelopedDiscoveryInformationSummaryService.DISCOVERY_COMPLEXITY,
+            expectedSummaryActions,
+            SummaryCardType.SIMPLE_SUMMARY,
+            expectedComplexityData
+        );
+  }
+
+  private List<SummaryAction> getExpectedSummaryActions(Resource resource,
+                                                        UndevelopedDiscoveryInformation undevelopedDiscoveryInformation) {
+    return List.of(
+        new SummaryAction(
+            "Change",
+            ReverseRouter.route(on(UndevelopedDiscoveryInformationController.class)
+                .getExistingUndevelopedDiscoveryInformation(resource.getId(), undevelopedDiscoveryInformation.getId())),
+            "Change undeveloped discovery information"
+        ),
+        new SummaryAction(
+            "Remove",
+            ReverseRouter.route(on(UndevelopedDiscoveryRemoveInformationController.class)
+                .getRemoveInformationConfirmation(resource.getId(), undevelopedDiscoveryInformation.getId())),
+            "Remove undeveloped discovery information"
+        )
+    );
+  }
+
+  private SummaryCrossTabView getExpectedVolumetricData() {
+    var expectedVolumetricData = new SummaryCrossTabView(
+        UndevelopedDiscoveryInformationSummaryService.CROSS_TAB_HEADINGS);
+    expectedVolumetricData.addRow("Oil in place", "1", null, null, null, "mmbbl");
+    expectedVolumetricData.addRow("Oil recoverable resources", null, "1", "1", "1", "mmbbl");
+    expectedVolumetricData.addRow("Gas in place", "1", null, null, null, "bcf");
+    expectedVolumetricData.addRow("Gas recoverable resources", null, "1", "1", "1", "bcf");
+    return expectedVolumetricData;
+  }
+
+  private SummaryDataView getExpectedJustificationData(UndevelopedDiscoveryInformation information) {
+    return new SummaryDataView(List.of(
+        new SummaryKeyValue(UndevelopedDiscoveryInformationSummaryService.VOLUMETRIC_DIFFERENCE_KEY,
+            information.getDifferenceReason())
+    ));
+  }
+
+  private SummaryDataView getExpectedComplexityData(UndevelopedDiscoveryInformation information) {
+    return new SummaryDataView(List.of(
+        new SummaryKeyValue(
+            ComplexitySummaryUtil.VISCOSITY,
+            information.getViscosityRange().getDisplayName()
+        ),
+        new SummaryKeyValue(
+            ComplexitySummaryUtil.VERTICAL_HETEROGENEITY,
+            information.getVerticalHeterogeneityRange().getDisplayName()
+        ),
+        new SummaryKeyValue(
+            ComplexitySummaryUtil.AREAL_DENSITY,
+            information.getArealDensityRange().getDisplayName()
+        ),
+        new SummaryKeyValue(
+            ComplexitySummaryUtil.STRUCTURAL_COMPLEXITY,
+            information.getStructuralComplexityRange().getDisplayName()
+        )
+    ));
   }
 }

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.complexity.ComplexitySummaryUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -44,23 +45,23 @@ class FieldComplexitySummaryServiceTest {
   @Test
   void getFieldComplexitySummary_existingFieldComplexity_completedSection_thenAllValuesShown() {
     var fieldComplexity = new FieldComplexity();
-    fieldComplexity.setViscosityRange(ViscosityRange.ONE_TO_TEN );
-    fieldComplexity.setVerticalHeterogeneityRange(VerticalHeterogeneityRange.ONE_TO_TEN );
-    fieldComplexity.setArealDensityRange(ArealDensityRange.GREATER_THAN_FOUR_POINT_FIVE );
-    fieldComplexity.setStructuralComplexityRange(StructuralComplexityRange.COMPLEX_GEOMETRIES_COMPARTMENTALISATION );
+    fieldComplexity.setViscosityRange(ViscosityRange.ONE_TO_TEN);
+    fieldComplexity.setVerticalHeterogeneityRange(VerticalHeterogeneityRange.ONE_TO_TEN);
+    fieldComplexity.setArealDensityRange(ArealDensityRange.GREATER_THAN_FOUR_POINT_FIVE);
+    fieldComplexity.setStructuralComplexityRange(StructuralComplexityRange.COMPLEX_GEOMETRIES_COMPARTMENTALISATION);
     fieldComplexity.setCalculatedFieldComplexity(BigDecimal.ONE);
 
     when(fieldComplexityRepository.findBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(fieldComplexity));
 
     var summaryDataView = SummaryDataView.newWithKeyValue(
-        FieldComplexitySummaryService.VISCOSITY, ViscosityRange.ONE_TO_TEN.getDisplayName()
+        ComplexitySummaryUtil.VISCOSITY, ViscosityRange.ONE_TO_TEN.getDisplayName()
     );
-    summaryDataView.addKeyValue(FieldComplexitySummaryService.VERTICAL_HETEROGENEITY,
+    summaryDataView.addKeyValue(ComplexitySummaryUtil.VERTICAL_HETEROGENEITY,
         VerticalHeterogeneityRange.ONE_TO_TEN.getDisplayName());
-    summaryDataView.addKeyValue(FieldComplexitySummaryService.AREAL_DENSITY,
+    summaryDataView.addKeyValue(ComplexitySummaryUtil.AREAL_DENSITY,
         ArealDensityRange.GREATER_THAN_FOUR_POINT_FIVE.getDisplayName());
-    summaryDataView.addKeyValue(FieldComplexitySummaryService.STRUCTURAL_COMPLEXITY,
+    summaryDataView.addKeyValue(ComplexitySummaryUtil.STRUCTURAL_COMPLEXITY,
         StructuralComplexityRange.COMPLEX_GEOMETRIES_COMPARTMENTALISATION.getDisplayName());
     summaryDataView.addKeyValue(FieldComplexitySummaryService.FIELD_COMPLEXITY,
         BigDecimal.ONE);
@@ -88,11 +89,11 @@ class FieldComplexitySummaryServiceTest {
         .thenReturn(Optional.of(fieldComplexity));
 
     var summaryDataView = SummaryDataView.newWithKeyValue(
-        FieldComplexitySummaryService.VISCOSITY, ""
+        ComplexitySummaryUtil.VISCOSITY, ""
     );
-    summaryDataView.addKeyValue(FieldComplexitySummaryService.VERTICAL_HETEROGENEITY, "");
-    summaryDataView.addKeyValue(FieldComplexitySummaryService.AREAL_DENSITY, "");
-    summaryDataView.addKeyValue(FieldComplexitySummaryService.STRUCTURAL_COMPLEXITY, "");
+    summaryDataView.addKeyValue(ComplexitySummaryUtil.VERTICAL_HETEROGENEITY, "");
+    summaryDataView.addKeyValue(ComplexitySummaryUtil.AREAL_DENSITY, "");
+    summaryDataView.addKeyValue(ComplexitySummaryUtil.STRUCTURAL_COMPLEXITY, "");
     summaryDataView.addKeyValue(FieldComplexitySummaryService.FIELD_COMPLEXITY, "");
 
     var expectedSummaryCard = SummaryCard.simpleSummaryCardWithHeading(
