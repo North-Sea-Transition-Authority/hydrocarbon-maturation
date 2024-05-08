@@ -4,7 +4,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
@@ -81,10 +79,12 @@ public class UndevelopedDiscoveryInformationController {
     var undevelopedDiscovery = undevelopedDiscoveryService.getUndevelopedDiscoveryForResourceOrThrow(resource);
     var undevelopedDiscoveryInformation = informationService.getUndevelopedDiscoveryInformationOrThrow(informationId);
 
-    verifyInformationBelongsToUndevelopedDiscoveryOrThrow(undevelopedDiscovery, undevelopedDiscoveryInformation);
+    UndevelopedDiscoveryInformationControllerUtil.throwIfInformationNotExtant(undevelopedDiscoveryInformation);
+    UndevelopedDiscoveryInformationControllerUtil.verifyInformationBelongsToDiscoveryOrThrow(undevelopedDiscovery,
+        undevelopedDiscoveryInformation);
 
     var form = informationService.entityToForm(undevelopedDiscoveryInformation);
-    return getBaseModelAndView(resource.getId(), form);
+    return getBaseModelAndView(resourceId, form);
   }
 
   @PostMapping("/{informationId}")
@@ -96,7 +96,9 @@ public class UndevelopedDiscoveryInformationController {
     var undevelopedDiscovery = undevelopedDiscoveryService.getUndevelopedDiscoveryForResourceOrThrow(resource);
     var undevelopedDiscoveryInformation = informationService.getUndevelopedDiscoveryInformationOrThrow(informationId);
 
-    verifyInformationBelongsToUndevelopedDiscoveryOrThrow(undevelopedDiscovery, undevelopedDiscoveryInformation);
+    UndevelopedDiscoveryInformationControllerUtil.throwIfInformationNotExtant(undevelopedDiscoveryInformation);
+    UndevelopedDiscoveryInformationControllerUtil.verifyInformationBelongsToDiscoveryOrThrow(undevelopedDiscovery,
+        undevelopedDiscoveryInformation);
 
     return handlePostRequest(form, bindingResult, resourceId, undevelopedDiscovery, informationId);
   }
@@ -138,17 +140,5 @@ public class UndevelopedDiscoveryInformationController {
             DisplayableEnumOptionUtil.getDisplayableOptions(ArealDensityRange.class))
         .addObject("structuralComplexityRangeMap",
             DisplayableEnumOptionUtil.getDisplayableOptions(StructuralComplexityRange.class));
-  }
-
-  private void verifyInformationBelongsToUndevelopedDiscoveryOrThrow(UndevelopedDiscovery undevelopedDiscovery,
-                                                                     UndevelopedDiscoveryInformation informationEntity) {
-    if (!informationEntity.getUndevelopedDiscovery().getId().equals(undevelopedDiscovery.getId())) {
-      throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN,
-          "Undeveloped discovery information %s does not belong to resource %s".formatted(
-              informationEntity.getId(), undevelopedDiscovery.getResource().getId()
-          )
-      );
-    }
   }
 }

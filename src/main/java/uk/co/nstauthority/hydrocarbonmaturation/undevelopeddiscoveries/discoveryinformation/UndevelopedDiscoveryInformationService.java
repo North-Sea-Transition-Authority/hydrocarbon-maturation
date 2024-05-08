@@ -33,6 +33,8 @@ public class UndevelopedDiscoveryInformationService {
         .findFirst()
         .orElseGet(UndevelopedDiscoveryInformation::new);
 
+    undevelopedDiscoveryInformation.setStatus(UndevelopedDiscoveryInformationStatus.EXTANT);
+
     undevelopedDiscoveryInformation.setUndevelopedDiscovery(undevelopedDiscovery);
 
     undevelopedDiscoveryInformation.setInformationDate(newDate);
@@ -70,10 +72,17 @@ public class UndevelopedDiscoveryInformationService {
     informationRepository.save(undevelopedDiscoveryInformation);
   }
 
+  @Transactional
+  public void deleteInformation(UndevelopedDiscoveryInformation information) {
+    information.setStatus(UndevelopedDiscoveryInformationStatus.DELETED);
+    informationRepository.save(information);
+  }
+
   public List<UndevelopedDiscoveryInformation> getOrderedDiscoveryInformation(
       UndevelopedDiscovery undevelopedDiscovery) {
     return informationRepository.findAllByUndevelopedDiscovery(undevelopedDiscovery)
         .stream()
+        .filter(this::isExtant)
         .sorted(Comparator.comparing(UndevelopedDiscoveryInformation::getInformationDate).reversed())
         .toList();
   }
@@ -128,5 +137,9 @@ public class UndevelopedDiscoveryInformationService {
         Integer.parseInt(form.getDiscoveryInformationDateMonth()),
         Integer.parseInt(form.getDiscoveryInformationDateDay())
     );
+  }
+
+  private boolean isExtant(UndevelopedDiscoveryInformation information) {
+    return information.getStatus().equals(UndevelopedDiscoveryInformationStatus.EXTANT);
   }
 }

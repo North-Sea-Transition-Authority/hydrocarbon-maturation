@@ -4,7 +4,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
@@ -29,24 +27,22 @@ public class UndevelopedDiscoveryTrackingDetailsController {
 
   private final UndevelopedDiscoveryService undevelopedDiscoveryService;
 
-  private final ResourceService resourceService;
-
   private final UndevelopedDiscoveryTrackingDetailsFormValidator undevelopedDiscoveryTrackingDetailsFormValidator;
+
+  private final ResourceService resourceService;
 
   @Autowired
   public UndevelopedDiscoveryTrackingDetailsController(UndevelopedDiscoveryService undevelopedDiscoveryService,
-                                                       ResourceService resourceService,
-                                                       UndevelopedDiscoveryTrackingDetailsFormValidator formValidator) {
+                                                       UndevelopedDiscoveryTrackingDetailsFormValidator formValidator,
+                                                       ResourceService resourceService) {
     this.undevelopedDiscoveryService = undevelopedDiscoveryService;
-    this.resourceService = resourceService;
     this.undevelopedDiscoveryTrackingDetailsFormValidator = formValidator;
+    this.resourceService = resourceService;
   }
 
   @GetMapping
   public ModelAndView getUndevelopedDiscoveryTrackingDetails(@PathVariable("resourceId") UUID resourceId) {
-    var resource = resourceService.getResourceOfType(resourceId, ResourceType.DISCOVERY)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
-            "Resource %s is not a discovery.".formatted(resourceId)));
+    var resource = resourceService.getResourceOfTypeOrThrow(resourceId, ResourceType.DISCOVERY);
 
     var undevelopedDiscovery = undevelopedDiscoveryService.getUndevelopedDiscoveryForResource(resource)
         .orElseGet(UndevelopedDiscovery::new);
@@ -60,9 +56,7 @@ public class UndevelopedDiscoveryTrackingDetailsController {
   public ModelAndView saveTrackingDetails(@PathVariable("resourceId") UUID resourceId,
                                           @ModelAttribute("form") UndevelopedDiscoveryTrackingDetailsForm form,
                                           BindingResult bindingResult) {
-    var resource = resourceService.getResourceOfType(resourceId, ResourceType.DISCOVERY)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
-            "Resource %s is not a discovery.".formatted(resourceId)));
+    var resource = resourceService.getResourceOfTypeOrThrow(resourceId, ResourceType.DISCOVERY);
 
     if (undevelopedDiscoveryTrackingDetailsFormValidator.isValidTrackingDetails(bindingResult)) {
       undevelopedDiscoveryService.saveUndevelopedDiscoveryTrackingDetails(resource, form);

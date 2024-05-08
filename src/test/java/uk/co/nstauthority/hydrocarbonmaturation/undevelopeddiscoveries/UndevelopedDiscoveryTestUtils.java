@@ -11,6 +11,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexit
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexity.ViscosityRange;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryComplexityForm;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformation;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformationStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryRecoverableForm;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryVolumetricsForm;
 
@@ -84,6 +85,8 @@ public class UndevelopedDiscoveryTestUtils {
     undevelopedDiscoveryInformation.setVerticalHeterogeneityRange(VerticalHeterogeneityRange.GREATER_THAN_TEN_THOUSAND);
     undevelopedDiscoveryInformation.setArealDensityRange(ArealDensityRange.ONE_TO_TWO);
     undevelopedDiscoveryInformation.setStructuralComplexityRange(StructuralComplexityRange.EXCELLENT_RESERVOIR_QUALITY);
+
+    undevelopedDiscoveryInformation.setStatus(UndevelopedDiscoveryInformationStatus.EXTANT);
 
     return undevelopedDiscoveryInformation;
   }

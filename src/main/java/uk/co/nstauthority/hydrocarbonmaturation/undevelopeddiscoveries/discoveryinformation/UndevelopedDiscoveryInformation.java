@@ -76,6 +76,9 @@ public class UndevelopedDiscoveryInformation {
   @Enumerated(EnumType.STRING)
   private StructuralComplexityRange structuralComplexityRange;
 
+  @Enumerated(EnumType.STRING)
+  private UndevelopedDiscoveryInformationStatus status;
+
   public UUID getId() {
     return id;
   }
@@ -215,5 +218,14 @@ public class UndevelopedDiscoveryInformation {
 
   public void setGasRecoverableThreeC(BigDecimal gasRecoverableThreeC) {
     this.gasRecoverableThreeC = gasRecoverableThreeC;
+  }
+
+  public UndevelopedDiscoveryInformationStatus getStatus() {
+    return status;
+  }
+
+  public void setStatus(
+      UndevelopedDiscoveryInformationStatus status) {
+    this.status = status;
   }
 }

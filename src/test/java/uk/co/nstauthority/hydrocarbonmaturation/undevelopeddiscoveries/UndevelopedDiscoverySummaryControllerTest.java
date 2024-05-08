@@ -18,6 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.CrossTabRow;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
@@ -89,8 +90,8 @@ class UndevelopedDiscoverySummaryControllerTest extends AbstractUndevelopedDisco
         )
     );
 
-    when(resourceService.getResourceOfType(RESOURCE_ID, ResourceType.DISCOVERY))
-        .thenReturn(Optional.of(resource));
+    when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
+        .thenReturn(resource);
     when(undevelopedDiscoveryService.getUndevelopedDiscoveryForResource(resource))
         .thenReturn(Optional.of(undevelopedDiscovery));
     when(resourceRecordSummaryView.resourceNameAndCentreOfInterest())
@@ -151,13 +152,13 @@ class UndevelopedDiscoverySummaryControllerTest extends AbstractUndevelopedDisco
   void getUndevelopedDiscoverySummary_resourceIsNotDiscovery() throws Exception {
     setupUserIsReservesAndResourcesAdvisor(user);
 
-    when(resourceService.getResourceOfType(RESOURCE_ID, ResourceType.DISCOVERY))
-        .thenReturn(Optional.empty());
+    when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
+        .thenThrow(new RemiEntityNotFoundException("not correct type"));
 
     mockMvc.perform(
             get(ReverseRouter.route(
                 on(UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(RESOURCE_ID)))
                 .with(user(USER)))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isNotFound());
   }
 }

@@ -44,17 +44,18 @@ class UndevelopedDiscoveryInformationFormValidatorTest {
 
   @Test
   void validForm_updatingExistingInformationWithSameDate() {
-    var undevelopedDiscoveryInformation = new UndevelopedDiscoveryInformation();
-    undevelopedDiscoveryInformation.setId(UUID.randomUUID());
-    undevelopedDiscoveryInformation.setInformationDate(LocalDate.of(2002, 1, 11));
+    var informationToUpdate = new UndevelopedDiscoveryInformation();
+    informationToUpdate.setId(UUID.randomUUID());
+    informationToUpdate.setStatus(UndevelopedDiscoveryInformationStatus.EXTANT);
+    informationToUpdate.setInformationDate(LocalDate.of(2002, 1, 11));
 
     when(informationService.getOrderedDiscoveryInformation(undevelopedDiscovery))
-        .thenReturn(List.of(undevelopedDiscoveryInformation));
+        .thenReturn(List.of(informationToUpdate));
 
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    assertThat(formValidator.isValid(form, bindingResult, undevelopedDiscovery, undevelopedDiscoveryInformation.getId()))
+    assertThat(formValidator.isValid(form, bindingResult, undevelopedDiscovery, informationToUpdate.getId()))
         .isTrue();
   }
 
@@ -103,6 +104,7 @@ class UndevelopedDiscoveryInformationFormValidatorTest {
   void invalidForm_businessLogic() {
     var existingInformationOnDate = new UndevelopedDiscoveryInformation();
     existingInformationOnDate.setId(UUID.randomUUID());
+    existingInformationOnDate.setStatus(UndevelopedDiscoveryInformationStatus.EXTANT);
     existingInformationOnDate.setInformationDate(LocalDate.of(2002, 1, 11));
 
     when(informationService.getOrderedDiscoveryInformation(undevelopedDiscovery))

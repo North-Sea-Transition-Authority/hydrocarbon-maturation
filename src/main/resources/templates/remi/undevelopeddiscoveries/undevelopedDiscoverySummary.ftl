@@ -31,7 +31,7 @@
       </#list>
     </@fdsAccordion.accordion>
     <@fdsAction.link
-      linkText="Add discovery information"
+      linkText="Add undeveloped discovery information"
       linkClass="govuk-button"
       linkUrl=springUrl(addDiscoveryInformationUrl)/>
 </@defaultPage>

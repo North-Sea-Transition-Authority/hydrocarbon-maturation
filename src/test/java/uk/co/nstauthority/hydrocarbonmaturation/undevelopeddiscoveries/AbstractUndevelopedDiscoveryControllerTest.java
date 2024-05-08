@@ -18,11 +18,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformationControllerUtil;
 
 @Import(value = {
     WebMvcConfiguration.class,
-    ResourceService.class,
-    UndevelopedDiscoveryService.class
+    UndevelopedDiscoveryService.class,
+    UndevelopedDiscoveryInformationControllerUtil.class
 })
 public abstract class AbstractUndevelopedDiscoveryControllerTest extends AbstractControllerTest {
 
@@ -31,6 +32,9 @@ public abstract class AbstractUndevelopedDiscoveryControllerTest extends Abstrac
 
   @MockBean
   private PermissionService permissionService;
+
+  @MockBean
+  protected UndevelopedDiscoveryInformationControllerUtil undevelopedDiscoveryInformationControllerUtil;
 
   @MockBean
   protected ResourceService resourceService;

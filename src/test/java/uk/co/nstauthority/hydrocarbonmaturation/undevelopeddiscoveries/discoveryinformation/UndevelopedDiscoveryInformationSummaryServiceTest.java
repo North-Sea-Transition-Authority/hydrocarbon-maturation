@@ -83,6 +83,12 @@ class UndevelopedDiscoveryInformationSummaryServiceTest {
             ReverseRouter.route(on(UndevelopedDiscoveryInformationController.class)
                 .getExistingUndevelopedDiscoveryInformation(resource.getId(), undevelopedDiscoveryInformation.getId())),
             "Change undeveloped discovery information"
+        ),
+        new SummaryAction(
+            "Remove",
+            ReverseRouter.route(on(UndevelopedDiscoveryRemoveInformationController.class)
+                .getRemoveInformationConfirmation(resource.getId(), undevelopedDiscoveryInformation.getId())),
+            "Remove undeveloped discovery information"
         )
     );
 

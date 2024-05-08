@@ -36,9 +36,8 @@ public class UndevelopedDiscoveryInformationSummaryService implements SummarySec
 
   @Override
   public Optional<SummarySection> getSummarySection(UndevelopedDiscovery undevelopedDiscovery) {
-    var undevelopedDiscoveryInformationList = informationService.getOrderedDiscoveryInformation(undevelopedDiscovery);
-
-    var summaryItems = undevelopedDiscoveryInformationList.stream()
+    var summaryItems = informationService.getOrderedDiscoveryInformation(undevelopedDiscovery)
+        .stream()
         .map(this::getSummaryItem)
         .toList();
 
@@ -46,9 +45,13 @@ public class UndevelopedDiscoveryInformationSummaryService implements SummarySec
     return Optional.of(summarySection);
   }
 
-  private SummaryItem getSummaryItem(UndevelopedDiscoveryInformation undevelopedDiscoveryInformation) {
+  public SummaryItem getSummaryItem(UndevelopedDiscoveryInformation undevelopedDiscoveryInformation) {
     var actions = getActionsForCard(undevelopedDiscoveryInformation);
+    return getSummaryItem(undevelopedDiscoveryInformation, actions);
+  }
 
+  public SummaryItem getSummaryItem(UndevelopedDiscoveryInformation undevelopedDiscoveryInformation,
+                                    List<SummaryAction> actions) {
     var volumetricCard = getVolumetricsCard(undevelopedDiscoveryInformation, actions);
     var justificationCard = getJustificationCard(undevelopedDiscoveryInformation, actions);
 
@@ -90,6 +93,12 @@ public class UndevelopedDiscoveryInformationSummaryService implements SummarySec
             ReverseRouter.route(on(UndevelopedDiscoveryInformationController.class)
                 .getExistingUndevelopedDiscoveryInformation(resourceId, informationId)),
             "Change undeveloped discovery information"
+        ),
+        new SummaryAction(
+            "Remove",
+            ReverseRouter.route(on(UndevelopedDiscoveryRemoveInformationController.class)
+                .getRemoveInformationConfirmation(resourceId, informationId)),
+            "Remove undeveloped discovery information"
         )
     );
   }

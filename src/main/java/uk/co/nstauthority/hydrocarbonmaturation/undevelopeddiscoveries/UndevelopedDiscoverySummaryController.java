@@ -4,12 +4,10 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
@@ -35,26 +33,24 @@ public class UndevelopedDiscoverySummaryController {
 
   private final UndevelopedDiscoverySummaryService undevelopedDiscoverySummaryService;
 
-  private final ResourceService resourceService;
-
   private final ViewResourceRecordService resourceRecordService;
+
+  private final ResourceService resourceService;
 
   @Autowired
   public UndevelopedDiscoverySummaryController(UndevelopedDiscoveryService undevelopedDiscoveryService,
                                                UndevelopedDiscoverySummaryService undevelopedDiscoverySummaryService,
-                                               ResourceService resourceService,
-                                               ViewResourceRecordService resourceRecordService) {
+                                               ViewResourceRecordService resourceRecordService,
+                                               ResourceService resourceService) {
     this.undevelopedDiscoveryService = undevelopedDiscoveryService;
     this.undevelopedDiscoverySummaryService = undevelopedDiscoverySummaryService;
-    this.resourceService = resourceService;
     this.resourceRecordService = resourceRecordService;
+    this.resourceService = resourceService;
   }
 
   @GetMapping
   public ModelAndView getUndevelopedDiscoverySummary(@PathVariable("resourceId") UUID resourceId) {
-    var resource = resourceService.getResourceOfType(resourceId, ResourceType.DISCOVERY)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
-            "Resource %s is not a discovery.".formatted(resourceId)));
+    var resource = resourceService.getResourceOfTypeOrThrow(resourceId, ResourceType.DISCOVERY);
 
     var undevelopedDiscovery = undevelopedDiscoveryService.getUndevelopedDiscoveryForResource(resource)
         .orElseGet(() -> getNewUndevelopedDiscovery(resource));

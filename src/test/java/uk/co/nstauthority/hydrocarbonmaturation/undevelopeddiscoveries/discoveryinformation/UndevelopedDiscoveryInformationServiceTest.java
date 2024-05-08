@@ -55,6 +55,7 @@ class UndevelopedDiscoveryInformationServiceTest {
 
     assertThat(undevelopedDiscoveryInformationCaptor.getValue())
         .extracting(
+            UndevelopedDiscoveryInformation::getStatus,
             UndevelopedDiscoveryInformation::getInformationDate,
             UndevelopedDiscoveryInformation::getOilInPlaceP50,
             UndevelopedDiscoveryInformation::getOilRecoverableOneC,
@@ -71,6 +72,7 @@ class UndevelopedDiscoveryInformationServiceTest {
             UndevelopedDiscoveryInformation::getStructuralComplexityRange,
             UndevelopedDiscoveryInformation::getDifferenceReason)
         .containsExactly(
+            UndevelopedDiscoveryInformationStatus.EXTANT,
             LocalDate.of(2002, 1, 11),
             BigDecimal.valueOf(4),
             BigDecimal.valueOf(1),
@@ -109,6 +111,7 @@ class UndevelopedDiscoveryInformationServiceTest {
 
     assertThat(undevelopedDiscoveryInformationCaptor.getValue())
         .extracting(
+            UndevelopedDiscoveryInformation::getStatus,
             UndevelopedDiscoveryInformation::getInformationDate,
             UndevelopedDiscoveryInformation::getOilInPlaceP50,
             UndevelopedDiscoveryInformation::getOilRecoverableOneC,
@@ -125,6 +128,7 @@ class UndevelopedDiscoveryInformationServiceTest {
             UndevelopedDiscoveryInformation::getStructuralComplexityRange,
             UndevelopedDiscoveryInformation::getDifferenceReason)
         .containsExactly(
+            UndevelopedDiscoveryInformationStatus.EXTANT,
             LocalDate.of(2002, 1, 11),
             BigDecimal.valueOf(4),
             BigDecimal.valueOf(1),
@@ -153,12 +157,17 @@ class UndevelopedDiscoveryInformationServiceTest {
   }
 
   @Test
-  void getOrderedDiscoveryInformation_ordersByMostRecent() {
+  void getOrderedDiscoveryInformation_ordersByMostRecent_filtersByExtant() {
     var oldestInformation = new UndevelopedDiscoveryInformation();
     oldestInformation.setInformationDate(LocalDate.of(2002, 1, 11));
+    oldestInformation.setStatus(UndevelopedDiscoveryInformationStatus.EXTANT);
 
     var newestInformation = new UndevelopedDiscoveryInformation();
     newestInformation.setInformationDate(LocalDate.of(2024, 4, 29));
+    newestInformation.setStatus(UndevelopedDiscoveryInformationStatus.EXTANT);
+
+    var deletedInformation = new UndevelopedDiscoveryInformation();
+    deletedInformation.setStatus(UndevelopedDiscoveryInformationStatus.DELETED);
 
     when(informationRepository.findAllByUndevelopedDiscovery(undevelopedDiscovery))
         .thenReturn(List.of(oldestInformation, newestInformation));
@@ -266,5 +275,18 @@ class UndevelopedDiscoveryInformationServiceTest {
     assertThat(generatedComplexity)
         .usingRecursiveComparison()
         .isEqualTo(new UndevelopedDiscoveryComplexityForm());
+  }
+
+  @Test
+  void deleteInformation() {
+    var information = new UndevelopedDiscoveryInformation();
+    information.setStatus(UndevelopedDiscoveryInformationStatus.EXTANT);
+
+    informationService.deleteInformation(information);
+
+    verify(informationRepository).save(undevelopedDiscoveryInformationCaptor.capture());
+    assertThat(undevelopedDiscoveryInformationCaptor.getValue())
+        .extracting(UndevelopedDiscoveryInformation::getStatus)
+        .isEqualTo(UndevelopedDiscoveryInformationStatus.DELETED);
   }
 }

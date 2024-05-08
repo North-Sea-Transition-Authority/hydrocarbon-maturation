@@ -20,8 +20,10 @@ import java.util.Objects;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.Errors;
+import org.springframework.web.server.ResponseStatusException;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -37,8 +39,8 @@ class UndevelopedDiscoveryTrackingDetailsControllerTest extends AbstractUndevelo
     setupUserIsReservesAndResourcesAdvisor(user);
     var form = new UndevelopedDiscoveryTrackingDetailsForm();
 
-    when(resourceService.getResourceOfType(RESOURCE_ID, ResourceType.DISCOVERY))
-        .thenReturn(Optional.of(resource));
+    when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
+        .thenReturn(resource);
     when(undevelopedDiscoveryService.getUndevelopedDiscoveryForResource(resource))
         .thenReturn(Optional.of(undevelopedDiscovery));
     when(undevelopedDiscoveryService.discoveryToTrackingDetailsForm(undevelopedDiscovery))
@@ -85,8 +87,8 @@ class UndevelopedDiscoveryTrackingDetailsControllerTest extends AbstractUndevelo
   void getUndevelopedDiscoveryTrackingDetails_resourceIsNotDiscovery() throws Exception {
     setupUserIsReservesAndResourcesAdvisor(user);
 
-    when(resourceService.getResourceOfType(RESOURCE_ID, ResourceType.DISCOVERY))
-        .thenReturn(Optional.empty());
+    when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
+        .thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN));
 
     mockMvc.perform(
             get(ReverseRouter.route(
@@ -105,8 +107,8 @@ class UndevelopedDiscoveryTrackingDetailsControllerTest extends AbstractUndevelo
         .thenReturn(form);
     when(formValidator.isValidTrackingDetails(any(Errors.class)))
         .thenReturn(false);
-    when(resourceService.getResourceOfType(RESOURCE_ID, ResourceType.DISCOVERY))
-        .thenReturn(Optional.of(resource));
+    when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
+        .thenReturn(resource);
 
     mockMvc.perform(post(ReverseRouter.route(on(UndevelopedDiscoveryTrackingDetailsController.class)
             .saveTrackingDetails(RESOURCE_ID, null, null)))
@@ -129,8 +131,8 @@ class UndevelopedDiscoveryTrackingDetailsControllerTest extends AbstractUndevelo
         .thenReturn(form);
     when(formValidator.isValidTrackingDetails(any(Errors.class)))
         .thenReturn(true);
-    when(resourceService.getResourceOfType(RESOURCE_ID, ResourceType.DISCOVERY))
-        .thenReturn(Optional.of(resource));
+    when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
+        .thenReturn(resource);
 
     var summaryUrl = ReverseRouter.route(on(UndevelopedDiscoverySummaryController.class)
         .getUndevelopedDiscoverySummary(RESOURCE_ID));
@@ -170,14 +172,14 @@ class UndevelopedDiscoveryTrackingDetailsControllerTest extends AbstractUndevelo
   void saveTrackingDetails_resourceIsNotDiscovery() throws Exception {
     setupUserIsReservesAndResourcesAdvisor(user);
 
-    when(resourceService.getResourceOfType(RESOURCE_ID, ResourceType.DISCOVERY))
-        .thenReturn(Optional.empty());
+    when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
+        .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
     mockMvc.perform(
             post(ReverseRouter.route(on(UndevelopedDiscoveryTrackingDetailsController.class)
                 .saveTrackingDetails(RESOURCE_ID, null, null)))
                 .with(user(USER))
                 .with(csrf()))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isNotFound());
   }
 }

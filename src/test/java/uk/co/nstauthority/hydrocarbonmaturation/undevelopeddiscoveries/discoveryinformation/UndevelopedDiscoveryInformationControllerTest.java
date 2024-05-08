@@ -223,6 +223,7 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
     undevelopedDiscoveryInformation = new UndevelopedDiscoveryInformation();
     undevelopedDiscoveryInformation.setId(informationId);
     undevelopedDiscoveryInformation.setUndevelopedDiscovery(undevelopedDiscovery);
+    undevelopedDiscoveryInformation.setStatus(UndevelopedDiscoveryInformationStatus.EXTANT);
 
     var returnedForm = new UndevelopedDiscoveryInformationForm();
 
@@ -300,6 +301,27 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
   }
 
   @Test
+  void getExistingUndevelopedDiscoveryInformation_informationIsNotExtant() throws Exception {
+    setupUserIsReservesAndResourcesAdvisor(user);
+
+    var informationId = UUID.randomUUID();
+    undevelopedDiscoveryInformation = new UndevelopedDiscoveryInformation();
+    undevelopedDiscoveryInformation.setId(informationId);
+    undevelopedDiscoveryInformation.setStatus(UndevelopedDiscoveryInformationStatus.DELETED);
+
+    when(undevelopedDiscoveryService.getUndevelopedDiscoveryForResourceOrThrow(resource))
+        .thenReturn(undevelopedDiscovery);
+    when(undevelopedDiscoveryInformationService.getUndevelopedDiscoveryInformationOrThrow(informationId))
+        .thenReturn(undevelopedDiscoveryInformation);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(UndevelopedDiscoveryInformationController.class)
+                .getExistingUndevelopedDiscoveryInformation(RESOURCE_ID, informationId)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
   void getExistingUndevelopedDiscoveryInformation_informationDoesNotBelongToDiscovery() throws Exception {
     setupUserIsReservesAndResourcesAdvisor(user);
 
@@ -311,6 +333,7 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
     var informationId = UUID.randomUUID();
     var undevelopedDiscoveryInformation = new UndevelopedDiscoveryInformation();
     undevelopedDiscoveryInformation.setUndevelopedDiscovery(differentUndevelopedDiscovery);
+    undevelopedDiscoveryInformation.setStatus(UndevelopedDiscoveryInformationStatus.EXTANT);
 
     when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
         .thenReturn(resource);
@@ -430,6 +453,28 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
   }
 
   @Test
+  void updateDiscoveryInformation_informationIsNotExtant() throws Exception {
+    setupUserIsReservesAndResourcesAdvisor(user);
+
+    var informationId = UUID.randomUUID();
+    undevelopedDiscoveryInformation = new UndevelopedDiscoveryInformation();
+    undevelopedDiscoveryInformation.setId(informationId);
+    undevelopedDiscoveryInformation.setStatus(UndevelopedDiscoveryInformationStatus.DELETED);
+
+    when(undevelopedDiscoveryService.getUndevelopedDiscoveryForResourceOrThrow(resource))
+        .thenReturn(undevelopedDiscovery);
+    when(undevelopedDiscoveryInformationService.getUndevelopedDiscoveryInformationOrThrow(informationId))
+        .thenReturn(undevelopedDiscoveryInformation);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(UndevelopedDiscoveryInformationController.class)
+                .updateDiscoveryInformation(RESOURCE_ID, informationId, null, null)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
   void updateDiscoveryInformation_informationDoesNotBelongToDiscovery() throws Exception {
     setupUserIsReservesAndResourcesAdvisor(user);
 
@@ -441,6 +486,7 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
     var informationId = UUID.randomUUID();
     var undevelopedDiscoveryInformation = new UndevelopedDiscoveryInformation();
     undevelopedDiscoveryInformation.setUndevelopedDiscovery(differentUndevelopedDiscovery);
+    undevelopedDiscoveryInformation.setStatus(UndevelopedDiscoveryInformationStatus.EXTANT);
 
     when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
         .thenReturn(resource);
