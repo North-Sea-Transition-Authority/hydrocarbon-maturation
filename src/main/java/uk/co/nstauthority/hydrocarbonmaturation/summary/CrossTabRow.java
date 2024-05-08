@@ -2,8 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.summary;
 
 import java.util.List;
 
-public interface CrossTabRow {
-  String getKey();
-
-  List<String> getValues();
+public record CrossTabRow(String key, List<String> values) {
+  int valueCount() {
+    return values.size();
+  }
 }

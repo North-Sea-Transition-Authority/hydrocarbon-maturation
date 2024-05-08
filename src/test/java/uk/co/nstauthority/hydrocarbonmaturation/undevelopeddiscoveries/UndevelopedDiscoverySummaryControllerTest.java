@@ -19,6 +19,8 @@ import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.CrossTabRow;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCrossTabView;
@@ -30,7 +32,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchProspectAnd
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordService;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformationController;
-import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformationVolumetricsRow;
 
 @ContextConfiguration(classes = UndevelopedDiscoverySummaryController.class)
 class UndevelopedDiscoverySummaryControllerTest extends AbstractUndevelopedDiscoveryControllerTest {
@@ -56,14 +57,18 @@ class UndevelopedDiscoverySummaryControllerTest extends AbstractUndevelopedDisco
         List.of()
     );
 
-    var volumetricSummaryCard = SummaryCard.crossTabSummaryCard(
+    var volumetricSummaryCard = SummaryCard.crossTabSummaryCardWithActions(
         "Discovery volumetrics",
         new SummaryCrossTabView(
             List.of("P50", "1C", "2C", "3C", "Units"),
-            List.of(new UndevelopedDiscoveryInformationVolumetricsRow(
-                "example row", "1", "1", "1", "1", "units"
-            ))
-        )
+            List.of(new CrossTabRow("example row", List.of("1", "1", "1", "1", "units")))
+        ),
+        List.of(new SummaryAction(
+            "label",
+            ReverseRouter.route(on(UndevelopedDiscoveryInformationController.class)
+                .getUndevelopedDiscoveryInformation(RESOURCE_ID)),
+            ""
+        ))
     );
 
     var justificationCard = SummaryCard.simpleSummaryCardWithHeading(
@@ -73,7 +78,7 @@ class UndevelopedDiscoverySummaryControllerTest extends AbstractUndevelopedDisco
 
     var summarySections = List.of(
         new SummarySection(
-            10, 
+            10,
             List.of(SummaryItem.withCard("Tracking details", trackingDetailsSummaryCard)),
             ""
         ),

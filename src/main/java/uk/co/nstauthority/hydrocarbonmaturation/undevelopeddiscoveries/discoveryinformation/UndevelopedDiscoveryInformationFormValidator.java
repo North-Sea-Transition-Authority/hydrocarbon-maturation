@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discover
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,8 +27,9 @@ class UndevelopedDiscoveryInformationFormValidator {
     this.undevelopedDiscoveryInformationService = informationService;
   }
 
-  boolean isValid(UndevelopedDiscoveryInformationForm form, Errors errors, UndevelopedDiscovery undevelopedDiscovery) {
-    validateDate(form, errors, undevelopedDiscovery);
+  boolean isValid(UndevelopedDiscoveryInformationForm form, Errors errors, UndevelopedDiscovery undevelopedDiscovery,
+                  UUID existingInformationId) {
+    validateDate(form, errors, undevelopedDiscovery, existingInformationId);
     validateVolumetrics(form.getVolumetricsForm(), errors);
     validateComplexity(form, errors);
     return !errors.hasErrors();
@@ -183,7 +185,8 @@ class UndevelopedDiscoveryInformationFormValidator {
   }
 
   private void validateDate(UndevelopedDiscoveryInformationForm form, Errors errors,
-                            UndevelopedDiscovery undevelopedDiscovery) {
+                            UndevelopedDiscovery undevelopedDiscovery,
+                            UUID existingInformationId) {
     DateValidationUtil.validateDateIsTodayOrInThePast(
         "discoveryInformationDate",
         "date discovery information is relevant to",
@@ -197,25 +200,26 @@ class UndevelopedDiscoveryInformationFormValidator {
         errors.getFieldError("discoveryInformationDateDay"),
         errors.getFieldError("discoveryInformationDateMonth"),
         errors.getFieldError("discoveryInformationDateYear"))) {
-      validateUniqueDate(form, errors, undevelopedDiscovery);
+      validateUniqueDate(form, errors, undevelopedDiscovery, existingInformationId);
     }
   }
 
   private void validateUniqueDate(UndevelopedDiscoveryInformationForm form, Errors errors,
-                                  UndevelopedDiscovery undevelopedDiscovery) {
+                                  UndevelopedDiscovery undevelopedDiscovery,
+                                  UUID existingInformationId) {
     var newDate = LocalDate.of(
         Integer.parseInt(form.getDiscoveryInformationDateYear()),
         Integer.parseInt(form.getDiscoveryInformationDateMonth()),
         Integer.parseInt(form.getDiscoveryInformationDateDay())
     );
 
-    var isAlreadyStageOnDate = undevelopedDiscoveryInformationService.getOrderedDiscoveryInformation(
+    var isAlreadyInformationOnDate = undevelopedDiscoveryInformationService.getOrderedDiscoveryInformation(
             undevelopedDiscovery)
         .stream()
-        .anyMatch(information -> information.getInformationDate().equals(newDate));
-    // TODO HM-982 - pass in UndevelopedDiscoveryInformation to prevent validation error when updating
+        .anyMatch(storedInformation -> storedInformation.getInformationDate().equals(newDate)
+            && !storedInformation.getId().equals(existingInformationId));
 
-    if (isAlreadyStageOnDate) {
+    if (isAlreadyInformationOnDate) {
       errors.rejectValue(
           "discoveryInformationDateDay",
           "discoveryInformationDate.duplicate",

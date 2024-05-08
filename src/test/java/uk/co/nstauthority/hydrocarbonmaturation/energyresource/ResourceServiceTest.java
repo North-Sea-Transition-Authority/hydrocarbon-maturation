@@ -89,6 +89,32 @@ class ResourceServiceTest {
   }
 
   @Test
+  void getResourceOfTypeOrThrow() {
+    var uuid = UUID.randomUUID();
+    var resourceType = ResourceType.DISCOVERY;
+    var resource = Optional.of(getResource(uuid, resourceType));
+
+    when(resourceRepository.findById(uuid)).thenReturn(resource);
+
+    assertThat(resourceService.getResourceOfTypeOrThrow(uuid, resourceType))
+        .isEqualTo(resource.get());
+  }
+
+  @Test
+  void getResourceOfTypeOrThrow_throwsEntityNotFound() {
+    var uuid = UUID.randomUUID();
+    var resourceType = ResourceType.PROSPECT;
+    var resource = Optional.of(getResource(uuid, resourceType));
+
+    when(resourceRepository.findById(uuid)).thenReturn(resource);
+
+    assertThatExceptionOfType(RemiEntityNotFoundException.class)
+        .isThrownBy(() -> resourceService.getResourceOfTypeOrThrow(uuid, ResourceType.DISCOVERY))
+        .withMessage("Could not find resource %s with type %s".formatted(uuid.toString(),
+            ResourceType.DISCOVERY.getDisplayName()));
+  }
+
+  @Test
   void createResource() {
     var resourceType = ResourceType.PROSPECT;
     var resourceArgumentCaptor = ArgumentCaptor.forClass(Resource.class);

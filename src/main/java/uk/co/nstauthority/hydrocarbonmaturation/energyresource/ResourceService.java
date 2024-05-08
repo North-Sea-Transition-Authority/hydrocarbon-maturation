@@ -37,6 +37,12 @@ public class ResourceService {
     return Optional.of(resource);
   }
 
+  public Resource getResourceOfTypeOrThrow(UUID resourceId, ResourceType resourceType) {
+    return getResourceOfType(resourceId, resourceType)
+        .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource %s with type %s"
+            .formatted(resourceId, resourceType.getDisplayName())));
+  }
+
   public Resource createResource(ResourceType resourceType) {
     var resource = new Resource();
     resource.setType(resourceType);

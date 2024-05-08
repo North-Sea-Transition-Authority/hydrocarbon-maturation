@@ -25,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexit
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexity.VerticalHeterogeneityRange;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexity.ViscosityRange;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordService;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscovery;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoveryService;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoverySummaryController;
 
@@ -59,10 +60,7 @@ public class UndevelopedDiscoveryInformationController {
 
   @GetMapping
   public ModelAndView getUndevelopedDiscoveryInformation(@PathVariable("resourceId") UUID resourceId) {
-    var resource = resourceService.getResourceOfType(resourceId, ResourceType.DISCOVERY)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
-            "Resource %s is not a discovery.".formatted(resourceId)));
-
+    var resource = resourceService.getResourceOfTypeOrThrow(resourceId, ResourceType.DISCOVERY);
     return getBaseModelAndView(resource.getId(), new UndevelopedDiscoveryInformationForm());
   }
 
@@ -70,13 +68,43 @@ public class UndevelopedDiscoveryInformationController {
   public ModelAndView saveDiscoveryInformation(@PathVariable("resourceId") UUID resourceId,
                                                @ModelAttribute("form") UndevelopedDiscoveryInformationForm form,
                                                BindingResult bindingResult) {
-    var resource = resourceService.getResourceOfType(resourceId, ResourceType.DISCOVERY)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
-            "Resource %s is not a discovery.".formatted(resourceId)));
-
+    var resource = resourceService.getResourceOfTypeOrThrow(resourceId, ResourceType.DISCOVERY);
     var undevelopedDiscovery = undevelopedDiscoveryService.getUndevelopedDiscoveryForResourceOrThrow(resource);
 
-    if (formValidator.isValid(form, bindingResult, undevelopedDiscovery)) {
+    return handlePostRequest(form, bindingResult, resourceId, undevelopedDiscovery, null);
+  }
+
+  @GetMapping("/{informationId}")
+  public ModelAndView getExistingUndevelopedDiscoveryInformation(@PathVariable("resourceId") UUID resourceId,
+                                                                 @PathVariable("informationId") UUID informationId) {
+    var resource = resourceService.getResourceOfTypeOrThrow(resourceId, ResourceType.DISCOVERY);
+    var undevelopedDiscovery = undevelopedDiscoveryService.getUndevelopedDiscoveryForResourceOrThrow(resource);
+    var undevelopedDiscoveryInformation = informationService.getUndevelopedDiscoveryInformationOrThrow(informationId);
+
+    verifyInformationBelongsToUndevelopedDiscoveryOrThrow(undevelopedDiscovery, undevelopedDiscoveryInformation);
+
+    var form = informationService.entityToForm(undevelopedDiscoveryInformation);
+    return getBaseModelAndView(resource.getId(), form);
+  }
+
+  @PostMapping("/{informationId}")
+  public ModelAndView updateDiscoveryInformation(@PathVariable("resourceId") UUID resourceId,
+                                                 @PathVariable("informationId") UUID informationId,
+                                                 @ModelAttribute("form") UndevelopedDiscoveryInformationForm form,
+                                                 BindingResult bindingResult) {
+    var resource = resourceService.getResourceOfTypeOrThrow(resourceId, ResourceType.DISCOVERY);
+    var undevelopedDiscovery = undevelopedDiscoveryService.getUndevelopedDiscoveryForResourceOrThrow(resource);
+    var undevelopedDiscoveryInformation = informationService.getUndevelopedDiscoveryInformationOrThrow(informationId);
+
+    verifyInformationBelongsToUndevelopedDiscoveryOrThrow(undevelopedDiscovery, undevelopedDiscoveryInformation);
+
+    return handlePostRequest(form, bindingResult, resourceId, undevelopedDiscovery, informationId);
+  }
+
+  private ModelAndView handlePostRequest(UndevelopedDiscoveryInformationForm form, BindingResult bindingResult,
+                                         UUID resourceId, UndevelopedDiscovery undevelopedDiscovery,
+                                         UUID informationId) {
+    if (formValidator.isValid(form, bindingResult, undevelopedDiscovery, informationId)) {
       informationService.saveUndevelopedDiscoveryInformation(form, undevelopedDiscovery);
       return ReverseRouter.redirect(on(UndevelopedDiscoverySummaryController.class)
           .getUndevelopedDiscoverySummary(resourceId));
@@ -110,5 +138,17 @@ public class UndevelopedDiscoveryInformationController {
             DisplayableEnumOptionUtil.getDisplayableOptions(ArealDensityRange.class))
         .addObject("structuralComplexityRangeMap",
             DisplayableEnumOptionUtil.getDisplayableOptions(StructuralComplexityRange.class));
+  }
+
+  private void verifyInformationBelongsToUndevelopedDiscoveryOrThrow(UndevelopedDiscovery undevelopedDiscovery,
+                                                                     UndevelopedDiscoveryInformation informationEntity) {
+    if (!informationEntity.getUndevelopedDiscovery().getId().equals(undevelopedDiscovery.getId())) {
+      throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN,
+          "Undeveloped discovery information %s does not belong to resource %s".formatted(
+              informationEntity.getId(), undevelopedDiscovery.getResource().getId()
+          )
+      );
+    }
   }
 }

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -37,7 +38,24 @@ class UndevelopedDiscoveryInformationFormValidatorTest {
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    assertThat(formValidator.isValid(form, bindingResult, undevelopedDiscovery)).isTrue();
+    assertThat(formValidator.isValid(form, bindingResult, undevelopedDiscovery, null))
+        .isTrue();
+  }
+
+  @Test
+  void validForm_updatingExistingInformationWithSameDate() {
+    var undevelopedDiscoveryInformation = new UndevelopedDiscoveryInformation();
+    undevelopedDiscoveryInformation.setId(UUID.randomUUID());
+    undevelopedDiscoveryInformation.setInformationDate(LocalDate.of(2002, 1, 11));
+
+    when(informationService.getOrderedDiscoveryInformation(undevelopedDiscovery))
+        .thenReturn(List.of(undevelopedDiscoveryInformation));
+
+    var form = getValidForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    assertThat(formValidator.isValid(form, bindingResult, undevelopedDiscovery, undevelopedDiscoveryInformation.getId()))
+        .isTrue();
   }
 
   @Test
@@ -45,7 +63,8 @@ class UndevelopedDiscoveryInformationFormValidatorTest {
     var form = new UndevelopedDiscoveryInformationForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    assertThat(formValidator.isValid(form, bindingResult, undevelopedDiscovery)).isFalse();
+    assertThat(formValidator.isValid(form, bindingResult, undevelopedDiscovery, null))
+        .isFalse();
 
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(errors)
@@ -67,7 +86,8 @@ class UndevelopedDiscoveryInformationFormValidatorTest {
     form.setProvideDiscoveryComplexity(Boolean.TRUE);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    assertThat(formValidator.isValid(form, bindingResult, undevelopedDiscovery)).isFalse();
+    assertThat(formValidator.isValid(form, bindingResult, undevelopedDiscovery, null))
+        .isFalse();
 
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(errors)
@@ -82,6 +102,7 @@ class UndevelopedDiscoveryInformationFormValidatorTest {
   @Test
   void invalidForm_businessLogic() {
     var existingInformationOnDate = new UndevelopedDiscoveryInformation();
+    existingInformationOnDate.setId(UUID.randomUUID());
     existingInformationOnDate.setInformationDate(LocalDate.of(2002, 1, 11));
 
     when(informationService.getOrderedDiscoveryInformation(undevelopedDiscovery))
@@ -96,7 +117,8 @@ class UndevelopedDiscoveryInformationFormValidatorTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    assertThat(formValidator.isValid(form, bindingResult, undevelopedDiscovery)).isFalse();
+    assertThat(formValidator.isValid(form, bindingResult, undevelopedDiscovery, null))
+        .isFalse();
 
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(errors)
@@ -130,7 +152,8 @@ class UndevelopedDiscoveryInformationFormValidatorTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    assertThat(formValidator.isValid(form, bindingResult, undevelopedDiscovery)).isFalse();
+    assertThat(formValidator.isValid(form, bindingResult, undevelopedDiscovery, null))
+        .isFalse();
 
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(errors)
@@ -161,7 +184,7 @@ class UndevelopedDiscoveryInformationFormValidatorTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    assertThat(formValidator.isValid(form, bindingResult, undevelopedDiscovery)).isFalse();
+    assertThat(formValidator.isValid(form, bindingResult, undevelopedDiscovery, null)).isFalse();
 
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(errors)

@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -8,12 +9,15 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscovery;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoveryTestUtils;
 
@@ -161,5 +165,106 @@ class UndevelopedDiscoveryInformationServiceTest {
 
     assertThat(informationService.getOrderedDiscoveryInformation(undevelopedDiscovery))
         .isEqualTo(List.of(newestInformation, oldestInformation));
+  }
+
+  @Test
+  void getUndevelopedDiscoveryInformationOrThrow() {
+    var information = new UndevelopedDiscoveryInformation();
+    var informationId = UUID.randomUUID();
+
+    when(informationRepository.findById(informationId))
+        .thenReturn(Optional.of(information));
+
+    assertThat(informationService.getUndevelopedDiscoveryInformationOrThrow(informationId))
+        .isEqualTo(information);
+  }
+
+  @Test
+  void getUndevelopedDiscoveryInformationOrThrow_assertThrows() {
+    var informationId = UUID.randomUUID();
+
+    when(informationRepository.findById(informationId))
+        .thenReturn(Optional.empty());
+
+    assertThatExceptionOfType(RemiEntityNotFoundException.class)
+        .isThrownBy(() -> informationService.getUndevelopedDiscoveryInformationOrThrow(informationId))
+        .withMessage("No undeveloped discovery information found for id %s".formatted(informationId));
+  }
+
+  @Test
+  void entityToForm() {
+    var information = UndevelopedDiscoveryTestUtils.getUndevelopedDiscoveryInformation(
+        LocalDate.of(2002, 1, 11),
+        null
+    );
+
+    var expectedVolumetrics = UndevelopedDiscoveryTestUtils.getVolumetricsForm(
+        1, 1, 1, 1, information.getDifferenceReason()
+    );
+
+    var expectedComplexity = UndevelopedDiscoveryTestUtils.getComplexityForm();
+
+    var generatedForm = informationService.entityToForm(information);
+    assertThat(generatedForm)
+        .extracting(
+            UndevelopedDiscoveryInformationForm::getDiscoveryInformationDateDay,
+            UndevelopedDiscoveryInformationForm::getDiscoveryInformationDateMonth,
+            UndevelopedDiscoveryInformationForm::getDiscoveryInformationDateYear,
+            UndevelopedDiscoveryInformationForm::getProvideDiscoveryComplexity
+        )
+        .containsExactly(
+            "11",
+            "1",
+            "2002",
+            Boolean.TRUE
+        );
+
+    var generatedVolumetrics = generatedForm.getVolumetricsForm();
+    assertThat(generatedVolumetrics)
+        .usingRecursiveComparison()
+        .isEqualTo(expectedVolumetrics);
+
+    var generatedComplexity = generatedForm.getComplexityForm();
+    assertThat(generatedComplexity)
+        .usingRecursiveComparison()
+        .isEqualTo(expectedComplexity);
+  }
+
+  @Test
+  void entityToForm_doesNotStoreComplexity() {
+    var information = UndevelopedDiscoveryTestUtils.getUndevelopedDiscoveryInformation(
+        LocalDate.of(2002, 1, 11),
+        null
+    );
+    information.setProvidedDiscoveryComplexity(Boolean.FALSE);
+
+    var expectedVolumetrics = UndevelopedDiscoveryTestUtils.getVolumetricsForm(
+        1, 1, 1, 1, information.getDifferenceReason()
+    );
+
+    var generatedForm = informationService.entityToForm(information);
+    assertThat(generatedForm)
+        .extracting(
+            UndevelopedDiscoveryInformationForm::getDiscoveryInformationDateDay,
+            UndevelopedDiscoveryInformationForm::getDiscoveryInformationDateMonth,
+            UndevelopedDiscoveryInformationForm::getDiscoveryInformationDateYear,
+            UndevelopedDiscoveryInformationForm::getProvideDiscoveryComplexity
+        )
+        .containsExactly(
+            "11",
+            "1",
+            "2002",
+            Boolean.FALSE
+        );
+
+    var generatedVolumetrics = generatedForm.getVolumetricsForm();
+    assertThat(generatedVolumetrics)
+        .usingRecursiveComparison()
+        .isEqualTo(expectedVolumetrics);
+
+    var generatedComplexity = generatedForm.getComplexityForm();
+    assertThat(generatedComplexity)
+        .usingRecursiveComparison()
+        .isEqualTo(new UndevelopedDiscoveryComplexityForm());
   }
 }

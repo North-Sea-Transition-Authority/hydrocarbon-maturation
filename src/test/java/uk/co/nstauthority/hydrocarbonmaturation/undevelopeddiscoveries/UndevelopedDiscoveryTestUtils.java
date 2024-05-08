@@ -30,7 +30,7 @@ public class UndevelopedDiscoveryTestUtils {
   public static UndevelopedDiscoveryComplexityForm getComplexityForm() {
     var complexityForm = new UndevelopedDiscoveryComplexityForm();
 
-    complexityForm.setStructuralComplexityRange(StructuralComplexityRange.COMPLEX_GEOMETRIES_COMPARTMENTALISATION);
+    complexityForm.setStructuralComplexityRange(StructuralComplexityRange.EXCELLENT_RESERVOIR_QUALITY);
     complexityForm.setArealDensityRange(ArealDensityRange.ONE_TO_TWO);
     complexityForm.setViscosityRange(ViscosityRange.ONE_TO_TEN);
     complexityForm.setVerticalHeterogeneityRange(VerticalHeterogeneityRange.GREATER_THAN_TEN_THOUSAND);
@@ -79,6 +79,7 @@ public class UndevelopedDiscoveryTestUtils {
 
     undevelopedDiscoveryInformation.setDifferenceReason("Difference reason");
 
+    undevelopedDiscoveryInformation.setProvidedDiscoveryComplexity(Boolean.TRUE);
     undevelopedDiscoveryInformation.setViscosityRange(ViscosityRange.ONE_TO_TEN);
     undevelopedDiscoveryInformation.setVerticalHeterogeneityRange(VerticalHeterogeneityRange.GREATER_THAN_TEN_THOUSAND);
     undevelopedDiscoveryInformation.setArealDensityRange(ArealDensityRange.ONE_TO_TWO);

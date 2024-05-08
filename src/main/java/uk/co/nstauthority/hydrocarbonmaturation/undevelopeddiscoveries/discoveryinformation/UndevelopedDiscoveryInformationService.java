@@ -3,10 +3,13 @@ package uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discover
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscovery;
 
 @Service
@@ -67,11 +70,56 @@ public class UndevelopedDiscoveryInformationService {
     informationRepository.save(undevelopedDiscoveryInformation);
   }
 
-  public List<UndevelopedDiscoveryInformation> getOrderedDiscoveryInformation(UndevelopedDiscovery undevelopedDiscovery) {
+  public List<UndevelopedDiscoveryInformation> getOrderedDiscoveryInformation(
+      UndevelopedDiscovery undevelopedDiscovery) {
     return informationRepository.findAllByUndevelopedDiscovery(undevelopedDiscovery)
         .stream()
         .sorted(Comparator.comparing(UndevelopedDiscoveryInformation::getInformationDate).reversed())
         .toList();
+  }
+
+  public UndevelopedDiscoveryInformation getUndevelopedDiscoveryInformationOrThrow(UUID uuid) {
+    return informationRepository.findById(uuid)
+        .orElseThrow(() -> new RemiEntityNotFoundException(
+            "No undeveloped discovery information found for id %s".formatted(uuid)));
+  }
+
+  public UndevelopedDiscoveryInformationForm entityToForm(
+      UndevelopedDiscoveryInformation undevelopedDiscoveryInformation) {
+    var form = new UndevelopedDiscoveryInformationForm();
+
+    var date = undevelopedDiscoveryInformation.getInformationDate();
+    form.setDiscoveryInformationDateDay(String.valueOf(date.getDayOfMonth()));
+    form.setDiscoveryInformationDateMonth(String.valueOf(date.getMonthValue()));
+    form.setDiscoveryInformationDateYear(String.valueOf(date.getYear()));
+
+    var volumetrics = form.getVolumetricsForm();
+    volumetrics.setOilInPlace(DecimalInput.createDecimalInput(undevelopedDiscoveryInformation.getOilInPlaceP50()));
+    volumetrics.setGasInPlace(DecimalInput.createDecimalInput(undevelopedDiscoveryInformation.getGasInPlaceP50()));
+    volumetrics.setVolumetricDifferenceReason(undevelopedDiscoveryInformation.getDifferenceReason());
+
+    var oilRecoverable = volumetrics.getOilRecoverable();
+    oilRecoverable.setOneC(DecimalInput.createDecimalInput(undevelopedDiscoveryInformation.getOilRecoverableOneC()));
+    oilRecoverable.setTwoC(DecimalInput.createDecimalInput(undevelopedDiscoveryInformation.getOilRecoverableTwoC()));
+    oilRecoverable.setThreeC(
+        DecimalInput.createDecimalInput(undevelopedDiscoveryInformation.getOilRecoverableThreeC()));
+
+    var gasRecoverable = volumetrics.getGasRecoverable();
+    gasRecoverable.setOneC(DecimalInput.createDecimalInput(undevelopedDiscoveryInformation.getGasRecoverableOneC()));
+    gasRecoverable.setTwoC(DecimalInput.createDecimalInput(undevelopedDiscoveryInformation.getGasRecoverableTwoC()));
+    gasRecoverable.setThreeC(
+        DecimalInput.createDecimalInput(undevelopedDiscoveryInformation.getGasRecoverableThreeC()));
+
+    form.setProvideDiscoveryComplexity(undevelopedDiscoveryInformation.getProvidedDiscoveryComplexity());
+    if (BooleanUtils.isTrue(form.getProvideDiscoveryComplexity())) {
+      var complexity = form.getComplexityForm();
+      complexity.setViscosityRange(undevelopedDiscoveryInformation.getViscosityRange());
+      complexity.setStructuralComplexityRange(undevelopedDiscoveryInformation.getStructuralComplexityRange());
+      complexity.setArealDensityRange(undevelopedDiscoveryInformation.getArealDensityRange());
+      complexity.setVerticalHeterogeneityRange(undevelopedDiscoveryInformation.getVerticalHeterogeneityRange());
+    }
+
+    return form;
   }
 
   private LocalDate getDateFromForm(UndevelopedDiscoveryInformationForm form) {

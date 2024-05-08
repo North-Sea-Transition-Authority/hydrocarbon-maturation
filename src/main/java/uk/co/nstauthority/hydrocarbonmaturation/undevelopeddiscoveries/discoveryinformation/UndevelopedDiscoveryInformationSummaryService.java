@@ -1,10 +1,15 @@
 package uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCrossTabView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
@@ -12,16 +17,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscovery;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.util.DecimalFormatUtil;
 
 @Service
 public class UndevelopedDiscoveryInformationSummaryService implements SummarySectionService<UndevelopedDiscovery> {
 
   private static final int DISPLAY_ORDER = 20;
   static final String DISCOVERY_VOLUMETRICS = "Discovery volumetrics";
-  static final String JUSTIFICATION_KEY = "Reasons why volumetrics are being provided where they differ from " +
+  static final String VOLUMETRIC_DIFFERENCE_KEY = "Reasons why volumetrics are being provided where they differ from " +
       "the current operator provided figures";
-  static final String JUSTIFICATION_HEADING = "Volumetrics difference reason";
+  static final String VOLUMETRICS_DIFFERENCE_HEADING = "Volumetrics difference reason";
   static final List<String> CROSS_TAB_HEADINGS = List.of("P50", "1C", "2C", "3C", "Units");
   private final UndevelopedDiscoveryInformationService informationService;
 
@@ -43,63 +47,75 @@ public class UndevelopedDiscoveryInformationSummaryService implements SummarySec
   }
 
   private SummaryItem getSummaryItem(UndevelopedDiscoveryInformation undevelopedDiscoveryInformation) {
-    var volumetricCard = getVolumetricsCard(undevelopedDiscoveryInformation);
-    var justificationCard = getJustificationCard(undevelopedDiscoveryInformation);
+    var actions = getActionsForCard(undevelopedDiscoveryInformation);
+
+    var volumetricCard = getVolumetricsCard(undevelopedDiscoveryInformation, actions);
+    var justificationCard = getJustificationCard(undevelopedDiscoveryInformation, actions);
+
     var cards = List.of(volumetricCard, justificationCard);
 
     var prettyDate = DateUtil.formatLongDate(undevelopedDiscoveryInformation.getInformationDate());
     return SummaryItem.withCards("Discovery information for %s".formatted(prettyDate), cards);
   }
 
-  private SummaryCard getVolumetricsCard(UndevelopedDiscoveryInformation undevelopedDiscoveryInformation) {
-    var rows = entityToRows(undevelopedDiscoveryInformation);
-    var crossTabView = new SummaryCrossTabView(CROSS_TAB_HEADINGS, rows);
-    return SummaryCard.crossTabSummaryCard(DISCOVERY_VOLUMETRICS, crossTabView);
+  private SummaryCard getVolumetricsCard(UndevelopedDiscoveryInformation undevelopedDiscoveryInformation,
+                                         List<SummaryAction> actions) {
+    var crossTabView = new SummaryCrossTabView(CROSS_TAB_HEADINGS);
+    crossTabView = addRows(crossTabView, undevelopedDiscoveryInformation);
+    return SummaryCard.crossTabSummaryCardWithActions(DISCOVERY_VOLUMETRICS, crossTabView, actions);
   }
 
-  private SummaryCard getJustificationCard(UndevelopedDiscoveryInformation undevelopedDiscoveryInformation) {
+  private SummaryCard getJustificationCard(UndevelopedDiscoveryInformation undevelopedDiscoveryInformation,
+                                           List<SummaryAction> actions) {
     var summaryData = SummaryDataView.newWithKeyValue(
-        JUSTIFICATION_KEY,
+        VOLUMETRIC_DIFFERENCE_KEY,
         undevelopedDiscoveryInformation.getDifferenceReason()
     );
-    return SummaryCard.simpleSummaryCardWithHeading(JUSTIFICATION_HEADING, summaryData);
+
+    return new SummaryCard(
+        VOLUMETRICS_DIFFERENCE_HEADING,
+        SummaryCardType.SIMPLE_SUMMARY,
+        summaryData,
+        actions
+    );
   }
 
-  private List<UndevelopedDiscoveryInformationVolumetricsRow> entityToRows(
-      UndevelopedDiscoveryInformation undevelopedDiscoveryInformation) {
+  private List<SummaryAction> getActionsForCard(UndevelopedDiscoveryInformation undevelopedDiscoveryInformation) {
+    var resourceId = undevelopedDiscoveryInformation.getUndevelopedDiscovery().getResource().getId();
+    var informationId = undevelopedDiscoveryInformation.getId();
+
     return List.of(
-        new UndevelopedDiscoveryInformationVolumetricsRow(
-            "Oil in place",
-            DecimalFormatUtil.bigDecimalToFormattedString(undevelopedDiscoveryInformation.getOilInPlaceP50()),
-            "",
-            "",
-            "",
-            "mmbbl"
-        ),
-        new UndevelopedDiscoveryInformationVolumetricsRow(
-            "Oil recoverable resources",
-            "",
-            DecimalFormatUtil.bigDecimalToFormattedString(undevelopedDiscoveryInformation.getOilRecoverableOneC()),
-            DecimalFormatUtil.bigDecimalToFormattedString(undevelopedDiscoveryInformation.getOilRecoverableTwoC()),
-            DecimalFormatUtil.bigDecimalToFormattedString(undevelopedDiscoveryInformation.getOilRecoverableThreeC()),
-            "mmbbl"
-        ),
-        new UndevelopedDiscoveryInformationVolumetricsRow(
-            "Gas in place",
-            DecimalFormatUtil.bigDecimalToFormattedString(undevelopedDiscoveryInformation.getGasInPlaceP50()),
-            "",
-            "",
-            "",
-            "bcf"
-        ),
-        new UndevelopedDiscoveryInformationVolumetricsRow(
-            "Gas recoverable resources",
-            "",
-            DecimalFormatUtil.bigDecimalToFormattedString(undevelopedDiscoveryInformation.getGasRecoverableOneC()),
-            DecimalFormatUtil.bigDecimalToFormattedString(undevelopedDiscoveryInformation.getGasRecoverableTwoC()),
-            DecimalFormatUtil.bigDecimalToFormattedString(undevelopedDiscoveryInformation.getGasRecoverableThreeC()),
-            "bcf"
+        new SummaryAction(
+            "Change",
+            ReverseRouter.route(on(UndevelopedDiscoveryInformationController.class)
+                .getExistingUndevelopedDiscoveryInformation(resourceId, informationId)),
+            "Change undeveloped discovery information"
         )
     );
+  }
+
+  private SummaryCrossTabView addRows(SummaryCrossTabView crossTabView,
+                                      UndevelopedDiscoveryInformation undevelopedDiscoveryInformation) {
+    return crossTabView
+        .addRow(
+            "Oil in place",
+            undevelopedDiscoveryInformation.getOilInPlaceP50(), null, null, null, "mmbbl"
+        )
+        .addRow(
+            "Oil recoverable resources",
+            null, undevelopedDiscoveryInformation.getOilRecoverableOneC(),
+            undevelopedDiscoveryInformation.getOilRecoverableTwoC(),
+            undevelopedDiscoveryInformation.getOilRecoverableThreeC(), "mmbbl"
+        )
+        .addRow(
+            "Gas in place",
+            undevelopedDiscoveryInformation.getOilInPlaceP50(), null, null, null, "bcf"
+        )
+        .addRow(
+            "Gas recoverable resources",
+            null, undevelopedDiscoveryInformation.getGasRecoverableOneC(),
+            undevelopedDiscoveryInformation.getGasRecoverableTwoC(),
+            undevelopedDiscoveryInformation.getGasRecoverableThreeC(), "bcf"
+        );
   }
 }

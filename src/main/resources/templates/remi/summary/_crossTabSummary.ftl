@@ -16,10 +16,10 @@
       <#list crossTabView.rows() as row>
         <tr class="govuk-table__row">
           <th scope="row" class="govuk-table__header">
-            ${row.getKey()}
+            ${row.key()}
           </th>
-          <#list row.getValues() as value>
-            <td class="govuk-table__cell">${value}</td>
+          <#list row.values() as value>
+            <td class="govuk-table__cell">${value!""}</td>
           </#list>
         </tr>
       </#list>

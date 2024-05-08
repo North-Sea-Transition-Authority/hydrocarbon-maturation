@@ -2,6 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discover
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -62,12 +64,16 @@ public class UndevelopedDiscoveryInformation {
 
   private Boolean providedDiscoveryComplexity;
 
+  @Enumerated(EnumType.STRING)
   private ViscosityRange viscosityRange;
 
+  @Enumerated(EnumType.STRING)
   private VerticalHeterogeneityRange verticalHeterogeneityRange;
 
+  @Enumerated(EnumType.STRING)
   private ArealDensityRange arealDensityRange;
 
+  @Enumerated(EnumType.STRING)
   private StructuralComplexityRange structuralComplexityRange;
 
   public UUID getId() {
