@@ -1,10 +1,9 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexity;
 
 import jakarta.transaction.Transactional;
-import java.math.BigDecimal;
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.complexity.ComplexityUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
@@ -43,37 +42,9 @@ public class FieldComplexityService {
     fieldComplexity.setStructuralComplexityRange(form.getStructuralComplexityRange());
 
     // calculate field complexity
-    var calculatedFieldComplexity = calculateFieldComplexity(form);
-    fieldComplexity.setCalculatedFieldComplexity(
-        calculatedFieldComplexity == null
-            ? null
-            : BigDecimal.valueOf(calculatedFieldComplexity)
-    );
+    var calculatedFieldComplexity = ComplexityUtil.calculateComplexity(form);
+    fieldComplexity.setCalculatedFieldComplexity(calculatedFieldComplexity);
 
     fieldComplexityRepository.save(fieldComplexity);
-  }
-
-  /*
-   * calculates the field complexity or null if any required parameters are null
-   * @param form with viscosity, verticalHeterogeneity, arealDensity, structuralComplexity as non-null
-   * @return calculated field complexity, or null
-   */
-  private Integer calculateFieldComplexity(FieldComplexityForm form) {
-
-    // if any required params are null then return null
-    if (ObjectUtils.anyNull(
-        form.getViscosityRange(),
-        form.getVerticalHeterogeneityRange(),
-        form.getArealDensityRange(),
-        form.getStructuralComplexityRange())) {
-      return null;
-    }
-
-    var viscosity = form.getViscosityRange().getValue();
-    var verticalHeterogeneity = form.getVerticalHeterogeneityRange().getValue();
-    var arealDensity = form.getArealDensityRange().getValue();
-    var structuralComplexity = form.getStructuralComplexityRange().getValue();
-
-    return (2 * viscosity) + verticalHeterogeneity + arealDensity + (2 * structuralComplexity);
   }
 }

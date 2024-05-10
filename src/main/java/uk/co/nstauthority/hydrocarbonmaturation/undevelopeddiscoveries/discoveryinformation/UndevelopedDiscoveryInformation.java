@@ -79,6 +79,20 @@ public class UndevelopedDiscoveryInformation {
   @Enumerated(EnumType.STRING)
   private UndevelopedDiscoveryInformationStatus status;
 
+  @Column(name = "oil_equivalent_recoverable_one_c")
+  private BigDecimal oilEquivalentRecoverableOneC;
+
+  @Column(name = "oil_equivalent_recoverable_two_c")
+  private BigDecimal oilEquivalentRecoverableTwoC;
+
+  @Column(name = "oil_equivalent_recoverable_three_c")
+  private BigDecimal oilEquivalentRecoverableThreeC;
+
+  private BigDecimal percentageGas;
+
+  private BigDecimal calculatedComplexity;
+
+
   public UUID getId() {
     return id;
   }
@@ -227,5 +241,45 @@ public class UndevelopedDiscoveryInformation {
   public void setStatus(
       UndevelopedDiscoveryInformationStatus status) {
     this.status = status;
+  }
+
+  public BigDecimal getOilEquivalentRecoverableOneC() {
+    return oilEquivalentRecoverableOneC;
+  }
+
+  public void setOilEquivalentRecoverableOneC(BigDecimal oilEquivalentRecoverableOneC) {
+    this.oilEquivalentRecoverableOneC = oilEquivalentRecoverableOneC;
+  }
+
+  public BigDecimal getOilEquivalentRecoverableTwoC() {
+    return oilEquivalentRecoverableTwoC;
+  }
+
+  public void setOilEquivalentRecoverableTwoC(BigDecimal oilEquivalentRecoverableTwoC) {
+    this.oilEquivalentRecoverableTwoC = oilEquivalentRecoverableTwoC;
+  }
+
+  public BigDecimal getOilEquivalentRecoverableThreeC() {
+    return oilEquivalentRecoverableThreeC;
+  }
+
+  public void setOilEquivalentRecoverableThreeC(BigDecimal oilEquivalentRecoverableThreeC) {
+    this.oilEquivalentRecoverableThreeC = oilEquivalentRecoverableThreeC;
+  }
+
+  public BigDecimal getPercentageGas() {
+    return percentageGas;
+  }
+
+  public void setPercentageGas(BigDecimal percentageGas) {
+    this.percentageGas = percentageGas;
+  }
+
+  public BigDecimal getCalculatedComplexity() {
+    return calculatedComplexity;
+  }
+
+  public void setCalculatedComplexity(BigDecimal calculatedComplexity) {
+    this.calculatedComplexity = calculatedComplexity;
   }
 }

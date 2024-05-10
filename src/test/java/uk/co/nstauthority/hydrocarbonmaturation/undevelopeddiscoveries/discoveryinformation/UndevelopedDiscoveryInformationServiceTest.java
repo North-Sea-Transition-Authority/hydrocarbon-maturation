@@ -70,7 +70,12 @@ class UndevelopedDiscoveryInformationServiceTest {
             UndevelopedDiscoveryInformation::getVerticalHeterogeneityRange,
             UndevelopedDiscoveryInformation::getViscosityRange,
             UndevelopedDiscoveryInformation::getStructuralComplexityRange,
-            UndevelopedDiscoveryInformation::getDifferenceReason)
+            UndevelopedDiscoveryInformation::getDifferenceReason,
+            UndevelopedDiscoveryInformation::getPercentageGas,
+            UndevelopedDiscoveryInformation::getOilEquivalentRecoverableOneC,
+            UndevelopedDiscoveryInformation::getOilEquivalentRecoverableTwoC,
+            UndevelopedDiscoveryInformation::getOilEquivalentRecoverableThreeC,
+            UndevelopedDiscoveryInformation::getCalculatedComplexity)
         .containsExactly(
             UndevelopedDiscoveryInformationStatus.EXTANT,
             LocalDate.of(2002, 1, 11),
@@ -87,7 +92,12 @@ class UndevelopedDiscoveryInformationServiceTest {
             null,
             null,
             null,
-            "reason"
+            "reason",
+            new BigDecimal("14.53"),
+            new BigDecimal("1.17"),
+            new BigDecimal("2.34"),
+            new BigDecimal("3.52"),
+            null
         );
   }
 
@@ -126,7 +136,12 @@ class UndevelopedDiscoveryInformationServiceTest {
             UndevelopedDiscoveryInformation::getVerticalHeterogeneityRange,
             UndevelopedDiscoveryInformation::getViscosityRange,
             UndevelopedDiscoveryInformation::getStructuralComplexityRange,
-            UndevelopedDiscoveryInformation::getDifferenceReason)
+            UndevelopedDiscoveryInformation::getDifferenceReason,
+            UndevelopedDiscoveryInformation::getPercentageGas,
+            UndevelopedDiscoveryInformation::getOilEquivalentRecoverableOneC,
+            UndevelopedDiscoveryInformation::getOilEquivalentRecoverableTwoC,
+            UndevelopedDiscoveryInformation::getOilEquivalentRecoverableThreeC,
+            UndevelopedDiscoveryInformation::getCalculatedComplexity)
         .containsExactly(
             UndevelopedDiscoveryInformationStatus.EXTANT,
             LocalDate.of(2002, 1, 11),
@@ -143,7 +158,12 @@ class UndevelopedDiscoveryInformationServiceTest {
             complexityForm.getVerticalHeterogeneityRange(),
             complexityForm.getViscosityRange(),
             complexityForm.getStructuralComplexityRange(),
-            "reason"
+            "reason",
+            new BigDecimal("14.53"),
+            new BigDecimal("1.17"),
+            new BigDecimal("2.34"),
+            new BigDecimal("3.52"),
+            new BigDecimal(14)
         );
   }
 
@@ -170,7 +190,7 @@ class UndevelopedDiscoveryInformationServiceTest {
     deletedInformation.setStatus(UndevelopedDiscoveryInformationStatus.DELETED);
 
     when(informationRepository.findAllByUndevelopedDiscovery(undevelopedDiscovery))
-        .thenReturn(List.of(oldestInformation, newestInformation));
+        .thenReturn(List.of(oldestInformation, newestInformation, deletedInformation));
 
     assertThat(informationService.getOrderedDiscoveryInformation(undevelopedDiscovery))
         .isEqualTo(List.of(newestInformation, oldestInformation));

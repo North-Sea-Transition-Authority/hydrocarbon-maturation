@@ -11,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.complexity.ComplexitySummaryUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.complexity.ComplexityUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -55,13 +55,13 @@ class FieldComplexitySummaryServiceTest {
         .thenReturn(Optional.of(fieldComplexity));
 
     var summaryDataView = SummaryDataView.newWithKeyValue(
-        ComplexitySummaryUtil.VISCOSITY, ViscosityRange.ONE_TO_TEN.getDisplayName()
+        ComplexityUtil.VISCOSITY, ViscosityRange.ONE_TO_TEN.getDisplayName()
     );
-    summaryDataView.addKeyValue(ComplexitySummaryUtil.VERTICAL_HETEROGENEITY,
+    summaryDataView.addKeyValue(ComplexityUtil.VERTICAL_HETEROGENEITY,
         VerticalHeterogeneityRange.ONE_TO_TEN.getDisplayName());
-    summaryDataView.addKeyValue(ComplexitySummaryUtil.AREAL_DENSITY,
+    summaryDataView.addKeyValue(ComplexityUtil.AREAL_DENSITY,
         ArealDensityRange.GREATER_THAN_FOUR_POINT_FIVE.getDisplayName());
-    summaryDataView.addKeyValue(ComplexitySummaryUtil.STRUCTURAL_COMPLEXITY,
+    summaryDataView.addKeyValue(ComplexityUtil.STRUCTURAL_COMPLEXITY,
         StructuralComplexityRange.COMPLEX_GEOMETRIES_COMPARTMENTALISATION.getDisplayName());
     summaryDataView.addKeyValue(FieldComplexitySummaryService.FIELD_COMPLEXITY,
         BigDecimal.ONE);
@@ -89,11 +89,11 @@ class FieldComplexitySummaryServiceTest {
         .thenReturn(Optional.of(fieldComplexity));
 
     var summaryDataView = SummaryDataView.newWithKeyValue(
-        ComplexitySummaryUtil.VISCOSITY, ""
+        ComplexityUtil.VISCOSITY, ""
     );
-    summaryDataView.addKeyValue(ComplexitySummaryUtil.VERTICAL_HETEROGENEITY, "");
-    summaryDataView.addKeyValue(ComplexitySummaryUtil.AREAL_DENSITY, "");
-    summaryDataView.addKeyValue(ComplexitySummaryUtil.STRUCTURAL_COMPLEXITY, "");
+    summaryDataView.addKeyValue(ComplexityUtil.VERTICAL_HETEROGENEITY, "");
+    summaryDataView.addKeyValue(ComplexityUtil.AREAL_DENSITY, "");
+    summaryDataView.addKeyValue(ComplexityUtil.STRUCTURAL_COMPLEXITY, "");
     summaryDataView.addKeyValue(FieldComplexitySummaryService.FIELD_COMPLEXITY, "");
 
     var expectedSummaryCard = SummaryCard.simpleSummaryCardWithHeading(

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.complexity.ComplexitySummaryUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.complexity.ComplexityUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -87,7 +87,7 @@ public class UndevelopedDiscoveryInformationSummaryService implements SummarySec
   }
 
   private SummaryCard getComplexityCard(UndevelopedDiscoveryInformation information, List<SummaryAction> actions) {
-    var summaryData = ComplexitySummaryUtil.getComplexitySummaryDataView(
+    var summaryData = ComplexityUtil.getComplexitySummaryDataView(
         information.getViscosityRange(),
         information.getVerticalHeterogeneityRange(),
         information.getArealDensityRange(),

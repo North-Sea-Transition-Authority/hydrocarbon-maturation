@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexi
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.complexity.ComplexitySummaryUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.complexity.ComplexityUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 
@@ -24,7 +24,7 @@ public class FieldComplexitySummaryService {
     return fieldComplexityRepository.findBySubmissionDetail(submissionDetail)
         .map(
             fieldComplexity -> {
-              var summaryDataView = ComplexitySummaryUtil.getComplexitySummaryDataView(
+              var summaryDataView = ComplexityUtil.getComplexitySummaryDataView(
                   fieldComplexity.getViscosityRange(),
                   fieldComplexity.getVerticalHeterogeneityRange(),
                   fieldComplexity.getArealDensityRange(),

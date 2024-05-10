@@ -1,5 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -8,15 +11,18 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.complexity.ComplexityUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscovery;
+import uk.co.nstauthority.hydrocarbonmaturation.util.BigDecimalUtil;
 
 @Service
 public class UndevelopedDiscoveryInformationService {
 
   private final UndevelopedDiscoveryInformationRepository informationRepository;
 
+  private static final BigDecimal GAS_TO_OIL_EQUIVALENT_CONVERSION_FACTOR = BigDecimal.valueOf(5.8);
 
   @Autowired
   public UndevelopedDiscoveryInformationService(UndevelopedDiscoveryInformationRepository informationRepository) {
@@ -34,40 +40,21 @@ public class UndevelopedDiscoveryInformationService {
         .orElseGet(UndevelopedDiscoveryInformation::new);
 
     undevelopedDiscoveryInformation.setStatus(UndevelopedDiscoveryInformationStatus.EXTANT);
-
     undevelopedDiscoveryInformation.setUndevelopedDiscovery(undevelopedDiscovery);
-
     undevelopedDiscoveryInformation.setInformationDate(newDate);
 
-    // volumetrics
     var volumetrics = form.getVolumetricsForm();
+    addVolumetrics(volumetrics, undevelopedDiscoveryInformation);
 
-    undevelopedDiscoveryInformation.setGasInPlaceP50(volumetrics.getGasInPlace().createBigDecimalOrNull());
-
-    var gasRecoverable = volumetrics.getGasRecoverable();
-    undevelopedDiscoveryInformation.setGasRecoverableOneC(gasRecoverable.getOneC().createBigDecimalOrNull());
-    undevelopedDiscoveryInformation.setGasRecoverableTwoC(gasRecoverable.getTwoC().createBigDecimalOrNull());
-    undevelopedDiscoveryInformation.setGasRecoverableThreeC(gasRecoverable.getThreeC().createBigDecimalOrNull());
-
-    undevelopedDiscoveryInformation.setOilInPlaceP50(volumetrics.getOilInPlace().createBigDecimalOrNull());
-
-    var oilRecoverable = volumetrics.getOilRecoverable();
-    undevelopedDiscoveryInformation.setOilRecoverableOneC(oilRecoverable.getOneC().createBigDecimalOrNull());
-    undevelopedDiscoveryInformation.setOilRecoverableTwoC(oilRecoverable.getTwoC().createBigDecimalOrNull());
-    undevelopedDiscoveryInformation.setOilRecoverableThreeC(oilRecoverable.getThreeC().createBigDecimalOrNull());
-
-    undevelopedDiscoveryInformation.setDifferenceReason(form.getVolumetricsForm().getVolumetricDifferenceReason());
-
-    // complexity
     var providedDiscoveryComplexity = form.getProvideDiscoveryComplexity();
     undevelopedDiscoveryInformation.setProvidedDiscoveryComplexity(providedDiscoveryComplexity);
     if (BooleanUtils.isTrue(providedDiscoveryComplexity)) {
       var complexityForm = form.getComplexityForm();
-      undevelopedDiscoveryInformation.setStructuralComplexityRange(complexityForm.getStructuralComplexityRange());
-      undevelopedDiscoveryInformation.setArealDensityRange(complexityForm.getArealDensityRange());
-      undevelopedDiscoveryInformation.setVerticalHeterogeneityRange(complexityForm.getVerticalHeterogeneityRange());
-      undevelopedDiscoveryInformation.setViscosityRange(complexityForm.getViscosityRange());
+      addComplexity(complexityForm, undevelopedDiscoveryInformation);
     }
+
+    calculateAndAddOilEquivalentRecoverableResources(undevelopedDiscoveryInformation);
+    calculateAndAddPercentageGas(undevelopedDiscoveryInformation);
 
     informationRepository.save(undevelopedDiscoveryInformation);
   }
@@ -141,5 +128,87 @@ public class UndevelopedDiscoveryInformationService {
 
   private boolean isExtant(UndevelopedDiscoveryInformation information) {
     return information.getStatus().equals(UndevelopedDiscoveryInformationStatus.EXTANT);
+  }
+
+  private void addVolumetrics(UndevelopedDiscoveryVolumetricsForm form,
+                              UndevelopedDiscoveryInformation undevelopedDiscoveryInformation) {
+    undevelopedDiscoveryInformation.setGasInPlaceP50(form.getGasInPlace().createBigDecimalOrNull());
+
+    var gasRecoverable = form.getGasRecoverable();
+    undevelopedDiscoveryInformation.setGasRecoverableOneC(gasRecoverable.getOneC().createBigDecimalOrNull());
+    undevelopedDiscoveryInformation.setGasRecoverableTwoC(gasRecoverable.getTwoC().createBigDecimalOrNull());
+    undevelopedDiscoveryInformation.setGasRecoverableThreeC(gasRecoverable.getThreeC().createBigDecimalOrNull());
+
+    undevelopedDiscoveryInformation.setOilInPlaceP50(form.getOilInPlace().createBigDecimalOrNull());
+
+    var oilRecoverable = form.getOilRecoverable();
+    undevelopedDiscoveryInformation.setOilRecoverableOneC(oilRecoverable.getOneC().createBigDecimalOrNull());
+    undevelopedDiscoveryInformation.setOilRecoverableTwoC(oilRecoverable.getTwoC().createBigDecimalOrNull());
+    undevelopedDiscoveryInformation.setOilRecoverableThreeC(oilRecoverable.getThreeC().createBigDecimalOrNull());
+
+    undevelopedDiscoveryInformation.setDifferenceReason(form.getVolumetricDifferenceReason());
+  }
+
+  private void addComplexity(UndevelopedDiscoveryComplexityForm complexityForm,
+                             UndevelopedDiscoveryInformation undevelopedDiscoveryInformation) {
+    undevelopedDiscoveryInformation.setStructuralComplexityRange(complexityForm.getStructuralComplexityRange());
+    undevelopedDiscoveryInformation.setArealDensityRange(complexityForm.getArealDensityRange());
+    undevelopedDiscoveryInformation.setVerticalHeterogeneityRange(complexityForm.getVerticalHeterogeneityRange());
+    undevelopedDiscoveryInformation.setViscosityRange(complexityForm.getViscosityRange());
+
+    var calculatedComplexity = ComplexityUtil.calculateComplexity(complexityForm);
+    undevelopedDiscoveryInformation.setCalculatedComplexity(calculatedComplexity);
+  }
+
+  private void calculateAndAddOilEquivalentRecoverableResources(UndevelopedDiscoveryInformation information) {
+    var oilEquivalentOneC = calculateOilEquivalentRecoverableResources(information.getOilRecoverableOneC(),
+        information.getGasRecoverableOneC());
+    information.setOilEquivalentRecoverableOneC(oilEquivalentOneC);
+
+    var oilEquivalentTwoC = calculateOilEquivalentRecoverableResources(information.getOilRecoverableTwoC(),
+        information.getGasRecoverableTwoC());
+    information.setOilEquivalentRecoverableTwoC(oilEquivalentTwoC);
+
+    var oilEquivalentThreeC = calculateOilEquivalentRecoverableResources(information.getOilRecoverableThreeC(),
+        information.getGasRecoverableThreeC());
+    information.setOilEquivalentRecoverableThreeC(oilEquivalentThreeC);
+  }
+
+  /*
+   * calculates mmboe subject to the formula mmboe(?C) = (?C oil recoverable) + ((?C gas recoverable)/5.8)
+   * @params BigDecimal oilRecoverable, BigDecimal gasRecoverable
+   * @return calculated mmboe, or zero (i.e. there is no oil/gas recoverable)
+   */
+  private BigDecimal calculateOilEquivalentRecoverableResources(BigDecimal oilRecoverable, BigDecimal gasRecoverable) {
+    oilRecoverable = BigDecimalUtil.getValueOrZero(oilRecoverable);
+    gasRecoverable = BigDecimalUtil.getValueOrZero(gasRecoverable);
+
+    var gasDividedByConstant = BigDecimalUtil.isValueZero(gasRecoverable)
+        ? gasRecoverable
+        : gasRecoverable.divide(GAS_TO_OIL_EQUIVALENT_CONVERSION_FACTOR, MathContext.DECIMAL64);
+
+    return oilRecoverable.add(gasDividedByConstant)
+        .setScale(2, RoundingMode.HALF_EVEN);
+  }
+
+  /*
+   * calculates percentage gas subject to the formula (*100 abstracted): % gas = 1 - ((2C oil recoverable)/(2C mmboe))
+   * @params UndevelopedDiscoveryInformation information
+   * @return void, method sets the value on the given entity
+   */
+  private void calculateAndAddPercentageGas(UndevelopedDiscoveryInformation information) {
+    var oilRecoverable = BigDecimalUtil.getValueOrZero(information.getOilRecoverableTwoC());
+    var oilEquivalentRecoverable = BigDecimalUtil.getValueOrZero(information.getOilEquivalentRecoverableTwoC());
+
+    if (!BigDecimalUtil.isValueZero(oilEquivalentRecoverable) && !BigDecimalUtil.isValueZero(oilRecoverable)) {
+      var oilRecoverableDividedByOilEquivalent = oilRecoverable.divide(oilEquivalentRecoverable, MathContext.DECIMAL64);
+
+      var percentageGas = BigDecimal.ONE
+          .subtract(oilRecoverableDividedByOilEquivalent)
+          .multiply(BigDecimal.valueOf(100))
+          .setScale(2, RoundingMode.HALF_EVEN);
+
+      information.setPercentageGas(percentageGas);
+    }
   }
 }

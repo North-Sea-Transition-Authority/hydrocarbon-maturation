@@ -12,7 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.complexity.ComplexitySummaryUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.complexity.ComplexityUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -161,19 +161,19 @@ class UndevelopedDiscoveryInformationSummaryServiceTest {
   private SummaryDataView getExpectedComplexityData(UndevelopedDiscoveryInformation information) {
     return new SummaryDataView(List.of(
         new SummaryKeyValue(
-            ComplexitySummaryUtil.VISCOSITY,
+            ComplexityUtil.VISCOSITY,
             information.getViscosityRange().getDisplayName()
         ),
         new SummaryKeyValue(
-            ComplexitySummaryUtil.VERTICAL_HETEROGENEITY,
+            ComplexityUtil.VERTICAL_HETEROGENEITY,
             information.getVerticalHeterogeneityRange().getDisplayName()
         ),
         new SummaryKeyValue(
-            ComplexitySummaryUtil.AREAL_DENSITY,
+            ComplexityUtil.AREAL_DENSITY,
             information.getArealDensityRange().getDisplayName()
         ),
         new SummaryKeyValue(
-            ComplexitySummaryUtil.STRUCTURAL_COMPLEXITY,
+            ComplexityUtil.STRUCTURAL_COMPLEXITY,
             information.getStructuralComplexityRange().getDisplayName()
         )
     ));
