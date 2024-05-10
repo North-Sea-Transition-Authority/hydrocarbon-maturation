@@ -19,8 +19,10 @@ public record SummaryTableView(
 
   public SummaryTableView addRow(Object... rowValues) {
     valueCountCheck(rowValues.length);
-    var formattedRowValueStrings = Arrays.stream(rowValues).map(SummaryUtil::format).toList();
-    tableRows.add(new SummaryTableRow(formattedRowValueStrings, List.of()));
+    var formattedRowValueStrings = Arrays.stream(rowValues)
+        .map(SummaryUtil::formatForSummaryTableValue)
+        .toList();
+    tableRows.add(new SummaryTableRow(formattedRowValueStrings));
     return this;
   }
 

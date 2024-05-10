@@ -40,6 +40,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableRow;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableValue;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
@@ -559,21 +560,18 @@ class SubmissionEstimateSummaryServiceTest {
 
   private void assertSummaryTableRowsHaveActions(List<SummaryTableRow> tableRows, List<SubmissionEstimate> estimates) {
     // check heading has actions heading and no action links
-    assertThat(tableRows.get(0))
-        .extracting(
-            SummaryTableRow::rowValues,
-            SummaryTableRow::rowActions
-        )
-        .containsExactly(
-            List.of(
-                SubmissionEstimateSummaryService.ESTIMATED_DATES_ON,
-                SubmissionEstimateSummaryService.EARLIEST,
-                SubmissionEstimateSummaryService.MOST_LIKELY,
-                SubmissionEstimateSummaryService.LATEST,
-                SubmissionEstimateSummaryService.ACTIONS
-            ),
-            List.of()
-        );
+    assertThat(tableRows.get(0).rowValues())
+        .usingRecursiveComparison()
+        .isEqualTo(List.of(
+            new SummaryTableValue(SubmissionEstimateSummaryService.ESTIMATED_DATES_ON),
+            new SummaryTableValue(SubmissionEstimateSummaryService.EARLIEST),
+            new SummaryTableValue(SubmissionEstimateSummaryService.MOST_LIKELY),
+            new SummaryTableValue(SubmissionEstimateSummaryService.LATEST),
+            new SummaryTableValue(SubmissionEstimateSummaryService.ACTIONS)
+        ));
+
+    assertThat(tableRows.get(0).rowActions())
+        .isEmpty();
 
     // check each table data row has an action to remove
     var expectedRowActions = estimates.stream()

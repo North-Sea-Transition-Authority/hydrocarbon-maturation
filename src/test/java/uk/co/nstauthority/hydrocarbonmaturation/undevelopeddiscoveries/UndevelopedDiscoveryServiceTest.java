@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Nested;
@@ -122,6 +123,33 @@ class UndevelopedDiscoveryServiceTest {
       assertThat(savedValue.getIsUndevelopedDiscovery()).isFalse();
       assertThat(savedValue.getResource()).isEqualTo(resource);
       assertThat(savedValue.getId()).isEqualTo(undevelopedDiscovery.getId());
+    }
+  }
+
+  @Nested
+  class getAllTrackedUndevelopedDiscoveries {
+    @Test
+    void assertReturnsAndFilters() {
+      var isUndevelopedDiscovery = new UndevelopedDiscovery();
+      isUndevelopedDiscovery.setIsUndevelopedDiscovery(Boolean.TRUE);
+
+      var isNotUndevelopedDiscovery = new UndevelopedDiscovery();
+      isNotUndevelopedDiscovery.setIsUndevelopedDiscovery(Boolean.FALSE);
+
+      when(undevelopedDiscoveryRepository.findAll())
+          .thenReturn(List.of(isUndevelopedDiscovery, isNotUndevelopedDiscovery));
+
+      assertThat(undevelopedDiscoveryService.getAllTrackedUndevelopedDiscoveries())
+          .isEqualTo(List.of(isUndevelopedDiscovery));
+    }
+
+    @Test
+    void assertIsEmpty() {
+      when(undevelopedDiscoveryRepository.findAll())
+          .thenReturn(List.of());
+
+      assertThat(undevelopedDiscoveryService.getAllTrackedUndevelopedDiscoveries())
+          .isEmpty();
     }
   }
 }

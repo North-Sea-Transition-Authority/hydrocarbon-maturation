@@ -13,7 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 import org.springframework.web.servlet.resource.VersionResourceResolver;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserArgumentResolver;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorUsersInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorOrAreaUsersInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasTeamPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ProjectHandlerInterceptor;
@@ -39,7 +39,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
   private final HasPermissionInterceptor hasPermissionInterceptor;
   private final HasTeamPermissionInterceptor hasTeamPermissionInterceptor;
   private final SubmissionHandlerInterceptor submissionHandlerInterceptor;
-  private final AccessibleByRegulatorUsersInterceptor accessibleByRegulatorUsersInterceptor;
+  private final AccessibleByRegulatorOrAreaUsersInterceptor accessibleByRegulatorOrAreaUsersInterceptor;
   private final ValidationTypeArgumentResolver validationTypeArgumentResolver;
   private final UserArgumentResolver userArgumentResolver;
   private final ErrorSummaryHandlerInterceptor errorSummaryHandlerInterceptor;
@@ -53,7 +53,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                              HasPermissionInterceptor hasPermissionInterceptor,
                              HasTeamPermissionInterceptor hasTeamPermissionInterceptor,
                              SubmissionHandlerInterceptor submissionHandlerInterceptor,
-                             AccessibleByRegulatorUsersInterceptor accessibleByRegulatorUsersInterceptor,
+                             AccessibleByRegulatorOrAreaUsersInterceptor accessibleByRegulatorOrAreaUsersInterceptor,
                              ValidationTypeArgumentResolver validationTypeArgumentResolver,
                              UserArgumentResolver userArgumentResolver,
                              ErrorSummaryHandlerInterceptor errorSummaryHandlerInterceptor,
@@ -65,7 +65,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     this.hasPermissionInterceptor = hasPermissionInterceptor;
     this.hasTeamPermissionInterceptor = hasTeamPermissionInterceptor;
     this.submissionHandlerInterceptor = submissionHandlerInterceptor;
-    this.accessibleByRegulatorUsersInterceptor = accessibleByRegulatorUsersInterceptor;
+    this.accessibleByRegulatorOrAreaUsersInterceptor = accessibleByRegulatorOrAreaUsersInterceptor;
     this.validationTypeArgumentResolver = validationTypeArgumentResolver;
     this.userArgumentResolver = userArgumentResolver;
     this.errorSummaryHandlerInterceptor = errorSummaryHandlerInterceptor;
@@ -108,7 +108,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
             .excludePathPatterns(CREATE_PROJECT_PATH);
     registry.addInterceptor(hasPermissionInterceptor)
         .excludePathPatterns(ASSETS_PATH);
-    registry.addInterceptor(accessibleByRegulatorUsersInterceptor)
+    registry.addInterceptor(accessibleByRegulatorOrAreaUsersInterceptor)
         .excludePathPatterns(ASSETS_PATH);
     registry.addInterceptor(errorSummaryHandlerInterceptor)
         .excludePathPatterns(ASSETS_PATH);

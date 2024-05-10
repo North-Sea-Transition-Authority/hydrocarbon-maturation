@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorUsers;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorOrAreaUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsExtantProject;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbItem;
@@ -25,7 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecor
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}/project-tracker")
-@AccessibleByRegulatorUsers
+@AccessibleByRegulatorOrAreaUsers
 @IsExtantProject
 public class ViewProjectController {
   private final ProjectService projectService;

@@ -17,7 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorUsersInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorOrAreaUsersInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
@@ -57,7 +57,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetail
     PermissionManagementHandlerInterceptor.class,
     RegulatorPermissionManagementHandlerInterceptor.class,
     IndustryPermissionManagementHandlerInterceptor.class,
-    AccessibleByRegulatorUsersInterceptor.class,
+    AccessibleByRegulatorOrAreaUsersInterceptor.class,
     HasPermissionInterceptor.class,
     SubmissionStatusInterceptorRule.class,
     RegulatorResponsibleTeamInterceptorRule.class,

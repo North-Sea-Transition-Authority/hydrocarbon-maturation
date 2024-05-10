@@ -1,4 +1,7 @@
 <#include '../layout/layout.ftl'>
+<#import '_tableSummaryValue.ftl' as value>
+<#-- @ftlvariable name="rowValue" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableValue>" -->
+
 <#macro tableSummary summaryTableView>
     <#assign hasRowHeadings = summaryTableView.tableHeadingStyle() == "ROW"
     || summaryTableView.tableHeadingStyle() == "ROW_AND_COLUMN" />
@@ -11,9 +14,9 @@
             <!-- the first row contains the headers -->
             <#list summaryTableView.tableRows()[0].rowValues() as rowValue>
                 <#if hasRowHeadings>
-                    <th class="govuk-table__header">${rowValue!""}</th>
+                    <th class="govuk-table__header">${rowValue.value()!""}</th>
                 <#else>
-                    <td class="govuk-table__cell">${rowValue!""}</td>
+                    <@value.tableSummaryValue tableValue=rowValue/>
                 </#if>
             </#list>
         </tr>
@@ -25,9 +28,9 @@
                 <tr class="govuk-table__row">
                     <#list tableRow.rowValues() as rowValue>
                         <#if rowValue?index == 0 && hasColumnHeadings>
-                            <th class="govuk-table__header">${rowValue!""}</th>
+                            <th class="govuk-table__header">${rowValue.value()!""}</th>
                         <#else>
-                            <td class="govuk-table__cell">${rowValue!""}</td>
+                            <@value.tableSummaryValue tableValue=rowValue/>
                         </#if>
                     </#list>
                     <#if tableRow.rowActions()?has_content>
@@ -54,7 +57,7 @@
     <tr class="govuk-table__row">
       <!-- the first row contains the headers -->
       <#list summaryTableView.tableRows()[0].rowValues() as rowValue>
-        <th class="govuk-table__header govuk-!-width-one-half">${rowValue!""}</th>
+        <th class="govuk-table__header govuk-!-width-one-half">${rowValue.value()!""}</th>
       </#list>
     </tr>
     </thead>
@@ -65,9 +68,9 @@
         <tr class="govuk-table__row">
           <#list tableRow.rowValues() as rowValue>
             <#if rowValue?index == 0>
-              <th scope="row" class="govuk-table__header govuk-!-width-one-half">${rowValue!""}</th>
+              <th scope="row" class="govuk-table__header govuk-!-width-one-half">${rowValue.value()!""}</th>
             <#else>
-              <td class="govuk-table__cell">${rowValue!""}</td>
+              <@value.tableSummaryValue tableValue=rowValue/>
             </#if>
           </#list>
         </tr>

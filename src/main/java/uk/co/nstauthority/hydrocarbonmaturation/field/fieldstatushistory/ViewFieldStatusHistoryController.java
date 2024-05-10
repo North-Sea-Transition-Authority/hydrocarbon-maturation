@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorUsers;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorOrAreaUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
@@ -25,7 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecor
 
 @Controller
 @RequestMapping("/field-status/{fieldIdentifier}")
-@AccessibleByRegulatorUsers
+@AccessibleByRegulatorOrAreaUsers
 public class ViewFieldStatusHistoryController {
   public static final String PAGE_TITLE = "Field status";
 

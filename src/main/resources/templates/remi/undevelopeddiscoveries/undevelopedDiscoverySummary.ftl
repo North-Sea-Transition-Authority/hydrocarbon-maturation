@@ -17,6 +17,10 @@
         <@undevelopedDiscoverySummary.undevelopedDiscoverySummaryCard summaryCard=summaryCard/>
       </#list>
     </#list>
+    <@fdsAction.link
+      linkText="Add undeveloped discovery information"
+      linkClass="govuk-button"
+      linkUrl=springUrl(addDiscoveryInformationUrl)/>
     <@fdsAccordion.accordion accordionId="summaryaccordian-${accordionId}">
       <#list 1..summarySections?size-1 as summarySectionIndex>
         <#assign summarySection = summarySections[summarySectionIndex]/>
@@ -30,8 +34,4 @@
         </#list>
       </#list>
     </@fdsAccordion.accordion>
-    <@fdsAction.link
-      linkText="Add undeveloped discovery information"
-      linkClass="govuk-button"
-      linkUrl=springUrl(addDiscoveryInformationUrl)/>
 </@defaultPage>

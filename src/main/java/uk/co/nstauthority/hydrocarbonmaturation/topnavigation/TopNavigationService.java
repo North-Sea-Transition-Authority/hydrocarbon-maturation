@@ -11,6 +11,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SystemOfRecordLandingPageController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.management.TeamManagementController;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoveriesOverviewController;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Service
@@ -19,6 +20,7 @@ public class TopNavigationService {
   public static final String TEAMS = "Teams";
   public static final String LEGACY_TEAMS = "Legacy teams";
   public static final String SEARCH_RESOURCE_RECORDS = "Search resource records";
+  public static final String UNDEVELOPED_DISCOVERIES = "Undeveloped discoveries";
 
   public List<TopNavigationItem> getTopNavigationItems() {
     var navigationItems = new ArrayList<TopNavigationItem>();
@@ -39,6 +41,12 @@ public class TopNavigationService {
     navigationItems.add(
         new TopNavigationItem(SEARCH_RESOURCE_RECORDS,
             ReverseRouter.route(on(SystemOfRecordLandingPageController.class).getLandingPage()))
+    );
+
+    navigationItems.add(
+        new TopNavigationItem(UNDEVELOPED_DISCOVERIES,
+            ReverseRouter.route(on(UndevelopedDiscoveriesOverviewController.class).viewAllUndevelopedDiscoveries(null))
+        )
     );
 
     return navigationItems;

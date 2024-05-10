@@ -14,6 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SystemOfRecordLandingPageController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.management.TeamManagementController;
 import uk.co.nstauthority.hydrocarbonmaturation.topnavigation.TopNavigationService;
+import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoveriesOverviewController;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,6 +52,12 @@ class TopNavigationServiceTest {
                 StringUtils.stripEnd(
                     ReverseRouter.route(on(SystemOfRecordLandingPageController.class)
                         .getLandingPage()), "/")
+            ),
+            Tuple.tuple(
+                TopNavigationService.UNDEVELOPED_DISCOVERIES,
+                StringUtils.stripEnd(
+                    ReverseRouter.route(on(UndevelopedDiscoveriesOverviewController.class)
+                        .viewAllUndevelopedDiscoveries(null)), "/")
             )
         );
   }

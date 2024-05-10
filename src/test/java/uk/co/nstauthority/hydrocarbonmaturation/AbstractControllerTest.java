@@ -17,7 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserArgumentResolver;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorUsersInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorOrAreaUsersInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasTeamPermissionInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
@@ -60,7 +60,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnica
     PermissionManagementHandlerInterceptor.class,
     RegulatorPermissionManagementHandlerInterceptor.class,
     IndustryPermissionManagementHandlerInterceptor.class,
-    AccessibleByRegulatorUsersInterceptor.class,
+    AccessibleByRegulatorOrAreaUsersInterceptor.class,
     HasPermissionInterceptor.class,
     HasTeamPermissionInterceptor.class,
     PermissionService.class,

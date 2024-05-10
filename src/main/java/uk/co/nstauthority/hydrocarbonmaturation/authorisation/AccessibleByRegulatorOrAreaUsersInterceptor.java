@@ -18,12 +18,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.AbstractHandlerInterceptor;
 
 @Component
-public class AccessibleByRegulatorUsersInterceptor extends AbstractHandlerInterceptor {
+public class AccessibleByRegulatorOrAreaUsersInterceptor extends AbstractHandlerInterceptor {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AccessibleByRegulatorUsersInterceptor.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(AccessibleByRegulatorOrAreaUsersInterceptor.class);
 
   private static final Set<Class<? extends Annotation>> SUPPORTED_SECURITY_ANNOTATIONS = Set.of(
-      AccessibleByRegulatorUsers.class
+      AccessibleByRegulatorOrAreaUsers.class
   );
 
   private final UserService userService;
@@ -31,9 +31,8 @@ public class AccessibleByRegulatorUsersInterceptor extends AbstractHandlerInterc
   private final AreaTeamService areaTeamService;
 
   @Autowired
-  public AccessibleByRegulatorUsersInterceptor(UserService userService,
-                                               RegulatorTeamService regulatorTeamService,
-                                               AreaTeamService areaTeamService) {
+  public AccessibleByRegulatorOrAreaUsersInterceptor(UserService userService, RegulatorTeamService regulatorTeamService,
+                                                     AreaTeamService areaTeamService) {
     this.userService = userService;
     this.regulatorTeamService = regulatorTeamService;
     this.areaTeamService = areaTeamService;
@@ -49,7 +48,6 @@ public class AccessibleByRegulatorUsersInterceptor extends AbstractHandlerInterc
     ) {
 
       var user = userService.getUser();
-
       if (!(regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user))) {
 
         var errorMessage = "User with ID %s is not a regulator user".formatted(user.wuaId());

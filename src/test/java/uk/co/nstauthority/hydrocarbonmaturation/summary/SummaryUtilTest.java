@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -78,6 +79,46 @@ class SummaryUtilTest {
 
     assertThat(SummaryUtil.format(displayable))
         .isEqualTo("Displayable name");
+  }
+
+  @Test
+  void formatForSummaryTableValue_isSummaryTableValue() {
+    var value = new DecimalInput("5.01");
+    var link = "some link";
+    var tags = List.of(new Tag("Test tag", TagColour.RED));
+
+    var summaryTableValue = new SummaryTableValue(value, link, tags);
+
+    assertThat(SummaryUtil.formatForSummaryTableValue(summaryTableValue))
+        .extracting(
+            SummaryTableValue::value,
+            SummaryTableValue::link,
+            SummaryTableValue::tags
+        )
+        .isEqualTo(List.of(
+            value.getDecimalInputValue(),
+            link,
+            tags
+        ));
+  }
+
+  @Test
+  void formatForSummaryTableValue_isSimpleValue() {
+    var value = new DecimalInput("5.01");
+
+    var generatedSummaryTableValue = SummaryUtil.formatForSummaryTableValue(value);
+    assertThat(generatedSummaryTableValue)
+        .extracting(
+            SummaryTableValue::value,
+            SummaryTableValue::tags
+        )
+        .isEqualTo(List.of(
+            value.getDecimalInputValue(),
+            List.of()
+        ));
+
+    assertThat(generatedSummaryTableValue.link())
+        .isNull();
   }
 
   @ParameterizedTest

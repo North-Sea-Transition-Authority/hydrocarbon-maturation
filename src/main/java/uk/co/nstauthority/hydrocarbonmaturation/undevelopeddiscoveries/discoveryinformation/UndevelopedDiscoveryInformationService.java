@@ -6,6 +6,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +55,9 @@ public class UndevelopedDiscoveryInformationService {
     }
 
     calculateAndAddOilEquivalentRecoverableResources(undevelopedDiscoveryInformation);
-    calculateAndAddPercentageGas(undevelopedDiscoveryInformation);
+
+    var percentageGas = calculatePercentageGas(undevelopedDiscoveryInformation);
+    undevelopedDiscoveryInformation.setPercentageGas(percentageGas);
 
     informationRepository.save(undevelopedDiscoveryInformation);
   }
@@ -72,6 +75,12 @@ public class UndevelopedDiscoveryInformationService {
         .filter(this::isExtant)
         .sorted(Comparator.comparing(UndevelopedDiscoveryInformation::getInformationDate).reversed())
         .toList();
+  }
+
+  public Optional<UndevelopedDiscoveryInformation> getLatestInformation(UndevelopedDiscovery undevelopedDiscovery) {
+    return getOrderedDiscoveryInformation(undevelopedDiscovery)
+        .stream()
+        .findFirst();
   }
 
   public UndevelopedDiscoveryInformation getUndevelopedDiscoveryInformationOrThrow(UUID uuid) {
@@ -194,21 +203,24 @@ public class UndevelopedDiscoveryInformationService {
   /*
    * calculates percentage gas subject to the formula (*100 abstracted): % gas = 1 - ((2C oil recoverable)/(2C mmboe))
    * @params UndevelopedDiscoveryInformation information
-   * @return void, method sets the value on the given entity
+   * @return BigDecimal percentage gas
    */
-  private void calculateAndAddPercentageGas(UndevelopedDiscoveryInformation information) {
+  private BigDecimal calculatePercentageGas(UndevelopedDiscoveryInformation information) {
     var oilRecoverable = BigDecimalUtil.getValueOrZero(information.getOilRecoverableTwoC());
     var oilEquivalentRecoverable = BigDecimalUtil.getValueOrZero(information.getOilEquivalentRecoverableTwoC());
 
-    if (!BigDecimalUtil.isValueZero(oilEquivalentRecoverable) && !BigDecimalUtil.isValueZero(oilRecoverable)) {
+    if (BigDecimalUtil.isValueZero(oilEquivalentRecoverable)) {
+      // there is no oil or gas
+      return null;
+    } else if (BigDecimalUtil.isValueZero(oilRecoverable)) {
+      // no oil, must all be gas
+      return BigDecimal.valueOf(100);
+    } else {
       var oilRecoverableDividedByOilEquivalent = oilRecoverable.divide(oilEquivalentRecoverable, MathContext.DECIMAL64);
 
-      var percentageGas = BigDecimal.ONE
-          .subtract(oilRecoverableDividedByOilEquivalent)
+      return BigDecimal.ONE.subtract(oilRecoverableDividedByOilEquivalent)
           .multiply(BigDecimal.valueOf(100))
           .setScale(2, RoundingMode.HALF_EVEN);
-
-      information.setPercentageGas(percentageGas);
     }
   }
 }

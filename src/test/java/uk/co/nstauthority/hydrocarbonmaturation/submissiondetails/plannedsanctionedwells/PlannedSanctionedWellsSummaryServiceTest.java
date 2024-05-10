@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryKeyValue;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableRow;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableValue;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 
@@ -109,7 +110,10 @@ class PlannedSanctionedWellsSummaryServiceTest {
             PlannedSanctionedWellsSummaryService.PLANNED_SANCTIONED_WELLS_WELL_TYPES
         );
 
-    var expectedTableHeaderRow = new SummaryTableRow(List.of("", PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS));
+    var expectedTableHeaderRow = new SummaryTableRow(List.of(
+        new SummaryTableValue(""),
+        new SummaryTableValue(PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS)
+    ));
     var summaryTableView = ((SummaryTableView) summaryCard.summaryData());
     assertThat(summaryTableView.tableRows())
         .containsExactly(expectedTableHeaderRow);
@@ -130,7 +134,10 @@ class PlannedSanctionedWellsSummaryServiceTest {
             PlannedSanctionedWellsSummaryService.PLANNED_SANCTIONED_WELLS_WELL_TYPES
         );
 
-    var expectedTableHeaderRow = new SummaryTableRow(List.of("", PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS));
+    var expectedTableHeaderRow = new SummaryTableRow(List.of(
+        new SummaryTableValue(""),
+        new SummaryTableValue(PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS)
+    ));
     var summaryTableView = ((SummaryTableView) summaryCard.summaryData());
     assertThat(summaryTableView.tableRows())
         .contains(expectedTableHeaderRow);
@@ -220,7 +227,7 @@ class PlannedSanctionedWellsSummaryServiceTest {
     var expectedRows = expectedWellTypes.stream()
         .map(Tuple::toList)
         .map(objects -> objects.stream()
-            .map(Object::toString)
+            .map(SummaryTableValue::new)
             .toList())
         .map(SummaryTableRow::new)
         .toList();
@@ -235,9 +242,15 @@ class PlannedSanctionedWellsSummaryServiceTest {
     }
 
     if (!keysNotInSummaries.isEmpty()) {
-      assertThat(wellTypesSummaryTableView.tableRows())
-          .extracting(SummaryTableRow::rowValues)
-          .doesNotContainAnyElementsOf(Collections.singleton(keysNotInSummaries));
+      var allValues = wellTypesSummaryTableView.tableRows()
+          .stream()
+          .map(SummaryTableRow::rowValues)
+          .flatMap(List::stream)
+          .map(SummaryTableValue::value)
+          .toList();
+
+      assertThat(allValues).isNotEmpty();
+      assertThat(allValues).doesNotContainAnyElementsOf(keysNotInSummaries);
     }
 
   }
@@ -606,7 +619,10 @@ class PlannedSanctionedWellsSummaryServiceTest {
             PlannedSanctionedWellsSummaryService.HOLE_COMPLETION_TYPES
         );
 
-    var expectedTableHeaderRow = new SummaryTableRow(List.of("", PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS));
+    var expectedTableHeaderRow = new SummaryTableRow(List.of(
+        new SummaryTableValue(""),
+        new SummaryTableValue(PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS)
+    ));
     var summaryTableView = ((SummaryTableView) summaryCard.summaryData());
     assertThat(summaryTableView.tableRows())
         .containsExactly(expectedTableHeaderRow);
@@ -640,17 +656,19 @@ class PlannedSanctionedWellsSummaryServiceTest {
             PlannedSanctionedWellsSummaryService.HOLE_COMPLETION_TYPES
         );
 
-    var expectedTableHeaderRow = new SummaryTableRow(
-        List.of("", PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS)
-    );
+    var expectedTableHeaderRow = new SummaryTableRow(List.of(
+        new SummaryTableValue(""),
+        new SummaryTableValue(PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS)
+    ));
 
-    var expectedRow1 = new SummaryTableRow(
-        List.of(HoleCompletionType.OPENED_HOLE.getDisplayName(),
-            holeCompletionType1.getNumberOfWellsWithHoleCompletionType().toString()));
-    var expectedRow2 = new SummaryTableRow(
-        List.of(HoleCompletionType.CASED_HOLE.getDisplayName(),
-            holeCompletionType2.getNumberOfWellsWithHoleCompletionType().toString())
-    );
+    var expectedRow1 = new SummaryTableRow(List.of(
+        new SummaryTableValue(HoleCompletionType.OPENED_HOLE.getDisplayName()),
+        new SummaryTableValue(holeCompletionType1.getNumberOfWellsWithHoleCompletionType().toString())
+    ));
+    var expectedRow2 = new SummaryTableRow(List.of(
+        new SummaryTableValue(HoleCompletionType.CASED_HOLE.getDisplayName()),
+        new SummaryTableValue(holeCompletionType2.getNumberOfWellsWithHoleCompletionType().toString())
+    ));
 
     var summaryTableView = ((SummaryTableView) summaryCard.summaryData());
     assertThat(summaryTableView.tableRows())
@@ -672,7 +690,10 @@ class PlannedSanctionedWellsSummaryServiceTest {
             PlannedSanctionedWellsSummaryService.PLANNED_COMPLETION_TYPE
         );
 
-    var expectedTableHeaderRow = new SummaryTableRow(List.of("", PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS));
+    var expectedTableHeaderRow = new SummaryTableRow(List.of(
+        new SummaryTableValue(""),
+        new SummaryTableValue(PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS)
+    ));
     var summaryTableView = ((SummaryTableView) summaryCard.summaryData());
     assertThat(summaryTableView.tableRows())
         .containsExactly(expectedTableHeaderRow);
@@ -706,17 +727,19 @@ class PlannedSanctionedWellsSummaryServiceTest {
             PlannedSanctionedWellsSummaryService.PLANNED_COMPLETION_TYPE
         );
 
-    var expectedTableHeaderRow = new SummaryTableRow(
-        List.of("", PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS)
-    );
+    var expectedTableHeaderRow = new SummaryTableRow(List.of(
+        new SummaryTableValue(""),
+        new SummaryTableValue(PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS)
+    ));
 
-    var expectedRow1 = new SummaryTableRow(
-        List.of(plannedCompletionType1.getPlannedCompletionType().getDisplayName(),
-            plannedCompletionType1.getNumberOfWellsWithPlannedCompletionType().toString()));
-    var expectedRow2 = new SummaryTableRow(
-        List.of(plannedCompletionType2.getPlannedCompletionType().getDisplayName(),
-            plannedCompletionType2.getNumberOfWellsWithPlannedCompletionType().toString())
-    );
+    var expectedRow1 = new SummaryTableRow(List.of(
+        new SummaryTableValue(plannedCompletionType1.getPlannedCompletionType().getDisplayName()),
+        new SummaryTableValue(plannedCompletionType1.getNumberOfWellsWithPlannedCompletionType().toString())
+    ));
+    var expectedRow2 = new SummaryTableRow(List.of(
+        new SummaryTableValue(plannedCompletionType2.getPlannedCompletionType().getDisplayName()),
+        new SummaryTableValue(plannedCompletionType2.getNumberOfWellsWithPlannedCompletionType().toString())
+    ));
 
     var summaryTableView = ((SummaryTableView) summaryCard.summaryData());
     assertThat(summaryTableView.tableRows())
@@ -738,7 +761,11 @@ class PlannedSanctionedWellsSummaryServiceTest {
             PlannedSanctionedWellsSummaryService.ARTIFICIAL_LIFT_MECHANISMS
         );
 
-    var expectedTableHeaderRow = new SummaryTableRow(List.of("", PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS));
+    var expectedTableHeaderRow = new SummaryTableRow(List.of(
+        new SummaryTableValue(""),
+        new SummaryTableValue(PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS)
+    ));
+
     var summaryTableView = ((SummaryTableView) summaryCard.summaryData());
     assertThat(summaryTableView.tableRows())
         .containsExactly(expectedTableHeaderRow);
@@ -773,17 +800,19 @@ class PlannedSanctionedWellsSummaryServiceTest {
             PlannedSanctionedWellsSummaryService.ARTIFICIAL_LIFT_MECHANISMS
         );
 
-    var expectedTableHeaderRow = new SummaryTableRow(
-        List.of("", PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS)
-    );
+    var expectedTableHeaderRow = new SummaryTableRow(List.of(
+        new SummaryTableValue(""),
+        new SummaryTableValue(PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS)
+    ));
 
-    var expectedRow1 = new SummaryTableRow(
-        List.of(artificialLiftMechansism1.getArtificialLiftMechanism().getDisplayName(),
-            artificialLiftMechansism1.getNumberOfWellsWithArtificialLiftMechanism().toString()));
-    var expectedRow2 = new SummaryTableRow(
-        List.of(artificialLiftMechansism2.getOtherArtificialLiftMechanism(),
-            artificialLiftMechansism2.getNumberOfWellsWithArtificialLiftMechanism().toString())
-    );
+    var expectedRow1 = new SummaryTableRow(List.of(
+        new SummaryTableValue(artificialLiftMechansism1.getArtificialLiftMechanism().getDisplayName()),
+        new SummaryTableValue(artificialLiftMechansism1.getNumberOfWellsWithArtificialLiftMechanism().toString())
+    ));
+    var expectedRow2 = new SummaryTableRow(List.of(
+        new SummaryTableValue(artificialLiftMechansism2.getOtherArtificialLiftMechanism()),
+        new SummaryTableValue(artificialLiftMechansism2.getNumberOfWellsWithArtificialLiftMechanism().toString())
+    ));
 
     var summaryTableView = ((SummaryTableView) summaryCard.summaryData());
     assertThat(summaryTableView.tableRows())

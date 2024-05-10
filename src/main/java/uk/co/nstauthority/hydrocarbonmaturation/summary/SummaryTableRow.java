@@ -6,10 +6,10 @@ import java.util.Collections;
 import java.util.List;
 
 public record SummaryTableRow(
-    List<String> rowValues,
+    List<SummaryTableValue> rowValues,
     List<SummaryAction> rowActions
 ) {
-  public SummaryTableRow(List<String> rowValues) {
+  public SummaryTableRow(List<SummaryTableValue> rowValues) {
     this(rowValues, List.of());
   }
 
@@ -22,7 +22,7 @@ public record SummaryTableRow(
   }
 
   public static class Builder {
-    List<String> rowValues = new ArrayList<>();
+    List<SummaryTableValue> rowValues = new ArrayList<>();
     List<SummaryAction> rowActions = new ArrayList<>();
 
     private Builder() {
@@ -33,7 +33,11 @@ public record SummaryTableRow(
     }
 
     public Builder withValues(Object... values) {
-      this.rowValues.addAll(Arrays.stream(values).map(SummaryUtil::format).toList());
+      var convertedValues = Arrays.stream(values)
+          .map(SummaryUtil::formatForSummaryTableValue)
+          .toList();
+
+      this.rowValues.addAll(convertedValues);
       return this;
     }
 

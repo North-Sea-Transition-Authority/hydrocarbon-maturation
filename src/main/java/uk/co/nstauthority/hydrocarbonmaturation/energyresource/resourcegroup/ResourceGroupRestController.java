@@ -7,13 +7,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorUsers;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorOrAreaUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 
 @RestController
 @RequestMapping("/api/resource-groups")
-@AccessibleByRegulatorUsers
+@AccessibleByRegulatorOrAreaUsers
 public class ResourceGroupRestController {
 
   private final SearchSelectorService searchSelectorService;
