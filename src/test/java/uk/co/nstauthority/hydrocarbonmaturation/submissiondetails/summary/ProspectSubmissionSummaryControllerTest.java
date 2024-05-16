@@ -33,7 +33,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
@@ -72,9 +71,6 @@ class ProspectSubmissionSummaryControllerTest extends AbstractSubmissionControll
 
   @MockBean
   private SubmissionSummaryFormValidator submissionSummaryFormValidator;
-
-  @MockBean
-  private InternalTeamService internalTeamService;
 
   private UUID submissionDetailId;
 

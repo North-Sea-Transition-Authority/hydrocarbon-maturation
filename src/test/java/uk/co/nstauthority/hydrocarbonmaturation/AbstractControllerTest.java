@@ -35,6 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.IncludeEnergyPortal
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectService;
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamMemberService;
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.PermissionManagementHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryPermissionManagementHandlerInterceptor;
@@ -120,6 +121,9 @@ public abstract class AbstractControllerTest {
 
   @MockBean
   protected MetricsProvider metricsProvider;
+
+  @MockBean
+  protected InternalTeamService internalTeamService;
 
   @Autowired
   protected ControllerHelperService controllerHelperService;

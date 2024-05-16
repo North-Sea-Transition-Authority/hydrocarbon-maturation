@@ -21,7 +21,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.CrossTabRow;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCrossTabView;
@@ -58,18 +57,12 @@ class UndevelopedDiscoverySummaryControllerTest extends AbstractUndevelopedDisco
         List.of()
     );
 
-    var volumetricSummaryCard = SummaryCard.crossTabSummaryCardWithActions(
+    var volumetricSummaryCard = SummaryCard.crossTabSummaryCard(
         "Discovery volumetrics",
         new SummaryCrossTabView(
             List.of("P50", "1C", "2C", "3C", "Units"),
             List.of(new CrossTabRow("example row", List.of("1", "1", "1", "1", "units")))
-        ),
-        List.of(new SummaryAction(
-            "label",
-            ReverseRouter.route(on(UndevelopedDiscoveryInformationController.class)
-                .getUndevelopedDiscoveryInformation(RESOURCE_ID)),
-            ""
-        ))
+        )
     );
 
     var justificationCard = SummaryCard.simpleSummaryCardWithHeading(

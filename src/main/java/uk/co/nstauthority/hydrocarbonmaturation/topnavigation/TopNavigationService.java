@@ -5,8 +5,10 @@ import static uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaControll
 
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.navigation.TopNavigationItem;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.LegacyTeamManagementController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SystemOfRecordLandingPageController;
@@ -21,6 +23,12 @@ public class TopNavigationService {
   public static final String LEGACY_TEAMS = "Legacy teams";
   public static final String SEARCH_RESOURCE_RECORDS = "Search resource records";
   public static final String UNDEVELOPED_DISCOVERIES = "Undeveloped discoveries";
+  private final InternalTeamService internalTeamService;
+
+  @Autowired
+  public TopNavigationService(InternalTeamService internalTeamService) {
+    this.internalTeamService = internalTeamService;
+  }
 
   public List<TopNavigationItem> getTopNavigationItems() {
     var navigationItems = new ArrayList<TopNavigationItem>();
@@ -43,11 +51,14 @@ public class TopNavigationService {
             ReverseRouter.route(on(SystemOfRecordLandingPageController.class).getLandingPage()))
     );
 
-    navigationItems.add(
-        new TopNavigationItem(UNDEVELOPED_DISCOVERIES,
-            ReverseRouter.route(on(UndevelopedDiscoveriesOverviewController.class).viewAllUndevelopedDiscoveries(null))
-        )
-    );
+    if (Boolean.TRUE.equals(internalTeamService.isRegulatorOrAreaTeamUser())) {
+      navigationItems.add(
+          new TopNavigationItem(UNDEVELOPED_DISCOVERIES,
+              ReverseRouter.route(on(UndevelopedDiscoveriesOverviewController.class)
+                  .viewAllUndevelopedDiscoveries(null))
+          )
+      );
+    }
 
     return navigationItems;
   }

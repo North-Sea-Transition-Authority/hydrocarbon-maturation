@@ -32,6 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.cookies.CookiesController;
 import uk.co.nstauthority.hydrocarbonmaturation.feedback.FeedbackController;
 import uk.co.nstauthority.hydrocarbonmaturation.footer.AccessibilityStatementController;
 import uk.co.nstauthority.hydrocarbonmaturation.footer.ContactInformationController;
+import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnicalSupportConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSupportConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.topnavigation.TopNavigationService;
@@ -55,6 +56,9 @@ class DefaultPageControllerAdviceTest {
 
   @MockBean
   protected UserService userService;
+
+  @MockBean
+  protected InternalTeamService internalTeamService;
 
   @Test
   void addDefaultModelAttributes_verifyDefaultAttributes() throws Exception {

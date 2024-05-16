@@ -119,13 +119,12 @@ public record SummaryCard(
     );
   }
 
-  public static SummaryCard crossTabSummaryCardWithActions(String heading, SummaryCrossTabView crossTabView,
-                                                           List<SummaryAction> actions) {
+  public static SummaryCard crossTabSummaryCard(String heading, SummaryCrossTabView crossTabView) {
     return new SummaryCard(
         heading,
         SummaryCardType.CROSS_TAB,
         crossTabView,
-        actions
+        List.of()
     );
   }
 }

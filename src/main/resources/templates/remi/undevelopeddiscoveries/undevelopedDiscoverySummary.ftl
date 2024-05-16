@@ -1,5 +1,6 @@
 <#include '../layout/layout.ftl'>
 <#import '../summary/_undevelopedDiscoverySummaryCard.ftl' as undevelopedDiscoverySummary>
+<#import '../summary/_summarySectionActions.ftl' as summarySectionActions>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
@@ -27,9 +28,10 @@
         <#list summarySection.summaryItems() as summaryItem>
           <@fdsAccordion.accordionSection sectionHeading=summaryItem.displayName()
             openSection=(summarySectionIndex == 1 && summaryItem?index == 0)>
-            <#list summaryItem.summaryCards() as summaryCard>
-              <@undevelopedDiscoverySummary.undevelopedDiscoverySummaryCard summaryCard=summaryCard/>
-            </#list>
+              <@summarySectionActions.summarySectionActions actions=summaryItem.summarySectionActions()/>
+              <#list summaryItem.summaryCards() as summaryCard>
+                <@undevelopedDiscoverySummary.undevelopedDiscoverySummaryCard summaryCard=summaryCard/>
+              </#list>
           </@fdsAccordion.accordionSection>
         </#list>
       </#list>

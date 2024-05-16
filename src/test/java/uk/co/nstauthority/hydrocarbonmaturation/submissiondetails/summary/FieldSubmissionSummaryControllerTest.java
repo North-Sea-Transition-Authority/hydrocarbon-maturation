@@ -36,7 +36,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -75,9 +74,6 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
 
   @MockBean
   private FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
-
-  @MockBean
-  private InternalTeamService internalTeamService;
 
   private ResourceDetailSummaryView resourceDetailSummaryView;
   private List<SummarySection> summarySections;

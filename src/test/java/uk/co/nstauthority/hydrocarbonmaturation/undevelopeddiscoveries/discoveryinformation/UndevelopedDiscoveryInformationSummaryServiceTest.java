@@ -61,19 +61,21 @@ class UndevelopedDiscoveryInformationSummaryServiceTest {
             20
         );
 
+    var expectedSummaryActions = getExpectedSummaryActions(resource, undevelopedDiscoveryInformation);
     var summaryItems = summarySection.get().summaryItems();
     assertThat(summaryItems)
         .hasSize(1)
         .extracting(
             SummaryItem::displayName,
-            item -> item.summaryCards().size()
+            item -> item.summaryCards().size(),
+            SummaryItem::summarySectionActions
         )
         .containsExactly(tuple(
             "Discovery information for 11 January 2002",
-            3
+            3,
+            expectedSummaryActions
         ));
 
-    var expectedSummaryActions = getExpectedSummaryActions(resource, undevelopedDiscoveryInformation);
     var expectedVolumetricData = getExpectedVolumetricData();
     var volumetricsCard = summaryItems.get(0).summaryCards().get(0);
     assertThat(volumetricsCard)
@@ -85,7 +87,7 @@ class UndevelopedDiscoveryInformationSummaryServiceTest {
         )
         .containsExactly(
             UndevelopedDiscoveryInformationSummaryService.DISCOVERY_VOLUMETRICS,
-            expectedSummaryActions,
+            List.of(),
             SummaryCardType.CROSS_TAB,
             expectedVolumetricData
         );
@@ -101,7 +103,7 @@ class UndevelopedDiscoveryInformationSummaryServiceTest {
         )
         .containsExactly(
             UndevelopedDiscoveryInformationSummaryService.VOLUMETRICS_DIFFERENCE_HEADING,
-            expectedSummaryActions,
+            List.of(),
             SummaryCardType.SIMPLE_SUMMARY,
             expectedJustificationData
         );
@@ -117,7 +119,7 @@ class UndevelopedDiscoveryInformationSummaryServiceTest {
         )
         .containsExactly(
             UndevelopedDiscoveryInformationSummaryService.DISCOVERY_COMPLEXITY,
-            expectedSummaryActions,
+            List.of(),
             SummaryCardType.SIMPLE_SUMMARY,
             expectedComplexityData
         );
@@ -127,13 +129,13 @@ class UndevelopedDiscoveryInformationSummaryServiceTest {
                                                         UndevelopedDiscoveryInformation undevelopedDiscoveryInformation) {
     return List.of(
         new SummaryAction(
-            "Change",
+            "Update undeveloped discovery information",
             ReverseRouter.route(on(UndevelopedDiscoveryInformationController.class)
                 .getExistingUndevelopedDiscoveryInformation(resource.getId(), undevelopedDiscoveryInformation.getId())),
-            "Change undeveloped discovery information"
+            "Update undeveloped discovery information"
         ),
         new SummaryAction(
-            "Remove",
+            "Remove undeveloped discovery information",
             ReverseRouter.route(on(UndevelopedDiscoveryRemoveInformationController.class)
                 .getRemoveInformationConfirmation(resource.getId(), undevelopedDiscoveryInformation.getId())),
             "Remove undeveloped discovery information"

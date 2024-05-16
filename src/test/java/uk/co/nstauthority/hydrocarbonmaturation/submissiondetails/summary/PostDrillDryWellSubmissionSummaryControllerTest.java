@@ -32,7 +32,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -66,9 +65,6 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
 
   @MockBean
   private SubmissionSummaryFormValidator submissionSummaryFormValidator;
-
-  @MockBean
-  private InternalTeamService internalTeamService;
 
   private static UUID submissionDetailId;
   private DryWellDetailsSummaryView dryWellDetailsSummaryView;

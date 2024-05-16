@@ -54,25 +54,23 @@ public class UndevelopedDiscoveryInformationSummaryService implements SummarySec
 
   public SummaryItem getSummaryItem(UndevelopedDiscoveryInformation undevelopedDiscoveryInformation,
                                     List<SummaryAction> actions) {
-    var volumetricCard = getVolumetricsCard(undevelopedDiscoveryInformation, actions);
-    var justificationCard = getJustificationCard(undevelopedDiscoveryInformation, actions);
-    var complexityCard = getComplexityCard(undevelopedDiscoveryInformation, actions);
+    var volumetricCard = getVolumetricsCard(undevelopedDiscoveryInformation);
+    var justificationCard = getJustificationCard(undevelopedDiscoveryInformation);
+    var complexityCard = getComplexityCard(undevelopedDiscoveryInformation);
 
     var cards = List.of(volumetricCard, justificationCard, complexityCard);
 
     var prettyDate = DateUtil.formatLongDate(undevelopedDiscoveryInformation.getInformationDate());
-    return SummaryItem.withCards("Discovery information for %s".formatted(prettyDate), cards);
+    return SummaryItem.withCardsAndActions("Discovery information for %s".formatted(prettyDate), cards, actions);
   }
 
-  private SummaryCard getVolumetricsCard(UndevelopedDiscoveryInformation undevelopedDiscoveryInformation,
-                                         List<SummaryAction> actions) {
+  private SummaryCard getVolumetricsCard(UndevelopedDiscoveryInformation undevelopedDiscoveryInformation) {
     var crossTabView = new SummaryCrossTabView(CROSS_TAB_HEADINGS);
     crossTabView = addRows(crossTabView, undevelopedDiscoveryInformation);
-    return SummaryCard.crossTabSummaryCardWithActions(DISCOVERY_VOLUMETRICS, crossTabView, actions);
+    return SummaryCard.crossTabSummaryCard(DISCOVERY_VOLUMETRICS, crossTabView);
   }
 
-  private SummaryCard getJustificationCard(UndevelopedDiscoveryInformation undevelopedDiscoveryInformation,
-                                           List<SummaryAction> actions) {
+  private SummaryCard getJustificationCard(UndevelopedDiscoveryInformation undevelopedDiscoveryInformation) {
     var summaryData = SummaryDataView.newWithKeyValue(
         VOLUMETRIC_DIFFERENCE_KEY,
         undevelopedDiscoveryInformation.getDifferenceReason()
@@ -82,11 +80,11 @@ public class UndevelopedDiscoveryInformationSummaryService implements SummarySec
         VOLUMETRICS_DIFFERENCE_HEADING,
         SummaryCardType.SIMPLE_SUMMARY,
         summaryData,
-        actions
+        List.of()
     );
   }
 
-  private SummaryCard getComplexityCard(UndevelopedDiscoveryInformation information, List<SummaryAction> actions) {
+  private SummaryCard getComplexityCard(UndevelopedDiscoveryInformation information) {
     var summaryData = ComplexityUtil.getComplexitySummaryDataView(
         information.getViscosityRange(),
         information.getVerticalHeterogeneityRange(),
@@ -98,7 +96,7 @@ public class UndevelopedDiscoveryInformationSummaryService implements SummarySec
         DISCOVERY_COMPLEXITY,
         SummaryCardType.SIMPLE_SUMMARY,
         summaryData,
-        actions
+        List.of()
     );
   }
 
@@ -108,13 +106,13 @@ public class UndevelopedDiscoveryInformationSummaryService implements SummarySec
 
     return List.of(
         new SummaryAction(
-            "Change",
+            "Update undeveloped discovery information",
             ReverseRouter.route(on(UndevelopedDiscoveryInformationController.class)
                 .getExistingUndevelopedDiscoveryInformation(resourceId, informationId)),
-            "Change undeveloped discovery information"
+            "Update undeveloped discovery information"
         ),
         new SummaryAction(
-            "Remove",
+            "Remove undeveloped discovery information",
             ReverseRouter.route(on(UndevelopedDiscoveryRemoveInformationController.class)
                 .getRemoveInformationConfirmation(resourceId, informationId)),
             "Remove undeveloped discovery information"
