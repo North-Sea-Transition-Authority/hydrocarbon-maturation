@@ -8,13 +8,15 @@
       linkHeadingText=resultItem.headingText()>
 
         <@fdsResultList.resultListDataItem>
-            <@fdsResultList.resultListDataValue
-              key="Responsible team"
-              value=modelProperties["teamResponsible"]/>
+          <@fdsResultList.resultListDataValue
+            key="Responsible team"
+            value=modelProperties["teamResponsible"]
+            width=2/>
 
-            <@fdsResultList.resultListDataValue
+          <@fdsResultList.resultListDataValue
             key="Responsible organisation"
-            value=modelProperties["organisationResponsible"]/>
+            value=modelProperties["organisationResponsible"]
+            width=4/>
 
             <#assign licencesDisplay>
               <#if modelProperties["licences"]?has_content>
@@ -25,7 +27,8 @@
             </#assign>
             <@fdsResultList.resultListDataValue
               key="Licences"
-              value=licencesDisplay/>
+              value=licencesDisplay
+              width=1/>
         </@fdsResultList.resultListDataItem>
 
   </@fdsResultList.resultListItem>
