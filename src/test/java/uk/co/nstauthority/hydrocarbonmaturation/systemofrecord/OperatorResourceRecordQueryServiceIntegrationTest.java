@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import jakarta.persistence.EntityManager;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -85,7 +86,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var resourceUserIsResponsibleFor = buildProspectResource();
     var submissionUserIsResponsibleFor =
-        buildSubmissionDetail(resourceUserIsResponsibleFor, SubmissionType.CREATE_PROSPECT);
+        buildSubmissionDetail(resourceUserIsResponsibleFor, SubmissionType.CREATE_PROSPECT, null);
     var resourceNameUserIsResponsibleFOr = "The resource name A";
     var generalDetailUserIsResponsibleFor = createGeneralDetail(submissionUserIsResponsibleFor);
     createResourceDetail(
@@ -94,7 +95,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var resourceUserIsNotResponsibleFor = buildProspectResource();
     var submissionUserIsNotResponsibleFor =
-        buildSubmissionDetail(resourceUserIsNotResponsibleFor, SubmissionType.CREATE_PROSPECT);
+        buildSubmissionDetail(resourceUserIsNotResponsibleFor, SubmissionType.CREATE_PROSPECT, null);
     var resourceNameUserIsNotResponsibleFor = "The resource name B";
     var organisationIdUserIsNotResponsibleFor = 48;
     var generalDetailUserNotResponsibleFor = createGeneralDetail(submissionUserIsNotResponsibleFor);
@@ -132,7 +133,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var resourceUserIsResponsibleFor = buildProspectResource();
     var submissionUserIsResponsibleFor =
-        buildSubmissionDetail(resourceUserIsResponsibleFor, SubmissionType.CREATE_PROSPECT);
+        buildSubmissionDetail(resourceUserIsResponsibleFor, SubmissionType.CREATE_PROSPECT, null);
     var resourceNameUserIsResponsibleFOr = "The resource name A";
     createGeneralDetail(submissionUserIsResponsibleFor);
     createResourceDetail(
@@ -140,7 +141,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var resourceUserIsNotResponsibleFor = buildProspectResource();
     var submissionUserIsNotResponsibleFor =
-        buildSubmissionDetail(resourceUserIsNotResponsibleFor, SubmissionType.CREATE_PROSPECT);
+        buildSubmissionDetail(resourceUserIsNotResponsibleFor, SubmissionType.CREATE_PROSPECT, null);
     var resourceNameUserIsNotResponsibleFor = "The resource name B";
     var organisationIdUserIsNotResponsibleFor2 = 48;
     createGeneralDetail(submissionUserIsNotResponsibleFor);
@@ -160,7 +161,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var resourceUserIsResponsibleFor = buildProspectResource();
     var submissionUserIsResponsibleFor =
-        buildSubmissionDetail(resourceUserIsResponsibleFor, SubmissionType.CREATE_PROSPECT);
+        buildSubmissionDetail(resourceUserIsResponsibleFor, SubmissionType.CREATE_PROSPECT, null);
     var resourceNameUserIsResponsibleFOr = "The resource name A";
     var generalDetailUserIsResponsibleFor = createGeneralDetail(submissionUserIsResponsibleFor);
     createResourceDetail(
@@ -171,7 +172,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var resourceUserIsNotResponsibleFor = buildProspectResource();
     var submissionUserIsNotResponsibleFor =
-        buildSubmissionDetail(resourceUserIsNotResponsibleFor, SubmissionType.CREATE_PROSPECT);
+        buildSubmissionDetail(resourceUserIsNotResponsibleFor, SubmissionType.CREATE_PROSPECT, null);
     var resourceNameUserIsNotResponsibleFor = "The resource name B";
     var organisationIdUserIsNotResponsibleFor = 48;
     var generalDetailUserIsNotResponsibleFor = createGeneralDetail(submissionUserIsNotResponsibleFor);
@@ -208,7 +209,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var resource1 = buildProspectResource();
     var submission1 =
-        buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
+        buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT, null);
     var resourceName1 = "Resource";
     var generalDetail1 = createGeneralDetail(submission1);
     createResourceDetail(
@@ -218,7 +219,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var resource2 = buildDiscoveryResource();
     var submission2 =
-        buildSubmissionDetail(resource2, SubmissionType.CREATE_DISCOVERY);
+        buildSubmissionDetail(resource2, SubmissionType.CREATE_DISCOVERY, null);
     var resourceName2 = "A resource";
     var generalDetail2 = createGeneralDetail(submission2);
     createResourceDetail(
@@ -228,7 +229,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var resource3 = buildProspectResource();
     var submission3 =
-        buildSubmissionDetail(resource3, SubmissionType.CREATE_DISCOVERY);
+        buildSubmissionDetail(resource3, SubmissionType.CREATE_DISCOVERY, null);
     var resourceName3 = "Something else";
     var generalDetail3 = createGeneralDetail(submission3);
     createResourceDetail(
@@ -260,7 +261,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var resourceUserIsResponsibleFor = buildProspectResource();
     var submissionUserIsResponsibleFor =
-        buildSubmissionDetail(resourceUserIsResponsibleFor, SubmissionType.CREATE_PROSPECT);
+        buildSubmissionDetail(resourceUserIsResponsibleFor, SubmissionType.CREATE_PROSPECT, null);
     var resourceNameUserIsResponsibleFOr = "The resource name A";
     var generalDetailUserIsResponsibleFor = createGeneralDetail(submissionUserIsResponsibleFor);
     createResourceDetail(
@@ -271,7 +272,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var resourceUserIsNotResponsibleFor = buildProspectResource();
     var submissionUserIsNotResponsibleFor =
-        buildSubmissionDetail(resourceUserIsNotResponsibleFor, SubmissionType.CREATE_PROSPECT);
+        buildSubmissionDetail(resourceUserIsNotResponsibleFor, SubmissionType.CREATE_PROSPECT, null);
     var resourceNameUserIsNotResponsibleFor = "The resource name B";
     var organisationIdUserIsNotResponsibleFor = 48;
     var nonExtantLicenceId = 2;
@@ -307,14 +308,14 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var resourceWithoutLicence = buildProspectResource();
     var submissionWithoutLicence =
-        buildSubmissionDetail(resourceWithoutLicence, SubmissionType.CREATE_PROSPECT);
+        buildSubmissionDetail(resourceWithoutLicence, SubmissionType.CREATE_PROSPECT, null);
     var generalDetailWithoutLicence = createGeneralDetail(submissionWithoutLicence);
     createResourceDetail(
         submissionWithoutLicence, "Not relevant name", organisationUnitIdUserIsInGroupFor);
 
     var resourceWithNotExtantLicence = buildProspectResource();
     var submissionWithNotExtantLicence =
-        buildSubmissionDetail(resourceWithNotExtantLicence, SubmissionType.CREATE_PROSPECT);
+        buildSubmissionDetail(resourceWithNotExtantLicence, SubmissionType.CREATE_PROSPECT, null);
     var nonExtantLicenceId = 2;
     var generalDetailWithNonExtantLicence = createGeneralDetail(submissionWithNotExtantLicence);
     createResourceDetail(
@@ -337,7 +338,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var resourceWithGeographicalArea = buildProspectResource();
     var submissionWithGeographicalArea =
-        buildSubmissionDetail(resourceWithGeographicalArea, SubmissionType.CREATE_PROSPECT);
+        buildSubmissionDetail(resourceWithGeographicalArea, SubmissionType.CREATE_PROSPECT, null);
     buildRegulatorManagedInformation(resourceWithGeographicalArea, geographicalArea, ResponsibleTeamType.EXPLORATION);
     createResourceDetail(
         submissionWithGeographicalArea, "Not relevant name", userOrgUnitId);
@@ -349,7 +350,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var resourceWithOnshoreGeographicalArea = buildProspectResource();
     buildRegulatorManagedInformation(resourceWithOnshoreGeographicalArea, GeographicalArea.ONSHORE, ResponsibleTeamType.EXPLORATION);
     var submissionWithOnshoreGeographicalArea =
-        buildSubmissionDetail(resourceWithOnshoreGeographicalArea, SubmissionType.CREATE_PROSPECT);
+        buildSubmissionDetail(resourceWithOnshoreGeographicalArea, SubmissionType.CREATE_PROSPECT, null);
     createResourceDetail(
         submissionWithOnshoreGeographicalArea, "Not relevant name", userOrgUnitId);
     var generalDetailWithOnshoreGeographicalArea = createGeneralDetail(submissionWithOnshoreGeographicalArea);
@@ -360,7 +361,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var resourceWithNoGeographicalArea = buildProspectResource();
     buildRegulatorManagedInformation(resourceWithNoGeographicalArea, null, ResponsibleTeamType.EXPLORATION);
     var submissionWithNoGeographicalArea =
-        buildSubmissionDetail(resourceWithNoGeographicalArea, SubmissionType.CREATE_PROSPECT);
+        buildSubmissionDetail(resourceWithNoGeographicalArea, SubmissionType.CREATE_PROSPECT, null);
     var generalDetailWithNoGeographicalArea = createGeneralDetail(submissionWithNoGeographicalArea);
     createResourceDetail(
         submissionWithNoGeographicalArea, "Not relevant name", userOrgUnitId);
@@ -400,7 +401,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var preferredViewResource = buildProspectResource();
     var preferredViewSubmissionDetail =
-        buildSubmissionDetail(preferredViewResource, SubmissionType.CREATE_PROSPECT);
+        buildSubmissionDetail(preferredViewResource, SubmissionType.CREATE_PROSPECT, null);
     createResourceDetail(
         preferredViewSubmissionDetail, "Not relevant name", userOrgUnitId);
     buildResourceGroupLink(true, preferredViewResource);
@@ -411,7 +412,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var nonPreferredViewResource = buildProspectResource();
     var nonPreferredSubmissionDetail =
-        buildSubmissionDetail(nonPreferredViewResource, SubmissionType.CREATE_PROSPECT);
+        buildSubmissionDetail(nonPreferredViewResource, SubmissionType.CREATE_PROSPECT, null);
     buildResourceGroupLink(false, nonPreferredViewResource);
     createResourceDetail(
         nonPreferredSubmissionDetail, "Not relevant name", userOrgUnitId);
@@ -445,7 +446,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var resourceWithWithdrawnSubmission = buildDiscoveryResource();
     var submissionDetailWithWithdrawnSubmission =
-        buildSubmissionDetail(resourceWithWithdrawnSubmission, SubmissionType.CREATE_DISCOVERY);
+        buildSubmissionDetail(resourceWithWithdrawnSubmission, SubmissionType.CREATE_DISCOVERY, null);
     var withdrawnSubmission =
         SubmissionIntegrationTestUtils.createSubmission(resourceWithWithdrawnSubmission, withdrawn, entityManager);
     submissionDetailWithWithdrawnSubmission.setSubmission(withdrawnSubmission);
@@ -501,7 +502,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   private void buildFieldResultWithFieldName(String fieldName, int organisationUnitIdUserIsInGroupFor) {
     var resource = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
     var submission =
-        buildSubmissionDetail(resource, SubmissionType.CREATE_CSR);
+        buildSubmissionDetail(resource, SubmissionType.CREATE_CSR, null);
     var regulatorManagedInformation = SubmissionIntegrationTestUtils
         .createRegulatorManagedInformation(resource, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
     var field = SubmissionIntegrationTestUtils
@@ -520,8 +521,9 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     setUpIndustryTest(Set.of(IndustryTeamRole.SUBMITTER), List.of(organisationUnitIdUserIsInGroupFor));
 
     var resourceUserIsResponsibleFor = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
+    var fixedInstant = Instant.parse("2022-12-03T10:15:30.00Z");
     var submissionUserIsResponsibleFor =
-        buildSubmissionDetail(resourceUserIsResponsibleFor, SubmissionType.CREATE_CSR);
+        buildSubmissionDetail(resourceUserIsResponsibleFor, SubmissionType.CREATE_CSR, fixedInstant);
     var resourceNameUserIsResponsibleFor = "Field A";
     var regulatorManagedInformationUserIsResponsibleFor = SubmissionIntegrationTestUtils
         .createRegulatorManagedInformation(resourceUserIsResponsibleFor, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
@@ -533,7 +535,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var resourceUserIsNotResponsibleFor =  SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
     var submissionUserIsNotResponsibleFor =
-        buildSubmissionDetail(resourceUserIsNotResponsibleFor, SubmissionType.CREATE_CSR);
+        buildSubmissionDetail(resourceUserIsNotResponsibleFor, SubmissionType.CREATE_CSR, null);
     var resourceNameUserIsNotResponsibleFor = "The resource name B";
     var organisationIdUserIsNotResponsibleFor = 48;
     var regulatorManagedInformationUserIsNotResponsibleFor = SubmissionIntegrationTestUtils
@@ -559,7 +561,8 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
             ResourceRecordQueryResult::organisationResponsibleId,
             ResourceRecordQueryResult::responsibleTeam,
             ResourceRecordQueryResult::parentFieldName,
-            ResourceRecordQueryResult::fieldStatus
+            ResourceRecordQueryResult::fieldStatus,
+            ResourceRecordQueryResult::submissionAcceptedTimestamp
         )
         .containsExactly(
             tuple(
@@ -569,7 +572,8 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
                 organisationUnitIdUserIsInGroupFor,
                 regulatorManagedInformationUserIsResponsibleFor.getResponsibleTeamType(),
                 fieldUserIsResponsibleFor.getParentDeterminedField().getCorrectedLegalFieldName(),
-                fieldStatusHistoryForResponsibleField.getFieldStatus()
+                fieldStatusHistoryForResponsibleField.getFieldStatus(),
+                fixedInstant
             )
         );
   }
@@ -581,7 +585,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var resource1 = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
     var submissionDetail1 =
-        buildSubmissionDetail(resource1, SubmissionType.CREATE_CSR);
+        buildSubmissionDetail(resource1, SubmissionType.CREATE_CSR, null);
     var resourceName1 = "Field A";
     var regulatorManagedInformation1 = SubmissionIntegrationTestUtils
         .createRegulatorManagedInformation(resource1, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
@@ -593,7 +597,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var resource2 =  SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
     var submissionDetail2 =
-        buildSubmissionDetail(resource2, SubmissionType.CREATE_CSR);
+        buildSubmissionDetail(resource2, SubmissionType.CREATE_CSR, null);
     var resourceName2 = "The resource name B";
     var regulatorManagedInformation2 = SubmissionIntegrationTestUtils
         .createRegulatorManagedInformation(resource2, ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
@@ -715,8 +719,10 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     return resourceGroupLink;
   }
 
-  private SubmissionDetail buildSubmissionDetail(Resource resource, SubmissionType submissionType) {
+  private SubmissionDetail buildSubmissionDetail(Resource resource, SubmissionType submissionType,
+                                                 Instant acceptedTimestamp) {
     var submission = SubmissionTestUtils.createSubmissionForIntegrationTest(resource, entityManager);
-    return SubmissionIntegrationTestUtils.createSubmissionDetail(submission, submissionType, entityManager);
+    return SubmissionIntegrationTestUtils.createSubmissionDetail(submission, submissionType, entityManager,
+        acceptedTimestamp);
   }
 }

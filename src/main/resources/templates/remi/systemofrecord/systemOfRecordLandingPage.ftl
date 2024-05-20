@@ -9,7 +9,7 @@ pageSize=PageSize.TWO_THIRDS_COLUMN
     <ul class="govuk-list">
         <li class="govuk-list__item">
             <@_systemOrRecordLandingLink
-            linkText="Search for propects and discoveries"
+            linkText="Search for prospects and discoveries"
             linkUrl=springUrl(prospectAndDiscoverySearchUrl)
             ariaDescribedByHintId="prospects-and-discoveries-hint"
             />

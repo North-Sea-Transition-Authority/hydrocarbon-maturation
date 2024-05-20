@@ -44,7 +44,7 @@ public class SubmissionDetailDisplayService {
 
   private String getOrganisationResponsibleDisplay(@Nullable OrganisationUnitDto organisationUnitDto) {
     return Optional.ofNullable(organisationUnitDto)
-        .map(OrganisationUnitDto::getDisplayText)
+        .map(OrganisationUnitDto::organisationUnitName)
         .orElse(NOT_PROVIDED);
   }
 

@@ -21,6 +21,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
+import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @Service
 public class SearchResourceRecordsService {
@@ -177,6 +178,7 @@ public class SearchResourceRecordsService {
   private String getCaptionText(ResourceRecordQueryResult resourceRecordQueryResult) {
     var resourceType = resourceRecordQueryResult.resourceType().getDisplayName();
     var submissionDetailId = resourceRecordQueryResult.submissionDetailId();
+    var latestSubmissionInstant = resourceRecordQueryResult.submissionAcceptedTimestamp();
 
     var captionText = new StringBuilder();
     captionText.append(resourceType);
@@ -185,6 +187,11 @@ public class SearchResourceRecordsService {
       captionText.append(submissionDetailService.getSubmissionDetail(submissionDetailId)
           .map(submissionDetail -> submissionDetail.isRelinquishment() ? " (Relinquishment)" : "")
           .orElse(""));
+    }
+
+    if (latestSubmissionInstant != null) {
+      var latestSubmissionDate = DateUtil.formatLongDate(latestSubmissionInstant);
+      captionText.append(": latest submission on %s".formatted(latestSubmissionDate));
     }
 
     return captionText.toString();

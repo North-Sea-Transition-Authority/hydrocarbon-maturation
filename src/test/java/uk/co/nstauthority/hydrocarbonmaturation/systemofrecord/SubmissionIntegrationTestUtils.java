@@ -214,6 +214,26 @@ public class SubmissionIntegrationTestUtils {
     return submissionDetail;
   }
 
+  public static SubmissionDetail createSubmissionDetail(Submission submission,
+                                                        SubmissionType submissionType,
+                                                        EntityManager entityManager,
+                                                        Instant acceptedTimestamp) {
+    var submissionDetail = new SubmissionDetail();
+    submissionDetail.setId(null);
+    submissionDetail.setSubmissionType(submissionType);
+    submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
+    submissionDetail.setVersionNumber(1);
+    submissionDetail.setCreatedTimestamp(Instant.now().minusSeconds(100));
+    submissionDetail.setCreatedByWuaId(1);
+    submissionDetail.setSubmittedTimestamp(Instant.now().minusSeconds(50));
+    submissionDetail.setAcceptedTimestamp(acceptedTimestamp);
+    submissionDetail.setSubmission(submission);
+    entityManager.persist(submissionDetail);
+    entityManager.flush();
+
+    return submissionDetail;
+  }
+
   public static Submission createSubmission(Resource resource, EntityManager entityManager) {
     var submission = new Submission();
     submission.setResource(resource);

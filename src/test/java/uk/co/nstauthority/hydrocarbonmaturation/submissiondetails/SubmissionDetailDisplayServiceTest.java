@@ -70,7 +70,7 @@ class SubmissionDetailDisplayServiceTest {
 
       var result = underTest.getOrganisationResponsibleDisplayById(organisationResponsibleId);
 
-      assertThat(result).isEqualTo("name (123)");
+      assertThat(result).isEqualTo("name");
     }
 
     @Test
@@ -119,7 +119,7 @@ class SubmissionDetailDisplayServiceTest {
 
       var result = underTest.getOrganisationResponsibleDisplayFromMap(organisationUnitMap, organisationResponsibleId);
 
-      assertThat(result).isEqualTo("name2 (456)");
+      assertThat(result).isEqualTo("name2");
     }
   }
 
