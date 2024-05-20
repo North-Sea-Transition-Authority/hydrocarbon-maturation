@@ -31,6 +31,7 @@ and the operators who have access to specific prospect and discovery data not cr
 - Check where INT/NUMERIC data should be TEXT and vice-versa
 - Convert end of line characters to UNIX using Notepad++
 - Replace &amp; with &
+- Replace &gt; with >, replace &lt; with <, replace &#039; and &#034; with single quote
 
 ## Considerations
 
