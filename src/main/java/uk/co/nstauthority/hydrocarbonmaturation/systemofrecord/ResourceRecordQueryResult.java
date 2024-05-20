@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -9,6 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Resp
 public record ResourceRecordQueryResult(
     UUID resourceId,
     UUID submissionDetailId,
+    Instant submissionAcceptedTimestamp,
     ResourceType resourceType,
     String resourceName,
     String centreOfInterestQuadBlock,

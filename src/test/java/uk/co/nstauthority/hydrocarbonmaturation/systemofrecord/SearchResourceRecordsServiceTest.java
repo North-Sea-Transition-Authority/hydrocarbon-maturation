@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,6 +61,7 @@ class SearchResourceRecordsServiceTest {
   private SubmissionDetailService submissionDetailService;
   @InjectMocks
   private SearchResourceRecordsService underTest;
+  private final Instant fixedInstant = Instant.parse("2002-01-11T12:00:00.00Z");
 
   @Test
   void getOpportunityTypes() {
@@ -119,14 +121,14 @@ class SearchResourceRecordsServiceTest {
         ORGANISATION_ID_1, "Org A",
         List.of(EXTANT_LICENCE_1.licenceId(), EXTANT_LICENCE_2.licenceId()),
         List.of(EXTANT_LICENCE_1.licenceRef(), EXTANT_LICENCE_2.licenceRef()),
-        ResponsibleTeamType.EXPLORATION, null, null
+        ResponsibleTeamType.EXPLORATION, null, null, null
       );
       var result2 = buildAndMockResourceRecordQueryResult(
           "resource-name2", ResourceType.DISCOVERY, null,
         ORGANISATION_ID_2, "Org B",
         List.of(NOT_EXTANT_LICENCE_2.licenceId(), NOT_EXTANT_LICENCE_3.licenceId()),
         List.of(NOT_EXTANT_LICENCE_2.licenceRef(), NOT_EXTANT_LICENCE_3.licenceRef()),
-        ResponsibleTeamType.EXPLORATION, null, null
+        ResponsibleTeamType.EXPLORATION, null, null, fixedInstant
       );
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form))
           .thenReturn(List.of(result1, result2));
@@ -154,7 +156,8 @@ class SearchResourceRecordsServiceTest {
               ),
               tuple(
                   "resource-name2",
-                  result2.resourceType().getDisplayName() + " (Relinquishment)",
+                   "%s (Relinquishment): latest submission on 11 January 2002"
+                       .formatted(result2.resourceType().getDisplayName()),
                   getActionUrl(result2.resourceId())
               )
           );
@@ -182,14 +185,15 @@ class SearchResourceRecordsServiceTest {
           ORGANISATION_ID_1, "Org A",
           List.of(EXTANT_LICENCE_1.licenceId(), EXTANT_LICENCE_2.licenceId()),
           List.of(EXTANT_LICENCE_1.licenceRef(), EXTANT_LICENCE_2.licenceRef()),
-          ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, null, FieldStatus.STATUS_200
+          ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, null, FieldStatus.STATUS_200, fixedInstant
       );
       var result2 = buildAndMockResourceRecordQueryResult(
           "field-name2", ResourceType.FIELD, null,
           ORGANISATION_ID_2, "Org B",
           List.of(NOT_EXTANT_LICENCE_2.licenceId(), NOT_EXTANT_LICENCE_3.licenceId()),
           List.of(NOT_EXTANT_LICENCE_2.licenceRef(), NOT_EXTANT_LICENCE_3.licenceRef()),
-          ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA, "Parent field name", FieldStatus.STATUS_400
+          ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA, "Parent field name", FieldStatus.STATUS_400,
+          fixedInstant
       );
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form))
           .thenReturn(List.of(result1, result2));
@@ -212,12 +216,12 @@ class SearchResourceRecordsServiceTest {
           .containsExactly(
               tuple(
                   "field-name1 (1/12)",
-                  "Field",
+                  "Field: latest submission on 11 January 2002",
                   getActionUrl(result1.resourceId())
               ),
               tuple(
                   "field-name2",
-                  "Field",
+                  "Field: latest submission on 11 January 2002",
                   getActionUrl(result2.resourceId())
               )
           );
@@ -247,7 +251,7 @@ class SearchResourceRecordsServiceTest {
           ORGANISATION_ID_1, "Org A",
           List.of(EXTANT_LICENCE_1.licenceId(), EXTANT_LICENCE_2.licenceId()),
           List.of(EXTANT_LICENCE_1.licenceRef(), EXTANT_LICENCE_2.licenceRef()),
-          ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, null, FieldStatus.STATUS_200
+          ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, null, FieldStatus.STATUS_200, fixedInstant
       );
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form))
           .thenReturn(List.of(result));
@@ -263,7 +267,7 @@ class SearchResourceRecordsServiceTest {
           .containsExactly(
               tuple(
                   "field-name1",
-                  "Field",
+                  "Field: latest submission on 11 January 2002",
                   getActionUrl(result.resourceId())
               )
           );
@@ -290,7 +294,8 @@ class SearchResourceRecordsServiceTest {
                                                                             List<String> licencesDisplayed,
                                                                             ResponsibleTeamType responsibleTeam,
                                                                             String parentFieldName,
-                                                                            FieldStatus fieldStatus) {
+                                                                            FieldStatus fieldStatus,
+                                                                            Instant acceptedSubmissionInstant) {
       when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, organisationResponsibleId)).thenReturn(orgName);
       if (!ResourceType.FIELD.equals(resourceType)) {
         when(submissionDetailDisplayService.getLicencesForDisplayFromMap(LICENCE_MAP, licencesTheResourceIsOn)).thenReturn(licencesDisplayed);
@@ -309,6 +314,7 @@ class SearchResourceRecordsServiceTest {
       return new ResourceRecordQueryResult(
           UUID.randomUUID(),
           UUID.randomUUID(),
+          acceptedSubmissionInstant,
           resourceType,
           resourceName,
           centreOfInterest,
@@ -370,7 +376,7 @@ class SearchResourceRecordsServiceTest {
     }
 
     private ResourceRecordQueryResult newSearchResultWithResourceName(String resourceName) {
-      return new ResourceRecordQueryResult(null, null, null,
+      return new ResourceRecordQueryResult(null, null, null, null,
           resourceName, null, null,
           null, null, null, null);
     }
@@ -458,7 +464,7 @@ class SearchResourceRecordsServiceTest {
       var responsibleOrganisationId = 1;
       form.setResponsibleOrganisationId(responsibleOrganisationId);
 
-      var result = underTest.getPreSelectedOrganisationUnit(form);
+      underTest.getPreSelectedOrganisationUnit(form);
 
       verify(organisationUnitQueryService).getPreSelectedOrganisationUnit(responsibleOrganisationId);
     }
@@ -507,7 +513,7 @@ class SearchResourceRecordsServiceTest {
       var quadBlockSelected = "15/10";
       form.setCentreOfInterestBlock(quadBlockSelected);
 
-      var result = underTest.getPreSelectedQuadAndBlock(form);
+      underTest.getPreSelectedQuadAndBlock(form);
 
       verify(searchSelectorService).buildPrePopulatedSelection(quadBlockSelected, quadBlockSelected);
     }

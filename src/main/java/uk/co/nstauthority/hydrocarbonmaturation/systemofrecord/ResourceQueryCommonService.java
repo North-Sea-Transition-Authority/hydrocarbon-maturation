@@ -60,6 +60,7 @@ class ResourceQueryCommonService {
         .select(
             RESOURCES.ID,
             SUBMISSION_DETAILS.ID,
+            SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP,
             RESOURCES.TYPE,
             FIELDS.CORRECTED_LEGAL_FIELD_NAME,
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
@@ -125,6 +126,7 @@ class ResourceQueryCommonService {
         .select(
             RESOURCES.ID,
             SUBMISSION_DETAILS.ID,
+            SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP,
             RESOURCES.TYPE,
             RESOURCE_DETAILS.RESOURCE_NAME,
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
