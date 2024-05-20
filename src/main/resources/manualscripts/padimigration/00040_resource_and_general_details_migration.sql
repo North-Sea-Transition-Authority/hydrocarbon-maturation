@@ -52,7 +52,8 @@ BEGIN
             CASE
                 WHEN prdh.stage_name NOT IN (bid, pre_drill, well_investment, relinquishment) THEN prdh.stage_name
             END other_info_source,
-            CASE WHEN prdh.stage_name = bid THEN prdh.application_ref END licence_app_ref
+            CASE WHEN prdh.stage_name = bid THEN prdh.application_ref END licence_app_ref,
+            CASE WHEN prdh.stage_name = bid AND prdh.application_ref IS NULL THEN prdh.reference_round END licence_round
         FROM remi.submission_details sd
         JOIN remi.submissions s ON s.id = sd.submission_id
         JOIN remi.resources r ON r.id = s.resource_id
@@ -94,7 +95,7 @@ BEGIN
             NULL, -- we don't capture this in PaDI
             submission_rec.info_source,
             submission_rec.other_info_source,
-            submission_rec.licence_app_ref
+            COALESCE(submission_rec.licence_app_ref, submission_rec.licence_round)
         );
 
     END LOOP;
