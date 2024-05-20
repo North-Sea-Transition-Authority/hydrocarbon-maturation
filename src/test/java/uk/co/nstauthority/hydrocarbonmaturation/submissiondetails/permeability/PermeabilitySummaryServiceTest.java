@@ -241,6 +241,39 @@ class PermeabilitySummaryServiceTest {
     assertThat(summarySection.get().summaryItems()).containsExactly(propertySummaryItem, fieldProbabilitySummaryItem);
   }
 
+  @Test
+  void getSummarySection_discovery_nonEmptyPermeabilityDetail_withNoSource() {
+    var permeabilityDetail = new PermeabilityDetail();
+    permeabilityDetail.setPermeabilityMin(BigDecimal.valueOf(10.0));
+    permeabilityDetail.setPermeabilityMax(BigDecimal.valueOf(20.0));
+    permeabilityDetail.setPermeabilityAverage(BigDecimal.valueOf(15.0));
+    permeabilityDetail.setAverageMethodUsed(AverageMethod.ARITHMETIC);
+    permeabilityDetail.setPermeabilitySource(null);
+    permeabilityDetail.setPermeabilityComments("Test comments");
+    permeabilityDetail.setKvKhAverage(BigDecimal.valueOf(5.0));
+
+    when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(permeabilityDetail));
+
+    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail);
+
+    assertThat(summarySection).isPresent();
+    assertSummarySection(summarySection.get(), PermeabilitySummaryService.PERMEABILITY_DISPLAY_ORDER);
+    var summaryDataView = SummaryDataView.newWithKeyValue(
+        PermeabilitySummaryService.PERMEABILITY_MIN, "10.0 mD"
+    );
+    summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_MAX, "20.0 mD");
+    summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_AVERAGE, "15.0 mD");
+    summaryDataView.addKeyValue(PermeabilitySummaryService.AVERAGE_METHOD_USED, "Arithmetic");
+    summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_SOURCE, "");
+    summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_COMMENTS, "Test comments");
+    summaryDataView.addKeyValue(PermeabilitySummaryService.KV_KH_AVERAGE, "5.0 kv/kh");
+
+    var summaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
+    var summaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, summaryCard);
+    assertThat(summarySection.get().summaryItems()).containsExactly(summaryItem);
+  }
+
   @ParameterizedTest
   @EnumSource(
       value = PermeabilitySource.class,

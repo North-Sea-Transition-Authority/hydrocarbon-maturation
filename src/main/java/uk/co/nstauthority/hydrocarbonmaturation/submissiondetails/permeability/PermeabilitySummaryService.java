@@ -29,9 +29,6 @@ public class PermeabilitySummaryService implements SummarySectionService<Reservo
   public static final String PERMEABILITY_SOURCE = "Permeability source";
   public static final String PERMEABILITY_COMMENTS = "Permeability comments";
   public static final String KV_KH_AVERAGE = "KV/KH average";
-  public static final String PERMEABILITY_DISTRIBUTION = "Permeability";
-  public static final String HORIZONTAL_PERMEABILITY_DISTRIBUTION = "Horizontal permeability distribution";
-  public static final String VERTICAL_PERMEABILITY_DISTRIBUTION = "Vertical permeability distribution";
 
   public static final int PERMEABILITY_DISPLAY_ORDER = 20;
   private static final List<ProbabilityDistributionFieldInstance> PERMEABILITY_FIELD_INSTANCES = List.of(
@@ -52,8 +49,8 @@ public class PermeabilitySummaryService implements SummarySectionService<Reservo
 
   public PermeabilityDetailSummaryView getPermeabilitySummaryFromReservoirSubmissionDetail(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    var permeabiliyDetail = permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail);
-    return permeabiliyDetail.map(this::createSummaryViewFromPermeability)
+    var permeabilityDetail = permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail);
+    return permeabilityDetail.map(this::createSummaryViewFromPermeability)
         .orElse(PermeabilityDetailSummaryView.empty());
   }
 
@@ -110,12 +107,16 @@ public class PermeabilitySummaryService implements SummarySectionService<Reservo
           }
 
           var permeabilitySource = permeabilityDetail.getPermeabilitySource();
-          if (permeabilitySource.equals(PermeabilitySource.OTHER)) {
-            summaryDataView.addKeyValue(PERMEABILITY_SOURCE,
-                permeabilityDetail.getSourceOther());
+          if (permeabilitySource != null) {
+            if (permeabilitySource.equals(PermeabilitySource.OTHER)) {
+              summaryDataView.addKeyValue(PERMEABILITY_SOURCE,
+                  permeabilityDetail.getSourceOther());
+            } else {
+              summaryDataView.addKeyValue(PERMEABILITY_SOURCE,
+                  permeabilityDetail.getPermeabilitySource().getDisplayName());
+            }
           } else {
-            summaryDataView.addKeyValue(PERMEABILITY_SOURCE,
-                permeabilityDetail.getPermeabilitySource().getDisplayName());
+            summaryDataView.addKeyValue(PERMEABILITY_SOURCE, "");
           }
           summaryDataView.addKeyValue(PERMEABILITY_COMMENTS,
               permeabilityDetail.getPermeabilityComments());
