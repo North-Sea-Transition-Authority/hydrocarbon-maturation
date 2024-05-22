@@ -50,7 +50,7 @@ public class UndevelopedDiscoveryService {
 
   public List<UndevelopedDiscovery> getAllTrackedUndevelopedDiscoveries() {
     return Streamable.of(undevelopedDiscoveryRepository.findAll())
-        .filter(UndevelopedDiscovery::getIsUndevelopedDiscovery)
+        .filter(undevelopedDiscovery -> Boolean.TRUE.equals(undevelopedDiscovery.getIsUndevelopedDiscovery()))
         .toList();
   }
 }

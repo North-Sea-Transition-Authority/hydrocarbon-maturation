@@ -136,8 +136,10 @@ class UndevelopedDiscoveryServiceTest {
       var isNotUndevelopedDiscovery = new UndevelopedDiscovery();
       isNotUndevelopedDiscovery.setIsUndevelopedDiscovery(Boolean.FALSE);
 
+      var nullUndevelopedDiscovery = new UndevelopedDiscovery();
+
       when(undevelopedDiscoveryRepository.findAll())
-          .thenReturn(List.of(isUndevelopedDiscovery, isNotUndevelopedDiscovery));
+          .thenReturn(List.of(isUndevelopedDiscovery, isNotUndevelopedDiscovery, nullUndevelopedDiscovery));
 
       assertThat(undevelopedDiscoveryService.getAllTrackedUndevelopedDiscoveries())
           .isEqualTo(List.of(isUndevelopedDiscovery));

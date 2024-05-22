@@ -24,4 +24,5 @@ public class DecimalFormatUtil {
   public static String bigDecimalToTwoDecimalPlace(BigDecimal value) {
     return value != null ? TWO_DECIMAL_PLACE_FORMAT.format(value) : "";
   }
+
 }

@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -29,14 +30,16 @@ class UndevelopedDiscoveriesOverviewControllerTest extends AbstractControllerTes
 
     var summaryTable = SummaryTableView.newWithHeading("single column")
         .addRow("single value");
+    var overviewStats = new UndevelopedDiscoveryOverviewStats(1, 1, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
+    var overviewData = new UndevelopedDiscoveryOverviewData(summaryTable, overviewStats);
 
-    when(overviewService.getOverviewSummaryTableView())
-        .thenReturn(summaryTable);
+    when(overviewService.getOverviewData())
+        .thenReturn(overviewData);
 
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
                 get(ReverseRouter.route(on(UndevelopedDiscoveriesOverviewController.class)
-                    .viewAllUndevelopedDiscoveries(null)))
+                    .viewAllUndevelopedDiscoveries()))
                     .with(user(user)))
             .andExpect(status().isOk())
             .andReturn()
@@ -45,7 +48,8 @@ class UndevelopedDiscoveriesOverviewControllerTest extends AbstractControllerTes
 
     assertThat(modelMap).contains(
         entry("pageTitle", UndevelopedDiscoveriesOverviewController.PAGE_TITLE),
-        entry("summaryTableView", summaryTable)
+        entry("summaryTableView", summaryTable),
+        entry("keyStats", overviewStats)
     );
   }
 
@@ -55,7 +59,7 @@ class UndevelopedDiscoveriesOverviewControllerTest extends AbstractControllerTes
 
     mockMvc.perform(
             get(ReverseRouter.route(on(UndevelopedDiscoveriesOverviewController.class)
-                .viewAllUndevelopedDiscoveries(null)))
+                .viewAllUndevelopedDiscoveries()))
                 .with(user(user)))
         .andExpect(status().isForbidden());
   }
@@ -64,7 +68,7 @@ class UndevelopedDiscoveriesOverviewControllerTest extends AbstractControllerTes
   void viewAllUndevelopedDiscoveries_noUser() throws Exception {
     mockMvc.perform(
             get(ReverseRouter.route(on(UndevelopedDiscoveriesOverviewController.class)
-                .viewAllUndevelopedDiscoveries(null))))
+                .viewAllUndevelopedDiscoveries())))
         .andExpect(status().isUnauthorized());
   }
 

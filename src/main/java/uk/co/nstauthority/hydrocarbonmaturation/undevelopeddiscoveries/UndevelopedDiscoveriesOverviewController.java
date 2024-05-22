@@ -5,7 +5,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorOrAreaUsers;
 
 @Controller
@@ -23,11 +22,12 @@ public class UndevelopedDiscoveriesOverviewController {
   }
 
   @GetMapping
-  public ModelAndView viewAllUndevelopedDiscoveries(User user) {
-    var tableView = overviewService.getOverviewSummaryTableView();
+  public ModelAndView viewAllUndevelopedDiscoveries() {
+    var overviewData = overviewService.getOverviewData();
 
     return new ModelAndView("remi/undevelopeddiscoveries/undevelopedDiscoveriesOverview")
         .addObject("pageTitle", PAGE_TITLE)
-        .addObject("summaryTableView", tableView);
+        .addObject("summaryTableView", overviewData.summaryTableView())
+        .addObject("keyStats", overviewData.overviewStats());
   }
 }

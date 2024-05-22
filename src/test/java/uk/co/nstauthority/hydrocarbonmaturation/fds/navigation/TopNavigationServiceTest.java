@@ -66,7 +66,7 @@ class TopNavigationServiceTest {
                 TopNavigationService.UNDEVELOPED_DISCOVERIES,
                 StringUtils.stripEnd(
                     ReverseRouter.route(on(UndevelopedDiscoveriesOverviewController.class)
-                        .viewAllUndevelopedDiscoveries(null)), "/")
+                        .viewAllUndevelopedDiscoveries()), "/")
             )
         );
   }

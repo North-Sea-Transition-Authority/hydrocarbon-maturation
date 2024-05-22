@@ -2,11 +2,15 @@ package uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
@@ -35,6 +39,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecor
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordService;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformationService;
+import uk.co.nstauthority.hydrocarbonmaturation.util.BigDecimalUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DecimalFormatUtil;
 
 @Service
@@ -83,21 +88,62 @@ public class UndevelopedDiscoveriesOverviewService {
     this.submissionDetailService = submissionDetailService;
   }
 
-  public SummaryTableView getOverviewSummaryTableView() {
+  public UndevelopedDiscoveryOverviewData getOverviewData() {
+    Stream<UndevelopedDiscoveryInformation> allTrackedInformation = undevelopedDiscoveryService
+        .getAllTrackedUndevelopedDiscoveries()
+        .stream()
+        .map(this::getDiscoveryInformation);
+
+    var rows = allTrackedInformation
+        .map(this::generateRowValues)
+        .toList();
+
+    return new UndevelopedDiscoveryOverviewData(
+        getOverviewSummaryTableView(rows),
+        getOverviewStats(rows)
+    );
+  }
+
+  private SummaryTableView getOverviewSummaryTableView(List<UndevelopedDiscoveryRowValues> rows) {
     var tableView = getBaseTableView();
 
-    var latestInformationPerUndevelopedDiscovery = undevelopedDiscoveryService.getAllTrackedUndevelopedDiscoveries()
-        .stream()
-        .map(informationService::getLatestInformation)
-        .flatMap(Optional::stream);
-
-    var tableRows = latestInformationPerUndevelopedDiscovery
-        .sorted(Comparator.comparing(UndevelopedDiscoveryInformation::getInformationDate).reversed())
-        .map(this::toRow);
-
-    tableRows.forEach(tableView::addRow);
+    rows.stream()
+        .sorted(this::compareRows)
+        .map(this::toRow)
+        .forEach(tableView::addRow);
 
     return tableView;
+  }
+
+  private UndevelopedDiscoveryOverviewStats getOverviewStats(List<UndevelopedDiscoveryRowValues> rows) {
+    var undevelopedDiscoveries = rows.size();
+
+    var licensedUndevelopedDiscoveries = (int) rows.stream()
+        .filter(UndevelopedDiscoveryRowValues::licensed)
+        .count();
+
+    var mmboeOneC = sumMmboe(
+        rows,
+        row -> BigDecimalUtil.getValueOrZero(row.mmboeOneC())
+    );
+
+    var mmboeTwoC = sumMmboe(
+        rows,
+        row -> BigDecimalUtil.getValueOrZero(row.mmboeTwoC())
+    );
+
+    var mmboeThreeC = sumMmboe(
+        rows,
+        row -> BigDecimalUtil.getValueOrZero(row.mmboeThreeC())
+    );
+
+    return new UndevelopedDiscoveryOverviewStats(
+        undevelopedDiscoveries,
+        licensedUndevelopedDiscoveries,
+        mmboeOneC,
+        mmboeTwoC,
+        mmboeThreeC
+    );
   }
 
   private SummaryTableView getBaseTableView() {
@@ -114,9 +160,8 @@ public class UndevelopedDiscoveriesOverviewService {
     );
   }
 
-  private SummaryTableRow toRow(UndevelopedDiscoveryInformation information) {
-    var resource = information.getUndevelopedDiscovery()
-        .getResource();
+  private UndevelopedDiscoveryRowValues generateRowValues(UndevelopedDiscoveryInformation information) {
+    var resource = information.getUndevelopedDiscovery().getResource();
 
     var resourceRecord = resourceRecordService.getResourceRecordOrThrow(resource.getId());
     var regulatorView = regulatorSummaryService.getRegulatorManagedInformationSummaryFromResource(resource);
@@ -132,17 +177,35 @@ public class UndevelopedDiscoveriesOverviewService {
         getTags(resource)
     );
 
+    var year = information.getInformationDate() == null
+        ? null
+        : information.getInformationDate().getYear();
+
+    return new UndevelopedDiscoveryRowValues(
+        discoveryValue,
+        year,
+        isLicensed,
+        regulatorView.geographicalArea(),
+        information.getOilEquivalentRecoverableOneC(),
+        information.getOilEquivalentRecoverableTwoC(),
+        information.getOilEquivalentRecoverableThreeC(),
+        percentageGasFormatted,
+        information.getCalculatedComplexity()
+    );
+  }
+
+  private SummaryTableRow toRow(UndevelopedDiscoveryRowValues rowValues) {
     return SummaryTableRow.builder()
         .withValues(
-            discoveryValue,
-            information.getInformationDate().getYear(),
-            isLicensed,
-            regulatorView.geographicalArea(),
-            information.getOilEquivalentRecoverableOneC(),
-            information.getOilEquivalentRecoverableTwoC(),
-            information.getOilEquivalentRecoverableThreeC(),
-            percentageGasFormatted,
-            information.getCalculatedComplexity())
+            rowValues.discovery(),
+            rowValues.yearAdded(),
+            rowValues.licensed(),
+            rowValues.geographicalArea(),
+            rowValues.mmboeOneC(),
+            rowValues.mmboeTwoC(),
+            rowValues.mmboeThreeC(),
+            rowValues.percentageGas(),
+            rowValues.complexity())
         .build();
   }
 
@@ -207,5 +270,42 @@ public class UndevelopedDiscoveriesOverviewService {
 
   private Boolean submissionTypeIsRelinquished(SubmissionDetail submissionDetail) {
     return submissionDetail.getSubmissionType().equals(SubmissionType.RELINQUISHMENT_DISCOVERY);
+  }
+
+  private UndevelopedDiscoveryInformation getDiscoveryInformation(UndevelopedDiscovery undevelopedDiscovery) {
+    return informationService.getLatestInformation(undevelopedDiscovery)
+        .orElseGet(() -> getEmptyInformation(undevelopedDiscovery));
+  }
+
+  private UndevelopedDiscoveryInformation getEmptyInformation(UndevelopedDiscovery undevelopedDiscovery) {
+    var undevelopedDiscoveryInformation = new UndevelopedDiscoveryInformation();
+    undevelopedDiscoveryInformation.setUndevelopedDiscovery(undevelopedDiscovery);
+    return undevelopedDiscoveryInformation;
+  }
+
+  private int compareRows(UndevelopedDiscoveryRowValues rowOne,
+                          UndevelopedDiscoveryRowValues rowTwo) {
+    if (rowOne.yearAdded() == null) {
+      return 1;
+    } else if (rowTwo.yearAdded() == null) {
+      return -1;
+    }
+
+    var yearsCompared = rowTwo.yearAdded().compareTo(rowOne.yearAdded());
+    if (yearsCompared == 0) {
+      // if years are equal, sort by name
+      return rowOne.discovery().value().toLowerCase()
+          .compareTo(rowTwo.discovery().value().toLowerCase());
+    } else {
+      return yearsCompared;
+    }
+  }
+
+  private BigDecimal sumMmboe(List<UndevelopedDiscoveryRowValues> rows,
+                              Function<UndevelopedDiscoveryRowValues, BigDecimal> getMmboeBigDecimal) {
+    return rows.stream()
+        .map(getMmboeBigDecimal)
+        .reduce((a, b) -> a.add(b, MathContext.DECIMAL64))
+        .orElse(BigDecimal.ZERO);
   }
 }

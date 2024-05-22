@@ -55,7 +55,7 @@ public class TopNavigationService {
       navigationItems.add(
           new TopNavigationItem(UNDEVELOPED_DISCOVERIES,
               ReverseRouter.route(on(UndevelopedDiscoveriesOverviewController.class)
-                  .viewAllUndevelopedDiscoveries(null))
+                  .viewAllUndevelopedDiscoveries())
           )
       );
     }
