@@ -8,7 +8,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 public record SubmissionRecordSummaryView(
     UUID submissionDetailId,
     SubmissionType submissionType,
-    String resourceNameAndCentreOfInterest,
+    String resourceNameCentreOfInterestAndLicenceApplicationReference,
     Integer responsibleOrganisationId,
     String organisationResponsible,
     List<Integer> licenceIds,

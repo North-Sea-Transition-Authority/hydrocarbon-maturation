@@ -119,7 +119,8 @@ public class RegulatorManagedInformationController {
         );
     var isResourceBeingRelinquished = submissionDetailService.isLatestSubmissionForResourceRelinquishment(resource);
 
-    var isResponsibleTeamBeingUpdated = regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource);
+    var isResponsibleTeamBeingUpdated = regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(
+        resource);
     bindingResult = regulatorManagedInformationFormService
         .validate(form, bindingResult, isResourceBeingRelinquished, isResponsibleTeamBeingUpdated);
     return controllerHelperService.checkErrorsAndRedirect(
@@ -129,7 +130,8 @@ public class RegulatorManagedInformationController {
         () -> {
           regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(form, resource);
 
-          var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail);
+          var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
+              submissionDetail);
 
           NotificationBannerUtil.addSuccessNotification(redirectAttributes,
               "Success",
@@ -197,8 +199,10 @@ public class RegulatorManagedInformationController {
       breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
           .addBreadcrumb(
               SearchProspectAndDiscoveryRecordsController.PAGE_TITLE,
-              ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).searchResourceRecords(null, null)))
-          .addBreadcrumb(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionOnResource),
+              ReverseRouter.route(
+                  on(SearchProspectAndDiscoveryRecordsController.class).searchResourceRecords(null, null)))
+          .addBreadcrumb(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
+                  submissionOnResource),
               cancelUrl)
           .build();
     } else {
@@ -207,7 +211,8 @@ public class RegulatorManagedInformationController {
           .showReviewPage(resource.getId()));
       breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
           .addWorkAreaBreadcrumb()
-          .addBreadcrumb(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionOnResource),
+          .addBreadcrumb(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
+                  submissionOnResource),
               cancelUrl)
           .build();
     }

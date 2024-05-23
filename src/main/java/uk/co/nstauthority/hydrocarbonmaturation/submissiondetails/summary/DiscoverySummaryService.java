@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverycominbedcasevolumetrictotals.DiscoveryCombinedCaseVolTotalsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverycominbedcasevolumetrictotals.DiscoveryCombinedVolTotalsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSummaryService;
@@ -68,6 +70,8 @@ class DiscoverySummaryService {
   private final DiscoveryOilCaseVolumetricTotalsSummaryService discoveryOilCaseVolumetricTotalsSummaryService;
   private final DiscoveryGasCaseVolumetricTotalsSummaryService discoveryGasCaseVolumetricTotalsSummaryService;
   private final DiscoveryCombinedVolTotalsSummaryService discoveryCombinedVolTotalsSummaryService;
+  private final ChanceOfSuccessSummaryService chanceOfSuccessSummaryService;
+
 
   @Autowired
   DiscoverySummaryService(GasFluidPropertySummaryService gasFluidPropertySummaryService,
@@ -90,7 +94,8 @@ class DiscoverySummaryService {
                           ReservoirSummaryService reservoirSummaryService,
                           DiscoveryOilCaseVolumetricTotalsSummaryService discoveryOilCaseVolumetricTotalsSummaryService,
                           DiscoveryGasCaseVolumetricTotalsSummaryService discoveryGasCaseVolumetricTotalsSummaryService,
-                          DiscoveryCombinedVolTotalsSummaryService discoveryCombinedVolTotalsSummaryService) {
+                          DiscoveryCombinedVolTotalsSummaryService discoveryCombinedVolTotalsSummaryService,
+                          ChanceOfSuccessSummaryService chanceOfSuccessSummaryService) {
     this.gasFluidPropertySummaryService = gasFluidPropertySummaryService;
     this.oilFluidPropertySummaryService = oilFluidPropertySummaryService;
     this.generalFluidPropertySummaryService = generalFluidPropertySummaryService;
@@ -112,6 +117,7 @@ class DiscoverySummaryService {
     this.discoveryOilCaseVolumetricTotalsSummaryService = discoveryOilCaseVolumetricTotalsSummaryService;
     this.discoveryGasCaseVolumetricTotalsSummaryService = discoveryGasCaseVolumetricTotalsSummaryService;
     this.discoveryCombinedVolTotalsSummaryService = discoveryCombinedVolTotalsSummaryService;
+    this.chanceOfSuccessSummaryService = chanceOfSuccessSummaryService;
   }
 
   public DiscoveryWellDetailsSummaryView getDiscoveryWellDetailsSummaryViewFromSubmissionDetail(
@@ -218,5 +224,10 @@ class DiscoverySummaryService {
   ) {
     return discoveryCombinedVolTotalsSummaryService
         .getCombinedCaseVolumetricTotalsSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  public ChanceOfSuccessSummaryView getChanceOfSuccessSummaryViewFromSubmissionDetail(
+      SubmissionDetail submissionDetail) {
+    return chanceOfSuccessSummaryService.getChanceOfSuccessSummaryFromSubmissionDetail(submissionDetail);
   }
 }

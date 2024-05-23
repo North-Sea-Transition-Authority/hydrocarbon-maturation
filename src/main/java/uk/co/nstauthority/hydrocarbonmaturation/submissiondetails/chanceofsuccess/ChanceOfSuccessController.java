@@ -28,11 +28,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/chance-of-success")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
-@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.PROSPECT_TYPES)
+@HasSubmissionType(submissionTypes = {
+    SecuritySubmissionTypes.PROSPECT_TYPES,
+    SecuritySubmissionTypes.DISCOVERY_TYPES
+})
 @IsFromResponsibleTeam
 public class ChanceOfSuccessController {
 
-  public static final String PAGE_NAME = "Chance of success";
+  static final String PROSPECT_PAGE_NAME = "Chance of success";
+  static final String DISCOVERY_PAGE_NAME = "Commercial chance of success";
   private final SubmissionDetailService submissionDetailService;
   private final ChanceOfSuccessFormService chanceOfSuccessFormService;
   private final ControllerHelperService controllerHelperService;
@@ -73,8 +77,14 @@ public class ChanceOfSuccessController {
   }
 
   private ModelAndView getChanceOfSuccessModelAndView(ChanceOfSuccessForm form, SubmissionDetail submissionDetail) {
+    var pageName = Boolean.TRUE.equals(submissionDetail.isProspectSubmission())
+        ? PROSPECT_PAGE_NAME
+        : DISCOVERY_PAGE_NAME;
+
     var modelAndView =  new ModelAndView("remi/submissiondetails/chanceOfSuccess")
-        .addObject("form", form);
-    return TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
+        .addObject("form", form)
+        .addObject("pageTitle", pageName);
+
+    return TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, pageName, submissionDetail);
   }
 }

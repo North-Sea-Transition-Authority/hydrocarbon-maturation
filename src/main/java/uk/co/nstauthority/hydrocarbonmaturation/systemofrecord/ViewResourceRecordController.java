@@ -35,6 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Regu
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionSelectionController;
@@ -167,8 +168,15 @@ public class ViewResourceRecordController {
 
     addBreadCrumbsForResourceType(resourceRecord, isFieldResource, modelAndView);
 
+    var pageTitle = SubmissionDetailDisplayUtil.getDisplayName(
+        resourceRecord.resourceName(),
+        resourceRecord.centreOfInterest(),
+        resourceRecord.licenceApplicationReference()
+    );
+
     return modelAndView
         .addObject("form", form)
+        .addObject("pageTitle", pageTitle)
         .addObject("resourceRecord", resourceRecord)
         .addObject("isFieldResource", isFieldResource)
         .addObject("canManageRegulatorManagementInfo", isInResponsibleTeam)
@@ -207,15 +215,19 @@ public class ViewResourceRecordController {
     }
   }
 
-  private static void addBreadCrumbsForResourceType(ResourceRecordSummaryView resourceRecord,
+  private void addBreadCrumbsForResourceType(ResourceRecordSummaryView resourceRecord,
                                                     boolean isFieldResource,
                                                     ModelAndView modelAndView) {
+    var pageName = SubmissionDetailDisplayUtil.getDisplayName(
+        resourceRecord.resourceName(),
+        resourceRecord.centreOfInterest(),
+        resourceRecord.licenceApplicationReference()
+    );
+
     if (isFieldResource) {
-      SystemOfRecordBreadcrumbUtil.addSearchFieldRecordsBreadcrumbsToModelAndView(
-          modelAndView, resourceRecord.resourceNameAndCentreOfInterest());
+      SystemOfRecordBreadcrumbUtil.addSearchFieldRecordsBreadcrumbsToModelAndView(modelAndView, pageName);
     } else {
-      SystemOfRecordBreadcrumbUtil.addSearchPropsectAndDiscoveryRecordsBreadcrumbsToModelAndView(
-          modelAndView, resourceRecord.resourceNameAndCentreOfInterest());
+      SystemOfRecordBreadcrumbUtil.addSearchProspectAndDiscoveryRecordsBreadcrumbsToModelAndView(modelAndView, pageName);
     }
   }
 

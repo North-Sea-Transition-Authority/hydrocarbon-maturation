@@ -122,7 +122,7 @@ class RemiFeedbackServiceTest {
 
   @Test
   void saveFeedback_WithSubmissionDetail_AssertDoesNotThrow() throws CannotSendFeedbackException {
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(SUBMISSION_DETAIL))
         .thenReturn(EXPECTED_RESOURCE_NAME_REF);
     when(clock.instant()).thenReturn(CURRENT_INSTANT);
 

@@ -86,8 +86,28 @@ public class UndevelopedDiscoveryTestUtils {
     undevelopedDiscoveryInformation.setArealDensityRange(ArealDensityRange.ONE_TO_TWO);
     undevelopedDiscoveryInformation.setStructuralComplexityRange(StructuralComplexityRange.EXCELLENT_RESERVOIR_QUALITY);
 
+    undevelopedDiscoveryInformation.setOilEquivalentRecoverableOneC(BigDecimal.ONE);
+    undevelopedDiscoveryInformation.setOilEquivalentRecoverableTwoC(BigDecimal.ONE);
+    undevelopedDiscoveryInformation.setOilEquivalentRecoverableThreeC(BigDecimal.ONE);
+
+    undevelopedDiscoveryInformation.setPercentageGas(BigDecimal.ONE);
+
+    undevelopedDiscoveryInformation.setCalculatedComplexity(BigDecimal.ONE);
+
     undevelopedDiscoveryInformation.setStatus(UndevelopedDiscoveryInformationStatus.EXTANT);
 
     return undevelopedDiscoveryInformation;
+  }
+
+  public static UndevelopedDiscoveryInformation getUndevelopedDiscoveryInformation(LocalDate date,
+                                                                                   UndevelopedDiscovery undevelopedDiscovery,
+                                                                                   BigDecimal mmboeOneC,
+                                                                                   BigDecimal mmboeTwoC,
+                                                                                   BigDecimal mmboeThreeC) {
+    var information = getUndevelopedDiscoveryInformation(date, undevelopedDiscovery);
+    information.setOilEquivalentRecoverableOneC(mmboeOneC);
+    information.setOilEquivalentRecoverableTwoC(mmboeTwoC);
+    information.setOilEquivalentRecoverableThreeC(mmboeThreeC);
+    return information;
   }
 }

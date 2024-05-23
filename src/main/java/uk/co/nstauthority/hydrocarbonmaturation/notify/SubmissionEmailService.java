@@ -171,7 +171,7 @@ public class SubmissionEmailService {
     personalisations.put(SERVICE_NAME_MNEMONIC,
         serviceBrandingConfigurationProperties.getServiceConfigurationProperties().mnemonic());
     personalisations.put(RESOURCE_NAME_WITH_QUAD_BLOCK,
-        submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail));
+        submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail));
     personalisations.put(SUBMISSION_TYPE, submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail));
     personalisations.put(SUBMISSION_TYPE_CAPITALISED, submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail));
   }

@@ -52,7 +52,7 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
     var otherResource = buildPropsectResource();
     var otherSubmission = buildSubmissionDetail(otherResource, SubmissionType.CREATE_PROSPECT);
     var organisationId1 = 46;
-    var generalDetails1 = createGeneralDetail(otherSubmission);
+    var generalDetails1 = createGeneralDetail(otherSubmission, null);
     createResourceDetail(otherSubmission, "Not relevant name", organisationId1);
     createQuadAndBlock(
         generalDetails1,
@@ -70,7 +70,8 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
     var queriedSubmissionDetail = buildSubmissionDetail(resourceForQueriedSubmission, SubmissionType.CREATE_PROSPECT);
     var resourceToBeQueried = "The resource name B - to be queried";
     var organisationId2 = 48;
-    var generalDetailsToBeQueried = createGeneralDetail(queriedSubmissionDetail);
+    var licenceApplicationReference = "RT9";
+    var generalDetailsToBeQueried = createGeneralDetail(queriedSubmissionDetail, licenceApplicationReference);
     var resourceDetailsToBeQueried = createResourceDetail(queriedSubmissionDetail, resourceToBeQueried, organisationId2);
 
     var quadrantBlockTobeQueried = "50/11";
@@ -100,7 +101,8 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
             SubmissionRecordSummaryQueryResult::getResourceType,
             SubmissionRecordSummaryQueryResult::getResponsibleTeam,
             SubmissionRecordSummaryQueryResult::getLicencesTheResourceIsOn,
-            SubmissionRecordSummaryQueryResult::getSubmissionType
+            SubmissionRecordSummaryQueryResult::getSubmissionType,
+            SubmissionRecordSummaryQueryResult::getLicenceApplicationReference
         )
         .containsExactly(
             queriedSubmissionDetail.getId(),
@@ -110,7 +112,8 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
             ResourceType.PROSPECT,
             ResponsibleTeamType.EXPLORATION,
             List.of(licenceToBeQueried.getLicenceId(), licenceToBeQueried2.getLicenceId()),
-            queriedSubmissionDetail.getSubmissionType()
+            queriedSubmissionDetail.getSubmissionType(),
+            licenceApplicationReference
         );
   }
 
@@ -320,9 +323,9 @@ class SubmissionRecordSummaryQueryServiceIntegrationTest {
         entityManager);
   }
 
-  private GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail) {
+  private GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail, String licenceApplicationReference) {
 
-    return SubmissionIntegrationTestUtils.createGeneralDetail(submissionDetail, entityManager);
+    return SubmissionIntegrationTestUtils.createGeneralDetail(submissionDetail, entityManager, licenceApplicationReference);
   }
 
   private ResourceDetail createResourceDetail(SubmissionDetail submissionDetail, String resourceName, int organisationId) {

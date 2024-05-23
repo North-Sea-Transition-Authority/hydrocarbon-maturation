@@ -68,7 +68,7 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
         .thenReturn(submissionDetail);
     when(submissionUpdateService.canStartUpdateSubmissionDetailOnSubmission(submissionDetail.getSubmission()))
         .thenReturn(true);
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn("resource name");
     when(submissionUpdatePersistenceService
         .getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission()))
@@ -127,7 +127,7 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
         .thenReturn(submissionDetail);
     var expectedReason = "reason here";
     submissionUpdate.setReason(expectedReason);
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn("resource name");
     when(submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(
         submissionDetail.getSubmission()))

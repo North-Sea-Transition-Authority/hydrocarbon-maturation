@@ -87,7 +87,7 @@ class UndevelopedDiscoverySummaryControllerTest extends AbstractUndevelopedDisco
         .thenReturn(resource);
     when(undevelopedDiscoveryService.getUndevelopedDiscoveryForResource(resource))
         .thenReturn(Optional.of(undevelopedDiscovery));
-    when(resourceRecordSummaryView.resourceNameAndCentreOfInterest())
+    when(resourceRecordSummaryView.resourceName())
         .thenReturn(resourceName);
     when(viewResourceRecordService.getResourceRecordOrThrow(RESOURCE_ID))
         .thenReturn(resourceRecordSummaryView);

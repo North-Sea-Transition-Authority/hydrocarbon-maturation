@@ -140,7 +140,7 @@ class SubmissionEmailServiceTest {
           .thenReturn(new ServiceConfigurationProperties("", SERVICE_NAME));
       when(energyPortalUserService.findByWuaId(WebUserAccountId.valueOf(SUBMITTER_WUA_ID.toString())))
           .thenReturn(Optional.of(recipient));
-      when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
+      when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(SUBMISSION_DETAIL))
           .thenReturn(expectedName);
       var generalDetail = mock(GeneralDetail.class);
       when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(SUBMISSION_DETAIL))
@@ -204,7 +204,7 @@ class SubmissionEmailServiceTest {
         .thenReturn(new ServiceConfigurationProperties("", SERVICE_NAME));
     when(energyPortalUserService.findByWuaId(WebUserAccountId.valueOf(SUBMITTER_WUA_ID.toString())))
         .thenReturn(Optional.of(recipient));
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(SUBMISSION_DETAIL))
         .thenReturn(expectedName);
     var generalDetail = mock(GeneralDetail.class);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(SUBMISSION_DETAIL))
@@ -283,7 +283,7 @@ class SubmissionEmailServiceTest {
 
       when(responsibleTeamService.getResponsibleTeamUsers(ResponsibleTeamType.EXPLORATION))
           .thenReturn(List.of(recipient1, recipient2, recipient3));
-      when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
+      when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(SUBMISSION_DETAIL))
           .thenReturn(expectedName);
       var generalDetail = mock(GeneralDetail.class);
       when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(SUBMISSION_DETAIL))
@@ -318,7 +318,7 @@ class SubmissionEmailServiceTest {
 
       when(responsibleTeamService.getResponsibleTeamUsers(ResponsibleTeamType.EXPLORATION))
           .thenReturn(List.of(recipient1));
-      when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
+      when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(SUBMISSION_DETAIL))
           .thenReturn(expectedName);
       var generalDetail = mock(GeneralDetail.class);
       when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(SUBMISSION_DETAIL))
@@ -387,7 +387,7 @@ class SubmissionEmailServiceTest {
 
       when(responsibleTeamService.getResponsibleTeamUsers(ResponsibleTeamType.EXPLORATION))
           .thenReturn(List.of(recipient1));
-      when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
+      when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(SUBMISSION_DETAIL))
           .thenReturn(expectedName);
       var generalDetail = mock(GeneralDetail.class);
       when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(SUBMISSION_DETAIL))
@@ -489,7 +489,7 @@ class SubmissionEmailServiceTest {
           .thenReturn(new ServiceConfigurationProperties("", SERVICE_NAME));
       when(energyPortalUserService.findByWuaId(WebUserAccountId.valueOf(SUBMITTER_WUA_ID.toString())))
           .thenReturn(Optional.of(recipient));
-      when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
+      when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(SUBMISSION_DETAIL))
           .thenReturn(expectedName);
       var generalDetail = mock(GeneralDetail.class);
       when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(SUBMISSION_DETAIL))
@@ -553,7 +553,7 @@ class SubmissionEmailServiceTest {
           .thenReturn(new ServiceConfigurationProperties("", SERVICE_NAME));
       when(energyPortalUserService.findByWuaId(WebUserAccountId.valueOf(SUBMITTER_WUA_ID.toString())))
           .thenReturn(Optional.of(recipient));
-      when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
+      when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(SUBMISSION_DETAIL))
           .thenReturn(expectedName);
       var generalDetail = mock(GeneralDetail.class);
       when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(SUBMISSION_DETAIL))
@@ -667,7 +667,7 @@ class SubmissionEmailServiceTest {
           .thenReturn(new CustomerConfigurationProperties("", REGULATOR_ORGANISATION_NAME));
       when(serviceBrandingConfigurationProperties.getServiceConfigurationProperties())
           .thenReturn(new ServiceConfigurationProperties("", SERVICE_NAME));
-      when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
+      when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(SUBMISSION_DETAIL))
           .thenReturn(expectedName);
       var generalDetail = mock(GeneralDetail.class);
       when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(SUBMISSION_DETAIL))
@@ -729,7 +729,7 @@ class SubmissionEmailServiceTest {
           .thenReturn(new CustomerConfigurationProperties("", REGULATOR_ORGANISATION_NAME));
       when(serviceBrandingConfigurationProperties.getServiceConfigurationProperties())
           .thenReturn(new ServiceConfigurationProperties("", SERVICE_NAME));
-      when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(SUBMISSION_DETAIL))
+      when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(SUBMISSION_DETAIL))
           .thenReturn("");
       var generalDetail = mock(GeneralDetail.class);
       when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(SUBMISSION_DETAIL))

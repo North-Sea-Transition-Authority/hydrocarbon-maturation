@@ -92,7 +92,7 @@ public class ResourceGroupController {
 
   private ModelAndView getResourceGroupsModelAndView(RelatedResourcesForm form, Resource resource) {
     var pageName = getPageName(resource);
-    var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(
+    var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
         submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource)
             .orElseThrow(() -> new RemiEntityNotFoundException("Could not find the latest accepted submission for resource %s"
                 .formatted(resource.getId()))));

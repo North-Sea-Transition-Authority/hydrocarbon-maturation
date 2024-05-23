@@ -19,4 +19,10 @@ public class GeneralDetailUtils {
 
     return generalDetail;
   }
+
+  public static GeneralDetail buildGeneralDetailWithLicenceApplicationReference(Resource resource, String reference) {
+    var generalDetail = buildGeneralDetail(resource);
+    generalDetail.setLicenceApplicationReference(reference);
+    return generalDetail;
+  }
 }

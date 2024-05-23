@@ -23,7 +23,13 @@ class ChanceOfSuccessDuplicationService implements SubmissionSectionDuplicationS
   @Override
   @Transactional
   public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
-    if (!newSubmissionDetail.isProspectSubmission()) {
+    if (!newSubmissionDetail.isProspectSubmission() && !newSubmissionDetail.isDiscoverySubmission()) {
+      return;
+    }
+
+    var oldResourceType = oldSubmissionDetail.getSubmission().getResource().getType();
+    var newResourceType = newSubmissionDetail.getSubmission().getResource().getType();
+    if (!oldResourceType.equals(newResourceType)) {
       return;
     }
 

@@ -107,14 +107,13 @@ class ReviewSubmissionServiceTest {
           responsibleTeamType.name(),
           licencesTheResourceIsOn,
           null,
+          null,
           null);
 
       when(submissionRecordSummaryQueryService.getSubmissionRecord(SUBMISSION_ID))
           .thenReturn(Optional.of(submissionRecord));
 
       var resourceNameAndCentreOfInterestBlockDisplay = "RESOURCE_NAME (CENTRE_OF_INTEREST_QUAD_BLOCK)";
-      when(submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(resourceName, centreOfInterestQuadBlock))
-          .thenReturn(resourceNameAndCentreOfInterestBlockDisplay);
 
       var licencesForDisplay = List.of("2", "3");
       when(submissionDetailDisplayService.getLicencesForDisplay(licencesTheResourceIsOn))
@@ -130,7 +129,7 @@ class ReviewSubmissionServiceTest {
           .extracting(
               SubmissionRecordSummaryView::submissionDetailId,
               SubmissionRecordSummaryView::submissionType,
-              SubmissionRecordSummaryView::resourceNameAndCentreOfInterest,
+              SubmissionRecordSummaryView::resourceNameCentreOfInterestAndLicenceApplicationReference,
               SubmissionRecordSummaryView::responsibleOrganisationId,
               SubmissionRecordSummaryView::organisationResponsible,
               SubmissionRecordSummaryView::licenceIds,
@@ -175,14 +174,13 @@ class ReviewSubmissionServiceTest {
           responsibleTeamType.name(),
           licencesTheResourceIsOn,
           parentFieldId,
-          fieldStatus);
+          fieldStatus,
+          null);
 
       when(submissionRecordSummaryQueryService.getSubmissionRecord(SUBMISSION_ID))
           .thenReturn(Optional.of(submissionRecord));
 
       var resourceNameAndCentreOfInterestBlockDisplay = "RESOURCE_NAME (CENTRE_OF_INTEREST_QUAD_BLOCK)";
-      when(submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(resourceName, centreOfInterestQuadBlock))
-          .thenReturn(resourceNameAndCentreOfInterestBlockDisplay);
 
       var licencesForDisplay = List.of("2", "3");
       when(submissionDetailDisplayService.getLicencesForDisplay(licencesTheResourceIsOn))
@@ -202,7 +200,7 @@ class ReviewSubmissionServiceTest {
           .extracting(
               SubmissionRecordSummaryView::submissionDetailId,
               SubmissionRecordSummaryView::submissionType,
-              SubmissionRecordSummaryView::resourceNameAndCentreOfInterest,
+              SubmissionRecordSummaryView::resourceNameCentreOfInterestAndLicenceApplicationReference,
               SubmissionRecordSummaryView::responsibleOrganisationId,
               SubmissionRecordSummaryView::organisationResponsible,
               SubmissionRecordSummaryView::licenceIds,

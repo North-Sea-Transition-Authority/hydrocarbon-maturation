@@ -19,6 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.metrics.MetricsProvider;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
@@ -104,15 +105,12 @@ class WorkAreaItemService {
         getWorkAreaItemModelProperties(submissionWorkAreaQueryResult, organisationUnitMap, licenceMap));
   }
 
-  private String getCentreOfInterestBlockDisplay(SubmissionWorkAreaQueryResult submissionWorkAreaQueryResult) {
-    return submissionWorkAreaQueryResult.getCentreOfInterestQuadBlock() != null
-        ? " (" + submissionWorkAreaQueryResult.getCentreOfInterestQuadBlock() + ")"
-        : "";
-  }
-
   private String getHeadingText(SubmissionWorkAreaQueryResult submissionWorkAreaQueryResult) {
-    return submissionWorkAreaQueryResult.getResourceName() +
-        getCentreOfInterestBlockDisplay(submissionWorkAreaQueryResult);
+    return SubmissionDetailDisplayUtil.getDisplayName(
+        submissionWorkAreaQueryResult.getResourceName(),
+        submissionWorkAreaQueryResult.getCentreOfInterestQuadBlock(),
+        submissionWorkAreaQueryResult.getLicenceApplicationReference()
+    );
   }
 
   private String getActionUrl(SubmissionWorkAreaQueryResult submissionWorkAreaQueryResult) {

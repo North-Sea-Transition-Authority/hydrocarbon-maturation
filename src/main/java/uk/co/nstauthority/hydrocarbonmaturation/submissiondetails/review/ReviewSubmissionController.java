@@ -161,7 +161,8 @@ public class ReviewSubmissionController {
         ReverseRouter.route(on(ReviewSubmissionController.class).viewSubmission(resourceId, null))
     );
 
-    var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(submissionRecord.resourceNameAndCentreOfInterest())
+    var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(
+        submissionRecord.resourceNameCentreOfInterestAndLicenceApplicationReference())
         .addWorkAreaBreadcrumb()
         .build();
 
@@ -191,9 +192,9 @@ public class ReviewSubmissionController {
 
     reviewSubmissionService.getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission())
         .ifPresentOrElse(submissionUpdate ->
-            modelAndView
-                .addObject("submissionUpdateReason", submissionUpdate.getReason())
-                .addObject("updateRequested", true),
+                modelAndView
+                    .addObject("submissionUpdateReason", submissionUpdate.getReason())
+                    .addObject("updateRequested", true),
             () -> modelAndView
                 .addObject("updateRequested", false));
 
@@ -237,7 +238,8 @@ public class ReviewSubmissionController {
               fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
           .addObject("regulatorManagedInformationUrl",
               ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
-                  .getRegulatorManagedInformationPageWithSubmissionDetail(resourceId, selectedSubmissionDetail.getId(), null)))
+                  .getRegulatorManagedInformationPageWithSubmissionDetail(resourceId, selectedSubmissionDetail.getId(),
+                      null)))
           .addObject("manageResourceInformationText", "Manage field information")
           .addObject("fieldStatusUrl", ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
               .getViewFieldStatusHistoryWithSubmissionDetail(

@@ -186,7 +186,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(prospectResource))
         .thenReturn(Optional.of(submissionDetail));
     var resourceName = "Sample name";
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(resourceName);
     when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(prospectResource))
         .thenReturn(Optional.of(submissionDetail));
@@ -228,7 +228,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(discoveryResource))
         .thenReturn(Optional.of(submissionDetail));
     var resourceName = "Sample name";
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(resourceName);
     when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(discoveryResource))
         .thenReturn(Optional.of(submissionDetail));
@@ -271,7 +271,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resourceForAccepted))
         .thenReturn(Optional.of(submissionDetail));
     var resourceName = "Sample name";
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(resourceName);
     when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resourceForAccepted))
         .thenReturn(Optional.of(submissionDetail));
@@ -322,7 +322,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resourceForAccepted))
         .thenReturn(Optional.of(submissionDetail));
     var resourceName = "Sample name";
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(resourceName);
     when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resourceForAccepted))
         .thenReturn(Optional.of(submissionDetail));
@@ -545,7 +545,7 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
         .thenReturn(submissionDetail);
     var resourceName = "The Resource (25/5)";
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(resourceName);
     when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(resource))
         .thenReturn(true);

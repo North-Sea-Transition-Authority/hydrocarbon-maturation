@@ -19,8 +19,6 @@
 <#-- @ftlvariable name="resourceGroupsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView" -->
 <#-- @ftlvariable name="isRegulator" type="boolean"-->
 
-<#assign pageTitle = "${resourceRecord.resourceNameAndCentreOfInterest()}" />
-
 <@defaultPage
 htmlTitle=pageTitle
 pageHeading=pageTitle

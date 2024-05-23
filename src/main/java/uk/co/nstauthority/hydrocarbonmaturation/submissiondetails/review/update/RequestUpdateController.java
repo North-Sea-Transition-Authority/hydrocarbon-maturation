@@ -113,7 +113,8 @@ public class RequestUpdateController {
         .withBannerType(NotificationBannerType.SUCCESS)
         .withContent("An update has been requested for %s - %s"
             .formatted(submissionDetail.getSubmission().getResource().getType().getDisplayName(),
-                submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail)))
+                submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
+                    submissionDetail)))
         .build();
 
     NotificationBannerUtil.applyNotificationBanner(redirectAttributes, banner);
@@ -127,7 +128,8 @@ public class RequestUpdateController {
         "remi/review/requestUpdateSubmissionConfirmation"
     );
 
-    var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail);
+    var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
+        submissionDetail);
 
     modelAndView
         .addObject("form", form)

@@ -203,9 +203,6 @@ class RelatedResourcesFormServiceTest {
     var resource = new Resource();
     resource.setId(UUID.randomUUID());
     submissionDetail.getSubmission().setResource(resource);
-    var resourceGroup =
-        new ResourceGroupView(submissionDetail.getId(), "returned resource", UUID.randomUUID());
-    var expectedMap = Map.of(submissionDetail.getId().toString(), resourceGroup.resourceName());
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
         .thenReturn(submissionDetail);
     when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))

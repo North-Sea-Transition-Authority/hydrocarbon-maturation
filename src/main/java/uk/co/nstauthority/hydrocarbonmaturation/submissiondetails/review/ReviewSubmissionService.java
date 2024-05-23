@@ -19,6 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Resp
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -69,7 +70,7 @@ public class ReviewSubmissionService {
         .map(submissionRecordSummaryQueryResult -> new SubmissionRecordSummaryView(
                 submissionRecordSummaryQueryResult.getSubmissionDetailId(),
                 submissionRecordSummaryQueryResult.getSubmissionType(),
-                getResourceNameAndCentreOfInterest(submissionRecordSummaryQueryResult),
+                getResourceNameCentreOfInterestAndLicenceApplicationReference(submissionRecordSummaryQueryResult),
                 submissionRecordSummaryQueryResult.getOrganisationResponsibleId(),
                 getOrganisationResponsible(submissionRecordSummaryQueryResult),
                 submissionRecordSummaryQueryResult.getLicencesTheResourceIsOn(),
@@ -176,11 +177,12 @@ public class ReviewSubmissionService {
         .orElse(false);
   }
 
-  private String getResourceNameAndCentreOfInterest(
+  private String getResourceNameCentreOfInterestAndLicenceApplicationReference(
       SubmissionRecordSummaryQueryResult submissionRecordSummaryQueryResult) {
-    return submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(
+    return SubmissionDetailDisplayUtil.getDisplayName(
         submissionRecordSummaryQueryResult.getResourceName(),
-        submissionRecordSummaryQueryResult.getCentreOfInterestQuadBlock()
+        submissionRecordSummaryQueryResult.getCentreOfInterestQuadBlock(),
+        submissionRecordSummaryQueryResult.getLicenceApplicationReference()
     );
   }
 

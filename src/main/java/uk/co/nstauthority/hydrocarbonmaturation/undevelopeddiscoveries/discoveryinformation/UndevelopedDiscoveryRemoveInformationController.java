@@ -75,7 +75,7 @@ public class UndevelopedDiscoveryRemoveInformationController {
 
   private ModelAndView redirectToSummaryAndNotify(UUID resourceId, UndevelopedDiscoveryInformation information,
                                                   RedirectAttributes redirectAttributes) {
-    var resourceName = resourceRecordService.getResourceRecordOrThrow(resourceId).resourceNameAndCentreOfInterest();
+    var resourceName = resourceRecordService.getResourceRecordOrThrow(resourceId).resourceName();
     var prettyDate = DateUtil.formatLongDate(information.getInformationDate());
     NotificationBannerUtil.addSuccessNotification(redirectAttributes, "Undeveloped discovery information deleted",
         "The undeveloped discovery information entry for '%s' on date '%s' has been deleted."

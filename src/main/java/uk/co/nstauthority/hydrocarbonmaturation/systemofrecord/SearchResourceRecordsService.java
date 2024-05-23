@@ -18,6 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUt
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
@@ -169,9 +170,10 @@ public class SearchResourceRecordsService {
   }
 
   private String getHeadingText(ResourceRecordQueryResult resourceRecordQueryResult) {
-    return submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(
+    return SubmissionDetailDisplayUtil.getDisplayName(
         resourceRecordQueryResult.resourceName(),
-        resourceRecordQueryResult.centreOfInterestQuadBlock()
+        resourceRecordQueryResult.centreOfInterestQuadBlock(),
+        resourceRecordQueryResult.licenceApplicationReference()
     );
   }
 

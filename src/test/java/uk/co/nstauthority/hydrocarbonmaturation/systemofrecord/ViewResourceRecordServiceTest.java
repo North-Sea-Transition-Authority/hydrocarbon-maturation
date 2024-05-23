@@ -93,12 +93,14 @@ class ViewResourceRecordServiceTest {
       var organisationResponsibleId = 1;
       var parentFieldId = 8001;
       var fieldStatus = FieldStatus.STATUS_200;
+      var licenceApplicationReference = "";
 
       var resourceRecordSummaryQueryResult = new ResourceRecordSummaryQueryResult(
           submissionDetailId,
           resourceType,
           resourceName,
           centreOfInterestQuadBlock,
+          licenceApplicationReference,
           organisationResponsibleId,
           responsibleTeamType,
           licencesTheResourceIsOn,
@@ -107,10 +109,6 @@ class ViewResourceRecordServiceTest {
 
       when(resourceRecordSummaryQueryService.getResourceRecord(RESOURCE_ID))
           .thenReturn(Optional.of(resourceRecordSummaryQueryResult));
-
-      var resourceNameAndCentreOfInterestBlockDisplay = "RESOURCE_NAME (CENTRE_OF_INTEREST_QUAD_BLOCK)";
-      when(submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(resourceName, centreOfInterestQuadBlock))
-          .thenReturn(resourceNameAndCentreOfInterestBlockDisplay);
 
       var licencesForDisplay = List.of("2", "3");
       when(submissionDetailDisplayService.getLicencesForDisplay(licencesTheResourceIsOn))
@@ -125,21 +123,25 @@ class ViewResourceRecordServiceTest {
       assertThat(result)
           .extracting(
               ResourceRecordSummaryView::submissionDetailId,
-              ResourceRecordSummaryView::resourceNameAndCentreOfInterest,
+              ResourceRecordSummaryView::resourceName,
+              ResourceRecordSummaryView::centreOfInterest,
               ResourceRecordSummaryView::responsibleOrganisationId,
               ResourceRecordSummaryView::organisationResponsible,
               ResourceRecordSummaryView::licenceIds,
               ResourceRecordSummaryView::licences,
-              ResourceRecordSummaryView::responsibleTeam
+              ResourceRecordSummaryView::responsibleTeam,
+              ResourceRecordSummaryView::licenceApplicationReference
           )
           .containsExactly(
               submissionDetailId,
-              resourceNameAndCentreOfInterestBlockDisplay,
+              resourceName,
+              centreOfInterestQuadBlock,
               organisationResponsibleId,
               organisationResponsibleDisplay,
               licencesTheResourceIsOn,
               licencesForDisplay,
-              responsibleTeamType
+              responsibleTeamType,
+              licenceApplicationReference
           );
     }
   }
@@ -204,7 +206,9 @@ class ViewResourceRecordServiceTest {
       void AndUserIsMemberOfOrgButResourceHasNullExtantLicence_ThenFalse() {
         var resourceRecordWithNullExtantLicence = new ResourceRecordSummaryView(
             UUID.randomUUID(),
+            "resource",
             "center",
+            "RT9",
             ORGANISATION_UNIT_ID,
             "Fivium",
             null,

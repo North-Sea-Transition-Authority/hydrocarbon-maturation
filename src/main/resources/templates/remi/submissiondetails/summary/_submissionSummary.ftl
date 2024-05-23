@@ -92,7 +92,8 @@
         resourceDetailSummaryView=resourceDetailSummaryView
         oilCaseVolumetricTotalsSummaryView=oilCaseVolumetricTotalsSummaryView!""
         gasCaseVolumetricTotalsSummaryView=gasCaseVolumetricTotalsSummaryView!""
-        reservoirSummaries=reservoirSummaries/>
+        reservoirSummaries=reservoirSummaries
+        chanceOfSuccessSummaryView=chanceOfSuccessSummaryView/>
     <#elseif submissionType == "CREATE_CSR"
     || submissionType == "CREATE_FDP"
     || submissionType == "CREATE_FDPA"

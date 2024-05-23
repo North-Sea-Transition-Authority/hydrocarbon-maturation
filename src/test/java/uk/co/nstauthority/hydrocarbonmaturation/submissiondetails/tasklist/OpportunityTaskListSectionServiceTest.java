@@ -79,24 +79,27 @@ class OpportunityTaskListSectionServiceTest {
             TaskListSection::displayName,
             TaskListSection::displayOrder)
         .containsExactly(List.of(
-            new TaskListItem("Opportunity details",
-                TaskListLabel.COMPLETE,
-                ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetail.getId(), null))),
-            new TaskListItem(OpportunityTaskListSectionService.OUTLINE_FOR_MAXIMUM_CASE,
-                TaskListLabel.NOT_COMPLETE,
-                ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).getOutlineForMaximumCaseUpload(submissionDetail.getId(), null))),
-            new TaskListItem("Trap properties",
-                TaskListLabel.NOT_COMPLETE,
-                ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetail.getId()))),
-            new TaskListItem("Source and seal",
-                TaskListLabel.NOT_COMPLETE,
-                ReverseRouter.route(on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetail.getId()))),
-            new TaskListItem("Hydrocarbon case",
-                TaskListLabel.NOT_COMPLETE,
-                ReverseRouter.route(on(HydrocarbonCaseController.class).getHydrocarbonCase(submissionDetail.getId()))),
-            new TaskListItem("Chance of success",
-                TaskListLabel.NOT_COMPLETE,
-                ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetail.getId())))),
+                new TaskListItem("Opportunity details",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(
+                        on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetail.getId(), null))),
+                new TaskListItem(OpportunityTaskListSectionService.OUTLINE_FOR_MAXIMUM_CASE,
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).getOutlineForMaximumCaseUpload(
+                        submissionDetail.getId(), null))),
+                new TaskListItem("Trap properties",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetail.getId()))),
+                new TaskListItem("Source and seal",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(
+                        on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetail.getId()))),
+                new TaskListItem("Hydrocarbon case",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(HydrocarbonCaseController.class).getHydrocarbonCase(submissionDetail.getId()))),
+                new TaskListItem("Chance of success",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetail.getId())))),
             "Opportunity details",
             20
         );
@@ -118,18 +121,21 @@ class OpportunityTaskListSectionServiceTest {
             TaskListSection::displayName,
             TaskListSection::displayOrder)
         .containsExactly(List.of(
-            new TaskListItem("Opportunity details",
-                TaskListLabel.COMPLETE,
-                ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetail.getId(), null))),
-            new TaskListItem(OpportunityTaskListSectionService.OUTLINE_FOR_MAXIMUM_CASE,
-                TaskListLabel.NOT_COMPLETE,
-                ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).getOutlineForMaximumCaseUpload(submissionDetail.getId(), null))),
-            new TaskListItem("Trap properties",
-                TaskListLabel.NOT_COMPLETE,
-                ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetail.getId()))),
-            new TaskListItem("Source and seal",
-                TaskListLabel.NOT_COMPLETE,
-                ReverseRouter.route(on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetail.getId())))),
+                new TaskListItem("Opportunity details",
+                    TaskListLabel.COMPLETE,
+                    ReverseRouter.route(
+                        on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetail.getId(), null))),
+                new TaskListItem(OpportunityTaskListSectionService.OUTLINE_FOR_MAXIMUM_CASE,
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).getOutlineForMaximumCaseUpload(
+                        submissionDetail.getId(), null))),
+                new TaskListItem("Trap properties",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetail.getId()))),
+                new TaskListItem("Source and seal",
+                    TaskListLabel.NOT_COMPLETE,
+                    ReverseRouter.route(
+                        on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetail.getId())))),
             "Opportunity details",
             20
         );
@@ -154,16 +160,24 @@ class OpportunityTaskListSectionServiceTest {
         .containsExactly(List.of(
                 new TaskListItem("Opportunity details",
                     TaskListLabel.COMPLETE,
-                    ReverseRouter.route(on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetail.getId(), null))),
+                    ReverseRouter.route(
+                        on(OpportunityDetailsController.class).getOpportunityDetails(submissionDetail.getId(), null))),
                 new TaskListItem(OpportunityTaskListSectionService.OUTLINE_FOR_MAXIMUM_CASE,
                     TaskListLabel.NOT_COMPLETE,
-                    ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).getOutlineForMaximumCaseUpload(submissionDetail.getId(), null))),
+                    ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).getOutlineForMaximumCaseUpload(
+                        submissionDetail.getId(), null))),
                 new TaskListItem("Trap properties",
                     TaskListLabel.NOT_COMPLETE,
                     ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetail.getId()))),
                 new TaskListItem("Source and seal",
                     TaskListLabel.NOT_COMPLETE,
-                    ReverseRouter.route(on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetail.getId())))),
+                    ReverseRouter.route(
+                        on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetail.getId()))),
+                new TaskListItem(
+                    "Commercial chance of success",
+                    TaskListLabel.notStartedOrComplete(
+                        chanceOfSuccessSubmissionService.isSectionSubmittable(submissionDetail)),
+                    ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetail.getId())))),
             "Opportunity details",
             20
         );
@@ -189,10 +203,12 @@ class OpportunityTaskListSectionServiceTest {
         .containsExactly(List.of(
                 new TaskListItem("Trap properties",
                     TaskListLabel.COMPLETE,
-                    ReverseRouter.route(on(FieldTrapPropertiesController.class).getFieldTrapProperties(submissionDetail.getId()))),
+                    ReverseRouter.route(
+                        on(FieldTrapPropertiesController.class).getFieldTrapProperties(submissionDetail.getId()))),
                 new TaskListItem("Source and seal",
                     TaskListLabel.COMPLETE,
-                    ReverseRouter.route(on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetail.getId())))),
+                    ReverseRouter.route(
+                        on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetail.getId())))),
             "Field details",
             20
         );
@@ -251,7 +267,7 @@ class OpportunityTaskListSectionServiceTest {
     when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     when(outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-
+    when(chanceOfSuccessSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
     assertTrue(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail));
   }
 

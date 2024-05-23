@@ -23,6 +23,7 @@
 <#import '../../summarylistcards/discoveryGasCaseVolumetricTotalsSummaryCard.ftl' as discoveryGasCaseVolumetricTotalsSummary>
 <#import '../../summarylistcards/discoveryCombinedCaseVolumetricTotalsSummaryCard.ftl' as discoveryCombinedCaseVolumetricTotalsSummary>
 <#import '../../summary/_reservoirSummary.ftl' as reservoirSummary>
+<#import '../../summarylistcards/chanceOfSuccessSummaryCard.ftl' as chanceOfSuccessSummary>
 
 <#-- @ftlvariable name="accordionId" type="String" -->
 <#-- @ftlvariable name="totalsRequired" type="boolean" -->
@@ -48,7 +49,8 @@
   resourceDetailSummaryView
   oilCaseVolumetricTotalsSummaryView
   gasCaseVolumetricTotalsSummaryView
-  reservoirSummaries>
+  reservoirSummaries
+  chanceOfSuccessSummaryView>
   <@fdsAccordion.accordion accordionId="summaryaccordian-${accordionId}">
     <@fdsAccordion.accordionSection sectionHeading="General details" summaryText="Resource details, general details" openSection=true>
       <@resourceDetailSummary.resourceDetailCard resourceDetailValues=resourceDetailSummaryView/>
@@ -59,6 +61,7 @@
       <@opportunityDetailsSummary.opportunityDetailsSummaryCard opportunityDetailsValues=opportunityDetailsSummaryView mapName="Map of discovery"/>
       <@trapPropertiesSummary.trapPropertiesSummaryCard trapPropertiesValues=trapPropertiesSummaryView/>
       <@sourceAndSealSummary.sourceAndSealCard sourceAndSealValues=sourceAndSealSummaryView/>
+      <@chanceOfSuccessSummary.chanceOfSuccessCards chanceOfSuccessValues=chanceOfSuccessSummaryView/>
     </@fdsAccordion.accordionSection>
     <@fdsAccordion.accordionSection sectionHeading="Discovery well details" summaryText="Discovery well details">
       <@discoveryWellDetailSummary.discoveryWellDetailCard discoveryWellDetailsSummaryView/>

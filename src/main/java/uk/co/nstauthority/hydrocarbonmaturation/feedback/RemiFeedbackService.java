@@ -50,7 +50,7 @@ class RemiFeedbackService {
     var feedback = new Feedback();
     feedback.setTransactionId(submissionDetail.getId().toString());
     feedback.setTransactionReference(
-        submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail));
+        submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail));
     feedback.setTransactionLink(getTransactionLink(submissionDetail));
     sendFeedback(feedback, form, user);
   }

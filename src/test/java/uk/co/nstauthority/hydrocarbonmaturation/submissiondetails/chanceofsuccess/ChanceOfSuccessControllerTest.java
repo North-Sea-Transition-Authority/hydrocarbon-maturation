@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsucce
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -59,14 +58,26 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
     submissionDetailId = submissionDetail.getId();
   }
 
-  @SecurityTest
-  void getChanceOfSuccess_whenIsResponsibleOrganisation_assertStatusOk() throws Exception {
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {
+          "PROSPECT_UPDATE", "CREATE_PROSPECT", "RELINQUISHMENT_PROSPECT",
+          "UPDATE_DISCOVERY", "CREATE_DISCOVERY", "CREATE_DISCOVERY_FROM_PROSPECT", "RELINQUISHMENT_DISCOVERY"
+      }
+  )
+  void getChanceOfSuccess_whenIsResponsibleOrganisation_andIsPermittedSubmissionType_assertStatusOk(
+      SubmissionType submissionType) throws Exception {
+    submissionDetail.setSubmissionType(submissionType);
+
     when(chanceOfSuccessFormService.getChanceOfSuccessForm(submissionDetail)).thenReturn(new ChanceOfSuccessForm());
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+
     mockMvc.perform(
-        get(ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetailId)))
-            .with(user(USER)))
+            get(ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetailId)))
+                .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/chanceOfSuccess"));
   }
@@ -84,7 +95,7 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
   void saveChanceOfSuccess_whenIsNotResponsibleOrgOrTeam_assertForbidden() throws Exception {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
-            get(ReverseRouter.route(on(ChanceOfSuccessController.class).saveChanceOfSuccess(
+            post(ReverseRouter.route(on(ChanceOfSuccessController.class).saveChanceOfSuccess(
                 submissionDetailId, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
@@ -100,12 +111,40 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
         .andExpect(status().isForbidden());
   }
 
-  @SecurityTest
-  void getChanceOfSuccess_andTypeIsNotProspect_assertForbidden() throws Exception {
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {
+          "PROSPECT_UPDATE", "CREATE_PROSPECT", "RELINQUISHMENT_PROSPECT",
+          "UPDATE_DISCOVERY", "CREATE_DISCOVERY", "CREATE_DISCOVERY_FROM_PROSPECT", "RELINQUISHMENT_DISCOVERY"
+      },
+      mode = EnumSource.Mode.EXCLUDE
+  )
+  void getChanceOfSuccess_andTypeIsNotProspectOrDiscovery_assertForbidden(SubmissionType submissionType) throws Exception {
+    submissionDetail.setSubmissionType(submissionType);
     mockMvc.perform(
             get(ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetailId)))
                 .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {
+          "PROSPECT_UPDATE", "CREATE_PROSPECT", "RELINQUISHMENT_PROSPECT",
+          "UPDATE_DISCOVERY", "CREATE_DISCOVERY", "CREATE_DISCOVERY_FROM_PROSPECT", "RELINQUISHMENT_DISCOVERY"
+      },
+      mode = EnumSource.Mode.EXCLUDE
+  )
+  void saveChanceOfSuccess_andTypeIsNotProspectOrDiscovery_assertForbidden(SubmissionType submissionType) throws Exception {
+    submissionDetail.setSubmissionType(submissionType);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(ChanceOfSuccessController.class).saveChanceOfSuccess(
+                submissionDetailId, null, null, null)))
+                .with(user(USER))
+                .with(csrf()))
         .andExpect(status().isForbidden());
   }
 
@@ -118,15 +157,17 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
         any(), eq(submissionDetail))).thenReturn(bindingResult);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(ChanceOfSuccessController.class).saveChanceOfSuccess(submissionDetailId, null, null, null)))
-            .params(ControllerTestUtils.validationPostParams(validationType))
-            .with(user(USER))
-            .with(csrf()))
+            post(ReverseRouter.route(
+                on(ChanceOfSuccessController.class).saveChanceOfSuccess(submissionDetailId, null, null, null)))
+                .params(ControllerTestUtils.validationPostParams(validationType))
+                .with(user(USER))
+                .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
 
     verify(chanceOfSuccessFormService, times(1)).validate(any(), any(), eq(validationType), eq(submissionDetail));
-    verify(chanceOfSuccessPersistenceService, times(1)).saveChanceOfSuccess(any(ChanceOfSuccessForm.class), eq(submissionDetail));
+    verify(chanceOfSuccessPersistenceService, times(1)).saveChanceOfSuccess(any(ChanceOfSuccessForm.class),
+        eq(submissionDetail));
   }
 
   @ParameterizedTest(name = "controller validation - {0}")
@@ -139,10 +180,11 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
     when(chanceOfSuccessFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(ChanceOfSuccessController.class).saveChanceOfSuccess(submissionDetailId, null, null, null)))
-            .params(ControllerTestUtils.validationPostParams(validationType))
-            .with(user(USER))
-            .with(csrf()))
+            post(ReverseRouter.route(
+                on(ChanceOfSuccessController.class).saveChanceOfSuccess(submissionDetailId, null, null, null)))
+                .params(ControllerTestUtils.validationPostParams(validationType))
+                .with(user(USER))
+                .with(csrf()))
         .andExpect(status().isOk());
 
     verify(chanceOfSuccessFormService, times(1)).validate(any(), any(),
@@ -151,27 +193,63 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
   }
 
   @Test
-  void getChanceOfSuccessModelAndView_assertModelProperties() throws Exception {
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(chanceOfSuccessFormService.getChanceOfSuccessForm(submissionDetail)).thenReturn(new ChanceOfSuccessForm());
+  void getChanceOfSuccessModelAndView_prospect_assertModelProperties() throws Exception {
+    var form = new ChanceOfSuccessForm();
 
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(chanceOfSuccessFormService.getChanceOfSuccessForm(submissionDetail)).thenReturn(form);
 
     var modelMap = Objects.requireNonNull(
-        mockMvc.perform(
-            get(ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetailId)))
-                .with(user(USER)))
-            .andReturn()
-            .getModelAndView())
+            mockMvc.perform(
+                    get(ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetailId)))
+                        .with(user(USER)))
+                .andReturn()
+                .getModelAndView())
         .getModelMap();
 
-    assertEquals(ChanceOfSuccessForm.class, modelMap.get("form").getClass());
+    assertThat(modelMap).contains(
+        entry("form", form),
+        entry("pageTitle", ChanceOfSuccessController.PROSPECT_PAGE_NAME)
+    );
 
-    @SuppressWarnings(value="unchecked")
+    @SuppressWarnings(value = "unchecked")
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)),
+            TaskListController.PAGE_NAME)
+    );
+  }
+
+  @Test
+  void getChanceOfSuccessModelAndView_discovery_assertModelProperties() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    var form = new ChanceOfSuccessForm();
+
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(chanceOfSuccessFormService.getChanceOfSuccessForm(submissionDetail)).thenReturn(form);
+
+    var modelMap = Objects.requireNonNull(
+            mockMvc.perform(
+                    get(ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetailId)))
+                        .with(user(USER)))
+                .andReturn()
+                .getModelAndView())
+        .getModelMap();
+
+    assertThat(modelMap).contains(
+        entry("form", form),
+        entry("pageTitle", ChanceOfSuccessController.DISCOVERY_PAGE_NAME)
+    );
+
+    @SuppressWarnings(value = "unchecked")
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)),
+            TaskListController.PAGE_NAME)
     );
   }
 }

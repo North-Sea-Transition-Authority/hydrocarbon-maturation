@@ -99,7 +99,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
         RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn("name");
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
         .thenReturn(submissionDetail.getSubmissionType().getTypeName());
@@ -135,7 +135,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
         RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     var expectedName = "Res name 123";
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(expectedName);
     var expectedTypeName = "Type name";
     when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail))
@@ -182,7 +182,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
         RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     var expectedName = "Res name 123";
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(expectedName);
     var expectedTypeName = "Type name";
     when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail))
@@ -233,7 +233,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
         RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     var expectedName = "Res name 123";
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(expectedName);
     var expectedTypeName = "Type name";
     when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail))
@@ -257,7 +257,7 @@ class ApproveSubmissionControllerTest extends AbstractSubmissionControllerTest {
         RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     var expectedName = "Res name 123";
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(expectedName);
     var expectedTypeName = "Type name";
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))

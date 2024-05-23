@@ -44,7 +44,8 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
     var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT);
     var resourceName1 = "The resource name A";
     var organisationId1 = 46;
-    var generalDetails1 = createGeneralDetail(submissionDetail1);
+    var licenceApplicationReference1 = "RT9";
+    var generalDetails1 = createGeneralDetail(submissionDetail1, licenceApplicationReference1);
     var resourceDetails1 = createResourceDetail(submissionDetail1, resourceName1, organisationId1);
 
     var quadrantBlock1 = "25/12";
@@ -65,7 +66,8 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
     var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT);
     var resourceName2 = "The resource name B - to be queried";
     var organisationId2 = 48;
-    var generalDetails2 = createGeneralDetail(submissionDetail2);
+    var licenceApplicationReference2 = "RT2";
+    var generalDetails2 = createGeneralDetail(submissionDetail2, licenceApplicationReference2);
     var resourceDetails2 = createResourceDetail(submissionDetail2, resourceName2, organisationId2);
 
     var quadrantBlock2 = "50/11";
@@ -93,7 +95,8 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
             ResourceRecordSummaryQueryResult::resourceName,
             ResourceRecordSummaryQueryResult::resourceType,
             ResourceRecordSummaryQueryResult::responsibleTeam,
-            ResourceRecordSummaryQueryResult::licencesTheResourceIsOn
+            ResourceRecordSummaryQueryResult::licencesTheResourceIsOn,
+            ResourceRecordSummaryQueryResult::licenceApplicationReference
         )
         .containsExactly(
             submissionDetail2.getId(),
@@ -102,7 +105,8 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
             resourceName2,
             ResourceType.PROSPECT,
             ResponsibleTeamType.EXPLORATION,
-            List.of(licence3.getLicenceId(), licence4.getLicenceId())
+            List.of(licence3.getLicenceId(), licence4.getLicenceId()),
+            licenceApplicationReference2
         );
   }
 
@@ -114,14 +118,14 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
     submissionDetail1.setSubmission(submissionNotWithdrawn);
     var resourceName1 = "The resource name A";
     var organisationId1 = 46;
-    createGeneralDetail(submissionDetail1);
+    createGeneralDetail(submissionDetail1, null);
     createResourceDetail(submissionDetail1, resourceName1, organisationId1);
 
     buildResponsibleTeam(resource1, ResponsibleTeamType.EXPLORATION);
     var submissionDetail2 = buildSubmissionDetail(resource1, SubmissionType.PROSPECT_UPDATE);
     var submissionWithdrawn = SubmissionIntegrationTestUtils.createSubmission(resource1, true, entityManager);
     submissionDetail2.setSubmission(submissionWithdrawn);
-    createGeneralDetail(submissionDetail2);
+    createGeneralDetail(submissionDetail2, null);
     createResourceDetail(submissionDetail2, resourceName1, organisationId1);
 
     var result = resourceRecordSummaryQueryService.getResourceRecord(resource1.getId());
@@ -145,7 +149,7 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
     submissionDetail.setSubmission(submissionNotWithdrawn);
     var resourceName = "The resource name A";
     var organisationId = 46;
-    createGeneralDetail(submissionDetail);
+    createGeneralDetail(submissionDetail, null);
     var field = SubmissionIntegrationTestUtils
         .createFieldWithParent(resource, resourceName, organisationId, entityManager);
     var fieldStatusHistory =
@@ -178,7 +182,7 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
     submissionDetail1.setSubmission(submissionNotWithdrawn);
     var resourceName = "The resource name A";
     var organisationId = 46;
-    createGeneralDetail(submissionDetail1);
+    createGeneralDetail(submissionDetail1, null);
     var field = SubmissionIntegrationTestUtils.createFieldWithParent(resource, resourceName, organisationId, entityManager);
     LocalDate fixedInstant = LocalDate.now();
     var lowestFieldStatusHistory =
@@ -205,7 +209,7 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
     submissionDetail1.setSubmission(submissionNotWithdrawn);
     var resourceName = "The resource name A";
     var organisationId = 46;
-    createGeneralDetail(submissionDetail1);
+    createGeneralDetail(submissionDetail1, null);
     var field = SubmissionIntegrationTestUtils.createFieldWithParent(resource, resourceName, organisationId,  entityManager);
     LocalDate fixedInstant = LocalDate.now();
     var latestFieldStatusHistory =
@@ -252,9 +256,9 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
     );
   }
 
-  private GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail) {
+  private GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail, String licenceApplicationReference) {
 
-    return SubmissionIntegrationTestUtils.createGeneralDetail(submissionDetail, entityManager);
+    return SubmissionIntegrationTestUtils.createGeneralDetail(submissionDetail, entityManager, licenceApplicationReference);
   }
 
   private ResourceDetail createResourceDetail(SubmissionDetail submissionDetail, String resourceName, int organisationId) {

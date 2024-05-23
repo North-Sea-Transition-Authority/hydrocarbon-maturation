@@ -11,6 +11,7 @@ record ResourceRecordSummaryQueryResult(
     ResourceType resourceType,
     String resourceName,
     String centreOfInterestQuadBlock,
+    String licenceApplicationReference,
     Integer organisationResponsibleId,
     ResponsibleTeamType responsibleTeam,
     List<Integer> licencesTheResourceIsOn,

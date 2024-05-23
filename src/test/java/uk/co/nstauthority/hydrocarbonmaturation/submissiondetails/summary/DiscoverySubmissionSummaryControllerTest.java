@@ -40,6 +40,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryView;
@@ -102,6 +103,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
   private TrapPropertiesSummaryView trapPropertiesSummaryView;
   private ResourceDetailSummaryView resourceDetailSummaryView;
   private OutlineForMaximumCaseSummaryView outlineForMaximumCaseSummaryView;
+  private ChanceOfSuccessSummaryView chanceOfSuccessSummaryView;
   private List<ReservoirSummary> reservoirSummaries;
   private ArgumentCaptor<UndevelopedDiscoveryTrackingDetailsForm> formArgumentCaptor = ArgumentCaptor.forClass(
       UndevelopedDiscoveryTrackingDetailsForm.class);
@@ -120,6 +122,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
     mixedCaseOutputsSummaryView = MixedCaseOutputsSummaryView.empty();
     gasCaseOutputsSummaryView = GasCaseOutputsSummaryView.empty();
     oilCaseOutputsSummaryView = OilCaseOutputsSummaryView.empty();
+    chanceOfSuccessSummaryView = ChanceOfSuccessSummaryView.empty();
     probabilityDistributionsFormSummaryView = new ProbabilityDistributionsFormSummaryView(List.of());
     opportunityDetailsSummaryView = OpportunityDetailsSummaryView.empty();
     outlineForMaximumCaseSummaryView = OutlineForMaximumCaseSummaryView.empty();
@@ -295,7 +298,8 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
             entry("reservoirSummaries", reservoirSummaries),
             entry("resourceDetailSummaryView", resourceDetailSummaryView),
             entry("accordionId", submissionDetailId),
-            entry("totalsRequired", false)
+            entry("totalsRequired", false),
+            entry("chanceOfSuccessSummaryView", chanceOfSuccessSummaryView)
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -331,6 +335,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
         .addObject("submittable", true)
         .addObject("isSubmissionUpdate", false)
         .addObject("accordionId", submissionDetail.getId())
+        .addObject("chanceOfSuccessSummaryView", chanceOfSuccessSummaryView)
         .addObject("isOffshore", true);
     when(submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(
         submissionDetail, VIEW_NAME)

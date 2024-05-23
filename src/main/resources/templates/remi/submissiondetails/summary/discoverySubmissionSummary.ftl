@@ -82,6 +82,7 @@
       oilCaseVolumetricTotalsSummaryView=oilCaseVolumetricTotalsSummaryView!""
       gasCaseVolumetricTotalsSummaryView=gasCaseVolumetricTotalsSummaryView!""
       reservoirSummaries=reservoirSummaries
+      chanceOfSuccessSummaryView=chanceOfSuccessSummaryView!""
     />
       <#if !submittable && isRegulatorOrAreaTeamUser>
         <div class="govuk-form-group <#if errorList?has_content>govuk-form-group--error</#if>">

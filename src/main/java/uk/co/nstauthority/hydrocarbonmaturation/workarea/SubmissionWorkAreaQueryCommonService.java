@@ -62,7 +62,8 @@ class SubmissionWorkAreaQueryCommonService {
                 .and(SUBMISSION_UPDATE.RESOLVED.isFalse())),
             SUBMISSION_DETAILS.CORRECTION,
             FIELDS.PARENT_DETERMINED_FIELD_ID,
-            max(FSH.FIELD_STATUS)
+            max(FSH.FIELD_STATUS),
+            GENERAL_DETAILS.LICENCE_APPLICATION_REFERENCE
         )
         .from(SUBMISSIONS
                 .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
@@ -117,7 +118,8 @@ class SubmissionWorkAreaQueryCommonService {
             SUBMISSION_UPDATE.ID,
             SUBMISSION_DETAILS.CORRECTION,
             FIELDS.FIELD_IDENTIFIER,
-            FSH.FIELD_IDENTIFIER)
+            FSH.FIELD_IDENTIFIER,
+            GENERAL_DETAILS.ID)
         .orderBy(
             SUBMISSION_UPDATE.RESOLVED.desc().nullsLast(),
             SUBMISSION_UPDATE.REQUESTED_TIMESTAMP.desc().nullsLast(),

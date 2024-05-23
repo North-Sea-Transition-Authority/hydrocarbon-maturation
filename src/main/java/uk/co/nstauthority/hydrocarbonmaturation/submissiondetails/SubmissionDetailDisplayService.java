@@ -70,7 +70,8 @@ public class SubmissionDetailDisplayService {
         .toList();
   }
 
-  public List<String> getLicencesForDisplayFromMap(Map<Integer, LicenceView> licencesMap, List<Integer> licencesTheResourceIsOn) {
+  public List<String> getLicencesForDisplayFromMap(Map<Integer, LicenceView> licencesMap,
+                                                   List<Integer> licencesTheResourceIsOn) {
     if (CollectionUtils.isEmpty(licencesTheResourceIsOn)) {
       return List.of(NOT_PROVIDED);
     }
@@ -80,16 +81,5 @@ public class SubmissionDetailDisplayService {
         .filter(Objects::nonNull)
         .map(LicenceView::licenceRef)
         .toList();
-  }
-
-  public String getCentreOfInterestBlockDisplay(String centreOfInterestQuadBlock) {
-    return Optional.ofNullable(centreOfInterestQuadBlock)
-        .map(ofInterestQuadBlock -> " (" + ofInterestQuadBlock + ")")
-        .orElse("");
-  }
-
-  public String getResourceNameAndCentreOfInterestBlockDisplay(String resourceName,
-                                                               String centreOfInterestQuadBlock) {
-    return resourceName + getCentreOfInterestBlockDisplay(centreOfInterestQuadBlock);
   }
 }

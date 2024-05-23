@@ -172,11 +172,14 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persist(submissionDetail);
     entityManager.flush();
 
+    var licenceApplicationReference = "RT9";
+
     var generalDetails = new GeneralDetail();
     var resourceDetail = new ResourceDetail();
     resourceDetail.setSubmissionDetail(submissionDetail);
     resourceDetail.setResourceName("The resource name");
     generalDetails.setSubmissionDetail(submissionDetail);
+    generalDetails.setLicenceApplicationReference(licenceApplicationReference);
     resourceDetail.setOrganisationId(responsibleOrganisationIdForSubmission);
     entityManager.persist(generalDetails);
     entityManager.flush();
@@ -220,7 +223,8 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
             SubmissionWorkAreaQueryResult::getResourceName,
             SubmissionWorkAreaQueryResult::getSubmissionType,
             SubmissionWorkAreaQueryResult::getStatus,
-            SubmissionWorkAreaQueryResult::isUpdateRequested)
+            SubmissionWorkAreaQueryResult::isUpdateRequested,
+            SubmissionWorkAreaQueryResult::getLicenceApplicationReference)
         .containsExactly(
             submissionDetail.getId(),
             "25/12",
@@ -228,7 +232,8 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
             "The resource name",
             SubmissionType.CREATE_PROSPECT,
             SubmissionDetailStatus.SUBMITTED,
-            false
+            false,
+            licenceApplicationReference
         );
 
     assertThat(results.get(0)
@@ -312,7 +317,8 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
             SubmissionWorkAreaQueryResult::getOrganisationResponsibleId,
             SubmissionWorkAreaQueryResult::isCorrection,
             SubmissionWorkAreaQueryResult::getParentFieldId,
-            SubmissionWorkAreaQueryResult::getFieldStatus
+            SubmissionWorkAreaQueryResult::getFieldStatus,
+            SubmissionWorkAreaQueryResult::getLicenceApplicationReference
         ).containsExactly(
             Tuple.tuple(
                 submissionDetail.getId(),
@@ -323,7 +329,8 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
                 responsibleOrganisationIdForSubmission,
                 submissionDetail.isCorrection(),
                 field.getParentDeterminedField().getFieldIdentifier(),
-                newestFieldStatusHistory.getFieldStatus()
+                newestFieldStatusHistory.getFieldStatus(),
+                null
             ));
 
     assertThat(results.get(0)

@@ -42,11 +42,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.TagColour;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceRecordSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordService;
-import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformationService;
 
 @ExtendWith(MockitoExtension.class)
 class UndevelopedDiscoveriesOverviewServiceTest {
+
+  private static SummaryTableView EXPECTED_SUMMARY_TABLE;
 
   @Mock
   private UndevelopedDiscoveryService undevelopedDiscoveryService;
@@ -80,269 +81,659 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
   @InjectMocks
   private UndevelopedDiscoveriesOverviewService undevelopedDiscoveriesOverviewService;
+  private final String area = "area";
+  private final Integer licenceId = 1;
+
+  @BeforeEach
+  void setUp() {
+    EXPECTED_SUMMARY_TABLE = SummaryTableView.newWithHeading(
+        UndevelopedDiscoveriesOverviewService.DISCOVERY_HEADING,
+        UndevelopedDiscoveriesOverviewService.YEAR_ADDED_HEADING,
+        UndevelopedDiscoveriesOverviewService.LICENSED_HEADING,
+        UndevelopedDiscoveriesOverviewService.AREA_HEADING,
+        UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_1C_HEADING,
+        UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_2C_HEADING,
+        UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_3C_HEADING,
+        UndevelopedDiscoveriesOverviewService.PERCENTAGE_GAS_HEADING,
+        UndevelopedDiscoveriesOverviewService.COMPLEXITY_HEADING
+    );
+  }
+
+  @Test
+  void getOverviewData_allData() {
+    var undevelopedDiscovery = setupAndGetUndevelopedDiscovery();
+
+    // WHEN an undeveloped discovery has associated information
+    mockGetLatestInformation(
+        undevelopedDiscovery,
+        LocalDate.of(2002, 1, 11),
+        BigDecimal.ONE,
+        BigDecimal.valueOf(2),
+        BigDecimal.valueOf(3)
+    );
+
+    var resource = undevelopedDiscovery.getResource();
+
+    // AND is tied to a field
+    var fieldStatusHistory = new FieldStatusHistory();
+    fieldStatusHistory.setFieldStatus(FieldStatus.STATUS_200);
+    mockGetFieldStatusesReturnsField(fieldStatusHistory, resource);
+
+    var licenceIds = List.of(licenceId);
+    var resourceName = "Some resource name";
+    mockGetResourceRecord(resource.getId(), resourceName, licenceIds);
+
+    mockGetRegulatorView(resource);
+
+    // AND is in a resource group
+    var isDuplicate = Boolean.TRUE;
+    mockIsDuplicate(isDuplicate, resource);
+
+    // AND the resource is licenced
+    mockLatestApprovedSubmissionDetail(SubmissionType.CREATE_DISCOVERY, resource);
+    mockLicenceStatus(LicenceStatus.EXTANT);
+
+    mockGetAllTrackedUndevelopedDiscoveries(List.of(undevelopedDiscovery));
+
+    // THEN the row has tags
+    var expectedDiscoveryValue = new SummaryTableValue(
+        resourceName,
+        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+        List.of(
+            new Tag("Duplicate", TagColour.RED),
+            new Tag("%1$s, %1$s".formatted(FieldStatus.STATUS_200.getDisplayName()), TagColour.YELLOW)
+        )
+    );
+
+    // AND the expected values for name, year, licenced, mmboe (1/2/3 C), % gas,
+    EXPECTED_SUMMARY_TABLE.addRow(
+        expectedDiscoveryValue,
+        "2002",
+        "Yes",
+        area,
+        "1",
+        "2",
+        "3",
+        "1.00%",
+        "1"
+    );
+
+    var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(1, 1, "1.00", "2.00", "3.00");
+    var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
+
+    var overviewData = undevelopedDiscoveriesOverviewService.getOverviewData();
+
+    assertThat(overviewData)
+        .usingRecursiveComparison()
+        .isEqualTo(expectedOverviewData);
+  }
+
+  @Test
+  void getOverviewData_buildsData_noTags() {
+    var undevelopedDiscovery = setupAndGetUndevelopedDiscovery();
+
+    mockGetLatestInformation(
+        undevelopedDiscovery,
+        LocalDate.of(2002, 1, 11),
+        BigDecimal.ONE,
+        BigDecimal.valueOf(2),
+        BigDecimal.valueOf(3)
+    );
+
+    var resource = undevelopedDiscovery.getResource();
+
+    var licenceIds = List.of(licenceId);
+    var resourceName = "Some resource name";
+    mockGetResourceRecord(resource.getId(), resourceName, licenceIds);
+
+    mockGetRegulatorView(resource);
+
+    // WHEN there are no field status histories
+    var field = new Field();
+    var resourceLink = new ResourceLink();
+    resourceLink.setFieldResource(resource);
+    when(resourceLinkService.getResourceLinksByDiscovery(resource))
+        .thenReturn(List.of(resourceLink, resourceLink));
+    when(fieldPersistenceService.getFieldByResource(resource))
+        .thenReturn(Optional.of(field));
+    when(fieldStatusHistoryService.getMostRecentFieldStatusHistory(field))
+        .thenReturn(Optional.empty());
+
+    // AND resource is not a duplicate
+    var isDuplicate = Boolean.FALSE;
+    mockIsDuplicate(isDuplicate, resource);
+
+    mockGetAllTrackedUndevelopedDiscoveries(List.of(undevelopedDiscovery));
+
+    // THEN there are no tags
+    var expectedDiscoveryValue = new SummaryTableValue(
+        resourceName,
+        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+        List.of()
+    );
+
+    EXPECTED_SUMMARY_TABLE
+        .addRow(
+            expectedDiscoveryValue,
+            "2002",
+            "No",
+            area,
+            "1",
+            "2",
+            "3",
+            "1.00%",
+            "1"
+        );
+
+    var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(1, 0, "1.00", "2.00", "3.00");
+    var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
+
+    var overviewData = undevelopedDiscoveriesOverviewService.getOverviewData();
+    assertThat(overviewData)
+        .usingRecursiveComparison()
+        .isEqualTo(expectedOverviewData);
+  }
+
+  @Test
+  void getOverviewData_buildsData_notLicenced_hasBeenRelinquished() {
+    var undevelopedDiscovery = setupAndGetUndevelopedDiscovery();
+
+    mockGetLatestInformation(
+        undevelopedDiscovery,
+        LocalDate.of(2002, 1, 11),
+        BigDecimal.ONE,
+        BigDecimal.valueOf(2),
+        BigDecimal.valueOf(3)
+    );
+
+    var resource = undevelopedDiscovery.getResource();
+
+    var licenceIds = List.of(licenceId);
+    var resourceName = "Some resource name";
+    mockGetResourceRecord(resource.getId(), resourceName, licenceIds);
+
+    mockGetRegulatorView(resource);
+
+    var isDuplicate = Boolean.FALSE;
+    mockIsDuplicate(isDuplicate, resource);
+
+    // WHEN resource has been relinquished
+    mockLatestApprovedSubmissionDetail(SubmissionType.RELINQUISHMENT_DISCOVERY, resource);
+    mockLicenceStatus(LicenceStatus.EXTANT);
+
+    mockGetAllTrackedUndevelopedDiscoveries(List.of(undevelopedDiscovery));
+
+    var expectedDiscoveryValue = new SummaryTableValue(
+        resourceName,
+        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+        List.of()
+    );
+
+    // THEN it is not licenced
+    var expectedLicencedValue = "No";
+    EXPECTED_SUMMARY_TABLE
+        .addRow(
+            expectedDiscoveryValue,
+            "2002",
+            expectedLicencedValue,
+            area,
+            "1",
+            "2",
+            "3",
+            "1.00%",
+            "1"
+        );
+
+    var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(1, 0, "1.00", "2.00", "3.00");
+    var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
+
+    var overviewData = undevelopedDiscoveriesOverviewService.getOverviewData();
+    assertThat(overviewData)
+        .usingRecursiveComparison()
+        .isEqualTo(expectedOverviewData);
+  }
+
+  @Test
+  void getOverviewData_buildsData_notLicenced_noAssociatedLicences() {
+    var undevelopedDiscovery = setupAndGetUndevelopedDiscovery();
+
+    mockGetLatestInformation(
+        undevelopedDiscovery,
+        LocalDate.of(2002, 1, 11),
+        BigDecimal.ONE,
+        BigDecimal.valueOf(2),
+        BigDecimal.valueOf(3)
+    );
+
+    var resource = undevelopedDiscovery.getResource();
+
+    // WHEN there are no associated licences
+    List<Integer> licenceIds = List.of();
+    var resourceName = "Some resource name";
+    mockGetResourceRecord(resource.getId(), resourceName, licenceIds);
+
+    mockGetRegulatorView(resource);
+
+    var isDuplicate = Boolean.FALSE;
+    mockIsDuplicate(isDuplicate, resource);
+
+    // AND the resource has not been relinquished
+    mockLatestApprovedSubmissionDetail(SubmissionType.UPDATE_DISCOVERY, resource);
+
+    mockGetAllTrackedUndevelopedDiscoveries(List.of(undevelopedDiscovery));
+
+    var expectedDiscoveryValue = new SummaryTableValue(
+        resourceName,
+        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+        List.of()
+    );
+
+    // THEN it is not licenced
+    var expectedLicencedValue = "No";
+    EXPECTED_SUMMARY_TABLE
+        .addRow(
+            expectedDiscoveryValue,
+            "2002",
+            expectedLicencedValue,
+            area,
+            "1",
+            "2",
+            "3",
+            "1.00%",
+            "1"
+        );
+
+    var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(1, 0, "1.00", "2.00", "3.00");
+    var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
+
+    var overviewData = undevelopedDiscoveriesOverviewService.getOverviewData();
+    assertThat(overviewData)
+        .usingRecursiveComparison()
+        .isEqualTo(expectedOverviewData);
+  }
+
+  @Test
+  void getOverviewData_buildsData_notLicenced_noExtantLicences() {
+    var undevelopedDiscovery = setupAndGetUndevelopedDiscovery();
+
+    mockGetLatestInformation(
+        undevelopedDiscovery,
+        LocalDate.of(2002, 1, 11),
+        BigDecimal.ONE,
+        BigDecimal.valueOf(2),
+        BigDecimal.valueOf(3)
+    );
+
+    var resource = undevelopedDiscovery.getResource();
+
+    // WHEN there are no associated licences
+    var licenceIds = List.of(licenceId);
+    var resourceName = "Some resource name";
+    mockGetResourceRecord(resource.getId(), resourceName, licenceIds);
+
+    mockGetRegulatorView(resource);
+
+    var isDuplicate = Boolean.FALSE;
+    mockIsDuplicate(isDuplicate, resource);
+
+    // AND the resource has not been relinquished but has no EXTANT licences
+    mockLatestApprovedSubmissionDetail(SubmissionType.UPDATE_DISCOVERY, resource);
+    mockLicenceStatus(LicenceStatus.REVOKED);
+
+    mockGetAllTrackedUndevelopedDiscoveries(List.of(undevelopedDiscovery));
+
+    var expectedDiscoveryValue = new SummaryTableValue(
+        resourceName,
+        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+        List.of()
+    );
+
+    // THEN it is not licenced
+    var expectedLicencedValue = "No";
+    EXPECTED_SUMMARY_TABLE
+        .addRow(
+            expectedDiscoveryValue,
+            "2002",
+            expectedLicencedValue,
+            area,
+            "1",
+            "2",
+            "3",
+            "1.00%",
+            "1"
+        );
+
+    var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(1, 0, "1.00", "2.00", "3.00");
+    var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
+
+    var overviewData = undevelopedDiscoveriesOverviewService.getOverviewData();
+    assertThat(overviewData)
+        .usingRecursiveComparison()
+        .isEqualTo(expectedOverviewData);
+  }
+
+  @Test
+  void getOverviewData_buildsData_noAssociatedInformation() {
+    // WHEN there is an undeveloped discovery with no information entries
+    var undevelopedDiscovery = setupAndGetUndevelopedDiscovery();
+
+    var resource = undevelopedDiscovery.getResource();
+
+    // AND there are no associated licences to the resource
+    List<Integer> licenceIds = List.of();
+    var resourceName = "Some resource name";
+    mockGetResourceRecord(resource.getId(), resourceName, licenceIds);
+
+    mockGetRegulatorView(resource);
+
+    var isDuplicate = Boolean.FALSE;
+    mockIsDuplicate(isDuplicate, resource);
+
+    // AND the resource is not licenced
+    mockLatestApprovedSubmissionDetail(SubmissionType.UPDATE_DISCOVERY, resource);
+
+    mockGetAllTrackedUndevelopedDiscoveries(List.of(undevelopedDiscovery));
+
+    var expectedDiscoveryValue = new SummaryTableValue(
+        resourceName,
+        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+        List.of()
+    );
+
+    // THEN the table has no information specific data: year, mmboe, % gas, complexity
+    EXPECTED_SUMMARY_TABLE
+        .addRow(
+            expectedDiscoveryValue,
+            null,
+            "No",
+            area,
+            null,
+            null,
+            null,
+            "",
+            null
+        );
+
+    var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(1, 0, "0.00", "0.00", "0.00");
+    var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
+
+    var overviewData = undevelopedDiscoveriesOverviewService.getOverviewData();
+    assertThat(overviewData)
+        .usingRecursiveComparison()
+        .isEqualTo(expectedOverviewData);
+  }
 
   @Nested
-  class getOverviewSummaryTableView {
+  class getOverviewData_sortedRows {
+    @Test
+    void whenFirstUndevelopedDiscoveryHasNullDate() {
+      // WHEN there is a table with a null information date
+      var nullDateUndevelopedDiscovery = setupAndGetUndevelopedDiscovery();
+      var tableValueWithNullDate = mockEntryWithNullDateAndGetExpectedValue("Null date entry",
+          nullDateUndevelopedDiscovery);
 
-    private Resource resource;
-    private final String resourceName = "resource name";
-    private final String area = "area";
-    private final Integer licenceId = 1;
+      // AND an entry with a non-null information date
+      var nonNullDateUndevelopedDiscovery = setupAndGetUndevelopedDiscovery();
+      var tableValueWithNonNullDate = mockNormalEntryAndGetExpectedValue("Non null entry",
+          LocalDate.of(2002, 1, 11), nonNullDateUndevelopedDiscovery);
 
-    @BeforeEach
-    void setUp() {
-      setUpUndevelopedDiscoveriesAndInformation();
+      // AND the null date is first
+      mockGetAllTrackedUndevelopedDiscoveries(List.of(nullDateUndevelopedDiscovery, nonNullDateUndevelopedDiscovery));
+
+      // THEN the non-null information is first in the table
+      EXPECTED_SUMMARY_TABLE
+          .addRow(tableValueWithNonNullDate, "2002", "No", area, "1", "2", "3", "1.00%", "1")
+          .addRow(tableValueWithNullDate, null, "No", area, "1", "2", "3", "1.00%", "1");
+
+      var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(2, 0, "2.00", "4.00", "6.00");
+      var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
+
+      var overviewData = undevelopedDiscoveriesOverviewService.getOverviewData();
+      assertThat(overviewData)
+          .usingRecursiveComparison()
+          .isEqualTo(expectedOverviewData);
     }
 
     @Test
-    void getOverviewSummaryTableView_buildsTable() {
-      var fieldStatusHistory = new FieldStatusHistory();
-      fieldStatusHistory.setFieldStatus(FieldStatus.STATUS_200);
+    void whenSecondUndevelopedDiscoveryHasNullDate() {
+      // WHEN there is a table with a null information date
+      var nullDateUndevelopedDiscovery = setupAndGetUndevelopedDiscovery();
+      var tableValueWithNullDate = mockEntryWithNullDateAndGetExpectedValue("Null date entry",
+          nullDateUndevelopedDiscovery);
 
-      setUpToRowMethodRequirements(Boolean.TRUE, fieldStatusHistory);
-      mockHasBeenRelinquished(SubmissionType.CREATE_DISCOVERY);
-      mockExtantLicences(Boolean.TRUE, licenceId);
+      // AND an entry with a non-null information date
+      var nonNullDateUndevelopedDiscovery = setupAndGetUndevelopedDiscovery();
+      var tableValueWithNonNullDate = mockNormalEntryAndGetExpectedValue("Non null entry",
+          LocalDate.of(2002, 1, 11), nonNullDateUndevelopedDiscovery);
 
-      var expectedDiscoveryValue = new SummaryTableValue(
-          resourceName,
-          ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
-          List.of(
-              new Tag("Duplicate", TagColour.RED),
-              new Tag("%1$s, %1$s".formatted(FieldStatus.STATUS_200.getDisplayName()), TagColour.YELLOW)
-          )
+      // AND the null date is second
+      mockGetAllTrackedUndevelopedDiscoveries(List.of(nonNullDateUndevelopedDiscovery, nullDateUndevelopedDiscovery));
+
+      // THEN the non-null information is first in the table
+      EXPECTED_SUMMARY_TABLE
+          .addRow(tableValueWithNonNullDate, "2002", "No", area, "1", "2", "3", "1.00%", "1")
+          .addRow(tableValueWithNullDate, null, "No", area, "1", "2", "3", "1.00%", "1");
+
+      var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(2, 0, "2.00", "4.00", "6.00");
+      var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
+
+      var overviewData = undevelopedDiscoveriesOverviewService.getOverviewData();
+      assertThat(overviewData)
+          .usingRecursiveComparison()
+          .isEqualTo(expectedOverviewData);
+    }
+
+    @Test
+    void whenYearsAreEqual_thenRowsAreSortedByResourceName() {
+      var sameDate = LocalDate.of(2002, 1, 11);
+
+      // WHEN there is a table with resource name beginning with B
+      var secondDiscovery = setupAndGetUndevelopedDiscovery();
+      var expectedSecondValue = mockNormalEntryAndGetExpectedValue("BBBBBBB", sameDate,
+          secondDiscovery);
+
+      // AND an entry on the same date with a resource name beginning with A
+      var firstDiscovery = setupAndGetUndevelopedDiscovery();
+      var expectedFirstValue = mockNormalEntryAndGetExpectedValue("AAAAAAA", sameDate,
+          firstDiscovery);
+
+      mockGetAllTrackedUndevelopedDiscoveries(List.of(secondDiscovery, firstDiscovery));
+
+      // THEN the entry beginning with A is first
+      EXPECTED_SUMMARY_TABLE
+          .addRow(expectedFirstValue, "2002", "No", area, "1", "2", "3", "1.00%", "1")
+          .addRow(expectedSecondValue, "2002", "No", area, "1", "2", "3", "1.00%", "1");
+
+      var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(2, 0, "2.00", "4.00", "6.00");
+      var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
+
+      var overviewData = undevelopedDiscoveriesOverviewService.getOverviewData();
+      assertThat(overviewData)
+          .usingRecursiveComparison()
+          .isEqualTo(expectedOverviewData);
+    }
+
+    @Test
+    void whenYearsAreDifferent_thenRowsAreSortedByYear() {
+      // WHEN there is an entry from 2002
+      var oldestDiscovery = setupAndGetUndevelopedDiscovery();
+      var oldestValue = mockNormalEntryAndGetExpectedValue("hahahaha",
+          LocalDate.of(2002, 1, 11), oldestDiscovery);
+
+      // AND an entry from 2024
+      var newestDiscovery = setupAndGetUndevelopedDiscovery();
+      var newestValue = mockNormalEntryAndGetExpectedValue("hahahaha",
+          LocalDate.of(2024, 1, 11), newestDiscovery);
+
+      mockGetAllTrackedUndevelopedDiscoveries(List.of(oldestDiscovery, newestDiscovery));
+
+      // THEN the newest entry (2024) is first
+      EXPECTED_SUMMARY_TABLE
+          .addRow(newestValue, "2024", "No", area, "1", "2", "3", "1.00%", "1")
+          .addRow(oldestValue, "2002", "No", area, "1", "2", "3", "1.00%", "1");
+
+      var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(2, 0, "2.00", "4.00", "6.00");
+      var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
+
+      var overviewData = undevelopedDiscoveriesOverviewService.getOverviewData();
+      assertThat(overviewData)
+          .usingRecursiveComparison()
+          .isEqualTo(expectedOverviewData);
+    }
+
+    private SummaryTableValue mockEntryWithNullDateAndGetExpectedValue(String resourceName,
+                                                                       UndevelopedDiscovery undevelopedDiscovery) {
+      mockGetLatestInformation(
+          undevelopedDiscovery,
+          null,
+          BigDecimal.ONE,
+          BigDecimal.valueOf(2),
+          BigDecimal.valueOf(3)
       );
 
-      var expectedTableView = SummaryTableView.newWithHeading(
-              UndevelopedDiscoveriesOverviewService.DISCOVERY_HEADING,
-              UndevelopedDiscoveriesOverviewService.YEAR_ADDED_HEADING,
-              UndevelopedDiscoveriesOverviewService.LICENSED_HEADING,
-              UndevelopedDiscoveriesOverviewService.AREA_HEADING,
-              UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_1C_HEADING,
-              UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_2C_HEADING,
-              UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_3C_HEADING,
-              UndevelopedDiscoveriesOverviewService.PERCENTAGE_GAS_HEADING,
-              UndevelopedDiscoveriesOverviewService.COMPLEXITY_HEADING)
-          .addRow(
-              expectedDiscoveryValue,
-              "2002",
-              "Yes",
-              area,
-              "1",
-              "1",
-              "1",
-              "1.00%",
-              "1"
-          );
+      var resource = undevelopedDiscovery.getResource();
 
-      var overviewSummaryTableView = undevelopedDiscoveriesOverviewService.getOverviewSummaryTableView();
-      assertThat(overviewSummaryTableView)
-          .usingRecursiveComparison()
-          .isEqualTo(expectedTableView);
-    }
+      // WHEN there are no associated licences
+      List<Integer> licenceIds = List.of();
+      mockGetResourceRecord(resource.getId(), resourceName, licenceIds);
 
-    @Test
-    void getOverviewSummaryTableView_buildsTable_noTags() {
-      setUpToRowMethodRequirements(Boolean.FALSE, null);
-      mockHasBeenRelinquished(SubmissionType.CREATE_DISCOVERY);
-      mockExtantLicences(Boolean.TRUE, licenceId);
+      mockGetRegulatorView(resource);
 
-      var expectedDiscoveryValue = new SummaryTableValue(
-          resourceName,
-          ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
-          List.of()
-      );
+      var isDuplicate = Boolean.FALSE;
+      mockIsDuplicate(isDuplicate, resource);
 
-      var expectedTableView = SummaryTableView.newWithHeading(
-              UndevelopedDiscoveriesOverviewService.DISCOVERY_HEADING,
-              UndevelopedDiscoveriesOverviewService.YEAR_ADDED_HEADING,
-              UndevelopedDiscoveriesOverviewService.LICENSED_HEADING,
-              UndevelopedDiscoveriesOverviewService.AREA_HEADING,
-              UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_1C_HEADING,
-              UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_2C_HEADING,
-              UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_3C_HEADING,
-              UndevelopedDiscoveriesOverviewService.PERCENTAGE_GAS_HEADING,
-              UndevelopedDiscoveriesOverviewService.COMPLEXITY_HEADING)
-          .addRow(
-              expectedDiscoveryValue,
-              "2002",
-              "Yes",
-              area,
-              "1",
-              "1",
-              "1",
-              "1.00%",
-              "1"
-          );
+      // AND the resource has not been relinquished
+      mockLatestApprovedSubmissionDetail(SubmissionType.UPDATE_DISCOVERY, resource);
 
-      var overviewSummaryTableView = undevelopedDiscoveriesOverviewService.getOverviewSummaryTableView();
-      assertThat(overviewSummaryTableView)
-          .usingRecursiveComparison()
-          .isEqualTo(expectedTableView);
-    }
-
-    @Test
-    void getOverviewSummaryTableView_buildsTable_notLicenced_hasBeenRelinquished() {
-      setUpToRowMethodRequirements(Boolean.FALSE, null);
-      mockHasBeenRelinquished(SubmissionType.RELINQUISHMENT_DISCOVERY);
-      mockExtantLicences(Boolean.TRUE, licenceId);
-
-      var expectedDiscoveryValue = new SummaryTableValue(
-          resourceName,
-          ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
-          List.of()
-      );
-
-      var expectedTableView = SummaryTableView.newWithHeading(
-              UndevelopedDiscoveriesOverviewService.DISCOVERY_HEADING,
-              UndevelopedDiscoveriesOverviewService.YEAR_ADDED_HEADING,
-              UndevelopedDiscoveriesOverviewService.LICENSED_HEADING,
-              UndevelopedDiscoveriesOverviewService.AREA_HEADING,
-              UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_1C_HEADING,
-              UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_2C_HEADING,
-              UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_3C_HEADING,
-              UndevelopedDiscoveriesOverviewService.PERCENTAGE_GAS_HEADING,
-              UndevelopedDiscoveriesOverviewService.COMPLEXITY_HEADING)
-          .addRow(
-              expectedDiscoveryValue,
-              "2002",
-              "No",
-              area,
-              "1",
-              "1",
-              "1",
-              "1.00%",
-              "1"
-          );
-
-      var overviewSummaryTableView = undevelopedDiscoveriesOverviewService.getOverviewSummaryTableView();
-      assertThat(overviewSummaryTableView)
-          .usingRecursiveComparison()
-          .isEqualTo(expectedTableView);
-    }
-
-    @Test
-    void getOverviewSummaryTableView_buildsTable_notLicenced_noExtantLicences() {
-      setUpToRowMethodRequirements(Boolean.FALSE, null);
-      mockHasBeenRelinquished(SubmissionType.CREATE_DISCOVERY);
-      mockExtantLicences(Boolean.FALSE, licenceId);
-
-      var expectedDiscoveryValue = new SummaryTableValue(
+      return new SummaryTableValue(
           resourceName,
           ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
           List.of()
       );
-
-      var expectedTableView = SummaryTableView.newWithHeading(
-              UndevelopedDiscoveriesOverviewService.DISCOVERY_HEADING,
-              UndevelopedDiscoveriesOverviewService.YEAR_ADDED_HEADING,
-              UndevelopedDiscoveriesOverviewService.LICENSED_HEADING,
-              UndevelopedDiscoveriesOverviewService.AREA_HEADING,
-              UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_1C_HEADING,
-              UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_2C_HEADING,
-              UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_3C_HEADING,
-              UndevelopedDiscoveriesOverviewService.PERCENTAGE_GAS_HEADING,
-              UndevelopedDiscoveriesOverviewService.COMPLEXITY_HEADING)
-          .addRow(
-              expectedDiscoveryValue,
-              "2002",
-              "No",
-              area,
-              "1",
-              "1",
-              "1",
-              "1.00%",
-              "1"
-          );
-
-      var overviewSummaryTableView = undevelopedDiscoveriesOverviewService.getOverviewSummaryTableView();
-      assertThat(overviewSummaryTableView)
-          .usingRecursiveComparison()
-          .isEqualTo(expectedTableView);
     }
 
-    private void setUpUndevelopedDiscoveriesAndInformation() {
-      resource = new Resource();
-      resource.setId(UUID.randomUUID());
+    private SummaryTableValue mockNormalEntryAndGetExpectedValue(String resourceName, LocalDate date,
+                                                                 UndevelopedDiscovery undevelopedDiscovery) {
+      mockGetLatestInformation(
+          undevelopedDiscovery,
+          date,
+          BigDecimal.ONE,
+          BigDecimal.valueOf(2),
+          BigDecimal.valueOf(3)
+      );
 
-      var undevelopedDiscovery = new UndevelopedDiscovery();
-      undevelopedDiscovery.setResource(resource);
+      var resource = undevelopedDiscovery.getResource();
 
-      var information = new UndevelopedDiscoveryInformation();
-      information.setUndevelopedDiscovery(undevelopedDiscovery);
-      information.setInformationDate(LocalDate.of(2002, 1, 11));
-      information.setOilEquivalentRecoverableOneC(BigDecimal.ONE);
-      information.setOilEquivalentRecoverableTwoC(BigDecimal.ONE);
-      information.setOilEquivalentRecoverableThreeC(BigDecimal.ONE);
-      information.setPercentageGas(BigDecimal.ONE);
-      information.setCalculatedComplexity(BigDecimal.ONE);
+      // WHEN there are no associated licences
+      List<Integer> licenceIds = List.of();
+      mockGetResourceRecord(resource.getId(), resourceName, licenceIds);
 
-      when(undevelopedDiscoveryService.getAllTrackedUndevelopedDiscoveries())
-          .thenReturn(List.of(undevelopedDiscovery));
-      when(informationService.getLatestInformation(undevelopedDiscovery))
-          .thenReturn(Optional.of(information));
-    }
+      mockGetRegulatorView(resource);
 
-    private void setUpToRowMethodRequirements(Boolean isDuplicate,
-                                              FieldStatusHistory fieldStatusHistory) {
-      var resourceRecord = new ResourceRecordSummaryView(
-          null,
+      var isDuplicate = Boolean.FALSE;
+      mockIsDuplicate(isDuplicate, resource);
+
+      // AND the resource has not been relinquished
+      mockLatestApprovedSubmissionDetail(SubmissionType.UPDATE_DISCOVERY, resource);
+
+      mockGetAllTrackedUndevelopedDiscoveries(List.of(undevelopedDiscovery));
+
+      return new SummaryTableValue(
           resourceName,
-          null,
-          null,
-          List.of(licenceId),
-          List.of(),
-          null,
-          null,
-          null
+          ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+          List.of()
       );
-
-      var regulatorView = new RegulatorManagedInformationSummaryView(
-          null,
-          area,
-          false,
-          Map.of()
-      );
-
-
-      var field = new Field();
-
-      var resourceLink = new ResourceLink();
-      resourceLink.setFieldResource(resource);
-
-      Optional<FieldStatusHistory> fieldStatusHistoryOptional = fieldStatusHistory == null
-          ? Optional.empty()
-          : Optional.of(fieldStatusHistory);
-
-      when(resourceRecordService.getResourceRecordOrThrow(resource.getId()))
-          .thenReturn(resourceRecord);
-      when(regulatorSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
-          .thenReturn(regulatorView);
-      when(resourceGroupService.isInGroupAndIsNotPreferredView(resource))
-          .thenReturn(isDuplicate);
-      when(resourceLinkService.getResourceLinksByDiscovery(resource))
-          .thenReturn(List.of(resourceLink, resourceLink));
-      when(fieldPersistenceService.getFieldByResource(resource))
-          .thenReturn(Optional.of(field));
-      when(fieldStatusHistoryService.getMostRecentFieldStatusHistory(field))
-          .thenReturn(fieldStatusHistoryOptional);
     }
+  }
 
-    private void mockHasBeenRelinquished(SubmissionType submissionType) {
-      var latestApprovedDetail = new SubmissionDetail();
-      latestApprovedDetail.setSubmissionType(submissionType);
-      when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(resource))
-          .thenReturn(Optional.of(latestApprovedDetail));
-    }
+  private void mockGetLatestInformation(UndevelopedDiscovery undevelopedDiscovery, LocalDate date, BigDecimal mmboeOneC,
+                                        BigDecimal mmboeTwoC, BigDecimal mmboeThreeC) {
+    var information = UndevelopedDiscoveryTestUtils.getUndevelopedDiscoveryInformation(
+        date, undevelopedDiscovery, mmboeOneC, mmboeTwoC, mmboeThreeC
+    );
 
-    private void mockExtantLicences(Boolean returnLicenceView, Integer licenceId) {
-      if (Boolean.TRUE.equals(returnLicenceView)) {
-        var licenceView = new LicenceView(null, null, LicenceStatus.EXTANT);
-        when(licenceQueryService.getLicenceById(licenceId))
-            .thenReturn(Optional.of(licenceView));
-      } else {
-        when(licenceQueryService.getLicenceById(licenceId))
-            .thenReturn(Optional.empty());
-      }
-    }
+    when(informationService.getLatestInformation(undevelopedDiscovery))
+        .thenReturn(Optional.of(information));
+  }
+
+  private void mockGetAllTrackedUndevelopedDiscoveries(List<UndevelopedDiscovery> undevelopedDiscoveries) {
+    when(undevelopedDiscoveryService.getAllTrackedUndevelopedDiscoveries())
+        .thenReturn(undevelopedDiscoveries);
+  }
+
+  private UndevelopedDiscovery setupAndGetUndevelopedDiscovery() {
+    var resource = new Resource();
+    resource.setId(UUID.randomUUID());
+
+    var undevelopedDiscovery = new UndevelopedDiscovery();
+    undevelopedDiscovery.setResource(resource);
+
+    return undevelopedDiscovery;
+  }
+
+  private void mockGetResourceRecord(UUID resourceId, String resourceName, List<Integer> licenceIds) {
+    var resourceRecord = new ResourceRecordSummaryView(
+        null,
+        resourceName,
+        "COI",
+        "RT9",
+        null,
+        null,
+        licenceIds,
+        List.of(),
+        null,
+        null,
+        null
+    );
+
+    when(resourceRecordService.getResourceRecordOrThrow(resourceId))
+        .thenReturn(resourceRecord);
+  }
+
+  private void mockLatestApprovedSubmissionDetail(SubmissionType submissionType, Resource resource) {
+    var latestApprovedDetail = new SubmissionDetail();
+    latestApprovedDetail.setSubmissionType(submissionType);
+
+    when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(resource))
+        .thenReturn(Optional.of(latestApprovedDetail));
+  }
+
+  private void mockLicenceStatus(LicenceStatus status) {
+    var licenceView = new LicenceView(null, null, status);
+    when(licenceQueryService.getLicenceById(licenceId))
+        .thenReturn(Optional.of(licenceView));
+  }
+
+  private void mockGetRegulatorView(Resource resource) {
+    var regulatorView = new RegulatorManagedInformationSummaryView(
+        null,
+        "area",
+        false,
+        Map.of()
+    );
+
+    when(regulatorSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
+        .thenReturn(regulatorView);
+  }
+
+  private void mockGetFieldStatusesReturnsField(FieldStatusHistory fieldStatusHistory, Resource resource) {
+    var field = new Field();
+
+    var resourceLink = new ResourceLink();
+    resourceLink.setFieldResource(resource);
+
+    var fieldStatusHistoryOptional = Optional.of(fieldStatusHistory);
+
+    when(resourceLinkService.getResourceLinksByDiscovery(resource))
+        .thenReturn(List.of(resourceLink, resourceLink));
+    when(fieldPersistenceService.getFieldByResource(resource))
+        .thenReturn(Optional.of(field));
+    when(fieldStatusHistoryService.getMostRecentFieldStatusHistory(field))
+        .thenReturn(fieldStatusHistoryOptional);
+  }
+
+  private void mockIsDuplicate(Boolean isDuplicate, Resource resource) {
+    when(resourceGroupService.isInGroupAndIsNotPreferredView(resource))
+        .thenReturn(isDuplicate);
   }
 }

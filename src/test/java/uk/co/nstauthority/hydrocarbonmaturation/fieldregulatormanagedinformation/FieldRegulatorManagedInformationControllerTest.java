@@ -555,7 +555,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
         .thenReturn(Optional.of(submissionDetail));
     when(fieldRegulatorManagedInformationService.isValidNewFieldForm(any(FieldForm.class), any(BindingResult.class)))
         .thenReturn(false);
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(any()))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(any()))
         .thenReturn("breadcrumb title");
 
     form.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);

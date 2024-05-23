@@ -92,7 +92,7 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
         RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(RESOURCE_NAME);
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
         .thenReturn(submissionDetail.getSubmissionType().getTypeName());
@@ -126,7 +126,7 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
         RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail))
         .thenReturn(true);
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(RESOURCE_NAME);
     when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail))
         .thenReturn(TYPE_NAME);
@@ -163,7 +163,7 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
   @Test
   void requestUpdate_canRequest_verifyMethodCall() throws Exception{
     when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail)).thenReturn(true);
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(RESOURCE_NAME);
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
         .thenReturn(TYPE_NAME);
