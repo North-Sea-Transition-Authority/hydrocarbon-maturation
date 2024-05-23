@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryService;
@@ -94,6 +95,9 @@ class DiscoverySummaryServiceTest {
 
   @Mock
   private DiscoveryGasCaseVolumetricTotalsSummaryService discoveryGasCaseVolumetricTotalsSummaryService;
+
+  @Mock
+  private ChanceOfSuccessSummaryService chanceOfSuccessSummaryService;
 
   @InjectMocks
   private DiscoverySummaryService discoverySummaryService;
@@ -257,5 +261,12 @@ class DiscoverySummaryServiceTest {
     discoverySummaryService.getGasCaseVolumetricTotalsFromSubmissionDetail(submissionDetail);
     verify(discoveryGasCaseVolumetricTotalsSummaryService, times(1))
         .getGasCaseVolumetricTotalsSummaryFromSubmissionDetail(submissionDetail);
+  }
+
+  @Test
+  void getChanceOfSuccessSummaryViewFromSubmissionDetail(){
+    discoverySummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail);
+    verify(chanceOfSuccessSummaryService, times(1))
+        .getChanceOfSuccessSummaryFromSubmissionDetail(submissionDetail);
   }
 }

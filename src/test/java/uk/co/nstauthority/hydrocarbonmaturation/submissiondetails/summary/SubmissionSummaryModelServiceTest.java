@@ -318,6 +318,8 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(discoveryWellDetailsSummaryView);
     when(discoverySummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(sourceAndSealSummaryView);
+    when(discoverySummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(chanceOfSuccessSummaryView);
 
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn("test");
     when(totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail)).thenReturn(false);
@@ -333,6 +335,7 @@ class SubmissionSummaryModelServiceTest {
             entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
             entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
             entry("reservoirSummaries", reservoirSummaries),
+            entry("chanceOfSuccessSummaryView", chanceOfSuccessSummaryView),
             entry("totalsRequired", false),
             entry("accordionId", submissionDetail.getId()),
             entry("isSubmissionUpdate", false),
@@ -361,6 +364,8 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(discoveryWellDetailsSummaryView);
     when(discoverySummaryService.getSourceAndSealSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(sourceAndSealSummaryView);
+    when(discoverySummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail))
+        .thenReturn(chanceOfSuccessSummaryView);
 
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn("test");
 
@@ -385,6 +390,7 @@ class SubmissionSummaryModelServiceTest {
             entry("sourceAndSealSummaryView", sourceAndSealSummaryView),
             entry("trapPropertiesSummaryView", trapPropertiesSummaryView),
             entry("reservoirSummaries", reservoirSummaries),
+            entry("chanceOfSuccessSummaryView", chanceOfSuccessSummaryView),
             entry("totalsRequired", true),
             entry("isOilCaseOnly", true),
             entry("isGasCaseOnly", true),

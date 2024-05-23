@@ -1,6 +1,5 @@
 <#include '../layout/layout.ftl'>
 
-<#assign pageTitle = "Chance of success" />
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 

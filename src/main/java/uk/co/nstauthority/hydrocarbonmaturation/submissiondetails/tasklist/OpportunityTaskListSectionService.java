@@ -28,6 +28,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties
 @Service
 public class OpportunityTaskListSectionService implements TaskListSectionService {
 
+  public static final String OUTLINE_FOR_MAXIMUM_CASE = "Outline for maximum case";
+  static final String PROSPECT_CHANCE_OF_SUCCESS = "Chance of success";
+  static final String DISCOVERY_CHANCE_OF_SUCCESS = "Commercial chance of success";
   private final OpportunityDetailsSubmissionService opportunityDetailsSubmissionService;
   private final TrapPropertiesSubmissionService trapPropertiesSubmissionService;
   private final SourceAndSealSubmissionService sourceAndSealSubmissionService;
@@ -53,8 +56,6 @@ public class OpportunityTaskListSectionService implements TaskListSectionService
     this.fieldTrapPropertiesSubmissionService = fieldTrapPropertiesSubmissionService;
   }
 
-  public static final String OUTLINE_FOR_MAXIMUM_CASE = "Outline for maximum case";
-
   @Override
   public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail) {
 
@@ -77,13 +78,12 @@ public class OpportunityTaskListSectionService implements TaskListSectionService
               && trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)
               && sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)
               && hydrocarbonCaseSubmissionService.isSectionSubmittable(submissionDetail);
-      case CREATE_DISCOVERY, CREATE_DISCOVERY_FROM_PROSPECT, UPDATE_DISCOVERY, RELINQUISHMENT_DISCOVERY, POST_DRILL_DRY_HOLE ->
-          opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)
-              && outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail)
-              && sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)
-              && trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail);
+      case CREATE_DISCOVERY, CREATE_DISCOVERY_FROM_PROSPECT, UPDATE_DISCOVERY, RELINQUISHMENT_DISCOVERY ->
+          discoveryAndDrillSharedChecks(submissionDetail)
+              && chanceOfSuccessSubmissionService.isSectionSubmittable(submissionDetail);
+      case POST_DRILL_DRY_HOLE -> discoveryAndDrillSharedChecks(submissionDetail);
       case CREATE_CSR, CREATE_FDP, CREATE_FDPA, CREATE_COP ->
-              sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)
+          sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)
               && fieldTrapPropertiesSubmissionService.isSectionSubmittable(submissionDetail);
       case CREATE_FIELD -> throw new ActionNotAllowedException("New fields do not have task lists");
     };
@@ -104,7 +104,8 @@ public class OpportunityTaskListSectionService implements TaskListSectionService
 
       listOfItems.add(
           new TaskListItem(OUTLINE_FOR_MAXIMUM_CASE,
-              TaskListLabel.notStartedOrComplete(outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail)),
+              TaskListLabel.notStartedOrComplete(
+                  outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail)),
               ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class)
                   .getOutlineForMaximumCaseUpload(submissionDetail.getId(), null)))
       );
@@ -113,13 +114,16 @@ public class OpportunityTaskListSectionService implements TaskListSectionService
     if (submissionDetail.isFieldSubmission()) {
       listOfItems.add(
           new TaskListItem("Trap properties",
-              TaskListLabel.notStartedOrComplete(fieldTrapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)),
-              ReverseRouter.route(on(FieldTrapPropertiesController.class).getFieldTrapProperties(submissionDetail.getId())))
+              TaskListLabel.notStartedOrComplete(
+                  fieldTrapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)),
+              ReverseRouter.route(
+                  on(FieldTrapPropertiesController.class).getFieldTrapProperties(submissionDetail.getId())))
       );
     } else {
       listOfItems.add(
           new TaskListItem("Trap properties",
-              TaskListLabel.notStartedOrComplete(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)),
+              TaskListLabel.notStartedOrComplete(
+                  trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)),
               ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetail.getId())))
       );
     }
@@ -136,13 +140,29 @@ public class OpportunityTaskListSectionService implements TaskListSectionService
           TaskListLabel.notStartedOrComplete(hydrocarbonCaseSubmissionService.isSectionSubmittable(submissionDetail)),
           ReverseRouter.route(on(HydrocarbonCaseController.class).getHydrocarbonCase(submissionDetail.getId())))
       );
-      listOfItems.add(new TaskListItem(
-          "Chance of success",
-          TaskListLabel.notStartedOrComplete(chanceOfSuccessSubmissionService.isSectionSubmittable(submissionDetail)),
-          ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetail.getId())))
-      );
+      listOfItems.add(getChanceOfSuccessTaskListItemWithDisplay(PROSPECT_CHANCE_OF_SUCCESS, submissionDetail));
+    }
+
+    if (submissionDetail.isDiscoverySubmission()) {
+      listOfItems.add(getChanceOfSuccessTaskListItemWithDisplay(DISCOVERY_CHANCE_OF_SUCCESS, submissionDetail));
     }
 
     return listOfItems;
+  }
+
+  private Boolean discoveryAndDrillSharedChecks(SubmissionDetail submissionDetail) {
+    return opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)
+        && outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail)
+        && sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)
+        && trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail);
+  }
+
+  private TaskListItem getChanceOfSuccessTaskListItemWithDisplay(String displayName,
+                                                                 SubmissionDetail submissionDetail) {
+    return new TaskListItem(
+        displayName,
+        TaskListLabel.notStartedOrComplete(chanceOfSuccessSubmissionService.isSectionSubmittable(submissionDetail)),
+        ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetail.getId()))
+    );
   }
 }

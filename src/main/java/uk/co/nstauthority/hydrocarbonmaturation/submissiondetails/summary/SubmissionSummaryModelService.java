@@ -160,7 +160,9 @@ public class SubmissionSummaryModelService {
         .addObject("trapPropertiesSummaryView",
             discoverySummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("reservoirSummaries",
-            discoverySummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail));
+            discoverySummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail))
+        .addObject("chanceOfSuccessSummaryView",
+            discoverySummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail));
 
     addDiscoveryTotalVolumes(submissionDetail, modelAndView);
     addCommonAttributes(submissionDetail, modelAndView);
