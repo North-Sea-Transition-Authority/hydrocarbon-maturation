@@ -6,11 +6,12 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
@@ -89,13 +90,17 @@ public class UndevelopedDiscoveriesOverviewService {
   }
 
   public UndevelopedDiscoveryOverviewData getOverviewData() {
-    Stream<UndevelopedDiscoveryInformation> allTrackedInformation = undevelopedDiscoveryService
+    List<UndevelopedDiscoveryInformation> allTrackedInformation = undevelopedDiscoveryService
         .getAllTrackedUndevelopedDiscoveries()
         .stream()
-        .map(this::getDiscoveryInformation);
+        .map(this::getDiscoveryInformation)
+        .toList();
+
+    var duplicateResourceIds = getDuplicateResourceIds(allTrackedInformation);
 
     var rows = allTrackedInformation
-        .map(this::generateRowValues)
+        .stream()
+        .map(information -> generateRowValues(information, duplicateResourceIds))
         .toList();
 
     return new UndevelopedDiscoveryOverviewData(
@@ -160,7 +165,8 @@ public class UndevelopedDiscoveriesOverviewService {
     );
   }
 
-  private UndevelopedDiscoveryRowValues generateRowValues(UndevelopedDiscoveryInformation information) {
+  private UndevelopedDiscoveryRowValues generateRowValues(UndevelopedDiscoveryInformation information,
+                                                          List<UUID> duplicateResourceIds) {
     var resource = information.getUndevelopedDiscovery().getResource();
 
     var resourceRecord = resourceRecordService.getResourceRecordOrThrow(resource.getId());
@@ -174,7 +180,7 @@ public class UndevelopedDiscoveriesOverviewService {
     var discoveryValue = new SummaryTableValue(
         resourceRecord.resourceName(),
         ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
-        getTags(resource)
+        getTags(resource, duplicateResourceIds)
     );
 
     var year = information.getInformationDate() == null
@@ -248,10 +254,10 @@ public class UndevelopedDiscoveriesOverviewService {
         .toList();
   }
 
-  private List<Tag> getTags(Resource resource) {
+  private List<Tag> getTags(Resource resource, List<UUID> duplicateResourceIds) {
     var tags = new ArrayList<Tag>();
 
-    var isDuplicate = resourceGroupService.isInGroupAndIsNotPreferredView(resource);
+    var isDuplicate = duplicateResourceIds.contains(resource.getId());
     if (Boolean.TRUE.equals(isDuplicate)) {
       tags.add(new Tag("Duplicate", TagColour.RED));
     }
@@ -266,6 +272,29 @@ public class UndevelopedDiscoveriesOverviewService {
     }
 
     return tags;
+  }
+
+  private List<UUID> getDuplicateResourceIds(List<UndevelopedDiscoveryInformation> trackedInformationList) {
+    // all resources of tracked information entries
+    var trackedResources = trackedInformationList
+        .stream()
+        .map(information -> information.getUndevelopedDiscovery().getResource())
+        .toList();
+
+    // all resource group links for tracked resources
+    var trackedResourceGroupLinks = resourceGroupService.getAllResourceGroupLinksForResources(trackedResources);
+
+    // hashmap to count the number of tracked items in each resource group
+    var resourceGroupIdToCountMap = new HashMap<UUID, Integer>();
+    trackedResourceGroupLinks.forEach(trackedResourceGroupLink ->
+        resourceGroupIdToCountMap.merge(trackedResourceGroupLink.getResourceGroupId(), 1, Integer::sum));
+
+    // return ID for each resource in a group with more than one tracked resource
+    return trackedResourceGroupLinks
+        .stream()
+        .filter(resourceGroupLink -> !resourceGroupIdToCountMap.get(resourceGroupLink.getResourceGroupId()).equals(1))
+        .map(resourceGroupLink -> resourceGroupLink.getResource().getId())
+        .toList();
   }
 
   private Boolean submissionTypeIsRelinquished(SubmissionDetail submissionDetail) {
