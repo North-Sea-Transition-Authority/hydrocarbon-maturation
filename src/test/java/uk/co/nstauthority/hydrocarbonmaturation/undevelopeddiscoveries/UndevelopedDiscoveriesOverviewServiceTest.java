@@ -23,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
@@ -125,15 +126,18 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
     mockGetRegulatorView(resource);
 
-    // AND is in a resource group
-    var isDuplicate = Boolean.TRUE;
-    mockIsDuplicate(isDuplicate, resource);
+    // AND is in a resource group with other tracked resources (therefore is a duplicate)
+    var duplicateDiscovery = setupAndGetUndevelopedDiscovery();
+    var duplicateValue = mockDuplicateEntryAndGetExpectedValue(duplicateDiscovery);
+
+    mockDuplicateResources(List.of(resource, duplicateDiscovery.getResource()),
+        List.of(resource, duplicateDiscovery.getResource()));
 
     // AND the resource is licenced
     mockLatestApprovedSubmissionDetail(SubmissionType.CREATE_DISCOVERY, resource);
     mockLicenceStatus(LicenceStatus.EXTANT);
 
-    mockGetAllTrackedUndevelopedDiscoveries(List.of(undevelopedDiscovery));
+    mockGetAllTrackedUndevelopedDiscoveries(List.of(undevelopedDiscovery, duplicateDiscovery));
 
     // THEN the row has tags
     var expectedDiscoveryValue = new SummaryTableValue(
@@ -146,19 +150,11 @@ class UndevelopedDiscoveriesOverviewServiceTest {
     );
 
     // AND the expected values for name, year, licenced, mmboe (1/2/3 C), % gas,
-    EXPECTED_SUMMARY_TABLE.addRow(
-        expectedDiscoveryValue,
-        "2002",
-        "Yes",
-        area,
-        "1",
-        "2",
-        "3",
-        "1.00%",
-        "1"
-    );
+    EXPECTED_SUMMARY_TABLE
+        .addRow(expectedDiscoveryValue, "2002", "Yes", area, "1", "2", "3", "1.00%", "1")
+        .addRow(duplicateValue, null, "No", area, "1", "2", "3", "1.00%", "1");
 
-    var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(1, 1, "1.00", "2.00", "3.00");
+    var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(2, 1, "2.00", "4.00", "6.00");
     var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
 
     var overviewData = undevelopedDiscoveriesOverviewService.getOverviewData();
@@ -200,8 +196,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
         .thenReturn(Optional.empty());
 
     // AND resource is not a duplicate
-    var isDuplicate = Boolean.FALSE;
-    mockIsDuplicate(isDuplicate, resource);
+    mockDuplicateResources(List.of(resource), List.of());
 
     mockGetAllTrackedUndevelopedDiscoveries(List.of(undevelopedDiscovery));
 
@@ -254,8 +249,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
     mockGetRegulatorView(resource);
 
-    var isDuplicate = Boolean.FALSE;
-    mockIsDuplicate(isDuplicate, resource);
+    mockDuplicateResources(List.of(resource), List.of());
 
     // WHEN resource has been relinquished
     mockLatestApprovedSubmissionDetail(SubmissionType.RELINQUISHMENT_DISCOVERY, resource);
@@ -314,8 +308,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
     mockGetRegulatorView(resource);
 
-    var isDuplicate = Boolean.FALSE;
-    mockIsDuplicate(isDuplicate, resource);
+    mockDuplicateResources(List.of(resource), List.of());
 
     // AND the resource has not been relinquished
     mockLatestApprovedSubmissionDetail(SubmissionType.UPDATE_DISCOVERY, resource);
@@ -373,8 +366,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
     mockGetRegulatorView(resource);
 
-    var isDuplicate = Boolean.FALSE;
-    mockIsDuplicate(isDuplicate, resource);
+    mockDuplicateResources(List.of(resource), List.of());
 
     // AND the resource has not been relinquished but has no EXTANT licences
     mockLatestApprovedSubmissionDetail(SubmissionType.UPDATE_DISCOVERY, resource);
@@ -426,8 +418,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
     mockGetRegulatorView(resource);
 
-    var isDuplicate = Boolean.FALSE;
-    mockIsDuplicate(isDuplicate, resource);
+    mockDuplicateResources(List.of(resource), List.of());
 
     // AND the resource is not licenced
     mockLatestApprovedSubmissionDetail(SubmissionType.UPDATE_DISCOVERY, resource);
@@ -599,9 +590,6 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
       mockGetRegulatorView(resource);
 
-      var isDuplicate = Boolean.FALSE;
-      mockIsDuplicate(isDuplicate, resource);
-
       // AND the resource has not been relinquished
       mockLatestApprovedSubmissionDetail(SubmissionType.UPDATE_DISCOVERY, resource);
 
@@ -629,9 +617,6 @@ class UndevelopedDiscoveriesOverviewServiceTest {
       mockGetResourceRecord(resource.getId(), resourceName, licenceIds);
 
       mockGetRegulatorView(resource);
-
-      var isDuplicate = Boolean.FALSE;
-      mockIsDuplicate(isDuplicate, resource);
 
       // AND the resource has not been relinquished
       mockLatestApprovedSubmissionDetail(SubmissionType.UPDATE_DISCOVERY, resource);
@@ -732,8 +717,49 @@ class UndevelopedDiscoveriesOverviewServiceTest {
         .thenReturn(fieldStatusHistoryOptional);
   }
 
-  private void mockIsDuplicate(Boolean isDuplicate, Resource resource) {
-    when(resourceGroupService.isInGroupAndIsNotPreferredView(resource))
-        .thenReturn(isDuplicate);
+  private void mockDuplicateResources(List<Resource> resourcesInQuery, List<Resource> duplicateResources) {
+    var sharedResourceGroupId = UUID.randomUUID();
+    var trackedResourceGroupLinks = duplicateResources
+        .stream()
+        .map(resource -> {
+          var resourceGroupLink = new ResourceGroupLink();
+          resourceGroupLink.setResource(resource);
+          resourceGroupLink.setResourceGroupId(sharedResourceGroupId);
+          return resourceGroupLink;
+        })
+        .toList();
+
+    when(resourceGroupService.getAllResourceGroupLinksForResources(resourcesInQuery))
+        .thenReturn(trackedResourceGroupLinks);
+  }
+
+  private SummaryTableValue mockDuplicateEntryAndGetExpectedValue(UndevelopedDiscovery undevelopedDiscovery) {
+    var resourceName = "duplicate";
+
+    mockGetLatestInformation(
+        undevelopedDiscovery,
+        null,
+        BigDecimal.ONE,
+        BigDecimal.valueOf(2),
+        BigDecimal.valueOf(3)
+    );
+
+    var resource = undevelopedDiscovery.getResource();
+
+    List<Integer> licenceIds = List.of();
+    mockGetResourceRecord(resource.getId(), resourceName, licenceIds);
+
+    mockGetRegulatorView(resource);
+
+    mockLatestApprovedSubmissionDetail(SubmissionType.UPDATE_DISCOVERY, resource);
+
+    mockGetAllTrackedUndevelopedDiscoveries(List.of(undevelopedDiscovery));
+
+    // THEN there is a duplicate tag
+    return new SummaryTableValue(
+        resourceName,
+        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+        List.of(new Tag("Duplicate", TagColour.RED))
+    );
   }
 }

@@ -331,6 +331,34 @@ class ResourceGroupServiceTest {
     verify(resourceGroupLinksRepository).delete(resourceGroupLinkFromResource1);
   }
 
+  @Nested
+  class getAllResourceGroupLinksForResources {
+
+    @Test
+    void whenPopulated() {
+      var resources = List.of(new Resource());
+      List<ResourceGroupLink> resourceGroupLinks = List.of();
+
+      when(resourceGroupLinksRepository.findAllByResourceIn(resources))
+          .thenReturn(resourceGroupLinks);
+
+      assertThat(resourceGroupService.getAllResourceGroupLinksForResources(resources))
+          .isEmpty();
+    }
+
+    @Test
+    void whenEmptyList() {
+      var resources = List.of(new Resource());
+      var resourceGroupLinks = List.of(new ResourceGroupLink());
+
+      when(resourceGroupLinksRepository.findAllByResourceIn(resources))
+          .thenReturn(resourceGroupLinks);
+
+      assertThat(resourceGroupService.getAllResourceGroupLinksForResources(resources))
+          .isEqualTo(resourceGroupLinks);
+    }
+  }
+
   private RelatedResource buildRelatedProspect(SubmissionDetail submissionDetail) {
     var relatedProspect = new RelatedResource();
     relatedProspect.setRelatedToAnotherResource(true);
@@ -338,6 +366,4 @@ class ResourceGroupServiceTest {
     relatedProspect.setPreferredView(true);
     return relatedProspect;
   }
-
-
 }
