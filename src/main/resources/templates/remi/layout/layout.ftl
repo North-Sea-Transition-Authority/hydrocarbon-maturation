@@ -24,11 +24,6 @@
 <#assign CONTACT_PAGE_URL = springUrl(contactInformationUrl) />
 <#assign COOKIES_PAGE_URL = springUrl(cookiesStatementUrl) />
 
-<@fdsCookieBanner.analyticsCookieBanner
-serviceName=serviceBranding.mnemonic()
-cookieSettingsUrl=COOKIES_PAGE_URL
-/>
-
 <#macro defaultPage
   htmlTitle
   pageHeading=""
