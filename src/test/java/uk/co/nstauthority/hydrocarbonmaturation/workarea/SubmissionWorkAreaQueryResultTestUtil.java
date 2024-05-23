@@ -28,6 +28,7 @@ class SubmissionWorkAreaQueryResultTestUtil {
     private Boolean isCorrection = false;
     private Integer parentFieldId = 8001;
     private FieldStatus fieldStatus = FieldStatus.STATUS_300;
+    private String licenceApplicationReference = null;
 
     private Builder() {
     }
@@ -77,12 +78,16 @@ class SubmissionWorkAreaQueryResultTestUtil {
       return this;
     }
 
+    public Builder withLicenceApplicationReference(String licenceApplicationReference) {
+      this.licenceApplicationReference = licenceApplicationReference;
+      return this;
+    }
+
     public SubmissionWorkAreaQueryResult build() {
 
-      return new SubmissionWorkAreaQueryResult(submissionDetailId, submissionType, status,
-          resourceName, centreOfInterestQuadBlock, organisationResponsibleId,
-          licencesTheResourceIsOn, updateRequested,
-          isCorrection, parentFieldId, fieldStatus);
+      return new SubmissionWorkAreaQueryResult(submissionDetailId, submissionType, status, resourceName,
+          centreOfInterestQuadBlock, organisationResponsibleId, licencesTheResourceIsOn, updateRequested, isCorrection,
+          parentFieldId, fieldStatus, licenceApplicationReference);
     }
   }
 

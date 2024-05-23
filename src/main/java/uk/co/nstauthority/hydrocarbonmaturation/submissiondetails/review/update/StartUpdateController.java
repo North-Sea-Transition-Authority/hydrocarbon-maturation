@@ -85,7 +85,8 @@ public class StartUpdateController {
         .orElseThrow(() -> new RemiEntityNotFoundException(
             "Could not find an unresolved submission update for submission %s"
                 .formatted(submissionDetail.getSubmission().getId())));
-    var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail);
+    var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
+        submissionDetail);
 
     ReviewPageBreadcrumbUtil.addWorkAreaAndManagementPageToModelAndView(
         modelAndView, PAGE_NAME, resourceName, submissionDetail);

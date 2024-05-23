@@ -70,7 +70,8 @@ class ResourceQueryCommonService {
                 .filterWhere(FIELD_LICENCES.LICENCE_ID.isNotNull()),
             REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM,
             FIELDS_FOR_FINDING_PARENT.CORRECTED_LEGAL_FIELD_NAME,
-            FIELD_STATUS_HISTORY.FIELD_STATUS)
+            FIELD_STATUS_HISTORY.FIELD_STATUS,
+            GENERAL_DETAILS.LICENCE_APPLICATION_REFERENCE)
         .from(RESOURCES
             .join(FIELDS).on(FIELDS.RESOURCE_ID.eq(RESOURCES.ID))
             .join(FIELD_STATUS_HISTORY)
@@ -100,7 +101,8 @@ class ResourceQueryCommonService {
             .leftJoin(FIELD_LICENCES).on(FIELD_LICENCES.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
             .leftJoin(REGULATOR_MANAGED_INFORMATION).on(RESOURCES.ID.eq(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID))
             .leftJoin(FIELDS_FOR_FINDING_PARENT)
-            .on(FIELDS_FOR_FINDING_PARENT.FIELD_IDENTIFIER.eq(FIELDS.PARENT_DETERMINED_FIELD_ID)))
+            .on(FIELDS_FOR_FINDING_PARENT.FIELD_IDENTIFIER.eq(FIELDS.PARENT_DETERMINED_FIELD_ID))
+            .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID)))
         .where(conditionList)
         .groupBy(
             RESOURCES.ID,
@@ -110,7 +112,8 @@ class ResourceQueryCommonService {
             REGULATOR_MANAGED_INFORMATION.ID,
             FIELDS.FIELD_IDENTIFIER,
             FIELDS_FOR_FINDING_PARENT.FIELD_IDENTIFIER,
-            FIELD_STATUS_HISTORY.ID
+            FIELD_STATUS_HISTORY.ID,
+            GENERAL_DETAILS.ID
         )
         .having(aggregateConditionList)
         .orderBy(
@@ -136,7 +139,8 @@ class ResourceQueryCommonService {
                 .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
             REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM,
             DSL.val(null, FIELDS_FOR_FINDING_PARENT.CORRECTED_LEGAL_FIELD_NAME),
-            DSL.val(null, FIELD_STATUS_HISTORY.FIELD_STATUS))
+            DSL.val(null, FIELD_STATUS_HISTORY.FIELD_STATUS),
+            GENERAL_DETAILS.LICENCE_APPLICATION_REFERENCE)
         .from(RESOURCES
             .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
                 select(SD_2.ID)
@@ -164,7 +168,8 @@ class ResourceQueryCommonService {
             GENERAL_DETAILS.ID,
             TRAP_PROPERTIES.ID,
             RESOURCE_DETAILS.ID,
-            REGULATOR_MANAGED_INFORMATION.ID
+            REGULATOR_MANAGED_INFORMATION.ID,
+            GENERAL_DETAILS.ID
         )
         .having(aggregateConditionList)
         .orderBy(SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP.desc().nullsLast(),

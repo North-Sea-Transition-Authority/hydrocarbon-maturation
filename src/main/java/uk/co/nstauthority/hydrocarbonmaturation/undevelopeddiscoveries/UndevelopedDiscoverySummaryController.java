@@ -17,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchProspectAndDiscoveryRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordService;
@@ -70,12 +71,18 @@ public class UndevelopedDiscoverySummaryController {
             on(UndevelopedDiscoveryInformationController.class).getUndevelopedDiscoveryInformation(resourceId)))
         .addObject("accordionId", undevelopedDiscovery.getId().toString());
 
+    var resourceBreadcrumb = SubmissionDetailDisplayUtil.getDisplayName(
+        resourceRecord.resourceName(),
+        resourceRecord.centreOfInterest(),
+        resourceRecord.licenceApplicationReference()
+    );
+
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_TITLE)
         .addBreadcrumb(
             SearchProspectAndDiscoveryRecordsController.PAGE_TITLE,
             ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).searchResourceRecords(null, null)))
         .addBreadcrumb(
-            resourceRecord.resourceNameAndCentreOfInterest(),
+            resourceBreadcrumb,
             ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)))
         .build();
 

@@ -6,7 +6,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Resp
 
 public record ResourceRecordSummaryView(
     UUID submissionDetailId,
-    String resourceNameAndCentreOfInterest,
+    String resourceName,
+    String centreOfInterest,
+    String licenceApplicationReference,
     Integer responsibleOrganisationId,
     String organisationResponsible,
     List<Integer> licenceIds,

@@ -109,7 +109,8 @@ public class WithdrawSubmissionController {
         .withBannerType(NotificationBannerType.SUCCESS)
         .withContent("%s - %s has been withdrawn."
             .formatted(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail),
-                submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail)))
+                submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
+                    submissionDetail)))
         .build();
 
     NotificationBannerUtil.applyNotificationBanner(redirectAttributes, banner);
@@ -123,7 +124,8 @@ public class WithdrawSubmissionController {
         "remi/review/withdrawSubmissionConfirmation"
     );
 
-    var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail);
+    var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
+        submissionDetail);
 
     modelAndView
         .addObject("form", form)

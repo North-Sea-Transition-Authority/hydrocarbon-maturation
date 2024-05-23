@@ -2,13 +2,14 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesPersistenceService;
@@ -18,14 +19,17 @@ public class SubmissionResourceService {
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private final FieldPersistenceService fieldPersistenceService;
+  private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
   @Autowired
   public SubmissionResourceService(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                                    TrapPropertiesPersistenceService trapPropertiesPersistenceService,
-                                   FieldPersistenceService fieldPersistenceService) {
+                                   FieldPersistenceService fieldPersistenceService,
+                                   GeneralDetailsPersistenceService generalDetailsPersistenceService) {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.trapPropertiesPersistenceService = trapPropertiesPersistenceService;
     this.fieldPersistenceService = fieldPersistenceService;
+    this.generalDetailsPersistenceService = generalDetailsPersistenceService;
   }
 
   public List<Resource> getResourcesBySubmissionTypeAndResourceName(ResourceType resourceType, String name) {
@@ -53,13 +57,9 @@ public class SubmissionResourceService {
         .orElseGet(() -> SubmissionDetailUtil.getDefaultForNamelessResource(submissionDetail.getCreatedTimestamp()));
   }
 
-  public String getResourceNameWithCentreOfInterestOrDefault(SubmissionDetail submissionDetail) {
+  public String getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(SubmissionDetail submissionDetail) {
     return getResourceName(submissionDetail)
-        .map(resourceName ->
-          trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(submissionDetail)
-              .map(centreOfInterestBlock ->
-                  resourceName + " (" + centreOfInterestBlock + ")")
-              .orElse(resourceName))
+        .map(resourceName -> appendCentreOfInterestAndLicenceApplicationReference(resourceName, submissionDetail))
         .orElseGet(() -> SubmissionDetailUtil.getDefaultForNamelessResource(submissionDetail.getCreatedTimestamp()));
   }
 
@@ -71,14 +71,25 @@ public class SubmissionResourceService {
     return resourceDetail.getResourceName() + centreOfInterestBlockSuffix;
   }
 
-  public String getResourceDisplayName(UUID resourceDetailId) {
-    var resourceDetail = resourceDetailsPersistenceService.getResourceDetailByIdOrThrow(resourceDetailId);
-    return getResourceDisplayName(resourceDetail);
-  }
-
   private Stream<Resource> getResourcesByNameStream(String name) {
     return resourceDetailsPersistenceService.getResourceDetailsByName(name).stream()
         .map(detail -> detail.getSubmissionDetail().getSubmission().getResource())
         .distinct();
+  }
+
+  private String appendCentreOfInterestAndLicenceApplicationReference(String resourceName,
+                                                                      SubmissionDetail submissionDetail) {
+    var centreOfInterest = trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(submissionDetail)
+        .orElse(null);
+
+    var applicationReference = generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)
+        .map(GeneralDetail::getLicenceApplicationReference)
+        .orElse(null);
+
+    return SubmissionDetailDisplayUtil.getDisplayName(
+        resourceName,
+        centreOfInterest,
+        applicationReference
+    );
   }
 }

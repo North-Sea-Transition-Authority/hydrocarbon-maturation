@@ -112,11 +112,14 @@ class ResponsibleLegacyTeamSubmissionWorkAreaQueryServiceIntegrationTest {
 
     var nonViewableSubmissionDetail = createSubmissionDetail(nonViewableStatus, resource);
 
+    var licenceApplicationReference = "RT9";
+
     var submittedGeneralDetails = new GeneralDetail();
     var submittedResourceDetail = new ResourceDetail();
     submittedResourceDetail.setSubmissionDetail(nonViewableSubmissionDetail);
     submittedResourceDetail.setResourceName("Resource name");
     submittedGeneralDetails.setSubmissionDetail(nonViewableSubmissionDetail);
+    submittedGeneralDetails.setLicenceApplicationReference(licenceApplicationReference);
     entityManager.persist(submittedResourceDetail);
     entityManager.flush();
     entityManager.persist(submittedGeneralDetails);
@@ -132,7 +135,8 @@ class ResponsibleLegacyTeamSubmissionWorkAreaQueryServiceIntegrationTest {
             SubmissionWorkAreaQueryResult::getResourceName,
             SubmissionWorkAreaQueryResult::getSubmissionType,
             SubmissionWorkAreaQueryResult::getStatus,
-            SubmissionWorkAreaQueryResult::getLicencesTheResourceIsOn)
+            SubmissionWorkAreaQueryResult::getLicencesTheResourceIsOn,
+            SubmissionWorkAreaQueryResult::getLicenceApplicationReference)
         .containsExactly(
             tuple(
                 draftSubmissionDetail.getId(),
@@ -141,6 +145,7 @@ class ResponsibleLegacyTeamSubmissionWorkAreaQueryServiceIntegrationTest {
                 null,
                 SubmissionType.CREATE_PROSPECT,
                 SubmissionDetailStatus.DRAFT,
+                null,
                 null
             )
         );
@@ -427,11 +432,15 @@ class ResponsibleLegacyTeamSubmissionWorkAreaQueryServiceIntegrationTest {
     entityManager.persist(submissionDetail);
     entityManager.flush();
 
+    var licenceApplicationReference = "RT9";
+
     var generalDetails = new GeneralDetail();
     var resourceDetail = new ResourceDetail();
     resourceDetail.setSubmissionDetail(submissionDetail);
     resourceDetail.setResourceName("The resource name");
     generalDetails.setSubmissionDetail(submissionDetail);
+    generalDetails.setLicenceApplicationReference(licenceApplicationReference);
+
     resourceDetail.setOrganisationId(46);
     entityManager.persist(generalDetails);
     entityManager.flush();
@@ -476,7 +485,8 @@ class ResponsibleLegacyTeamSubmissionWorkAreaQueryServiceIntegrationTest {
             SubmissionWorkAreaQueryResult::getSubmissionType,
             SubmissionWorkAreaQueryResult::getStatus,
             SubmissionWorkAreaQueryResult::isUpdateRequested,
-            SubmissionWorkAreaQueryResult::isCorrection)
+            SubmissionWorkAreaQueryResult::isCorrection,
+            SubmissionWorkAreaQueryResult::getLicenceApplicationReference)
         .containsExactly(
             submissionDetail.getId(),
             "25/12",
@@ -485,7 +495,8 @@ class ResponsibleLegacyTeamSubmissionWorkAreaQueryServiceIntegrationTest {
             SubmissionType.CREATE_PROSPECT,
             SubmissionDetailStatus.DRAFT,
             false,
-            false
+            false,
+            licenceApplicationReference
         );
 
     assertThat(results.get(0)
@@ -568,7 +579,8 @@ class ResponsibleLegacyTeamSubmissionWorkAreaQueryServiceIntegrationTest {
             SubmissionWorkAreaQueryResult::getSubmissionType,
             SubmissionWorkAreaQueryResult::getStatus,
             SubmissionWorkAreaQueryResult::isUpdateRequested,
-            SubmissionWorkAreaQueryResult::isCorrection)
+            SubmissionWorkAreaQueryResult::isCorrection,
+            SubmissionWorkAreaQueryResult::getLicenceApplicationReference)
         .containsExactly(
             submissionDetail.getId(),
             "25/12",
@@ -577,7 +589,8 @@ class ResponsibleLegacyTeamSubmissionWorkAreaQueryServiceIntegrationTest {
             SubmissionType.CREATE_PROSPECT,
             SubmissionDetailStatus.DRAFT,
             false,
-            true
+            true,
+            null
         );
 
     assertThat(results.get(0)

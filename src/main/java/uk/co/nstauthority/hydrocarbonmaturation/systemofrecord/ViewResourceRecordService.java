@@ -60,7 +60,9 @@ public class ViewResourceRecordService {
     return resourceRecordSummaryQueryService.getResourceRecord(resourceId)
         .map(resourceRecordSummaryQueryResult -> new ResourceRecordSummaryView(
                 resourceRecordSummaryQueryResult.submissionDetailId(),
-                getResourceNameAndCentreOfInterest(resourceRecordSummaryQueryResult),
+                resourceRecordSummaryQueryResult.resourceName(),
+                resourceRecordSummaryQueryResult.centreOfInterestQuadBlock(),
+                resourceRecordSummaryQueryResult.licenceApplicationReference(),
                 resourceRecordSummaryQueryResult.organisationResponsibleId(),
                 getOrganisationResponsible(resourceRecordSummaryQueryResult),
                 resourceRecordSummaryQueryResult.licencesTheResourceIsOn(),
@@ -73,13 +75,6 @@ public class ViewResourceRecordService {
             )
         )
         .orElseThrow(() -> new RemiEntityNotFoundException("Resource record not found for resource ID %s".formatted(resourceId)));
-  }
-
-  private String getResourceNameAndCentreOfInterest(ResourceRecordSummaryQueryResult resourceRecordSummaryQueryResult) {
-    return submissionDetailDisplayService.getResourceNameAndCentreOfInterestBlockDisplay(
-        resourceRecordSummaryQueryResult.resourceName(),
-        resourceRecordSummaryQueryResult.centreOfInterestQuadBlock()
-    );
   }
 
   private List<String> getLicences(ResourceRecordSummaryQueryResult resourceRecordSummaryQueryResult) {

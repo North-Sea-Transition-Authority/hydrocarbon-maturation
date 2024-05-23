@@ -203,12 +203,17 @@ class WorkAreaItemServiceTest {
   @Test
   void getWorkAreaItems_oneItemReturned_whenAllButMandatoryNotProvided() {
     var providedName = "resource name";
+    var centreOfInterest = "1/1";
+    var licenceApplicationReference = "RT9";
     var submissionWorkAreaQueryResult = SubmissionWorkAreaQueryResultTestUtil.builder()
-        .withCentreOfInterestQuadBlock(null)
+        .withCentreOfInterestQuadBlock(centreOfInterest)
         .withLicencesTheResourceIsOn(null)
         .withOrganisationResponsibleId(null)
         .withResourceName(providedName)
+        .withLicenceApplicationReference(licenceApplicationReference)
         .build();
+
+    var expectedHeadingText = "resource name (1/1) (Round RT9)";
 
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.CREATE_PROSPECT))
         .thenReturn("Prospect create");
@@ -232,7 +237,7 @@ class WorkAreaItemServiceTest {
         .contains(
             tuple(
                 WorkAreaItemType.SUBMISSION,
-                providedName,
+                expectedHeadingText,
                 "Prospect create",
                 ReverseRouter.route(on(TaskListController.class)
                     .getTaskList(submissionWorkAreaQueryResult.getSubmissionDetailId())))

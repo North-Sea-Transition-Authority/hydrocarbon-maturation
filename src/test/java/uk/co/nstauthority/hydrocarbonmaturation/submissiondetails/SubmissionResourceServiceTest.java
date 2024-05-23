@@ -21,6 +21,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesPersistenceService;
@@ -33,6 +35,8 @@ class SubmissionResourceServiceTest {
   private TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   @Mock
   private FieldPersistenceService fieldPersistenceService;
+  @Mock
+  private GeneralDetailsPersistenceService generalDetailsPersistenceService;
   @InjectMocks
   private SubmissionResourceService underTest;
 
@@ -180,28 +184,6 @@ class SubmissionResourceServiceTest {
     }
 
     @Test
-    void byGeneralDetail_CentreOfInterestDoesNotExist() {
-      when(resourceDetailsPersistenceService.getResourceDetailByIdOrThrow(RESOURCE_DETAIL_ID)).thenReturn(resourceDetail);
-      when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(resourceDetail.getSubmissionDetail()))
-          .thenReturn(Optional.empty());
-
-      var result = underTest.getResourceDisplayName(RESOURCE_DETAIL_ID);
-
-      assertThat(result).isEqualTo(RESOURCE_NAME);
-    }
-
-    @Test
-    void byGeneralDetailId_CentreOfInterestExists() {
-      when(resourceDetailsPersistenceService.getResourceDetailByIdOrThrow(RESOURCE_DETAIL_ID)).thenReturn(resourceDetail);
-      when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(resourceDetail.getSubmissionDetail()))
-          .thenReturn(Optional.of(CENTRE_OF_INTEREST));
-
-      var result = underTest.getResourceDisplayName(RESOURCE_DETAIL_ID);
-
-      assertThat(result).isEqualTo("%s (%s)".formatted(RESOURCE_NAME, CENTRE_OF_INTEREST));
-    }
-
-    @Test
     void byGeneralDetailID_CentreOfInterestDoesNotExist() {
       when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(resourceDetail.getSubmissionDetail()))
           .thenReturn(Optional.empty());
@@ -213,7 +195,7 @@ class SubmissionResourceServiceTest {
   }
 
   @Nested
-  class getResourceNameWithCentreOfInterestOrDefault {
+  class getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault {
 
     private SubmissionDetail submissionDetail;
     private ResourceDetail resourceDetail;
@@ -233,8 +215,10 @@ class SubmissionResourceServiceTest {
           .thenReturn(Optional.of(resourceDetail));
       when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(submissionDetail))
           .thenReturn(Optional.of(expectedBlock));
+      when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+          .thenReturn(Optional.empty());
 
-      assertThat(underTest.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+      assertThat(underTest.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
           .isEqualTo("%s (%s)".formatted(expectedName, expectedBlock));
     }
 
@@ -246,9 +230,11 @@ class SubmissionResourceServiceTest {
           .thenReturn(Optional.of(resourceDetail));
       when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(submissionDetail))
           .thenReturn(Optional.empty());
+      when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+          .thenReturn(Optional.empty());
 
-      assertThat(underTest.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
-          .isEqualTo("%s".formatted(expectedName));
+      assertThat(underTest.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
+          .isEqualTo(expectedName);
     }
 
     @Test
@@ -260,8 +246,56 @@ class SubmissionResourceServiceTest {
       when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
           .thenReturn(Optional.of(resourceDetail));
 
-      assertThat(underTest.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
-          .isEqualTo("%s".formatted(expectedName));
+      assertThat(underTest.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
+          .isEqualTo(expectedName);
+    }
+
+    @Test
+    void whenLicenceApplicationReferencePresent() {
+      var expectedName = "name";
+      var reference = "RT9";
+      resourceDetail.setResourceName(expectedName);
+      when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+          .thenReturn(Optional.of(resourceDetail));
+      when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+          .thenReturn(Optional.of(GeneralDetailUtils.buildGeneralDetailWithLicenceApplicationReference(null, reference)));
+      when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(submissionDetail))
+          .thenReturn(Optional.empty());
+
+      assertThat(underTest.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
+          .isEqualTo("name (Round RT9)");
+    }
+
+    @Test
+    void whenLicenceApplicationReferenceNotPresent() {
+      var expectedName = "name";
+      resourceDetail.setResourceName(expectedName);
+      when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+          .thenReturn(Optional.of(resourceDetail));
+      when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+          .thenReturn(Optional.empty());
+      when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(submissionDetail))
+          .thenReturn(Optional.empty());
+
+      assertThat(underTest.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
+          .isEqualTo(expectedName);
+    }
+
+    @Test
+    void whenBothPresent() {
+      var expectedName = "name";
+      var reference = "RT9";
+      var expectedBlock = "15/2";
+      resourceDetail.setResourceName(expectedName);
+      when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+          .thenReturn(Optional.of(resourceDetail));
+      when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
+          .thenReturn(Optional.of(GeneralDetailUtils.buildGeneralDetailWithLicenceApplicationReference(null, reference)));
+      when(trapPropertiesPersistenceService.getCentreOfInterestBlockFromSubmissionDetail(submissionDetail))
+          .thenReturn(Optional.of(expectedBlock));
+
+      assertThat(underTest.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
+          .isEqualTo("name (15/2) (Round RT9)");
     }
   }
 

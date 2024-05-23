@@ -179,7 +179,7 @@ class UndevelopedDiscoveryRemoveInformationControllerTest extends AbstractUndeve
     undevelopedDiscoveryInformation.setStatus(UndevelopedDiscoveryInformationStatus.EXTANT);
     undevelopedDiscoveryInformation.setUndevelopedDiscovery(undevelopedDiscovery);
 
-    var resourceRecord = new ResourceRecordSummaryView(null, "name", null, null, null, null, null, null, null);
+    var resourceRecord = new ResourceRecordSummaryView(null, "name", "coi", "RT9", null, null, null, null, null, null, null);
 
     var expectedBanner = NotificationBanner.builder()
         .withBannerType(NotificationBannerType.SUCCESS)

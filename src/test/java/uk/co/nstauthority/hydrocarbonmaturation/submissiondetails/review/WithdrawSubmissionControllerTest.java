@@ -88,7 +88,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
     when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
         RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn("name");
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
         .thenReturn(submissionDetail.getSubmissionType().getTypeName());
@@ -123,7 +123,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
         RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
         RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
     var expectedName = "Res name 123";
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(expectedName);
     var expectedTypeName = "Type name";
     when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail))
@@ -162,7 +162,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
   void withdrawSubmission_canWithdraw_verifyMethodCall() throws Exception{
     when(withdrawSubmissionService.canWithdrawSubmission(submissionDetail)).thenReturn(true);
     var expectedName = "Res name 123";
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(expectedName);
     var expectedTypeName = "Type name";
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))

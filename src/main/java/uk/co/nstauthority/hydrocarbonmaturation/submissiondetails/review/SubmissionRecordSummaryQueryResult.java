@@ -19,6 +19,7 @@ class SubmissionRecordSummaryQueryResult {
   private final List<Integer> licencesTheResourceIsOn;
   private final Integer parentFieldId;
   private final FieldStatus fieldStatus;
+  private final String licenceApplicationReference;
 
   SubmissionRecordSummaryQueryResult(UUID submissionDetailId,
                                      String submissionType,
@@ -29,7 +30,8 @@ class SubmissionRecordSummaryQueryResult {
                                      String responsibleTeam,
                                      List<Integer> licencesTheResourceIsOn,
                                      Integer parentFieldId,
-                                     FieldStatus fieldStatus) {
+                                     FieldStatus fieldStatus,
+                                     String licenceApplicationReference) {
     this.submissionDetailId = submissionDetailId;
     this.submissionType = SubmissionType.valueOf(submissionType);
     this.resourceType = ResourceType.valueOf(resourceType);
@@ -40,6 +42,7 @@ class SubmissionRecordSummaryQueryResult {
     this.licencesTheResourceIsOn = licencesTheResourceIsOn;
     this.parentFieldId = parentFieldId;
     this.fieldStatus = fieldStatus;
+    this.licenceApplicationReference = licenceApplicationReference;
   }
 
   UUID getSubmissionDetailId() {
@@ -80,5 +83,9 @@ class SubmissionRecordSummaryQueryResult {
 
   public FieldStatus getFieldStatus() {
     return fieldStatus;
+  }
+
+  public String getLicenceApplicationReference() {
+    return licenceApplicationReference;
   }
 }

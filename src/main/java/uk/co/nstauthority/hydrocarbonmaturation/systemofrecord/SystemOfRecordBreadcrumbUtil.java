@@ -15,7 +15,7 @@ public class SystemOfRecordBreadcrumbUtil {
     throw new IllegalUtilClassInstantiationException(this.getClass());
   }
 
-  public static ModelAndView addSearchPropsectAndDiscoveryRecordsBreadcrumbsToModelAndView(ModelAndView modelAndView,
+  public static ModelAndView addSearchProspectAndDiscoveryRecordsBreadcrumbsToModelAndView(ModelAndView modelAndView,
                                                                                            String pageName) {
     var breadcrumbs = Breadcrumbs.builder(pageName)
         .addBreadcrumb(getSearchProspectAndDiscoveryRecordsBreadcrumb())

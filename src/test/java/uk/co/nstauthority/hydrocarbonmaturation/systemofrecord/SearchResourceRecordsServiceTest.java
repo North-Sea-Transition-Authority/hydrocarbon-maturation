@@ -302,15 +302,6 @@ class SearchResourceRecordsServiceTest {
       }
       when(submissionDetailDisplayService.getTeamResponsibleDisplay(responsibleTeam)).thenReturn(responsibleTeam.getDisplayName());
 
-      if (centreOfInterest != null) {
-        when(submissionDetailDisplayService
-            .getResourceNameAndCentreOfInterestBlockDisplay(resourceName, centreOfInterest))
-            .thenReturn(resourceName + " (" + centreOfInterest + ")");
-      } else {
-        when(submissionDetailDisplayService
-            .getResourceNameAndCentreOfInterestBlockDisplay(resourceName, centreOfInterest))
-            .thenReturn(resourceName);
-      }
       return new ResourceRecordQueryResult(
           UUID.randomUUID(),
           UUID.randomUUID(),
@@ -322,7 +313,8 @@ class SearchResourceRecordsServiceTest {
           licencesTheResourceIsOn,
           responsibleTeam,
           parentFieldName == null ? "No parent field" : parentFieldName,
-          fieldStatus);
+          fieldStatus,
+          null);
     }
 
   }
@@ -377,8 +369,7 @@ class SearchResourceRecordsServiceTest {
 
     private ResourceRecordQueryResult newSearchResultWithResourceName(String resourceName) {
       return new ResourceRecordQueryResult(null, null, null, null,
-          resourceName, null, null,
-          null, null, null, null);
+          resourceName, null, null, null, null, null, null, null);
     }
   }
 

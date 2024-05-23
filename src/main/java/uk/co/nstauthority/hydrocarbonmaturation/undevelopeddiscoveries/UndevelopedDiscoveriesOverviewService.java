@@ -172,7 +172,7 @@ public class UndevelopedDiscoveriesOverviewService {
         : "%s%%".formatted(DecimalFormatUtil.bigDecimalToTwoDecimalPlace(information.getPercentageGas()));
 
     var discoveryValue = new SummaryTableValue(
-        resourceRecord.resourceNameAndCentreOfInterest(),
+        resourceRecord.resourceName(),
         ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
         getTags(resource)
     );

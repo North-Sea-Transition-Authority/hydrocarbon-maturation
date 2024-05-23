@@ -87,7 +87,7 @@ public class ResourceGroupSummaryService {
   }
 
   private String getResourceName(Resource resource) {
-    return submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(
+    return submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
         getLatestSubmissionDetailOrThrow(resource));
   }
 

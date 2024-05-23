@@ -245,7 +245,7 @@ class ResourceGroupSummaryServiceTest {
     var mockSubmissionDetail = mock(SubmissionDetail.class);
     when(submissionDetailService.getLatestApprovedSubmissionDetailForResourceAndSubmissionTypes(resource, submissionTypes))
           .thenReturn(Optional.of(mockSubmissionDetail));
-    when(submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(mockSubmissionDetail))
+    when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(mockSubmissionDetail))
         .thenReturn(expectedResourceName);
   }
 }

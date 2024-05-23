@@ -58,11 +58,15 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
   void getUndevelopedDiscoveryInformation_assertModelProperties() throws Exception {
     setupUserIsReservesAndResourcesAdvisor(user);
     var resourceName = "resource name";
+    var centreOfInterest = "coi";
+    var licenceApplicationReference = "RT9";
 
     when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
         .thenReturn(resource);
     when(resourceRecordService.getResourceRecordOrThrow(RESOURCE_ID))
-        .thenReturn(new ResourceRecordSummaryView(null, resourceName, null, null, null, null, null, null, null));
+        .thenReturn(
+            new ResourceRecordSummaryView(null, resourceName, centreOfInterest, licenceApplicationReference, null, null,
+                null, null, null, null, null));
 
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
@@ -76,7 +80,7 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
 
     assertThat(modelMap).contains(
         entry("pageTitle", UndevelopedDiscoveryInformationController.PAGE_TITLE),
-        entry("pageCaption", resourceName),
+        entry("pageCaption", "resource name (coi) (Round RT9)"),
         entry("cancelUrl", ReverseRouter.route(on(UndevelopedDiscoverySummaryController.class)
             .getUndevelopedDiscoverySummary(RESOURCE_ID))),
         entry("viscosityRangeMap", DisplayableEnumOptionUtil.getDisplayableOptions(ViscosityRange.class)),
@@ -136,7 +140,9 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
     when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
         .thenReturn(resource);
     when(resourceRecordService.getResourceRecordOrThrow(RESOURCE_ID))
-        .thenReturn(new ResourceRecordSummaryView(null, "resourceName", null, null, null, null, null, null, null));
+        .thenReturn(
+            new ResourceRecordSummaryView(null, "resourceName", "coi", "RT9", null, null, null, null, null, null,
+                null));
     when(undevelopedDiscoveryService.getUndevelopedDiscoveryForResourceOrThrow(resource))
         .thenReturn(undevelopedDiscovery);
 
@@ -230,7 +236,8 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
     when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
         .thenReturn(resource);
     when(resourceRecordService.getResourceRecordOrThrow(RESOURCE_ID))
-        .thenReturn(new ResourceRecordSummaryView(null, resourceName, null, null, null, null, null, null, null));
+        .thenReturn(
+            new ResourceRecordSummaryView(null, resourceName, null, null, null, null, null, null, null, null, null));
     when(undevelopedDiscoveryInformationService.getUndevelopedDiscoveryInformationOrThrow(informationId))
         .thenReturn(undevelopedDiscoveryInformation);
     when(undevelopedDiscoveryInformationService.entityToForm(undevelopedDiscoveryInformation))
@@ -365,7 +372,8 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
     when(resourceService.getResourceOfTypeOrThrow(RESOURCE_ID, ResourceType.DISCOVERY))
         .thenReturn(resource);
     when(resourceRecordService.getResourceRecordOrThrow(RESOURCE_ID))
-        .thenReturn(new ResourceRecordSummaryView(null, "resourceName", null, null, null, null, null, null, null));
+        .thenReturn(
+            new ResourceRecordSummaryView(null, "resourceName", "coi", "RT9", null, null, null, null, null, null, null));
     when(undevelopedDiscoveryService.getUndevelopedDiscoveryForResourceOrThrow(resource))
         .thenReturn(undevelopedDiscovery);
     when(undevelopedDiscoveryInformationService.getUndevelopedDiscoveryInformationOrThrow(informationId))

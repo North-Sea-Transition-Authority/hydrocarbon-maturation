@@ -59,8 +59,9 @@ class SubmissionRecordSummaryQueryService {
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
             FIELDS.PARENT_DETERMINED_FIELD_ID,
-            max(FIELD_STATUS_HISTORY.FIELD_STATUS)
-        )
+            max(FIELD_STATUS_HISTORY.FIELD_STATUS),
+            GENERAL_DETAILS.LICENCE_APPLICATION_REFERENCE
+            )
         .from(SUBMISSIONS
             .join(RESOURCES).on(RESOURCES.ID.eq(SUBMISSIONS.RESOURCE_ID))
             .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.SUBMISSION_ID.eq(
@@ -103,7 +104,8 @@ class SubmissionRecordSummaryQueryService {
             RESOURCE_DETAILS.ID,
             FIELDS.FIELD_IDENTIFIER,
             REGULATOR_MANAGED_INFORMATION.ID,
-            FIELD_STATUS_HISTORY.FIELD_IDENTIFIER
+            FIELD_STATUS_HISTORY.FIELD_IDENTIFIER,
+            GENERAL_DETAILS.ID
         ))
         .orderBy(SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP.desc())
         .limit(1)

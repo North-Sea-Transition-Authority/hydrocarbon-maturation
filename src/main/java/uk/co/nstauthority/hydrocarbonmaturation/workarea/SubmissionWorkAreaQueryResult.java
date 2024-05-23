@@ -19,6 +19,7 @@ class SubmissionWorkAreaQueryResult {
   private final boolean isCorrection;
   private final Integer parentFieldId;
   private final FieldStatus fieldStatus;
+  private final String licenceApplicationReference;
 
   SubmissionWorkAreaQueryResult(UUID submissionDetailId,
                                 String submissionType,
@@ -28,7 +29,8 @@ class SubmissionWorkAreaQueryResult {
                                 Integer organisationResponsibleId,
                                 List<Integer> licencesTheResourceIsOn,
                                 boolean updateRequested,
-                                boolean isCorrection, Integer parentFieldId, FieldStatus fieldStatus) {
+                                boolean isCorrection, Integer parentFieldId, FieldStatus fieldStatus,
+                                String licenceApplicationReference) {
     this.submissionDetailId = submissionDetailId;
     this.submissionType = SubmissionType.valueOf(submissionType);
     this.resourceName = resourceName;
@@ -40,6 +42,7 @@ class SubmissionWorkAreaQueryResult {
     this.isCorrection = isCorrection;
     this.parentFieldId = parentFieldId;
     this.fieldStatus = fieldStatus;
+    this.licenceApplicationReference = licenceApplicationReference;
   }
 
   UUID getSubmissionDetailId() {
@@ -84,5 +87,9 @@ class SubmissionWorkAreaQueryResult {
 
   public FieldStatus getFieldStatus() {
     return fieldStatus;
+  }
+
+  public String getLicenceApplicationReference() {
+    return licenceApplicationReference;
   }
 }

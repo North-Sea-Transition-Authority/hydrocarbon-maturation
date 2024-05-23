@@ -18,6 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexity.ArealDensityRange;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexity.StructuralComplexityRange;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldcomplexity.VerticalHeterogeneityRange;
@@ -116,7 +117,12 @@ public class UndevelopedDiscoveryInformationController {
   }
 
   private ModelAndView getBaseModelAndView(UUID resourceId, UndevelopedDiscoveryInformationForm form) {
-    var resourceName = resourceRecordService.getResourceRecordOrThrow(resourceId).resourceNameAndCentreOfInterest();
+    var resourceRecord = resourceRecordService.getResourceRecordOrThrow(resourceId);
+    var resourceName = SubmissionDetailDisplayUtil.getDisplayName(
+        resourceRecord.resourceName(),
+        resourceRecord.centreOfInterest(),
+        resourceRecord.licenceApplicationReference()
+    );
 
     var modelAndView = new ModelAndView("remi/undevelopeddiscoveries/undevelopedDiscoveryInformationForm")
         .addObject("pageTitle", PAGE_TITLE)

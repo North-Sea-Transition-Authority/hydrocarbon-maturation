@@ -675,6 +675,8 @@ class UndevelopedDiscoveriesOverviewServiceTest {
     var resourceRecord = new ResourceRecordSummaryView(
         null,
         resourceName,
+        "COI",
+        "RT9",
         null,
         null,
         licenceIds,

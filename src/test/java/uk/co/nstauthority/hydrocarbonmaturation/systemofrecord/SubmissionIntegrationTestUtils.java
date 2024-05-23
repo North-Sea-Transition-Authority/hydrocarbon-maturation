@@ -33,6 +33,8 @@ public class SubmissionIntegrationTestUtils {
     return new ResourceRecordSummaryView(
         submissionDetailId,
         "",
+        "",
+        "",
         responsibleOrganisationId,
         "",
         List.of(),
@@ -109,6 +111,18 @@ public class SubmissionIntegrationTestUtils {
   public static GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail, EntityManager entityManager) {
     var generalDetails = new GeneralDetail();
     generalDetails.setSubmissionDetail(submissionDetail);
+
+    entityManager.persist(generalDetails);
+    entityManager.flush();
+
+    return generalDetails;
+  }
+
+  public static GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail, EntityManager entityManager,
+                                                  String licenceApplicationReference) {
+    var generalDetails = new GeneralDetail();
+    generalDetails.setSubmissionDetail(submissionDetail);
+    generalDetails.setLicenceApplicationReference(licenceApplicationReference);
 
     entityManager.persist(generalDetails);
     entityManager.flush();

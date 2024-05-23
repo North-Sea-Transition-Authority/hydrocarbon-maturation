@@ -27,7 +27,7 @@
 <#-- @ftlvariable name="regulatorManagedInformationSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView" -->
 <#-- @ftlvariable name="resourceGroupsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView" -->
 
-<#assign pageTitle = "${submissionRecord.resourceNameAndCentreOfInterest()}" />
+<#assign pageTitle = "${submissionRecord.resourceNameCentreOfInterestAndLicenceApplicationReference()}" />
 <#assign caption = "${submissionRecord.submissionType().getTypeName()}" />
 
 <@defaultPage

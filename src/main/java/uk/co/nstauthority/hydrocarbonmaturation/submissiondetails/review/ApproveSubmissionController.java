@@ -100,11 +100,13 @@ public class ApproveSubmissionController {
   private void approvedSubmissionNotificationBanner(SubmissionDetail submissionDetail,
                                                     RedirectAttributes redirectAttributes) {
     var banner = NotificationBanner.builder()
-        .withTitle("%s submission accepted".formatted(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail)))
+        .withTitle("%s submission accepted".formatted(
+            submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail)))
         .withBannerType(NotificationBannerType.SUCCESS)
         .withContent("%s - %s has been accepted and applied to the system of record."
             .formatted(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail),
-                submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail)))
+                submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
+                    submissionDetail)))
         .build();
 
     NotificationBannerUtil.applyNotificationBanner(redirectAttributes, banner);
@@ -117,7 +119,8 @@ public class ApproveSubmissionController {
         "remi/review/approveSubmissionConfirmation"
     );
 
-    var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestOrDefault(submissionDetail);
+    var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
+        submissionDetail);
     var isFieldSubmission = submissionDetail.isFieldSubmission();
 
     modelAndView
@@ -132,12 +135,12 @@ public class ApproveSubmissionController {
                 .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
         .addObject("isFieldSubmission", isFieldSubmission);
 
-    if (isFieldSubmission)  {
+    if (isFieldSubmission) {
       var fieldStatusAfterAccept = fieldSubmissionStatusService.getNewStatusForAcceptance(submissionDetail)
           .map(FieldStatus::getDisplayName)
           .orElseThrow(() -> new NoSuchElementException(
               "Cannot accept the submissionDetail with id %s because the field status can not be updated"
-              .formatted(submissionDetail.getId())));
+                  .formatted(submissionDetail.getId())));
 
       modelAndView.addObject("fieldStatusAfterAccept", fieldStatusAfterAccept);
     }
