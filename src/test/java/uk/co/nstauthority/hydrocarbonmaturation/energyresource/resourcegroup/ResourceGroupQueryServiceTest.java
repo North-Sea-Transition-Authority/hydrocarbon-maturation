@@ -25,7 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionReso
 class ResourceGroupQueryServiceTest {
 
   private final String SEARCH_TERM = "SEARCH_TERM";
-  private final String RESOURCE_NAME = "RESOURCE_NAME";
+  private final String RESOURCE_NAME_CENTRE_OF_INTEREST_ROUND_REFERENCE = "Resource (1/1) (Round RT9)";
 
   @Mock
   private ResourceGroupLinksRepository resourceGroupLinksRepository;
@@ -50,7 +50,8 @@ class ResourceGroupQueryServiceTest {
       when(submissionDetailService.getLatestApprovedProspectSubmissionForResource(resource))
           .thenReturn(Optional.of(submissionDetail));
 
-      when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(RESOURCE_NAME);
+      when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
+          .thenReturn(RESOURCE_NAME_CENTRE_OF_INTEREST_ROUND_REFERENCE);
     }
 
     @Test
@@ -72,7 +73,7 @@ class ResourceGroupQueryServiceTest {
           .containsExactly(
               tuple(
                   submissionDetail.getId().toString(),
-                  ResourceGroupQueryService.GROUP_PREFIX + RESOURCE_NAME
+                  ResourceGroupQueryService.GROUP_PREFIX + RESOURCE_NAME_CENTRE_OF_INTEREST_ROUND_REFERENCE
               )
           );
     }
@@ -106,7 +107,7 @@ class ResourceGroupQueryServiceTest {
           .containsExactly(
               tuple(
                   submissionDetail.getId().toString(),
-                  RESOURCE_NAME
+                  RESOURCE_NAME_CENTRE_OF_INTEREST_ROUND_REFERENCE
               )
           );
     }
@@ -146,7 +147,8 @@ class ResourceGroupQueryServiceTest {
       when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(resource))
           .thenReturn(Optional.of(submissionDetail));
 
-      when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(RESOURCE_NAME);
+      when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
+          .thenReturn(RESOURCE_NAME_CENTRE_OF_INTEREST_ROUND_REFERENCE);
     }
 
     @Test
@@ -169,7 +171,7 @@ class ResourceGroupQueryServiceTest {
           .containsExactly(
               tuple(
                   submissionDetail.getId().toString(),
-                  ResourceGroupQueryService.GROUP_PREFIX + RESOURCE_NAME
+                  ResourceGroupQueryService.GROUP_PREFIX + RESOURCE_NAME_CENTRE_OF_INTEREST_ROUND_REFERENCE
               )
           );
     }
@@ -204,7 +206,7 @@ class ResourceGroupQueryServiceTest {
           .containsExactly(
               tuple(
                   submissionDetail.getId().toString(),
-                  RESOURCE_NAME
+                  RESOURCE_NAME_CENTRE_OF_INTEREST_ROUND_REFERENCE
               )
           );
     }

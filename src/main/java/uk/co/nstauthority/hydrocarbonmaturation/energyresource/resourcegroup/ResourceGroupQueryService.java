@@ -49,7 +49,8 @@ public class ResourceGroupQueryService {
 
   public Optional<ResourceGroupView> getResourceGroupViewForSubmissionDetail(SubmissionDetail submissionDetail,
                                                                              @Nullable UUID currentResourceId) {
-    var resourceName = submissionResourceService.getResourceNameOrDefault(submissionDetail);
+    var resourceNameCentreOfInterestAndRoundReference = submissionResourceService
+        .getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail);
 
     var resourceGroupLink = resourceGroupLinksRepository.findByResource(
         submissionDetail.getSubmission().getResource());
@@ -59,7 +60,7 @@ public class ResourceGroupQueryService {
     if (isInGroup && resourceGroupLink.get().getPreferredView()) {
       var resourceGroupView = new ResourceGroupView(
           submissionDetail.getId(),
-          GROUP_PREFIX + resourceName,
+          GROUP_PREFIX + resourceNameCentreOfInterestAndRoundReference,
           resourceGroupLink.get().getResourceGroupId()
       );
       return Optional.of(resourceGroupView);
@@ -69,7 +70,7 @@ public class ResourceGroupQueryService {
       //filters out the current resource so the current resource won't be able to have a group with itself.
       var resourceGroupView = new ResourceGroupView(
           submissionDetail.getId(),
-          resourceName,
+          resourceNameCentreOfInterestAndRoundReference,
           null
       );
       return Optional.of(resourceGroupView);
