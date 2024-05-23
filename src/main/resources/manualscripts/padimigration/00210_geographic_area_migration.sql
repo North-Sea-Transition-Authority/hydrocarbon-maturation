@@ -25,6 +25,11 @@ BEGIN
             WHEN 'MNSH' THEN 'CENTRAL_NORTH_SEA'
             WHEN 'ROCK' THEN 'WEST_OF_SHETLAND'
             WHEN 'SWAP' THEN 'EAST_IRISH_SEA'
+            WHEN 'CNS' THEN 'CENTRAL_NORTH_SEA'
+            WHEN 'ISEA' THEN 'EAST_IRISH_SEA'
+            WHEN 'NNS' THEN 'NORTHERN_NORTH_SEA'
+            WHEN 'SNS' THEN 'SOUTHERN_NORTH_SEA'
+            WHEN 'WOS' THEN 'WEST_OF_SHETLAND'
         END
         INTO geographic_area;
 
