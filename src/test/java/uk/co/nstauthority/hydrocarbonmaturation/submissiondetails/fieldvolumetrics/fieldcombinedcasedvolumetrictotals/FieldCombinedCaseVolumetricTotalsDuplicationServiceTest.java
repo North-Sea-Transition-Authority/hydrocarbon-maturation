@@ -35,7 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotal;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotalsRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.ReservoirHydrocarbonCaseService;
 
 @ExtendWith(MockitoExtension.class)
 class FieldCombinedCaseVolumetricTotalsDuplicationServiceTest {
@@ -49,7 +49,7 @@ class FieldCombinedCaseVolumetricTotalsDuplicationServiceTest {
   private CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository;
 
   @Mock
-  private VolumetricTotalsService volumetricTotalsService;
+  private ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
 
   @InjectMocks
   private FieldCombinedCaseVolumetricTotalsDuplicationService fieldCombinedCaseVolumetricTotalsDuplicationService;
@@ -60,7 +60,7 @@ class FieldCombinedCaseVolumetricTotalsDuplicationServiceTest {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
-    when(volumetricTotalsService.isCombinedCase(oldSubmissionDetail)).thenReturn(true);
+    when(reservoirHydrocarbonCaseService.isCombinedCase(oldSubmissionDetail)).thenReturn(true);
 
     var combinedCaseTotal = mock(CombinedCaseVolumetricTotal.class);
     when(combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(oldSubmissionDetail))
@@ -80,7 +80,7 @@ class FieldCombinedCaseVolumetricTotalsDuplicationServiceTest {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
-    when(volumetricTotalsService.isCombinedCase(oldSubmissionDetail)).thenReturn(true);
+    when(reservoirHydrocarbonCaseService.isCombinedCase(oldSubmissionDetail)).thenReturn(true);
 
     var combinedCaseTotal = mock(CombinedCaseVolumetricTotal.class);
     when(combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(oldSubmissionDetail))
@@ -102,7 +102,7 @@ class FieldCombinedCaseVolumetricTotalsDuplicationServiceTest {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
-    when(volumetricTotalsService.isCombinedCase(oldSubmissionDetail)).thenReturn(false);
+    when(reservoirHydrocarbonCaseService.isCombinedCase(oldSubmissionDetail)).thenReturn(false);
 
     fieldCombinedCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
@@ -121,7 +121,7 @@ class FieldCombinedCaseVolumetricTotalsDuplicationServiceTest {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
-    when(volumetricTotalsService.isCombinedCase(oldSubmissionDetail)).thenReturn(true);
+    when(reservoirHydrocarbonCaseService.isCombinedCase(oldSubmissionDetail)).thenReturn(true);
 
     var probabilityDistribution1 = mock(ProbabilityDistribution.class);
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
@@ -146,7 +146,7 @@ class FieldCombinedCaseVolumetricTotalsDuplicationServiceTest {
     var oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
     var newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetailWithResourceAndSubmissionType(submissionType);
 
-    when(volumetricTotalsService.isCombinedCase(oldSubmissionDetail)).thenReturn(true);
+    when(reservoirHydrocarbonCaseService.isCombinedCase(oldSubmissionDetail)).thenReturn(true);
 
     whenGetAllProbabilityDistributionsForInstances(oldSubmissionDetail)
         .thenReturn(Collections.emptyList());

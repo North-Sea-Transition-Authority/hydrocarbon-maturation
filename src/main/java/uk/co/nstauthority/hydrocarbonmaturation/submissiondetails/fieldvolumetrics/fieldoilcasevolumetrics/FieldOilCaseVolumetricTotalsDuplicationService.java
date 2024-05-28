@@ -17,16 +17,16 @@ public class FieldOilCaseVolumetricTotalsDuplicationService implements Submissio
 
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
-  private final VolumetricTotalsService volumetricTotalsService;
+  private final ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
 
   @Autowired
   public FieldOilCaseVolumetricTotalsDuplicationService(
       ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
       SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService,
-      VolumetricTotalsService volumetricTotalsService) {
+      ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService) {
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
-    this.volumetricTotalsService = volumetricTotalsService;
+    this.reservoirHydrocarbonCaseService = reservoirHydrocarbonCaseService;
   }
 
   @Override
@@ -35,7 +35,7 @@ public class FieldOilCaseVolumetricTotalsDuplicationService implements Submissio
                                          SubmissionDetail newSubmissionDetail) {
 
     if (!newSubmissionDetail.isFieldSubmission()
-        || !volumetricTotalsService.isOilCaseOnly(oldSubmissionDetail)) {
+        || !reservoirHydrocarbonCaseService.isOilCaseOnly(oldSubmissionDetail)) {
       return;
     }
 

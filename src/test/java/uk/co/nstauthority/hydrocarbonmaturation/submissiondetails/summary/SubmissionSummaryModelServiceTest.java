@@ -28,7 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolum
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails.DryWellDetailsSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.ReservoirHydrocarbonCaseService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertySummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryView;
@@ -77,7 +77,7 @@ class SubmissionSummaryModelServiceTest {
   @Mock
   private TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
   @Mock
-  private VolumetricTotalsService volumetricTotalsService;
+  private ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
 
   @InjectMocks
   private SubmissionSummaryModelService submissionSummaryModelService;
@@ -373,9 +373,9 @@ class SubmissionSummaryModelServiceTest {
     var reservoirSubmissionDetails = List.of(ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail));
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails)).thenReturn(true);
-    when(volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails)).thenReturn(true);
-    when(volumetricTotalsService.isCombinedCase(reservoirSubmissionDetails)).thenReturn(true);
+    when(reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails)).thenReturn(true);
+    when(reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails)).thenReturn(true);
+    when(reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails)).thenReturn(true);
     when(discoverySummaryService.getOilCaseVolumetricTotalsFromSubmissionDetail(submissionDetail)).thenReturn(discoveryOilCaseVolumetricTotalsSummaryView);
     when(discoverySummaryService.getGasCaseVolumetricTotalsFromSubmissionDetail(submissionDetail)).thenReturn(discoveryGasCaseVolumetricTotalsSummaryView);
     var modelAndView =

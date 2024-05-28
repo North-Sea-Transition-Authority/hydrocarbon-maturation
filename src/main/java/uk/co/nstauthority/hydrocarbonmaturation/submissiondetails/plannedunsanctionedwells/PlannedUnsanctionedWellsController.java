@@ -27,7 +27,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @Controller
 @RequestMapping("/submission-details/{submissionDetailId}/planned-unsanctioned-wells")
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.DRAFT)
-@HasSubmissionType(submissionTypes = SecuritySubmissionTypes.FDP_OR_FDPA_SUBMISSION)
+@HasSubmissionType(
+    submissionTypes = { SecuritySubmissionTypes.FDP_SUBMISSIONS, SecuritySubmissionTypes.FDPA_SUBMISSIONS }
+)
 @IsFromResponsibleTeam
 public class PlannedUnsanctionedWellsController {
   public static final String PAGE_NAME = "Planned unsanctioned wells";

@@ -86,7 +86,7 @@ withContingentUncertaintyCategories=false>
         <#if withDistributionType>
           <td class="govuk-table__cell">${probabilityDistribution.max()}</td>
         </#if>
-        <td class="govuk-table__cell govuk-table__cell">${probabilityDistribution.units()}</td>
+        <td class="govuk-table__cell">${probabilityDistribution.units()}</td>
       </tr>
     </#list>
   </@probabilityDistributionTableHeader>
@@ -132,7 +132,7 @@ withDistributionType=true>
         <td class="govuk-table__cell">${probabilityDistribution.oneP()}</td>
         <td class="govuk-table__cell">${probabilityDistribution.twoP()}</td>
         <td class="govuk-table__cell">${probabilityDistribution.threeP()}</td>
-        <td class="govuk-table__cell govuk-table__cell">${probabilityDistribution.units()}</td>
+        <td class="govuk-table__cell">${probabilityDistribution.units()}</td>
       </tr>
     </#list>
   </@fieldProbabilityDistributionTableHeader>
@@ -231,4 +231,40 @@ withDistributionType=true>
     <#nested>
     </tbody>
   </table>
+</#macro>
+
+<#macro onePToThreePTableHeader>
+  <table class="govuk-table remi-table">
+    <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+      <th scope="col" class="govuk-table__header"/>
+      <th scope="col" class="govuk-table__header">1P</th>
+      <th scope="col" class="govuk-table__header">2P</th>
+      <th scope="col" class="govuk-table__header">3P</th>
+      <th scope="col" class="govuk-table__header">Units</th>
+    </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+    <#nested>
+    </tbody>
+  </table>
+</#macro>
+
+<#macro onePToThreePTable
+  probabilityDistributions=[]>
+    <@onePToThreePTableHeader>
+        <#list probabilityDistributions as probabilityDistribution>
+          <tr class="govuk-table__row">
+            <th scope="row" class="govuk-table__header">
+                ${probabilityDistribution.probabilityDistributionName()}
+            </th>
+
+            <td class="govuk-table__cell">${probabilityDistribution.oneP()}</td>
+            <td class="govuk-table__cell">${probabilityDistribution.twoP()}</td>
+            <td class="govuk-table__cell">${probabilityDistribution.threeP()}</td>
+            <td class="govuk-table__cell">${probabilityDistribution.units()}</td>
+          </tr>
+        </#list>
+    </@onePToThreePTableHeader>
+
 </#macro>

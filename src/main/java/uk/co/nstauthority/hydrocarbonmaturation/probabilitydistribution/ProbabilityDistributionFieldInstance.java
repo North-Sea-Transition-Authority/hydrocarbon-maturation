@@ -695,6 +695,33 @@ public enum ProbabilityDistributionFieldInstance {
       FieldMinimumMostLikelyMaxBehaviour.class,
       ProbabilityOfExceedanceUnits.MD,
       "Vertical permeability"
+  ),
+
+  // FDPA promoted volumes
+  OIL_RESERVES_PROMOTED_VOLUMES_FDPA(
+      FieldVolumetricsReservesBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Oil reserves"
+  ),
+  ASSOCIATED_CONDENSATE_RESERVES_PROMOTED_VOLUMES_FDPA(
+      FieldVolumetricsReservesBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Associated condensate reserves"
+  ),
+  NATURAL_GAS_LIQUIDS_RESERVES_PROMOTED_VOLUMES_FDPA(
+      FieldVolumetricsReservesBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Natural gas liquid reserves"
+  ),
+  SALES_GAS_RESERVES_PROMOTED_VOLUMES_FDPA(
+      FieldVolumetricsReservesBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Sales gas reserves"
+  ),
+  OIL_EQUIVALENT_RESERVES_PROMOTED_VOLUMES_FDPA(
+      FieldVolumetricsReservesBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBOE,
+      "Oil equivalent reserves"
   );
 
   private Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour;

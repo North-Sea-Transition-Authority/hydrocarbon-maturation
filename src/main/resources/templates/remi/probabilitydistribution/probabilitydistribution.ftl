@@ -102,14 +102,16 @@
     formId
     error
     inputs
-    labelText="">
+    labelText=""
+    hintText="">
 
     <@probabilityDistributionFieldSet
         formId=formId
         labelText=labelText
         nestingPath=probabilityDistributionTypePath
         error=error
-        probabilityDistributionType=inputs.probabilityDistributionType>
+        probabilityDistributionType=inputs.probabilityDistributionType
+        hintText=hintText>
 
         <#if error.hasError() && error.probabilityDistributionType().name()==inputs.probabilityDistributionType.name()>
             <@springFtl.bind error.fullErrorPath()/>
@@ -166,12 +168,13 @@
     </#if>
 </#macro>
 
-
 <#macro probabilityDistributionSingularTemplate
     probabilityDistributionPath
     labelText
     template
-    error>
+    error
+    provideComments=true
+    hintText="">
 
     <#assign probabilityDistributionTypePathString = probabilityDistributionPath+".probabilityDistributionType"/>
     <@springFtl.formHiddenInput path=probabilityDistributionTypePathString/>
@@ -180,13 +183,16 @@
         formId=probabilityDistributionPath?replace("form.", "")
         labelText=labelText+" (${template.units})"
         error=error
-        inputs=template.probabilityDistributionTypeWithInputsList[0]/>
-    <@fdsTextarea.textarea
-        path=probabilityDistributionPath+"."+template.probabilityDistributionTypeWithInputsList[0].probabilityDistributionType.path+".comments"
-        labelText=labelText + " comments"
-        rows="3"
-        optionalLabel=true
-        inputClass="govuk-!-width-two-thirds"
-        nestingPath=probabilityDistributionTypePathString/>
+        inputs=template.probabilityDistributionTypeWithInputsList[0]
+        hintText=hintText/>
+    <#if provideComments == true>
+      <@fdsTextarea.textarea
+          path=probabilityDistributionPath+"."+template.probabilityDistributionTypeWithInputsList[0].probabilityDistributionType.path+".comments"
+          labelText=labelText + " comments"
+          rows="3"
+          optionalLabel=true
+          inputClass="govuk-!-width-two-thirds"
+          nestingPath=probabilityDistributionTypePathString/>
+    </#if>
 
 </#macro>

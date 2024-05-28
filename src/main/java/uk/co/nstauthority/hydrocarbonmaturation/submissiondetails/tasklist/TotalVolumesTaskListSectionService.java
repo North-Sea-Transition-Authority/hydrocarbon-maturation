@@ -15,13 +15,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolum
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fielddevelopmentplanaddendumpromotedvolumes.FieldDevelopmentPlanAddendumPromotedVolumesController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fielddevelopmentplanaddendumpromotedvolumes.FieldDevelopmentPlanAddendumPromotedVolumesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldcombinedcasedvolumetrictotals.FieldCombinedCaseVolumetricTotalsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldcombinedcasedvolumetrictotals.FieldCombinedCaseVolumetricTotalsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldgascasevolumetrics.FieldGasCaseVolumetricTotalsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldgascasevolumetrics.FieldGasCaseVolumetricTotalsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.FieldOilCaseVolumetricTotalsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.FieldOilCaseVolumetricTotalsSubmissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.ReservoirHydrocarbonCaseService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 
@@ -35,7 +37,8 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
   private final FieldOilCaseVolumetricTotalsSubmissionService fieldOilCaseVolumetricTotalsSubmissionService;
   private final FieldGasCaseVolumetricTotalsSubmissionService fieldGasCaseVolumetricTotalsSubmissionService;
   private final FieldCombinedCaseVolumetricTotalsSubmissionService fieldCombinedCaseVolumetricTotalsSubmissionService;
-  private final VolumetricTotalsService volumetricTotalsService;
+  private final ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
+  private final FieldDevelopmentPlanAddendumPromotedVolumesSubmissionService fdpaPromotedVolumesSubmissionService;
 
   @Autowired
   public TotalVolumesTaskListSectionService(
@@ -46,7 +49,8 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
       FieldOilCaseVolumetricTotalsSubmissionService fieldOilCaseVolumetricTotalsSubmissionService,
       FieldGasCaseVolumetricTotalsSubmissionService fieldGasCaseVolumetricTotalsSubmissionService,
       FieldCombinedCaseVolumetricTotalsSubmissionService fieldCombinedCaseVolumetricTotalsSubmissionService,
-      VolumetricTotalsService volumetricTotalsService) {
+      ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService,
+      FieldDevelopmentPlanAddendumPromotedVolumesSubmissionService fdpaPromotedVolumesSubmissionService) {
 
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.discoveryOilCaseVolumetricTotalsSubmissionService = discoveryOilCaseVolumetricTotalsSubmissionService;
@@ -55,7 +59,8 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
     this.fieldOilCaseVolumetricTotalsSubmissionService = fieldOilCaseVolumetricTotalsSubmissionService;
     this.fieldGasCaseVolumetricTotalsSubmissionService = fieldGasCaseVolumetricTotalsSubmissionService;
     this.fieldCombinedCaseVolumetricTotalsSubmissionService = fieldCombinedCaseVolumetricTotalsSubmissionService;
-    this.volumetricTotalsService = volumetricTotalsService;
+    this.reservoirHydrocarbonCaseService = reservoirHydrocarbonCaseService;
+    this.fdpaPromotedVolumesSubmissionService = fdpaPromotedVolumesSubmissionService;
   }
 
   public boolean sectionIsPresent(SubmissionDetail submissionDetail) {
@@ -69,19 +74,20 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
     }
 
     var reservoirSubmissionDetails =
-        reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
+        reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
+            submissionDetail);
 
     if (reservoirSubmissionDetails.isEmpty()) {
       return Optional.empty();
     }
-    
+
     if (submissionDetail.isDiscoverySubmission() && reservoirSubmissionDetails.size() == 1) {
       return Optional.empty();
     }
 
-    if (!volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails)
-        && !volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails)
-        && !volumetricTotalsService.isCombinedCase(reservoirSubmissionDetails)) {
+    if (!reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails)
+        && !reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails)
+        && !reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails)) {
       return Optional.empty();
     }
 
@@ -112,6 +118,9 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
     }
     if (submissionDetail.isDiscoverySubmission()) {
       return isDiscoveryHydrocarbonCaseSubmittable(submissionDetail, reservoirSubmissionDetails);
+    } else if (submissionDetail.isFieldDevelopmentPlanAddendumSubmission()) {
+      return isFieldHydrocarbonCaseSectionSubmittable(submissionDetail, reservoirSubmissionDetails)
+          && isFdpaPromotedVolumesSectionSubmittable(submissionDetail);
     } else if (submissionDetail.isFieldSubmission()) {
       return isFieldHydrocarbonCaseSectionSubmittable(submissionDetail, reservoirSubmissionDetails);
     }
@@ -120,11 +129,11 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
 
   private boolean isFieldHydrocarbonCaseSectionSubmittable(SubmissionDetail submissionDetail,
                                                            List<ReservoirSubmissionDetail> reservoirSubmissionDetails) {
-    if (volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails)) {
+    if (reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails)) {
       return fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail);
-    } else if (volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails)) {
+    } else if (reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails)) {
       return fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail);
-    } else if (volumetricTotalsService.isCombinedCase(reservoirSubmissionDetails)) {
+    } else if (reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails)) {
       return fieldCombinedCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail);
     }
     return false;
@@ -132,21 +141,25 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
 
   private boolean isDiscoveryHydrocarbonCaseSubmittable(SubmissionDetail submissionDetail,
                                                         List<ReservoirSubmissionDetail> reservoirSubmissionDetails) {
-    if (volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails)) {
+    if (reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails)) {
       return discoveryOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail);
-    } else if (volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails)) {
+    } else if (reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails)) {
       return discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail);
-    } else if (volumetricTotalsService.isCombinedCase(reservoirSubmissionDetails)) {
+    } else if (reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails)) {
       return discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail);
     }
     return false;
+  }
+
+  private boolean isFdpaPromotedVolumesSectionSubmittable(SubmissionDetail submissionDetail) {
+    return fdpaPromotedVolumesSubmissionService.isSectionSubmittable(submissionDetail);
   }
 
   private List<TaskListItem> getTaskListItems(SubmissionDetail submissionDetail,
                                               List<ReservoirSubmissionDetail> reservoirSubmissionDetails) {
     var listOfItems = new ArrayList<TaskListItem>();
     if (submissionDetail.isDiscoverySubmission()) {
-      if (volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails)) {
+      if (reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails)) {
         listOfItems.add(new TaskListItem("Total oil case volumetrics",
             TaskListLabel.notStartedOrComplete(
                 discoveryOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail)
@@ -155,7 +168,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
                 .getDiscoveryOilCaseVolumetricTotals(submissionDetail.getId())))
         );
       }
-      if (volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails)) {
+      if (reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails)) {
         listOfItems.add(new TaskListItem("Total gas case volumetrics",
             TaskListLabel.notStartedOrComplete(
                 discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail)
@@ -164,7 +177,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
                 .getDiscoveryGasCaseVolumetricTotals(submissionDetail.getId())))
         );
       }
-      if (volumetricTotalsService.isCombinedCase(reservoirSubmissionDetails)) {
+      if (reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails)) {
         listOfItems.add(new TaskListItem("Total oil and gas case volumetrics",
             TaskListLabel.notStartedOrComplete(
                 discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail)
@@ -174,7 +187,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
         );
       }
     } else if (submissionDetail.isFieldSubmission()) {
-      if (volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails)) {
+      if (reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails)) {
         listOfItems.add(new TaskListItem("Total oil case volumetrics",
             TaskListLabel.notStartedOrComplete(
                 fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail)
@@ -183,7 +196,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
                 .getFieldOilCaseVolumetricTotals(submissionDetail.getId())))
         );
       }
-      if (volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails)) {
+      if (reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails)) {
         listOfItems.add(new TaskListItem("Total gas case volumetrics",
             TaskListLabel.notStartedOrComplete(
                 fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail)
@@ -192,7 +205,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
                 .getFieldGasCaseVolumetricTotals(submissionDetail.getId())))
         );
       }
-      if (volumetricTotalsService.isCombinedCase(reservoirSubmissionDetails)) {
+      if (reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails)) {
         listOfItems.add(new TaskListItem("Total oil and gas case volumetrics",
             TaskListLabel.notStartedOrComplete(
                 fieldCombinedCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail)
@@ -201,6 +214,16 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
                 .getFieldCombinedCaseVolumetricTotals(submissionDetail.getId())))
         );
       }
+    }
+
+    if (submissionDetail.isFieldDevelopmentPlanAddendumSubmission()) {
+      listOfItems.add(new TaskListItem(
+          "FDPA promoted volumes",
+          TaskListLabel.notStartedOrComplete(
+              fdpaPromotedVolumesSubmissionService.isSectionSubmittable(submissionDetail)),
+          ReverseRouter.route(on(FieldDevelopmentPlanAddendumPromotedVolumesController.class)
+              .getFdpaPromotedVolumes(submissionDetail.getId()))
+      ));
     }
 
     return listOfItems;

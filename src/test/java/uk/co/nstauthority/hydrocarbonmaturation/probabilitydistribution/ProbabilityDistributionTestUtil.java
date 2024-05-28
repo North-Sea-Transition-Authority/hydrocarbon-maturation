@@ -28,6 +28,27 @@ public class ProbabilityDistributionTestUtil {
     return probabilityDistributionForm;
   }
 
+  public static ProbabilityDistributionForm getInvalidProbabilityDistributionForm(
+      ProbabilityDistributionType probabilityDistributionType
+  ) {
+    var probabilityDistributionForm = new ProbabilityDistributionForm();
+    probabilityDistributionForm.setProbabilityDistributionType(probabilityDistributionType);
+
+    var probabilityOfExceedanceForm = getInvalidProbabilityOfExceedanceForm();
+    probabilityDistributionForm.setProbabilityOfExceedanceForm(probabilityOfExceedanceForm);
+
+    return probabilityDistributionForm;
+  }
+
+  public static ProbabilityDistributionForm getEmptyCustomProbabilityDistributionForm() {
+    return ProbabilityDistributionTestUtil.getFormWithExceedance(ProbabilityDistributionType.CUSTOM,
+        new ProbabilityOfExceedanceForm());
+  }
+
+  public static ProbabilityDistributionForm getInvalidCustomProbabilityDistributionForm() {
+    return getInvalidProbabilityDistributionForm(ProbabilityDistributionType.CUSTOM);
+  }
+
   public static ProbabilityDistributionForm getValidNormalProbabilityDistributionForm() {
     return getValidProbabilityDistributionForm(ProbabilityDistributionType.NORMAL);
   }

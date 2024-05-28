@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.ReservoirHydrocarbonCaseService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotal;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotalsRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
@@ -26,27 +26,29 @@ public class FieldGasCaseVolumetricTotalsSummaryService implements SummarySectio
 
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
-  private final VolumetricTotalsService volumetricTotalsService;
+  private final ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
   private final GasCaseVolumetricTotalsRepository gasCaseVolumetricTotalsRepository;
 
   @Autowired
   public FieldGasCaseVolumetricTotalsSummaryService(
       ProbabilityDistributionSummaryService probabilityDistributionSummaryService,
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
-      VolumetricTotalsService volumetricTotalsService,
+      ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService,
       GasCaseVolumetricTotalsRepository gasCaseVolumetricTotalsRepository) {
 
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
-    this.volumetricTotalsService = volumetricTotalsService;
+    this.reservoirHydrocarbonCaseService = reservoirHydrocarbonCaseService;
     this.gasCaseVolumetricTotalsRepository = gasCaseVolumetricTotalsRepository;
   }
 
   @Override
   public Optional<SummarySection> getSummarySection(SubmissionDetail submissionDetail) {
     var reservoirSubmissionDetails =
-        reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
-    if (!submissionDetail.isFieldSubmission() || !volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails)) {
+        reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
+            submissionDetail);
+    if (!submissionDetail.isFieldSubmission() || !reservoirHydrocarbonCaseService.isGasCaseOnly(
+        reservoirSubmissionDetails)) {
       return Optional.empty();
     }
     var summaryItems = List.of(getResourcesAndReservesSummary(submissionDetail));
@@ -59,7 +61,7 @@ public class FieldGasCaseVolumetricTotalsSummaryService implements SummarySectio
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD
-      )
+    )
     );
 
     var gasCaseVolumetricTotal = gasCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail)

@@ -1,11 +1,12 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.ReservoirHydrocarbonCaseService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
@@ -23,7 +24,7 @@ public class SubmissionSummaryModelService {
   private final SubmissionSummaryService submissionSummaryService;
   private final FieldSummaryService fieldSummaryService;
   private final TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
-  private final VolumetricTotalsService volumetricTotalsService;
+  private final ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
 
 
   @Autowired
@@ -37,7 +38,7 @@ public class SubmissionSummaryModelService {
                                 SubmissionSummaryService submissionSummaryService,
                                 FieldSummaryService fieldSummaryService,
                                 TotalVolumesTaskListSectionService totalVolumesTaskListSectionService,
-                                VolumetricTotalsService volumetricTotalsService) {
+                                ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService) {
     this.prospectSummaryService = prospectSummaryService;
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
     this.discoverySummaryService = discoverySummaryService;
@@ -48,7 +49,7 @@ public class SubmissionSummaryModelService {
     this.submissionSummaryService = submissionSummaryService;
     this.fieldSummaryService = fieldSummaryService;
     this.totalVolumesTaskListSectionService = totalVolumesTaskListSectionService;
-    this.volumetricTotalsService = volumetricTotalsService;
+    this.reservoirHydrocarbonCaseService = reservoirHydrocarbonCaseService;
   }
 
   public ModelAndView createSummaryForSubmissionTypeToModelAndView(SubmissionDetail submissionDetail, String viewName) {
@@ -201,16 +202,16 @@ public class SubmissionSummaryModelService {
       var reservoirSubmissionDetails =
           reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
 
-      var isOilCaseOnly = volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails);
-      var isGasCaseOnly = volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails);
-      var isCombinedCase = volumetricTotalsService.isCombinedCase(reservoirSubmissionDetails);
+      var isOilCaseOnly = reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails);
+      var isGasCaseOnly = reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails);
+      var isCombinedCase = reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails);
 
       modelAndView
           .addObject("isOilCaseOnly", isOilCaseOnly)
           .addObject("isGasCaseOnly", isGasCaseOnly)
           .addObject("isCombinedCase", isCombinedCase);
 
-      if (isOilCaseOnly) {
+      if (BooleanUtils.isTrue(isOilCaseOnly)) {
         modelAndView.addObject("oilCaseVolumetricTotalsSummaryView",
             discoverySummaryService.getOilCaseVolumetricTotalsFromSubmissionDetail(submissionDetail));
       }

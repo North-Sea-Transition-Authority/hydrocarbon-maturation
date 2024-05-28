@@ -11,31 +11,31 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevo
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotalsRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.ReservoirHydrocarbonCaseService;
 
 @Service
 public class FieldCombinedCaseVolumetricTotalsDuplicationService implements SubmissionSectionDuplicationService {
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
   private final SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService;
   private final CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository;
-  private final VolumetricTotalsService volumetricTotalsService;
+  private final ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
 
   public FieldCombinedCaseVolumetricTotalsDuplicationService(
       ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
       SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService,
       CombinedCaseVolumetricTotalsRepository combinedCaseVolumetricTotalsRepository,
-      VolumetricTotalsService volumetricTotalsService) {
+      ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService) {
 
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
     this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
     this.combinedCaseVolumetricTotalsRepository = combinedCaseVolumetricTotalsRepository;
-    this.volumetricTotalsService = volumetricTotalsService;
+    this.reservoirHydrocarbonCaseService = reservoirHydrocarbonCaseService;
   }
 
   @Override
   public void duplicateSubmissionSection(SubmissionDetail oldSubmissionDetail, SubmissionDetail newSubmissionDetail) {
     if (!newSubmissionDetail.isFieldSubmission()
-        || !volumetricTotalsService.isCombinedCase(oldSubmissionDetail)) {
+        || !reservoirHydrocarbonCaseService.isCombinedCase(oldSubmissionDetail)) {
       return;
     }
 

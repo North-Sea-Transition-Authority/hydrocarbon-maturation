@@ -26,6 +26,9 @@
             <#elseif summaryCard.summaryCardType() == "FIELD_PROBABILITY_DISTRIBUTION_SUMMARY">
               <@probabilityDistributionSummary.fieldProbabilityDistributionTable
               probabilityDistributions=summaryCard.summaryData()/>
+            <#elseif summaryCard.summaryCardType() == "ONE_P_TO_THREE_P_DISTRIBUTION_SUMMARY">
+                <@probabilityDistributionSummary.onePToThreePTable
+                probabilityDistributions=summaryCard.summaryData()/>
             <#else>
               <#assign actionsContent>
                 <@fdsSummaryList.summaryListCardActionList>

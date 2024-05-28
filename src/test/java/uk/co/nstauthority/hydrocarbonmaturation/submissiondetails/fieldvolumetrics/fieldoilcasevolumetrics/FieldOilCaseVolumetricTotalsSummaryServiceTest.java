@@ -28,7 +28,7 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
     private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
 
     @Mock
-    private VolumetricTotalsService volumetricTotalsService;
+    private ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
 
     @Mock
     private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
@@ -52,7 +52,7 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
             .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail)
         ).thenReturn(reservoirSubmissionDetails);
 
-        when(volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails))
+        when(reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails))
             .thenReturn(false);
 
         assertThat(fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail))
@@ -68,7 +68,7 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
             .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail)
         ).thenReturn(reservoirSubmissionDetails);
 
-        when(volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails))
+        when(reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails))
             .thenReturn(true);
 
         var emptyProbabilitySummaryView = ProbabilityDistributionSummaryView.empty("");

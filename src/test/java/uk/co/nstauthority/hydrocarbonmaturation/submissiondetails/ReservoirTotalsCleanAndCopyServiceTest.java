@@ -30,7 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolum
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverymixedcasevolumetrics.DiscoveryMixedCaseVolumetricsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldcombinedcasedvolumetrictotals.FieldCombinedCaseVolumetricTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldgascasevolumetrics.FieldGasCaseVolumetricTotalsService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.ReservoirHydrocarbonCaseService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotal;
@@ -58,7 +58,7 @@ class ReservoirTotalsCleanAndCopyServiceTest {
   @Mock
   private DiscoveryCombinedCaseVolTotalsService discoveryCombinedCaseVolTotalsService;
   @Mock
-  private VolumetricTotalsService volumetricTotalsService;
+  private ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
   @Mock
   private FieldGasCaseVolumetricTotalsService fieldGasCaseVolumetricTotalsService;
   @Mock
@@ -420,7 +420,7 @@ class ReservoirTotalsCleanAndCopyServiceTest {
     when(reservoirSubmissionDetails.size()).thenReturn(2);
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails))
+    when(reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails))
         .thenReturn(true);
 
     reservoirTotalsCleanAndCopyService.cleanAndCopyVolumetricTotals(submissionDetail);
@@ -435,7 +435,7 @@ class ReservoirTotalsCleanAndCopyServiceTest {
     var reservoirSubmissionDetails = mock(List.class);
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails))
+    when(reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails))
         .thenReturn(true);
 
     reservoirTotalsCleanAndCopyService.cleanAndCopyVolumetricTotals(submissionDetail);
@@ -454,7 +454,7 @@ class ReservoirTotalsCleanAndCopyServiceTest {
     when(reservoirSubmissionDetails.size()).thenReturn(2);
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails))
+    when(reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails))
         .thenReturn(true);
 
     reservoirTotalsCleanAndCopyService.cleanAndCopyVolumetricTotals(submissionDetail);
@@ -469,7 +469,7 @@ class ReservoirTotalsCleanAndCopyServiceTest {
     var reservoirSubmissionDetails = mock(List.class);
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails))
+    when(reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails))
         .thenReturn(true);
 
     reservoirTotalsCleanAndCopyService.cleanAndCopyVolumetricTotals(submissionDetail);
@@ -489,7 +489,7 @@ class ReservoirTotalsCleanAndCopyServiceTest {
     var reservoirSubmissionDetails = mock(List.class);
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(volumetricTotalsService.isCombinedCase(reservoirSubmissionDetails))
+    when(reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails))
         .thenReturn(true);
 
     reservoirTotalsCleanAndCopyService.cleanAndCopyVolumetricTotals(submissionDetail);

@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
-enum ProbabilityDistributionValidationError {
+public enum ProbabilityDistributionValidationError {
 
   GENERAL_ERROR("%s - all mandatory probability of exceedence inputs must be provided and " +
       "all inputs must be numbers with up to 2 decimal places"),

@@ -48,8 +48,10 @@ public enum SecuritySubmissionTypes {
       SubmissionType.CREATE_FDP,
       SubmissionType.CREATE_FDPA
   ),
-  FDP_OR_FDPA_SUBMISSION(
-      SubmissionType.CREATE_FDP,
+  FDP_SUBMISSIONS(
+      SubmissionType.CREATE_FDP
+  ),
+  FDPA_SUBMISSIONS(
       SubmissionType.CREATE_FDPA
   ),
   NONE()

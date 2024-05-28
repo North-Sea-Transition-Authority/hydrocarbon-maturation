@@ -33,7 +33,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.VolumetricTotalsService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.ReservoirHydrocarbonCaseService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumetrictotals.GasCaseVolumetricTotal;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
@@ -54,7 +54,7 @@ class DiscoveryGasCaseVolumetricTotalsDuplicationServiceTest {
   private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   @Mock
-  private VolumetricTotalsService volumetricTotalsService;
+  private ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
 
   @InjectMocks
   private DiscoveryGasCaseVolumetricTotalsDuplicationService discoveryGasCaseVolumetricTotalsDuplicationService;
@@ -68,7 +68,7 @@ class DiscoveryGasCaseVolumetricTotalsDuplicationServiceTest {
     var gasCaseVolumetricTotal = mock(GasCaseVolumetricTotal.class);
     when(discoveryGasCaseVolumetricTotalsService.getGasCaseVolumetricTotal(oldSubmissionDetail))
         .thenReturn(Optional.of(gasCaseVolumetricTotal));
-    when(volumetricTotalsService.isGasCaseOnly(anyList()))
+    when(reservoirHydrocarbonCaseService.isGasCaseOnly(anyList()))
         .thenReturn(true);
 
     discoveryGasCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
@@ -89,7 +89,7 @@ class DiscoveryGasCaseVolumetricTotalsDuplicationServiceTest {
     var probabilityDistribution2 = mock(ProbabilityDistribution.class);
     whenGetAllProbabilityDistributionsForInstances(oldSubmissionDetail)
         .thenReturn(List.of(probabilityDistribution1, probabilityDistribution2));
-    when(volumetricTotalsService.isGasCaseOnly(anyList()))
+    when(reservoirHydrocarbonCaseService.isGasCaseOnly(anyList()))
         .thenReturn(true);
 
     discoveryGasCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
@@ -112,7 +112,7 @@ class DiscoveryGasCaseVolumetricTotalsDuplicationServiceTest {
 
     whenGetAllProbabilityDistributionsForInstances(oldSubmissionDetail)
         .thenReturn(Collections.emptyList());
-    when(volumetricTotalsService.isGasCaseOnly(anyList()))
+    when(reservoirHydrocarbonCaseService.isGasCaseOnly(anyList()))
         .thenReturn(true);
 
     discoveryGasCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
@@ -155,7 +155,7 @@ class DiscoveryGasCaseVolumetricTotalsDuplicationServiceTest {
     when(reservoirSubmissionDetailPersistenceService
         .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail)
     ).thenReturn(reservoirSubmissionDetails);
-    when(volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails))
+    when(reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails))
         .thenReturn(false);
 
     discoveryGasCaseVolumetricTotalsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);

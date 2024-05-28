@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -19,23 +20,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 
 @ExtendWith(MockitoExtension.class)
-class VolumetricTotalsServiceTest {
+class ReservoirHydrocarbonCaseServiceTest {
   @Mock
   private GeneralReservoirInformationService generalReservoirInformationService;
   @Mock
   private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
   @InjectMocks
-  private VolumetricTotalsService volumetricTotalsService;
-
-  @Test
-  void isOilCaseOnly_providesReservoirSubmissionDetails_providesReservoirSubmissionDetails_allOilCase_thenTrue() {
-    var oilOnlyDetail1 = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.OIL_ONLY);
-    var oilOnlyDetail2 = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.OIL_ONLY);
-    var oilOnlyDetail3 = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.OIL_ONLY);
-
-    var reservoirSubmissionDetails = List.of(oilOnlyDetail1, oilOnlyDetail2, oilOnlyDetail3);
-    assertTrue(volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails));
-  }
+  private ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
 
   @Test
   void isOilCaseOnly_providesReservoirSubmissionDetails_allOilCase_thenTrue() {
@@ -44,7 +35,7 @@ class VolumetricTotalsServiceTest {
     var oilOnlyDetail3 = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.OIL_ONLY);
 
     var reservoirSubmissionDetails = List.of(oilOnlyDetail1, oilOnlyDetail2, oilOnlyDetail3);
-    assertTrue(volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails));
+    assertTrue(reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails));
   }
 
   @Test
@@ -54,7 +45,7 @@ class VolumetricTotalsServiceTest {
     var nonOilOnlyDetail = new ReservoirSubmissionDetail();
 
     var reservoirSubmissionDetails = List.of(oilOnlyDetail1, oilOnlyDetail2, nonOilOnlyDetail);
-    assertFalse(volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails));
+    assertFalse(reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails));
   }
 
   @Test
@@ -64,7 +55,7 @@ class VolumetricTotalsServiceTest {
     var gasOnlyDetail3 = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.GAS_ONLY);
 
     var reservoirSubmissionDetails = List.of(gasOnlyDetail1, gasOnlyDetail2, gasOnlyDetail3);
-    assertTrue(volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails));
+    assertTrue(reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails));
   }
 
   @Test
@@ -74,32 +65,18 @@ class VolumetricTotalsServiceTest {
     var nonGasCaseDetail = new ReservoirSubmissionDetail();
 
     var reservoirSubmissionDetails = List.of(gasOnlyDetail1, gasOnlyDetail2, nonGasCaseDetail);
-    assertFalse(volumetricTotalsService.isGasCaseOnly(reservoirSubmissionDetails));
+    assertFalse(reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails));
   }
 
   @Test
   void isCombinedCase_providesReservoirSubmissionDetailsoneCombinedCase_thenTrue() {
-    var combinedDetail = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+    var combinedDetail = createReservoirSubmissionDetailWithMockedHydrocarbonType(
+        HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
     var detail1 = new ReservoirSubmissionDetail();
     var detail2 = new ReservoirSubmissionDetail();
 
     var reservoirSubmissionDetails = List.of(combinedDetail, detail1, detail2);
-    assertTrue(volumetricTotalsService.isCombinedCase(reservoirSubmissionDetails));
-  }
-
-  @Test
-  void isOilCaseOnly_providesSubmissionDetail_providesSubmissionDetail_allOilCase_thenTrue() {
-    var oilOnlyDetail1 = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.OIL_ONLY);
-    var oilOnlyDetail2 = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.OIL_ONLY);
-    var oilOnlyDetail3 = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.OIL_ONLY);
-
-    var reservoirSubmissionDetails = List.of(oilOnlyDetail1, oilOnlyDetail2, oilOnlyDetail3);
-
-    var submissionDetail = mock(SubmissionDetail.class);
-    when(reservoirSubmissionDetailPersistenceService
-        .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
-        .thenReturn(reservoirSubmissionDetails);
-    assertTrue(volumetricTotalsService.isOilCaseOnly(submissionDetail));
+    assertTrue(reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails));
   }
 
   @Test
@@ -114,7 +91,7 @@ class VolumetricTotalsServiceTest {
     when(reservoirSubmissionDetailPersistenceService
         .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    assertTrue(volumetricTotalsService.isOilCaseOnly(submissionDetail));
+    assertTrue(reservoirHydrocarbonCaseService.isOilCaseOnly(submissionDetail));
   }
 
   @Test
@@ -129,7 +106,7 @@ class VolumetricTotalsServiceTest {
     when(reservoirSubmissionDetailPersistenceService
         .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    assertFalse(volumetricTotalsService.isOilCaseOnly(submissionDetail));
+    assertFalse(reservoirHydrocarbonCaseService.isOilCaseOnly(submissionDetail));
   }
 
   @Test
@@ -144,7 +121,7 @@ class VolumetricTotalsServiceTest {
     when(reservoirSubmissionDetailPersistenceService
         .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    assertTrue(volumetricTotalsService.isGasCaseOnly(submissionDetail));
+    assertTrue(reservoirHydrocarbonCaseService.isGasCaseOnly(submissionDetail));
   }
 
   @Test
@@ -159,12 +136,13 @@ class VolumetricTotalsServiceTest {
     when(reservoirSubmissionDetailPersistenceService
         .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    assertFalse(volumetricTotalsService.isGasCaseOnly(submissionDetail));
+    assertFalse(reservoirHydrocarbonCaseService.isGasCaseOnly(submissionDetail));
   }
 
   @Test
   void isCombinedCase_providesSubmissionDetail_oneCombinedCase_thenTrue() {
-    var combinedDetail = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+    var combinedDetail = createReservoirSubmissionDetailWithMockedHydrocarbonType(
+        HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
     var detail1 = new ReservoirSubmissionDetail();
     var detail2 = new ReservoirSubmissionDetail();
 
@@ -174,7 +152,7 @@ class VolumetricTotalsServiceTest {
     when(reservoirSubmissionDetailPersistenceService
         .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    assertTrue(volumetricTotalsService.isCombinedCase(submissionDetail));
+    assertTrue(reservoirHydrocarbonCaseService.isCombinedCase(submissionDetail));
   }
 
   private ReservoirSubmissionDetail createReservoirSubmissionDetailWithMockedHydrocarbonType(
@@ -194,5 +172,48 @@ class VolumetricTotalsServiceTest {
           .thenReturn(true);
     }
     return reservoirSubmissionDetail;
+  }
+
+  @Test
+  void getHydrocarbonsDiscovered_whenOilCaseOnly_returnsOilOnly() {
+    var oilOnlyDetail = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.OIL_ONLY);
+    var submissionDetail = mock(SubmissionDetail.class);
+
+    when(reservoirSubmissionDetailPersistenceService
+        .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(List.of(oilOnlyDetail));
+
+    assertThat(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(submissionDetail))
+        .isEqualTo(HydrocarbonsDiscovered.OIL_ONLY);
+  }
+
+  @Test
+  void getHydrocarbonsDiscovered_whenGasCaseOnly_returnsGasOnly() {
+    var gasOnlyDetail = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.GAS_ONLY);
+    var submissionDetail = mock(SubmissionDetail.class);
+
+    when(reservoirSubmissionDetailPersistenceService
+        .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(List.of(gasOnlyDetail));
+
+    assertThat(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(submissionDetail))
+        .isEqualTo(HydrocarbonsDiscovered.GAS_ONLY);
+  }
+
+  @Test
+  void getHydrocarbonsDiscovered_whenMixedCase_returnsOilAndGas() {
+    var mixedDetail = new ReservoirSubmissionDetail();
+    var submissionDetail = mock(SubmissionDetail.class);
+
+    when(reservoirSubmissionDetailPersistenceService
+        .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(List.of(mixedDetail));
+    when(generalReservoirInformationService.isGasOnly(mixedDetail))
+        .thenReturn(false);
+    when(generalReservoirInformationService.isOilOnly(mixedDetail))
+        .thenReturn(false);
+
+    assertThat(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(submissionDetail))
+        .isEqualTo(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
   }
 }

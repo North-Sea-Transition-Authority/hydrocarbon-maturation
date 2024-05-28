@@ -21,25 +21,27 @@ public class FieldOilCaseVolumetricTotalsSummaryService implements SummarySectio
   public static final int TOTAL_OIL_VOLUMETRICS_ORDER = 40;
 
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
-  private final VolumetricTotalsService volumetricTotalsService;
+  private final ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   @Autowired
   public FieldOilCaseVolumetricTotalsSummaryService(
       ProbabilityDistributionSummaryService probabilityDistributionSummaryService,
-      VolumetricTotalsService volumetricTotalsService,
+      ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService,
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
 
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
-    this.volumetricTotalsService = volumetricTotalsService;
+    this.reservoirHydrocarbonCaseService = reservoirHydrocarbonCaseService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
 
   @Override
   public Optional<SummarySection> getSummarySection(SubmissionDetail submissionDetail) {
     var reservoirSubmissionDetails =
-        reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
-    if (!submissionDetail.isFieldSubmission() || !volumetricTotalsService.isOilCaseOnly(reservoirSubmissionDetails)) {
+        reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
+            submissionDetail);
+    if (!submissionDetail.isFieldSubmission() || !reservoirHydrocarbonCaseService.isOilCaseOnly(
+        reservoirSubmissionDetails)) {
       return Optional.empty();
     }
     var summaryItems = List.of(getResourcesAndReservesSummary(submissionDetail));
@@ -65,7 +67,7 @@ public class FieldOilCaseVolumetricTotalsSummaryService implements SummarySectio
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD
-      )
+    )
     );
 
     if (!submissionDetail.isConceptSelectReportSubmission()) {
