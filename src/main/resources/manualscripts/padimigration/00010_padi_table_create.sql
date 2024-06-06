@@ -662,6 +662,18 @@ CREATE TABLE remi.padi_res_data_disc (
     depth_gas_oil_contact     NUMERIC
 );
 
+CREATE TABLE remi.padi_res_data_notes (
+    resdat_id                    INTEGER,
+    resource_id                  TEXT,
+    stage_id                     INTEGER,
+    key_evaluation_comment       TEXT,
+    key_work_comment             TEXT,
+    supplementary_information    TEXT,
+    additional_information       TEXT,
+    unconventional_opportunities TEXT,
+    illustrations                TEXT
+);
+
 CREATE TABLE remi.padi_operator_mapping (
     padi_name                        TEXT,
     choice_data                      INTEGER,

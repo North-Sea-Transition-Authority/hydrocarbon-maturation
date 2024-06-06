@@ -32,6 +32,10 @@ and the operators who have access to specific prospect and discovery data not cr
 - Convert end of line characters to UNIX using Notepad++
 - Replace &amp; with &
 - Replace &gt; with >, replace &lt; with <, replace &#039; and &#034; with single quote
+- Replace <ul><li>xxx</li><ul> with \n
+- Remove indents in res data notes using ctrl+a then shift+tab for as many indents as there are
+- Remove blank space in res data notes (edit > line operations > remove empty lines containing blank characters)
+- Remove Â characters in res data notes
 
 ## Considerations
 

@@ -9,11 +9,12 @@ BEGIN
         SELECT
             prdh.opportunity_type,
             prdh.opportunity_comment,
-            prdh.key_evaluation_comment,
-            prdh.key_work_comment,
+            regexp_replace(prdn.key_evaluation_comment, E'<[^>]+>', '', 'gi') key_evaluation_comm,
+            regexp_replace(prdn.key_work_comment, E'<[^>]+>', '', 'gi') key_work_comm,
             sd.id sd_id
         FROM remi.padi_res_data_header prdh
         JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdh.resdat_id
+        LEFT JOIN remi.padi_res_data_notes prdn ON prdn.resdat_id = prdh.resdat_id
     )
     LOOP
 
@@ -41,8 +42,8 @@ BEGIN
                 THEN opportunity_rec.opportunity_type -- Is it correct to migrate the other opportunity types as "Other"?
             END,
             opportunity_rec.opportunity_comment,
-            opportunity_rec.key_evaluation_comment,
-            opportunity_rec.key_work_comment
+            opportunity_rec.key_evaluation_comm,
+            opportunity_rec.key_work_comm
         );
 
     END LOOP;
