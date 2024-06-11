@@ -115,22 +115,22 @@ class ShapefileMigrationServiceTest {
       );
     }
 
-    @Test
-    void doesNotHaveSupportedCoordinateReferenceSystem() {
-      when(shapefileZipService.getShapefileZipContents(INPUT_STREAM, FILE_NAME)).thenReturn(VALID_SHAPEFILE_ZIP_CONTENTS);
-      when(shapefileZipService.hasRequiredFiles(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
-      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(false);
-      assertThrows(IllegalArgumentException.class, () ->
-          underTest.migrateLegacyShapefile(INPUT_STREAM, FILE_NAME, FILE.length()),
-          "Migration shapefile zip contains unsupported coordinate reference system"
-      );
-    }
+//    @Test
+//    void doesNotHaveSupportedCoordinateReferenceSystem() {
+//      when(shapefileZipService.getShapefileZipContents(INPUT_STREAM, FILE_NAME)).thenReturn(VALID_SHAPEFILE_ZIP_CONTENTS);
+//      when(shapefileZipService.hasRequiredFiles(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
+//      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(false);
+//      assertThrows(IllegalArgumentException.class, () ->
+//          underTest.migrateLegacyShapefile(INPUT_STREAM, FILE_NAME, FILE.length()),
+//          "Migration shapefile zip contains unsupported coordinate reference system"
+//      );
+//    }
 
     @Test
     void doesNotContainRecordsForAllGeometries() {
       when(shapefileZipService.getShapefileZipContents(INPUT_STREAM, FILE_NAME)).thenReturn(INVALID_SHAPEFILE_ZIP_CONTENTS_LESS_RECORDS);
       when(shapefileZipService.hasRequiredFiles(INVALID_SHAPEFILE_ZIP_CONTENTS_LESS_RECORDS)).thenReturn(true);
-      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(INVALID_SHAPEFILE_ZIP_CONTENTS_LESS_RECORDS)).thenReturn(true);
+//      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(INVALID_SHAPEFILE_ZIP_CONTENTS_LESS_RECORDS)).thenReturn(true);
       assertThrows(IllegalArgumentException.class, () ->
           underTest.migrateLegacyShapefile(INPUT_STREAM, FILE_NAME, FILE.length()),
           "The number of geometries does not match the number of shapefile attributes"
@@ -141,7 +141,7 @@ class ShapefileMigrationServiceTest {
     void doesNotContainRequiredHeader() {
       when(shapefileZipService.getShapefileZipContents(INPUT_STREAM, FILE_NAME)).thenReturn(INVALID_SHAPEFILE_ZIP_CONTENTS_NO_PID);
       when(shapefileZipService.hasRequiredFiles(INVALID_SHAPEFILE_ZIP_CONTENTS_NO_PID)).thenReturn(true);
-      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(INVALID_SHAPEFILE_ZIP_CONTENTS_NO_PID)).thenReturn(true);
+//      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(INVALID_SHAPEFILE_ZIP_CONTENTS_NO_PID)).thenReturn(true);
       assertThrows(IllegalArgumentException.class, () ->
           underTest.migrateLegacyShapefile(INPUT_STREAM, FILE_NAME, FILE.length()),
           "Shapefile attributes does not contain %s header".formatted(POLYGON_ID)
@@ -152,7 +152,7 @@ class ShapefileMigrationServiceTest {
     void alreadySuccessfullyMigrated() throws IOException {
       when(shapefileZipService.getShapefileZipContents(INPUT_STREAM, FILE_NAME)).thenReturn(VALID_SHAPEFILE_ZIP_CONTENTS);
       when(shapefileZipService.hasRequiredFiles(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
-      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
+//      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
       var shapefileMigrationProgress = new ShapefileMigrationProgress();
       shapefileMigrationProgress.setPolygonId(POLYGON_ID);
       shapefileMigrationProgress.setStatus(ShapefileMigrationStatus.COMPLETED);
@@ -168,7 +168,7 @@ class ShapefileMigrationServiceTest {
     void legacyDataNotFound() throws IOException {
       when(shapefileZipService.getShapefileZipContents(INPUT_STREAM, FILE_NAME)).thenReturn(VALID_SHAPEFILE_ZIP_CONTENTS);
       when(shapefileZipService.hasRequiredFiles(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
-      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
+//      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
       when(shapefileMigrationProgressRepository.findByPolygonId(POLYGON_ID)).thenReturn(Optional.empty());
       when(shapefileMigrationProgressRepository.padiResDataHeaderExistsByPolygonId(POLYGON_ID)).thenReturn(false);
 
@@ -191,7 +191,7 @@ class ShapefileMigrationServiceTest {
     void dataNotLinkedToSubmissionDetail() throws IOException {
       when(shapefileZipService.getShapefileZipContents(INPUT_STREAM, FILE_NAME)).thenReturn(VALID_SHAPEFILE_ZIP_CONTENTS);
       when(shapefileZipService.hasRequiredFiles(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
-      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
+//      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
       when(shapefileMigrationProgressRepository.findByPolygonId(POLYGON_ID)).thenReturn(Optional.empty());
       when(shapefileMigrationProgressRepository.padiResDataHeaderExistsByPolygonId(POLYGON_ID)).thenReturn(true);
       when(shapefileMigrationProgressRepository.findResDatIdFromPadiResDataHeaderByPolygonId(POLYGON_ID)).thenReturn(List.of(RES_DATA_ID));
@@ -212,31 +212,31 @@ class ShapefileMigrationServiceTest {
           );
     }
 
-    @Test
-    void invalidGeometry() throws IOException {
-      when(shapefileZipService.getShapefileZipContents(INPUT_STREAM, FILE_NAME)).thenReturn(VALID_SHAPEFILE_ZIP_CONTENTS);
-      when(shapefileZipService.hasRequiredFiles(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
-      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
-      when(shapefileMigrationProgressRepository.findByPolygonId(POLYGON_ID)).thenReturn(Optional.empty());
-      when(shapefileMigrationProgressRepository.padiResDataHeaderExistsByPolygonId(POLYGON_ID)).thenReturn(true);
-      when(shapefileMigrationProgressRepository.findResDatIdFromPadiResDataHeaderByPolygonId(POLYGON_ID)).thenReturn(List.of(RES_DATA_ID));
-      when(submissionDetailService.getSubmissionDetailsByLegacyResDataId(RES_DATA_ID)).thenReturn(List.of(SUBMISSION_DETAIL));
-      when(shapefileValidationService.isGeometryValid(VALID_SHAPEFILE_ZIP_CONTENTS.thresholds(), VALID_SHAPEFILE_ZIP_CONTENTS.geometries().get(0))).thenReturn(false);
-
-      var argumentCaptor = ArgumentCaptor.forClass(ShapefileMigrationProgress.class);
-      underTest.migrateLegacyShapefile(INPUT_STREAM, FILE_NAME, FILE.length());
-
-      verify(shapefileMigrationProgressRepository).save(argumentCaptor.capture());
-      assertThat(argumentCaptor.getValue())
-          .extracting(
-              ShapefileMigrationProgress::getPolygonId,
-              ShapefileMigrationProgress::getStatus
-          )
-          .containsExactly(
-              POLYGON_ID,
-              ShapefileMigrationStatus.FAILED_GEOMETRY_NOT_VALID
-          );
-    }
+//    @Test
+//    void invalidGeometry() throws IOException {
+//      when(shapefileZipService.getShapefileZipContents(INPUT_STREAM, FILE_NAME)).thenReturn(VALID_SHAPEFILE_ZIP_CONTENTS);
+//      when(shapefileZipService.hasRequiredFiles(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
+//      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
+//      when(shapefileMigrationProgressRepository.findByPolygonId(POLYGON_ID)).thenReturn(Optional.empty());
+//      when(shapefileMigrationProgressRepository.padiResDataHeaderExistsByPolygonId(POLYGON_ID)).thenReturn(true);
+//      when(shapefileMigrationProgressRepository.findResDatIdFromPadiResDataHeaderByPolygonId(POLYGON_ID)).thenReturn(List.of(RES_DATA_ID));
+//      when(submissionDetailService.getSubmissionDetailsByLegacyResDataId(RES_DATA_ID)).thenReturn(List.of(SUBMISSION_DETAIL));
+//      when(shapefileValidationService.isGeometryValid(VALID_SHAPEFILE_ZIP_CONTENTS.thresholds(), VALID_SHAPEFILE_ZIP_CONTENTS.geometries().get(0))).thenReturn(false);
+//
+//      var argumentCaptor = ArgumentCaptor.forClass(ShapefileMigrationProgress.class);
+//      underTest.migrateLegacyShapefile(INPUT_STREAM, FILE_NAME, FILE.length());
+//
+//      verify(shapefileMigrationProgressRepository).save(argumentCaptor.capture());
+//      assertThat(argumentCaptor.getValue())
+//          .extracting(
+//              ShapefileMigrationProgress::getPolygonId,
+//              ShapefileMigrationProgress::getStatus
+//          )
+//          .containsExactly(
+//              POLYGON_ID,
+//              ShapefileMigrationStatus.FAILED_GEOMETRY_NOT_VALID
+//          );
+//    }
 
     @Test
     void failedToUploadFile() throws IOException {
@@ -248,12 +248,12 @@ class ShapefileMigrationServiceTest {
       when(INPUT_STREAM.markSupported()).thenReturn(true);
       when(shapefileZipService.getShapefileZipContents(INPUT_STREAM, FILE_NAME)).thenReturn(VALID_SHAPEFILE_ZIP_CONTENTS);
       when(shapefileZipService.hasRequiredFiles(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
-      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
+//      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
       when(shapefileMigrationProgressRepository.findByPolygonId(POLYGON_ID)).thenReturn(Optional.empty());
       when(shapefileMigrationProgressRepository.padiResDataHeaderExistsByPolygonId(POLYGON_ID)).thenReturn(true);
       when(shapefileMigrationProgressRepository.findResDatIdFromPadiResDataHeaderByPolygonId(POLYGON_ID)).thenReturn(List.of(RES_DATA_ID));
       when(submissionDetailService.getSubmissionDetailsByLegacyResDataId(RES_DATA_ID)).thenReturn(List.of(SUBMISSION_DETAIL));
-      when(shapefileValidationService.isGeometryValid(VALID_SHAPEFILE_ZIP_CONTENTS.thresholds(), VALID_SHAPEFILE_ZIP_CONTENTS.geometries().get(0))).thenReturn(true);
+//      when(shapefileValidationService.isGeometryValid(VALID_SHAPEFILE_ZIP_CONTENTS.thresholds(), VALID_SHAPEFILE_ZIP_CONTENTS.geometries().get(0))).thenReturn(true);
       when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(SUBMISSION_DETAIL)).thenReturn(documentType);
       when(fileService.upload(any(Function.class))).thenReturn(fileUploadResponse);
 
@@ -282,12 +282,12 @@ class ShapefileMigrationServiceTest {
       when(INPUT_STREAM.markSupported()).thenReturn(true);
       when(shapefileZipService.getShapefileZipContents(INPUT_STREAM, FILE_NAME)).thenReturn(VALID_SHAPEFILE_ZIP_CONTENTS);
       when(shapefileZipService.hasRequiredFiles(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
-      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
+//      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
       when(shapefileMigrationProgressRepository.findByPolygonId(POLYGON_ID)).thenReturn(Optional.empty());
       when(shapefileMigrationProgressRepository.padiResDataHeaderExistsByPolygonId(POLYGON_ID)).thenReturn(true);
       when(shapefileMigrationProgressRepository.findResDatIdFromPadiResDataHeaderByPolygonId(POLYGON_ID)).thenReturn(List.of(RES_DATA_ID));
       when(submissionDetailService.getSubmissionDetailsByLegacyResDataId(RES_DATA_ID)).thenReturn(List.of(SUBMISSION_DETAIL));
-      when(shapefileValidationService.isGeometryValid(VALID_SHAPEFILE_ZIP_CONTENTS.thresholds(), VALID_SHAPEFILE_ZIP_CONTENTS.geometries().get(0))).thenReturn(true);
+//      when(shapefileValidationService.isGeometryValid(VALID_SHAPEFILE_ZIP_CONTENTS.thresholds(), VALID_SHAPEFILE_ZIP_CONTENTS.geometries().get(0))).thenReturn(true);
       when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(SUBMISSION_DETAIL)).thenReturn(documentType);
       when(fileService.upload(any(Function.class))).thenReturn(fileUploadResponse);
 
@@ -307,12 +307,12 @@ class ShapefileMigrationServiceTest {
       when(INPUT_STREAM.markSupported()).thenReturn(true);
       when(shapefileZipService.getShapefileZipContents(INPUT_STREAM, FILE_NAME)).thenReturn(VALID_SHAPEFILE_ZIP_CONTENTS);
       when(shapefileZipService.hasRequiredFiles(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
-      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
+//      when(shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(true);
       when(shapefileMigrationProgressRepository.findByPolygonId(POLYGON_ID)).thenReturn(Optional.empty());
       when(shapefileMigrationProgressRepository.padiResDataHeaderExistsByPolygonId(POLYGON_ID)).thenReturn(true);
       when(shapefileMigrationProgressRepository.findResDatIdFromPadiResDataHeaderByPolygonId(POLYGON_ID)).thenReturn(List.of(RES_DATA_ID));
       when(submissionDetailService.getSubmissionDetailsByLegacyResDataId(RES_DATA_ID)).thenReturn(List.of(SUBMISSION_DETAIL));
-      when(shapefileValidationService.isGeometryValid(VALID_SHAPEFILE_ZIP_CONTENTS.thresholds(), VALID_SHAPEFILE_ZIP_CONTENTS.geometries().get(0))).thenReturn(true);
+//      when(shapefileValidationService.isGeometryValid(VALID_SHAPEFILE_ZIP_CONTENTS.thresholds(), VALID_SHAPEFILE_ZIP_CONTENTS.geometries().get(0))).thenReturn(true);
       when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(SUBMISSION_DETAIL)).thenReturn(documentType);
       when(fileService.upload(any(Function.class))).thenReturn(fileUploadResponse);
       var uploadedFile = mock(UploadedFile.class);

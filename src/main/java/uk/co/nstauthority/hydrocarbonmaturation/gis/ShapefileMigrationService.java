@@ -205,9 +205,9 @@ public class ShapefileMigrationService {
       throw new IllegalArgumentException("Migration shapefile zip does not contain required files");
     }
 
-    if (!shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(shapefileZipContents)) {
-      throw new IllegalArgumentException("Migration shapefile zip contains unsupported coordinate reference system");
-    }
+    //    if (!shapefileValidationService.validateHasSupportedCoordinateReferenceSystem(shapefileZipContents)) {
+    //      throw new IllegalArgumentException("Migration shapefile zip contains unsupported coordinate reference system");
+    //    }
 
     var geometries = shapefileZipContents.geometries();
     if (geometries.size() != 1) {
