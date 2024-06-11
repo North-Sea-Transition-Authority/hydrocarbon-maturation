@@ -106,7 +106,7 @@ public class ShapefileMigrationService {
 
     var polygonIdIndex = shapefileZipContents.attributes().getHeaderIndexOrThrow(PID);
 
-    var geometry = shapefileZipContents.geometries().get(0);
+    //    var geometry = shapefileZipContents.geometries().get(0);
     var shapefileAttributeRow = shapefileZipContents.attributes().rows().get(0);
     var polygonId = shapefileAttributeRow.get(polygonIdIndex);
 
@@ -137,15 +137,15 @@ public class ShapefileMigrationService {
       return;
     }
 
-    var geometryIsValid = shapefileValidationService.isGeometryValid(shapefileZipContents.thresholds(), geometry);
-    if (!geometryIsValid) {
-      var invalidReason = shapefileValidationService.getGeometryInvalidReason(shapefileZipContents.thresholds(), geometry);
-      migrationProgress.setInvalidGeometryReason(invalidReason);
-      setProgressStatusAndSave(migrationProgress, ShapefileMigrationStatus.FAILED_GEOMETRY_NOT_VALID);
-
-      LOGGER.info("Shapefile geometry not valid for polygon {} with reason {}", polygonId, invalidReason);
-      return;
-    }
+    //    var geometryIsValid = shapefileValidationService.isGeometryValid(shapefileZipContents.thresholds(), geometry);
+    //    if (!geometryIsValid) {
+    //      var invalidReason = shapefileValidationService.getGeometryInvalidReason(shapefileZipContents.thresholds(), geometry);
+    //      migrationProgress.setInvalidGeometryReason(invalidReason);
+    //      setProgressStatusAndSave(migrationProgress, ShapefileMigrationStatus.FAILED_GEOMETRY_NOT_VALID);
+    //
+    //      LOGGER.info("Shapefile geometry not valid for polygon {} with reason {}", polygonId, invalidReason);
+    //      return;
+    //    }
 
     rewindShapefileInputStream(shapefileZipInputStream, fileName);
 
