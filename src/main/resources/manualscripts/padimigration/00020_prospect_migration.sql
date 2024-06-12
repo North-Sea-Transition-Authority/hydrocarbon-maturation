@@ -18,6 +18,7 @@ BEGIN
         LEFT JOIN remi.padi_operator_mapping pom ON LOWER(pom.padi_name) = LOWER(prdh.company)
         WHERE prdh.opportunity_type != 'Discovery'
         AND prdh.stage_name != 'PARs'
+        GROUP BY prdh.resdat_id, prdh.resource_id, pom.agreed_match
     )
     LOOP
 

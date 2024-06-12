@@ -98,6 +98,11 @@ public class OutlineForMaximumCasePersistenceService {
     storeShapefilesAsGeojson(submissionDetail, user, documentType);
   }
 
+  @Transactional
+  public void saveOutlineForMaximumCase(OutlineForMaximumCase outlineForMaximumCase) {
+    outlineForMaximumCaseRepository.save(outlineForMaximumCase);
+  }
+
   private void storeShapefilesAsGeojson(SubmissionDetail submissionDetail, User user, FileDocumentType documentType) {
     supportingDocumentService.getUploadedFiles(submissionDetail, documentType)
         .forEach(uploadedFile -> {

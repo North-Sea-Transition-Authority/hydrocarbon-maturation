@@ -22,6 +22,12 @@ BEGIN
         WHERE prdh.opportunity_type = 'Discovery'
         AND prdh.stage_name != 'Relinquishment'
         AND prdh.stage_name != 'PARs'
+        GROUP BY
+            prdh.resdat_id,
+            prdh.resource_id,
+            pom.agreed_match,
+            COALESCE(pmrd.resource_stage_name, prdh.name_alternative),
+            CASE WHEN pmrd.resdat_id IS NOT NULL THEN true ELSE false END
     )
     LOOP
 

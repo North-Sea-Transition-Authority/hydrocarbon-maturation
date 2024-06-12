@@ -26,7 +26,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.s3.ListS3FilesResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.RemiS3FileService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCase;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseDocumentTypeService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCasePersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 
 @Service
 public class ShapefileMigrationService {
@@ -43,6 +46,8 @@ public class ShapefileMigrationService {
   private final FileUploadProperties fileUploadProperties;
   private final OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
   private final GeoJsonShapefileLinkService geoJsonShapefileLinkService;
+  private final OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
+  private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
   @Autowired
   public ShapefileMigrationService(ShapefileValidationService shapefileValidationService,
@@ -53,7 +58,9 @@ public class ShapefileMigrationService {
                                    FileService fileService,
                                    FileUploadProperties fileUploadProperties,
                                    OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService,
-                                   GeoJsonShapefileLinkService geoJsonShapefileLinkService) {
+                                   GeoJsonShapefileLinkService geoJsonShapefileLinkService,
+                                   OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService,
+                                   ResourceDetailsPersistenceService resourceDetailsPersistenceService) {
     this.shapefileValidationService = shapefileValidationService;
     this.shapefileZipService = shapefileZipService;
     this.shapefileMigrationProgressRepository = shapefileMigrationProgressRepository;
@@ -63,6 +70,8 @@ public class ShapefileMigrationService {
     this.fileUploadProperties = fileUploadProperties;
     this.outlineForMaximumCaseDocumentTypeService = outlineForMaximumCaseDocumentTypeService;
     this.geoJsonShapefileLinkService = geoJsonShapefileLinkService;
+    this.outlineForMaximumCasePersistenceService = outlineForMaximumCasePersistenceService;
+    this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
   }
 
   @VisibleForTesting
@@ -173,7 +182,16 @@ public class ShapefileMigrationService {
 
       var uploadedFile = fileService.find(fileUploadResponse.getFileId()).orElseThrow(() ->
           new IllegalStateException("Uploaded file not found for submission detail %s".formatted(submissionDetail.getId())));
+      resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail)
+          .ifPresent(detail -> uploadedFile.setDescription("Outline for maximum case for %s".formatted(detail.getResourceName())
+          ));
+
       geoJsonShapefileLinkService.storeShapefileAsGeoJson(uploadedFile, shapefileZipContents);
+
+      var outlineForMaximumCase = new OutlineForMaximumCase();
+      outlineForMaximumCase.setSubmissionDetail(submissionDetail);
+      outlineForMaximumCase.setHasVerifiedShapefile(true);
+      outlineForMaximumCasePersistenceService.saveOutlineForMaximumCase(outlineForMaximumCase);
     }
 
     setProgressStatusAndSave(migrationProgress, ShapefileMigrationStatus.COMPLETED);

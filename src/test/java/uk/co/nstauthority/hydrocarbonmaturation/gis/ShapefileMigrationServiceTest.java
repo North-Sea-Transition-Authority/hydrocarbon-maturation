@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.gis;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -41,7 +42,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.s3.RemiS3FileService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3File;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCase;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseDocumentTypeService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCasePersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 
 @ExtendWith(MockitoExtension.class)
 class ShapefileMigrationServiceTest {
@@ -63,6 +68,10 @@ class ShapefileMigrationServiceTest {
   private OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
   @Mock
   private GeoJsonShapefileLinkService geoJsonShapefileLinkService;
+  @Mock
+  private OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
+  @Mock
+  private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   @InjectMocks
   private ShapefileMigrationService underTest;
 
@@ -80,6 +89,7 @@ class ShapefileMigrationServiceTest {
     private static final ShapefileZipContents INVALID_SHAPEFILE_ZIP_CONTENTS_NO_PID = getShapefileZipContents(List.of(mock(Geometry.class)),
         List.of("circle"), List.of(POLYGON_ID)
     );
+    private static final String RESOURCE_NAME = "res name";
     private final int RES_DATA_ID = 1;
     private final String FILE_NAME = "FILE_NAME";
     private final long FILE_SIZE = 62;
@@ -315,14 +325,24 @@ class ShapefileMigrationServiceTest {
 //      when(shapefileValidationService.isGeometryValid(VALID_SHAPEFILE_ZIP_CONTENTS.thresholds(), VALID_SHAPEFILE_ZIP_CONTENTS.geometries().get(0))).thenReturn(true);
       when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(SUBMISSION_DETAIL)).thenReturn(documentType);
       when(fileService.upload(any(Function.class))).thenReturn(fileUploadResponse);
-      var uploadedFile = mock(UploadedFile.class);
+      var uploadedFile = new UploadedFile();
       when(fileService.find(fileId)).thenReturn(Optional.of(uploadedFile));
+      var resourceDetail = new ResourceDetail();
+      resourceDetail.setResourceName(RESOURCE_NAME);
+      when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(SUBMISSION_DETAIL))
+          .thenReturn(Optional.of(resourceDetail));
 
       var argumentCaptor = ArgumentCaptor.forClass(ShapefileMigrationProgress.class);
+      var maxCaseArgumentCaptor = ArgumentCaptor.forClass(OutlineForMaximumCase.class);
       underTest.migrateLegacyShapefile(INPUT_STREAM, FILE_NAME, FILE.length());
 
+      assertEquals(
+          uploadedFile.getDescription(),
+          "Outline for maximum case for %s".formatted(resourceDetail.getResourceName())
+      );
       verify(shapefileMigrationProgressRepository).save(argumentCaptor.capture());
       verify(geoJsonShapefileLinkService).storeShapefileAsGeoJson(uploadedFile, VALID_SHAPEFILE_ZIP_CONTENTS);
+      verify(outlineForMaximumCasePersistenceService).saveOutlineForMaximumCase(maxCaseArgumentCaptor.capture());
       assertThat(argumentCaptor.getValue())
           .extracting(
               ShapefileMigrationProgress::getPolygonId,
@@ -331,6 +351,15 @@ class ShapefileMigrationServiceTest {
           .containsExactly(
               POLYGON_ID,
               ShapefileMigrationStatus.COMPLETED
+          );
+      assertThat(maxCaseArgumentCaptor.getValue())
+          .extracting(
+              OutlineForMaximumCase::getSubmissionDetail,
+              OutlineForMaximumCase::getHasVerifiedShapefile
+          )
+          .containsExactly(
+              SUBMISSION_DETAIL,
+              true
           );
     }
   }
