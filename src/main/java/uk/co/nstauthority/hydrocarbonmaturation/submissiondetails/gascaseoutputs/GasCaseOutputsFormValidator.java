@@ -25,7 +25,7 @@ class GasCaseOutputsFormValidator implements SubmissionValidator {
           gasInPlace,
           errors,
           "gasInPlace",
-          "Gas in place",
+          "Gas initially in place",
           ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT
       );
 
@@ -63,7 +63,7 @@ class GasCaseOutputsFormValidator implements SubmissionValidator {
           gasInPlace,
           errors,
           "gasInPlace",
-          "Gas in place",
+          "Gas initially in place",
           ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY
       );
 
@@ -109,7 +109,7 @@ class GasCaseOutputsFormValidator implements SubmissionValidator {
           gasInPlace,
           errors,
           "gasInPlace",
-          "Gas in place",
+          "Gas initially in place",
           ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT
       );
 
@@ -153,7 +153,7 @@ class GasCaseOutputsFormValidator implements SubmissionValidator {
           gasInPlace,
           errors,
           "gasInPlace",
-          "Gas in place",
+          "Gas initially in place",
           ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY
       );
 

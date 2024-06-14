@@ -23,7 +23,7 @@ class ProspectMixedCaseOutputsFormValidator implements SubmissionValidator {
         oilInPlace,
         errors,
         "oilInPlace",
-        "Oil in place",
+        "Oil initially in place",
         ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT
     );
 
@@ -52,7 +52,7 @@ class ProspectMixedCaseOutputsFormValidator implements SubmissionValidator {
         gasInPlace,
         errors,
         "gasInPlace",
-        "Gas in place",
+        "Gas initially in place",
         ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_PROSPECT
     );
 
@@ -104,7 +104,7 @@ class ProspectMixedCaseOutputsFormValidator implements SubmissionValidator {
         oilInPlace,
         errors,
         "oilInPlace",
-        "Oil in place",
+        "Oil initially in place",
         ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT
     );
 
@@ -140,7 +140,7 @@ class ProspectMixedCaseOutputsFormValidator implements SubmissionValidator {
         gasInPlace,
         errors,
         "gasInPlace",
-        "Gas in place",
+        "Gas initially in place",
         ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_PROSPECT
     );
 

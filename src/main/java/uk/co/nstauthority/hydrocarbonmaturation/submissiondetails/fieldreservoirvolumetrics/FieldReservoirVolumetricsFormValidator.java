@@ -31,7 +31,7 @@ public class FieldReservoirVolumetricsFormValidator implements ReservoirSubmissi
           oilInPlace,
           errors,
           "oilInPlace",
-          "Oil in place",
+          "Oil initially in place",
           ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD
       );
     }
@@ -43,7 +43,7 @@ public class FieldReservoirVolumetricsFormValidator implements ReservoirSubmissi
           gasInPlace,
           errors,
           "gasInPlace",
-          "Gas in place",
+          "Gas initially in place",
           ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
       );
     }
@@ -62,7 +62,7 @@ public class FieldReservoirVolumetricsFormValidator implements ReservoirSubmissi
           oilInPlace,
           errors,
           "oilInPlace",
-          "Oil in place",
+          "Oil initially in place",
           ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD
       );
     }
@@ -74,7 +74,7 @@ public class FieldReservoirVolumetricsFormValidator implements ReservoirSubmissi
           gasInPlace,
           errors,
           "gasInPlace",
-          "Gas in place",
+          "Gas initially in place",
           ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
       );
     }

@@ -12,7 +12,7 @@ breadcrumbsMap=breadcrumbsMap>
         <#if hydrocarbonType == "OIL_ONLY" || hydrocarbonType == "MIXED_OIL_AND_GAS">
             <@probabilityDistribution.probabilityDistributionSingularTemplate
             probabilityDistributionPath="form.oilInPlace"
-            labelText="Oil in place"
+            labelText="Oil initially in place"
             template=oilInPlaceTemplate
             error=oilInPlaceError/>
         </#if>
@@ -20,7 +20,7 @@ breadcrumbsMap=breadcrumbsMap>
         <#if hydrocarbonType == "GAS_ONLY" || hydrocarbonType == "MIXED_OIL_AND_GAS">
             <@probabilityDistribution.probabilityDistributionSingularTemplate
             probabilityDistributionPath="form.gasInPlace"
-            labelText="Gas in place"
+            labelText="Gas initially in place"
             template=gasInPlaceTemplate
             error=gasInPlaceError/>
         </#if>

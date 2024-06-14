@@ -10,10 +10,10 @@ public record DiscoveryCombinedCaseVolTotalsSummaryView(
     return new DiscoveryCombinedCaseVolTotalsSummaryView(
         "",
         List.of(
-            ProbabilityDistributionSummaryView.empty("Oil in place"),
+            ProbabilityDistributionSummaryView.empty("Oil initially in place"),
             ProbabilityDistributionSummaryView.empty("Oil recoverable resources"),
             ProbabilityDistributionSummaryView.empty("Associated gas recoverable resources"),
-            ProbabilityDistributionSummaryView.empty("Gas in place"),
+            ProbabilityDistributionSummaryView.empty("Gas initially in place"),
             ProbabilityDistributionSummaryView.empty("Gas recoverable resources"),
             ProbabilityDistributionSummaryView.empty("Associated condensate recoverable resources"),
             ProbabilityDistributionSummaryView.empty("Oil equivalent recoverable resources")

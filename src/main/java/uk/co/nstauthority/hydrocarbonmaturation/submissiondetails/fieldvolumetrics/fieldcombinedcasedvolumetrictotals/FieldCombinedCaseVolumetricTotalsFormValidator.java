@@ -21,7 +21,7 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
         oilInPlace,
         errors,
         "oilInPlace",
-        "Oil in place",
+        "Oil initially in place",
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD
     );
 
@@ -30,7 +30,7 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
         gasInPlace,
         errors,
         "gasInPlace",
-        "Gas in place",
+        "Gas initially in place",
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
     );
 
@@ -49,7 +49,7 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
         oilInPlace,
         errors,
         "oilInPlace",
-        "Oil in place",
+        "Oil initially in place",
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD
     );
 
@@ -58,7 +58,7 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
         gasInPlace,
         errors,
         "gasInPlace",
-        "Gas in place",
+        "Gas initially in place",
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
     );
 

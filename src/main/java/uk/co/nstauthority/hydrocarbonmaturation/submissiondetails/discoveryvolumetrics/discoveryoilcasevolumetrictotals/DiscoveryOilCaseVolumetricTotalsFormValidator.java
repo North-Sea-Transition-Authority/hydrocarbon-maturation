@@ -21,7 +21,7 @@ public class DiscoveryOilCaseVolumetricTotalsFormValidator implements Submission
         oilInPlace,
         errors,
         "oilInPlace",
-        "Oil in place",
+        "Oil initially in place",
         ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY
     );
 
@@ -62,7 +62,7 @@ public class DiscoveryOilCaseVolumetricTotalsFormValidator implements Submission
         oilInPlace,
         errors,
         "oilInPlace",
-        "Oil in place",
+        "Oil initially in place",
         ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY
     );
 

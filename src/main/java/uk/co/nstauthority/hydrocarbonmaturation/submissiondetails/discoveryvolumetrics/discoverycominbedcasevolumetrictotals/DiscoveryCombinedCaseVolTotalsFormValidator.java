@@ -23,7 +23,7 @@ public class DiscoveryCombinedCaseVolTotalsFormValidator implements SubmissionVa
         oilInPlace,
         errors,
         "oilInPlace",
-        "Oil in place",
+        "Oil initially in place",
         ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY
     );
 
@@ -50,7 +50,7 @@ public class DiscoveryCombinedCaseVolTotalsFormValidator implements SubmissionVa
         gasInPlace,
         errors,
         "gasInPlace",
-        "Gas in place",
+        "Gas initially in place",
         ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY
     );
 
@@ -93,7 +93,7 @@ public class DiscoveryCombinedCaseVolTotalsFormValidator implements SubmissionVa
         oilInPlace,
         errors,
         "oilInPlace",
-        "Oil in place",
+        "Oil initially in place",
         ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY
     );
 
@@ -120,7 +120,7 @@ public class DiscoveryCombinedCaseVolTotalsFormValidator implements SubmissionVa
         gasInPlace,
         errors,
         "gasInPlace",
-        "Gas in place",
+        "Gas initially in place",
         ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY
     );
 

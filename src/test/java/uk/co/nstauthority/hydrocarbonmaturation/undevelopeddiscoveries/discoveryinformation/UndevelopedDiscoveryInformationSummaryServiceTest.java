@@ -146,9 +146,9 @@ class UndevelopedDiscoveryInformationSummaryServiceTest {
   private SummaryCrossTabView getExpectedVolumetricData() {
     var expectedVolumetricData = new SummaryCrossTabView(
         UndevelopedDiscoveryInformationSummaryService.CROSS_TAB_HEADINGS);
-    expectedVolumetricData.addRow("Oil in place", "1", null, null, null, "mmbbl");
+    expectedVolumetricData.addRow("Oil initially in place", "1", null, null, null, "mmbbl");
     expectedVolumetricData.addRow("Oil recoverable resources", null, "1", "1", "1", "mmbbl");
-    expectedVolumetricData.addRow("Gas in place", "1", null, null, null, "bcf");
+    expectedVolumetricData.addRow("Gas initially in place", "1", null, null, null, "bcf");
     expectedVolumetricData.addRow("Gas recoverable resources", null, "1", "1", "1", "bcf");
     return expectedVolumetricData;
   }

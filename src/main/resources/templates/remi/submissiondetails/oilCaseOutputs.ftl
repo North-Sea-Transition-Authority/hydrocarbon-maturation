@@ -25,7 +25,7 @@ breadcrumbsMap=breadcrumbsMap>
     <@fdsForm.htmlForm>
         <@probabilityDistribution.probabilityDistributionSingularTemplate
         probabilityDistributionPath="form.oilInPlace"
-        labelText="Oil in place"
+        labelText="Oil initially in place"
         template=oilInPlaceTemplate
         error=oilInPlaceError/>
 

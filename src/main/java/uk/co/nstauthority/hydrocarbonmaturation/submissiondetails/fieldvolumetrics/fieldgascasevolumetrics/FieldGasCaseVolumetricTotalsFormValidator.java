@@ -21,7 +21,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         gasInPlace,
         errors,
         "gasInPlace",
-        "Gas in place",
+        "Gas initially in place",
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
     );
 
@@ -40,7 +40,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         gasInPlace,
         errors,
         "gasInPlace",
-        "Gas in place",
+        "Gas initially in place",
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
     );
 

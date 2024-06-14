@@ -2,7 +2,7 @@
 
 <#macro inPlaceVolumetric path hydrocarbon units>
   <@fdsFieldset.fieldset
-    legendHeading=hydrocarbon + " in place (" + units + ")"
+    legendHeading=hydrocarbon + " initially in place (" + units + ")"
     legendHeadingSize="h2"
     legendHeadingClass="govuk-fieldset__legend--s">
     <@fdsTextInput.textInput

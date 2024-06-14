@@ -203,7 +203,7 @@ class OilCaseOutputsSummaryServiceTest {
             OilCaseOutputsSummaryView::probabilityDistributionSummaryViews)
         .containsExactly(
             "",
-            List.of(ProbabilityDistributionSummaryView.empty("Oil in place"),
+            List.of(ProbabilityDistributionSummaryView.empty("Oil initially in place"),
                 ProbabilityDistributionSummaryView.empty("Oil recoverable resources"),
                 ProbabilityDistributionSummaryView.empty("Associated gas recoverable resources"),
                 ProbabilityDistributionSummaryView.empty("Oil equivalent recoverable resources"),

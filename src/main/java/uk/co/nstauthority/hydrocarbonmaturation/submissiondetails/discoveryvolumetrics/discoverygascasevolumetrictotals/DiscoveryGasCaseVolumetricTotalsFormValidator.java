@@ -22,7 +22,7 @@ public class DiscoveryGasCaseVolumetricTotalsFormValidator implements Submission
         gasInPlace,
         errors,
         "gasInPlace",
-        "Gas in place",
+        "Gas initially in place",
         ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY
     );
 
@@ -65,7 +65,7 @@ public class DiscoveryGasCaseVolumetricTotalsFormValidator implements Submission
         gasInPlace,
         errors,
         "gasInPlace",
-        "Gas in place",
+        "Gas initially in place",
         ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY
     );
 

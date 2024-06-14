@@ -39,7 +39,7 @@ class UndevelopedDiscoveryInformationFormValidator {
     DecimalInputValidator.configureValidator(
             errors,
             "volumetricsForm.oilInPlace.decimalInputValue",
-            "Oil in place",
+            "Oil initially in place",
             form.getOilInPlace())
         .setMaxDecimalPlaces(2)
         .setMinValue(BigDecimal.ZERO)
@@ -48,7 +48,7 @@ class UndevelopedDiscoveryInformationFormValidator {
     DecimalInputValidator.configureValidator(
             errors,
             "volumetricsForm.gasInPlace.decimalInputValue",
-            "Gas in place",
+            "Gas initially in place",
             form.getGasInPlace())
         .setMaxDecimalPlaces(2)
         .setMinValue(BigDecimal.ZERO)

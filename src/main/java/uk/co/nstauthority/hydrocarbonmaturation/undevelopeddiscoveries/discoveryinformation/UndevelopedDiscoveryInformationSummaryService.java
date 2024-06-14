@@ -124,7 +124,7 @@ public class UndevelopedDiscoveryInformationSummaryService implements SummarySec
                                       UndevelopedDiscoveryInformation undevelopedDiscoveryInformation) {
     return crossTabView
         .addRow(
-            "Oil in place",
+            "Oil initially in place",
             undevelopedDiscoveryInformation.getOilInPlaceP50(), null, null, null, "mmbbl"
         )
         .addRow(
@@ -134,7 +134,7 @@ public class UndevelopedDiscoveryInformationSummaryService implements SummarySec
             undevelopedDiscoveryInformation.getOilRecoverableThreeC(), "mmbbl"
         )
         .addRow(
-            "Gas in place",
+            "Gas initially in place",
             undevelopedDiscoveryInformation.getOilInPlaceP50(), null, null, null, "bcf"
         )
         .addRow(

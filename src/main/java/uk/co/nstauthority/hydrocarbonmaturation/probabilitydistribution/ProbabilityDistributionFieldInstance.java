@@ -420,17 +420,17 @@ public enum ProbabilityDistributionFieldInstance {
   OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT(
       ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
-      "Oil in place"
+      "Oil initially in place"
   ),
   OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY(
       DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
-      "Oil in place"
+      "Oil initially in place"
   ),
   OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD(
       FieldVolumetricsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBBL,
-      "Oil in place"
+      "Oil initially in place"
   ),
   OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT(
       ProspectOutputsPreDrillBehaviour.class,
@@ -467,7 +467,7 @@ public enum ProbabilityDistributionFieldInstance {
   TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD(
       FieldVolumetricsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBBL,
-      "Oil in place"
+      "Oil initially in place"
   ),
   TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD(
       FieldVolumetricsResourcesBehaviour.class,
@@ -494,7 +494,7 @@ public enum ProbabilityDistributionFieldInstance {
   TOTAL_OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY(
       DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
-      "Oil in place"
+      "Oil initially in place"
   ),
   TOTAL_OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY(
       DiscoveryOutputsBehaviour.class,
@@ -511,17 +511,17 @@ public enum ProbabilityDistributionFieldInstance {
   GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT(
       ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
-      "Gas in place"
+      "Gas initially in place"
   ),
   GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY(
       DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
-      "Gas in place"
+      "Gas initially in place"
   ),
   GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD(
       FieldVolumetricsBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
-      "Gas in place"
+      "Gas initially in place"
   ),
   GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_PROSPECT(
       ProspectOutputsPreDrillBehaviour.class,
@@ -548,7 +548,7 @@ public enum ProbabilityDistributionFieldInstance {
   TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD(
       FieldVolumetricsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBBL,
-      "Gas in place"
+      "Gas initially in place"
   ),
   TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD(
       FieldVolumetricsResourcesBehaviour.class,
@@ -566,7 +566,7 @@ public enum ProbabilityDistributionFieldInstance {
   TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY(
       DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
-      "Gas in place"
+      "Gas initially in place"
   ),
   TOTAL_GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY(
       DiscoveryOutputsBehaviour.class,
@@ -578,7 +578,7 @@ public enum ProbabilityDistributionFieldInstance {
   MIXED_CASE_OIL_IN_PLACE_PROSPECT(
       ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMSTB,
-      "Oil in place"
+      "Oil initially in place"
   ),
   MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT(
       ProspectOutputsPreDrillBehaviour.class,
@@ -593,7 +593,7 @@ public enum ProbabilityDistributionFieldInstance {
   MIXED_CASE_GAS_IN_PLACE_PROSPECT(
       ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.BCF,
-      "Gas in place"
+      "Gas initially in place"
   ),
   MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT(
       ProspectOutputsPreDrillBehaviour.class,

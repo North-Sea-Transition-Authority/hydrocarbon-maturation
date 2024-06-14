@@ -9,7 +9,7 @@ public record DiscoveryOilCaseVolumetricTotalsSummaryView(
   public static DiscoveryOilCaseVolumetricTotalsSummaryView empty() {
     return new DiscoveryOilCaseVolumetricTotalsSummaryView(
         List.of(
-            ProbabilityDistributionSummaryView.empty("Oil in place"),
+            ProbabilityDistributionSummaryView.empty("Oil initially in place"),
             ProbabilityDistributionSummaryView.empty("Oil recoverable resources"),
             ProbabilityDistributionSummaryView.empty("Associated gas recoverable resources"),
             ProbabilityDistributionSummaryView.empty("Oil equivalent recoverable resources")));

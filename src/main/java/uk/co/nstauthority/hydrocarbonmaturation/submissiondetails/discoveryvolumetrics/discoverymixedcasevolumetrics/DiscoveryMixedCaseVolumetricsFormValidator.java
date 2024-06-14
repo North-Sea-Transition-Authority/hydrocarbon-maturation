@@ -23,7 +23,7 @@ public class DiscoveryMixedCaseVolumetricsFormValidator implements SubmissionVal
         oilInPlace,
         errors,
         "oilInPlace",
-        "Oil in place",
+        "Oil initially in place",
         ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY
     );
 
@@ -50,7 +50,7 @@ public class DiscoveryMixedCaseVolumetricsFormValidator implements SubmissionVal
         gasInPlace,
         errors,
         "gasInPlace",
-        "Gas in place",
+        "Gas initially in place",
         ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY
     );
 
@@ -91,7 +91,7 @@ public class DiscoveryMixedCaseVolumetricsFormValidator implements SubmissionVal
         oilInPlace,
         errors,
         "oilInPlace",
-        "Oil in place",
+        "Oil initially in place",
         ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY
     );
 
@@ -118,7 +118,7 @@ public class DiscoveryMixedCaseVolumetricsFormValidator implements SubmissionVal
         gasInPlace,
         errors,
         "gasInPlace",
-        "Gas in place",
+        "Gas initially in place",
         ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY
     );
 

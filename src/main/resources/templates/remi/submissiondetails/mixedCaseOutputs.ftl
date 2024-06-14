@@ -31,13 +31,13 @@
   <@fdsForm.htmlForm>
     <@probabilityDistribution.probabilityDistributionSingularTemplate
       probabilityDistributionPath="form.oilInPlace"
-      labelText="Oil in place"
+      labelText="Oil initially in place"
       template=oilInPlaceTemplate
       error=oilInPlaceError/>
 
       <@probabilityDistribution.probabilityDistributionSingularTemplate
       probabilityDistributionPath="form.gasInPlace"
-      labelText="Gas in place"
+      labelText="Gas initially in place"
       template=gasInPlaceTemplate
       error=gasInPlaceError/>
 
