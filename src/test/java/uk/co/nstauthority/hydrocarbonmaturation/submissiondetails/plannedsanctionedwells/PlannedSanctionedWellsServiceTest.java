@@ -432,6 +432,24 @@ class PlannedSanctionedWellsServiceTest {
   }
 
   @Test
+  void savePlannedSanctionedWells_emptyForm_assertPlannedSanctionedWells() {
+    when(plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.empty());
+
+    var emptyForm = new PlannedSanctionedWellsForm();
+    var captor = ArgumentCaptor.forClass(PlannedSanctionedWells.class);
+    plannedSanctionedWellsService.savePlannedSanctionedWells(emptyForm, submissionDetail);
+
+    verify(plannedSanctionedWellsRepository, times(1)).save(captor.capture());
+    verifyNoMoreInteractions(plannedSanctionedWellsRepository);
+
+    assertThat(captor.getValue())
+        .usingRecursiveComparison()
+        .ignoringFieldsOfTypes(UUID.class, SubmissionDetail.class)
+        .isEqualTo(new PlannedSanctionedWells());
+  }
+
+  @Test
   void savePlannedSanctionedWells_assertFaults() {
     when(plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.empty());

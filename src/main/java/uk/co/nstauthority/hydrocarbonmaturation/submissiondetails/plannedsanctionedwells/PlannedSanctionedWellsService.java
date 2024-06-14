@@ -212,14 +212,20 @@ public class PlannedSanctionedWellsService {
     plannedSanctionedWells.setDrillingChallengesMitigations(
         form.getDrillingChallengesMitigations()
     );
+
+    var stimulationType = form.getStimulationTypeRequired();
     plannedSanctionedWells.setStimulationTypeRequired(
-        form.getStimulationTypeRequired()
+        stimulationType
     );
-    plannedSanctionedWells.setNumberOfWellsRequiringStimulation(
-        form.getStimulationTypeDecimalInputHashMap()
-            .get(form.getStimulationTypeRequired())
-            .createBigDecimalOrNull()
-    );
+
+    if (stimulationType != null) {
+      plannedSanctionedWells.setNumberOfWellsRequiringStimulation(
+          form.getStimulationTypeDecimalInputHashMap()
+              .get(stimulationType)
+              .createBigDecimalOrNull()
+      );
+    }
+
     plannedSanctionedWells.setExpectingFormationDamage(
         form.getIsExpectingFormationDamage()
     );

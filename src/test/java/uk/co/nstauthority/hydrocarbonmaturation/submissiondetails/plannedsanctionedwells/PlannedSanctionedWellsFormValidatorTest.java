@@ -66,6 +66,15 @@ class PlannedSanctionedWellsFormValidatorTest {
   }
 
   @Test
+  void validatePartial_outerValuesSelected_nestedValuesEmpty_thenNoErrors() {
+    var partialForm = getFormWithOuterValuesSelected();
+    var partialBindingResult = new BeanPropertyBindingResult(partialForm, "form");
+
+    assertTrue(plannedSanctionedWellsFormValidator.isValid(partialForm, partialBindingResult, submissionDetail, ValidationType.PARTIAL));
+    assertThat(bindingResult.getAllErrors()).isEmpty();
+  }
+
+  @Test
   void validateFull_emptyForm_thenErrors() {
     var emptyForm = new PlannedSanctionedWellsForm();
     var emptyBindingResult = new BeanPropertyBindingResult(emptyForm, "form");
@@ -1205,5 +1214,26 @@ class PlannedSanctionedWellsFormValidatorTest {
     form.setOtherArtificialLiftMechanism(null);
 
     return form;
+  }
+
+  private PlannedSanctionedWellsForm getFormWithOuterValuesSelected() {
+    var partialForm = new PlannedSanctionedWellsForm();
+
+    partialForm.setAnyHorizontalWells(Boolean.TRUE);
+    partialForm.setAnyHighPressureTemperatureWells(Boolean.TRUE);
+    partialForm.setAnyWellsWithinNarrowOrTightPpfgWindow(Boolean.TRUE);
+    partialForm.setAnyWellboreStabilityChallenges(Boolean.TRUE);
+    partialForm.setAnyWellsExpectedToCrossFaults(Boolean.TRUE);
+    partialForm.setAnyExpectedLossesFromDrilling(Boolean.TRUE);
+    partialForm.setAnyExpectedDrillingChallenges(Boolean.TRUE);
+    partialForm.setStimulationTypeRequired(StimulationType.HYDRAULIC_FRACTURING);
+    partialForm.setIsExpectingFormationDamage(Boolean.TRUE);
+    partialForm.setAnySpecialisedDrillingEquipmentRequired(Boolean.TRUE);
+    partialForm.setAnyMultilateralWells(Boolean.TRUE);
+    partialForm.setSelectedHoleCompletionTypes(Map.of(HoleCompletionType.OPENED_HOLE, Boolean.TRUE));
+    partialForm.setSelectedPlannedCompletionTypes(Map.of(PlannedCompletionType.GRAVELPACK, Boolean.TRUE));
+    partialForm.setSelectedArtificialLiftMechanisms(Map.of(ArtificialLiftMechanism.GAS_LIFT, Boolean.TRUE));
+
+    return partialForm;
   }
 }

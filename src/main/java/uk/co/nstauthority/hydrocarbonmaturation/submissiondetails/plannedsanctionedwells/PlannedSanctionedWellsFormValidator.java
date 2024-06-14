@@ -139,7 +139,8 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
         && isNumberOfProducersValid
         && isNumberOfMonitorsValid;
     var allNotNull =
-        ObjectUtils.allNotNull(totalNumberOfPlannedSanctionedWells, numberOfInjectors, numberOfProducers, numberOfMonitors);
+        ObjectUtils.allNotNull(totalNumberOfPlannedSanctionedWells, numberOfInjectors, numberOfProducers,
+            numberOfMonitors);
 
     if (allValid && allNotNull) {
       var sum = (Integer) Stream.of(numberOfInjectors, numberOfProducers, numberOfMonitors)
@@ -446,8 +447,8 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
   }
 
   private void validateSpecialisedDrillingEquipment(PlannedSanctionedWellsForm plannedSanctionedWellsForm,
-                                                     Errors errors,
-                                                     ValidationType validationType) {
+                                                    Errors errors,
+                                                    ValidationType validationType) {
     if (ValidationType.FULL.equals(validationType)
         && plannedSanctionedWellsForm.getAnySpecialisedDrillingEquipmentRequired() == null) {
       ValidationUtils.rejectIfEmpty(
@@ -523,7 +524,11 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
         );
 
         if (BooleanUtils.isTrue(isValidNumeric)) {
-          sumOfTypes += numberOfWells.createIntegerOrNull();
+          var numberOfWellsValue = numberOfWells.createIntegerOrNull();
+          if (numberOfWellsValue != null) {
+            sumOfTypes += numberOfWellsValue;
+
+          }
         } else {
           areAllValidNumeric = false;
         }
@@ -581,10 +586,14 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
         );
 
         if (BooleanUtils.isTrue(isValidNumeric)) {
-          sumOfTypes += numberOfWells.createIntegerOrNull();
+          var numberOfWellsValue = numberOfWells.createIntegerOrNull();
+          if (numberOfWellsValue != null) {
+            sumOfTypes += numberOfWellsValue;
+          }
         } else {
           areAllValidNumeric = false;
         }
+
       }
 
       if (BooleanUtils.isTrue(areAllValidNumeric) && BooleanUtils.isTrue(isTotalNumberOfPlannedSanctionedWellsNumeric)
@@ -600,8 +609,8 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
   }
 
   private void validateArtificialLiftMechanisms(PlannedSanctionedWellsForm plannedSanctionedWellsForm,
-                                              Errors errors,
-                                              ValidationType validationType) {
+                                                Errors errors,
+                                                ValidationType validationType) {
     var firstArtificialLiftMechanismId = "selectedArtificialLiftMechanisms[%s]"
         .formatted(DisplayableEnumOptionUtil.getFirstDisplayable(ArtificialLiftMechanism.class));
 
@@ -621,7 +630,8 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
       var areAllValidNumeric = true;
       for (var entry : plannedSanctionedWellsForm.getSelectedArtificialLiftMechanisms().entrySet()) {
         var artificialLiftMechanism = entry.getKey();
-        if (ArtificialLiftMechanism.OTHER.equals(artificialLiftMechanism) && ValidationType.FULL.equals(validationType)) {
+        if (ArtificialLiftMechanism.OTHER.equals(artificialLiftMechanism) && ValidationType.FULL.equals(
+            validationType)) {
           ValidationUtils.rejectIfEmptyOrWhitespace(
               errors,
               "otherArtificialLiftMechanism",
@@ -642,7 +652,8 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
 
         // check number of wells for options that have it
         if (!ArtificialLiftMechanism.NONE.equals(artificialLiftMechanism)) {
-          var numberOfWells = plannedSanctionedWellsForm.getNumberOfArtificialLiftMechanisms().get(artificialLiftMechanism);
+          var numberOfWells = plannedSanctionedWellsForm.getNumberOfArtificialLiftMechanisms().get(
+              artificialLiftMechanism);
           var isValidNumeric = isPositiveWholeNumberAndLessThanPlannedSanctionedWells(
               errors,
               "numberOfArtificialLiftMechanisms[%s].decimalInputValue".formatted(artificialLiftMechanism),
@@ -652,7 +663,10 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
           );
 
           if (BooleanUtils.isTrue(isValidNumeric)) {
-            sumOfTypes += numberOfWells.createIntegerOrNull();
+            var numberOfWellsValue = numberOfWells.createIntegerOrNull();
+            if (numberOfWellsValue != null) {
+              sumOfTypes += numberOfWellsValue;
+            }
           } else {
             areAllValidNumeric = false;
           }
