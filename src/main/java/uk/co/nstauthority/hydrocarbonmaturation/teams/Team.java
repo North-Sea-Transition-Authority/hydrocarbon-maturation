@@ -9,9 +9,11 @@ import jakarta.persistence.Table;
 import java.util.Objects;
 import java.util.UUID;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "teams")
+@Audited
 public class Team {
 
   @Id
@@ -28,7 +30,6 @@ public class Team {
   private String scopeId;
 
   public Team() {
-
   }
 
   public Team(UUID id) {

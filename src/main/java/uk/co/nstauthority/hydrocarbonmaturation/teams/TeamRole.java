@@ -10,9 +10,11 @@ import jakarta.persistence.Table;
 import java.util.Objects;
 import java.util.UUID;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "team_roles")
+@Audited
 public class TeamRole {
 
   @Id

@@ -1,19 +1,19 @@
 package uk.co.nstauthority.hydrocarbonmaturation.reservoirs;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.util.UUID;
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "reservoirs")
+@Audited
 public class Reservoir {
 
   @Id
-  @GeneratedValue(generator = "uuid")
-  @GenericGenerator(name = "uuid", strategy = "uuid2")
+  @UuidGenerator
   private UUID id;
 
   private String name;

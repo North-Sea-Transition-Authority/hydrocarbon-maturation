@@ -10,12 +10,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
 @Entity
 @Table(name = "fields")
+@Audited
 public class Field {
+
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "field_identifier_seq")
   @SequenceGenerator(name = "field_identifier_seq", sequenceName = "field_identifier_seq", allocationSize = 1)
@@ -23,6 +27,7 @@ public class Field {
 
   @JoinColumn(name = "resource_id")
   @ManyToOne
+  @NotAudited
   private Resource resource;
 
   private String legalFieldName;
