@@ -30,6 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolum
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverymixedcasevolumetrics.DiscoveryMixedCaseVolumetricsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldcombinedcasedvolumetrictotals.FieldCombinedCaseVolumetricTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldgascasevolumetrics.FieldGasCaseVolumetricTotalsService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.FieldOilCaseVolumetricTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.ReservoirHydrocarbonCaseService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsPersistenceService;
@@ -63,6 +64,8 @@ class ReservoirTotalsCleanAndCopyServiceTest {
   private FieldGasCaseVolumetricTotalsService fieldGasCaseVolumetricTotalsService;
   @Mock
   private FieldCombinedCaseVolumetricTotalsService fieldCombinedCaseVolumetricTotalsService;
+  @Mock
+  private FieldOilCaseVolumetricTotalsService fieldOilCaseVolumetricTotalsService;
 
   @InjectMocks
   private ReservoirTotalsCleanAndCopyService reservoirTotalsCleanAndCopyService;
@@ -480,6 +483,8 @@ class ReservoirTotalsCleanAndCopyServiceTest {
     verifyNoMoreInteractions(fieldCombinedCaseVolumetricTotalsService);
 
     verifyNoInteractions(fieldGasCaseVolumetricTotalsService);
+
+    verifyDeleteOilCaseVolumetricTotals(submissionDetail);
   }
 
   @ParameterizedTest
@@ -498,6 +503,7 @@ class ReservoirTotalsCleanAndCopyServiceTest {
     verifyNoMoreInteractions(fieldCombinedCaseVolumetricTotalsService);
 
     verifyNoInteractions(fieldCombinedCaseVolumetricTotalsService);
+    verifyDeleteOilCaseVolumetricTotals(submissionDetail);
   }
 
   @ParameterizedTest
@@ -529,6 +535,12 @@ class ReservoirTotalsCleanAndCopyServiceTest {
 
     verify(probabilityDistributionPersistenceService, times(1)).deleteProbabilityDistributions(totals, submissionDetail);
     verifyNoMoreInteractions(probabilityDistributionPersistenceService);
+  }
+
+  void verifyDeleteOilCaseVolumetricTotals(SubmissionDetail submissionDetail) {
+    verify(fieldOilCaseVolumetricTotalsService, times(1))
+        .deleteOilCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
+    verifyNoMoreInteractions(fieldOilCaseVolumetricTotalsService);
   }
 
   void verifyDeleteOilOnlyFieldTotals(SubmissionDetail submissionDetail) {

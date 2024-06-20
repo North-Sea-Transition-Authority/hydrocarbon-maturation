@@ -131,6 +131,12 @@ breadcrumbsMap=breadcrumbsMap>
             error=riskedOilEquivalentRecoverableMeanError/>
         </#if>
 
+        <#if fieldSubmissionCarriedForward?? && fieldSubmissionCarriedForward==true>
+            <@fdsCheckbox.checkboxItem
+            labelText="The field volumetric information reflects the current state of the field"
+            path="form.fieldVolumetricInformationCorrect"/>
+        </#if>
+
         <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
     </@fdsForm.htmlForm>
 </@defaultPage>

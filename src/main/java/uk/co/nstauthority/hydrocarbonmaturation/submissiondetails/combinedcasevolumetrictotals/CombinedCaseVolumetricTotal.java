@@ -1,13 +1,12 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.UUID;
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UuidGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDetailChildEntity;
 
@@ -16,8 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.Subm
 public class CombinedCaseVolumetricTotal implements SubmissionDetailChildEntity {
 
   @Id
-  @GeneratedValue(generator = "uuid")
-  @GenericGenerator(name = "uuid", strategy = "uuid2")
+  @UuidGenerator
   private UUID id;
 
   @ManyToOne
@@ -25,6 +23,8 @@ public class CombinedCaseVolumetricTotal implements SubmissionDetailChildEntity 
   private SubmissionDetail submissionDetail;
 
   private Boolean hasAssociatedCondensateRecoverableResources;
+
+  private Boolean fieldVolumetricInformationCorrect;
 
   public UUID getId() {
     return id;
@@ -49,5 +49,13 @@ public class CombinedCaseVolumetricTotal implements SubmissionDetailChildEntity 
 
   public void setHasAssociatedCondensateRecoverableResources(Boolean hasAssociatedCondensateRecoverableResources) {
     this.hasAssociatedCondensateRecoverableResources = hasAssociatedCondensateRecoverableResources;
+  }
+
+  public Boolean getFieldVolumetricInformationCorrect() {
+    return fieldVolumetricInformationCorrect;
+  }
+
+  public void setFieldVolumetricInformationCorrect(Boolean fieldVolumetricInformationCorrect) {
+    this.fieldVolumetricInformationCorrect = fieldVolumetricInformationCorrect;
   }
 }

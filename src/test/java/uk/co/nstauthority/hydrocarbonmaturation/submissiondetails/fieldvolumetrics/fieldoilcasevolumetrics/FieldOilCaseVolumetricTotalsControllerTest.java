@@ -76,7 +76,8 @@ class FieldOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionContr
 
   @SecurityTest
   void getOilVolumetricTotals_whenUserIsResponsibleOrganisation_assertOk() throws Exception {
-    when(fieldOilCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail)).thenReturn(new OilCaseOutputsForm());
+    when(fieldOilCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail)).thenReturn(
+        new OilCaseOutputsForm());
     setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
 
     mockMvc.perform(
@@ -124,7 +125,7 @@ class FieldOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionContr
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_field_failSecurity(USER, submissionDetail);
     mockMvc.perform(
             get(ReverseRouter.route(on(FieldOilCaseVolumetricTotalsController.class).saveFieldOilCaseVolumetricTotals(
-                submissionDetailId,  null, null, null)))
+                submissionDetailId, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isForbidden());
@@ -135,18 +136,21 @@ class FieldOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionContr
   void saveOilVolumetricTotals_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
-    when(fieldOilCaseVolumetricTotalsFormValidator.isValid(any(OilCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(false);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
+    when(fieldOilCaseVolumetricTotalsFormValidator.isValid(any(OilCaseOutputsForm.class), any(Errors.class),
+        eq(submissionDetail), eq(validationType))).thenReturn(false);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(
+        submissionDetail);
 
     mockMvc.perform(
-                    post(ReverseRouter.route(on(FieldOilCaseVolumetricTotalsController.class)
-                            .saveFieldOilCaseVolumetricTotals(submissionDetailId, null, null, null)))
-                            .params(ControllerTestUtils.validationPostParams(validationType))
-                            .with(user(USER))
-                            .with(csrf()))
-            .andExpect(status().isOk());
+            post(ReverseRouter.route(on(FieldOilCaseVolumetricTotalsController.class)
+                .saveFieldOilCaseVolumetricTotals(submissionDetailId, null, null, null)))
+                .params(ControllerTestUtils.validationPostParams(validationType))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().isOk());
 
-    verify(fieldOilCaseVolumetricTotalsService, never()).saveFieldOilCaseVolumetricTotals(any(OilCaseOutputsForm.class), any(SubmissionDetail.class));
+    verify(fieldOilCaseVolumetricTotalsService, never()).saveFieldOilCaseVolumetricTotals(any(OilCaseOutputsForm.class),
+        any(SubmissionDetail.class));
   }
 
   @ParameterizedTest(name = "controller validation - {0}")
@@ -154,18 +158,21 @@ class FieldOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionContr
   void saveOilVolumetricTotals_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
-    when(fieldOilCaseVolumetricTotalsFormValidator.isValid(any(OilCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(false);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
+    when(fieldOilCaseVolumetricTotalsFormValidator.isValid(any(OilCaseOutputsForm.class), any(Errors.class),
+        eq(submissionDetail), eq(validationType))).thenReturn(false);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(
+        submissionDetail);
 
     mockMvc.perform(
-                    post(ReverseRouter.route(on(FieldOilCaseVolumetricTotalsController.class)
-                            .saveFieldOilCaseVolumetricTotals(submissionDetailId, null, null, null)))
-                            .params(ControllerTestUtils.validationPostParams(validationType))
-                            .with(user(USER))
-                            .with(csrf()))
-            .andExpect(status().isOk());
+            post(ReverseRouter.route(on(FieldOilCaseVolumetricTotalsController.class)
+                .saveFieldOilCaseVolumetricTotals(submissionDetailId, null, null, null)))
+                .params(ControllerTestUtils.validationPostParams(validationType))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().isOk());
 
-    verify(fieldOilCaseVolumetricTotalsService, never()).saveFieldOilCaseVolumetricTotals(any(OilCaseOutputsForm.class), any(SubmissionDetail.class));
+    verify(fieldOilCaseVolumetricTotalsService, never()).saveFieldOilCaseVolumetricTotals(any(OilCaseOutputsForm.class),
+        any(SubmissionDetail.class));
 
   }
 
@@ -176,135 +183,165 @@ class FieldOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionContr
     when(fieldOilCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail)).thenReturn(form);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-                    get(ReverseRouter.route(on(FieldOilCaseVolumetricTotalsController.class)
-                            .getFieldOilCaseVolumetricTotals(submissionDetailId)))
-                            .with(user(USER)))
-            .andReturn()
-            .getModelAndView()).getModelMap();
+            get(ReverseRouter.route(on(FieldOilCaseVolumetricTotalsController.class)
+                .getFieldOilCaseVolumetricTotals(submissionDetailId)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
 
     @SuppressWarnings(value = "unchecked")
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
     assertThat(breadcrumbsMap.entrySet())
-            .containsExactly(
-                    entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-                    entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
-            );
+        .containsExactly(
+            entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
+                WorkAreaController.WORK_AREA_TITLE),
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)),
+                TaskListController.PAGE_NAME)
+        );
 
     var contingentUncertaintyCategoryPromptOverrides =
-            ProbabilityOfExceedanceTypeUtil.getContingentUncertaintyCategoryPromptOverrides();
+        ProbabilityOfExceedanceTypeUtil.getContingentUncertaintyCategoryPromptOverrides();
 
     assertThat(modelMap)
-            .contains(
-                    entry("form", form),
-                    entry("resourceType", submissionDetail.getSubmission().getResource().getType().toString()),
-                    entry("submissionType", submissionDetail.getSubmissionType().getEnumName()),
-                    entry("pageTitle", FieldOilCaseVolumetricTotalsController.PAGE_NAME),
-                    entry("oilInPlaceError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("oilRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("associatedGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("associatedGasRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("oilEquivalentRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("oilEquivalentRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("naturalGasLiquidsResourcesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("naturalGasLiquidsReservesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("salesGasResourcesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("salesGasReservesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("oilInPlaceTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD)),
-                    entry("oilRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD,
-                            contingentUncertaintyCategoryPromptOverrides)),
-                    entry("associatedGasRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD,
-                            contingentUncertaintyCategoryPromptOverrides)),
-                    entry("oilEquivalentRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,
-                            contingentUncertaintyCategoryPromptOverrides)),
-                    entry("naturalGasLiquidsResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD,
-                            contingentUncertaintyCategoryPromptOverrides)),
-                    entry("salesGasResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD,
-                            contingentUncertaintyCategoryPromptOverrides))
-            );
+        .doesNotContainKey("fieldSubmissionCarriedForward")
+        .contains(
+            entry("form", form),
+            entry("resourceType", submissionDetail.getSubmission().getResource().getType().toString()),
+            entry("submissionType", submissionDetail.getSubmissionType().getEnumName()),
+            entry("pageTitle", FieldOilCaseVolumetricTotalsController.PAGE_NAME),
+            entry("oilInPlaceError", ProbabilityDistributionTypeError.emptyError()),
+            entry("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("oilRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("associatedGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("associatedGasRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("oilEquivalentRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("oilEquivalentRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("naturalGasLiquidsResourcesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("naturalGasLiquidsReservesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("salesGasResourcesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("salesGasReservesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("oilInPlaceTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                    ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD)),
+            entry("oilRecoverableResourcesTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                    ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD,
+                    contingentUncertaintyCategoryPromptOverrides)),
+            entry("associatedGasRecoverableResourcesTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                    ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD,
+                    contingentUncertaintyCategoryPromptOverrides)),
+            entry("oilEquivalentRecoverableResourcesTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                    ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,
+                    contingentUncertaintyCategoryPromptOverrides)),
+            entry("naturalGasLiquidsResourcesTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                    ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD,
+                    contingentUncertaintyCategoryPromptOverrides)),
+            entry("salesGasResourcesTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                    ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD,
+                    contingentUncertaintyCategoryPromptOverrides))
+        );
 
   }
 
-  @Test
-  void getOilVolumetricTotalsModelAndView_NotCsrField_assertModelProperties() throws Exception {
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_COP);
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"CREATE_FDP", "CREATE_FDPA", "CREATE_COP"}
+  )
+  void getOilVolumetricTotalsModelAndView_NotCsrField_assertModelProperties(SubmissionType submissionType) throws Exception {
+    submissionDetail.setSubmissionType(submissionType);
 
-    when(fieldOilCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail)).thenReturn(form);
+    when(fieldOilCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail))
+        .thenReturn(form);
+    when(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
+        .thenReturn(true);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-                    get(ReverseRouter.route(on(FieldOilCaseVolumetricTotalsController.class)
-                            .getFieldOilCaseVolumetricTotals(submissionDetailId)))
-                            .with(user(USER)))
-            .andReturn()
-            .getModelAndView()).getModelMap();
+            get(ReverseRouter.route(on(FieldOilCaseVolumetricTotalsController.class)
+                .getFieldOilCaseVolumetricTotals(submissionDetailId)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
 
     @SuppressWarnings(value = "unchecked")
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
     assertThat(breadcrumbsMap.entrySet())
-            .containsExactly(
-                    entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-                    entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
-            );
+        .containsExactly(
+            entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
+                WorkAreaController.WORK_AREA_TITLE),
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)),
+                TaskListController.PAGE_NAME)
+        );
 
     var contingentUncertaintyCategoryPromptOverrides =
-            ProbabilityOfExceedanceTypeUtil.getContingentUncertaintyCategoryPromptOverrides();
+        ProbabilityOfExceedanceTypeUtil.getContingentUncertaintyCategoryPromptOverrides();
 
     assertThat(modelMap)
-            .contains(
-                    entry("form", form),
-                    entry("resourceType", submissionDetail.getSubmission().getResource().getType().toString()),
-                    entry("submissionType", submissionDetail.getSubmissionType().getEnumName()),
-                    entry("pageTitle", FieldOilCaseVolumetricTotalsController.PAGE_NAME),
-                    entry("oilInPlaceError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("oilRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("associatedGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("associatedGasRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("oilEquivalentRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("oilEquivalentRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("naturalGasLiquidsResourcesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("naturalGasLiquidsReservesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("salesGasResourcesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("salesGasReservesError", ProbabilityDistributionTypeError.emptyError()),
-                    entry("oilInPlaceTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD)),
-                    entry("oilRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD,
-                            contingentUncertaintyCategoryPromptOverrides)),
-                    entry("associatedGasRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD,
-                            contingentUncertaintyCategoryPromptOverrides)),
-                    entry("oilEquivalentRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,
-                            contingentUncertaintyCategoryPromptOverrides)),
-                    entry("naturalGasLiquidsResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD,
-                            contingentUncertaintyCategoryPromptOverrides)),
-                    entry("salesGasResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD,
-                            contingentUncertaintyCategoryPromptOverrides)),
-                    entry("oilRecoverableReservesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD,
-                            contingentUncertaintyCategoryPromptOverrides)),
-                    entry("associatedGasRecoverableReservesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD,
-                            contingentUncertaintyCategoryPromptOverrides)),
-                    entry("oilEquivalentRecoverableReservesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD,
-                            contingentUncertaintyCategoryPromptOverrides)),
-                    entry("naturalGasLiquidsReservesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESERVES_FIELD,
-                            contingentUncertaintyCategoryPromptOverrides)),
-                    entry("salesGasReservesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD,
-                            contingentUncertaintyCategoryPromptOverrides))
-            );
+        .contains(
+            entry("form", form),
+            entry("resourceType", submissionDetail.getSubmission().getResource().getType().toString()),
+            entry("submissionType", submissionDetail.getSubmissionType().getEnumName()),
+            entry("pageTitle", FieldOilCaseVolumetricTotalsController.PAGE_NAME),
+            entry("oilInPlaceError", ProbabilityDistributionTypeError.emptyError()),
+            entry("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("oilRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("associatedGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("associatedGasRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("oilEquivalentRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("oilEquivalentRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("naturalGasLiquidsResourcesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("naturalGasLiquidsReservesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("salesGasResourcesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("salesGasReservesError", ProbabilityDistributionTypeError.emptyError()),
+            entry("oilInPlaceTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                    ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD)),
+            entry("oilRecoverableResourcesTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                    ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD,
+                    contingentUncertaintyCategoryPromptOverrides)),
+            entry("associatedGasRecoverableResourcesTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                    ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD,
+                    contingentUncertaintyCategoryPromptOverrides)),
+            entry("oilEquivalentRecoverableResourcesTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                    ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,
+                    contingentUncertaintyCategoryPromptOverrides)),
+            entry("naturalGasLiquidsResourcesTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                    ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD,
+                    contingentUncertaintyCategoryPromptOverrides)),
+            entry("salesGasResourcesTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                    ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD,
+                    contingentUncertaintyCategoryPromptOverrides)),
+            entry("oilRecoverableReservesTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                    ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD,
+                    contingentUncertaintyCategoryPromptOverrides)),
+            entry("associatedGasRecoverableReservesTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                    ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD,
+                    contingentUncertaintyCategoryPromptOverrides)),
+            entry("oilEquivalentRecoverableReservesTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                    ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD,
+                    contingentUncertaintyCategoryPromptOverrides)),
+            entry("naturalGasLiquidsReservesTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                    ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESERVES_FIELD,
+                    contingentUncertaintyCategoryPromptOverrides)),
+            entry("salesGasReservesTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
+                    ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD,
+                    contingentUncertaintyCategoryPromptOverrides)),
+            entry("fieldSubmissionCarriedForward", true)
+        );
 
   }
 

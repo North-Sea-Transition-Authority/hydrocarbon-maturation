@@ -6,6 +6,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm
 public class FieldReservoirVolumetricsForm implements SubmissionForm {
   private ProbabilityDistributionForm oilInPlace = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm gasInPlace = new ProbabilityDistributionForm();
+  private Boolean initiallyInPlaceInformationCorrect;
 
   public ProbabilityDistributionForm getOilInPlace() {
     return oilInPlace;
@@ -21,5 +22,13 @@ public class FieldReservoirVolumetricsForm implements SubmissionForm {
 
   public void setGasInPlace(ProbabilityDistributionForm gasInPlace) {
     this.gasInPlace = gasInPlace;
+  }
+
+  public Boolean getInitiallyInPlaceInformationCorrect() {
+    return initiallyInPlaceInformationCorrect;
+  }
+
+  public void setInitiallyInPlaceInformationCorrect(Boolean initiallyInPlaceInformationCorrect) {
+    this.initiallyInPlaceInformationCorrect = initiallyInPlaceInformationCorrect;
   }
 }

@@ -287,17 +287,21 @@ class SubmissionDetailServiceTest {
     var submissionDetail2 = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
     var submissionDetailNotExtant = SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail();
     var listOfSubmissions = List.of(
-        submissionDetail1.getSubmission(), submissionDetail2.getSubmission(), submissionDetailNotExtant.getSubmission());
+        submissionDetail1.getSubmission(), submissionDetail2.getSubmission(),
+        submissionDetailNotExtant.getSubmission());
 
     when(submissionPersistenceService.getSubmissionsByResource(resource))
         .thenReturn(listOfSubmissions);
-    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(submissionDetail1.getSubmission(),
+    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(
+        submissionDetail1.getSubmission(),
         Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
         .thenReturn(Optional.of(submissionDetail1));
-    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(submissionDetail2.getSubmission(),
+    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(
+        submissionDetail2.getSubmission(),
         Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
         .thenReturn(Optional.of(submissionDetail2));
-    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(submissionDetailNotExtant.getSubmission(),
+    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(
+        submissionDetailNotExtant.getSubmission(),
         Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
         .thenReturn(Optional.empty());
 
@@ -360,10 +364,10 @@ class SubmissionDetailServiceTest {
 
   @Test
   void getLatestSubmittedSubmissionDetailForResource_noSubmissions_thenReturnEmpty() {
-    var resource  = new Resource();
+    var resource = new Resource();
     resource.setType(ResourceType.FIELD);
 
-    List<Submission> submissions  = List.of();
+    List<Submission> submissions = List.of();
     when(submissionPersistenceService.getSubmissionsByResource(resource))
         .thenReturn(submissions);
     when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
@@ -378,10 +382,10 @@ class SubmissionDetailServiceTest {
 
   @Test
   void getLatestSubmittedSubmissionDetailForResource_withSubmittedDetail_thenReturnMostRecentDetail() {
-    var resource  = new Resource();
+    var resource = new Resource();
     resource.setType(ResourceType.FIELD);
 
-    List<Submission> submissions  = List.of(new Submission());
+    List<Submission> submissions = List.of(new Submission());
 
     when(submissionPersistenceService.getSubmissionsByResource(resource))
         .thenReturn(submissions);
@@ -396,5 +400,66 @@ class SubmissionDetailServiceTest {
     assertThat(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource))
         .isPresent()
         .contains(mostRecentSubmissionDetail);
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"CREATE_FIELD", "CREATE_CSR", "CREATE_FDP", "CREATE_FDPA"},
+      mode = EnumSource.Mode.EXCLUDE
+  )
+  void hasFieldSubmissionDataBeenCarriedForward_whenNotAField_thenReturnFalse(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    assertThat(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
+        .isFalse();
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"CREATE_FIELD", "CREATE_CSR", "CREATE_FDP", "CREATE_FDPA"},
+      mode = EnumSource.Mode.INCLUDE
+  )
+  void hasFieldSubmissionDataBeenCarriedForward_whenAField_notCarriedForward_thenFalse(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    var resourceId = submissionDetail.getSubmission().getResource().getId();
+
+    // when only one FIELD submission detail for a resource
+    var submissionDetailForDifferentResource = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    submissionDetailForDifferentResource.getSubmission().getResource().setId(UUID.randomUUID());
+
+    var nonFieldSubmissionDetailWithSameResource = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
+    nonFieldSubmissionDetailWithSameResource.getSubmission().getResource().setId(resourceId);
+
+    when(submissionDetailRepository.findAll())
+        .thenReturn(
+            List.of(submissionDetail, submissionDetailForDifferentResource, nonFieldSubmissionDetailWithSameResource));
+
+    // then not carried forward
+    assertThat(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
+        .isFalse();
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"CREATE_FIELD", "CREATE_CSR", "CREATE_FDP", "CREATE_FDPA"},
+      mode = EnumSource.Mode.INCLUDE
+  )
+  void hasFieldSubmissionDataBeenCarriedForward_whenAField_carriedForward_thenTrue(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+    var resourceId = submissionDetail.getSubmission().getResource().getId();
+
+    // when only one submission detail for a resource
+    var submissionDetailForSameResource = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+    submissionDetailForSameResource.getSubmission().getResource().setId(resourceId);
+
+    when(submissionDetailRepository.findAll())
+        .thenReturn(List.of(submissionDetail, submissionDetailForSameResource));
+
+    // then not carried forward
+    assertThat(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
+        .isTrue();
   }
 }

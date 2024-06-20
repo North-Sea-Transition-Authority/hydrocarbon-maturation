@@ -107,7 +107,7 @@ public class ReservoirSubmissionDetailPersistenceService {
   }
 
   public List<ReservoirSubmissionDetail> getReservoirSubmissionDetailsForReservoirIds(Set<String> reservoirIds) {
-    var reservoirs =  reservoirIds
+    var reservoirs = reservoirIds
         .stream()
         .map(reservoirId -> reservoirPersistenceService.getReservoirOrThrow(UUID.fromString(reservoirId)));
 
@@ -115,5 +115,9 @@ public class ReservoirSubmissionDetailPersistenceService {
         .map(this::getReservoirSubmissionDetails)
         .flatMap(Collection::stream)
         .toList();
+  }
+
+  public boolean reservoirWasCarriedForward(Reservoir reservoir) {
+    return reservoirSubmissionDetailRepository.findAllByReservoir(reservoir).size() > 1;
   }
 }

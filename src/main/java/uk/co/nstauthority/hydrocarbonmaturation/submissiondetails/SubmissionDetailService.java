@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
@@ -145,17 +147,16 @@ public class SubmissionDetailService {
   public Optional<SubmissionDetail> getLatestApprovedSubmissionForSubmission(SubmissionDetail submissionDetail) {
     return switch (submissionDetail.getSubmissionType()) {
       case UPDATE_DISCOVERY, RELINQUISHMENT_DISCOVERY ->
-        getLatestApprovedDiscoverySubmissionDetailForResource(submissionDetail.getSubmission().getResource());
+          getLatestApprovedDiscoverySubmissionDetailForResource(submissionDetail.getSubmission().getResource());
       case POST_DRILL_DRY_HOLE, PROSPECT_UPDATE, RELINQUISHMENT_PROSPECT ->
-        getLatestApprovedProspectSubmissionForResource(submissionDetail.getSubmission().getResource());
-      case CREATE_DISCOVERY_FROM_PROSPECT ->
-        resourceLinkService
-            .getResourceLinksByDiscovery(submissionDetail.getSubmission().getResource())
-            .stream()
-            .map(ResourceLink::getProspectResource)
-            .map(this::getLatestApprovedProspectSubmissionForResource)
-            .flatMap(Optional::stream)
-            .min(Comparator.comparing(SubmissionDetail::getAcceptedTimestamp));
+          getLatestApprovedProspectSubmissionForResource(submissionDetail.getSubmission().getResource());
+      case CREATE_DISCOVERY_FROM_PROSPECT -> resourceLinkService
+          .getResourceLinksByDiscovery(submissionDetail.getSubmission().getResource())
+          .stream()
+          .map(ResourceLink::getProspectResource)
+          .map(this::getLatestApprovedProspectSubmissionForResource)
+          .flatMap(Optional::stream)
+          .min(Comparator.comparing(SubmissionDetail::getAcceptedTimestamp));
       case CREATE_PROSPECT, CREATE_DISCOVERY, CREATE_FIELD, CREATE_CSR, CREATE_FDP, CREATE_FDPA, CREATE_COP ->
           Optional.of(submissionDetail);
     };
@@ -164,7 +165,7 @@ public class SubmissionDetailService {
   public boolean isLatestSubmissionDetailForSubmissionWithStatuses(
       SubmissionDetail submissionDetail, Set<SubmissionDetailStatus> statuses) {
     return submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(
-        submissionDetail.getSubmission(), statuses)
+            submissionDetail.getSubmission(), statuses)
         .map(foundSubmissionDetail -> foundSubmissionDetail.getId().equals(submissionDetail.getId()))
         .orElse(false);
   }
@@ -188,6 +189,20 @@ public class SubmissionDetailService {
     );
   }
 
+  public boolean hasFieldSubmissionDataBeenCarriedForward(SubmissionDetail submissionDetail) {
+    if (BooleanUtils.isFalse(submissionDetail.isFieldSubmission())) {
+      return false;
+    }
+
+    var numberFieldSubmissionDetails = Streamable.of(submissionDetailRepository.findAll())
+        .stream()
+        .filter(SubmissionDetail::isFieldSubmission)
+        .filter(foundSubmissionDetail -> submissionDetailsBelongToSameResource(submissionDetail, foundSubmissionDetail))
+        .count();
+
+    return numberFieldSubmissionDetails > 1;
+  }
+
   /*
    * Find the submissionDetail that was submitted most recently for a given resource
    * The most recently submitted submission may either be SUBMITTED or ACCEPTED
@@ -197,11 +212,17 @@ public class SubmissionDetailService {
    */
   private Optional<SubmissionDetail> getMostRecentlySubmittedDetailForResourceWithSubmissionTypes(
       Resource resource,
-      List<SubmissionType>  submissionTypes) {
+      List<SubmissionType> submissionTypes) {
     return submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
         submissionPersistenceService.getSubmissionsByResource(resource),
         submissionTypes,
         List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)
     );
+  }
+
+  private boolean submissionDetailsBelongToSameResource(SubmissionDetail submissionDetailOne,
+                                                        SubmissionDetail submissionDetailTwo) {
+    return submissionDetailOne.getSubmission().getResource().getId()
+        .equals(submissionDetailTwo.getSubmission().getResource().getId());
   }
 }

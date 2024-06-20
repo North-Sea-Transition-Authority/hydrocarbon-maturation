@@ -10,6 +10,9 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,6 +41,9 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
   @InjectMocks
   private FieldCombinedCaseVolumetricTotalsService fieldCombinedCaseVolumetricTotalsService;
 
+  ArgumentCaptor<CombinedCaseVolumetricTotal> volumetricTotalArgumentCaptor = ArgumentCaptor.forClass(
+      CombinedCaseVolumetricTotal.class);
+
   @Test
   void submissionDetailToForm_noCombinedVolumetricExists() {
     var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
@@ -47,11 +53,10 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
 
     fieldCombinedCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail);
 
-    var hasAssociatedCondensate =
-        fieldCombinedCaseVolumetricTotalsService
-            .submissionDetailToForm(submissionDetail).getHasAssociatedCondensateRecoverableResources();
+    var generatedForm = fieldCombinedCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail);
 
-    assertThat(hasAssociatedCondensate).isNull();
+    assertThat(generatedForm.getHasAssociatedCondensateRecoverableResources()).isNull();
+    assertThat(generatedForm.getFieldVolumetricInformationCorrect()).isNull();
   }
 
   @Test
@@ -61,18 +66,20 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
     var combinedCaseVolumetricTotal = mock(CombinedCaseVolumetricTotal.class);
     when(combinedCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources())
         .thenReturn(true);
+    when(combinedCaseVolumetricTotal.getFieldVolumetricInformationCorrect())
+        .thenReturn(true);
 
     when(combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(combinedCaseVolumetricTotal));
 
     fieldCombinedCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail);
 
-    var hasAssociatedCondensate =
-        fieldCombinedCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail)
-            .getHasAssociatedCondensateRecoverableResources();
+    var generatedForm = fieldCombinedCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail);
 
-    assertThat(hasAssociatedCondensate)
-        .isEqualTo(combinedCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources());
+    assertThat(generatedForm.getHasAssociatedCondensateRecoverableResources())
+        .isTrue();
+    assertThat(generatedForm.getFieldVolumetricInformationCorrect())
+        .isTrue();
   }
 
   @Test
@@ -99,10 +106,11 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
         .isEqualTo(expectedForm);
   }
 
-  @Test
-  void saveFieldCombinedCaseVolumetricTotals_isNotCsr_reservesSaved() {
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
+  void saveFieldCombinedCaseVolumetricTotals_fdpFdpaOrCop_reservesSaved_andSavesVolumetricInformationCorrectQuestion(SubmissionType submissionType) {
     var mixedCaseOutputsForm = createFormWithReserves();
-    var submissionDetail = SubmissionDetailTestUtils.createFieldSubmissionDetail(SubmissionType.CREATE_COP);
+    var submissionDetail = SubmissionDetailTestUtils.createFieldSubmissionDetail(submissionType);
 
     fieldCombinedCaseVolumetricTotalsService.saveFieldCombinedCaseVolumetricTotals(mixedCaseOutputsForm, submissionDetail);
 
@@ -122,6 +130,7 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
 
     verifyResourcesSaved(mixedCaseOutputsForm, submissionDetail);
     verifyReservesSaved(mixedCaseOutputsForm, submissionDetail);
+    verifyVolumetricTotalsSavedWithInformationCorrectQuestion(submissionDetail, mixedCaseOutputsForm);
 
     verifyNoMoreInteractions(probabilityDistributionPersistenceService);
   }
@@ -148,6 +157,7 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
         );
 
     verifyResourcesSaved(mixedCaseOutputsForm, submissionDetail);
+    verifyVolumetricTotalsSavedWithoutInformationCorrectQuestion(submissionDetail, mixedCaseOutputsForm);
 
     verifyNoMoreInteractions(probabilityDistributionPersistenceService);
   }
@@ -383,6 +393,40 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
             ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD,
             mixedCaseOutputsForm.getSalesGasReserves(),
             submissionDetail
+        );
+  }
+
+  private void verifyVolumetricTotalsSavedWithInformationCorrectQuestion(SubmissionDetail submissionDetail, MixedCaseOutputsForm form) {
+    verify(combinedCaseVolumetricTotalsRepository, times(1))
+        .save(volumetricTotalArgumentCaptor.capture());
+
+    assertThat(volumetricTotalArgumentCaptor.getValue())
+        .extracting(
+            CombinedCaseVolumetricTotal::getSubmissionDetail,
+            CombinedCaseVolumetricTotal::getFieldVolumetricInformationCorrect,
+            CombinedCaseVolumetricTotal::getHasAssociatedCondensateRecoverableResources
+        )
+        .containsExactly(
+            submissionDetail,
+            form.getFieldVolumetricInformationCorrect(),
+            form.getHasAssociatedCondensateRecoverableResources()
+        );
+  }
+
+  private void verifyVolumetricTotalsSavedWithoutInformationCorrectQuestion(SubmissionDetail submissionDetail, MixedCaseOutputsForm form) {
+    verify(combinedCaseVolumetricTotalsRepository, times(1))
+        .save(volumetricTotalArgumentCaptor.capture());
+
+    assertThat(volumetricTotalArgumentCaptor.getValue())
+        .extracting(
+            CombinedCaseVolumetricTotal::getSubmissionDetail,
+            CombinedCaseVolumetricTotal::getFieldVolumetricInformationCorrect,
+            CombinedCaseVolumetricTotal::getHasAssociatedCondensateRecoverableResources
+        )
+        .containsExactly(
+            submissionDetail,
+            null,
+            form.getHasAssociatedCondensateRecoverableResources()
         );
   }
 }

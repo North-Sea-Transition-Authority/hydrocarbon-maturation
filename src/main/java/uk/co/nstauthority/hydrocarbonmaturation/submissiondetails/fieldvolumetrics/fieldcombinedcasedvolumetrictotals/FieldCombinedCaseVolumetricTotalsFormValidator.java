@@ -1,20 +1,36 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldcombinedcasedvolumetrictotals;
 
+import java.util.List;
 import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
 
 @Service
 public class FieldCombinedCaseVolumetricTotalsFormValidator implements SubmissionValidator {
+
+  static final List<SubmissionType> VOLUMETRIC_CORRECT_QUESTION_SUBMISSION_TYPES = List.of(SubmissionType.CREATE_FDP,
+      SubmissionType.CREATE_FDPA, SubmissionType.CREATE_COP);
+
+  private final SubmissionDetailService submissionDetailService;
+
+  @Autowired
+  public FieldCombinedCaseVolumetricTotalsFormValidator(SubmissionDetailService submissionDetailService) {
+    this.submissionDetailService = submissionDetailService;
+  }
+
   @Override
   public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
-    var mixedCaseOutputsForm  = (MixedCaseOutputsForm) form;
+    var mixedCaseOutputsForm = (MixedCaseOutputsForm) form;
 
     var oilInPlace = mixedCaseOutputsForm.getOilInPlace();
     ProbabilityDistributionValidationUtil.validateCustomPartial(
@@ -42,7 +58,7 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
 
   @Override
   public void validateFull(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
-    var mixedCaseOutputsForm  = (MixedCaseOutputsForm) form;
+    var mixedCaseOutputsForm = (MixedCaseOutputsForm) form;
 
     var oilInPlace = mixedCaseOutputsForm.getOilInPlace();
     ProbabilityDistributionValidationUtil.validateCustomFull(
@@ -65,6 +81,16 @@ public class FieldCombinedCaseVolumetricTotalsFormValidator implements Submissio
     validateResourcesFull(mixedCaseOutputsForm, errors);
     if (!submissionDetail.isConceptSelectReportSubmission()) {
       validateReservesFull(mixedCaseOutputsForm, errors);
+    }
+
+    if (VOLUMETRIC_CORRECT_QUESTION_SUBMISSION_TYPES.contains(submissionDetail.getSubmissionType())
+        && submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail)) {
+      ValidationUtils.rejectIfEmpty(
+          errors,
+          "fieldVolumetricInformationCorrect",
+          "fieldVolumetricInformationCorrect.required",
+          "Select if the field volumetric information reflects the current state of the field"
+      );
     }
   }
 

@@ -24,6 +24,7 @@ public class MixedCaseOutputsForm implements SubmissionForm {
   private ProbabilityDistributionForm riskedOilEquivalentRecoverableMean = new ProbabilityDistributionForm();
   private Boolean hasAssociatedGasRecoverableResources;
   private Boolean hasAssociatedCondensateRecoverableResources;
+  private Boolean fieldVolumetricInformationCorrect;
 
   public ProbabilityDistributionForm getGasInPlace() {
     return gasInPlace;
@@ -175,5 +176,13 @@ public class MixedCaseOutputsForm implements SubmissionForm {
 
   public void setHasAssociatedCondensateRecoverableResources(Boolean hasAssociatedCondensateRecoverableResources) {
     this.hasAssociatedCondensateRecoverableResources = hasAssociatedCondensateRecoverableResources;
+  }
+
+  public Boolean getFieldVolumetricInformationCorrect() {
+    return fieldVolumetricInformationCorrect;
+  }
+
+  public void setFieldVolumetricInformationCorrect(Boolean fieldVolumetricInformationCorrect) {
+    this.fieldVolumetricInformationCorrect = fieldVolumetricInformationCorrect;
   }
 }

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
@@ -19,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsForm;
@@ -28,14 +32,75 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @ExtendWith(MockitoExtension.class)
 class FieldGasCaseVolumetricTotalsFormValidatorTest {
 
+  @Mock
+  private SubmissionDetailService submissionDetailService;
+
+  @InjectMocks
   private FieldGasCaseVolumetricTotalsFormValidator fieldGasCaseVolumetricTotalsFormValidator;
 
   private SubmissionDetail submissionDetail;
 
   @BeforeEach
   void setUp() {
-    fieldGasCaseVolumetricTotalsFormValidator = new FieldGasCaseVolumetricTotalsFormValidator();
     submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_COP", "CREATE_FDP", "CREATE_FDPA"})
+  void validatePartial_whenValidForm_andIsCopFdpOrFdpa_withCorrectVolumetricsQuestion_thenNoValidationErrors(
+      SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    var form = getFieldValidForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertTrue(fieldGasCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        ValidationType.PARTIAL));
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_COP", "CREATE_FDP", "CREATE_FDPA"})
+  void validatePartial_whenValidForm_andIsCopFdpOrFdpa_withoutCorrectVolumetricsQuestion_thenNoValidationErrors(
+      SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    var form = getFieldValidForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertTrue(fieldGasCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        ValidationType.PARTIAL));
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_COP", "CREATE_FDP", "CREATE_FDPA"})
+  void validateFull_whenValidForm_andIsCopFdpOrFdpa_withCorrectVolumetricsQuestion_thenNoValidationErrors(
+      SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    when(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
+        .thenReturn(true);
+
+    var form = getFieldValidForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertTrue(fieldGasCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        ValidationType.FULL));
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_COP", "CREATE_FDP", "CREATE_FDPA"})
+  void validateFull_whenValidForm_andIsCopFdpOrFdpa_withoutCorrectVolumetricsQuestion_thenNoValidationErrors(
+      SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    when(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
+        .thenReturn(false);
+
+    var form = getFieldValidForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertTrue(fieldGasCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        ValidationType.FULL));
+    assertFalse(bindingResult.hasErrors());
   }
 
   @ParameterizedTest
@@ -343,6 +408,8 @@ class FieldGasCaseVolumetricTotalsFormValidatorTest {
     form.setOilEquivalentRecoverableReserves(oilEquivalentReserves);
     form.setNaturalGasLiquidsReserves(naturalGasLiquidsReserves);
     form.setSalesGasReserves(salesGasReserves);
+
+    form.setFieldVolumetricInformationCorrect(Boolean.TRUE);
 
     return form;
   }

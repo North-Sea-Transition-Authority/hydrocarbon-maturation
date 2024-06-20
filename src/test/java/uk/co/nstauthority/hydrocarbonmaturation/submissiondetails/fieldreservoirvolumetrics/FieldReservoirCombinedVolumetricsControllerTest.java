@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -184,9 +185,59 @@ class FieldReservoirCombinedVolumetricsControllerTest extends AbstractSubmission
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
-  void getFieldReservoirVolumetricsModelAndView_assertModelProperties(SubmissionType submissionType) throws Exception {
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
+  void getFieldReservoirVolumetricsModelAndView_assertModelProperties_reservoirCarriedForward(SubmissionType submissionType) throws Exception {
     submissionDetail.setSubmissionType(submissionType);
+
+    var form = new FieldReservoirVolumetricsForm();
+    when(fieldReservoirVolumetricsFormService.getFieldReservoirVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
+
+    var reservoirWasCarriedForward = Boolean.TRUE;
+    when(reservoirSubmissionDetailPersistenceService.reservoirWasCarriedForward(reservoirSubmissionDetail.getReservoir()))
+        .thenReturn(reservoirWasCarriedForward);
+
+    var modelMap = Objects.requireNonNull(
+            mockMvc.perform(
+                    get(ReverseRouter.route(on(FieldReservoirCombinedVolumetricsController.class)
+                        .getFieldCombinedVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+                        .with(user(USER)))
+                .andReturn()
+                .getModelAndView())
+        .getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("pageTitle", FieldReservoirCombinedVolumetricsController.OIL_AND_GAS_VOLUMETRICS_PAGE_TITLE),
+            entry("form", form),
+            entry("hydrocarbonType", HydrocarbonsDiscovered.MIXED_OIL_AND_GAS),
+            entry("oilInPlaceError", ProbabilityDistributionTypeError.emptyError()),
+            entry("oilInPlaceTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                    ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD)),
+            entry("gasInPlaceError", ProbabilityDistributionTypeError.emptyError()),
+            entry("gasInPlaceTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                    ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD)),
+            entry("reservoirCarriedForward", reservoirWasCarriedForward)
+        );
+
+    assertEquals(FieldReservoirVolumetricsForm.class, modelMap.get("form").getClass());
+
+    @SuppressWarnings(value = "unchecked")
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(TaskListController.class)
+            .getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class)
+            .getReservoirTaskList(submissionDetail.getId(), null)), ReservoirTaskListController.PAGE_TITLE)
+    );
+  }
+
+  @Test
+  void getFieldReservoirVolumetricsModelAndView_assertModelProperties_reservoirNotCarriedForward() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
 
     var form = new FieldReservoirVolumetricsForm();
     when(fieldReservoirVolumetricsFormService.getFieldReservoirVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
@@ -201,6 +252,7 @@ class FieldReservoirCombinedVolumetricsControllerTest extends AbstractSubmission
         .getModelMap();
 
     assertThat(modelMap)
+        .doesNotContainKey("reservoirCarriedForward")
         .contains(
             entry("pageTitle", FieldReservoirCombinedVolumetricsController.OIL_AND_GAS_VOLUMETRICS_PAGE_TITLE),
             entry("form", form),

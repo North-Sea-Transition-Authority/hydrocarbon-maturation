@@ -12,6 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolum
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverymixedcasevolumetrics.DiscoveryMixedCaseVolumetricsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldcombinedcasedvolumetrictotals.FieldCombinedCaseVolumetricTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldgascasevolumetrics.FieldGasCaseVolumetricTotalsService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.FieldOilCaseVolumetricTotalsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.ReservoirHydrocarbonCaseService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsPersistenceService;
@@ -34,6 +35,7 @@ public class ReservoirTotalsCleanAndCopyService {
   private final ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
   private final FieldGasCaseVolumetricTotalsService fieldGasCaseVolumetricTotalsService;
   private final FieldCombinedCaseVolumetricTotalsService fieldCombinedCaseVolumetricTotalsService;
+  private final FieldOilCaseVolumetricTotalsService fieldOilCaseVolumetricTotalsService;
 
   @Autowired
   public ReservoirTotalsCleanAndCopyService(
@@ -46,7 +48,8 @@ public class ReservoirTotalsCleanAndCopyService {
       DiscoveryCombinedCaseVolTotalsService discoveryCombinedCaseVolTotalsService,
       ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService,
       FieldGasCaseVolumetricTotalsService fieldGasCaseVolumetricTotalsService,
-      FieldCombinedCaseVolumetricTotalsService fieldCombinedCaseVolumetricTotalsService) {
+      FieldCombinedCaseVolumetricTotalsService fieldCombinedCaseVolumetricTotalsService,
+      FieldOilCaseVolumetricTotalsService fieldOilCaseVolumetricTotalsService) {
 
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
@@ -58,6 +61,7 @@ public class ReservoirTotalsCleanAndCopyService {
     this.reservoirHydrocarbonCaseService = reservoirHydrocarbonCaseService;
     this.fieldGasCaseVolumetricTotalsService = fieldGasCaseVolumetricTotalsService;
     this.fieldCombinedCaseVolumetricTotalsService = fieldCombinedCaseVolumetricTotalsService;
+    this.fieldOilCaseVolumetricTotalsService = fieldOilCaseVolumetricTotalsService;
   }
 
   /** Clean any previously entered totals (can happen if more than one reservoir existed originally).
@@ -84,6 +88,7 @@ public class ReservoirTotalsCleanAndCopyService {
     if (reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails)) {
       // if gas only, clean any oil and combined totals saved
       deleteOilOnlyFieldTotals(submissionDetail);
+      fieldOilCaseVolumetricTotalsService.deleteOilCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
       fieldCombinedCaseVolumetricTotalsService.deleteCombinedCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
     } else if (reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails)) {
       // if oil only, clean any gas and combined totals saved
@@ -91,6 +96,7 @@ public class ReservoirTotalsCleanAndCopyService {
       fieldGasCaseVolumetricTotalsService.deleteGasCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
       fieldCombinedCaseVolumetricTotalsService.deleteCombinedCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
     } else if (reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails)) {
+      fieldOilCaseVolumetricTotalsService.deleteOilCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
       fieldGasCaseVolumetricTotalsService.deleteGasCaseVolumetricTotalsForSubmissionDetail(submissionDetail);
     }
   }

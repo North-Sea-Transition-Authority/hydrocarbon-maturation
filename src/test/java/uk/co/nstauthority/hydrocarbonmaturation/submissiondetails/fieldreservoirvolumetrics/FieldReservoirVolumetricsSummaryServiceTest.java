@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldreservoi
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldreservoirvolumetrics.FieldReservoirVolumetricsSummaryService.INITIALLY_IN_PLACE_CORRECT;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,8 +23,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,6 +37,12 @@ class FieldReservoirVolumetricsSummaryServiceTest {
 
   @Mock
   private GeneralReservoirInformationService generalReservoirInformationService;
+
+  @Mock
+  private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+
+  @Mock
+  private FieldReservoirVolumetricsRepository fieldReservoirVolumetricsRepository;
 
   @InjectMocks
   private FieldReservoirVolumetricsSummaryService fieldReservoirVolumetricsSummaryService;
@@ -48,10 +57,13 @@ class FieldReservoirVolumetricsSummaryServiceTest {
   }
 
   @ParameterizedTest
-  @MethodSource("allFieldSubmissionTypes")
-  void getSummarySection_fieldSubmission_oilCase_present(SubmissionType submissionType) {
+  @MethodSource("fieldSubmissionTypesWithFdpFdpaCop")
+  void getSummarySection_fieldSubmission_notCarriedForward_oilCase_present(SubmissionType submissionType) {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionType);
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+
+    when(reservoirSubmissionDetailPersistenceService.reservoirWasCarriedForward(reservoirSubmissionDetail.getReservoir()))
+        .thenReturn(false);
 
     var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
     when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
@@ -73,9 +85,99 @@ class FieldReservoirVolumetricsSummaryServiceTest {
     var expectedCard = SummaryCard.probabilitySummaryCard(summaryViews);
     var expectedItem = SummaryItem.withCard(FieldReservoirVolumetricsSummaryService.OIL_VOLUMETRICS, expectedCard);
 
-    assertThat(summarySection.get().summaryItems()).hasSize(1);
+    var summaryItems = summarySection.get().summaryItems();
+    assertThat(summaryItems).hasSize(1);
 
-    var summaryItem = summarySection.get().summaryItems().get(0);
+    var summaryItem = summaryItems.get(0);
+    assertThat(summaryItem)
+        .usingRecursiveComparison()
+        .isEqualTo(expectedItem);
+
+  }
+
+  @ParameterizedTest
+  @MethodSource("fieldSubmissionTypesWithoutFdpFdpaCop")
+  void getSummarySection_fieldSubmission_notFdpFdpaOrCop_oilCase_present(SubmissionType submissionType) {
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionType);
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+
+    when(reservoirSubmissionDetailPersistenceService.reservoirWasCarriedForward(reservoirSubmissionDetail.getReservoir()))
+        .thenReturn(true);
+
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.ofNullable(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isOilOnly(reservoirHydrocarbons))
+        .thenReturn(true);
+
+    var listOfInstances = List.of(ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD);
+    var summaryViews = List.of(ProbabilityDistributionSummaryView.empty("test"));
+    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        listOfInstances,
+        submissionDetail,
+        reservoirSubmissionDetail)
+    ).thenReturn(summaryViews);
+
+    var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
+    assertThat(summarySection).isPresent();
+
+    var expectedCard = SummaryCard.probabilitySummaryCard(summaryViews);
+    var expectedItem = SummaryItem.withCard(FieldReservoirVolumetricsSummaryService.OIL_VOLUMETRICS, expectedCard);
+
+    var summaryItems = summarySection.get().summaryItems();
+    assertThat(summaryItems).hasSize(1);
+
+    var summaryItem = summaryItems.get(0);
+    assertThat(summaryItem)
+        .usingRecursiveComparison()
+        .isEqualTo(expectedItem);
+
+  }
+
+  @ParameterizedTest
+  @MethodSource("fieldSubmissionTypesWithFdpFdpaCop")
+  void getSummarySection_fieldSubmission_wasCarriedForward_oilCase_present(SubmissionType submissionType) {
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionType);
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+
+    var fieldReservoirVolumetrics = new FieldReservoirVolumetrics();
+    fieldReservoirVolumetrics.setInitiallyInPlaceCorrect(true);
+    when(reservoirSubmissionDetailPersistenceService.reservoirWasCarriedForward(reservoirSubmissionDetail.getReservoir()))
+        .thenReturn(true);
+    when(fieldReservoirVolumetricsRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(fieldReservoirVolumetrics));
+
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.ofNullable(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isOilOnly(reservoirHydrocarbons))
+        .thenReturn(true);
+
+    var listOfInstances = List.of(ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD);
+    var summaryViews = List.of(ProbabilityDistributionSummaryView.empty("test"));
+    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        listOfInstances,
+        submissionDetail,
+        reservoirSubmissionDetail)
+    ).thenReturn(summaryViews);
+
+    var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
+    assertThat(summarySection).isPresent();
+
+    var probabilityCard = SummaryCard.probabilitySummaryCard(summaryViews);
+    var volumetricTotalCard = SummaryCard.simpleSummaryCard(SummaryDataView.newWithKeyValue(
+        INITIALLY_IN_PLACE_CORRECT, "Yes"
+    ));
+
+    var expectedItem = SummaryItem.withCards(
+        FieldReservoirVolumetricsSummaryService.OIL_VOLUMETRICS,
+        List.of(probabilityCard, volumetricTotalCard)
+    );
+
+    var summaryItems = summarySection.get().summaryItems();
+    assertThat(summaryItems).hasSize(1);
+
+    var summaryItem = summaryItems.get(0);
     assertThat(summaryItem)
         .usingRecursiveComparison()
         .isEqualTo(expectedItem);
@@ -144,7 +246,8 @@ class FieldReservoirVolumetricsSummaryServiceTest {
     assertThat(summarySection).isPresent();
 
     var expectedCard = SummaryCard.probabilitySummaryCard(summaryViews);
-    var expectedItem = SummaryItem.withCard(FieldReservoirVolumetricsSummaryService.OIL_AND_GAS_VOLUMETRICS, expectedCard);
+    var expectedItem = SummaryItem.withCard(FieldReservoirVolumetricsSummaryService.OIL_AND_GAS_VOLUMETRICS,
+        expectedCard);
 
     assertThat(summarySection.get().summaryItems()).hasSize(1);
 
@@ -158,6 +261,24 @@ class FieldReservoirVolumetricsSummaryServiceTest {
   private static Stream<Arguments> allFieldSubmissionTypes() {
     return Arrays.stream(SubmissionType.values())
         .filter(SubmissionDetailUtil::isFieldSubmission)
+        .map(Arguments::of);
+  }
+
+  private static Stream<Arguments> fieldSubmissionTypesWithFdpFdpaCop() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(SubmissionDetailUtil::isFieldSubmission)
+        .filter(fieldSubmissionType -> fieldSubmissionType.equals(SubmissionType.CREATE_FDP)
+            || fieldSubmissionType.equals(SubmissionType.CREATE_FDPA)
+            || fieldSubmissionType.equals(SubmissionType.CREATE_COP))
+        .map(Arguments::of);
+  }
+
+  private static Stream<Arguments> fieldSubmissionTypesWithoutFdpFdpaCop() {
+    return Arrays.stream(SubmissionType.values())
+        .filter(SubmissionDetailUtil::isFieldSubmission)
+        .filter(fieldSubmissionType -> !fieldSubmissionType.equals(SubmissionType.CREATE_FDP)
+            && !fieldSubmissionType.equals(SubmissionType.CREATE_FDPA)
+            && !fieldSubmissionType.equals(SubmissionType.CREATE_COP))
         .map(Arguments::of);
   }
 

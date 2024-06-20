@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
@@ -19,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsForm;
@@ -28,23 +32,121 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @ExtendWith(MockitoExtension.class)
 class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
 
+  @Mock
+  private SubmissionDetailService submissionDetailService;
+
+  @InjectMocks
   private FieldCombinedCaseVolumetricTotalsFormValidator fieldCombinedCaseVolumetricTotalsFormValidator;
 
   private SubmissionDetail submissionDetail;
 
   @BeforeEach
   void setUp() {
-    fieldCombinedCaseVolumetricTotalsFormValidator = new FieldCombinedCaseVolumetricTotalsFormValidator();
     submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
   }
 
   @ParameterizedTest
-  @EnumSource(value = ValidationType.class)
-  void validate_whenValidForm_thenNoValidationErrors(ValidationType validationType) {
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_COP", "CREATE_FDP", "CREATE_FDPA"})
+  void validatePartial_whenValidForm_andIsCopFdpOrFdpa_withCorrectVolumetricsQuestion_thenNoValidationErrors(
+      SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    assertTrue(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail, validationType));
+    assertTrue(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        ValidationType.PARTIAL));
     assertFalse(bindingResult.hasErrors());
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_COP", "CREATE_FDP", "CREATE_FDPA"})
+  void validatePartial_whenValidForm_andIsCopFdpOrFdpa_withoutCorrectVolumetricsQuestion_thenNoValidationErrors(
+      SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    var form = getValidForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertTrue(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        ValidationType.PARTIAL));
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_COP", "CREATE_FDP", "CREATE_FDPA"})
+  void validateFull_whenValidForm_andIsCopFdpOrFdpa_withCorrectVolumetricsQuestion_thenNoValidationErrors(
+      SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    when(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
+        .thenReturn(true);
+
+    var form = getValidForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertTrue(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        ValidationType.FULL));
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_COP", "CREATE_FDP", "CREATE_FDPA"})
+  void validateFull_whenValidForm_andIsCopFdpOrFdpa_withoutCorrectVolumetricsQuestion_thenNoValidationErrors(
+      SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    when(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
+        .thenReturn(false);
+
+    var form = getValidForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertTrue(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        ValidationType.FULL));
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = ValidationType.class)
+  void validate_whenValidForm_notCopFdpOrFdpa_withoutCorrectVolumetricsQuestion_thenNoValidationErrors(
+      ValidationType validationType) {
+    var form = getValidForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertTrue(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        validationType));
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_COP", "CREATE_FDP", "CREATE_FDPA"})
+  void validatePartial_whenEmptyForm_andIsCopFdpOrFdpa_withoutCorrectVolumetricsQuestion_thenValidationErrors(
+      SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    var form = getValidForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertTrue(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        ValidationType.PARTIAL));
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_COP", "CREATE_FDP", "CREATE_FDPA"})
+  void validateFull_whenEmptyForm_andIsCopFdpOrFdpa_withCorrectVolumetricsQuestion_thenValidationErrors(
+      SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    when(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
+        .thenReturn(true);
+
+    var form = getEmptyForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertFalse(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        ValidationType.FULL));
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("fieldVolumetricInformationCorrect", Set.of("fieldVolumetricInformationCorrect.required"))
+        );
   }
 
   @ParameterizedTest
@@ -54,7 +156,8 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
 
     var form = getInvalidForm(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    assertFalse(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail, validationType));
+    assertFalse(
+        fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail, validationType));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -67,13 +170,16 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
             entry("oilRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("gasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("gasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("naturalGasLiquidsResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("naturalGasLiquidsResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("salesGasResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
@@ -83,18 +189,21 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
             entry("oilRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("gasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("gasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("naturalGasLiquidsReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("naturalGasLiquidsReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("salesGasReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("salesGasReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")
-            )
+                Set.of("salesGasReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("fieldVolumetricInformationCorrect", Set.of("fieldVolumetricInformationCorrect.required"))
         );
   }
 
@@ -105,7 +214,8 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
 
     var form = getInvalidForm(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    assertFalse(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail, validationType));
+    assertFalse(
+        fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail, validationType));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -119,13 +229,16 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
             entry("oilRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("gasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("gasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("naturalGasLiquidsResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("naturalGasLiquidsResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("salesGasResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
@@ -134,13 +247,16 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
             entry("oilRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("gasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("gasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("naturalGasLiquidsReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("naturalGasLiquidsReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("salesGasReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
@@ -155,7 +271,8 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
 
     var form = getEmptyForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    assertTrue(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.PARTIAL));
+    assertTrue(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        ValidationType.PARTIAL));
     assertFalse(bindingResult.hasErrors());
   }
 
@@ -165,7 +282,8 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
 
     var form = getEmptyForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    assertTrue(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.PARTIAL));
+    assertTrue(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        ValidationType.PARTIAL));
     assertFalse(bindingResult.hasErrors());
   }
 
@@ -175,11 +293,13 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
 
     var form = getEmptyForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    assertFalse(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL));
+    assertFalse(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        ValidationType.FULL));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
     assertThat(extractedErrors)
+        .doesNotContainKey("fieldVolumetricInformationCorrect")
         .contains(
             entry("oilInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
@@ -188,13 +308,16 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
             entry("oilRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("gasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("gasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("naturalGasLiquidsResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("naturalGasLiquidsResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("salesGasResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
@@ -204,13 +327,16 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
             entry("oilRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("gasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("gasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("naturalGasLiquidsReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("naturalGasLiquidsReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("salesGasReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
@@ -221,30 +347,34 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
 
   @Test
   void validateFull_isNotCsrField_emptyForm_thenErrors() {
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_COP);
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_FIELD);
 
     var form = getEmptyForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    assertFalse(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL));
+    assertFalse(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        ValidationType.FULL));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
+        .doesNotContainKey("fieldVolumetricInformationCorrect")
         .contains(
             entry("oilInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("gasInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("gasInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
-
             entry("oilRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("gasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("gasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("naturalGasLiquidsResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("naturalGasLiquidsResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("salesGasResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
@@ -253,17 +383,79 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
             entry("oilRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("gasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("gasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+                Set.of(
+                    "oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("naturalGasLiquidsReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("naturalGasLiquidsReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("salesGasReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("salesGasReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")
+            )
+        );
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_COP", "CREATE_FDP", "CREATE_FDPA"})
+  void validateFull_isFdpFdpaOrCop_withVolumetricsCorrectQuestion_emptyForm_thenErrors(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    when(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
+        .thenReturn(true);
+
+    var form = getEmptyForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertFalse(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        ValidationType.FULL));
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors)
+        .contains(
+            entry("oilInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("oilInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("gasInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("gasInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("oilRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("oilRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of(
+                    "associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("gasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("gasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of(
+                    "associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of(
+                    "oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("naturalGasLiquidsResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("naturalGasLiquidsResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("salesGasResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("salesGasResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("oilRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("oilRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of(
+                    "associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("gasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("gasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of(
+                    "associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of(
+                    "oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("naturalGasLiquidsReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("naturalGasLiquidsReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("salesGasReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("salesGasReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("fieldVolumetricInformationCorrect", Set.of("fieldVolumetricInformationCorrect.required")
             )
         );
   }
@@ -276,7 +468,8 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
     form.setHasAssociatedCondensateRecoverableResources(null);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    assertFalse(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL));
+    assertFalse(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        ValidationType.FULL));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -295,7 +488,8 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
     form.setHasAssociatedCondensateRecoverableResources(null);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    assertTrue(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.PARTIAL));
+    assertTrue(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail,
+        ValidationType.PARTIAL));
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
@@ -378,6 +572,8 @@ class FieldCombinedCaseVolumetricTotalsFormValidatorTest {
     form.setOilEquivalentRecoverableReserves(oilEquivalentReserves);
     form.setNaturalGasLiquidsReserves(naturalGasLiquidsReserves);
     form.setSalesGasReserves(salesGasReserves);
+
+    form.setFieldVolumetricInformationCorrect(Boolean.TRUE);
 
     return form;
   }

@@ -8,20 +8,25 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrictotals.OilCaseVolumetricTotal;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetrictotals.OilCaseVolumetricTotalsRepository;
 
 @Service
 public class FieldOilCaseVolumetricTotalsService {
 
   private final ProbabilityDistributionFormService probabilityDistributionFormService;
   private final ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
+  private final OilCaseVolumetricTotalsRepository oilCaseVolumetricTotalsRepository;
 
   @Autowired
   public FieldOilCaseVolumetricTotalsService(
       ProbabilityDistributionFormService probabilityDistributionFormService,
-      ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService) {
+      ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService,
+      OilCaseVolumetricTotalsRepository oilCaseVolumetricTotalsRepository) {
 
     this.probabilityDistributionFormService = probabilityDistributionFormService;
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
+    this.oilCaseVolumetricTotalsRepository = oilCaseVolumetricTotalsRepository;
   }
 
   public OilCaseOutputsForm submissionDetailToForm(SubmissionDetail submissionDetail) {
@@ -37,10 +42,11 @@ public class FieldOilCaseVolumetricTotalsService {
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD
     ));
 
-    form.setAssociatedCondensateRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD
-    ));
+    form.setAssociatedCondensateRecoverableResources(
+        probabilityDistributionFormService.probabilityDistributionEntityToForm(
+            submissionDetail,
+            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD
+        ));
 
     form.setAssociatedGasRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
@@ -68,10 +74,11 @@ public class FieldOilCaseVolumetricTotalsService {
           ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD
       ));
 
-      form.setAssociatedCondensateRecoverableReserves(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
-          ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD
-      ));
+      form.setAssociatedCondensateRecoverableReserves(
+          probabilityDistributionFormService.probabilityDistributionEntityToForm(
+              submissionDetail,
+              ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD
+          ));
 
       form.setAssociatedGasRecoverableReserves(probabilityDistributionFormService.probabilityDistributionEntityToForm(
           submissionDetail,
@@ -94,12 +101,34 @@ public class FieldOilCaseVolumetricTotalsService {
       ));
     }
 
+    var oilCaseVolumetricInformationCorrect = oilCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail)
+        .map(OilCaseVolumetricTotal::getFieldVolumetricInformationCorrect)
+        .orElse(null);
+    form.setFieldVolumetricInformationCorrect(oilCaseVolumetricInformationCorrect);
+
     return form;
   }
 
   @Transactional
-  public void saveFieldOilCaseVolumetricTotals(OilCaseOutputsForm oilCaseOutputsForm, SubmissionDetail submissionDetail) {
+  public void saveFieldOilCaseVolumetricTotals(OilCaseOutputsForm oilCaseOutputsForm,
+                                               SubmissionDetail submissionDetail) {
     saveProbabilityDistributionFields(oilCaseOutputsForm, submissionDetail);
+    saveOilCaseVolumetricTotals(oilCaseOutputsForm, submissionDetail);
+  }
+
+  @Transactional
+  public void deleteOilCaseVolumetricTotalsForSubmissionDetail(SubmissionDetail submissionDetail) {
+    oilCaseVolumetricTotalsRepository.deleteBySubmissionDetail(submissionDetail);
+  }
+
+  private void saveOilCaseVolumetricTotals(OilCaseOutputsForm oilCaseOutputsForm, SubmissionDetail submissionDetail) {
+    var oilCaseVolumetricTotal = oilCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail)
+        .orElse(new OilCaseVolumetricTotal());
+
+    oilCaseVolumetricTotal.setSubmissionDetail(submissionDetail);
+    oilCaseVolumetricTotal.setFieldVolumetricInformationCorrect(oilCaseOutputsForm.getFieldVolumetricInformationCorrect());
+
+    oilCaseVolumetricTotalsRepository.save(oilCaseVolumetricTotal);
   }
 
   private void saveProbabilityDistributionFields(

@@ -20,6 +20,7 @@ public class OilCaseOutputsForm implements SubmissionForm {
   private ProbabilityDistributionForm salesGasResources = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm salesGasReserves = new ProbabilityDistributionForm();
   private Boolean hasAssociatedGasRecoverableResources;
+  private Boolean fieldVolumetricInformationCorrect;
 
   public ProbabilityDistributionForm getOilInPlace() {
     return oilInPlace;
@@ -139,5 +140,13 @@ public class OilCaseOutputsForm implements SubmissionForm {
 
   public void setHasAssociatedGasRecoverableResources(Boolean hasAssociatedGasRecoverableResources) {
     this.hasAssociatedGasRecoverableResources = hasAssociatedGasRecoverableResources;
+  }
+
+  public Boolean getFieldVolumetricInformationCorrect() {
+    return fieldVolumetricInformationCorrect;
+  }
+
+  public void setFieldVolumetricInformationCorrect(Boolean fieldVolumetricInformationCorrect) {
+    this.fieldVolumetricInformationCorrect = fieldVolumetricInformationCorrect;
   }
 }

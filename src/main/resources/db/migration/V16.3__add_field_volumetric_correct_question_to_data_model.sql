@@ -1,0 +1,5 @@
+ALTER TABLE combined_case_volumetric_totals
+ADD COLUMN field_volumetric_information_correct BOOLEAN;
+
+ALTER TABLE gas_case_volumetric_totals
+ADD COLUMN field_volumetric_information_correct BOOLEAN;

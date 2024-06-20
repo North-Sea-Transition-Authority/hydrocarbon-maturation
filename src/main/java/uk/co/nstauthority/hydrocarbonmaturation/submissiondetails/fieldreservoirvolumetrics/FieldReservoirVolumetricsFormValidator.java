@@ -1,7 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldreservoirvolumetrics;
 
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldreservoirvolumetrics.FieldReservoirVolumetricsFormService.INITIALLY_IN_PLACE_QUESTION_SUBMISSION_TYPES;
+
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
@@ -76,6 +79,16 @@ public class FieldReservoirVolumetricsFormValidator implements ReservoirSubmissi
           "gasInPlace",
           "Gas initially in place",
           ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
+      );
+    }
+
+    var submissionType = reservoirSubmissionDetail.getSubmissionDetail().getSubmissionType();
+    if (INITIALLY_IN_PLACE_QUESTION_SUBMISSION_TYPES.contains(submissionType)) {
+      ValidationUtils.rejectIfEmpty(
+          errors,
+          "initiallyInPlaceInformationCorrect",
+          "initiallyInPlaceInformationCorrect.required",
+          "Select if the reservoir initially in place information is correct"
       );
     }
   }

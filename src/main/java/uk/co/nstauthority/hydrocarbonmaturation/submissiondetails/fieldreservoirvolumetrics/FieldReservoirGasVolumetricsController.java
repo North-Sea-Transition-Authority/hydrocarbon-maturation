@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldreservoi
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTypeError;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
@@ -36,6 +38,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 @IsFromResponsibleTeam
 public class FieldReservoirGasVolumetricsController {
   public static final String GAS_VOLUMETRICS_PAGE_TITLE = "Gas volumetrics";
+  static final List<SubmissionType> INITIALLY_IN_PLACE_QUESTION_SUBMISSION_TYPES = List.of(SubmissionType.CREATE_FDP,
+      SubmissionType.CREATE_FDPA, SubmissionType.CREATE_COP);
 
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
   private final FieldReservoirVolumetricsFormService fieldReservoirVolumetricsFormService;
@@ -80,7 +84,8 @@ public class FieldReservoirGasVolumetricsController {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
 
-    if (!fieldReservoirVolumetricsFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType)) {
+    if (!fieldReservoirVolumetricsFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail,
+        validationType)) {
       return getFieldGasVolumetricsModelAndViewWithErrors(bindingResult, form, reservoirSubmissionDetail);
     } else {
       fieldReservoirVolumetricsFormService.saveFieldReservoirVolumetrics(form, reservoirSubmissionDetail);
@@ -100,6 +105,14 @@ public class FieldReservoirGasVolumetricsController {
         .addObject("gasInPlaceTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD));
+
+    var submissionType = reservoirSubmissionDetail.getSubmissionDetail().getSubmissionType();
+    if (INITIALLY_IN_PLACE_QUESTION_SUBMISSION_TYPES.contains(submissionType)) {
+      var reservoirCarriedForward = reservoirSubmissionDetailPersistenceService.reservoirWasCarriedForward(
+          reservoirSubmissionDetail.getReservoir()
+      );
+      modelAndView.addObject("reservoirCarriedForward", reservoirCarriedForward);
+    }
 
     return TaskListBreadcrumbUtil.addReservoirTaskListBreadcrumbsToModelAndView(
         modelAndView, GAS_VOLUMETRICS_PAGE_TITLE, reservoirSubmissionDetail

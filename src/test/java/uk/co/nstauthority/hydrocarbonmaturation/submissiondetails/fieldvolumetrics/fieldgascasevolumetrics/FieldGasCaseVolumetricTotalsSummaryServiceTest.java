@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldgascasevolumetrics.FieldGasCaseVolumetricTotalsSummaryService.TOTAL_GAS_VOLUMETRICS_ORDER;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.FieldOilCaseVolumetricTotalsSummaryService.TOTAL_VOLUMETRICS_CORRECT;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.ReservoirHydrocarbonCaseService;
@@ -29,6 +31,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascasevolumet
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryKeyValue;
 
 @ExtendWith(MockitoExtension.class)
 class FieldGasCaseVolumetricTotalsSummaryServiceTest {
@@ -44,6 +48,9 @@ class FieldGasCaseVolumetricTotalsSummaryServiceTest {
 
   @Mock
   private GasCaseVolumetricTotalsRepository gasCaseVolumetricTotalsRepository;
+
+  @Mock
+  private SubmissionDetailService submissionDetailService;
 
   @InjectMocks
   private FieldGasCaseVolumetricTotalsSummaryService fieldGasCaseVolumetricTotalsSummaryService;
@@ -65,8 +72,158 @@ class FieldGasCaseVolumetricTotalsSummaryServiceTest {
   }
 
   @Test
-  void getSummarySection_validForm_assertStructure() {
+  void getSummarySection_validForm_andCarriedForward_assertStructure_withVolumetricQuestioncard() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_COP);
+
+    when(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
+        .thenReturn(true);
+
+    var gasCaseVolumetricTotal = new GasCaseVolumetricTotal();
+    gasCaseVolumetricTotal.setFieldVolumetricInformationCorrect(true);
+    when(gasCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(gasCaseVolumetricTotal));
+
+    when(reservoirHydrocarbonCaseService.isGasCaseOnly(anyList()))
+        .thenReturn(true);
+
+    var probabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+            any(),
+            eq(submissionDetail),
+            eq(null)
+        )).thenReturn(List.of(probabilitySummaryView));
+
+    assertThat(fieldGasCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail)).isPresent();
+
+    var summarySection = fieldGasCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail).get();
+    assertThat(summarySection.displayOrder()).isEqualTo(TOTAL_GAS_VOLUMETRICS_ORDER);
+
+    var summaryItems = summarySection.summaryItems();
+    assertThat(summaryItems).hasSize(1);
+
+    var summaryCards = summaryItems.get(0).summaryCards();
+    assertThat(summaryCards).hasSize(3);
+
+    // Gas in place card
+    var card1 = summaryCards.get(0);
+    assertThat(card1)
+        .extracting(
+            SummaryCard::displayName,
+            SummaryCard::summaryCardType
+        ).containsExactly(
+            null,
+            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY
+        );
+    var card1Data = (List<ProbabilityDistributionSummaryView>) card1.summaryData();
+    assertThat(card1Data)
+        .containsOnly(probabilitySummaryView);
+
+    // Resources and reserves card
+    var card2 = summaryCards.get(1);
+    assertThat(card2)
+        .extracting(
+            SummaryCard::displayName,
+            SummaryCard::summaryCardType
+        ).containsExactly(
+            null,
+            SummaryCardType.FIELD_PROBABILITY_DISTRIBUTION_SUMMARY
+        );
+    var card2Data = (List<ProbabilityDistributionSummaryView>) card2.summaryData();
+    assertThat(card2Data)
+        .containsOnly(probabilitySummaryView);
+
+    // Volumetric total card
+    var card3 = summaryCards.get(2);
+    assertThat(card3)
+        .extracting(
+            SummaryCard::displayName,
+            SummaryCard::summaryCardType
+        ).containsExactly(
+            null,
+            SummaryCardType.SIMPLE_SUMMARY
+        );
+
+    var card3Data = (SummaryDataView) card3.summaryData();
+    assertThat(card3Data.keyValues())
+        .hasSize(1)
+        .containsExactly(new SummaryKeyValue(TOTAL_VOLUMETRICS_CORRECT, "Yes"));
+  }
+
+  @Test
+  void getSummarySection_validForm_notFdpFdpaOrCop_assertStructure_noVolumetricQuestioncard() {
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+
+    when(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
+        .thenReturn(true);
+
+    var gasCaseVolumetricTotal = new GasCaseVolumetricTotal();
+    gasCaseVolumetricTotal.setFieldVolumetricInformationCorrect(true);
+    when(gasCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(gasCaseVolumetricTotal));
+
+    when(reservoirHydrocarbonCaseService.isGasCaseOnly(anyList()))
+        .thenReturn(true);
+
+    var probabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+            any(),
+            eq(submissionDetail),
+            eq(null)
+        )).thenReturn(List.of(probabilitySummaryView));
+
+    assertThat(fieldGasCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail)).isPresent();
+
+    var summarySection = fieldGasCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail).get();
+    assertThat(summarySection.displayOrder()).isEqualTo(TOTAL_GAS_VOLUMETRICS_ORDER);
+
+    var summaryItems = summarySection.summaryItems();
+    assertThat(summaryItems).hasSize(1);
+
+    var summaryCards = summaryItems.get(0).summaryCards();
+    assertThat(summaryCards).hasSize(2);
+
+    // Gas in place card
+    var card1 = summaryCards.get(0);
+    assertThat(card1)
+        .extracting(
+            SummaryCard::displayName,
+            SummaryCard::summaryCardType
+        ).containsExactly(
+            null,
+            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY
+        );
+    var card1Data = (List<ProbabilityDistributionSummaryView>) card1.summaryData();
+    assertThat(card1Data)
+        .containsOnly(probabilitySummaryView);
+
+    // Resources and reserves card
+    var card2 = summaryCards.get(1);
+    assertThat(card2)
+        .extracting(
+            SummaryCard::displayName,
+            SummaryCard::summaryCardType
+        ).containsExactly(
+            null,
+            SummaryCardType.FIELD_PROBABILITY_DISTRIBUTION_SUMMARY
+        );
+    var card2Data = (List<ProbabilityDistributionSummaryView>) card2.summaryData();
+    assertThat(card2Data)
+        .containsOnly(probabilitySummaryView);
+  }
+
+  @Test
+  void getSummarySection_validForm_notCarriedForward_assertStructure_noVolumetricQuestioncard() {
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_COP);
+
+    when(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
+        .thenReturn(false);
+
+    var gasCaseVolumetricTotal = new GasCaseVolumetricTotal();
+    gasCaseVolumetricTotal.setFieldVolumetricInformationCorrect(true);
+    when(gasCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(gasCaseVolumetricTotal));
 
     when(reservoirHydrocarbonCaseService.isGasCaseOnly(anyList()))
         .thenReturn(true);

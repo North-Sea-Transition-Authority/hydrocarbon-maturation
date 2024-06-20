@@ -1,16 +1,31 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics;
 
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
 
 @Service
 public class FieldOilCaseVolumetricTotalsFormValidator implements SubmissionValidator {
+
+  static final List<SubmissionType> VOLUMETRIC_CORRECT_QUESTION_SUBMISSION_TYPES = List.of(SubmissionType.CREATE_FDP,
+      SubmissionType.CREATE_FDPA, SubmissionType.CREATE_COP);
+
+  private final SubmissionDetailService submissionDetailService;
+
+  @Autowired
+  public FieldOilCaseVolumetricTotalsFormValidator(SubmissionDetailService submissionDetailService) {
+    this.submissionDetailService = submissionDetailService;
+  }
 
   @Override
   public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
@@ -47,6 +62,16 @@ public class FieldOilCaseVolumetricTotalsFormValidator implements SubmissionVali
     validateResourcesFull(oilCaseOutputsForm, errors);
     if (!submissionDetail.isConceptSelectReportSubmission()) {
       validateReservesFull(oilCaseOutputsForm, errors);
+    }
+
+    if (VOLUMETRIC_CORRECT_QUESTION_SUBMISSION_TYPES.contains(submissionDetail.getSubmissionType())
+        && submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail)) {
+      ValidationUtils.rejectIfEmpty(
+          errors,
+          "fieldVolumetricInformationCorrect",
+          "fieldVolumetricInformationCorrect.required",
+          "Select if the field volumetric information reflects the current state of the field"
+      );
     }
   }
 

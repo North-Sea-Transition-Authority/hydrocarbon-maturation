@@ -43,15 +43,19 @@ public class FieldGasCaseVolumetricTotalsService {
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD
     ));
 
-    var hasAssociatedCondensateRecoverableResources = gasCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail)
-        .map(GasCaseVolumetricTotal::getHasAssociatedCondensateRecoverableResources)
-        .orElse(null);
-    form.setHasAssociatedCondensateRecoverableResources(hasAssociatedCondensateRecoverableResources);
+    var gasCaseVolumetricTotal = gasCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail)
+        .orElse(new GasCaseVolumetricTotal());
 
-    form.setAssociatedCondensateRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD
-    ));
+    form.setHasAssociatedCondensateRecoverableResources(
+        gasCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources());
+
+    form.setFieldVolumetricInformationCorrect(gasCaseVolumetricTotal.getFieldVolumetricInformationCorrect());
+
+    form.setAssociatedCondensateRecoverableResources(
+        probabilityDistributionFormService.probabilityDistributionEntityToForm(
+            submissionDetail,
+            ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD
+        ));
 
     form.setOilEquivalentRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
@@ -74,10 +78,11 @@ public class FieldGasCaseVolumetricTotalsService {
           ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD
       ));
 
-      form.setAssociatedCondensateRecoverableReserves(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
-          ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD
-      ));
+      form.setAssociatedCondensateRecoverableReserves(
+          probabilityDistributionFormService.probabilityDistributionEntityToForm(
+              submissionDetail,
+              ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD
+          ));
 
       form.setOilEquivalentRecoverableReserves(probabilityDistributionFormService.probabilityDistributionEntityToForm(
           submissionDetail,
@@ -99,7 +104,8 @@ public class FieldGasCaseVolumetricTotalsService {
   }
 
   @Transactional
-  public void saveFieldGasCaseVolumetricTotals(GasCaseOutputsForm gasCaseOutputsForm, SubmissionDetail submissionDetail) {
+  public void saveFieldGasCaseVolumetricTotals(GasCaseOutputsForm gasCaseOutputsForm,
+                                               SubmissionDetail submissionDetail) {
     saveProbabilityDistributionFields(gasCaseOutputsForm, submissionDetail);
     saveGasVolumetricTotal(gasCaseOutputsForm, submissionDetail);
   }
@@ -109,7 +115,10 @@ public class FieldGasCaseVolumetricTotalsService {
         .orElse(new GasCaseVolumetricTotal());
     gasVolumetricTotal.setSubmissionDetail(submissionDetail);
     gasVolumetricTotal
-        .setHasAssociatedCondensateRecoverableResources(gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources());
+        .setHasAssociatedCondensateRecoverableResources(
+            gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources());
+
+    gasVolumetricTotal.setFieldVolumetricInformationCorrect(gasCaseOutputsForm.getFieldVolumetricInformationCorrect());
 
     gasCaseVolumetricTotalsRepository.save(gasVolumetricTotal);
   }

@@ -21,6 +21,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.util.Map;
 import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,9 +107,55 @@ class FieldReservoirOilVolumetricsControllerTest extends AbstractSubmissionContr
   }
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
-  void getFieldReservoirVolumetricsModelAndView_assertModelProperties(SubmissionType submissionType) throws Exception {
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
+  void getFieldReservoirVolumetricsModelAndView_assertModelProperties_withReservoirCarriedForward(SubmissionType submissionType) throws Exception {
     submissionDetail.setSubmissionType(submissionType);
+
+    var form = new FieldReservoirVolumetricsForm();
+    when(fieldReservoirVolumetricsFormService.getFieldReservoirVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
+
+    var reservoirCarriedForward = Boolean.TRUE;
+    when(reservoirSubmissionDetailPersistenceService.reservoirWasCarriedForward(reservoirSubmissionDetail.getReservoir()))
+        .thenReturn(reservoirCarriedForward);
+
+    var modelMap = Objects.requireNonNull(
+            mockMvc.perform(
+                    get(ReverseRouter.route(on(FieldReservoirOilVolumetricsController.class)
+                        .getFieldReservoirVolumetrics(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+                        .with(user(USER)))
+                .andReturn()
+                .getModelAndView())
+        .getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("pageTitle", FieldReservoirOilVolumetricsController.OIL_VOLUMETRICS_PAGE_TITLE),
+            entry("form", form),
+            entry("hydrocarbonType", HydrocarbonsDiscovered.OIL_ONLY),
+            entry("oilInPlaceError", ProbabilityDistributionTypeError.emptyError()),
+            entry("oilInPlaceTemplate",
+                probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
+                    ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD)),
+            entry("reservoirCarriedForward", reservoirCarriedForward)
+        );
+
+    assertEquals(FieldReservoirVolumetricsForm.class, modelMap.get("form").getClass());
+
+    @SuppressWarnings(value = "unchecked")
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(TaskListController.class)
+            .getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class)
+            .getReservoirTaskList(submissionDetail.getId(), null)), ReservoirTaskListController.PAGE_TITLE)
+    );
+  }
+
+  @Test
+  void getFieldReservoirVolumetricsModelAndView_assertModelProperties_noReservoirCarriedForward() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
 
     var form = new FieldReservoirVolumetricsForm();
     when(fieldReservoirVolumetricsFormService.getFieldReservoirVolumetricsForm(reservoirSubmissionDetail)).thenReturn(form);
@@ -123,6 +170,7 @@ class FieldReservoirOilVolumetricsControllerTest extends AbstractSubmissionContr
         .getModelMap();
 
     assertThat(modelMap)
+        .doesNotContainKey("reservoirCarriedForward")
         .contains(
             entry("pageTitle", FieldReservoirOilVolumetricsController.OIL_VOLUMETRICS_PAGE_TITLE),
             entry("form", form),

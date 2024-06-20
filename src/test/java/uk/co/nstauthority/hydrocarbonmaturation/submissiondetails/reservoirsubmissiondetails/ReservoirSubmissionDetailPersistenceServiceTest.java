@@ -26,7 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @ExtendWith(MockitoExtension.class)
-class ReservoirAdditionsDetailPersistenceServiceTest {
+class ReservoirSubmissionDetailPersistenceServiceTest {
 
   private static final String RESERVOIR_NAME_1 = "reservoir name 1";
   private static final String RESERVOIR_NAME_2 = "reservoir name 2";
@@ -184,5 +184,25 @@ class ReservoirAdditionsDetailPersistenceServiceTest {
         .containsExactlyInAnyOrder(
             firstReservoirSubmissionDetail, secondReservoirSubmissionDetail, thirdReservoirSubmissionDetail, fourthReservoirSubmissionDetail
         );
+  }
+
+  @Test
+  void reservoirWasCarriedForward_multipleSubmissionDetailsForReservoir_thenTrue() {
+    var reservoir = new Reservoir();
+    when(reservoirSubmissionDetailRepository.findAllByReservoir(reservoir))
+        .thenReturn(List.of(new ReservoirSubmissionDetail(), new ReservoirSubmissionDetail()));
+
+    assertThat(reservoirSubmissionDetailPersistenceService.reservoirWasCarriedForward(reservoir))
+        .isTrue();
+  }
+
+  @Test
+  void reservoirWasCarriedForward_oneSubmissionDetailForReservoir_thenFalse() {
+    var reservoir = new Reservoir();
+    when(reservoirSubmissionDetailRepository.findAllByReservoir(reservoir))
+        .thenReturn(List.of(new ReservoirSubmissionDetail()));
+
+    assertThat(reservoirSubmissionDetailPersistenceService.reservoirWasCarriedForward(reservoir))
+        .isFalse();
   }
 }

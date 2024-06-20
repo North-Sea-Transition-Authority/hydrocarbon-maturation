@@ -193,6 +193,7 @@ class FieldCombinedCaseVolumetricTotalsControllerTest extends AbstractSubmission
         ProbabilityOfExceedanceTypeUtil.getContingentUncertaintyCategoryPromptOverrides();
 
     assertThat(modelMap)
+        .doesNotContainKey("fieldSubmissionCarriedForward")
         .contains(
             entry("form", form),
             entry("resourceType", submissionDetail.getSubmission().getResource().getType().toString()),
@@ -234,11 +235,18 @@ class FieldCombinedCaseVolumetricTotalsControllerTest extends AbstractSubmission
         );
   }
 
-  @Test
-  void getOilVolumetricTotalsModelAndView_isNotCsrField_assertModelProperties() throws Exception {
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_COP);
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"CREATE_FDP", "CREATE_FDPA", "CREATE_COP"}
+  )
+  void getOilVolumetricTotalsModelAndView_isNotCsrField_assertModelProperties(SubmissionType submissionType) throws Exception {
+    submissionDetail.setSubmissionType(submissionType);
 
-    when(fieldCombinedCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail)).thenReturn(form);
+    when(fieldCombinedCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail))
+        .thenReturn(form);
+    when(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
+        .thenReturn(true);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(FieldCombinedCaseVolumetricTotalsController.class)
@@ -327,7 +335,8 @@ class FieldCombinedCaseVolumetricTotalsControllerTest extends AbstractSubmission
                 contingentUncertaintyCategoryPromptOverrides)),
             entry("salesGasReservesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
                 ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD,
-                contingentUncertaintyCategoryPromptOverrides))
+                contingentUncertaintyCategoryPromptOverrides)),
+            entry("fieldSubmissionCarriedForward", true)
         );
   }
 }

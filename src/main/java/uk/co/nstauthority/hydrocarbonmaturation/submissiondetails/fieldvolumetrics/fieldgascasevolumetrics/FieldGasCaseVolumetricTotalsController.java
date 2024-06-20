@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetr
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -36,6 +38,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 public class FieldGasCaseVolumetricTotalsController {
 
   public static final String PAGE_NAME = "Total gas case volumetrics";
+  static final List<SubmissionType> VOLUMETRIC_CORRECT_QUESTION_SUBMISSION_TYPES = List.of(SubmissionType.CREATE_FDP,
+      SubmissionType.CREATE_FDPA, SubmissionType.CREATE_COP);
 
   private final SubmissionDetailService submissionDetailService;
   private final ProbabilityDistributionTemplateService probabilityDistributionTemplateService;
@@ -133,6 +137,12 @@ public class FieldGasCaseVolumetricTotalsController {
           .addObject("salesGasReservesTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                   ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD));
+    }
+
+    if (VOLUMETRIC_CORRECT_QUESTION_SUBMISSION_TYPES.contains(submissionDetail.getSubmissionType())) {
+      var fieldSubmissionCarriedForward = submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(
+          submissionDetail);
+      modelAndView.addObject("fieldSubmissionCarriedForward", fieldSubmissionCarriedForward);
     }
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);

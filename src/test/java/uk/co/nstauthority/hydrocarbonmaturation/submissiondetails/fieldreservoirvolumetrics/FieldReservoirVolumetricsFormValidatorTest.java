@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -48,10 +49,25 @@ class FieldReservoirVolumetricsFormValidatorTest {
 
   @ParameterizedTest
   @EnumSource(value = ValidationType.class)
-  void validate_whenValidForm_thenNoValidationErrors(ValidationType validationType) {
+  void validate_whenValidForm_thenNoValidationErrors_withInitiallyInPlaceQuestion(ValidationType validationType) {
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_FDP);
     var form = getValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     fieldReservoirVolumetricsFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType);
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = ValidationType.class)
+  void validate_whenValidForm_thenNoValidationErrors_withoutInitiallyInPlaceQuestion(ValidationType validationType) {
+    //when CSR and blank initially in place answer
+    var form = getValidForm();
+    form.setInitiallyInPlaceInformationCorrect(null);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    fieldReservoirVolumetricsFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType);
+
+    // then no validation errors on empty question
     assertFalse(bindingResult.hasErrors());
   }
 
@@ -209,8 +225,11 @@ class FieldReservoirVolumetricsFormValidatorTest {
         );
   }
 
-  @Test
-  void validateFull_whenEmptyForm_thenValidationErrors_combinedCase() {
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
+  void validateFull_whenEmptyForm_thenValidationErrors_combinedCase_initiallyInPlaceQuestion(SubmissionType submissionType) {
+    // when FDP, FDPA or CSR
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(submissionType);
     var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
     when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirHydrocarbons));
@@ -224,7 +243,37 @@ class FieldReservoirVolumetricsFormValidatorTest {
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 
+    // then validate the initially in place question
     assertThat(extractedErrors)
+        .contains(
+            entry("oilInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("oilInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("gasInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
+                Set.of("gasInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+            entry("initiallyInPlaceInformationCorrect", Set.of("initiallyInPlaceInformationCorrect.required"))
+        );
+  }
+
+  @Test
+  void validateFull_whenEmptyForm_thenValidationErrors_combinedCase_noInitiallyInPlaceQuestion() {
+    // when CSR
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_CSR);
+    var reservoirHydrocarbons = mock(ReservoirHydrocarbons.class);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirHydrocarbons));
+    when(generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)).thenReturn(true);
+
+    var form = getEmptyForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    fieldReservoirVolumetricsFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL);
+
+    assertTrue(bindingResult.hasErrors());
+
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+
+    // then do not validate the initially in place question
+    assertThat(extractedErrors)
+        .doesNotContainKey("initiallyInPlaceInformationCorrect")
         .contains(
             entry("oilInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilInPlace." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
@@ -248,6 +297,8 @@ class FieldReservoirVolumetricsFormValidatorTest {
 
     form.setOilInPlace(hydrocarbonInPlace);
     form.setGasInPlace(hydrocarbonInPlace);
+
+    form.setInitiallyInPlaceInformationCorrect(Boolean.TRUE);
 
     return form;
   }
