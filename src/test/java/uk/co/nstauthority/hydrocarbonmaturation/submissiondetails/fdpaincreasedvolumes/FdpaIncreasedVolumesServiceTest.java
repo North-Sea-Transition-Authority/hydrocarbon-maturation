@@ -132,6 +132,9 @@ class FdpaIncreasedVolumesServiceTest {
 
       when(fdpaIncreasedVolumesRepository.findBySubmissionDetail(fdpaSubmissionDetail))
           .thenReturn(Optional.of(fdpaIncreasedVolume));
+      when(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(fdpaSubmissionDetail))
+          .thenReturn(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+      mockEmptyCombinedProbabilityDistributions();
 
       var form = volumesService.submissionDetailToForm(fdpaSubmissionDetail);
       assertThat(form)
@@ -151,6 +154,9 @@ class FdpaIncreasedVolumesServiceTest {
     void whenNoStoredEntity() {
       when(fdpaIncreasedVolumesRepository.findBySubmissionDetail(fdpaSubmissionDetail))
           .thenReturn(Optional.empty());
+      when(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(fdpaSubmissionDetail))
+          .thenReturn(HydrocarbonsDiscovered.GAS_ONLY);
+      mockEmptyCombinedProbabilityDistributions();
 
       var form = volumesService.submissionDetailToForm(fdpaSubmissionDetail);
       assertThat(form)
@@ -284,6 +290,54 @@ class FdpaIncreasedVolumesServiceTest {
           .thenReturn(GAS_INITIALLY_IN_PLACE_FORM());
 
       mockSharedProbabilityDistributions();
+    }
+
+    private void mockEmptyCombinedProbabilityDistributions() {
+      when(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(fdpaSubmissionDetail))
+          .thenReturn(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+
+      when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          fdpaSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_INITIALLY_IN_PLACE_INCREASED_VOLUMES_FDPA))
+          .thenReturn(new ProbabilityDistributionForm());
+      when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          fdpaSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_RECOVERABLE_RESOURCES_INCREASED_VOLUMES_FDPA))
+          .thenReturn(new ProbabilityDistributionForm());
+      when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          fdpaSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_RESERVES_INCREASED_VOLUMES_FDPA))
+          .thenReturn(new ProbabilityDistributionForm());
+      when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          fdpaSubmissionDetail, ProbabilityDistributionFieldInstance.GAS_INITIALLY_IN_PLACE_INCREASED_VOLUMES_FDPA))
+          .thenReturn(new ProbabilityDistributionForm());
+      when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          fdpaSubmissionDetail,
+          ProbabilityDistributionFieldInstance.ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_INCREASED_VOLUMES_FDPA))
+          .thenReturn(new ProbabilityDistributionForm());
+      when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          fdpaSubmissionDetail,
+          ProbabilityDistributionFieldInstance.ASSOCIATED_CONDENSATE_RESERVES_INCREASED_VOLUMES_FDPA))
+          .thenReturn(new ProbabilityDistributionForm());
+      when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          fdpaSubmissionDetail,
+          ProbabilityDistributionFieldInstance.NATURAL_GAS_LIQUIDS_RECOVERABLE_RESOURCES_INCREASED_VOLUMES_FDPA))
+          .thenReturn(new ProbabilityDistributionForm());
+      when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          fdpaSubmissionDetail,
+          ProbabilityDistributionFieldInstance.NATURAL_GAS_LIQUIDS_RESERVES_INCREASED_VOLUMES_FDPA))
+          .thenReturn(new ProbabilityDistributionForm());
+      when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          fdpaSubmissionDetail,
+          ProbabilityDistributionFieldInstance.SALES_GAS_RECOVERABLE_RESOURCES_INCREASED_VOLUMES_FDPA))
+          .thenReturn(new ProbabilityDistributionForm());
+      when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          fdpaSubmissionDetail, ProbabilityDistributionFieldInstance.SALES_GAS_RESERVES_INCREASED_VOLUMES_FDPA))
+          .thenReturn(new ProbabilityDistributionForm());
+      when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          fdpaSubmissionDetail,
+          ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INCREASED_VOLUMES_FDPA))
+          .thenReturn(new ProbabilityDistributionForm());
+      when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+          fdpaSubmissionDetail, ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RESERVES_INCREASED_VOLUMES_FDPA))
+          .thenReturn(new ProbabilityDistributionForm());
     }
 
     private void assertSharedProbabilityDistributions(FdpaIncreasedVolumesForm form) {

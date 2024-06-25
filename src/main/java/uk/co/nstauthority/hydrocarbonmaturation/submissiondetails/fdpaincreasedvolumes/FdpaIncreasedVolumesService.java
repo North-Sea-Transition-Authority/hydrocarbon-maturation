@@ -41,10 +41,8 @@ public class FdpaIncreasedVolumesService {
     var changeInVolumetrics = fdpaIncreasedVolume.getChangeInVolumetrics();
     fdpaIncreasedVolumesForm.setChangeInVolumetrics(changeInVolumetrics);
 
-    if (BooleanUtils.isTrue(changeInVolumetrics)) {
-      setProbabilityDistributions(fdpaIncreasedVolumesForm, submissionDetail);
-      fdpaIncreasedVolumesForm.setComment(fdpaIncreasedVolume.getComment());
-    }
+    setProbabilityDistributions(fdpaIncreasedVolumesForm, submissionDetail);
+    fdpaIncreasedVolumesForm.setComment(fdpaIncreasedVolume.getComment());
 
     return fdpaIncreasedVolumesForm;
   }

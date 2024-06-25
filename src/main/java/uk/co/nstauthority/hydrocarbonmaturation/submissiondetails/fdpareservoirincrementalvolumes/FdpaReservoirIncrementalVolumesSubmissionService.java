@@ -25,6 +25,9 @@ public class FdpaReservoirIncrementalVolumesSubmissionService
 
   @Override
   public boolean isSectionSubmittable(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    if (!reservoirSubmissionDetail.getSubmissionDetail().isFieldDevelopmentPlanAddendumSubmission()) {
+      return true;
+    }
     var form = reservoirIncrementalVolumesService.submissionDetailToForm(reservoirSubmissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
     return formValidator.isValid(form, bindingResult, reservoirSubmissionDetail, ValidationType.FULL);

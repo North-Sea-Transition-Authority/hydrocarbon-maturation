@@ -42,10 +42,8 @@ public class FdpaReservoirIncrementalVolumesService {
     var changeToInPlaceVolumes = incrementalVolume.getChangeToInPlaceVolumes();
     fdpaReservoirIncrementalVolumesForm.setChangeToInPlaceVolumes(changeToInPlaceVolumes);
 
-    if (BooleanUtils.isTrue(changeToInPlaceVolumes)) {
-      setFormProbabilityDistributions(fdpaReservoirIncrementalVolumesForm, reservoirSubmissionDetail);
-      fdpaReservoirIncrementalVolumesForm.setComment(incrementalVolume.getComment());
-    }
+    setFormProbabilityDistributions(fdpaReservoirIncrementalVolumesForm, reservoirSubmissionDetail);
+    fdpaReservoirIncrementalVolumesForm.setComment(incrementalVolume.getComment());
 
     return fdpaReservoirIncrementalVolumesForm;
   }

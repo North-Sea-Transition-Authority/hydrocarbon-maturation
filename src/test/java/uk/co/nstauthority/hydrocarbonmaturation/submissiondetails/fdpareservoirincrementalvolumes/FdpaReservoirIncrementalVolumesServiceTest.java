@@ -164,6 +164,14 @@ class FdpaReservoirIncrementalVolumesServiceTest {
 
       when(incrementalVolumesRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
           .thenReturn(Optional.of(incrementalVolumes));
+      when(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(List.of(reservoirSubmissionDetail)))
+          .thenReturn(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+      when(probabilityDistributionFormService.probabilityDistributionEntityToForm(reservoirSubmissionDetail,
+          ProbabilityDistributionFieldInstance.RESERVOIR_OIL_INITIALLY_IN_PLACE_INCREASE_FDPA))
+          .thenReturn(new ProbabilityDistributionForm());
+      when(probabilityDistributionFormService.probabilityDistributionEntityToForm(reservoirSubmissionDetail,
+          ProbabilityDistributionFieldInstance.RESERVOIR_GAS_INITIALLY_IN_PLACE_INCREASE_FDPA))
+          .thenReturn(new ProbabilityDistributionForm());
 
       var generatedForm = fdpaReservoirIncrementalVolumesService.submissionDetailToForm(reservoirSubmissionDetail);
       assertThat(generatedForm)
@@ -183,6 +191,14 @@ class FdpaReservoirIncrementalVolumesServiceTest {
     void whenNoIncrementalVolumesEntity() {
       when(incrementalVolumesRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
           .thenReturn(Optional.empty());
+      when(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(List.of(reservoirSubmissionDetail)))
+          .thenReturn(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+      when(probabilityDistributionFormService.probabilityDistributionEntityToForm(reservoirSubmissionDetail,
+          ProbabilityDistributionFieldInstance.RESERVOIR_OIL_INITIALLY_IN_PLACE_INCREASE_FDPA))
+          .thenReturn(new ProbabilityDistributionForm());
+      when(probabilityDistributionFormService.probabilityDistributionEntityToForm(reservoirSubmissionDetail,
+          ProbabilityDistributionFieldInstance.RESERVOIR_GAS_INITIALLY_IN_PLACE_INCREASE_FDPA))
+          .thenReturn(new ProbabilityDistributionForm());
 
       var generatedForm = fdpaReservoirIncrementalVolumesService.submissionDetailToForm(reservoirSubmissionDetail);
       assertThat(generatedForm)
