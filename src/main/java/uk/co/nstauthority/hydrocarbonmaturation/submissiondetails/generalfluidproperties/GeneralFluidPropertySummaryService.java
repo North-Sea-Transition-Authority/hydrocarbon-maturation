@@ -24,7 +24,7 @@ public class GeneralFluidPropertySummaryService implements SummarySectionService
   public static final String SATURATION_PRESSURE_AT_DATUM_DEPTH = "Saturation pressure at datum depth";
   public static final String WATER_SALINITY = "Water salinity";
 
-  public static final int GENERAL_PROPERTIES_DISPLAY_ORDER = 90;
+  public static final int GENERAL_PROPERTIES_DISPLAY_ORDER = 100;
 
   private final GeneralFluidPropertyPersistenceService generalFluidPropertyPersistenceService;
 

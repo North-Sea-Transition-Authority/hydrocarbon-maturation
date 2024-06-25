@@ -19,7 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
 @Service
 public class DrillStemTestResultsSummaryService implements SummarySectionService<ReservoirSubmissionDetail> {
-  public static final int WELL_TEST_RESULTS_DISPLAY_ORDER = 100;
+  public static final int WELL_TEST_RESULTS_DISPLAY_ORDER = 110;
   public static final String WELL_TEST_RESULT = "Well test result";
 
   public static final String TEST_NUMBER = "Test number";

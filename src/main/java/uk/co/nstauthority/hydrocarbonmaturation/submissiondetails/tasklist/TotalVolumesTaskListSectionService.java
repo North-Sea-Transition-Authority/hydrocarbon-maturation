@@ -15,10 +15,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolum
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSubmissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fielddevelopmentplanaddendumincreasedvolumes.FieldDevelopmentPlanAddendumIncreasedVolumesController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fielddevelopmentplanaddendumincreasedvolumes.FieldDevelopmentPlanAddendumIncreasedVolumesSubmissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fielddevelopmentplanaddendumpromotedvolumes.FieldDevelopmentPlanAddendumPromotedVolumesController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fielddevelopmentplanaddendumpromotedvolumes.FieldDevelopmentPlanAddendumPromotedVolumesSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fdpaincreasedvolumes.FdpaIncreasedVolumesController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fdpaincreasedvolumes.FdpaIncreasedVolumesSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fdpapromotedvolumes.FdpaPromotedVolumesSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fdpapromotedvolumes.FdpaVolumesController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldcombinedcasedvolumetrictotals.FieldCombinedCaseVolumetricTotalsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldcombinedcasedvolumetrictotals.FieldCombinedCaseVolumetricTotalsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldgascasevolumetrics.FieldGasCaseVolumetricTotalsController;
@@ -40,8 +40,8 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
   private final FieldGasCaseVolumetricTotalsSubmissionService fieldGasCaseVolumetricTotalsSubmissionService;
   private final FieldCombinedCaseVolumetricTotalsSubmissionService fieldCombinedCaseVolumetricTotalsSubmissionService;
   private final ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
-  private final FieldDevelopmentPlanAddendumPromotedVolumesSubmissionService fdpaPromotedVolumesSubmissionService;
-  private final FieldDevelopmentPlanAddendumIncreasedVolumesSubmissionService fdpaIncreasedVolumesSubmissionService;
+  private final FdpaPromotedVolumesSubmissionService fdpaPromotedVolumesSubmissionService;
+  private final FdpaIncreasedVolumesSubmissionService fdpaIncreasedVolumesSubmissionService;
 
   @Autowired
   public TotalVolumesTaskListSectionService(
@@ -53,8 +53,8 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
       FieldGasCaseVolumetricTotalsSubmissionService fieldGasCaseVolumetricTotalsSubmissionService,
       FieldCombinedCaseVolumetricTotalsSubmissionService fieldCombinedCaseVolumetricTotalsSubmissionService,
       ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService,
-      FieldDevelopmentPlanAddendumPromotedVolumesSubmissionService fdpaPromotedVolumesSubmissionService,
-      FieldDevelopmentPlanAddendumIncreasedVolumesSubmissionService fdpaIncreasedVolumesSubmissionService) {
+      FdpaPromotedVolumesSubmissionService fdpaPromotedVolumesSubmissionService,
+      FdpaIncreasedVolumesSubmissionService fdpaIncreasedVolumesSubmissionService) {
 
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.discoveryOilCaseVolumetricTotalsSubmissionService = discoveryOilCaseVolumetricTotalsSubmissionService;
@@ -231,7 +231,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
           "FDPA promoted volumes",
           TaskListLabel.notStartedOrComplete(
               fdpaPromotedVolumesSubmissionService.isSectionSubmittable(submissionDetail)),
-          ReverseRouter.route(on(FieldDevelopmentPlanAddendumPromotedVolumesController.class)
+          ReverseRouter.route(on(FdpaVolumesController.class)
               .getFdpaPromotedVolumes(submissionDetail.getId()))
       ));
 
@@ -239,7 +239,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
           "FDPA increased volumes",
           TaskListLabel.notStartedOrComplete(
               fdpaIncreasedVolumesSubmissionService.isSectionSubmittable(submissionDetail)),
-          ReverseRouter.route(on(FieldDevelopmentPlanAddendumIncreasedVolumesController.class)
+          ReverseRouter.route(on(FdpaIncreasedVolumesController.class)
               .getFdpaIncreasedVolumes(submissionDetail.getId()))
       ));
     }

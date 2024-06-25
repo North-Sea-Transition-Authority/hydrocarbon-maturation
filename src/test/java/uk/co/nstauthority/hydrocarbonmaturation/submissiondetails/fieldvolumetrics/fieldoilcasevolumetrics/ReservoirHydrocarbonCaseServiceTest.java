@@ -155,6 +155,78 @@ class ReservoirHydrocarbonCaseServiceTest {
     assertTrue(reservoirHydrocarbonCaseService.isCombinedCase(submissionDetail));
   }
 
+  @Test
+  void getHydrocarbonsDiscovered_submissionDetail_whenOilCaseOnly_returnsOilOnly() {
+    var oilOnlyDetail = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.OIL_ONLY);
+    var submissionDetail = mock(SubmissionDetail.class);
+
+    when(reservoirSubmissionDetailPersistenceService
+        .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(List.of(oilOnlyDetail));
+
+    assertThat(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(submissionDetail))
+        .isEqualTo(HydrocarbonsDiscovered.OIL_ONLY);
+  }
+
+  @Test
+  void getHydrocarbonsDiscovered_submissionDetail_whenGasCaseOnly_returnsGasOnly() {
+    var gasOnlyDetail = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.GAS_ONLY);
+    var submissionDetail = mock(SubmissionDetail.class);
+
+    when(reservoirSubmissionDetailPersistenceService
+        .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(List.of(gasOnlyDetail));
+
+    assertThat(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(submissionDetail))
+        .isEqualTo(HydrocarbonsDiscovered.GAS_ONLY);
+  }
+
+  @Test
+  void getHydrocarbonsDiscovered_submissionDetail_whenMixedCase_returnsOilAndGas() {
+    var mixedDetail = new ReservoirSubmissionDetail();
+    var submissionDetail = mock(SubmissionDetail.class);
+
+    when(reservoirSubmissionDetailPersistenceService
+        .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
+        .thenReturn(List.of(mixedDetail));
+    when(generalReservoirInformationService.isGasOnly(mixedDetail))
+        .thenReturn(false);
+    when(generalReservoirInformationService.isOilOnly(mixedDetail))
+        .thenReturn(false);
+
+    assertThat(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(submissionDetail))
+        .isEqualTo(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+  }
+
+  @Test
+  void getHydrocarbonsDiscovered_reservoirSubmissionDetail_whenOilCaseOnly_returnsOilOnly() {
+    var oilOnlyDetail = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.OIL_ONLY);
+
+    assertThat(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(List.of(oilOnlyDetail)))
+        .isEqualTo(HydrocarbonsDiscovered.OIL_ONLY);
+  }
+
+  @Test
+  void getHydrocarbonsDiscovered_reservoirSubmissionDetail_whenGasCaseOnly_returnsGasOnly() {
+    var gasOnlyDetail = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.GAS_ONLY);
+
+    assertThat(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(List.of(gasOnlyDetail)))
+        .isEqualTo(HydrocarbonsDiscovered.GAS_ONLY);
+  }
+
+  @Test
+  void getHydrocarbonsDiscovered_whenMixedCase_returnsOilAndGas() {
+    var mixedDetail = new ReservoirSubmissionDetail();
+
+    when(generalReservoirInformationService.isOilOnly(mixedDetail))
+        .thenReturn(false);
+    when(generalReservoirInformationService.isGasOnly(mixedDetail))
+        .thenReturn(false);
+
+    assertThat(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(List.of(mixedDetail)))
+        .isEqualTo(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+  }
+
   private ReservoirSubmissionDetail createReservoirSubmissionDetailWithMockedHydrocarbonType(
       HydrocarbonsDiscovered hydrocarbonsDiscovered) {
     var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
@@ -172,48 +244,5 @@ class ReservoirHydrocarbonCaseServiceTest {
           .thenReturn(true);
     }
     return reservoirSubmissionDetail;
-  }
-
-  @Test
-  void getHydrocarbonsDiscovered_whenOilCaseOnly_returnsOilOnly() {
-    var oilOnlyDetail = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.OIL_ONLY);
-    var submissionDetail = mock(SubmissionDetail.class);
-
-    when(reservoirSubmissionDetailPersistenceService
-        .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
-        .thenReturn(List.of(oilOnlyDetail));
-
-    assertThat(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(submissionDetail))
-        .isEqualTo(HydrocarbonsDiscovered.OIL_ONLY);
-  }
-
-  @Test
-  void getHydrocarbonsDiscovered_whenGasCaseOnly_returnsGasOnly() {
-    var gasOnlyDetail = createReservoirSubmissionDetailWithMockedHydrocarbonType(HydrocarbonsDiscovered.GAS_ONLY);
-    var submissionDetail = mock(SubmissionDetail.class);
-
-    when(reservoirSubmissionDetailPersistenceService
-        .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
-        .thenReturn(List.of(gasOnlyDetail));
-
-    assertThat(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(submissionDetail))
-        .isEqualTo(HydrocarbonsDiscovered.GAS_ONLY);
-  }
-
-  @Test
-  void getHydrocarbonsDiscovered_whenMixedCase_returnsOilAndGas() {
-    var mixedDetail = new ReservoirSubmissionDetail();
-    var submissionDetail = mock(SubmissionDetail.class);
-
-    when(reservoirSubmissionDetailPersistenceService
-        .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
-        .thenReturn(List.of(mixedDetail));
-    when(generalReservoirInformationService.isGasOnly(mixedDetail))
-        .thenReturn(false);
-    when(generalReservoirInformationService.isOilOnly(mixedDetail))
-        .thenReturn(false);
-
-    assertThat(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(submissionDetail))
-        .isEqualTo(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
   }
 }

@@ -24,7 +24,7 @@ public class OilFluidPropertySummaryService implements SummarySectionService<Res
   public static final String OIL_WAX = "Oil wax";
   public static final String OIL_OTHER = "Oil other incl wax appearance temperature";
 
-  public static final int OIL_FLUID_PROPERTIES_DISPLAY_ORDER = 70;
+  public static final int OIL_FLUID_PROPERTIES_DISPLAY_ORDER = 80;
 
   private final OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService;
   private final GeneralReservoirInformationService generalReservoirInformationService;

@@ -83,4 +83,16 @@ public class ReservoirHydrocarbonCaseService {
 
     return HydrocarbonsDiscovered.MIXED_OIL_AND_GAS;
   }
+
+  public HydrocarbonsDiscovered getHydrocarbonsDiscovered(List<ReservoirSubmissionDetail> reservoirSubmissionDetails) {
+    if (Boolean.TRUE.equals(isOilCaseOnly(reservoirSubmissionDetails))) {
+      return HydrocarbonsDiscovered.OIL_ONLY;
+    }
+
+    if (Boolean.TRUE.equals(isGasCaseOnly(reservoirSubmissionDetails))) {
+      return HydrocarbonsDiscovered.GAS_ONLY;
+    }
+
+    return HydrocarbonsDiscovered.MIXED_OIL_AND_GAS;
+  }
 }

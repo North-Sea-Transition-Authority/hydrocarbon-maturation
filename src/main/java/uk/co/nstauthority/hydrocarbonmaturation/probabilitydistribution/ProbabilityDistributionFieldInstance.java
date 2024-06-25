@@ -784,6 +784,18 @@ public enum ProbabilityDistributionFieldInstance {
       FieldVolumetricsReservesBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent reserves"
+  ),
+
+  // Reservoir FDPA incremental increases
+  RESERVOIR_OIL_INITIALLY_IN_PLACE_INCREASE_FDPA(
+      FieldVolumetricsBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Incremental increase to oil initially in place"
+  ),
+  RESERVOIR_GAS_INITIALLY_IN_PLACE_INCREASE_FDPA(
+      FieldVolumetricsBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Incremental increase to gas initially in place"
   );
 
   private Class<? extends ProbabilityDistributionTypeBehaviour> customBehaviour;

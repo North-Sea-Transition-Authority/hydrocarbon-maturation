@@ -15,6 +15,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolum
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drillstemtestresults.DrillStemTestSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fdpareservoirincrementalvolumes.FdpaReservoirIncrementalVolumesController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fdpareservoirincrementalvolumes.FdpaReservoirIncrementalVolumesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldgasvolumetricparameters.FieldGasVolumetricParametersController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldoilvolumetricparameters.FieldOilVolumetricParametersController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldreservoirvolumetrics.FieldReservoirCombinedVolumetricsController;
@@ -53,6 +55,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 @Service
 public class ReservoirTaskListService {
 
+  public static final String WELL_TEST_RESULTS = "Well test results";
+  public static final String FDPA_INCREMENTAL_IN_PLACE = "FDPA incremental in place volumes";
+
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
   private final PermeabilitySubmissionService permeabilitySubmissionService;
   private final GeneralReservoirInformationSubmissionService generalReservoirInformationSubmissionService;
@@ -69,8 +74,7 @@ public class ReservoirTaskListService {
   private final GeneralFluidPropertySubmissionService generalFluidPropertySubmissionService;
   private final FieldReservoirVolumetricsSubmissionService fieldReservoirVolumetricsSubmissionService;
   private final ReservoirSubmissionSectionService reservoirSubmissionSectionService;
-
-  public static final String WELL_TEST_RESULTS = "Well test results";
+  private final FdpaReservoirIncrementalVolumesSubmissionService fdpaReservoirIncrementalVolumes;
 
   @Autowired
   public ReservoirTaskListService(
@@ -89,7 +93,8 @@ public class ReservoirTaskListService {
       GasFluidPropertySubmissionService gasFluidPropertySubmissionService,
       GeneralFluidPropertySubmissionService generalFluidPropertySubmissionService,
       FieldReservoirVolumetricsSubmissionService fieldReservoirVolumetricsSubmissionService,
-      ReservoirSubmissionSectionService reservoirSubmissionSectionService) {
+      ReservoirSubmissionSectionService reservoirSubmissionSectionService,
+      FdpaReservoirIncrementalVolumesSubmissionService fdpaReservoirIncrementalVolumes) {
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.permeabilitySubmissionService = permeabilitySubmissionService;
     this.generalReservoirInformationSubmissionService = generalReservoirInformationSubmissionService;
@@ -106,12 +111,13 @@ public class ReservoirTaskListService {
     this.generalFluidPropertySubmissionService = generalFluidPropertySubmissionService;
     this.fieldReservoirVolumetricsSubmissionService = fieldReservoirVolumetricsSubmissionService;
     this.reservoirSubmissionSectionService = reservoirSubmissionSectionService;
+    this.fdpaReservoirIncrementalVolumes = fdpaReservoirIncrementalVolumes;
   }
 
   public List<ReservoirTaskListItem> getAllReservoirTaskLists(SubmissionDetail submissionDetail) {
 
     var reservoirSubmissionDetails = reservoirSubmissionDetailPersistenceService
-            .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
+        .getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);
 
     var taskLists = new ArrayList<ReservoirTaskListItem>();
 
@@ -307,6 +313,18 @@ public class ReservoirTaskListService {
                     reservoirSubmissionDetail.getId())))
         );
       }
+    }
+
+    if (submissionDetail.isFieldDevelopmentPlanAddendumSubmission()
+        && reservoirSubmissionDetailPersistenceService.reservoirWasCarriedForward(
+        reservoirSubmissionDetail.getReservoir())) {
+      items.add(
+          new TaskListItem(FDPA_INCREMENTAL_IN_PLACE,
+              TaskListLabel.notStartedOrComplete(
+                  fdpaReservoirIncrementalVolumes.isSectionSubmittable(reservoirSubmissionDetail)),
+              ReverseRouter.route(on(FdpaReservoirIncrementalVolumesController.class)
+                  .getIncrementalVolumes(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
+      );
     }
 
     if (!submissionDetail.isCessationOfProductionSubmission()) {

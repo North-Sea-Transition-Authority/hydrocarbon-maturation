@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidprope
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,7 @@ public class GasFluidPropertySummaryService implements SummarySectionService<Res
   public static final String CONDENSATE_OTHER_INCL_WAX = "Condensate other incl wax appearance temperature";
   public static final String ADVISE_OTHER_GASES_CONCENTRATION = "Advise of any other gases and their concentrations";
 
-  public static final int GAS_FLUID_PROPERTIES_DISPLAY_ORDER = 80;
+  public static final int GAS_FLUID_PROPERTIES_DISPLAY_ORDER = 90;
 
   private final GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService;
   private final GeneralReservoirInformationService generalReservoirInformationService;
@@ -96,7 +97,7 @@ public class GasFluidPropertySummaryService implements SummarySectionService<Res
           summaryDataView.addKeyValue(IS_CONDENSATE_PRESENT,
               BooleanUtil.yesNoFromBoolean(gasFluidProperty.getCondensatePresent(), ""));
 
-          if (gasFluidProperty.getCondensatePresent() == true) {
+          if (BooleanUtils.isTrue(gasFluidProperty.getCondensatePresent())) {
               summaryDataView.addKeyValue(CONDENSATE_GRAVITY,
                       NumberUtil.getNumberStringWithUnitsOrEmpty(gasFluidProperty.getCondensateGravity(), "°API"));
               summaryDataView.addKeyValue(CONDENSATE_VISCOSITY,
