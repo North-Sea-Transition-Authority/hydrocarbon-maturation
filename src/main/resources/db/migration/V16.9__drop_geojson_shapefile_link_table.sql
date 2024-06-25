@@ -1,0 +1,1 @@
+DROP TABLE geojson_shapefile_link;

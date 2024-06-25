@@ -26,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.s3.ListS3FilesResult;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.RemiS3FileService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.geojson.SubmissionGeoJsonService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCase;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseDocumentTypeService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCasePersistenceService;
@@ -40,12 +41,13 @@ public class ShapefileMigrationService {
   private final ShapefileValidationService shapefileValidationService;
   private final ShapefileZipService shapefileZipService;
   private final ShapefileMigrationProgressRepository shapefileMigrationProgressRepository;
+  private final ShapefileConversionService shapefileConversionService;
   private final SubmissionDetailService submissionDetailService;
   private final RemiS3FileService remiS3FileService;
   private final FileService fileService;
   private final FileUploadProperties fileUploadProperties;
   private final OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
-  private final GeoJsonShapefileLinkService geoJsonShapefileLinkService;
+  private final SubmissionGeoJsonService submissionGeoJsonService;
   private final OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
@@ -53,23 +55,25 @@ public class ShapefileMigrationService {
   public ShapefileMigrationService(ShapefileValidationService shapefileValidationService,
                                    ShapefileZipService shapefileZipService,
                                    ShapefileMigrationProgressRepository shapefileMigrationProgressRepository,
+                                   ShapefileConversionService shapefileConversionService,
                                    SubmissionDetailService submissionDetailService,
                                    RemiS3FileService remiS3FileService,
                                    FileService fileService,
                                    FileUploadProperties fileUploadProperties,
                                    OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService,
-                                   GeoJsonShapefileLinkService geoJsonShapefileLinkService,
+                                   SubmissionGeoJsonService submissionGeoJsonService,
                                    OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService,
                                    ResourceDetailsPersistenceService resourceDetailsPersistenceService) {
     this.shapefileValidationService = shapefileValidationService;
     this.shapefileZipService = shapefileZipService;
     this.shapefileMigrationProgressRepository = shapefileMigrationProgressRepository;
+    this.shapefileConversionService = shapefileConversionService;
     this.submissionDetailService = submissionDetailService;
     this.remiS3FileService = remiS3FileService;
     this.fileService = fileService;
     this.fileUploadProperties = fileUploadProperties;
     this.outlineForMaximumCaseDocumentTypeService = outlineForMaximumCaseDocumentTypeService;
-    this.geoJsonShapefileLinkService = geoJsonShapefileLinkService;
+    this.submissionGeoJsonService = submissionGeoJsonService;
     this.outlineForMaximumCasePersistenceService = outlineForMaximumCasePersistenceService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
   }
@@ -186,7 +190,9 @@ public class ShapefileMigrationService {
           .ifPresent(detail -> uploadedFile.setDescription("Outline for maximum case for %s".formatted(detail.getResourceName())
           ));
 
-      geoJsonShapefileLinkService.storeShapefileAsGeoJson(uploadedFile, shapefileZipContents);
+
+      var geoJson = shapefileConversionService.getGeoJsonFromShapefileZip(shapefileZipContents);
+      submissionGeoJsonService.storeGeoJson(geoJson, submissionDetail);
 
       var outlineForMaximumCase = new OutlineForMaximumCase();
       outlineForMaximumCase.setSubmissionDetail(submissionDetail);

@@ -42,6 +42,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.s3.RemiS3FileService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.s3.S3File;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.geojson.SubmissionGeoJsonService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCase;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseDocumentTypeService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCasePersistenceService;
@@ -57,6 +58,8 @@ class ShapefileMigrationServiceTest {
   @Mock
   private ShapefileMigrationProgressRepository shapefileMigrationProgressRepository;
   @Mock
+  private ShapefileConversionService shapefileConversionService;
+  @Mock
   private SubmissionDetailService submissionDetailService;
   @Mock
   private RemiS3FileService remiS3FileService;
@@ -67,7 +70,7 @@ class ShapefileMigrationServiceTest {
   @Mock
   private OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
   @Mock
-  private GeoJsonShapefileLinkService geoJsonShapefileLinkService;
+  private SubmissionGeoJsonService submissionGeoJsonService;
   @Mock
   private OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
   @Mock
@@ -331,6 +334,8 @@ class ShapefileMigrationServiceTest {
       resourceDetail.setResourceName(RESOURCE_NAME);
       when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(SUBMISSION_DETAIL))
           .thenReturn(Optional.of(resourceDetail));
+      var geojson = "{test}";
+      when(shapefileConversionService.getGeoJsonFromShapefileZip(VALID_SHAPEFILE_ZIP_CONTENTS)).thenReturn(geojson);
 
       var argumentCaptor = ArgumentCaptor.forClass(ShapefileMigrationProgress.class);
       var maxCaseArgumentCaptor = ArgumentCaptor.forClass(OutlineForMaximumCase.class);
@@ -341,7 +346,7 @@ class ShapefileMigrationServiceTest {
           "Outline for maximum case for %s".formatted(resourceDetail.getResourceName())
       );
       verify(shapefileMigrationProgressRepository).save(argumentCaptor.capture());
-      verify(geoJsonShapefileLinkService).storeShapefileAsGeoJson(uploadedFile, VALID_SHAPEFILE_ZIP_CONTENTS);
+      verify(submissionGeoJsonService).storeGeoJson(geojson, SUBMISSION_DETAIL);
       verify(outlineForMaximumCasePersistenceService).saveOutlineForMaximumCase(maxCaseArgumentCaptor.capture());
       assertThat(argumentCaptor.getValue())
           .extracting(

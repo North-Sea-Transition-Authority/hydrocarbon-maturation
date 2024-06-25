@@ -2,12 +2,12 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformax
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -24,9 +24,10 @@ import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
-import uk.co.nstauthority.hydrocarbonmaturation.gis.GeoJsonShapefileLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.gis.ShapefileConversionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.geojson.SubmissionGeoJson;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.geojson.SubmissionGeoJsonService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,7 +42,7 @@ class OutlineForMaximumCasePersistenceServiceTest {
   @Mock
   private OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
   @Mock
-  private GeoJsonShapefileLinkService geoJsonShapefileLinkService;
+  private SubmissionGeoJsonService submissionGeoJsonService;
   @InjectMocks
   private OutlineForMaximumCasePersistenceService underTest;
   private static final FileDocumentType TYPE = FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE_OFFSHORE;
@@ -67,7 +68,7 @@ class OutlineForMaximumCasePersistenceServiceTest {
     void verifyCalls() {
       underTest.deleteOutlineForMaximumCase(submissionDetail);
 
-      verify(geoJsonShapefileLinkService).deleteGeojson(uploadedFile);
+      verify(submissionGeoJsonService).deleteGeojson(submissionDetail);
       verify(supportingDocumentService).deleteFile(UPLOADED_FILE_ID);
       verify(outlineForMaximumCaseRepository).deleteBySubmissionDetail(submissionDetail);
     }
@@ -77,21 +78,16 @@ class OutlineForMaximumCasePersistenceServiceTest {
   class WhenGettingGeoJsonForOutlineForMaximumCase {
     @Mock
     private SubmissionDetail submissionDetail;
-    @Mock
-    private UploadedFile uploadedFile;
-
-    @BeforeEach
-    void setup() {
-      when(supportingDocumentService.getUploadedFiles(submissionDetail, TYPE))
-          .thenReturn(List.of(uploadedFile));
-      when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail)).thenReturn(TYPE);
-    }
 
     @Test
     void verifyCalls() {
-      underTest.getGeoJsonForOutlineForMaximumCase(submissionDetail);
+      var shapefileGeojson = new SubmissionGeoJson();
+      shapefileGeojson.setGeojson("{test}");
+      when(submissionGeoJsonService.getShapefileGeoJsonForSubmissionDetail(submissionDetail))
+          .thenReturn(Optional.of(shapefileGeojson));
+      var geoJson = underTest.getGeoJsonForOutlineForMaximumCase(submissionDetail);
 
-      verify(shapefileConversionService).convertShapefileToGeoJson(uploadedFile);
+      assertEquals(geoJson, shapefileGeojson.getGeojson());
     }
   }
 
@@ -226,16 +222,16 @@ class OutlineForMaximumCasePersistenceServiceTest {
     private UploadedFile uploadedFile;
 
     @Test
-    void saveDocumentsAndStoreGeoJson() throws IOException {
+    void saveDocumentsAndStoreGeoJson() {
       when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail)).thenReturn(TYPE);
       when(supportingDocumentService.getUploadedFiles(submissionDetail, TYPE)).thenReturn(List.of(uploadedFile));
       var geoJson = "GEO_JSON";
       when(shapefileConversionService.convertShapefileToGeoJson(uploadedFile)).thenReturn(geoJson);
 
-      underTest.saveOutlineForMaximumCaseUploads(submissionDetail, uploadedFileForms, user);
+      underTest.saveOutlineForMaximumCaseUploads(submissionDetail, uploadedFileForms);
 
       verify(supportingDocumentService).saveDocuments(submissionDetail, uploadedFileForms, TYPE);
-      verify(geoJsonShapefileLinkService).storeGeoJson(uploadedFile, geoJson, user);
+      verify(submissionGeoJsonService).storeGeoJson(geoJson, submissionDetail);
     }
   }
 }

@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionSectionDuplicationService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.geojson.SubmissionGeoJson;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.geojson.SubmissionGeoJsonService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @Service
@@ -14,16 +16,19 @@ class OutlineForMaximumCaseDuplicationService implements SubmissionSectionDuplic
   private final SubmissionSupportingDocumentService supportingDocumentService;
   private final OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
   private final OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
+  private final SubmissionGeoJsonService submissionGeoJsonService;
 
   @Autowired
   OutlineForMaximumCaseDuplicationService(SubmissionDuplicationPersistenceService submissionDuplicationPersistenceService,
                                           SubmissionSupportingDocumentService supportingDocumentService,
                                           OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService,
-                                          OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService) {
+                                          OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService,
+                                          SubmissionGeoJsonService submissionGeoJsonService) {
     this.submissionDuplicationPersistenceService = submissionDuplicationPersistenceService;
     this.supportingDocumentService = supportingDocumentService;
     this.outlineForMaximumCasePersistenceService = outlineForMaximumCasePersistenceService;
     this.outlineForMaximumCaseDocumentTypeService = outlineForMaximumCaseDocumentTypeService;
+    this.submissionGeoJsonService = submissionGeoJsonService;
   }
 
   @Override
@@ -45,6 +50,14 @@ class OutlineForMaximumCaseDuplicationService implements SubmissionSectionDuplic
             newSubmissionDetail,
             outlineForMaximumCase,
             OutlineForMaximumCase.class
+        )
+    );
+
+    submissionGeoJsonService.getShapefileGeoJsonForSubmissionDetail(oldSubmissionDetail).ifPresent(
+        shapefileGeojson -> submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(
+            newSubmissionDetail,
+            shapefileGeojson,
+            SubmissionGeoJson.class
         )
     );
   }

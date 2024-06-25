@@ -11,12 +11,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.geojson.SubmissionGeoJson;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.geojson.SubmissionGeoJsonService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,6 +31,8 @@ class OutlineForMaximumCaseDuplicationServiceTest {
   private OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
   @Mock
   private OutlineForMaximumCaseDocumentTypeService outlineForMaximumCaseDocumentTypeService;
+  @Mock
+  private SubmissionGeoJsonService submissionGeoJsonService;
   @InjectMocks
   private OutlineForMaximumCaseDuplicationService underTest;
 
@@ -38,9 +41,9 @@ class OutlineForMaximumCaseDuplicationServiceTest {
     private SubmissionDetail oldSubmissionDetail;
     private SubmissionDetail newSubmissionDetail;
     @Mock
-    private UploadedFile uploadedFile;
-    @Mock
     private OutlineForMaximumCase outlineForMaximumCase;
+    @Mock
+    private SubmissionGeoJson submissionGeojson;
 
     @Test
     void duplicateSupportingDocument() {
@@ -64,6 +67,20 @@ class OutlineForMaximumCaseDuplicationServiceTest {
 
       verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail, outlineForMaximumCase,
           OutlineForMaximumCase.class);
+    }
+
+    @Test
+    void duplicateGeoJson() {
+      oldSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
+      newSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.PROSPECT_UPDATE);
+      when(submissionGeoJsonService.getShapefileGeoJsonForSubmissionDetail(oldSubmissionDetail))
+          .thenReturn(Optional.of(submissionGeojson));
+
+      underTest.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
+
+      verify(submissionDuplicationPersistenceService).duplicateChildAndReplaceParent(newSubmissionDetail,
+          submissionGeojson,
+          SubmissionGeoJson.class);
     }
 
     @Test

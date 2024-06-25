@@ -34,7 +34,7 @@ public class ShapefileConversionService {
     return getGeoJsonFromShapefileZip(shapefileZip);
   }
 
-  String getGeoJsonFromShapefileZip(ShapefileZipContents shapefileZip) {
+  public String getGeoJsonFromShapefileZip(ShapefileZipContents shapefileZip) {
     return geoJsonExportService.exportGeometryAsGeoJson(
         shapefileZip.thresholds(),
         shapefileZip.coordinateReferenceSystem(),

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
@@ -87,8 +86,7 @@ public class OutlineForMaximumCaseUploadController {
   @PostMapping
   public ModelAndView saveOutlineForMaximumCaseUpload(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                                       @ModelAttribute("form") OutlineForMaximumCaseUploadForm form,
-                                                      BindingResult bindingResult,
-                                                      User user) {
+                                                      BindingResult bindingResult) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
 
     bindingResult = outlineForMaximumCaseFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
@@ -96,7 +94,7 @@ public class OutlineForMaximumCaseUploadController {
         getOutlineForMaximumCaseModelAndView(form, submissionDetail),
         () -> {
           outlineForMaximumCasePersistenceService
-              .saveOutlineForMaximumCaseUploads(submissionDetail, form.getOutlineForMaximumCase(), user);
+              .saveOutlineForMaximumCaseUploads(submissionDetail, form.getOutlineForMaximumCase());
           return ReverseRouter.redirect(on(OutlineForMaximumCaseVerifyController.class)
               .getOutlineForMaximumCaseVerify(submissionDetailId));
         });

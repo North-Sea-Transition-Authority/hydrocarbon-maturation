@@ -153,7 +153,7 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
                 .with(csrf()))
         .andExpect(status().isForbidden());
 
-    verify(outlineForMaximumCasePersistenceService, never()).saveOutlineForMaximumCaseUploads(eq(submissionDetail), anyList(), any());
+    verify(outlineForMaximumCasePersistenceService, never()).saveOutlineForMaximumCaseUploads(eq(submissionDetail), anyList());
   }
 
   @ParameterizedTest(name = "controller validation - {0}")
