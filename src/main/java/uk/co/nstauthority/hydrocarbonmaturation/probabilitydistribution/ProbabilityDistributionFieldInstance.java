@@ -547,17 +547,17 @@ public enum ProbabilityDistributionFieldInstance {
   // Total field gas case outputs / volumetrics
   TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD(
       FieldVolumetricsBehaviour.class,
-      ProbabilityOfExceedanceUnits.MMBBL,
+      ProbabilityOfExceedanceUnits.BCF,
       "Gas initially in place"
   ),
   TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD(
       FieldVolumetricsResourcesBehaviour.class,
-      ProbabilityOfExceedanceUnits.MMBBL,
+      ProbabilityOfExceedanceUnits.BCF,
       "Gas recoverable resources"
   ),
   TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD(
       FieldVolumetricsReservesBehaviour.class,
-      ProbabilityOfExceedanceUnits.MMBBL,
+      ProbabilityOfExceedanceUnits.BCF,
       "Gas reserves"
   ),
 
@@ -719,6 +719,68 @@ public enum ProbabilityDistributionFieldInstance {
       "Sales gas reserves"
   ),
   OIL_EQUIVALENT_RESERVES_PROMOTED_VOLUMES_FDPA(
+      FieldVolumetricsReservesBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBOE,
+      "Oil equivalent reserves"
+  ),
+
+  // FDPA increased volumes
+  OIL_INITIALLY_IN_PLACE_INCREASED_VOLUMES_FDPA(
+      FieldVolumetricsBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Oil initially in place"
+  ),
+  GAS_INITIALLY_IN_PLACE_INCREASED_VOLUMES_FDPA(
+      FieldVolumetricsBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Gas initially in place"
+  ),
+  OIL_RECOVERABLE_RESOURCES_INCREASED_VOLUMES_FDPA(
+      FieldVolumetricsResourcesBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Oil recoverable resources"
+  ),
+  OIL_RESERVES_INCREASED_VOLUMES_FDPA(
+      FieldVolumetricsReservesBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Oil reserves"
+  ),
+  ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_INCREASED_VOLUMES_FDPA(
+      FieldVolumetricsResourcesBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Associated condensate recoverable resources"
+  ),
+  ASSOCIATED_CONDENSATE_RESERVES_INCREASED_VOLUMES_FDPA(
+      FieldVolumetricsReservesBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Associated condensate reserves"
+  ),
+  NATURAL_GAS_LIQUIDS_RECOVERABLE_RESOURCES_INCREASED_VOLUMES_FDPA(
+      FieldVolumetricsResourcesBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Natural gas liquids resources"
+  ),
+  NATURAL_GAS_LIQUIDS_RESERVES_INCREASED_VOLUMES_FDPA(
+      FieldVolumetricsReservesBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBBL,
+      "Natural gas liquids reserves"
+  ),
+  SALES_GAS_RECOVERABLE_RESOURCES_INCREASED_VOLUMES_FDPA(
+      FieldVolumetricsResourcesBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Sales gas resources"
+  ),
+  SALES_GAS_RESERVES_INCREASED_VOLUMES_FDPA(
+      FieldVolumetricsReservesBehaviour.class,
+      ProbabilityOfExceedanceUnits.BCF,
+      "Sales gas reserves"
+  ),
+  OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INCREASED_VOLUMES_FDPA(
+      FieldVolumetricsResourcesBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBOE,
+      "Oil equivalent recoverable resources"
+  ),
+  OIL_EQUIVALENT_RESERVES_INCREASED_VOLUMES_FDPA(
       FieldVolumetricsReservesBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent reserves"

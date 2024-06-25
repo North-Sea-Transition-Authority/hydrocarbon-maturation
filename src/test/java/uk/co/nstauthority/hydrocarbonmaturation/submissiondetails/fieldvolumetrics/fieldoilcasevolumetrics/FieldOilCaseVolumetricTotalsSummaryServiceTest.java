@@ -106,7 +106,7 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
     var summaryCards = summaryItems.get(0).summaryCards();
     assertThat(summaryCards).hasSize(2);
 
-    // Oil in place card
+    // Oil initially in place card
     var card1 = summaryCards.get(0);
     assertThat(card1)
         .extracting(

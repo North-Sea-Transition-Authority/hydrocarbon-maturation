@@ -31,6 +31,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolum
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fielddevelopmentplanaddendumincreasedvolumes.FieldDevelopmentPlanAddendumIncreasedVolumesController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fielddevelopmentplanaddendumincreasedvolumes.FieldDevelopmentPlanAddendumIncreasedVolumesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fielddevelopmentplanaddendumpromotedvolumes.FieldDevelopmentPlanAddendumPromotedVolumesController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fielddevelopmentplanaddendumpromotedvolumes.FieldDevelopmentPlanAddendumPromotedVolumesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldcombinedcasedvolumetrictotals.FieldCombinedCaseVolumetricTotalsController;
@@ -65,6 +67,8 @@ class TotalVolumesTaskListSectionServiceTest {
   private ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
   @Mock
   private FieldDevelopmentPlanAddendumPromotedVolumesSubmissionService fieldDevelopmentPlanAddendumPromotedVolumesSubmissionService;
+  @Mock
+  private FieldDevelopmentPlanAddendumIncreasedVolumesSubmissionService fdpaIncreasedVolumesSubmissionService;
   @InjectMocks
   private TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
 
@@ -179,9 +183,9 @@ class TotalVolumesTaskListSectionServiceTest {
   void getSection_noHydrocarbonCase_thenReturnEmpty() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
 
-    var rsd1 = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
-    var rsd2 = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
-    var reservoirSubmissionDetails = List.of(rsd1, rsd2);
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+    var reservoirSubmissionDetail2 = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
+    var reservoirSubmissionDetails = List.of(reservoirSubmissionDetail, reservoirSubmissionDetail2);
 
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
@@ -553,6 +557,8 @@ class TotalVolumesTaskListSectionServiceTest {
         .thenReturn(true);
     when(fieldDevelopmentPlanAddendumPromotedVolumesSubmissionService.isSectionSubmittable(submissionDetail))
         .thenReturn(true);
+    when(fdpaIncreasedVolumesSubmissionService.isSectionSubmittable(submissionDetail))
+        .thenReturn(true);
 
     var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail);
     assertThat(sectionOptional).isPresent();
@@ -575,6 +581,12 @@ class TotalVolumesTaskListSectionServiceTest {
                 TaskListLabel.COMPLETE,
                 ReverseRouter.route(on(FieldDevelopmentPlanAddendumPromotedVolumesController.class)
                     .getFdpaPromotedVolumes(submissionDetail.getId()))
+            ),
+            Tuple.tuple(
+                "FDPA increased volumes",
+                TaskListLabel.COMPLETE,
+                ReverseRouter.route(on(FieldDevelopmentPlanAddendumIncreasedVolumesController.class)
+                    .getFdpaIncreasedVolumes(submissionDetail.getId()))
             )
         );
   }
@@ -829,6 +841,8 @@ class TotalVolumesTaskListSectionServiceTest {
     when(fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
         .thenReturn(isSectionSubmittable);
     when(fieldDevelopmentPlanAddendumPromotedVolumesSubmissionService.isSectionSubmittable(submissionDetail))
+        .thenReturn(true);
+    when(fdpaIncreasedVolumesSubmissionService.isSectionSubmittable(submissionDetail))
         .thenReturn(true);
     assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
   }

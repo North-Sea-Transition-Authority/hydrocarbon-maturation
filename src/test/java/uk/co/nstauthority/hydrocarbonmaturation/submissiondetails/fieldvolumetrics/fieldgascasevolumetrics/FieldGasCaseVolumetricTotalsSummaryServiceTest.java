@@ -184,7 +184,7 @@ class FieldGasCaseVolumetricTotalsSummaryServiceTest {
     var summaryCards = summaryItems.get(0).summaryCards();
     assertThat(summaryCards).hasSize(2);
 
-    // Gas in place card
+    // Gas initially in place card
     var card1 = summaryCards.get(0);
     assertThat(card1)
         .extracting(

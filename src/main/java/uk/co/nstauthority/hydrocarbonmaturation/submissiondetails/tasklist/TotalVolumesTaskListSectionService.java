@@ -15,6 +15,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolum
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fielddevelopmentplanaddendumincreasedvolumes.FieldDevelopmentPlanAddendumIncreasedVolumesController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fielddevelopmentplanaddendumincreasedvolumes.FieldDevelopmentPlanAddendumIncreasedVolumesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fielddevelopmentplanaddendumpromotedvolumes.FieldDevelopmentPlanAddendumPromotedVolumesController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fielddevelopmentplanaddendumpromotedvolumes.FieldDevelopmentPlanAddendumPromotedVolumesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldcombinedcasedvolumetrictotals.FieldCombinedCaseVolumetricTotalsController;
@@ -39,6 +41,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
   private final FieldCombinedCaseVolumetricTotalsSubmissionService fieldCombinedCaseVolumetricTotalsSubmissionService;
   private final ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
   private final FieldDevelopmentPlanAddendumPromotedVolumesSubmissionService fdpaPromotedVolumesSubmissionService;
+  private final FieldDevelopmentPlanAddendumIncreasedVolumesSubmissionService fdpaIncreasedVolumesSubmissionService;
 
   @Autowired
   public TotalVolumesTaskListSectionService(
@@ -50,7 +53,8 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
       FieldGasCaseVolumetricTotalsSubmissionService fieldGasCaseVolumetricTotalsSubmissionService,
       FieldCombinedCaseVolumetricTotalsSubmissionService fieldCombinedCaseVolumetricTotalsSubmissionService,
       ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService,
-      FieldDevelopmentPlanAddendumPromotedVolumesSubmissionService fdpaPromotedVolumesSubmissionService) {
+      FieldDevelopmentPlanAddendumPromotedVolumesSubmissionService fdpaPromotedVolumesSubmissionService,
+      FieldDevelopmentPlanAddendumIncreasedVolumesSubmissionService fdpaIncreasedVolumesSubmissionService) {
 
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.discoveryOilCaseVolumetricTotalsSubmissionService = discoveryOilCaseVolumetricTotalsSubmissionService;
@@ -61,6 +65,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
     this.fieldCombinedCaseVolumetricTotalsSubmissionService = fieldCombinedCaseVolumetricTotalsSubmissionService;
     this.reservoirHydrocarbonCaseService = reservoirHydrocarbonCaseService;
     this.fdpaPromotedVolumesSubmissionService = fdpaPromotedVolumesSubmissionService;
+    this.fdpaIncreasedVolumesSubmissionService = fdpaIncreasedVolumesSubmissionService;
   }
 
   public boolean sectionIsPresent(SubmissionDetail submissionDetail) {
@@ -120,7 +125,8 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
       return isDiscoveryHydrocarbonCaseSubmittable(submissionDetail, reservoirSubmissionDetails);
     } else if (submissionDetail.isFieldDevelopmentPlanAddendumSubmission()) {
       return isFieldHydrocarbonCaseSectionSubmittable(submissionDetail, reservoirSubmissionDetails)
-          && isFdpaPromotedVolumesSectionSubmittable(submissionDetail);
+          && isFdpaPromotedVolumesSectionSubmittable(submissionDetail)
+          && isFdpaIncreasedVolumesSectionSubmittable(submissionDetail);
     } else if (submissionDetail.isFieldSubmission()) {
       return isFieldHydrocarbonCaseSectionSubmittable(submissionDetail, reservoirSubmissionDetails);
     }
@@ -153,6 +159,10 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
 
   private boolean isFdpaPromotedVolumesSectionSubmittable(SubmissionDetail submissionDetail) {
     return fdpaPromotedVolumesSubmissionService.isSectionSubmittable(submissionDetail);
+  }
+
+  private boolean isFdpaIncreasedVolumesSectionSubmittable(SubmissionDetail submissionDetail) {
+    return fdpaIncreasedVolumesSubmissionService.isSectionSubmittable(submissionDetail);
   }
 
   private List<TaskListItem> getTaskListItems(SubmissionDetail submissionDetail,
@@ -223,6 +233,14 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
               fdpaPromotedVolumesSubmissionService.isSectionSubmittable(submissionDetail)),
           ReverseRouter.route(on(FieldDevelopmentPlanAddendumPromotedVolumesController.class)
               .getFdpaPromotedVolumes(submissionDetail.getId()))
+      ));
+
+      listOfItems.add(new TaskListItem(
+          "FDPA increased volumes",
+          TaskListLabel.notStartedOrComplete(
+              fdpaIncreasedVolumesSubmissionService.isSectionSubmittable(submissionDetail)),
+          ReverseRouter.route(on(FieldDevelopmentPlanAddendumIncreasedVolumesController.class)
+              .getFdpaIncreasedVolumes(submissionDetail.getId()))
       ));
     }
 
