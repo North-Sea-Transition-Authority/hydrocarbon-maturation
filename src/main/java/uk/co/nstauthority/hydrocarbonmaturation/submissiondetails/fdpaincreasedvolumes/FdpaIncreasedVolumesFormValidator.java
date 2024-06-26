@@ -52,7 +52,7 @@ public class FdpaIncreasedVolumesFormValidator implements SubmissionValidator {
           errors,
           "comment",
           "comment.required",
-          "Provide comments on the incremental increased"
+          "Provide comments on the incremental increase"
       );
     }
   }
