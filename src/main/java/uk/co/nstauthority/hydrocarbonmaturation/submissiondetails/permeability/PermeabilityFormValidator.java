@@ -8,6 +8,7 @@ import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionValidationUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceUnits;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -16,6 +17,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidat
 
 @Service
 class PermeabilityFormValidator implements SubmissionValidator {
+
+  private static final String KV_KH_AVERAGE = "%s average".formatted(
+      ProbabilityOfExceedanceUnits.KV_KH.getUnitDisplay()
+  );
 
   @Override
   public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
@@ -58,7 +63,7 @@ class PermeabilityFormValidator implements SubmissionValidator {
       DecimalInputValidator.configureOptionalValidator(
               errors,
               "permeabilityValuesForm.kvKhAverage.decimalInputValue",
-              "Kv/kh average",
+              KV_KH_AVERAGE,
               permeabilityForm.getPermeabilityValuesForm().getKvKhAverage())
           .setMaxDecimalPlaces(2)
           .setMinValue(BigDecimal.ZERO)
@@ -114,7 +119,8 @@ class PermeabilityFormValidator implements SubmissionValidator {
     }
   }
 
-  private void validatePermeability(PermeabilityForm permeabilityForm, Errors errors, SubmissionDetail submissionDetail) {
+  private void validatePermeability(PermeabilityForm permeabilityForm, Errors errors,
+                                    SubmissionDetail submissionDetail) {
     var isFieldSubmission = SubmissionType.getSubmissionTypesForResourceType(ResourceType.FIELD)
         .contains(submissionDetail.getSubmissionType());
 
@@ -170,7 +176,7 @@ class PermeabilityFormValidator implements SubmissionValidator {
       DecimalInputValidator.configureValidator(
               errors,
               "permeabilityValuesForm.kvKhAverage.decimalInputValue",
-              "Kv/kh average",
+              KV_KH_AVERAGE,
               permeabilityForm.getPermeabilityValuesForm().getKvKhAverage())
           .setMaxDecimalPlaces(2)
           .setMinValue(BigDecimal.ZERO)

@@ -12,7 +12,7 @@ backLinkUrl=springUrl(backLinkUrl)>
 
   <@fdsStartPage.startPage startActionText="Start now" startActionUrl=actionUrl>
     <p class="govuk-body">
-      Use this service to provide a post-drill update to a prospect that resulted in a dry hole.
+      Use this submission to provide a post-drill update to a prospect that resulted in a dry hole.
       You will be required to provide general information about the well drilled and the dry hole.
     </p>
   </@fdsStartPage.startPage>

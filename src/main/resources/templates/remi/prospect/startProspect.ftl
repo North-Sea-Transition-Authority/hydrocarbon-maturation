@@ -12,10 +12,10 @@ backLinkUrl=springUrl(backLinkUrl)>
 
   <@fdsStartPage.startPage startActionText="Start now" startActionUrl=actionUrl>
     <p class="govuk-body">
-      Use this service to create a new prospect.
+      Use this submission to create a new prospect.
     </p>
     <p class="govuk-body">
-      You will be required to provide basic information about the prospect. You will optionally be able to provide full details of the prospect if they are available.
+      You will be required to provide information on the trap, reservoir, hydrocarbon case, chance of success, and volumetrics.
     </p>
   </@fdsStartPage.startPage>
 </@defaultPage>

@@ -11,7 +11,7 @@
   backLinkUrl=springUrl(backLinkUrl)>
   <@fdsStartPage.startPage startActionText="Start now" startActionUrl=actionUrl>
     <p class="govuk-body">
-      Use this service to provide up to date information on an existing discovery following appraisal activities.
+      Use this submission to provide up to date information on an existing discovery following appraisal activities.
     </p>
   </@fdsStartPage.startPage>
 </@defaultPage>

@@ -12,7 +12,7 @@ backLinkUrl=springUrl(backLinkUrl)>
 
   <@fdsStartPage.startPage startActionText="Start now" startActionUrl=actionUrl>
     <p class="govuk-body">
-      Use this service to update the information for an existing prospect.
+      Use this submission to update the information for an existing prospect.
       This should be completed at key points in the prospect work programme, such as when a well investment decision is made or pre-drill.
     </p>
   </@fdsStartPage.startPage>

@@ -11,7 +11,7 @@ pageSize=PageSize.TWO_THIRDS_COLUMN
 backLinkUrl=springUrl(backLinkUrl)>
   <@fdsStartPage.startPage startActionText="Start now" startActionUrl=actionUrl>
     <p class="govuk-body">
-      Use this service to create a new discovery.
+      Use this submission to create a new discovery.
     </p>
     <p class="govuk-body">
       You will be required to provide information about what was discovered, the trap, reservoir, oil or gas volumes and fluid properties.

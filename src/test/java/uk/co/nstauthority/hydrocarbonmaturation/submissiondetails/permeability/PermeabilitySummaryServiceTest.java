@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceUnits;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
@@ -50,7 +51,8 @@ class PermeabilitySummaryServiceTest {
     when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
-    var view = permeabilitySummaryService.getPermeabilitySummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
+    var view = permeabilitySummaryService.getPermeabilitySummaryFromReservoirSubmissionDetail(
+        reservoirSubmissionDetail);
 
     assertThat(view)
         .extracting(
@@ -74,7 +76,8 @@ class PermeabilitySummaryServiceTest {
     when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(permeabilityDetail));
 
-    var view = permeabilitySummaryService.getPermeabilitySummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
+    var view = permeabilitySummaryService.getPermeabilitySummaryFromReservoirSubmissionDetail(
+        reservoirSubmissionDetail);
 
     assertThat(view)
         .extracting(
@@ -98,7 +101,8 @@ class PermeabilitySummaryServiceTest {
     when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(permeabilityDetail));
 
-    var view = permeabilitySummaryService.getPermeabilitySummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
+    var view = permeabilitySummaryService.getPermeabilitySummaryFromReservoirSubmissionDetail(
+        reservoirSubmissionDetail);
 
     assertThat(view)
         .extracting(
@@ -115,14 +119,18 @@ class PermeabilitySummaryServiceTest {
         .containsExactly(
             "Yes",
             permeabilityDetail.getHasPermeability(),
-            permeabilityDetail.getPermeabilityMin().toString() + " mD",
-            permeabilityDetail.getPermeabilityMax().toString() + " mD",
-            permeabilityDetail.getPermeabilityAverage().toString() + " mD",
+            "%s %s".formatted(permeabilityDetail.getPermeabilityMin().toString(),
+                ProbabilityOfExceedanceUnits.MD.getUnitDisplay()),
+            "%s %s".formatted(permeabilityDetail.getPermeabilityMax().toString(),
+                ProbabilityOfExceedanceUnits.MD.getUnitDisplay()),
+            "%s %s".formatted(permeabilityDetail.getPermeabilityAverage().toString(),
+                ProbabilityOfExceedanceUnits.MD.getUnitDisplay()),
             permeabilityDetail.getAverageMethodUsed().getDisplayName(),
             permeabilityDetail.getPermeabilitySource().getDisplayName(),
             permeabilityDetail.getSourceOther(),
             permeabilityDetail.getPermeabilityComments(),
-            permeabilityDetail.getKvKhAverage().toString() + " kv/kh"
+            "%s %s".formatted(permeabilityDetail.getKvKhAverage().toString(),
+                ProbabilityOfExceedanceUnits.KV_KH.getUnitDisplay())
         );
   }
 
@@ -135,7 +143,8 @@ class PermeabilitySummaryServiceTest {
     when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(permeabilityDetail));
 
-    var view = permeabilitySummaryService.getPermeabilitySummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
+    var view = permeabilitySummaryService.getPermeabilitySummaryFromReservoirSubmissionDetail(
+        reservoirSubmissionDetail);
 
     assertThat(view)
         .extracting(
@@ -159,7 +168,8 @@ class PermeabilitySummaryServiceTest {
             permeabilityDetail.getPermeabilitySource().getDisplayName(),
             "comments",
             permeabilityDetail.getPermeabilityComments(),
-            permeabilityDetail.getKvKhAverage().toString() + " kv/kh"
+            "%s %s".formatted(permeabilityDetail.getKvKhAverage().toString(),
+                ProbabilityOfExceedanceUnits.KV_KH.getUnitDisplay())
         );
   }
 
@@ -237,7 +247,8 @@ class PermeabilitySummaryServiceTest {
     var propertySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, propertySummaryCard);
 
     var fieldProbabilitySummaryCard = SummaryCard.minMaxMostLikelySummaryCard(summaryViews);
-    var fieldProbabilitySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, fieldProbabilitySummaryCard);
+    var fieldProbabilitySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY,
+        fieldProbabilitySummaryCard);
     assertThat(summarySection.get().summaryItems()).containsExactly(propertySummaryItem, fieldProbabilitySummaryItem);
   }
 
@@ -267,7 +278,7 @@ class PermeabilitySummaryServiceTest {
     summaryDataView.addKeyValue(PermeabilitySummaryService.AVERAGE_METHOD_USED, "Arithmetic");
     summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_SOURCE, "");
     summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_COMMENTS, "Test comments");
-    summaryDataView.addKeyValue(PermeabilitySummaryService.KV_KH_AVERAGE, "5.0 kv/kh");
+    summaryDataView.addKeyValue(PermeabilitySummaryService.KV_KH_AVERAGE, "5.0 Kv/Kh");
 
     var summaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
     var summaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, summaryCard);
@@ -280,7 +291,8 @@ class PermeabilitySummaryServiceTest {
       names = {"OTHER"},
       mode = EnumSource.Mode.EXCLUDE
   )
-  void getSummarySection_discovery_nonEmptyPermeabilityDetail_withNonOtherSource(PermeabilitySource permeabilitySource) {
+  void getSummarySection_discovery_nonEmptyPermeabilityDetail_withNonOtherSource(
+      PermeabilitySource permeabilitySource) {
     var permeabilityDetail = new PermeabilityDetail();
     permeabilityDetail.setPermeabilityMin(BigDecimal.valueOf(10.0));
     permeabilityDetail.setPermeabilityMax(BigDecimal.valueOf(20.0));
@@ -305,7 +317,7 @@ class PermeabilitySummaryServiceTest {
     summaryDataView.addKeyValue(PermeabilitySummaryService.AVERAGE_METHOD_USED, "Arithmetic");
     summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_SOURCE, permeabilitySource.getDisplayName());
     summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_COMMENTS, "Test comments");
-    summaryDataView.addKeyValue(PermeabilitySummaryService.KV_KH_AVERAGE, "5.0 kv/kh");
+    summaryDataView.addKeyValue(PermeabilitySummaryService.KV_KH_AVERAGE, "5.0 Kv/Kh");
 
     var summaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
     var summaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, summaryCard);
@@ -340,14 +352,16 @@ class PermeabilitySummaryServiceTest {
     assertSummarySection(summarySection.get(), PermeabilitySummaryService.PERMEABILITY_DISPLAY_ORDER);
 
     var summaryDataView = new SummaryDataView(new ArrayList<>());
-    summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_SOURCE, PermeabilitySource.SIDEWALL.getDisplayName());
+    summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_SOURCE,
+        PermeabilitySource.SIDEWALL.getDisplayName());
     summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_COMMENTS, "Test comments");
 
     var propertySummaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
     var propertySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, propertySummaryCard);
 
     var fieldProbabilitySummaryCard = SummaryCard.minMaxMostLikelySummaryCard(summaryViews);
-    var fieldProbabilitySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, fieldProbabilitySummaryCard);
+    var fieldProbabilitySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY,
+        fieldProbabilitySummaryCard);
     assertThat(summarySection.get().summaryItems()).containsExactly(propertySummaryItem, fieldProbabilitySummaryItem);
   }
 
@@ -380,7 +394,7 @@ class PermeabilitySummaryServiceTest {
     summaryDataView.addKeyValue(PermeabilitySummaryService.AVERAGE_METHOD_USED, "Arithmetic");
     summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_SOURCE, testSource);
     summaryDataView.addKeyValue(PermeabilitySummaryService.PERMEABILITY_COMMENTS, "Test comments");
-    summaryDataView.addKeyValue(PermeabilitySummaryService.KV_KH_AVERAGE, "5.0 kv/kh");
+    summaryDataView.addKeyValue(PermeabilitySummaryService.KV_KH_AVERAGE, "5.0 Kv/Kh");
 
     var summaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
     var summaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, summaryCard);
@@ -425,7 +439,8 @@ class PermeabilitySummaryServiceTest {
     var propertySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, propertySummaryCard);
 
     var fieldProbabilitySummaryCard = SummaryCard.minMaxMostLikelySummaryCard(summaryViews);
-    var fieldProbabilitySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, fieldProbabilitySummaryCard);
+    var fieldProbabilitySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY,
+        fieldProbabilitySummaryCard);
     assertThat(summarySection.get().summaryItems()).containsExactly(propertySummaryItem, fieldProbabilitySummaryItem);
   }
 }

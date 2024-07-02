@@ -15,7 +15,8 @@ public enum ProbabilityOfExceedanceUnits {
   MMBBL("mmbbl"),
   MMBOE("mmboe"),
   BCF("bcf"),
-  MD("mD");
+  MD("mD"),
+  KV_KH("Kv/Kh");
 
   private final String unitDisplay;
 

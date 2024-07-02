@@ -34,7 +34,7 @@
       <@fdsSummaryList.summaryListRowNoAction keyText="Permeability (md) comments">
         <p class="govuk-body govuk-body__preserve-whitespace">${permeabilityDetailsValues.permeabilityComments()}</p>
       </@fdsSummaryList.summaryListRowNoAction>
-      <@fdsSummaryList.summaryListRowNoAction keyText="Kv/kh average">
+      <@fdsSummaryList.summaryListRowNoAction keyText="Kv/Kh average">
         ${permeabilityDetailsValues.kvKhAverage()}
       </@fdsSummaryList.summaryListRowNoAction>
     </#if>

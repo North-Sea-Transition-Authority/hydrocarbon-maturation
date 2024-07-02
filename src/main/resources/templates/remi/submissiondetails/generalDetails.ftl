@@ -73,6 +73,7 @@ breadcrumbsMap=breadcrumbsMap>
                     path="form.licenceApplication"
                     restUrl=springUrl(licenceApplicationEndpoint)
                     labelText="Licence application round and reference"
+                    hintText="For example, F28/0001T or N14/0003L"
                     selectorMinInputLength=3
                     nestingPath="form.informationSource"
                     preselectedItems=licenceApplication!{}/>

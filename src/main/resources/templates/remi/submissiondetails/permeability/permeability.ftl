@@ -41,7 +41,7 @@
     optionalLabel=true/>
 
   <#if !isFieldSubmission>
-    <@fdsTextInput.textInput suffix="kv/kh" inputClass="govuk-input--width-4" path="form.permeabilityValuesForm.kvKhAverage.decimalInputValue" nestingPath="form.permeabilityValuesForm.kvKhAverage.decimalInputValue" labelText="Kv/kh average"/>
+    <@fdsTextInput.textInput suffix="Kv/Kh" inputClass="govuk-input--width-4" path="form.permeabilityValuesForm.kvKhAverage.decimalInputValue" nestingPath="form.permeabilityValuesForm.kvKhAverage.decimalInputValue" labelText="Kv/Kh average"/>
   </#if>
 
   <#if isFieldSubmission>

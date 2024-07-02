@@ -21,7 +21,7 @@ public class TopNavigationService {
 
   public static final String TEAMS = "Teams";
   public static final String LEGACY_TEAMS = "Legacy teams";
-  public static final String SEARCH_RESOURCE_RECORDS = "Search resource records";
+  public static final String SEARCH_RESOURCE_RECORDS = "Search";
   public static final String UNDEVELOPED_DISCOVERIES = "Undeveloped discoveries";
   private final InternalTeamService internalTeamService;
 

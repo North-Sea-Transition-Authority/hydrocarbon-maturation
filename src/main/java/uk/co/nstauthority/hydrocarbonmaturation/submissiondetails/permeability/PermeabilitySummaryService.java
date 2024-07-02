@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceUnits;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
@@ -28,7 +29,9 @@ public class PermeabilitySummaryService implements SummarySectionService<Reservo
   public static final String AVERAGE_METHOD_USED = "Average method used";
   public static final String PERMEABILITY_SOURCE = "Permeability source";
   public static final String PERMEABILITY_COMMENTS = "Permeability comments";
-  public static final String KV_KH_AVERAGE = "KV/KH average";
+  public static final String KV_KH_AVERAGE = "%s average".formatted(
+      ProbabilityOfExceedanceUnits.KV_KH.getUnitDisplay()
+  );
 
   public static final int PERMEABILITY_DISPLAY_ORDER = 20;
   private static final List<ProbabilityDistributionFieldInstance> PERMEABILITY_FIELD_INSTANCES = List.of(
@@ -66,19 +69,29 @@ public class PermeabilitySummaryService implements SummarySectionService<Reservo
       otherPermeabilitySource = ObjectUtils.defaultIfNull(permeabilityDetail.getSourceOther(), "");
     }
 
-    final String kvKhUnits = "kv/kh";
-    final String mdUnits = "mD";
     return new PermeabilityDetailSummaryView(
         BooleanUtil.yesNoFromBoolean(permeabilityDetail.getHasPermeability(), ""),
         ObjectUtils.defaultIfNull(permeabilityDetail.getHasPermeability(), true),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getPermeabilityMin(), mdUnits),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getPermeabilityMax(), mdUnits),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getPermeabilityAverage(), mdUnits),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(
+            permeabilityDetail.getPermeabilityMin(),
+            ProbabilityOfExceedanceUnits.MD.getUnitDisplay()
+        ),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(
+            permeabilityDetail.getPermeabilityMax(),
+            ProbabilityOfExceedanceUnits.MD.getUnitDisplay()
+        ),
+        NumberUtil.getNumberStringWithUnitsOrEmpty(
+            permeabilityDetail.getPermeabilityAverage(),
+            ProbabilityOfExceedanceUnits.MD.getUnitDisplay()
+        ),
         averageMethodUsed,
         permeabilitySource,
         otherPermeabilitySource,
         ObjectUtils.defaultIfNull(permeabilityDetail.getPermeabilityComments(), ""),
-        NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getKvKhAverage(), kvKhUnits)
+        NumberUtil.getNumberStringWithUnitsOrEmpty(
+            permeabilityDetail.getKvKhAverage(),
+            ProbabilityOfExceedanceUnits.KV_KH.getUnitDisplay()
+        )
     );
   }
 
@@ -122,7 +135,9 @@ public class PermeabilitySummaryService implements SummarySectionService<Reservo
               permeabilityDetail.getPermeabilityComments());
           if (reservoirSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()) {
             summaryDataView.addKeyValue(KV_KH_AVERAGE,
-                NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getKvKhAverage(), "kv/kh"));
+                NumberUtil.getNumberStringWithUnitsOrEmpty(permeabilityDetail.getKvKhAverage(),
+                    ProbabilityOfExceedanceUnits.KV_KH.getUnitDisplay()
+                ));
           }
         }, () -> {
           if (reservoirSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()) {
