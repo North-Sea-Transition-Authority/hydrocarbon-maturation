@@ -102,7 +102,7 @@ public class FdpaIncreasedVolumesController {
         .addObject("associatedCondensateReservesTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.ASSOCIATED_CONDENSATE_RESERVES_INCREASED_VOLUMES_FDPA))
-        .addObject("naturalGasLiquidsResourcesTemplate",
+        .addObject("naturalGasLiquidsRecoverableResourcesTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.NATURAL_GAS_LIQUIDS_RECOVERABLE_RESOURCES_INCREASED_VOLUMES_FDPA))
         .addObject("naturalGasLiquidsReservesTemplate",
@@ -133,7 +133,7 @@ public class FdpaIncreasedVolumesController {
         .addObject("oilReservesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("associatedCondensateRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("associatedCondensateReservesError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("naturalGasLiquidsResourcesError", ProbabilityDistributionTypeError.emptyError())
+        .addObject("naturalGasLiquidsRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("naturalGasLiquidsReservesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("salesGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("salesGasReservesError", ProbabilityDistributionTypeError.emptyError())
@@ -163,9 +163,9 @@ public class FdpaIncreasedVolumesController {
         .addObject("associatedCondensateReservesError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult, "associatedCondensateReserves", form.getAssociatedCondensateReserves()))
-        .addObject("naturalGasLiquidsResourcesError",
+        .addObject("naturalGasLiquidsRecoverableResourcesError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
-                bindingResult, "naturalGasLiquidsResources", form.getNaturalGasLiquidsRecoverableResources()))
+                bindingResult, "naturalGasLiquidsRecoverableResources", form.getNaturalGasLiquidsRecoverableResources()))
         .addObject("naturalGasLiquidsReservesError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult, "naturalGasLiquidsReserves", form.getNaturalGasLiquidsReserves()))

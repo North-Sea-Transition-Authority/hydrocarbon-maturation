@@ -81,8 +81,8 @@ breadcrumbsMap=breadcrumbsMap>
                 <@probabilityDistribution.probabilityDistributionSingularTemplate
                 probabilityDistributionPath="form.naturalGasLiquidsRecoverableResources"
                 labelText="Incremental increase to natural gas liquids recoverable resources as a result of this FDPA"
-                template=naturalGasLiquidsResourcesTemplate
-                error=naturalGasLiquidsResourcesError
+                template=naturalGasLiquidsRecoverableResourcesTemplate
+                error=naturalGasLiquidsRecoverableResourcesError
                 provideComments=false
                 hintText=hintText/>
 

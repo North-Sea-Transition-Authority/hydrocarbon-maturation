@@ -99,7 +99,7 @@ class FdpaIncreasedVolumesControllerTest extends AbstractSubmissionControllerTes
         entry("associatedCondensateReservesTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.ASSOCIATED_CONDENSATE_RESERVES_INCREASED_VOLUMES_FDPA)),
-        entry("naturalGasLiquidsResourcesTemplate",
+        entry("naturalGasLiquidsRecoverableResourcesTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.NATURAL_GAS_LIQUIDS_RECOVERABLE_RESOURCES_INCREASED_VOLUMES_FDPA)),
         entry("naturalGasLiquidsReservesTemplate",
@@ -123,7 +123,7 @@ class FdpaIncreasedVolumesControllerTest extends AbstractSubmissionControllerTes
         entry("oilReservesError", ProbabilityDistributionTypeError.emptyError()),
         entry("associatedCondensateRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
         entry("associatedCondensateReservesError", ProbabilityDistributionTypeError.emptyError()),
-        entry("naturalGasLiquidsResourcesError", ProbabilityDistributionTypeError.emptyError()),
+        entry("naturalGasLiquidsRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
         entry("naturalGasLiquidsReservesError", ProbabilityDistributionTypeError.emptyError()),
         entry("salesGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
         entry("salesGasReservesError", ProbabilityDistributionTypeError.emptyError()),

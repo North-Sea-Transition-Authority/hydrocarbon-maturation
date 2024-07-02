@@ -42,7 +42,8 @@ public class FdpaIncreasedVolumesFormValidator implements SubmissionValidator {
     ValidationUtils.rejectIfEmpty(
         errors,
         "changeInVolumetrics",
-        "changeInVolumetrics.required"
+        "changeInVolumetrics.required",
+        "Select yes if there is a change in the volumetrics"
     );
 
     if (BooleanUtils.isTrue(fdpaIncreasedVolumesForm.getChangeInVolumetrics())) {

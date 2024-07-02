@@ -47,7 +47,8 @@ public class FdpaReservoirIncrementalVolumesFormValidator implements ReservoirSu
     ValidationUtils.rejectIfEmpty(
         errors,
         "changeToInPlaceVolumes",
-        "changeToInPlaceVolumes.required"
+        "changeToInPlaceVolumes.required",
+        "Select yes if there is a change to the in place volumes"
     );
 
     if (BooleanUtils.isTrue(fdpaReservoirIncrementalForm.getChangeToInPlaceVolumes())) {

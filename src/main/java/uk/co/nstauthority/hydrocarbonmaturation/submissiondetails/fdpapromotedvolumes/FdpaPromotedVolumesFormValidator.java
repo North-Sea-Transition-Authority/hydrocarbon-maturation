@@ -38,7 +38,8 @@ public class FdpaPromotedVolumesFormValidator implements SubmissionValidator {
     ValidationUtils.rejectIfEmpty(
         errors,
         "hasPromotedVolumes",
-        "hasPromotedVolumes.required"
+        "hasPromotedVolumes.required",
+        "Select yes if any resources are being promoted to reserves"
     );
 
     if (!errors.hasErrors()) {
