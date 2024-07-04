@@ -5,6 +5,7 @@
 
 <#macro mixedCaseVolumetricsSummary mixedCaseVolumetricsValues>
     <@fdsSummaryList.summaryListCard headingText="Mixed case volumetric parameters" summaryListId="mixedcasevolumetricparams">
-        <@probabilityDistribution.probabilityDistributionTable probabilityDistributions=mixedCaseVolumetricsValues.probabilityDistributionSummaryViews()/>
+        <@probabilityDistribution.probabilityDistributionTable
+        tableView=mixedCaseVolumetricsValues/>
     </@fdsSummaryList.summaryListCard>
 </#macro>

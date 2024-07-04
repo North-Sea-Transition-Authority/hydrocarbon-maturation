@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
 import jakarta.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import org.springframework.util.ReflectionUtils;
 
 public class ProbabilityDistributionTypeBehaviourUtil {
@@ -19,7 +20,8 @@ public class ProbabilityDistributionTypeBehaviourUtil {
     }
   }
 
-  public static ProbabilityDistributionTypeBehaviour newCustomBehaviourInstance(ProbabilityDistributionFieldInstance instance) {
+  public static ProbabilityDistributionTypeBehaviour newCustomBehaviourInstance(
+      ProbabilityDistributionFieldInstance instance) {
     if (!instance.isCustomType()) {
       throw new IllegalStateException(
           "Cannot create instance of a ProbabilityDistributionFieldInstance that does not have custom behaviour");
@@ -29,11 +31,28 @@ public class ProbabilityDistributionTypeBehaviourUtil {
   }
 
   public static ProbabilityDistributionTypeBehaviour getBehaviour(
-      @Nullable ProbabilityDistributionFieldInstance instance, ProbabilityDistributionType probabilityDistributionType) {
+      @Nullable ProbabilityDistributionFieldInstance instance,
+      ProbabilityDistributionType probabilityDistributionType) {
     if (instance != null && instance.isCustomType()) {
       return newCustomBehaviourInstance(instance);
     }
 
     return probabilityDistributionType.newPresetInstance();
+  }
+
+  public static List<ProbabilityDistributionTypeBehaviour> getBehaviours(
+      @Nullable ProbabilityDistributionFieldInstance instance) {
+    if (instance == null) {
+      return List.of();
+    }
+
+    if (instance.isCustomType()) {
+      return List.of(newCustomBehaviourInstance(instance));
+    }
+
+    return instance.getPresetTypes()
+        .stream()
+        .map(probabilityDistributionType -> getBehaviour(instance, probabilityDistributionType))
+        .toList();
   }
 }

@@ -8,8 +8,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -26,13 +25,14 @@ public class OilCaseVolumetricParametersSummaryService implements SummarySection
   private final GeneralReservoirInformationService generalReservoirInformationService;
 
   @Autowired
-  public OilCaseVolumetricParametersSummaryService(ProbabilityDistributionSummaryService probabilityDistributionSummaryService,
-                                                   GeneralReservoirInformationService generalReservoirInformationService) {
+  public OilCaseVolumetricParametersSummaryService(
+      ProbabilityDistributionSummaryService probabilityDistributionSummaryService,
+      GeneralReservoirInformationService generalReservoirInformationService) {
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
     this.generalReservoirInformationService = generalReservoirInformationService;
   }
 
-  public ProbabilityDistributionsFormSummaryView getOilCaseVolumetricsSummaryView(
+  public ProbabilityDistributionTableView getOilCaseVolumetricsSummaryView(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
@@ -54,11 +54,11 @@ public class OilCaseVolumetricParametersSummaryService implements SummarySection
 
     listOfInstances.add(ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD);
 
-    var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
-    listOfInstances.forEach(instance -> listOfSummaryViews.add(
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            instance, submissionDetail, reservoirSubmissionDetail)));
-    return new ProbabilityDistributionsFormSummaryView(listOfSummaryViews);
+    return probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances,
+        submissionDetail,
+        reservoirSubmissionDetail
+    );
   }
 
   @Override
@@ -88,14 +88,10 @@ public class OilCaseVolumetricParametersSummaryService implements SummarySection
     listOfInstances.add(ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD);
     listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_DISCOVERY);
 
-    var listOfSummaryViews =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-            listOfInstances, submissionDetail, reservoirSubmissionDetail
-        );
-
-    var summaryCard = SummaryCard.probabilitySummaryCard(
-        listOfSummaryViews
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances, submissionDetail, reservoirSubmissionDetail
     );
-    return SummaryItem.withCard(OIL_CASE_VOLUMETRIC_PARAMETERS, summaryCard);
+
+    return SummaryItem.withCard(OIL_CASE_VOLUMETRIC_PARAMETERS, SummaryCard.probabilitySummaryCard(tableView));
   }
 }

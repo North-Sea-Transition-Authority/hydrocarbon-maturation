@@ -161,15 +161,12 @@ public class PermeabilitySummaryService implements SummarySectionService<Reservo
   }
 
   private SummaryItem getPermeabilityFieldProbabilitiesSummary(ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    var listOfSummaryViews = probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-            PERMEABILITY_FIELD_INSTANCES,
-            reservoirSubmissionDetail.getSubmissionDetail(),
-            reservoirSubmissionDetail
-        );
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        PERMEABILITY_FIELD_INSTANCES,
+        reservoirSubmissionDetail.getSubmissionDetail(),
+        reservoirSubmissionDetail
+    );
 
-    var summaryCard = SummaryCard.minMaxMostLikelySummaryCard(listOfSummaryViews);
-
-    return SummaryItem.withCard(PERMEABILITY, summaryCard);
+    return SummaryItem.withCard(PERMEABILITY, SummaryCard.probabilitySummaryCard(tableView));
   }
 }

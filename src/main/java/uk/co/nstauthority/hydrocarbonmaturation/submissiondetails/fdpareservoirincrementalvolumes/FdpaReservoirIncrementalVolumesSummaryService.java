@@ -108,10 +108,9 @@ public class FdpaReservoirIncrementalVolumesSummaryService
 
   private SummaryItem getSummaryItemFromInstances(List<ProbabilityDistributionFieldInstance> instances,
                                                   ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    var listOfSummaryViews =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-            instances, reservoirSubmissionDetail.getSubmissionDetail(), reservoirSubmissionDetail
-        );
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        instances, reservoirSubmissionDetail.getSubmissionDetail(), reservoirSubmissionDetail
+    );
 
     var incrementalVolume = incrementalVolumesRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail)
         .orElse(new FdpaReservoirIncrementalVolume());
@@ -120,7 +119,7 @@ public class FdpaReservoirIncrementalVolumesSummaryService
     cards.add(getBasicInformationCard(incrementalVolume));
 
     if (BooleanUtils.isTrue(incrementalVolume.getChangeToInPlaceVolumes())) {
-      cards.add(SummaryCard.probabilitySummaryCard(listOfSummaryViews));
+      cards.add(SummaryCard.probabilitySummaryCard(tableView));
     }
 
     return SummaryItem.withCards(SUMMARY_HEADING, cards);

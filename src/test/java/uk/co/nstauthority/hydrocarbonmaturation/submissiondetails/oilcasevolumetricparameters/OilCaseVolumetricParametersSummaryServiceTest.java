@@ -1,8 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcasevolumetricparameters;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ReservoirSummaryTestUtil.assertSummarySection;
 
@@ -21,8 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
@@ -50,119 +47,54 @@ class OilCaseVolumetricParametersSummaryServiceTest {
   private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
 
   @Test
-  void getOilCaseVolumetricsSummaryView_emptySummaries() {
-    var emptySummary = ProbabilityDistributionSummaryView.empty("empty");
-
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail), eq(reservoirSubmissionDetail)))
-        .thenReturn(emptySummary);
-
-    var oilCaseVolumetricsSummaryView = oilCaseVolumetricParametersSummaryService.getOilCaseVolumetricsSummaryView(
-        reservoirSubmissionDetail);
-
-    assertThat(oilCaseVolumetricsSummaryView)
-        .extracting(
-            ProbabilityDistributionsFormSummaryView::probabilityDistributionSummaryViews)
-        .isEqualTo(
-            List.of(
-                emptySummary,
-                emptySummary,
-                emptySummary,
-                emptySummary)
-        );
-  }
-
-  @Test
-  void getOilCaseVolumetricsSummaryView_whenProspect_filledSummaries() {
+  void getOilCaseVolumetricsSummaryView_whenProspect() {
     var propspectSubmissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     var prospectReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(propspectSubmissionDetail);
 
-    var testSummary = new ProbabilityDistributionSummaryView(
-        "test", "type", "20",
-        "20", "20", "20", "20", "20", "20", "20", "20", "20",
-        "20", "", "20", "unit", "5", "5", "5", "comments");
+    var tableView = ProbabilityDistributionTableView.empty();
 
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(propspectSubmissionDetail), eq(prospectReservoirSubmissionDetail)))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
+            List.of(
+                ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
+                ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_PROSPECT,
+                ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT,
+                ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD
+            ),
             propspectSubmissionDetail,
             prospectReservoirSubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_PROSPECT,
-            propspectSubmissionDetail,
-            prospectReservoirSubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT,
-            propspectSubmissionDetail,
-            prospectReservoirSubmissionDetail))
-        .thenReturn(testSummary);
+        .thenReturn(tableView);
 
     var oilCaseVolumetricsSummaryView = oilCaseVolumetricParametersSummaryService.getOilCaseVolumetricsSummaryView(
         prospectReservoirSubmissionDetail);
 
     assertThat(oilCaseVolumetricsSummaryView)
-        .extracting(
-            ProbabilityDistributionsFormSummaryView::probabilityDistributionSummaryViews)
-        .isEqualTo(
-            List.of(
-                testSummary,
-                testSummary,
-                testSummary,
-                testSummary)
-        );
+        .isEqualTo(tableView);
   }
 
   @Test
-  void getOilCaseVolumetricsSummaryView_whenDiscovery_filledSummaries() {
-    var testSummary = new ProbabilityDistributionSummaryView(
-        "test", "type", "20",
-        "20", "20", "20", "20", "20", "20", "20", "20", "20",
-        "20", "", "20", "unit", "5", "5", "5", "comments");
+  void getOilCaseVolumetricsSummaryView_whenDiscovery() {
+    var tableView = ProbabilityDistributionTableView.empty();
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
 
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(discoverySubmissionDetail), eq(discoveryReservoirSubmissionDetail)))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_DISCOVERY,
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
+            List.of(
+                ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_DISCOVERY,
+                ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_DISCOVERY,
+                ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_DISCOVERY,
+                ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD
+            ),
             discoverySubmissionDetail,
             discoveryReservoirSubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_DISCOVERY,
-            discoverySubmissionDetail,
-            discoveryReservoirSubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_DISCOVERY,
-            discoverySubmissionDetail,
-            discoveryReservoirSubmissionDetail))
-        .thenReturn(testSummary);
+        .thenReturn(tableView);
 
     var oilCaseVolumetricsSummaryView = oilCaseVolumetricParametersSummaryService.getOilCaseVolumetricsSummaryView(
         discoveryReservoirSubmissionDetail);
 
     assertThat(oilCaseVolumetricsSummaryView)
-        .extracting(
-            ProbabilityDistributionsFormSummaryView::probabilityDistributionSummaryViews)
-        .isEqualTo(
-            List.of(
-                testSummary,
-                testSummary,
-                testSummary,
-                testSummary)
-        );
+        .isEqualTo(tableView);
   }
 
   @Test
@@ -199,24 +131,18 @@ class OilCaseVolumetricParametersSummaryServiceTest {
     listOfInstances.add(ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD);
     listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_DISCOVERY);
 
-    var probabilityDistributionSummaryView1 = ProbabilityDistributionSummaryView.empty("test1");
-    var probabilityDistributionSummaryView2 = ProbabilityDistributionSummaryView.empty("test2");
-    List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews = List.of(
-        probabilityDistributionSummaryView1,
-        probabilityDistributionSummaryView2
-    );
+    var tableView = ProbabilityDistributionTableView.empty();
 
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         listOfInstances, submissionDetail, reservoirSubmissionDetail
-    )).thenReturn(probabilityDistributionSummaryViews);
+    )).thenReturn(tableView);
 
     var summarySection = oilCaseVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), OilCaseVolumetricParametersSummaryService.OIL_CASE_VOLUMETRIC_PARAMETERS_DISPLAY_ORDER);
-    var summaryCard = SummaryCard.probabilitySummaryCard(
-        probabilityDistributionSummaryViews
-    );
+
+    var summaryCard = SummaryCard.probabilitySummaryCard(tableView);
     var summaryItem = SummaryItem.withCard(OilCaseVolumetricParametersSummaryService.OIL_CASE_VOLUMETRIC_PARAMETERS, summaryCard);
     assertThat(summarySection.get().summaryItems()).containsExactly(summaryItem);
   }

@@ -102,11 +102,10 @@ public class FieldCombinedCaseVolumetricTotalsSummaryService implements SummaryS
     var listOfCards = new ArrayList<SummaryCard>();
     listOfCards.add(getOtherSummary(submissionDetail));
 
-    var listOfSummaryViews =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-            listOfInstances, submissionDetail, null
-        );
-    listOfCards.add(SummaryCard.fieldProbabilitySummaryCard(listOfSummaryViews));
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances, submissionDetail, null
+    );
+    listOfCards.add(SummaryCard.probabilitySummaryCard(tableView));
 
     getInformationCorrectOptionalView(submissionDetail).ifPresent(
         informationCorrectView -> listOfCards.add(simpleSummaryCard(informationCorrectView))
@@ -119,13 +118,12 @@ public class FieldCombinedCaseVolumetricTotalsSummaryService implements SummaryS
     var listOfInstances = List.of(
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD);
-    var listOfSummaryViews = probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-            listOfInstances,
-            submissionDetail,
-            null
-        );
-    return SummaryCard.probabilitySummaryCard(listOfSummaryViews);
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances,
+        submissionDetail,
+        null
+    );
+    return SummaryCard.probabilitySummaryCard(tableView);
   }
 
   private Optional<SummaryDataView> getInformationCorrectOptionalView(SubmissionDetail submissionDetail) {

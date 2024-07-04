@@ -17,6 +17,6 @@
         <@probabilityDistribution.probabilityDistributionTable
           withDistributionType=false
           withContingentUncertaintyCategories=withContingentUncertaintyCategories
-          probabilityDistributions=mixedCaseOutputsValues.probabilityDistributionSummaryViews()/>
+          tableView=mixedCaseOutputsValues.tableView()/>
     </@fdsSummaryList.summaryListCard>
 </#macro>

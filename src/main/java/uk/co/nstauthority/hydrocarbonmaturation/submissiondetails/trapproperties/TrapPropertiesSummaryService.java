@@ -13,7 +13,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
@@ -87,10 +86,10 @@ public class TrapPropertiesSummaryService {
       listOfInstances.add(ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_DISCOVERY);
     }
 
-    var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
-    listOfInstances.forEach(instance -> listOfSummaryViews.add(
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            instance, submissionDetail)));
+    var probabilityDistributionTableView = probabilityDistributionSummaryService
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
+            listOfInstances, submissionDetail, null
+        );
 
     var fileUploadList = supportingDocumentService.getUploadedFiles(
         submissionDetail,
@@ -100,7 +99,8 @@ public class TrapPropertiesSummaryService {
 
     fileUploadList.forEach(file -> prospectDepthMapUploadsAndLinks.put(
         file,
-        ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).download(submissionDetail.getId(), file.getId())))
+        ReverseRouter.route(
+            on(SubmissionSupportingDocumentsController.class).download(submissionDetail.getId(), file.getId())))
     );
 
     var datumDisplay = trapProperty.getDatum() != null
@@ -124,7 +124,7 @@ public class TrapPropertiesSummaryService {
         longitudeHemisphere,
         datumDisplay,
         quadBlock,
-        listOfSummaryViews,
+        probabilityDistributionTableView,
         prospectDepthMapUploadsAndLinks
     );
   }

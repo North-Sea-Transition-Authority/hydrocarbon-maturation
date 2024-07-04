@@ -36,7 +36,9 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.SummaryBehaviour;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -118,10 +120,10 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
     generalDetailSummaryView = GeneralDetailSummaryView.empty(submissionDetail.getSubmissionType(), "Discovery");
     drillStemTestSummaryView = DrillStemTestSummaryView.empty();
     reservoirPropertiesSummaryView = new ReservoirPropertiesSummaryView(SubmissionType.CREATE_DISCOVERY,
-        "", "", "", "", "", "", "", List.of(), List.of());
-    mixedCaseOutputsSummaryView = MixedCaseOutputsSummaryView.empty();
-    gasCaseOutputsSummaryView = GasCaseOutputsSummaryView.empty();
-    oilCaseOutputsSummaryView = OilCaseOutputsSummaryView.empty();
+        "", "", "", "", "", "", "", ProbabilityDistributionTableView.empty(), ProbabilityDistributionTableView.empty());
+    mixedCaseOutputsSummaryView = MixedCaseOutputsSummaryView.empty(new SummaryBehaviour());
+    gasCaseOutputsSummaryView = GasCaseOutputsSummaryView.empty(new SummaryBehaviour());
+    oilCaseOutputsSummaryView = OilCaseOutputsSummaryView.empty(new SummaryBehaviour());
     chanceOfSuccessSummaryView = ChanceOfSuccessSummaryView.empty();
     probabilityDistributionsFormSummaryView = new ProbabilityDistributionsFormSummaryView(List.of());
     opportunityDetailsSummaryView = OpportunityDetailsSummaryView.empty();

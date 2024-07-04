@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -23,11 +22,10 @@ public class OilCaseOutputsSummaryService implements SummarySectionService<Reser
   public static final String OIL_VOLUMETRICS = "Oil case volumetrics";
   public static final int OIL_VOLUMETRICS_DISPLAY_ORDER = 60;
 
-  private static final List<ProbabilityDistributionFieldInstance> OIL_VOLUMETRIC_INSTANCES_DISCOVERY = List.of(
+  static final List<ProbabilityDistributionFieldInstance> OIL_VOLUMETRIC_INSTANCES_DISCOVERY = List.of(
       ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY,
       ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
-      ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
-      ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+      ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
   );
 
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
@@ -45,55 +43,54 @@ public class OilCaseOutputsSummaryService implements SummarySectionService<Reser
 
   public OilCaseOutputsSummaryView getOilCaseOutputsSummaryFromReservoirSubmissionDetail(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var instances = getInstances(reservoirSubmissionDetail);
+    var summaryBehaviour = probabilityDistributionSummaryService.getSummaryBehaviour(instances);
+
     var oilCaseOutput = oilCaseOutputsPersistenceService.getOilCaseOutput(reservoirSubmissionDetail);
+
     return oilCaseOutput.map(this::createSummaryViewFromOilCaseOutput)
-        .orElse(OilCaseOutputsSummaryView.empty());
+        .orElse(OilCaseOutputsSummaryView.empty(summaryBehaviour));
   }
 
   private OilCaseOutputsSummaryView createSummaryViewFromOilCaseOutput(OilCaseOutput oilCaseOutput) {
-    var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
     var reservoirSubmissionDetail = oilCaseOutput.getReservoirSubmissionDetail();
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var hasAssociatedGasRecoverableResources = BooleanUtil.yesNoFromBoolean(
         oilCaseOutput.getHasAssociatedGasRecoverableResources(), "");
 
-    var resourceType = submissionDetail.getSubmission().getResource().getType();
+    var listOfInstances = getInstances(reservoirSubmissionDetail);
+
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances,
+        submissionDetail,
+        reservoirSubmissionDetail
+    );
+    return new OilCaseOutputsSummaryView(hasAssociatedGasRecoverableResources, tableView);
+  }
+
+  private static List<ProbabilityDistributionFieldInstance> getInstances(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
+
+    var resourceType = reservoirSubmissionDetail.getSubmissionDetail().getSubmission().getResource().getType();
     if (resourceType == ResourceType.PROSPECT) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT);
       listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT);
-
-      if (oilCaseOutput.getHasAssociatedGasRecoverableResources() == null
-          || oilCaseOutput.getHasAssociatedGasRecoverableResources()) {
-        listOfInstances.add(
-            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT);
-      }
-
+      listOfInstances.add(
+          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT);
       listOfInstances.add(
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT);
-      listOfInstances.add(
-          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT
-      );
+      listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT);
 
     } else if (resourceType == ResourceType.DISCOVERY) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY);
-
       listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY);
-
-      if (oilCaseOutput.getHasAssociatedGasRecoverableResources() == null
-          || oilCaseOutput.getHasAssociatedGasRecoverableResources()) {
-        listOfInstances.add(
-            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
-      }
-
       listOfInstances.add(
-          ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
+          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
+      listOfInstances.add(ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
     }
 
-    var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
-    listOfInstances.forEach(instance -> listOfSummaryViews.add(
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            instance, submissionDetail, reservoirSubmissionDetail)));
-    return new OilCaseOutputsSummaryView(hasAssociatedGasRecoverableResources, listOfSummaryViews);
+    return listOfInstances;
   }
 
   @Override
@@ -115,10 +112,12 @@ public class OilCaseOutputsSummaryService implements SummarySectionService<Reser
 
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
-    var listOfSummaryViews =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-            OIL_VOLUMETRIC_INSTANCES_DISCOVERY, submissionDetail, reservoirSubmissionDetail);
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+            OIL_VOLUMETRIC_INSTANCES_DISCOVERY,
+        submissionDetail,
+        reservoirSubmissionDetail
+    );
 
-    return SummaryItem.withCard(OIL_VOLUMETRICS, SummaryCard.probabilitySummaryCard(listOfSummaryViews));
+    return SummaryItem.withCard(OIL_VOLUMETRICS, SummaryCard.probabilitySummaryCard(tableView));
   }
 }

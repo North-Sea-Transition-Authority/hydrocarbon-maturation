@@ -37,7 +37,7 @@ public class FieldTrapPropertiesSummaryService {
   public SummaryCard getFieldTrapPropertiesProbabilitySummaryCard(SubmissionDetail submissionDetail) {
     var trapProperty = trapPropertiesPersistenceService.getTrapProperty(submissionDetail);
 
-    if (trapProperty.isEmpty())  {
+    if (trapProperty.isEmpty()) {
       return SummaryCard.emptySummaryCardWithHeading(FIELD_TRAP_PROPERTIES_PROBABILITIES);
     }
 
@@ -47,12 +47,11 @@ public class FieldTrapPropertiesSummaryService {
         ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_FIELD
     );
 
-    var listOfSummaryViews =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-            listOfInstances, submissionDetail, null
-        );
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances, submissionDetail, null
+    );
 
-    return SummaryCard.probabilitySummaryCardWithHeading(FIELD_TRAP_PROPERTIES_PROBABILITIES, listOfSummaryViews);
+    return SummaryCard.probabilitySummaryCardWithHeading(FIELD_TRAP_PROPERTIES_PROBABILITIES, tableView);
   }
 
   public SummaryCard getFieldTrapPropertiesSummaryCard(SubmissionDetail submissionDetail) {

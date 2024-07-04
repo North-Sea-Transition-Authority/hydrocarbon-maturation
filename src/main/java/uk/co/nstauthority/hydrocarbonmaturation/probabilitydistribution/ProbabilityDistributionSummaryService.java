@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
 import jakarta.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import org.springframework.stereotype.Service;
@@ -18,27 +19,36 @@ public class ProbabilityDistributionSummaryService {
     this.probabilityDistributionPersistenceService = probabilityDistributionPersistenceService;
   }
 
-  public ProbabilityDistributionSummaryView getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-      ProbabilityDistributionFieldInstance probabilityDistributionFieldInstance,
-      SubmissionDetail submissionDetail) {
-    return getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-        probabilityDistributionFieldInstance, submissionDetail, null);
+  public SummaryBehaviour getSummaryBehaviour(List<ProbabilityDistributionFieldInstance> instances) {
+    var summaryBehaviourBuilder = SummaryBehaviour.builder();
+
+    instances.stream()
+        .map(ProbabilityDistributionTypeBehaviourUtil::getBehaviours)
+        .flatMap(Collection::stream)
+        .forEach(behaviour -> setAvailableValuesForBehaviour(summaryBehaviourBuilder, behaviour));
+
+    return summaryBehaviourBuilder.build();
   }
 
-  public List<ProbabilityDistributionSummaryView> getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+  public ProbabilityDistributionTableView getProbabilityDistributionTableViewFromInstancesAndSubmission(
       List<ProbabilityDistributionFieldInstance> probabilityDistributionFieldInstances,
       SubmissionDetail submissionDetail,
       @Nullable ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var summaryBehaviour = getSummaryBehaviour(probabilityDistributionFieldInstances);
     var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
 
-    probabilityDistributionFieldInstances.forEach(instance -> listOfSummaryViews.add(
-        getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            instance, submissionDetail, reservoirSubmissionDetail)));
+    probabilityDistributionFieldInstances.forEach(
+        instance -> listOfSummaryViews.add(
+            getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+                instance, submissionDetail, reservoirSubmissionDetail
+            )
+        )
+    );
 
-    return listOfSummaryViews;
+    return new ProbabilityDistributionTableView(summaryBehaviour, listOfSummaryViews);
   }
 
-  public ProbabilityDistributionSummaryView getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
+  private ProbabilityDistributionSummaryView getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
       ProbabilityDistributionFieldInstance probabilityDistributionFieldInstance,
       SubmissionDetail submissionDetail,
       @Nullable ReservoirSubmissionDetail reservoirSubmissionDetail) {
@@ -47,8 +57,8 @@ public class ProbabilityDistributionSummaryService {
             ? probabilityDistributionPersistenceService
             .getProbabilityDistribution(submissionDetail, probabilityDistributionFieldInstance)
             : probabilityDistributionPersistenceService
-            .getProbabilityDistribution(reservoirSubmissionDetail, probabilityDistributionFieldInstance))
-            .orElse(null);
+            .getProbabilityDistribution(reservoirSubmissionDetail, probabilityDistributionFieldInstance)
+        ).orElse(null);
 
     if (probabilityDistribution == null) {
       return ProbabilityDistributionSummaryView.empty(probabilityDistributionFieldInstance.getDisplayName());
@@ -85,7 +95,8 @@ public class ProbabilityDistributionSummaryService {
       probabilityDistributionType = probabilityDistribution.getOtherDistributionType();
     }
 
-    var probabilityDistributionName = Objects.requireNonNullElse(probabilityDistributionFieldInstance.getDisplayName(), "");
+    var probabilityDistributionName = Objects.requireNonNullElse(probabilityDistributionFieldInstance.getDisplayName(),
+        "");
     var units = Objects.requireNonNullElse(probabilityDistribution.getInstance().getUnits(), "");
     var comments = Objects.requireNonNullElse(probabilityDistribution.getComments(), "");
 
@@ -110,5 +121,93 @@ public class ProbabilityDistributionSummaryService {
         twoP,
         threeP,
         comments);
+  }
+
+  private void setAvailableValuesForBehaviour(SummaryBehaviour.Builder summaryBehaviourBuilder,
+                                              ProbabilityDistributionTypeBehaviour behaviour) {
+    setMinThroughMax(summaryBehaviourBuilder, behaviour);
+    setP99ThroughP1(summaryBehaviourBuilder, behaviour);
+    set1CTo3C(summaryBehaviourBuilder, behaviour);
+    set1PTo3P(summaryBehaviourBuilder, behaviour);
+
+    if (behaviour.isConstantAvailable()) {
+      summaryBehaviourBuilder.withConstant();
+    }
+  }
+
+  private void setMinThroughMax(SummaryBehaviour.Builder summaryBehaviourBuilder,
+                                ProbabilityDistributionTypeBehaviour behaviour) {
+    if (behaviour.isMinAvailable()) {
+      summaryBehaviourBuilder.withMin();
+    }
+
+    if (behaviour.isModeAvailable()) {
+      summaryBehaviourBuilder.withMode();
+    }
+
+    if (behaviour.isMostLikelyAvailable()) {
+      summaryBehaviourBuilder.withMostLikely();
+    }
+
+    if (behaviour.isMeanAvailable()) {
+      summaryBehaviourBuilder.withMean();
+    }
+
+    if (behaviour.isMaxAvailable()) {
+      summaryBehaviourBuilder.withMax();
+    }
+  }
+
+  private void setP99ThroughP1(SummaryBehaviour.Builder summaryBehaviourBuilder,
+                               ProbabilityDistributionTypeBehaviour behaviour) {
+    if (behaviour.isP99Available()) {
+      summaryBehaviourBuilder.withP99();
+    }
+
+    if (behaviour.isP90Available()) {
+      summaryBehaviourBuilder.withP90();
+    }
+
+    if (behaviour.isP50Available()) {
+      summaryBehaviourBuilder.withP50();
+    }
+
+    if (behaviour.isP10Available()) {
+      summaryBehaviourBuilder.withP10();
+    }
+
+    if (behaviour.isP1Available()) {
+      summaryBehaviourBuilder.withP1();
+    }
+  }
+
+  private void set1CTo3C(SummaryBehaviour.Builder summaryBehaviourBuilder,
+                         ProbabilityDistributionTypeBehaviour behaviour) {
+    if (behaviour.is1CAvailable()) {
+      summaryBehaviourBuilder.with1C();
+    }
+
+    if (behaviour.is2CAvailable()) {
+      summaryBehaviourBuilder.with2C();
+    }
+
+    if (behaviour.is3CAvailable()) {
+      summaryBehaviourBuilder.with3C();
+    }
+  }
+
+  private void set1PTo3P(SummaryBehaviour.Builder summaryBehaviourBuilder,
+                         ProbabilityDistributionTypeBehaviour behaviour) {
+    if (behaviour.is1PAvailable()) {
+      summaryBehaviourBuilder.with1P();
+    }
+
+    if (behaviour.is2PAvailable()) {
+      summaryBehaviourBuilder.with2P();
+    }
+
+    if (behaviour.is3PAvailable()) {
+      summaryBehaviourBuilder.with3P();
+    }
   }
 }

@@ -77,13 +77,12 @@ public class FieldReservoirVolumetricsSummaryService implements SummarySectionSe
 
     var listOfInstances = List.of(ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD);
 
-    var listOfSummaryViews =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-            listOfInstances, submissionDetail, reservoirSubmissionDetail
-        );
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances, submissionDetail, reservoirSubmissionDetail
+    );
 
     var listOfCards = new ArrayList<SummaryCard>();
-    listOfCards.add(SummaryCard.probabilitySummaryCard(listOfSummaryViews));
+    listOfCards.add(SummaryCard.probabilitySummaryCard(tableView));
 
     getInitiallyInPlaceViewOptional(reservoirSubmissionDetail).ifPresent(
         isInitiallyInPlaceCorrectView -> listOfCards.add(simpleSummaryCard(isInitiallyInPlaceCorrectView))
@@ -98,13 +97,12 @@ public class FieldReservoirVolumetricsSummaryService implements SummarySectionSe
     List<ProbabilityDistributionFieldInstance> listOfInstances =
         List.of(ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD);
 
-    var listOfSummaryViews =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-            listOfInstances, submissionDetail, reservoirSubmissionDetail
-        );
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances, submissionDetail, reservoirSubmissionDetail
+    );
 
     var listOfCards = new ArrayList<SummaryCard>();
-    listOfCards.add(SummaryCard.probabilitySummaryCard(listOfSummaryViews));
+    listOfCards.add(SummaryCard.probabilitySummaryCard(tableView));
 
     getInitiallyInPlaceViewOptional(reservoirSubmissionDetail).ifPresent(
         isInitiallyInPlaceCorrectView -> listOfCards.add(simpleSummaryCard(isInitiallyInPlaceCorrectView))
@@ -122,13 +120,12 @@ public class FieldReservoirVolumetricsSummaryService implements SummarySectionSe
             ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
         );
 
-    var listOfSummaryViews =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-            listOfInstances, submissionDetail, reservoirSubmissionDetail
-        );
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances, submissionDetail, reservoirSubmissionDetail
+    );
 
     var listOfCards = new ArrayList<SummaryCard>();
-    listOfCards.add(SummaryCard.probabilitySummaryCard(listOfSummaryViews));
+    listOfCards.add(SummaryCard.probabilitySummaryCard(tableView));
 
     getInitiallyInPlaceViewOptional(reservoirSubmissionDetail).ifPresent(
         isInitiallyInPlaceCorrectView -> listOfCards.add(simpleSummaryCard(isInitiallyInPlaceCorrectView))

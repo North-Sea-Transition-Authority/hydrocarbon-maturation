@@ -18,7 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
@@ -72,17 +72,17 @@ class FieldReservoirVolumetricsSummaryServiceTest {
         .thenReturn(true);
 
     var listOfInstances = List.of(ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD);
-    var summaryViews = List.of(ProbabilityDistributionSummaryView.empty("test"));
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         listOfInstances,
         submissionDetail,
         reservoirSubmissionDetail)
-    ).thenReturn(summaryViews);
+    ).thenReturn(probabilityTableView);
 
     var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
     assertThat(summarySection).isPresent();
 
-    var expectedCard = SummaryCard.probabilitySummaryCard(summaryViews);
+    var expectedCard = SummaryCard.probabilitySummaryCard(probabilityTableView);
     var expectedItem = SummaryItem.withCard(FieldReservoirVolumetricsSummaryService.OIL_VOLUMETRICS, expectedCard);
 
     var summaryItems = summarySection.get().summaryItems();
@@ -111,17 +111,17 @@ class FieldReservoirVolumetricsSummaryServiceTest {
         .thenReturn(true);
 
     var listOfInstances = List.of(ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD);
-    var summaryViews = List.of(ProbabilityDistributionSummaryView.empty("test"));
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         listOfInstances,
         submissionDetail,
         reservoirSubmissionDetail)
-    ).thenReturn(summaryViews);
+    ).thenReturn(probabilityTableView);
 
     var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
     assertThat(summarySection).isPresent();
 
-    var expectedCard = SummaryCard.probabilitySummaryCard(summaryViews);
+    var expectedCard = SummaryCard.probabilitySummaryCard(probabilityTableView);
     var expectedItem = SummaryItem.withCard(FieldReservoirVolumetricsSummaryService.OIL_VOLUMETRICS, expectedCard);
 
     var summaryItems = summarySection.get().summaryItems();
@@ -154,17 +154,17 @@ class FieldReservoirVolumetricsSummaryServiceTest {
         .thenReturn(true);
 
     var listOfInstances = List.of(ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD);
-    var summaryViews = List.of(ProbabilityDistributionSummaryView.empty("test"));
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         listOfInstances,
         submissionDetail,
         reservoirSubmissionDetail)
-    ).thenReturn(summaryViews);
+    ).thenReturn(probabilityTableView);
 
     var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
     assertThat(summarySection).isPresent();
 
-    var probabilityCard = SummaryCard.probabilitySummaryCard(summaryViews);
+    var probabilityCard = SummaryCard.probabilitySummaryCard(probabilityTableView);
     var volumetricTotalCard = SummaryCard.simpleSummaryCard(SummaryDataView.newWithKeyValue(
         INITIALLY_IN_PLACE_CORRECT, "Yes"
     ));
@@ -197,17 +197,17 @@ class FieldReservoirVolumetricsSummaryServiceTest {
         .thenReturn(true);
 
     var listOfInstances = List.of(ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD);
-    var summaryViews = List.of(ProbabilityDistributionSummaryView.empty("test"));
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         listOfInstances,
         submissionDetail,
         reservoirSubmissionDetail)
-    ).thenReturn(summaryViews);
+    ).thenReturn(probabilityTableView);
 
     var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
     assertThat(summarySection).isPresent();
 
-    var expectedCard = SummaryCard.probabilitySummaryCard(summaryViews);
+    var expectedCard = SummaryCard.probabilitySummaryCard(probabilityTableView);
     var expectedItem = SummaryItem.withCard(FieldReservoirVolumetricsSummaryService.GAS_VOLUMETRICS, expectedCard);
 
     assertThat(summarySection.get().summaryItems()).hasSize(1);
@@ -235,17 +235,17 @@ class FieldReservoirVolumetricsSummaryServiceTest {
         ProbabilityDistributionFieldInstance.OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD,
         ProbabilityDistributionFieldInstance.GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
     );
-    var summaryViews = List.of(ProbabilityDistributionSummaryView.empty("test"));
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         listOfInstances,
         submissionDetail,
         reservoirSubmissionDetail)
-    ).thenReturn(summaryViews);
+    ).thenReturn(probabilityTableView);
 
     var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
     assertThat(summarySection).isPresent();
 
-    var expectedCard = SummaryCard.probabilitySummaryCard(summaryViews);
+    var expectedCard = SummaryCard.probabilitySummaryCard(probabilityTableView);
     var expectedItem = SummaryItem.withCard(FieldReservoirVolumetricsSummaryService.OIL_AND_GAS_VOLUMETRICS,
         expectedCard);
 

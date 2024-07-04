@@ -22,7 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
@@ -116,21 +116,21 @@ class FieldGasVolumetricParametersSummaryServiceTest {
         ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD_CONSTANT
     );
 
-    var summaryViews = List.of(ProbabilityDistributionSummaryView.empty("Test 1"));
+    var fieldOilTableView = ProbabilityDistributionTableView.empty();
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             fieldOilVolumetricParametersInstances,
             submissionDetail,
             reservoirSubmissionDetail)
-    ).thenReturn(summaryViews);
+    ).thenReturn(fieldOilTableView);
 
-    var saturationSummaryView = ProbabilityDistributionSummaryView.empty("Test 2");
+    var saturationTableView = ProbabilityDistributionTableView.empty();
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_FIELD,
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
+            List.of(ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_FIELD),
             submissionDetail,
             reservoirSubmissionDetail)
-    ).thenReturn(saturationSummaryView);
+    ).thenReturn(saturationTableView);
 
     var summarySection = fieldGasVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail);
     assertThat(summarySection)
@@ -163,7 +163,7 @@ class FieldGasVolumetricParametersSummaryServiceTest {
             Tuple.tuple(
                 null,
                 SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
-                summaryViews
+                fieldOilTableView
             )
         );
 
@@ -177,8 +177,8 @@ class FieldGasVolumetricParametersSummaryServiceTest {
         ).containsExactly(
             Tuple.tuple(
                 null,
-                SummaryCardType.MIN_MAX_MOST_LIKELY_SUMMARY,
-                List.of(saturationSummaryView)
+                SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
+                saturationTableView
             )
         );
   }

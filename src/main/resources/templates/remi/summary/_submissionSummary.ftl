@@ -21,14 +21,8 @@
                 heading=summaryCard.displayName()/>
             <#elseif summaryCard.summaryCardType() == "PROBABILITY_DISTRIBUTION_SUMMARY">
               <@probabilityDistributionSummary.probabilityDistributionTable
-              probabilityDistributions=summaryCard.summaryData()
+              tableView=summaryCard.summaryData()
               heading=summaryCard.displayName()!""/>
-            <#elseif summaryCard.summaryCardType() == "FIELD_PROBABILITY_DISTRIBUTION_SUMMARY">
-              <@probabilityDistributionSummary.fieldProbabilityDistributionTable
-              probabilityDistributions=summaryCard.summaryData()/>
-            <#elseif summaryCard.summaryCardType() == "ONE_P_TO_THREE_P_DISTRIBUTION_SUMMARY">
-                <@probabilityDistributionSummary.onePToThreePTable
-                probabilityDistributions=summaryCard.summaryData()/>
             <#else>
               <#assign actionsContent>
                 <@fdsSummaryList.summaryListCardActionList>

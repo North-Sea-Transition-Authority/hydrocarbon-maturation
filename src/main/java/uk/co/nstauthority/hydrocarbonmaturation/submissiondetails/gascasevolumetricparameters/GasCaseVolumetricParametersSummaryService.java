@@ -8,8 +8,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -26,13 +25,14 @@ public class GasCaseVolumetricParametersSummaryService implements SummarySection
   private final GeneralReservoirInformationService generalReservoirInformationService;
 
   @Autowired
-  public GasCaseVolumetricParametersSummaryService(ProbabilityDistributionSummaryService probabilityDistributionSummaryService,
-                                                   GeneralReservoirInformationService generalReservoirInformationService) {
+  public GasCaseVolumetricParametersSummaryService(
+      ProbabilityDistributionSummaryService probabilityDistributionSummaryService,
+      GeneralReservoirInformationService generalReservoirInformationService) {
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
     this.generalReservoirInformationService = generalReservoirInformationService;
   }
 
-  public ProbabilityDistributionsFormSummaryView getGasCaseVolumetricsSummaryView(
+  public ProbabilityDistributionTableView getGasCaseVolumetricsTableView(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
@@ -52,11 +52,11 @@ public class GasCaseVolumetricParametersSummaryService implements SummarySection
 
     listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR);
 
-    var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
-    listOfInstances.forEach(instance -> listOfSummaryViews.add(
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            instance, submissionDetail, reservoirSubmissionDetail)));
-    return new ProbabilityDistributionsFormSummaryView(listOfSummaryViews);
+    return probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances,
+        submissionDetail,
+        reservoirSubmissionDetail
+    );
   }
 
   @Override
@@ -67,7 +67,8 @@ public class GasCaseVolumetricParametersSummaryService implements SummarySection
 
     if (generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)
         || generalReservoirInformationService.isCombinedOilAndGas(reservoirSubmissionDetail)) {
-      var summaryItems = List.of(getGasCaseVolumetricParametersSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail));
+      var summaryItems = List.of(
+          getGasCaseVolumetricParametersSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail));
       return Optional.of(new SummarySection(GAS_CASE_VOLUMETRIC_PARAMETERS_DISPLAY_ORDER, summaryItems, ""));
     }
     return Optional.empty();
@@ -84,14 +85,10 @@ public class GasCaseVolumetricParametersSummaryService implements SummarySection
     listOfInstances.add(ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD);
     listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR);
 
-    var listOfSummaryViews =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-            listOfInstances, submissionDetail, reservoirSubmissionDetail
-        );
-
-    var summaryCard = SummaryCard.probabilitySummaryCard(
-        listOfSummaryViews
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances, submissionDetail, reservoirSubmissionDetail
     );
-    return SummaryItem.withCard(GAS_CASE_VOLUMETRIC_PARAMETERS, summaryCard);
+
+    return SummaryItem.withCard(GAS_CASE_VOLUMETRIC_PARAMETERS, SummaryCard.probabilitySummaryCard(tableView));
   }
 }

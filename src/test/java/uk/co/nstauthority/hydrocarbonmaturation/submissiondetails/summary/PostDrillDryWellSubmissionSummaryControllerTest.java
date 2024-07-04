@@ -18,7 +18,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.PostDrillDryWellSubmissionSummaryController.PAGE_NAME;
 
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -33,6 +32,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -93,8 +93,8 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
         "lithology",
         "facies",
         "connectivity",
-        new ArrayList<>(),
-        new ArrayList<>());
+        ProbabilityDistributionTableView.empty(),
+        ProbabilityDistributionTableView.empty());
     sourceAndSealSummaryView = SourceAndSealSummaryView.empty();
     opportunityDetailsSummaryView = OpportunityDetailsSummaryView.empty();
     outlineForMaximumCaseSummaryView = OutlineForMaximumCaseSummaryView.empty();

@@ -14,6 +14,6 @@
       <@probabilityDistribution.probabilityDistributionTable
         withDistributionType=false
         withContingentUncertaintyCategories=withContingentUncertaintyCategories
-        probabilityDistributions=gasCaseOutputsValues.probabilityDistributionSummaryViews()/>
+        tableView=gasCaseOutputsValues.tableView()/>
     </@fdsSummaryList.summaryListCard>
 </#macro>

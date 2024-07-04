@@ -30,8 +30,9 @@ public class FieldGasVolumetricParametersSummaryService implements SummarySectio
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
 
   @Autowired
-  public FieldGasVolumetricParametersSummaryService(GeneralReservoirInformationService generalReservoirInformationService,
-                                                    ProbabilityDistributionSummaryService probabilityDistributionSummaryService) {
+  public FieldGasVolumetricParametersSummaryService(
+      GeneralReservoirInformationService generalReservoirInformationService,
+      ProbabilityDistributionSummaryService probabilityDistributionSummaryService) {
     this.generalReservoirInformationService = generalReservoirInformationService;
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
   }
@@ -62,27 +63,26 @@ public class FieldGasVolumetricParametersSummaryService implements SummarySectio
   @NotNull
   private SummaryItem getFieldGasVolumetricParametersProbabilitiesSummaryItem(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    var listOfSummaryViews = probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-            FIELD_GAS_VOLUMETRIC_PARAMETERS_INSTANCES,
-            reservoirSubmissionDetail.getSubmissionDetail(),
-            reservoirSubmissionDetail
-        );
-    var summaryCard = SummaryCard.probabilitySummaryCard(listOfSummaryViews);
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        FIELD_GAS_VOLUMETRIC_PARAMETERS_INSTANCES,
+        reservoirSubmissionDetail.getSubmissionDetail(),
+        reservoirSubmissionDetail
+    );
+    var summaryCard = SummaryCard.probabilitySummaryCard(tableView);
     return SummaryItem.withCard(FIELD_GAS_VOLUMETRIC_PARAMETERS, summaryCard);
   }
 
   @NotNull
   private SummaryItem getFieldGasVolumetricParametersMinMaxMostLikelySummaryItem(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    var summaryView = probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_FIELD,
+    var tableView = probabilityDistributionSummaryService
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
+            List.of(ProbabilityDistributionFieldInstance.GAS_HYDROCARBON_SATURATION_FIELD),
             reservoirSubmissionDetail.getSubmissionDetail(),
             reservoirSubmissionDetail
         );
 
-    var summaryCard = SummaryCard.minMaxMostLikelySummaryCard(List.of(summaryView));
+    var summaryCard = SummaryCard.probabilitySummaryCard(tableView);
     return SummaryItem.withCard(FIELD_GAS_VOLUMETRIC_PARAMETERS, summaryCard);
   }
 }

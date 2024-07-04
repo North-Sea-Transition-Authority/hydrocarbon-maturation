@@ -2,12 +2,14 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutput
 
 import java.util.List;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.SummaryBehaviour;
 
 public record OilCaseOutputsSummaryView(String hasAssociatedGasRecoverableResources,
-                                        List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews) {
-  public static OilCaseOutputsSummaryView empty() {
-    return new OilCaseOutputsSummaryView(
-        "",
+                                        ProbabilityDistributionTableView tableView) {
+  public static OilCaseOutputsSummaryView empty(SummaryBehaviour summaryBehaviour) {
+    var emptyTableView = new ProbabilityDistributionTableView(
+        summaryBehaviour,
         List.of(
             ProbabilityDistributionSummaryView.empty("Oil initially in place"),
             ProbabilityDistributionSummaryView.empty("Oil recoverable resources"),
@@ -16,5 +18,6 @@ public record OilCaseOutputsSummaryView(String hasAssociatedGasRecoverableResour
             ProbabilityDistributionSummaryView.empty("Risked oil equivalent recoverable")
         )
     );
+    return new OilCaseOutputsSummaryView("", emptyTableView);
   }
 }

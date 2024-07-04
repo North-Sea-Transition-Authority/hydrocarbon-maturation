@@ -7,7 +7,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
@@ -49,7 +48,8 @@ class DiscoveryMixedCaseVolumetricsSummaryServiceTest {
 
   @Test
   void getSummarySection_whenMixedCase_withNoAssociatedCondensate() {
-    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+        SubmissionType.CREATE_DISCOVERY);
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var reservoirHydrocarbons = new ReservoirHydrocarbons();
     reservoirHydrocarbons.setReservoirSubmissionDetail(reservoirSubmissionDetail);
@@ -66,35 +66,33 @@ class DiscoveryMixedCaseVolumetricsSummaryServiceTest {
     listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY);
-    listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
+    listOfInstances.add(
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
 
-    var probabilityDistributionSummaryView1 = ProbabilityDistributionSummaryView.empty("test1");
-    var probabilityDistributionSummaryView2 = ProbabilityDistributionSummaryView.empty("test2");
-    List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews = List.of(
-        probabilityDistributionSummaryView1,
-        probabilityDistributionSummaryView2
-    );
+    var tableView = ProbabilityDistributionTableView.empty();
 
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-        listOfInstances, submissionDetail, reservoirSubmissionDetail
-    )).thenReturn(probabilityDistributionSummaryViews);
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances, submissionDetail, reservoirSubmissionDetail))
+        .thenReturn(tableView);
 
     var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
 
     assertThat(summarySection).isPresent();
-    assertSummarySection(summarySection.get(), DiscoveryMixedCaseVolumetricsSummaryService.OIL_AND_GAS_CASE_OUTPUTS_DISPLAY_ORDER);
-    var summaryCard = SummaryCard.probabilitySummaryCard(
-        probabilityDistributionSummaryViews
-    );
-    var summaryItem = SummaryItem.withCard(DiscoveryMixedCaseVolumetricsSummaryService.OIL_AND_GAS_CASE_OUTPUTS, summaryCard);
+    assertSummarySection(summarySection.get(),
+        DiscoveryMixedCaseVolumetricsSummaryService.OIL_AND_GAS_CASE_OUTPUTS_DISPLAY_ORDER);
+
+    var summaryCard = SummaryCard.probabilitySummaryCard(tableView);
+    var summaryItem = SummaryItem.withCard(DiscoveryMixedCaseVolumetricsSummaryService.OIL_AND_GAS_CASE_OUTPUTS,
+        summaryCard);
     assertThat(summarySection.get().summaryItems()).containsExactly(summaryItem);
   }
 
   @Test
   void getSummarySection_whenMixedCase_notAnsweredAssociatedCondensate_assertProperties() {
-    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+        SubmissionType.CREATE_DISCOVERY);
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var reservoirHydrocarbons = new ReservoirHydrocarbons();
     reservoirHydrocarbons.setReservoirSubmissionDetail(reservoirSubmissionDetail);
@@ -110,35 +108,34 @@ class DiscoveryMixedCaseVolumetricsSummaryServiceTest {
     listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY);
-    listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
+    listOfInstances.add(
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
 
-    var probabilityDistributionSummaryView1 = ProbabilityDistributionSummaryView.empty("test1");
-    var probabilityDistributionSummaryView2 = ProbabilityDistributionSummaryView.empty("test2");
-    List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews = List.of(
-        probabilityDistributionSummaryView1,
-        probabilityDistributionSummaryView2
-    );
+    var tableView = ProbabilityDistributionTableView.empty();
 
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-        listOfInstances, submissionDetail, reservoirSubmissionDetail
-    )).thenReturn(probabilityDistributionSummaryViews);
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances, submissionDetail, reservoirSubmissionDetail))
+        .thenReturn(tableView);
 
     var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
 
     assertThat(summarySection).isPresent();
-    assertSummarySection(summarySection.get(), DiscoveryMixedCaseVolumetricsSummaryService.OIL_AND_GAS_CASE_OUTPUTS_DISPLAY_ORDER);
+    assertSummarySection(summarySection.get(),
+        DiscoveryMixedCaseVolumetricsSummaryService.OIL_AND_GAS_CASE_OUTPUTS_DISPLAY_ORDER);
     var summaryCard = SummaryCard.probabilitySummaryCard(
-        probabilityDistributionSummaryViews
+        tableView
     );
-    var summaryItem = SummaryItem.withCard(DiscoveryMixedCaseVolumetricsSummaryService.OIL_AND_GAS_CASE_OUTPUTS, summaryCard);
+    var summaryItem = SummaryItem.withCard(DiscoveryMixedCaseVolumetricsSummaryService.OIL_AND_GAS_CASE_OUTPUTS,
+        summaryCard);
     assertThat(summarySection.get().summaryItems()).containsExactly(summaryItem);
   }
 
   @Test
   void getSummarySection_whenMixedCase_withAssociatedCondensate() {
-    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+        SubmissionType.CREATE_DISCOVERY);
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var reservoirHydrocarbons = new ReservoirHydrocarbons();
     reservoirHydrocarbons.setReservoirSubmissionDetail(reservoirSubmissionDetail);
@@ -156,37 +153,36 @@ class DiscoveryMixedCaseVolumetricsSummaryServiceTest {
     listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY);
-    listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
+    listOfInstances.add(
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
-    listOfInstances.add(ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
+    listOfInstances.add(
+        ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
 
-    var probabilityDistributionSummaryView1 = ProbabilityDistributionSummaryView.empty("test1");
-    var probabilityDistributionSummaryView2 = ProbabilityDistributionSummaryView.empty("test2");
-    List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews = List.of(
-        probabilityDistributionSummaryView1,
-        probabilityDistributionSummaryView2
-    );
+    var tableView = ProbabilityDistributionTableView.empty();
 
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-        listOfInstances, submissionDetail, reservoirSubmissionDetail
-    )).thenReturn(probabilityDistributionSummaryViews);
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances, submissionDetail, reservoirSubmissionDetail))
+        .thenReturn(tableView);
 
     var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
 
     assertThat(summarySection).isPresent();
-    assertSummarySection(summarySection.get(), DiscoveryMixedCaseVolumetricsSummaryService.OIL_AND_GAS_CASE_OUTPUTS_DISPLAY_ORDER);
-    var summaryCard = SummaryCard.probabilitySummaryCard(
-        probabilityDistributionSummaryViews
-    );
-    var summaryItem = SummaryItem.withCard(DiscoveryMixedCaseVolumetricsSummaryService.OIL_AND_GAS_CASE_OUTPUTS, summaryCard);
+    assertSummarySection(summarySection.get(),
+        DiscoveryMixedCaseVolumetricsSummaryService.OIL_AND_GAS_CASE_OUTPUTS_DISPLAY_ORDER);
+
+    var summaryCard = SummaryCard.probabilitySummaryCard(tableView);
+    var summaryItem = SummaryItem.withCard(DiscoveryMixedCaseVolumetricsSummaryService.OIL_AND_GAS_CASE_OUTPUTS,
+        summaryCard);
     assertThat(summarySection.get().summaryItems()).containsExactly(summaryItem);
   }
 
   @ParameterizedTest
   @EnumSource(value = HydrocarbonsDiscovered.class, names = {"GAS_ONLY", "OIL_ONLY"})
   void getSummarySection_notMixedCase(HydrocarbonsDiscovered hydrocarbonsDiscovered) {
-    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+        SubmissionType.CREATE_DISCOVERY);
     var reservoirHydrocarbons = new ReservoirHydrocarbons();
     reservoirHydrocarbons.setReservoirSubmissionDetail(reservoirSubmissionDetail);
     reservoirHydrocarbons.setHydrocarbonsDiscovered(hydrocarbonsDiscovered);
@@ -201,7 +197,8 @@ class DiscoveryMixedCaseVolumetricsSummaryServiceTest {
 
   @Test
   void getSummarySection_noHydrocarbonsDiscovered() {
-    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+        SubmissionType.CREATE_DISCOVERY);
     when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)).thenReturn(
         Optional.empty()
     );

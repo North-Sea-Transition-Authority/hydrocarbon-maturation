@@ -26,12 +26,9 @@
                 <#list summaryItem.summaryCards() as summaryCard>
                     <#if summaryCard.summaryCardType() == "PROBABILITY_DISTRIBUTION_SUMMARY">
                         <@probabilityDistributionSummary.probabilityDistributionTable
-                        probabilityDistributions=summaryCard.summaryData()/>
+                        tableView=summaryCard.summaryData()/>
                     <#elseif summaryCard.summaryCardType() == "EMPTY_SUMMARY">
                         <@emptySummary.emptySummaryCard/>
-                    <#elseif summaryCard.summaryCardType() == "MIN_MAX_MOST_LIKELY_SUMMARY">
-                        <@probabilityDistributionSummary.minMaxMostLikelyTable
-                        probabilityDistributions=summaryCard.summaryData()/>
                     <#else>
                         <#assign actionsContent>
                             <@fdsSummaryList.summaryListCardActionList>

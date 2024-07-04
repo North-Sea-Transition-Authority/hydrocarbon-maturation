@@ -42,6 +42,7 @@
   </@fdsSummaryList.summaryListCard>
 
     <@fdsSummaryList.summaryListCard headingText="Trap property distributions" summaryListId="trappropertydistributions">
-        <@probabilityDistribution.probabilityDistributionTable probabilityDistributions=trapPropertiesValues.probabilityDistributionSummaryViews()/>
+        <@probabilityDistribution.probabilityDistributionTable
+        tableView=trapPropertiesValues.tableView()/>
     </@fdsSummaryList.summaryListCard>
 </#macro>

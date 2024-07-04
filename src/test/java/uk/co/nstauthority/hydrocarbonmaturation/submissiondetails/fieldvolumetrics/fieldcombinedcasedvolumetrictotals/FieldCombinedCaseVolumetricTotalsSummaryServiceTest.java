@@ -24,7 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -85,13 +85,13 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
     when(combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(combinedCaseVolumetricTotal));
 
-    var probabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             any(),
             eq(submissionDetail),
             eq(null)
-        )).thenReturn(List.of(probabilitySummaryView));
+        )).thenReturn(probabilityTableView);
     when(reservoirHydrocarbonCaseService.isCombinedCase(anyList()))
         .thenReturn(true);
 
@@ -111,28 +111,26 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
     assertThat(card1)
         .extracting(
             SummaryCard::displayName,
-            SummaryCard::summaryCardType
+            SummaryCard::summaryCardType,
+            SummaryCard::summaryData
         ).containsExactly(
             null,
-            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY
+            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
+            probabilityTableView
         );
-    var card1Data = (List<ProbabilityDistributionSummaryView>) card1.summaryData();
-    assertThat(card1Data)
-        .containsOnly(probabilitySummaryView);
 
     // Resources and reserves card
     var card2 = summaryCards.get(1);
     assertThat(card2)
         .extracting(
             SummaryCard::displayName,
-            SummaryCard::summaryCardType
+            SummaryCard::summaryCardType,
+            SummaryCard::summaryData
         ).containsExactly(
             null,
-            SummaryCardType.FIELD_PROBABILITY_DISTRIBUTION_SUMMARY
+            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
+            probabilityTableView
         );
-    var card2Data = (List<ProbabilityDistributionSummaryView>) card2.summaryData();
-    assertThat(card2Data)
-        .containsOnly(probabilitySummaryView);
 
     // Volumetric total card
     var card3 = summaryCards.get(2);
@@ -158,13 +156,13 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
     when(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
         .thenReturn(true);
 
-    var probabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             any(),
             eq(submissionDetail),
             eq(null)
-        )).thenReturn(List.of(probabilitySummaryView));
+        )).thenReturn(probabilityTableView);
     when(reservoirHydrocarbonCaseService.isCombinedCase(anyList()))
         .thenReturn(true);
 
@@ -184,28 +182,26 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
     assertThat(card1)
         .extracting(
             SummaryCard::displayName,
-            SummaryCard::summaryCardType
+            SummaryCard::summaryCardType,
+            SummaryCard::summaryData
         ).containsExactly(
             null,
-            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY
+            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
+            probabilityTableView
         );
-    var card1Data = (List<ProbabilityDistributionSummaryView>) card1.summaryData();
-    assertThat(card1Data)
-        .containsOnly(probabilitySummaryView);
 
     // Resources and reserves card
     var card2 = summaryCards.get(1);
     assertThat(card2)
         .extracting(
             SummaryCard::displayName,
-            SummaryCard::summaryCardType
+            SummaryCard::summaryCardType,
+            SummaryCard::summaryData
         ).containsExactly(
             null,
-            SummaryCardType.FIELD_PROBABILITY_DISTRIBUTION_SUMMARY
+            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
+            probabilityTableView
         );
-    var card2Data = (List<ProbabilityDistributionSummaryView>) card2.summaryData();
-    assertThat(card2Data)
-        .containsOnly(probabilitySummaryView);
   }
 
   @Test
@@ -215,13 +211,13 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
     when(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
         .thenReturn(false);
 
-    var probabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             any(),
             eq(submissionDetail),
             eq(null)
-        )).thenReturn(List.of(probabilitySummaryView));
+        )).thenReturn(probabilityTableView);
     when(reservoirHydrocarbonCaseService.isCombinedCase(anyList()))
         .thenReturn(true);
 
@@ -241,41 +237,39 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
     assertThat(card1)
         .extracting(
             SummaryCard::displayName,
-            SummaryCard::summaryCardType
+            SummaryCard::summaryCardType,
+            SummaryCard::summaryData
         ).containsExactly(
             null,
-            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY
+            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
+            probabilityTableView
         );
-    var card1Data = (List<ProbabilityDistributionSummaryView>) card1.summaryData();
-    assertThat(card1Data)
-        .containsOnly(probabilitySummaryView);
 
     // Resources and reserves card
     var card2 = summaryCards.get(1);
     assertThat(card2)
         .extracting(
             SummaryCard::displayName,
-            SummaryCard::summaryCardType
+            SummaryCard::summaryCardType,
+            SummaryCard::summaryData
         ).containsExactly(
             null,
-            SummaryCardType.FIELD_PROBABILITY_DISTRIBUTION_SUMMARY
+            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
+            probabilityTableView
         );
-    var card2Data = (List<ProbabilityDistributionSummaryView>) card2.summaryData();
-    assertThat(card2Data)
-        .containsOnly(probabilitySummaryView);
   }
 
   @Test
   void getSummarySection_isCsr_thenNoReserves() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
 
-    var probabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             any(),
             eq(submissionDetail),
             eq(null)
-        )).thenReturn(List.of(probabilitySummaryView));
+        )).thenReturn(probabilityTableView);
     when(reservoirHydrocarbonCaseService.isCombinedCase(anyList()))
         .thenReturn(true);
 
@@ -292,11 +286,11 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
     fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail);
 
     verify(probabilityDistributionSummaryService, times(1))
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             resourceOnlyInstances,
             submissionDetail,
             null
-    );
+        );
 
     verifyNoMoreInteractions(probabilityDistributionSummaryService);
   }
@@ -305,13 +299,13 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
   void getSummarySection_isNotCsr_thenReserves() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_COP);
 
-    var probabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             any(),
             eq(submissionDetail),
             eq(null)
-        )).thenReturn(List.of(probabilitySummaryView));
+        )).thenReturn(probabilityTableView);
     when(reservoirHydrocarbonCaseService.isCombinedCase(anyList()))
         .thenReturn(true);
 
@@ -335,7 +329,7 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
     fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail);
 
     verify(probabilityDistributionSummaryService, times(1))
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             resourceAndReserveInstances,
             submissionDetail,
             null
@@ -346,17 +340,17 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
 
   @ParameterizedTest
   @NullSource
-  @ValueSource(booleans =  {false})
+  @ValueSource(booleans = {false})
   void getSummarySection_hasNoAssociatedCondensate(Boolean hasAssociatedCondensate) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_COP);
 
-    var probabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             any(),
             eq(submissionDetail),
             eq(null)
-        )).thenReturn(List.of(probabilitySummaryView));
+        )).thenReturn(probabilityTableView);
     when(reservoirHydrocarbonCaseService.isCombinedCase(anyList()))
         .thenReturn(true);
 
@@ -386,7 +380,7 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
     );
 
     verify(probabilityDistributionSummaryService, times(1))
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             resourceAndReserveInstances,
             submissionDetail,
             null
@@ -399,13 +393,13 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
   void getSummarySection_hasAssociatedCondensate() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_COP);
 
-    var probabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             any(),
             eq(submissionDetail),
             eq(null)
-        )).thenReturn(List.of(probabilitySummaryView));
+        )).thenReturn(probabilityTableView);
     when(reservoirHydrocarbonCaseService.isCombinedCase(anyList()))
         .thenReturn(true);
 
@@ -436,7 +430,7 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
     );
 
     verify(probabilityDistributionSummaryService, times(1))
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             resourceAndReserveInstances,
             submissionDetail,
             null

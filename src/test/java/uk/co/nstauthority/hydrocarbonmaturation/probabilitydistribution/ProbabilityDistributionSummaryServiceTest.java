@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,265 +27,437 @@ class ProbabilityDistributionSummaryServiceTest {
   private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
 
   @Nested
-  class getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission {
+  class getSummaryBehaviour {
+
     @Test
-    void getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission_emptySummary() {
-      var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-      var probabilityDistribution = new ProbabilityDistribution();
-      probabilityDistribution.setDistributionType(ProbabilityDistributionType.LOGNORMAL);
-      probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT);
+    void whenNoInstances() {
+      List<ProbabilityDistributionFieldInstance> instances = List.of();
 
-      when(probabilityDistributionPersistenceService.getProbabilityDistribution(
-          submissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT))
-          .thenReturn(Optional.of(probabilityDistribution));
-
-      assertThat(
-          probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-              ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT, submissionDetail))
-          .extracting(
-              ProbabilityDistributionSummaryView::probabilityDistributionName,
-              ProbabilityDistributionSummaryView::probabilityDistributionType,
-              ProbabilityDistributionSummaryView::min,
-              ProbabilityDistributionSummaryView::p99,
-              ProbabilityDistributionSummaryView::p90,
-              ProbabilityDistributionSummaryView::mode,
-              ProbabilityDistributionSummaryView::p50,
-              ProbabilityDistributionSummaryView::meanOrConstant,
-              ProbabilityDistributionSummaryView::p10,
-              ProbabilityDistributionSummaryView::p1,
-              ProbabilityDistributionSummaryView::max,
-              ProbabilityDistributionSummaryView::units,
-              ProbabilityDistributionSummaryView::comments)
-          .contains(
-              ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT.getDisplayName(),
-              "",
-              "",
-              "",
-              "",
-              "",
-              "",
-              "",
-              "",
-              "",
-              "",
-              "",
-              ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT.getUnits(),
-              "");
+      assertThat(probabilityDistributionSummaryService.getSummaryBehaviour(instances))
+          .usingRecursiveComparison()
+          .isEqualTo(new SummaryBehaviour());
     }
 
     @Test
-    void getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission_fullSummary() {
-      var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-      var probabilityDistribution = new ProbabilityDistribution();
+    void whenInstances_thenCombinesBehaviour() {
+      var instances = List.of(
+          ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD,
+          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT
+      );
 
-      probabilityDistribution.setDistributionType(ProbabilityDistributionType.LOGNORMAL);
-      probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT);
-      probabilityDistribution.setConstantValue(BigDecimal.ONE);
-      probabilityDistribution.setMaxValue(BigDecimal.ONE);
-      probabilityDistribution.setMeanValue(BigDecimal.ONE);
-      probabilityDistribution.setP1(BigDecimal.ONE);
-      probabilityDistribution.setP10(BigDecimal.ONE);
-      probabilityDistribution.setP50(BigDecimal.ONE);
-      probabilityDistribution.setP90(BigDecimal.ONE);
-      probabilityDistribution.setP99(BigDecimal.ONE);
-      probabilityDistribution.setModeValue(BigDecimal.ONE);
-      probabilityDistribution.setComments(COMMENTS);
+      var expectedSummaryBehaviour = SummaryBehaviour.builder()
+          .with1C()
+          .with2C()
+          .with3C()
+          .withMean()
+          .build();
 
-      when(probabilityDistributionPersistenceService.getProbabilityDistribution(
-          submissionDetail, ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT))
-          .thenReturn(Optional.of(probabilityDistribution));
-
-      assertThat(
-          probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-              ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT, submissionDetail))
-          .extracting(
-              ProbabilityDistributionSummaryView::probabilityDistributionName,
-              ProbabilityDistributionSummaryView::probabilityDistributionType,
-              ProbabilityDistributionSummaryView::min,
-              ProbabilityDistributionSummaryView::p99,
-              ProbabilityDistributionSummaryView::p90,
-              ProbabilityDistributionSummaryView::mode,
-              ProbabilityDistributionSummaryView::p50,
-              ProbabilityDistributionSummaryView::meanOrConstant,
-              ProbabilityDistributionSummaryView::p10,
-              ProbabilityDistributionSummaryView::p1,
-              ProbabilityDistributionSummaryView::max,
-              ProbabilityDistributionSummaryView::units,
-              ProbabilityDistributionSummaryView::comments)
-          .contains(
-              ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT.getDisplayName(),
-              ProbabilityDistributionType.LOGNORMAL.getDisplayName(),
-              "1",
-              "1",
-              "1",
-              "1",
-              "1",
-              "1",
-              "1",
-              "1",
-              "1",
-              ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT.getUnits(),
-              COMMENTS
-          );
-    }
-
-    @Test
-    void getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission_withOtherDistributionType() {
-      var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-      var probabilityDistribution = new ProbabilityDistribution();
-
-      var otherDistributionType = "Other";
-      probabilityDistribution.setDistributionType(null);
-      probabilityDistribution.setOtherDistributionType(otherDistributionType);
-      probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT);
-
-      when(probabilityDistributionPersistenceService.getProbabilityDistribution(
-          submissionDetail, ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT))
-          .thenReturn(Optional.of(probabilityDistribution));
-
-      assertThat(
-          probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-              ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT, submissionDetail))
-          .extracting(
-              ProbabilityDistributionSummaryView::probabilityDistributionName,
-              ProbabilityDistributionSummaryView::probabilityDistributionType)
-          .contains(
-              ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT.getDisplayName(),
-              otherDistributionType
-          );
+      assertThat(probabilityDistributionSummaryService.getSummaryBehaviour(instances))
+          .usingRecursiveComparison()
+          .isEqualTo(expectedSummaryBehaviour);
     }
   }
 
   @Nested
-  class getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission_reservoirSubmissionDetail {
-    @Test
-    void getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission_emptySummary() {
-      var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-      var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
-      var probabilityDistribution = new ProbabilityDistribution();
-      probabilityDistribution.setDistributionType(ProbabilityDistributionType.LOGNORMAL);
-      probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT);
-
-      when(probabilityDistributionPersistenceService.getProbabilityDistribution(
-          reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT))
-          .thenReturn(Optional.of(probabilityDistribution));
-
-      assertThat(
-          probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-              ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT, submissionDetail, reservoirSubmissionDetail))
-          .extracting(
-              ProbabilityDistributionSummaryView::probabilityDistributionName,
-              ProbabilityDistributionSummaryView::probabilityDistributionType,
-              ProbabilityDistributionSummaryView::min,
-              ProbabilityDistributionSummaryView::p99,
-              ProbabilityDistributionSummaryView::p90,
-              ProbabilityDistributionSummaryView::mode,
-              ProbabilityDistributionSummaryView::p50,
-              ProbabilityDistributionSummaryView::meanOrConstant,
-              ProbabilityDistributionSummaryView::p10,
-              ProbabilityDistributionSummaryView::p1,
-              ProbabilityDistributionSummaryView::max,
-              ProbabilityDistributionSummaryView::units,
-              ProbabilityDistributionSummaryView::comments)
-          .contains(
-              ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT.getDisplayName(),
-              "",
-              "",
-              "",
-              "",
-              "",
-              "",
-              "",
-              "",
-              "",
-              "",
-              "",
-              ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT.getUnits(),
-              "");
-    }
+  class getProbabilityDistributionTableViewFromInstancesAndSubmission {
 
     @Test
-    void getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission_fullSummary() {
-      var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-      var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
-      var probabilityDistribution = new ProbabilityDistribution();
+    void whenNoInstances() {
+      List<ProbabilityDistributionFieldInstance> instances = List.of();
 
-      probabilityDistribution.setDistributionType(ProbabilityDistributionType.LOGNORMAL);
-      probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT);
-      probabilityDistribution.setConstantValue(BigDecimal.ONE);
-      probabilityDistribution.setMaxValue(BigDecimal.ONE);
-      probabilityDistribution.setMeanValue(BigDecimal.ONE);
-      probabilityDistribution.setP1(BigDecimal.ONE);
-      probabilityDistribution.setP10(BigDecimal.ONE);
-      probabilityDistribution.setP50(BigDecimal.ONE);
-      probabilityDistribution.setP90(BigDecimal.ONE);
-      probabilityDistribution.setP99(BigDecimal.ONE);
-      probabilityDistribution.setModeValue(BigDecimal.ONE);
-      probabilityDistribution.setComments(COMMENTS);
-
-      when(probabilityDistributionPersistenceService.getProbabilityDistribution(
-          reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT))
-          .thenReturn(Optional.of(probabilityDistribution));
-
-      assertThat(
-          probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-              ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT, submissionDetail, reservoirSubmissionDetail))
-          .extracting(
-              ProbabilityDistributionSummaryView::probabilityDistributionName,
-              ProbabilityDistributionSummaryView::probabilityDistributionType,
-              ProbabilityDistributionSummaryView::min,
-              ProbabilityDistributionSummaryView::p99,
-              ProbabilityDistributionSummaryView::p90,
-              ProbabilityDistributionSummaryView::mode,
-              ProbabilityDistributionSummaryView::p50,
-              ProbabilityDistributionSummaryView::meanOrConstant,
-              ProbabilityDistributionSummaryView::p10,
-              ProbabilityDistributionSummaryView::p1,
-              ProbabilityDistributionSummaryView::max,
-              ProbabilityDistributionSummaryView::units,
-              ProbabilityDistributionSummaryView::comments)
-          .contains(
-              ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT.getDisplayName(),
-              ProbabilityDistributionType.LOGNORMAL.getDisplayName(),
-              "1",
-              "1",
-              "1",
-              "1",
-              "1",
-              "1",
-              "1",
-              "1",
-              "1",
-              ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT.getUnits(),
-              COMMENTS
-          );
+      assertThat(probabilityDistributionSummaryService.getSummaryBehaviour(instances))
+          .usingRecursiveComparison()
+          .isEqualTo(new SummaryBehaviour());
     }
 
-    @Test
-    void getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission_withOtherDistributionType() {
-      var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-      var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
-      var probabilityDistribution = new ProbabilityDistribution();
+    @Nested
+    class WhenSubmissionDetail {
 
-      var otherDistributionType = "Other";
-      probabilityDistribution.setDistributionType(null);
-      probabilityDistribution.setOtherDistributionType(otherDistributionType);
-      probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT);
+      @Test
+      void whenEmptySummary() {
+        var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
-      when(probabilityDistributionPersistenceService.getProbabilityDistribution(
-          reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT))
-          .thenReturn(Optional.of(probabilityDistribution));
+        // WHEN the probability distribution is empty
+        when(probabilityDistributionPersistenceService.getProbabilityDistribution(
+            submissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT))
+            .thenReturn(Optional.empty());
 
-      assertThat(
-          probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-              ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT, submissionDetail, reservoirSubmissionDetail))
-          .extracting(
-              ProbabilityDistributionSummaryView::probabilityDistributionName,
-              ProbabilityDistributionSummaryView::probabilityDistributionType)
-          .contains(
-              ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT.getDisplayName(),
-              otherDistributionType
-          );
+        var generatedTableView = probabilityDistributionSummaryService
+            .getProbabilityDistributionTableViewFromInstancesAndSubmission(
+                List.of(ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT), submissionDetail, null
+            );
+
+        // THEN the behaviours of all preset types are combined
+        var expectedSummaryBehaviour = SummaryBehaviour.builder()
+            .withConstant()
+            .withMax()
+            .withMean()
+            .withMin()
+            .withMode()
+            .withP10()
+            .withP1()
+            .withP50()
+            .withP90()
+            .withP99()
+            .build();
+
+        // AND the summary view is empty excluding distribution name
+        var expectedSummaryView = new ProbabilityDistributionSummaryView(
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT.getDisplayName(),
+            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""
+        );
+
+        assertThat(generatedTableView)
+            .usingRecursiveComparison()
+            .isEqualTo(new ProbabilityDistributionTableView(
+                expectedSummaryBehaviour,
+                List.of(expectedSummaryView)
+            ));
+      }
+
+      @Test
+      void whenFullSummary() {
+        var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+
+        var distributionType = ProbabilityDistributionType.LOGNORMAL;
+
+        var productiveAreaProspect = ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT;
+        var productiveAreaDistribution = getFullProbabilityDistribution(productiveAreaProspect, distributionType);
+
+        var increasedVolumesFdpa = ProbabilityDistributionFieldInstance.NATURAL_GAS_LIQUIDS_RESERVES_INCREASED_VOLUMES_FDPA;
+        var increasedVolumesDistribution = getFullProbabilityDistribution(increasedVolumesFdpa, distributionType);
+
+        when(probabilityDistributionPersistenceService.getProbabilityDistribution(
+            submissionDetail, productiveAreaProspect))
+            .thenReturn(Optional.of(productiveAreaDistribution));
+        when(probabilityDistributionPersistenceService.getProbabilityDistribution(
+            submissionDetail, increasedVolumesFdpa))
+            .thenReturn(Optional.of(increasedVolumesDistribution));
+
+        var generatedTableView = probabilityDistributionSummaryService
+            .getProbabilityDistributionTableViewFromInstancesAndSubmission(
+                List.of(productiveAreaProspect, increasedVolumesFdpa), submissionDetail, null
+            );
+
+        // THEN the behaviours of all preset types are combined
+        var expectedSummaryBehaviour = SummaryBehaviour.builder()
+            .withConstant()
+            .withMax()
+            .withMean()
+            .withMin()
+            .withMode()
+            .withP10()
+            .withP1()
+            .withP50()
+            .withP90()
+            .withP99()
+            .with1P()
+            .with2P()
+            .with3P()
+            .build();
+
+        // AND the summary view contains distribution name, type, units AND values
+        var expectedProductiveAreaView = new ProbabilityDistributionSummaryView(
+            productiveAreaProspect.getDisplayName(),
+            distributionType.getDisplayName(),
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            productiveAreaProspect.getUnits(),
+            "14",
+            "15",
+            "16",
+            COMMENTS
+        );
+
+        var expectedIncreasedVolumesView = new ProbabilityDistributionSummaryView(
+            increasedVolumesFdpa.getDisplayName(),
+            distributionType.getDisplayName(),
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            increasedVolumesFdpa.getUnits(),
+            "14",
+            "15",
+            "16",
+            COMMENTS
+        );
+
+        assertThat(generatedTableView)
+            .usingRecursiveComparison()
+            .isEqualTo(new ProbabilityDistributionTableView(
+                expectedSummaryBehaviour,
+                List.of(expectedProductiveAreaView, expectedIncreasedVolumesView)
+            ));
+      }
+
+      @Test
+      void whenOtherDistributionType() {
+        var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+
+        var probabilityDistribution = new ProbabilityDistribution();
+        var otherDistributionType = "Other";
+        probabilityDistribution.setDistributionType(null);
+        probabilityDistribution.setOtherDistributionType(otherDistributionType);
+        probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT);
+
+        when(probabilityDistributionPersistenceService.getProbabilityDistribution(
+            submissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT))
+            .thenReturn(Optional.of(probabilityDistribution));
+
+        var generatedTableView = probabilityDistributionSummaryService
+            .getProbabilityDistributionTableViewFromInstancesAndSubmission(
+                List.of(ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT), submissionDetail, null
+            );
+
+        // THEN the behaviours of all preset types are combined
+        var expectedSummaryBehaviour = SummaryBehaviour.builder()
+            .withConstant()
+            .withMax()
+            .withMean()
+            .withMin()
+            .withMode()
+            .withP10()
+            .withP1()
+            .withP50()
+            .withP90()
+            .withP99()
+            .build();
+
+        // AND the summary view is empty excluding distribution name, type and units
+        var expectedSummaryView = new ProbabilityDistributionSummaryView(
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT.getDisplayName(),
+            otherDistributionType,
+            "", "", "", "", "", "", "", "", "", "", "", "", "",
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT.getUnits(),
+            "", "", "", ""
+        );
+
+        assertThat(generatedTableView)
+            .usingRecursiveComparison()
+            .isEqualTo(new ProbabilityDistributionTableView(
+                expectedSummaryBehaviour,
+                List.of(expectedSummaryView)
+            ));
+      }
     }
+
+    @Nested
+    class WhenReservoirSubmissionDetail {
+      @Test
+      void whenEmptySummary() {
+        var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+        var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
+
+        // WHEN the probability distribution has no values
+        var probabilityDistribution = new ProbabilityDistribution();
+        probabilityDistribution.setDistributionType(ProbabilityDistributionType.LOGNORMAL);
+        // AND the instance has multiple preset types
+        probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT);
+
+        when(probabilityDistributionPersistenceService.getProbabilityDistribution(
+            reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT))
+            .thenReturn(Optional.of(probabilityDistribution));
+
+        var generatedTableView = probabilityDistributionSummaryService
+            .getProbabilityDistributionTableViewFromInstancesAndSubmission(
+                List.of(ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT),
+                submissionDetail,
+                reservoirSubmissionDetail
+            );
+
+        // THEN the behaviours of all preset types are combined
+        var expectedSummaryBehaviour = SummaryBehaviour.builder()
+            .withConstant()
+            .withMax()
+            .withMean()
+            .withMin()
+            .withMode()
+            .withP10()
+            .withP1()
+            .withP50()
+            .withP90()
+            .withP99()
+            .build();
+
+        // AND the summary view is empty excluding distribution name, type and units
+        var expectedSummaryView = new ProbabilityDistributionSummaryView(
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT.getDisplayName(),
+            ProbabilityDistributionType.LOGNORMAL.getDisplayName(),
+            "", "", "", "", "", "", "", "", "", "", "", "", "",
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT.getUnits(),
+            "", "", "", ""
+        );
+
+        assertThat(generatedTableView)
+            .usingRecursiveComparison()
+            .isEqualTo(new ProbabilityDistributionTableView(
+                expectedSummaryBehaviour,
+                List.of(expectedSummaryView)
+            ));
+      }
+
+      @Test
+      void whenFullSummary() {
+        var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+        var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
+
+        var instance = ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT;
+        var distributionType = ProbabilityDistributionType.LOGNORMAL;
+        var probabilityDistribution = getFullProbabilityDistribution(instance, distributionType);
+
+        when(probabilityDistributionPersistenceService.getProbabilityDistribution(
+            reservoirSubmissionDetail, instance))
+            .thenReturn(Optional.of(probabilityDistribution));
+
+        var generatedTableView = probabilityDistributionSummaryService
+            .getProbabilityDistributionTableViewFromInstancesAndSubmission(
+                List.of(instance), submissionDetail, reservoirSubmissionDetail
+            );
+
+        // THEN the behaviours of all preset types are combined
+        var expectedSummaryBehaviour = SummaryBehaviour.builder()
+            .withConstant()
+            .withMax()
+            .withMean()
+            .withMin()
+            .withMode()
+            .withP10()
+            .withP1()
+            .withP50()
+            .withP90()
+            .withP99()
+            .build();
+
+        // AND the summary view contains distribution name, type, units AND values
+        var expectedSummaryView = new ProbabilityDistributionSummaryView(
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT.getDisplayName(),
+            ProbabilityDistributionType.LOGNORMAL.getDisplayName(),
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT.getUnits(),
+            "14",
+            "15",
+            "16",
+            COMMENTS
+        );
+
+        assertThat(generatedTableView)
+            .usingRecursiveComparison()
+            .isEqualTo(new ProbabilityDistributionTableView(
+                expectedSummaryBehaviour,
+                List.of(expectedSummaryView)
+            ));
+      }
+
+      @Test
+      void whenOtherDistributionType() {
+        var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+        var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
+
+        var probabilityDistribution = new ProbabilityDistribution();
+        var otherDistributionType = "Other";
+        probabilityDistribution.setDistributionType(null);
+        probabilityDistribution.setOtherDistributionType(otherDistributionType);
+        probabilityDistribution.setInstance(ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT);
+
+        when(probabilityDistributionPersistenceService.getProbabilityDistribution(
+            reservoirSubmissionDetail, ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT))
+            .thenReturn(Optional.of(probabilityDistribution));
+
+        var generatedTableView = probabilityDistributionSummaryService
+            .getProbabilityDistributionTableViewFromInstancesAndSubmission(
+                List.of(ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT),
+                submissionDetail,
+                reservoirSubmissionDetail
+            );
+
+        // THEN the behaviours of all preset types are combined
+        var expectedSummaryBehaviour = SummaryBehaviour.builder()
+            .withConstant()
+            .withMax()
+            .withMean()
+            .withMin()
+            .withMode()
+            .withP10()
+            .withP1()
+            .withP50()
+            .withP90()
+            .withP99()
+            .build();
+
+        // AND the summary view is empty excluding distribution name, type and units
+        var expectedSummaryView = new ProbabilityDistributionSummaryView(
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT.getDisplayName(),
+            otherDistributionType,
+            "", "", "", "", "", "", "", "", "", "", "", "", "",
+            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT.getUnits(),
+            "", "", "", ""
+        );
+
+        assertThat(generatedTableView)
+            .usingRecursiveComparison()
+            .isEqualTo(new ProbabilityDistributionTableView(
+                expectedSummaryBehaviour,
+                List.of(expectedSummaryView)
+            ));
+      }
+    }
+  }
+
+  private ProbabilityDistribution getFullProbabilityDistribution(ProbabilityDistributionFieldInstance instance,
+                                                                 ProbabilityDistributionType distributionType) {
+    var probabilityDistribution = new ProbabilityDistribution();
+    probabilityDistribution.setDistributionType(distributionType);
+    probabilityDistribution.setInstance(instance);
+    probabilityDistribution.setMinValue(BigDecimal.ONE);
+    probabilityDistribution.setP99(BigDecimal.valueOf(2));
+    probabilityDistribution.setP90(BigDecimal.valueOf(3));
+    probabilityDistribution.setOneC(BigDecimal.valueOf(4));
+    probabilityDistribution.setModeValue(BigDecimal.valueOf(5));
+    probabilityDistribution.setP50(BigDecimal.valueOf(6));
+    probabilityDistribution.setTwoC(BigDecimal.valueOf(7));
+    probabilityDistribution.setMeanValue(BigDecimal.valueOf(8));
+    probabilityDistribution.setP10(BigDecimal.valueOf(9));
+    probabilityDistribution.setThreeC(BigDecimal.TEN);
+    probabilityDistribution.setP1(BigDecimal.valueOf(11));
+    probabilityDistribution.setMostLikelyValue(BigDecimal.valueOf(12));
+    probabilityDistribution.setMaxValue(BigDecimal.valueOf(13));
+    probabilityDistribution.setOneP(BigDecimal.valueOf(14));
+    probabilityDistribution.setTwoP(BigDecimal.valueOf(15));
+    probabilityDistribution.setThreeP(BigDecimal.valueOf(16));
+    probabilityDistribution.setComments(COMMENTS);
+    return probabilityDistribution;
   }
 }

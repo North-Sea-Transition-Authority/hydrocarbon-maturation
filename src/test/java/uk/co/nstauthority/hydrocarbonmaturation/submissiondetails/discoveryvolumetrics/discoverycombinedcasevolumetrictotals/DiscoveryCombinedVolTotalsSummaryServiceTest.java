@@ -14,6 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.SummaryBehaviour;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.combinedcasevolumetrictotals.CombinedCaseVolumetricTotal;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverycominbedcasevolumetrictotals.DiscoveryCombinedCaseVolTotalsService;
@@ -36,22 +38,31 @@ class DiscoveryCombinedVolTotalsSummaryServiceTest {
   @Test
   void getGasCaseVolumetricTotalsSummaryFromSubmissionDetail_noVolumetricTotals() {
     var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-    when(discoveryCombinedCaseVolTotalsService.getCombinedCaseVolumetricTotal(submissionDetail)).thenReturn(Optional.empty());
-    assertThat(discoveryCombinedVolTotalsSummaryService.getCombinedCaseVolumetricTotalsSummaryFromSubmissionDetail(submissionDetail))
+    var summaryBehaviour = new SummaryBehaviour();
+    when(discoveryCombinedCaseVolTotalsService.getCombinedCaseVolumetricTotal(submissionDetail))
+        .thenReturn(Optional.empty());
+    when(probabilityDistributionSummaryService.getSummaryBehaviour(
+        DiscoveryCombinedVolTotalsSummaryService.ALL_INSTANCES))
+        .thenReturn(summaryBehaviour);
+    assertThat(discoveryCombinedVolTotalsSummaryService.getCombinedCaseVolumetricTotalsSummaryFromSubmissionDetail(
+        submissionDetail))
         .extracting(
             DiscoveryCombinedCaseVolTotalsSummaryView::hasAssociatedCondensateRecoverableResources,
-            DiscoveryCombinedCaseVolTotalsSummaryView::probabilityDistributionSummaryViews
+            DiscoveryCombinedCaseVolTotalsSummaryView::tableView
         )
         .containsExactly(
             "",
-            List.of(
-                ProbabilityDistributionSummaryView.empty("Oil initially in place"),
-                ProbabilityDistributionSummaryView.empty("Oil recoverable resources"),
-                ProbabilityDistributionSummaryView.empty("Associated gas recoverable resources"),
-                ProbabilityDistributionSummaryView.empty("Gas initially in place"),
-                ProbabilityDistributionSummaryView.empty("Gas recoverable resources"),
-                ProbabilityDistributionSummaryView.empty("Associated condensate recoverable resources"),
-                ProbabilityDistributionSummaryView.empty("Oil equivalent recoverable resources")
+            new ProbabilityDistributionTableView(
+                summaryBehaviour,
+                List.of(
+                    ProbabilityDistributionSummaryView.empty("Oil initially in place"),
+                    ProbabilityDistributionSummaryView.empty("Oil recoverable resources"),
+                    ProbabilityDistributionSummaryView.empty("Associated gas recoverable resources"),
+                    ProbabilityDistributionSummaryView.empty("Gas initially in place"),
+                    ProbabilityDistributionSummaryView.empty("Gas recoverable resources"),
+                    ProbabilityDistributionSummaryView.empty("Associated condensate recoverable resources"),
+                    ProbabilityDistributionSummaryView.empty("Oil equivalent recoverable resources")
+                )
             )
         );
   }
@@ -59,71 +70,68 @@ class DiscoveryCombinedVolTotalsSummaryServiceTest {
   @Test
   void getCombinedCaseVolumetricTotalsSummaryFromSubmissionDetail_hasAssociatedCondensate() {
     var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+
     var combinedCaseVolumetricTotal = new CombinedCaseVolumetricTotal();
     combinedCaseVolumetricTotal.setSubmissionDetail(submissionDetail);
     combinedCaseVolumetricTotal.setHasAssociatedCondensateRecoverableResources(true);
-    when(discoveryCombinedCaseVolTotalsService.getCombinedCaseVolumetricTotal(submissionDetail)).thenReturn(Optional.of(
-        combinedCaseVolumetricTotal
-    ));
-    var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
-    listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY);
-    listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY);
-    listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
-    listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY);
-    listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
-    listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
-    listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
-    var probabilityDistributionSummaryView1 = ProbabilityDistributionSummaryView.empty("test1");
-    var probabilityDistributionSummaryView2 = ProbabilityDistributionSummaryView.empty("test2");
-    var probabilityDistributionSummaryViews = List.of(probabilityDistributionSummaryView1, probabilityDistributionSummaryView2);
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-        listOfInstances,
-        submissionDetail,
-        null
-    )).thenReturn(probabilityDistributionSummaryViews);
-    assertThat(discoveryCombinedVolTotalsSummaryService.getCombinedCaseVolumetricTotalsSummaryFromSubmissionDetail(submissionDetail))
+
+    var tableView = ProbabilityDistributionTableView.empty();
+
+    when(discoveryCombinedCaseVolTotalsService.getCombinedCaseVolumetricTotal(submissionDetail))
+        .thenReturn(Optional.of(combinedCaseVolumetricTotal));
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        DiscoveryCombinedVolTotalsSummaryService.ALL_INSTANCES, submissionDetail, null))
+        .thenReturn(tableView);
+
+    assertThat(discoveryCombinedVolTotalsSummaryService.getCombinedCaseVolumetricTotalsSummaryFromSubmissionDetail(
+        submissionDetail))
         .extracting(
             DiscoveryCombinedCaseVolTotalsSummaryView::hasAssociatedCondensateRecoverableResources,
-            DiscoveryCombinedCaseVolTotalsSummaryView::probabilityDistributionSummaryViews
+            DiscoveryCombinedCaseVolTotalsSummaryView::tableView
         )
         .containsExactly(
             BooleanUtil.yesNoFromBoolean(combinedCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources()),
-            probabilityDistributionSummaryViews
+            tableView
         );
   }
 
   @Test
   void getCombinedCaseVolumetricTotalsSummaryFromSubmissionDetail_doesntHaveAssociatedCondensate() {
     var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+
     var combinedCaseVolumetricTotal = new CombinedCaseVolumetricTotal();
     combinedCaseVolumetricTotal.setSubmissionDetail(submissionDetail);
     combinedCaseVolumetricTotal.setHasAssociatedCondensateRecoverableResources(false);
+
     when(discoveryCombinedCaseVolTotalsService.getCombinedCaseVolumetricTotal(submissionDetail)).thenReturn(Optional.of(
         combinedCaseVolumetricTotal
     ));
+
     var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
     listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY);
-    listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
+    listOfInstances.add(
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
-    listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
-    var probabilityDistributionSummaryView1 = ProbabilityDistributionSummaryView.empty("test1");
-    var probabilityDistributionSummaryView2 = ProbabilityDistributionSummaryView.empty("test2");
-    var probabilityDistributionSummaryViews = List.of(probabilityDistributionSummaryView1, probabilityDistributionSummaryView2);
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-        listOfInstances,
-        submissionDetail,
-        null
-    )).thenReturn(probabilityDistributionSummaryViews);
-    assertThat(discoveryCombinedVolTotalsSummaryService.getCombinedCaseVolumetricTotalsSummaryFromSubmissionDetail(submissionDetail))
+    listOfInstances.add(
+        ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
+
+    var tableView = ProbabilityDistributionTableView.empty();
+
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances, submissionDetail, null))
+        .thenReturn(tableView);
+
+    assertThat(discoveryCombinedVolTotalsSummaryService.getCombinedCaseVolumetricTotalsSummaryFromSubmissionDetail(
+        submissionDetail))
         .extracting(
             DiscoveryCombinedCaseVolTotalsSummaryView::hasAssociatedCondensateRecoverableResources,
-            DiscoveryCombinedCaseVolTotalsSummaryView::probabilityDistributionSummaryViews
+            DiscoveryCombinedCaseVolTotalsSummaryView::tableView
         )
         .containsExactly(
             BooleanUtil.yesNoFromBoolean(combinedCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources()),
-            probabilityDistributionSummaryViews
+            tableView
         );
   }
 }

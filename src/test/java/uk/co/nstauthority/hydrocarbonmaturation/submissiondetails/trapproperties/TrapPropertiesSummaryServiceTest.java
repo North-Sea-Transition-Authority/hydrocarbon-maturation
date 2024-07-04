@@ -16,19 +16,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.fivium.fileuploadlibrary.core.FileService;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
 
 @ExtendWith(MockitoExtension.class)
 class TrapPropertiesSummaryServiceTest {
@@ -49,15 +48,20 @@ class TrapPropertiesSummaryServiceTest {
 
   @Test
   void getTrapPropertiesSummaryFromSubmissionDetail_whenNoTrapProperty() {
-    var emptySummary = ProbabilityDistributionSummaryView.empty("empty");
+    var tableView = ProbabilityDistributionTableView.empty();
 
     when(trapPropertiesPersistenceService.getTrapProperty(submissionDetail))
         .thenReturn(Optional.empty());
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail)))
-        .thenReturn(emptySummary);
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
+            any(),
+            eq(submissionDetail),
+            eq(null)
+        ))
+        .thenReturn(tableView);
 
-    var trapPropertiesSummaryView = trapPropertiesSummaryService.getTrapPropertiesSummaryFromSubmissionDetail(submissionDetail);
+    var trapPropertiesSummaryView = trapPropertiesSummaryService.getTrapPropertiesSummaryFromSubmissionDetail(
+        submissionDetail);
 
     assertThat(trapPropertiesSummaryView)
         .extracting(
@@ -71,7 +75,7 @@ class TrapPropertiesSummaryServiceTest {
             TrapPropertiesSummaryView::longitudeMinutes,
             TrapPropertiesSummaryView::longitudeSeconds,
             TrapPropertiesSummaryView::longitudeHemisphere,
-            TrapPropertiesSummaryView::probabilityDistributionSummaryViews,
+            TrapPropertiesSummaryView::tableView,
             TrapPropertiesSummaryView::prospectDepthMap,
             TrapPropertiesSummaryView::datum,
             TrapPropertiesSummaryView::quadAndBlockCentreOfInterest)
@@ -86,10 +90,7 @@ class TrapPropertiesSummaryServiceTest {
             "",
             "",
             "",
-            List.of(
-                emptySummary,
-                emptySummary,
-                emptySummary),
+            tableView,
             Collections.emptyMap(),
             "",
             ""
@@ -98,10 +99,7 @@ class TrapPropertiesSummaryServiceTest {
 
   @Test
   void getTrapPropertiesSummaryFromSubmissionDetail_whenProspect_whenTrapPropertyPresent() {
-    var testSummary = new ProbabilityDistributionSummaryView(
-        "test", "type", "20",
-        "20", "20", "20", "20", "20", "20", "20", "20", "20",
-        "20", "", "20", "unit", "5", "5", "5", "comments");
+    var tableView = ProbabilityDistributionTableView.empty();
 
     var trapProperty = new TrapProperty();
     trapProperty.setTrapDescription("desc");
@@ -127,76 +125,64 @@ class TrapPropertiesSummaryServiceTest {
     when(trapPropertiesPersistenceService.getTrapProperty(submissionDetail))
         .thenReturn(Optional.of(trapProperty));
     when(probabilityDistributionSummaryService
-             .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail)))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT,
-            submissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT,
-            submissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT,
-            submissionDetail))
-        .thenReturn(testSummary);
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
+            List.of(
+                ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_PROSPECT,
+                ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_PROSPECT,
+                ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT
+            ),
+            submissionDetail,
+            null
+        ))
+        .thenReturn(tableView);
     when(supportingDocumentService.getUploadedFiles(
         submissionDetail,
         FileDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(List.of(uploadedFile));
 
     var fileMap = new HashMap<UploadedFile, String>();
     fileMap.put(uploadedFile, ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
-            .download(submissionDetail.getId(), fileUploadForm.getUploadedFileId())));
+        .download(submissionDetail.getId(), fileUploadForm.getUploadedFileId())));
 
-    var trapPropertiesSummaryView = trapPropertiesSummaryService.getTrapPropertiesSummaryFromSubmissionDetail(submissionDetail);
+    var trapPropertiesSummaryView = trapPropertiesSummaryService.getTrapPropertiesSummaryFromSubmissionDetail(
+        submissionDetail);
 
     assertThat(trapPropertiesSummaryView)
-          .extracting(
-              TrapPropertiesSummaryView::trapDescription,
-              TrapPropertiesSummaryView::trapType,
-              TrapPropertiesSummaryView::otherTrapType,
-              TrapPropertiesSummaryView::latitudeDegrees,
-              TrapPropertiesSummaryView::latitudeMinutes,
-              TrapPropertiesSummaryView::latitudeSeconds,
-              TrapPropertiesSummaryView::longitudeDegrees,
-              TrapPropertiesSummaryView::longitudeMinutes,
-              TrapPropertiesSummaryView::longitudeSeconds,
-              TrapPropertiesSummaryView::longitudeHemisphere,
-              TrapPropertiesSummaryView::probabilityDistributionSummaryViews,
-              TrapPropertiesSummaryView::prospectDepthMap,
-              TrapPropertiesSummaryView::datum,
-              TrapPropertiesSummaryView::quadAndBlockCentreOfInterest)
-          .containsExactly(
-              "desc",
-              "Other",
-              "other trap type",
-              "1°",
-              "1'",
-              "1\"",
-              "10°",
-              "10'",
-              "10\"",
-              "East",
-              List.of(
-                  testSummary,
-                  testSummary,
-                  testSummary),
-              fileMap,
-              ReservoirDatum.ED50.getDisplayName(),
-              "10/15"
-          );
+        .extracting(
+            TrapPropertiesSummaryView::trapDescription,
+            TrapPropertiesSummaryView::trapType,
+            TrapPropertiesSummaryView::otherTrapType,
+            TrapPropertiesSummaryView::latitudeDegrees,
+            TrapPropertiesSummaryView::latitudeMinutes,
+            TrapPropertiesSummaryView::latitudeSeconds,
+            TrapPropertiesSummaryView::longitudeDegrees,
+            TrapPropertiesSummaryView::longitudeMinutes,
+            TrapPropertiesSummaryView::longitudeSeconds,
+            TrapPropertiesSummaryView::longitudeHemisphere,
+            TrapPropertiesSummaryView::tableView,
+            TrapPropertiesSummaryView::prospectDepthMap,
+            TrapPropertiesSummaryView::datum,
+            TrapPropertiesSummaryView::quadAndBlockCentreOfInterest)
+        .containsExactly(
+            "desc",
+            "Other",
+            "other trap type",
+            "1°",
+            "1'",
+            "1\"",
+            "10°",
+            "10'",
+            "10\"",
+            "East",
+            tableView,
+            fileMap,
+            ReservoirDatum.ED50.getDisplayName(),
+            "10/15"
+        );
   }
 
   @Test
   void getTrapPropertiesSummaryFromSubmissionDetail_whenDiscovery_whenTrapPropertyPresent() {
-    var testSummary = new ProbabilityDistributionSummaryView(
-        "test", "type", "20",
-        "20", "20", "20", "20", "20", "20", "20", "20", "20",
-        "20", "", "20", "unit", "5", "5", "5", "comments");
+    var tableView = ProbabilityDistributionTableView.empty();
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
 
 
@@ -224,23 +210,16 @@ class TrapPropertiesSummaryServiceTest {
     when(trapPropertiesPersistenceService.getTrapProperty(discoverySubmissionDetail))
         .thenReturn(Optional.of(trapProperty));
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(discoverySubmissionDetail)))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_DISCOVERY,
-            discoverySubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_DISCOVERY,
-            discoverySubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_DISCOVERY,
-            discoverySubmissionDetail))
-        .thenReturn(testSummary);
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
+            List.of(
+                ProbabilityDistributionFieldInstance.DEPTH_TO_CREST_DISCOVERY,
+                ProbabilityDistributionFieldInstance.DEPTH_TO_SPILL_POINT_DISCOVERY,
+                ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_DISCOVERY
+            ),
+            discoverySubmissionDetail,
+            null
+        ))
+        .thenReturn(tableView);
     when(supportingDocumentService.getUploadedFiles(
         discoverySubmissionDetail,
         FileDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(List.of(uploadedFile));
@@ -249,7 +228,8 @@ class TrapPropertiesSummaryServiceTest {
     fileMap.put(uploadedFile, ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
         .download(discoverySubmissionDetail.getId(), fileUploadForm.getUploadedFileId())));
 
-    var trapPropertiesSummaryView = trapPropertiesSummaryService.getTrapPropertiesSummaryFromSubmissionDetail(discoverySubmissionDetail);
+    var trapPropertiesSummaryView = trapPropertiesSummaryService.getTrapPropertiesSummaryFromSubmissionDetail(
+        discoverySubmissionDetail);
 
     assertThat(trapPropertiesSummaryView)
         .extracting(
@@ -263,7 +243,7 @@ class TrapPropertiesSummaryServiceTest {
             TrapPropertiesSummaryView::longitudeMinutes,
             TrapPropertiesSummaryView::longitudeSeconds,
             TrapPropertiesSummaryView::longitudeHemisphere,
-            TrapPropertiesSummaryView::probabilityDistributionSummaryViews,
+            TrapPropertiesSummaryView::tableView,
             TrapPropertiesSummaryView::prospectDepthMap,
             TrapPropertiesSummaryView::datum,
             TrapPropertiesSummaryView::quadAndBlockCentreOfInterest)
@@ -278,10 +258,7 @@ class TrapPropertiesSummaryServiceTest {
             "10'",
             "10\"",
             "East",
-            List.of(
-                testSummary,
-                testSummary,
-                testSummary),
+            tableView,
             fileMap,
             ReservoirDatum.ED50.getDisplayName(),
             "10/15"
