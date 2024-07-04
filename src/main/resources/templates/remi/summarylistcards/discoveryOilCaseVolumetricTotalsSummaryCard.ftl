@@ -8,6 +8,6 @@
         <@probabilityDistribution.probabilityDistributionTable
         withDistributionType=false
         withContingentUncertaintyCategories=true
-        probabilityDistributions=oilCaseVolumetricTotals.probabilityDistributionSummaryViews()/>
+        tableView=oilCaseVolumetricTotals.tableView()/>
     </@fdsSummaryList.summaryListCard>
 </#macro>

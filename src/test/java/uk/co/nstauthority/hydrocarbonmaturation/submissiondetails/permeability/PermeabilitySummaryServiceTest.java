@@ -18,7 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityOfExceedanceUnits;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -227,12 +227,13 @@ class PermeabilitySummaryServiceTest {
         ProbabilityDistributionFieldInstance.FIELD_HORIZONTAL_PERMEABILITY,
         ProbabilityDistributionFieldInstance.FIELD_VERTICAL_PERMEABILITY
     );
-    var summaryViews = List.of(ProbabilityDistributionSummaryView.empty("Test"));
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+
+    var tableView = ProbabilityDistributionTableView.empty();
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         listOfInstances,
         reservoirSubmissionDetail.getSubmissionDetail(),
         reservoirSubmissionDetail
-    )).thenReturn(summaryViews);
+    )).thenReturn(tableView);
 
     var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail);
 
@@ -246,9 +247,8 @@ class PermeabilitySummaryServiceTest {
     var propertySummaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
     var propertySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, propertySummaryCard);
 
-    var fieldProbabilitySummaryCard = SummaryCard.minMaxMostLikelySummaryCard(summaryViews);
-    var fieldProbabilitySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY,
-        fieldProbabilitySummaryCard);
+    var fieldProbabilitySummaryCard = SummaryCard.probabilitySummaryCard(tableView);
+    var fieldProbabilitySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, fieldProbabilitySummaryCard);
     assertThat(summarySection.get().summaryItems()).containsExactly(propertySummaryItem, fieldProbabilitySummaryItem);
   }
 
@@ -339,12 +339,12 @@ class PermeabilitySummaryServiceTest {
         ProbabilityDistributionFieldInstance.FIELD_HORIZONTAL_PERMEABILITY,
         ProbabilityDistributionFieldInstance.FIELD_VERTICAL_PERMEABILITY
     );
-    var summaryViews = List.of(ProbabilityDistributionSummaryView.empty("Test"));
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    var tableView = ProbabilityDistributionTableView.empty();
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         listOfInstances,
         reservoirSubmissionDetail.getSubmissionDetail(),
         reservoirSubmissionDetail
-    )).thenReturn(summaryViews);
+    )).thenReturn(tableView);
 
     var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail);
 
@@ -359,9 +359,8 @@ class PermeabilitySummaryServiceTest {
     var propertySummaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
     var propertySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, propertySummaryCard);
 
-    var fieldProbabilitySummaryCard = SummaryCard.minMaxMostLikelySummaryCard(summaryViews);
-    var fieldProbabilitySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY,
-        fieldProbabilitySummaryCard);
+    var fieldProbabilitySummaryCard = SummaryCard.probabilitySummaryCard(tableView);
+    var fieldProbabilitySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, fieldProbabilitySummaryCard);
     assertThat(summarySection.get().summaryItems()).containsExactly(propertySummaryItem, fieldProbabilitySummaryItem);
   }
 
@@ -419,12 +418,12 @@ class PermeabilitySummaryServiceTest {
         ProbabilityDistributionFieldInstance.FIELD_HORIZONTAL_PERMEABILITY,
         ProbabilityDistributionFieldInstance.FIELD_VERTICAL_PERMEABILITY
     );
-    var summaryViews = List.of(ProbabilityDistributionSummaryView.empty("Test"));
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    var tableView = ProbabilityDistributionTableView.empty();
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         listOfInstances,
         reservoirSubmissionDetail.getSubmissionDetail(),
         reservoirSubmissionDetail
-    )).thenReturn(summaryViews);
+    )).thenReturn(tableView);
 
     var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail);
 
@@ -438,9 +437,8 @@ class PermeabilitySummaryServiceTest {
     var propertySummaryCard = SummaryCard.simpleSummaryCard(summaryDataView);
     var propertySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, propertySummaryCard);
 
-    var fieldProbabilitySummaryCard = SummaryCard.minMaxMostLikelySummaryCard(summaryViews);
-    var fieldProbabilitySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY,
-        fieldProbabilitySummaryCard);
+    var fieldProbabilitySummaryCard = SummaryCard.probabilitySummaryCard(tableView);
+    var fieldProbabilitySummaryItem = SummaryItem.withCard(PermeabilitySummaryService.PERMEABILITY, fieldProbabilitySummaryCard);
     assertThat(summarySection.get().summaryItems()).containsExactly(propertySummaryItem, fieldProbabilitySummaryItem);
   }
 }

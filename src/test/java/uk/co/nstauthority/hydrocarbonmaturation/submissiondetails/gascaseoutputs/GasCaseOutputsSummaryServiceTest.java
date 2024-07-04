@@ -19,6 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.SummaryBehaviour;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -41,8 +43,24 @@ class GasCaseOutputSummaryServiceTest {
   @InjectMocks
   private GasCaseOutputsSummaryService gasCaseOutputsSummaryService;
 
+  static final List<ProbabilityDistributionFieldInstance> PROSPECT_INSTANCES = List.of(
+      ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT,
+      ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_PROSPECT,
+      ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT,
+      ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT
+  );
+
+  static final List<ProbabilityDistributionFieldInstance> DISCOVERY_INSTANCES = List.of(
+      ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY,
+      ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
+      ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
+      ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+  );
+
+
   private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
+  private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+      submissionDetail);
   private final GasCaseOutput gasCaseOutput = new GasCaseOutput();
 
   @BeforeEach
@@ -52,154 +70,113 @@ class GasCaseOutputSummaryServiceTest {
 
   @Test
   void getGasCaseOutputsSummaryFromReservoirSubmissionDetail_whenPresent_fullSummary() {
-    var emptySummary = ProbabilityDistributionSummaryView.empty("empty");
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
 
     when(gasCaseOutputsPersistenceService.getGasCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(gasCaseOutput));
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(any(), eq(submissionDetail), eq(reservoirSubmissionDetail)))
-        .thenReturn(emptySummary);
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(any(), eq(submissionDetail),
+            eq(reservoirSubmissionDetail)))
+        .thenReturn(probabilityTableView);
 
     gasCaseOutput.setHasAssociatedCondensateRecoverableResources(true);
 
-    var view = gasCaseOutputsSummaryService.getGasCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
+    var view = gasCaseOutputsSummaryService.getGasCaseOutputsSummaryFromReservoirSubmissionDetail(
+        reservoirSubmissionDetail);
     assertThat(view)
         .extracting(
             GasCaseOutputsSummaryView::hasAssociatedCondensateRecoverableResources,
-            GasCaseOutputsSummaryView::probabilityDistributionSummaryViews)
+            GasCaseOutputsSummaryView::tableView)
         .containsExactly(
             "Yes",
-            List.of(
-                emptySummary,
-                emptySummary,
-                emptySummary,
-                emptySummary)
+            probabilityTableView
         );
   }
 
   @Test
   void getGasCaseOutputsSummaryFromReservoirSubmissionDetail_whenPresent_notEmptySummary_whenProspect() {
-    var testSummary = new ProbabilityDistributionSummaryView(
-        "test", "type", "20",
-        "20", "20", "20", "20", "20", "20", "20", "20", "20",
-        "20", "20", "10", "unit", "5",
-        "5", "5", "comments");
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
 
     when(gasCaseOutputsPersistenceService.getGasCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(gasCaseOutput));
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT,
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
+            PROSPECT_INSTANCES,
             submissionDetail,
             reservoirSubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_PROSPECT,
-            submissionDetail,
-            reservoirSubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT,
-            submissionDetail,
-            reservoirSubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT,
-            submissionDetail,
-            reservoirSubmissionDetail))
-        .thenReturn(testSummary);
+        .thenReturn(probabilityTableView);
 
     gasCaseOutput.setHasAssociatedCondensateRecoverableResources(true);
 
-    var view = gasCaseOutputsSummaryService.getGasCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
+    var view = gasCaseOutputsSummaryService.getGasCaseOutputsSummaryFromReservoirSubmissionDetail(
+        reservoirSubmissionDetail);
     assertThat(view)
         .extracting(
             GasCaseOutputsSummaryView::hasAssociatedCondensateRecoverableResources,
-            GasCaseOutputsSummaryView::probabilityDistributionSummaryViews)
+            GasCaseOutputsSummaryView::tableView)
         .containsExactly(
             "Yes",
-            List.of(
-                testSummary,
-                testSummary,
-                testSummary,
-                testSummary)
+            probabilityTableView
         );
   }
 
   @Test
   void getGasCaseOutputsSummaryFromReservoirSubmissionDetail_whenPresent_notEmptySummary_whenDiscovery() {
-    var testSummary = new ProbabilityDistributionSummaryView(
-        "test", "type", "20",
-        "20", "20", "20", "20", "20", "20", "20", "20", "20",
-        "20", "20", "10", "unit", "5",
-        "5", "5", "comments");
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+        discoverySubmissionDetail);
     gasCaseOutput.setReservoirSubmissionDetail(discoveryReservoirSubmissionDetail);
+
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
 
     when(gasCaseOutputsPersistenceService.getGasCaseOutput(discoveryReservoirSubmissionDetail))
         .thenReturn(Optional.of(gasCaseOutput));
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY,
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
+            DISCOVERY_INSTANCES,
             discoverySubmissionDetail,
             discoveryReservoirSubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
-            discoverySubmissionDetail,
-            discoveryReservoirSubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
-            discoverySubmissionDetail,
-            discoveryReservoirSubmissionDetail))
-        .thenReturn(testSummary);
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY,
-            discoverySubmissionDetail,
-            discoveryReservoirSubmissionDetail))
-        .thenReturn(testSummary);
+        .thenReturn(probabilityTableView);
 
     gasCaseOutput.setHasAssociatedCondensateRecoverableResources(true);
 
-    var view = gasCaseOutputsSummaryService.getGasCaseOutputsSummaryFromReservoirSubmissionDetail(discoveryReservoirSubmissionDetail);
+    var view = gasCaseOutputsSummaryService.getGasCaseOutputsSummaryFromReservoirSubmissionDetail(
+        discoveryReservoirSubmissionDetail);
     assertThat(view)
         .extracting(
             GasCaseOutputsSummaryView::hasAssociatedCondensateRecoverableResources,
-            GasCaseOutputsSummaryView::probabilityDistributionSummaryViews)
+            GasCaseOutputsSummaryView::tableView)
         .containsExactly(
             "Yes",
-            List.of(
-                testSummary,
-                testSummary,
-                testSummary,
-                testSummary)
+            probabilityTableView
         );
   }
 
   @Test
   void getGasCaseOutputsSummaryFromReservoirSubmissionDetail_whenNotPresent_notEmptySummary() {
+    var summaryBehaviour = new SummaryBehaviour();
+
     when(gasCaseOutputsPersistenceService.getGasCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
+    when(probabilityDistributionSummaryService.getSummaryBehaviour(PROSPECT_INSTANCES))
+        .thenReturn(summaryBehaviour);
 
-    var view = gasCaseOutputsSummaryService.getGasCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
+    var view = gasCaseOutputsSummaryService.getGasCaseOutputsSummaryFromReservoirSubmissionDetail(
+        reservoirSubmissionDetail);
     assertThat(view)
         .extracting(
             GasCaseOutputsSummaryView::hasAssociatedCondensateRecoverableResources,
-            GasCaseOutputsSummaryView::probabilityDistributionSummaryViews)
+            GasCaseOutputsSummaryView::tableView)
         .containsExactly(
             "",
-            List.of(ProbabilityDistributionSummaryView.empty("Gas initially in place"),
-                ProbabilityDistributionSummaryView.empty("Gas recoverable resources"),
-                ProbabilityDistributionSummaryView.empty("Associated condensate recoverable resources"),
-                ProbabilityDistributionSummaryView.empty("Oil equivalent recoverable resources"))
+            new ProbabilityDistributionTableView(
+                summaryBehaviour,
+                List.of(ProbabilityDistributionSummaryView.empty("Gas initially in place"),
+                    ProbabilityDistributionSummaryView.empty("Gas recoverable resources"),
+                    ProbabilityDistributionSummaryView.empty("Associated condensate recoverable resources"),
+                    ProbabilityDistributionSummaryView.empty("Oil equivalent recoverable resources")
+                )
+            )
         );
   }
 
@@ -230,7 +207,6 @@ class GasCaseOutputSummaryServiceTest {
     when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
         .thenReturn(true);
 
-    var gasCaseOutput = new GasCaseOutput();
     gasCaseOutput.setHasAssociatedCondensateRecoverableResources(true);
     when(gasCaseOutputsPersistenceService.getGasCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(gasCaseOutput));
@@ -247,21 +223,14 @@ class GasCaseOutputSummaryServiceTest {
             ""
         );
 
-    verify(probabilityDistributionSummaryService).getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    verify(probabilityDistributionSummaryService).getProbabilityDistributionTableViewFromInstancesAndSubmission(
         captor.capture(), eq(submissionDetail), eq(reservoirSubmissionDetail)
     );
     verifyNoMoreInteractions(probabilityDistributionSummaryService);
 
-    var expectedProbabilityInstances = List.of(
-        ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY,
-        ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
-        ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
-        ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
-    );
-
     assertThat(captor.getValue())
         .usingRecursiveComparison()
-        .isEqualTo(expectedProbabilityInstances);
+        .isEqualTo(DISCOVERY_INSTANCES);
   }
 
   @Test
@@ -272,7 +241,6 @@ class GasCaseOutputSummaryServiceTest {
     when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
         .thenReturn(true);
 
-    var gasCaseOutput = new GasCaseOutput();
     gasCaseOutput.setHasAssociatedCondensateRecoverableResources(false);
     when(gasCaseOutputsPersistenceService.getGasCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(gasCaseOutput));
@@ -289,7 +257,7 @@ class GasCaseOutputSummaryServiceTest {
             ""
         );
 
-    verify(probabilityDistributionSummaryService).getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    verify(probabilityDistributionSummaryService).getProbabilityDistributionTableViewFromInstancesAndSubmission(
         captor.capture(), eq(submissionDetail), eq(reservoirSubmissionDetail)
     );
     verifyNoMoreInteractions(probabilityDistributionSummaryService);
@@ -328,7 +296,7 @@ class GasCaseOutputSummaryServiceTest {
             ""
         );
 
-    verify(probabilityDistributionSummaryService).getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    verify(probabilityDistributionSummaryService).getProbabilityDistributionTableViewFromInstancesAndSubmission(
         captor.capture(), eq(submissionDetail), eq(reservoirSubmissionDetail)
     );
     verifyNoMoreInteractions(probabilityDistributionSummaryService);

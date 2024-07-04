@@ -34,7 +34,8 @@
     </#if>
     </@fdsSummaryList.summaryListCard>
     <@fdsSummaryList.summaryListCard headingText="Reservoir property distributions" summaryListId="reservoirpropertydistributions">
-      <@probabilityDistribution.probabilityDistributionTable probabilityDistributions=reservoirPropertiesValues.probabilityDistributionSummaryViews()/>
+      <@probabilityDistribution.probabilityDistributionTable
+      tableView=reservoirPropertiesValues.tableView()/>
     </@fdsSummaryList.summaryListCard>
     <#if (reservoirPropertiesValues.submissionType() == "CREATE_DISCOVERY"
     || reservoirPropertiesValues.submissionType() == "UPDATE_DISCOVERY"
@@ -42,8 +43,9 @@
     || reservoirPropertiesValues.submissionType() == "RELINQUISHMENT_DISCOVERY")
     && reservoirPropertiesValues.listOfDepthToContactDistributions()?has_content>
       <@fdsSummaryList.summaryListCard headingText="Depth to hydrocarbon contact" summaryListId="reservoirpropertydepthtohydrocarbondistributions">
-        <@probabilityDistribution.minMaxMostLikelyTable
-          probabilityDistributions=reservoirPropertiesValues.listOfDepthToContactDistributions()/>
+        <@probabilityDistribution.probabilityDistributionTable
+          withDistributionType=false
+          tableView=reservoirPropertiesValues.depthToContactDistributions()/>
       </@fdsSummaryList.summaryListCard>
     </#if>
 </#macro>

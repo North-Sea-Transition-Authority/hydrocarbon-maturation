@@ -14,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -135,28 +135,27 @@ class FdpaPromotedVolumesSummaryServiceTest {
         ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RESERVES_PROMOTED_VOLUMES_FDPA
     );
 
-    private static final List<ProbabilityDistributionSummaryView> PROBABILITY_DISTRIBUTION_SUMMARY_VIEWS = List.of(
-        ProbabilityDistributionSummaryView.empty("contents doesn't matter")
-    );
+    private static final ProbabilityDistributionTableView PROBABILITY_DISTRIBUTION_TABLE_VIEW
+        = ProbabilityDistributionTableView.empty();
 
     @Test
     void whenOilCase_includesOilInstance() {
       when(reservoirHydrocarbonCaseService.isOilCaseOnly(submissionDetail))
           .thenReturn(true);
-      when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+      when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
           ALL_INSTANCES, submissionDetail, null))
-          .thenReturn(PROBABILITY_DISTRIBUTION_SUMMARY_VIEWS);
+          .thenReturn(PROBABILITY_DISTRIBUTION_TABLE_VIEW);
 
       assertThat(summaryService.getPromotedResourcesVolumetricsCard(submissionDetail))
           .extracting(
               SummaryCard::displayName,
               SummaryCard::summaryCardType,
-              card -> (List<ProbabilityDistributionSummaryView>) card.summaryData()
+              SummaryCard::summaryData
           )
           .containsExactly(
               FdpaPromotedVolumesSummaryService.VOLUMETRICS_TITLE,
-              SummaryCardType.ONE_P_TO_THREE_P_DISTRIBUTION_SUMMARY,
-              PROBABILITY_DISTRIBUTION_SUMMARY_VIEWS
+              SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
+              PROBABILITY_DISTRIBUTION_TABLE_VIEW
           );
     }
 
@@ -164,20 +163,20 @@ class FdpaPromotedVolumesSummaryServiceTest {
     void whenNotOilCase_excludesOilInstance() {
       when(reservoirHydrocarbonCaseService.isOilCaseOnly(submissionDetail))
           .thenReturn(false);
-      when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+      when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
           INSTANCES_EXCLUDING_OIL, submissionDetail, null))
-          .thenReturn(PROBABILITY_DISTRIBUTION_SUMMARY_VIEWS);
+          .thenReturn(PROBABILITY_DISTRIBUTION_TABLE_VIEW);
 
       assertThat(summaryService.getPromotedResourcesVolumetricsCard(submissionDetail))
           .extracting(
               SummaryCard::displayName,
               SummaryCard::summaryCardType,
-              card -> (List<ProbabilityDistributionSummaryView>) card.summaryData()
+              SummaryCard::summaryData
           )
           .containsExactly(
               FdpaPromotedVolumesSummaryService.VOLUMETRICS_TITLE,
-              SummaryCardType.ONE_P_TO_THREE_P_DISTRIBUTION_SUMMARY,
-              PROBABILITY_DISTRIBUTION_SUMMARY_VIEWS
+              SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
+              PROBABILITY_DISTRIBUTION_TABLE_VIEW
           );
     }
   }

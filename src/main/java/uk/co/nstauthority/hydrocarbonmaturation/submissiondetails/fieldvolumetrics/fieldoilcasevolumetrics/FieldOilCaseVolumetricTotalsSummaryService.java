@@ -70,13 +70,13 @@ public class FieldOilCaseVolumetricTotalsSummaryService implements SummarySectio
 
   private SummaryCard getOtherSummary(SubmissionDetail submissionDetail) {
     var listOfInstances = List.of(ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD);
-    var listOfSummaryViews = probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    var tableView = probabilityDistributionSummaryService
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             listOfInstances,
             submissionDetail,
             null
         );
-    return SummaryCard.probabilitySummaryCard(listOfSummaryViews);
+    return SummaryCard.probabilitySummaryCard(tableView);
   }
 
   private SummaryItem getResourcesAndReservesSummary(SubmissionDetail submissionDetail) {
@@ -105,11 +105,11 @@ public class FieldOilCaseVolumetricTotalsSummaryService implements SummarySectio
     var listOfCards = new ArrayList<SummaryCard>();
     listOfCards.add(getOtherSummary(submissionDetail));
 
-    var listOfSummaryViews =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    var tableView =
+        probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
             listOfInstances, submissionDetail, null
         );
-    listOfCards.add(SummaryCard.fieldProbabilitySummaryCard(listOfSummaryViews));
+    listOfCards.add(SummaryCard.probabilitySummaryCard(tableView));
 
     getInformationCorrectOptionalView(submissionDetail).ifPresent(
         informationCorrectView -> listOfCards.add(simpleSummaryCard(informationCorrectView))

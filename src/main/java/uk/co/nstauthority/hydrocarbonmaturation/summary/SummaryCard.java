@@ -1,7 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.summary;
 
 import java.util.List;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 
 public record SummaryCard(
     String displayName,
@@ -60,29 +60,19 @@ public record SummaryCard(
     return tableSummaryCardWithHeading(null, summaryData);
   }
 
-  public static SummaryCard probabilitySummaryCardWithHeading(
-      String displayName,
-      List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews) {
+  public static SummaryCard probabilitySummaryCardWithHeading(String displayName,
+                                                              ProbabilityDistributionTableView tableView) {
     return new SummaryCard(
         displayName,
         SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
-        probabilityDistributionSummaryViews
+        tableView
     );
   }
 
-  public static SummaryCard probabilitySummaryCard(
-      List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews) {
-    return probabilitySummaryCardWithHeading(null, probabilityDistributionSummaryViews);
+  public static SummaryCard probabilitySummaryCard(ProbabilityDistributionTableView tableView) {
+    return probabilitySummaryCardWithHeading(null, tableView);
   }
 
-  public static SummaryCard fieldProbabilitySummaryCard(
-      List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews) {
-    return new SummaryCard(
-        null,
-        SummaryCardType.FIELD_PROBABILITY_DISTRIBUTION_SUMMARY,
-        probabilityDistributionSummaryViews
-    );
-  }
 
   public static SummaryCard tableFixedWidthSummaryCardWithHeading(String displayName,
                                                                   SummaryTableView summaryData) {
@@ -90,15 +80,6 @@ public record SummaryCard(
         displayName,
         SummaryCardType.TABLE_FIXED_WIDTH_SUMMARY,
         summaryData
-    );
-  }
-
-  public static SummaryCard minMaxMostLikelySummaryCard(
-      List<ProbabilityDistributionSummaryView> probabilityDistributionSummaryViews) {
-    return new SummaryCard(
-        null,
-        SummaryCardType.MIN_MAX_MOST_LIKELY_SUMMARY,
-        probabilityDistributionSummaryViews
     );
   }
 

@@ -152,7 +152,7 @@ class ProspectSummaryServiceTest {
     prospectSummaryService.getGasCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(reservoirSubmissionDetail);
 
     verify(gasCaseVolumetricParametersSummaryService, times(1))
-        .getGasCaseVolumetricsSummaryView(reservoirSubmissionDetail);
+        .getGasCaseVolumetricsTableView(reservoirSubmissionDetail);
   }
 
   @Test

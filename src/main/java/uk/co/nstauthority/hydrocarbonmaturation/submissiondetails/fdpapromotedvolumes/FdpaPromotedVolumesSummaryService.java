@@ -10,7 +10,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.ReservoirHydrocarbonCaseService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 
@@ -67,16 +66,11 @@ public class FdpaPromotedVolumesSummaryService {
         ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RESERVES_PROMOTED_VOLUMES_FDPA
     ));
 
-    var listOfSummaryViews =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
             listOfInstances, submissionDetail, null
         );
 
-    return new SummaryCard(
-        VOLUMETRICS_TITLE,
-        SummaryCardType.ONE_P_TO_THREE_P_DISTRIBUTION_SUMMARY,
-        listOfSummaryViews
-    );
+    return SummaryCard.probabilitySummaryCardWithHeading(VOLUMETRICS_TITLE, tableView);
   }
 
   private Boolean isOilCase(SubmissionDetail submissionDetail) {

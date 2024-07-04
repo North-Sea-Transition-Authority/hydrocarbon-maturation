@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -39,52 +38,52 @@ public class GasCaseOutputsSummaryService implements SummarySectionService<Reser
 
   public GasCaseOutputsSummaryView getGasCaseOutputsSummaryFromReservoirSubmissionDetail(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var instances = getInstances(reservoirSubmissionDetail);
+    var summaryBehaviour = probabilityDistributionSummaryService.getSummaryBehaviour(instances);
+
     var gasCaseOutput = gasCaseOutputsPersistenceService.getGasCaseOutput(reservoirSubmissionDetail);
+
     return gasCaseOutput.map(this::createSummaryViewFromGasCaseOutput)
-        .orElse(GasCaseOutputsSummaryView.empty());
+        .orElse(GasCaseOutputsSummaryView.empty(summaryBehaviour));
   }
 
   private GasCaseOutputsSummaryView createSummaryViewFromGasCaseOutput(GasCaseOutput gasCaseOutput) {
-    var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
     var reservoirSubmissionDetail = gasCaseOutput.getReservoirSubmissionDetail();
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var hasAssociatedGasRecoverableResources = BooleanUtil.yesNoFromBoolean(
         gasCaseOutput.getHasAssociatedCondensateRecoverableResources(), "");
 
-    var resourceType = submissionDetail.getSubmission().getResource().getType();
+    var listOfInstances = getInstances(reservoirSubmissionDetail);
+
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances,
+        submissionDetail,
+        reservoirSubmissionDetail
+    );
+    return new GasCaseOutputsSummaryView(hasAssociatedGasRecoverableResources, tableView);
+  }
+
+  private static List<ProbabilityDistributionFieldInstance> getInstances(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
+    var resourceType = reservoirSubmissionDetail.getSubmissionDetail().getSubmission().getResource().getType();
+
     if (resourceType == ResourceType.PROSPECT) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT);
-
       listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_PROSPECT);
-
-      if (gasCaseOutput.getHasAssociatedCondensateRecoverableResources() == null
-          || gasCaseOutput.getHasAssociatedCondensateRecoverableResources()) {
-        listOfInstances.add(
-            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT);
-      }
-
+      listOfInstances.add(
+          ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT);
       listOfInstances.add(
           ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT);
     } else if (resourceType == ResourceType.DISCOVERY) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY);
-
       listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
-
-      if (gasCaseOutput.getHasAssociatedCondensateRecoverableResources() == null
-          || gasCaseOutput.getHasAssociatedCondensateRecoverableResources()) {
-        listOfInstances.add(
-            ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
-      }
-
       listOfInstances.add(
-          ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
+          ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
+      listOfInstances.add(ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
     }
 
-    var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
-    listOfInstances.forEach(instance -> listOfSummaryViews.add(
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            instance, submissionDetail, reservoirSubmissionDetail)));
-    return new GasCaseOutputsSummaryView(hasAssociatedGasRecoverableResources, listOfSummaryViews);
+    return listOfInstances;
   }
 
   @Override
@@ -110,7 +109,7 @@ public class GasCaseOutputsSummaryService implements SummarySectionService<Reser
 
     gasCaseOutputsPersistenceService.getGasCaseOutput(reservoirSubmissionDetail)
         .ifPresent(gasCaseOutput -> {
-          if (BooleanUtils.isTrue(gasCaseOutput.getHasAssociatedCondensateRecoverableResources()))  {
+          if (BooleanUtils.isTrue(gasCaseOutput.getHasAssociatedCondensateRecoverableResources())) {
             listOfInstances.add(
                 ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
           }
@@ -118,11 +117,11 @@ public class GasCaseOutputsSummaryService implements SummarySectionService<Reser
 
     listOfInstances.add(ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
 
-    var listOfSummaryViews =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-            listOfInstances, submissionDetail, reservoirSubmissionDetail);
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances, submissionDetail, reservoirSubmissionDetail
+    );
 
-    return SummaryItem.withCard(GAS_VOLUMETRICS, SummaryCard.probabilitySummaryCard(listOfSummaryViews));
+    return SummaryItem.withCard(GAS_VOLUMETRICS, SummaryCard.probabilitySummaryCard(tableView));
 
   }
 }

@@ -16,7 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -87,13 +87,13 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
     when(reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails))
         .thenReturn(true);
 
-    var emptyProbabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             any(),
             eq(submissionDetail),
             eq(null)
-        )).thenReturn(List.of(emptyProbabilitySummaryView));
+        )).thenReturn(probabilityTableView);
 
     assertThat(fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail)).isPresent();
 
@@ -111,28 +111,26 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
     assertThat(card1)
         .extracting(
             SummaryCard::displayName,
-            SummaryCard::summaryCardType
+            SummaryCard::summaryCardType,
+            SummaryCard::summaryData
         ).containsExactly(
             null,
-            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY
+            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
+            probabilityTableView
         );
-    var card1Data = (List<ProbabilityDistributionSummaryView>) card1.summaryData();
-    assertThat(card1Data)
-        .containsOnly(emptyProbabilitySummaryView);
 
     // Resources and reserves card
     var card2 = summaryCards.get(1);
     assertThat(card2)
         .extracting(
             SummaryCard::displayName,
-            SummaryCard::summaryCardType
+            SummaryCard::summaryCardType,
+            SummaryCard::summaryData
         ).containsExactly(
             null,
-            SummaryCardType.FIELD_PROBABILITY_DISTRIBUTION_SUMMARY
+            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
+            probabilityTableView
         );
-    var card2Data = (List<ProbabilityDistributionSummaryView>) card2.summaryData();
-    assertThat(card2Data)
-        .containsOnly(emptyProbabilitySummaryView);
   }
 
   @Test
@@ -150,13 +148,13 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
     when(reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails))
         .thenReturn(true);
 
-    var emptyProbabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             any(),
             eq(submissionDetail),
             eq(null)
-        )).thenReturn(List.of(emptyProbabilitySummaryView));
+        )).thenReturn(probabilityTableView);
 
     assertThat(fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail)).isPresent();
 
@@ -174,28 +172,26 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
     assertThat(card1)
         .extracting(
             SummaryCard::displayName,
-            SummaryCard::summaryCardType
+            SummaryCard::summaryCardType,
+            SummaryCard::summaryData
         ).containsExactly(
             null,
-            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY
+            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
+            probabilityTableView
         );
-    var card1Data = (List<ProbabilityDistributionSummaryView>) card1.summaryData();
-    assertThat(card1Data)
-        .containsOnly(emptyProbabilitySummaryView);
 
     // Resources and reserves card
     var card2 = summaryCards.get(1);
     assertThat(card2)
         .extracting(
             SummaryCard::displayName,
-            SummaryCard::summaryCardType
+            SummaryCard::summaryCardType,
+            SummaryCard::summaryData
         ).containsExactly(
             null,
-            SummaryCardType.FIELD_PROBABILITY_DISTRIBUTION_SUMMARY
+            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
+            probabilityTableView
         );
-    var card2Data = (List<ProbabilityDistributionSummaryView>) card2.summaryData();
-    assertThat(card2Data)
-        .containsOnly(emptyProbabilitySummaryView);
   }
 
   @Test
@@ -217,13 +213,13 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
     when(reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails))
         .thenReturn(true);
 
-    var emptyProbabilitySummaryView = ProbabilityDistributionSummaryView.empty("");
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
     when(probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             any(),
             eq(submissionDetail),
             eq(null)
-        )).thenReturn(List.of(emptyProbabilitySummaryView));
+        )).thenReturn(probabilityTableView);
 
     assertThat(fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail)).isPresent();
 
@@ -241,28 +237,26 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
     assertThat(card1)
         .extracting(
             SummaryCard::displayName,
-            SummaryCard::summaryCardType
+            SummaryCard::summaryCardType,
+            SummaryCard::summaryData
         ).containsExactly(
             null,
-            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY
+            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
+            probabilityTableView
         );
-    var card1Data = (List<ProbabilityDistributionSummaryView>) card1.summaryData();
-    assertThat(card1Data)
-        .containsOnly(emptyProbabilitySummaryView);
 
     // Resources and reserves card
     var card2 = summaryCards.get(1);
     assertThat(card2)
         .extracting(
             SummaryCard::displayName,
-            SummaryCard::summaryCardType
+            SummaryCard::summaryCardType,
+            SummaryCard::summaryData
         ).containsExactly(
             null,
-            SummaryCardType.FIELD_PROBABILITY_DISTRIBUTION_SUMMARY
+            SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
+            probabilityTableView
         );
-    var card2Data = (List<ProbabilityDistributionSummaryView>) card2.summaryData();
-    assertThat(card2Data)
-        .containsOnly(emptyProbabilitySummaryView);
 
     // Volumetric total card
     var card3 = summaryCards.get(2);

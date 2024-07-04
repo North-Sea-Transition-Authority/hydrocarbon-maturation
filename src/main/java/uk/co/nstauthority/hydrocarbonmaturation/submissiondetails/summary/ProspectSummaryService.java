@@ -2,7 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
@@ -113,7 +113,7 @@ class ProspectSummaryService {
         .getReservoirPropertiesSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
-  public ProbabilityDistributionsFormSummaryView getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
+  public ProbabilityDistributionTableView getOilCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
     return oilCaseVolumetricParametersSummaryService.getOilCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }
@@ -123,9 +123,9 @@ class ProspectSummaryService {
     return oilCaseOutputsSummaryService.getOilCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
-  public ProbabilityDistributionsFormSummaryView getGasCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
+  public ProbabilityDistributionTableView getGasCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    return gasCaseVolumetricParametersSummaryService.getGasCaseVolumetricsSummaryView(reservoirSubmissionDetail);
+    return gasCaseVolumetricParametersSummaryService.getGasCaseVolumetricsTableView(reservoirSubmissionDetail);
   }
 
   public GasCaseOutputsSummaryView getGasCaseOutputsSummaryViewFromReservoirSubmissionDetail(
@@ -133,7 +133,7 @@ class ProspectSummaryService {
     return gasCaseOutputsSummaryService.getGasCaseOutputsSummaryFromReservoirSubmissionDetail(reservoirSubmissionDetail);
   }
 
-  public ProbabilityDistributionsFormSummaryView getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
+  public ProbabilityDistributionTableView getMixedCaseVolumetricsSummaryViewFromReservoirSubmissionDetail(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
     return mixedCaseVolumetricParametersSummaryService.getMixedCaseVolumetricsSummaryView(reservoirSubmissionDetail);
   }

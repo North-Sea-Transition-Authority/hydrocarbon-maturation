@@ -75,7 +75,7 @@ public class FdpaIncreasedVolumesSummaryService {
     }
 
     return SummaryCard.probabilitySummaryCard(
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
             listProbabilityInstances, submissionDetail, null
         )
     );
@@ -108,8 +108,8 @@ public class FdpaIncreasedVolumesSummaryService {
     listFieldProbabilityInstances.add(
         ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RESERVES_INCREASED_VOLUMES_FDPA);
 
-    return SummaryCard.fieldProbabilitySummaryCard(
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    return SummaryCard.probabilitySummaryCard(
+        probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
             listFieldProbabilityInstances, submissionDetail, null
         )
     );

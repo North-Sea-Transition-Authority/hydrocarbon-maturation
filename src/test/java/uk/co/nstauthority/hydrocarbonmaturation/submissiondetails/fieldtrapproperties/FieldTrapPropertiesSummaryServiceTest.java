@@ -27,7 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesPersistenceService;
@@ -66,10 +66,10 @@ class FieldTrapPropertiesSummaryServiceTest {
         ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_FIELD
     );
 
-    var summaryViews = List.of(ProbabilityDistributionSummaryView.empty("Test"));
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    var probabilityTableView = ProbabilityDistributionTableView.empty();
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         listOfInstances, submissionDetail, null)
-    ).thenReturn(summaryViews);
+    ).thenReturn(probabilityTableView);
 
     var trapProperty = new TrapProperty();
     when(trapPropertiesPersistenceService.getTrapProperty(submissionDetail)).thenReturn(Optional.of(trapProperty));
@@ -83,11 +83,11 @@ class FieldTrapPropertiesSummaryServiceTest {
         ).containsExactly(
             FIELD_TRAP_PROPERTIES_PROBABILITIES,
             SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
-            summaryViews
+            probabilityTableView
         );
 
     verify(probabilityDistributionSummaryService, times(1))
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
             listOfInstances, submissionDetail, null);
     verifyNoMoreInteractions(probabilityDistributionSummaryService);
 

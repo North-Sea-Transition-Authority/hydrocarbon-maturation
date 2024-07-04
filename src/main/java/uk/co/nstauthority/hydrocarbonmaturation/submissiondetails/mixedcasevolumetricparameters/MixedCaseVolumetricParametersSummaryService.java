@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
@@ -21,7 +20,7 @@ public class MixedCaseVolumetricParametersSummaryService {
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
   }
 
-  public ProbabilityDistributionsFormSummaryView getMixedCaseVolumetricsSummaryView(
+  public ProbabilityDistributionTableView getMixedCaseVolumetricsSummaryView(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
@@ -53,10 +52,10 @@ public class MixedCaseVolumetricParametersSummaryService {
     listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CONDENSATE_GAS_RATIO_LIFE_OF_FIELD);
     listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_GAS_RECOVERY_FACTOR);
 
-    var listOfSummaryViews = new ArrayList<ProbabilityDistributionSummaryView>();
-    listOfInstances.forEach(instance -> listOfSummaryViews.add(
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            instance, submissionDetail, reservoirSubmissionDetail)));
-    return new ProbabilityDistributionsFormSummaryView(listOfSummaryViews);
+    return probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances,
+        submissionDetail,
+        reservoirSubmissionDetail
+    );
   }
 }

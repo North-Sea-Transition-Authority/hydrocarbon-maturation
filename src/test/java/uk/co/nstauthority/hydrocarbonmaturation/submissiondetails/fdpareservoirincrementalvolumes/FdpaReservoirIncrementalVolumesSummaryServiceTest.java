@@ -15,7 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.ReservoirHydrocarbonCaseService;
@@ -30,7 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 class FdpaReservoirIncrementalVolumesSummaryServiceTest {
 
   static final String COMMENT = "SOME COMMENT";
-  static final List<ProbabilityDistributionSummaryView> SUMMARY_VIEWS = List.of();
+  static final ProbabilityDistributionTableView TABLE_VIEW = ProbabilityDistributionTableView.empty();
 
   @Mock
   private ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
@@ -72,10 +72,10 @@ class FdpaReservoirIncrementalVolumesSummaryServiceTest {
         .thenReturn(HydrocarbonsDiscovered.OIL_ONLY);
     when(incrementalVolumesRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(incrementalVolume));
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         List.of(ProbabilityDistributionFieldInstance.RESERVOIR_OIL_INITIALLY_IN_PLACE_INCREASE_FDPA),
         reservoirSubmissionDetail.getSubmissionDetail(), reservoirSubmissionDetail))
-        .thenReturn(SUMMARY_VIEWS);
+        .thenReturn(TABLE_VIEW);
 
     var summarySection = summaryService.getSummarySection(reservoirSubmissionDetail);
     assertThat(summarySection)
@@ -129,7 +129,7 @@ class FdpaReservoirIncrementalVolumesSummaryServiceTest {
         )
         .containsExactly(
             SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
-            SUMMARY_VIEWS
+            TABLE_VIEW
         );
   }
 
@@ -143,10 +143,10 @@ class FdpaReservoirIncrementalVolumesSummaryServiceTest {
         .thenReturn(HydrocarbonsDiscovered.GAS_ONLY);
     when(incrementalVolumesRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(incrementalVolume));
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         List.of(ProbabilityDistributionFieldInstance.RESERVOIR_GAS_INITIALLY_IN_PLACE_INCREASE_FDPA),
         reservoirSubmissionDetail.getSubmissionDetail(), reservoirSubmissionDetail))
-        .thenReturn(SUMMARY_VIEWS);
+        .thenReturn(TABLE_VIEW);
 
     var summarySection = summaryService.getSummarySection(reservoirSubmissionDetail);
     assertThat(summarySection)
@@ -200,7 +200,7 @@ class FdpaReservoirIncrementalVolumesSummaryServiceTest {
         )
         .containsExactly(
             SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
-            SUMMARY_VIEWS
+            TABLE_VIEW
         );
   }
 
@@ -214,13 +214,13 @@ class FdpaReservoirIncrementalVolumesSummaryServiceTest {
         .thenReturn(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
     when(incrementalVolumesRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(incrementalVolume));
-    when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         List.of(
             ProbabilityDistributionFieldInstance.RESERVOIR_OIL_INITIALLY_IN_PLACE_INCREASE_FDPA,
             ProbabilityDistributionFieldInstance.RESERVOIR_GAS_INITIALLY_IN_PLACE_INCREASE_FDPA
         ),
         reservoirSubmissionDetail.getSubmissionDetail(), reservoirSubmissionDetail))
-        .thenReturn(SUMMARY_VIEWS);
+        .thenReturn(TABLE_VIEW);
 
     var summarySection = summaryService.getSummarySection(reservoirSubmissionDetail);
     assertThat(summarySection)
@@ -274,7 +274,7 @@ class FdpaReservoirIncrementalVolumesSummaryServiceTest {
         )
         .containsExactly(
             SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
-            SUMMARY_VIEWS
+            TABLE_VIEW
         );
   }
 

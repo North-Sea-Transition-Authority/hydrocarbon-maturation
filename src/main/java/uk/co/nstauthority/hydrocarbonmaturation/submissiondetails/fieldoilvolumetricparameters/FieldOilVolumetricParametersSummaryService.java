@@ -30,8 +30,9 @@ public class FieldOilVolumetricParametersSummaryService implements SummarySectio
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
 
   @Autowired
-  public FieldOilVolumetricParametersSummaryService(GeneralReservoirInformationService generalReservoirInformationService,
-                                                    ProbabilityDistributionSummaryService probabilityDistributionSummaryService) {
+  public FieldOilVolumetricParametersSummaryService(
+      GeneralReservoirInformationService generalReservoirInformationService,
+      ProbabilityDistributionSummaryService probabilityDistributionSummaryService) {
     this.generalReservoirInformationService = generalReservoirInformationService;
     this.probabilityDistributionSummaryService = probabilityDistributionSummaryService;
   }
@@ -59,27 +60,26 @@ public class FieldOilVolumetricParametersSummaryService implements SummarySectio
     return Optional.empty();
   }
 
-  private SummaryItem getFieldOilVolumetricsProbabilitySummaryItem(ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    var listOfSummaryViews = probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-            FIELD_OIL_VOLUMETRIC_PARAMETERS_INSTANCES,
-            reservoirSubmissionDetail.getSubmissionDetail(),
-            reservoirSubmissionDetail
-        );
-    var summaryCard = SummaryCard.probabilitySummaryCard(listOfSummaryViews);
+  private SummaryItem getFieldOilVolumetricsProbabilitySummaryItem(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        FIELD_OIL_VOLUMETRIC_PARAMETERS_INSTANCES,
+        reservoirSubmissionDetail.getSubmissionDetail(),
+        reservoirSubmissionDetail
+    );
+    var summaryCard = SummaryCard.probabilitySummaryCard(tableView);
 
     return SummaryItem.withCard(FIELD_OIL_VOLUMETRIC_PARAMETERS, summaryCard);
   }
 
-  private SummaryItem getFieldOilVolumetricsMinMaxMostLikelySummaryItem(ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    var summaryView = probabilityDistributionSummaryService
-        .getProbabilityDistributionSummaryViewFromFieldInstanceAndSubmission(
-            ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_FIELD,
-            reservoirSubmissionDetail.getSubmissionDetail(),
-            reservoirSubmissionDetail
-        );
-    var summaryCard = SummaryCard.minMaxMostLikelySummaryCard(List.of(summaryView));
+  private SummaryItem getFieldOilVolumetricsMinMaxMostLikelySummaryItem(
+      ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        List.of(ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_FIELD),
+        reservoirSubmissionDetail.getSubmissionDetail(),
+        reservoirSubmissionDetail
+    );
 
-    return SummaryItem.withCard(FIELD_OIL_VOLUMETRIC_PARAMETERS, summaryCard);
+    return SummaryItem.withCard(FIELD_OIL_VOLUMETRIC_PARAMETERS, SummaryCard.probabilitySummaryCard(tableView));
   }
 }

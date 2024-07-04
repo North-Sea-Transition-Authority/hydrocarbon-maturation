@@ -24,15 +24,15 @@ public class DiscoveryOilCaseVolumetricTotalsSummaryService {
     listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY);
     listOfInstances.add(
-            ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
     listOfInstances.add(
-          ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
+        ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
 
-    var listOfSummaryViews =
-        probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
-            listOfInstances,
-            submissionDetail,
-            null);
-    return new DiscoveryOilCaseVolumetricTotalsSummaryView(listOfSummaryViews);
+    var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances,
+        submissionDetail,
+        null
+    );
+    return new DiscoveryOilCaseVolumetricTotalsSummaryView(tableView);
   }
 }

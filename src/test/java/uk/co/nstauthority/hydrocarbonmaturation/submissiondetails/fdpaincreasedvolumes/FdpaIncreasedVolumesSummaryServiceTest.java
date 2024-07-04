@@ -15,7 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -146,13 +146,12 @@ class FdpaIncreasedVolumesSummaryServiceTest {
         ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RESERVES_INCREASED_VOLUMES_FDPA
     );
 
-    private static final List<ProbabilityDistributionSummaryView> PROBABILITY_DISTRIBUTION_SUMMARY_VIEWS = List.of(
-        ProbabilityDistributionSummaryView.empty("contents doesn't matter")
-    );
+    private static final ProbabilityDistributionTableView PROBABILITY_DISTRIBUTION_TABLE_VIEW
+        = ProbabilityDistributionTableView.empty();
 
-    private static final List<ProbabilityDistributionSummaryView> FIELD_PROBABILITY_DISTRIBUTION_SUMMARY_VIEWS = List.of(
-        ProbabilityDistributionSummaryView.empty("contents also doesn't matter")
-    );
+    private static final ProbabilityDistributionTableView FIELD_PROBABILITY_DISTRIBUTION_TABLE_VIEW
+        = ProbabilityDistributionTableView.empty();
+
 
     @Test
     void whenOilCase() {
@@ -197,7 +196,7 @@ class FdpaIncreasedVolumesSummaryServiceTest {
           )
           .containsExactly(
               SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
-              PROBABILITY_DISTRIBUTION_SUMMARY_VIEWS
+              PROBABILITY_DISTRIBUTION_TABLE_VIEW
           );
 
       var fieldProbabilityCard = generatedSummaryCardsIterator.next();
@@ -207,8 +206,8 @@ class FdpaIncreasedVolumesSummaryServiceTest {
               SummaryCard::summaryData
           )
           .containsExactly(
-              SummaryCardType.FIELD_PROBABILITY_DISTRIBUTION_SUMMARY,
-              FIELD_PROBABILITY_DISTRIBUTION_SUMMARY_VIEWS
+              SummaryCardType.PROBABILITY_DISTRIBUTION_SUMMARY,
+              FIELD_PROBABILITY_DISTRIBUTION_TABLE_VIEW
           );
     }
 
@@ -217,24 +216,24 @@ class FdpaIncreasedVolumesSummaryServiceTest {
       oilCaseFieldInstances.addAll(OIL_OR_COMBINED_FIELD_PROBABILITY_INSTANCES);
       oilCaseFieldInstances.addAll(SHARED_FIELD_PROBABILITY_INSTANCES);
 
-      when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+      when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
           OIL_PROBABILITY_INSTANCES, submissionDetail, null))
-          .thenReturn(PROBABILITY_DISTRIBUTION_SUMMARY_VIEWS);
-      when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+          .thenReturn(PROBABILITY_DISTRIBUTION_TABLE_VIEW);
+      when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
           oilCaseFieldInstances, submissionDetail, null))
-          .thenReturn(FIELD_PROBABILITY_DISTRIBUTION_SUMMARY_VIEWS);
+          .thenReturn(FIELD_PROBABILITY_DISTRIBUTION_TABLE_VIEW);
     }
 
     private void mockGasProbabilityDistributionSummaryViews() {
       ArrayList<ProbabilityDistributionFieldInstance> gasCaseFieldInstances = new ArrayList<>(
           SHARED_FIELD_PROBABILITY_INSTANCES);
 
-      when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+      when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
           GAS_PROBABILITY_INSTANCES, submissionDetail, null))
-          .thenReturn(PROBABILITY_DISTRIBUTION_SUMMARY_VIEWS);
-      when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+          .thenReturn(PROBABILITY_DISTRIBUTION_TABLE_VIEW);
+      when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
           gasCaseFieldInstances, submissionDetail, null))
-          .thenReturn(FIELD_PROBABILITY_DISTRIBUTION_SUMMARY_VIEWS);
+          .thenReturn(FIELD_PROBABILITY_DISTRIBUTION_TABLE_VIEW);
     }
 
     private void mockCombinedProbabilityDistributionSummaryViews() {
@@ -246,12 +245,12 @@ class FdpaIncreasedVolumesSummaryServiceTest {
       combinedFieldProbabilityInstances.addAll(OIL_OR_COMBINED_FIELD_PROBABILITY_INSTANCES);
       combinedFieldProbabilityInstances.addAll(SHARED_FIELD_PROBABILITY_INSTANCES);
 
-      when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+      when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
           combinedProbabilityInstances, submissionDetail, null))
-          .thenReturn(PROBABILITY_DISTRIBUTION_SUMMARY_VIEWS);
-      when(probabilityDistributionSummaryService.getProbabilityDistributionSummaryViewsFromFieldInstancesAndSubmission(
+          .thenReturn(PROBABILITY_DISTRIBUTION_TABLE_VIEW);
+      when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
           combinedFieldProbabilityInstances, submissionDetail, null))
-          .thenReturn(FIELD_PROBABILITY_DISTRIBUTION_SUMMARY_VIEWS);
+          .thenReturn(FIELD_PROBABILITY_DISTRIBUTION_TABLE_VIEW);
     }
   }
 }

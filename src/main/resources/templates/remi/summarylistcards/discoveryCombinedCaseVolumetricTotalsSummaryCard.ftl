@@ -12,6 +12,6 @@
         <@probabilityDistribution.probabilityDistributionTable
         withDistributionType=false
         withContingentUncertaintyCategories=true
-        probabilityDistributions=combinedCaseVolumetricTotals.probabilityDistributionSummaryViews()/>
+        tableView=combinedCaseVolumetricTotals.tableView()/>
     </@fdsSummaryList.summaryListCard>
 </#macro>
