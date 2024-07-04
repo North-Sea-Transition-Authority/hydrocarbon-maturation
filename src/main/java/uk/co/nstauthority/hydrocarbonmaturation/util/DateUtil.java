@@ -65,6 +65,20 @@ public class DateUtil {
   }
 
   /**
+   * Produce a GDS-complaint string for the provided date or an empty string when handling a null value.
+   *
+   * @param localDate The LocalDate to format
+   * @return The formatted temporal in a GDS-complaint format or empty string
+   */
+  public static String formatLongDateOrBlank(LocalDate localDate) {
+    if (localDate != null) {
+      return DATE_FORMATTER_LONG_DATE.format(localDate);
+    } else {
+      return "";
+    }
+  }
+
+  /**
    * Produce a displayable string for the provided instant or an empty string when handling a null value.
    *
    * @param instant The LocalDate to format

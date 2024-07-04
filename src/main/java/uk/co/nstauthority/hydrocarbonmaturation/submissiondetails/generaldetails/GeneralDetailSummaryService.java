@@ -102,7 +102,7 @@ public class GeneralDetailSummaryService {
 
   private String getDateOfRelinquishmentDisplay(GeneralDetail detail) {
     if (detail.getSubmissionDetail().isRelinquishment()) {
-      return DateUtil.formatDateOrBlank(detail.getRelinquishmentDate());
+      return DateUtil.formatLongDateOrBlank(detail.getRelinquishmentDate());
     } else {
       return "";
     }

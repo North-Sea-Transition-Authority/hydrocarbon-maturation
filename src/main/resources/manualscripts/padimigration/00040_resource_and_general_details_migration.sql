@@ -53,7 +53,8 @@ BEGIN
                 WHEN prdh.stage_name NOT IN (bid, pre_drill, well_investment, relinquishment) THEN prdh.stage_name
             END other_info_source,
             CASE WHEN prdh.stage_name = bid THEN prdh.application_ref END licence_app_ref,
-            CASE WHEN prdh.stage_name = bid AND prdh.application_ref IS NULL THEN prdh.reference_round END licence_round
+            CASE WHEN prdh.stage_name = bid AND prdh.application_ref IS NULL THEN prdh.reference_round END licence_round,
+            CASE WHEN prdh.stage_name = relinquishment THEN TO_DATE(prdh.stage_date, 'DD/MM/YYYY') END date_of_relinquishment
         FROM remi.submission_details sd
         JOIN remi.submissions s ON s.id = sd.submission_id
         JOIN remi.resources r ON r.id = s.resource_id
@@ -87,7 +88,8 @@ BEGIN
             percentage_located_in_ukcs,
             information_source,
             other_information_source,
-            licence_application_reference
+            licence_application_reference,
+            relinquishment_date
         ) VALUES (
             gen_random_uuid(),
             submission_rec.id,
@@ -95,7 +97,8 @@ BEGIN
             NULL, -- we don't capture this in PaDI
             submission_rec.info_source,
             submission_rec.other_info_source,
-            COALESCE(submission_rec.licence_app_ref, submission_rec.licence_round)
+            COALESCE(submission_rec.licence_app_ref, submission_rec.licence_round),
+            submission_rec.date_of_relinquishment
         );
 
     END LOOP;

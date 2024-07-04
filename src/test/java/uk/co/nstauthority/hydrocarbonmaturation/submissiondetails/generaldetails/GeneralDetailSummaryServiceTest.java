@@ -237,7 +237,7 @@ class GeneralDetailSummaryServiceTest {
             List.of(quadrantBlockRef1, quadrantBlockRef2),
             List.of(licence1.getLicenceReference(), licence2.getLicenceReference()),
             "prospect",
-            "12 Jun 2012"
+            "12 June 2012"
         );
   }
 
