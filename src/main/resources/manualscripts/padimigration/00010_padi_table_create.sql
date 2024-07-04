@@ -746,3 +746,7 @@ CREATE TABLE remi.padi_multi_reservoir_discoveries (
     reference           TEXT,
     resdat_id           INTEGER
 );
+
+CREATE TABLE remi.padi_temp_resources (
+    resource_id UUID
+);

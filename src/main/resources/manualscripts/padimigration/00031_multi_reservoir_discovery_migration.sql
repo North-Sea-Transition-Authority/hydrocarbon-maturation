@@ -235,16 +235,21 @@ BEGIN
             now()
         ) RETURNING id INTO discovery_link_resource_id;
 
+        INSERT INTO remi.padi_temp_resources (resource_id)
+        VALUES (discovery_link_resource_id);
+
         INSERT INTO remi.resource_links (
             id,
             prospect_resource_id,
             discovery_resource_id,
-            legacy_resource_id
+            legacy_resource_id,
+            legacy_agreed_operator
         ) VALUES (
             gen_random_uuid(),
             prospect_link_rec.remi_resource_id,
             discovery_link_resource_id, --temp set to resource above
-            prospect_link_rec.legacy_resource_id
+            prospect_link_rec.legacy_resource_id,
+            prospect_link_rec.agreed_operator
         );
     END LOOP;
 
@@ -269,12 +274,26 @@ BEGIN
     LOOP
         UPDATE remi.resource_links
         SET discovery_resource_id = discovery_link_rec.remi_resource_id
-        WHERE discovery_resource_id = discovery_link_resource_id;
-
-        -- Delete temp resource used to link prospect and discoveries
-        DELETE FROM remi.resources r
-        WHERE r.id = discovery_link_resource_id;
+        WHERE legacy_resource_id = discovery_link_rec.legacy_resource_id
+        AND (
+          (legacy_agreed_operator IS NULL AND discovery_link_rec.agreed_operator IS NULL)
+          OR
+          (legacy_agreed_operator = discovery_link_rec.agreed_operator)
+        )
+        AND discovery_resource_id IN (
+            SELECT ptr.resource_id
+            FROM remi.padi_temp_resources ptr
+        );
     END LOOP;
+
+    -- Delete temp resource used to link prospect and discoveries
+    DELETE FROM remi.resources r
+    WHERE r.id IN (
+        SELECT ptr.resource_id
+        FROM remi.padi_temp_resources ptr
+    );
+
+    DELETE FROM remi.padi_temp_resources ptr;
 
 END;
 $$;
