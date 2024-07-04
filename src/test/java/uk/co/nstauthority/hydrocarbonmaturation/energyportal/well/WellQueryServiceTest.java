@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyportal.well;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.client.wellbore.WellboreApi;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
+import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 
 @ExtendWith(MockitoExtension.class)
 class WellQueryServiceTest {
@@ -32,7 +34,11 @@ class WellQueryServiceTest {
 
   @BeforeEach
   void setUp() {
-    wellQueryService = new WellQueryService(wellboreApi, new EnergyPortalApiWrapper(serviceConfigurationProperties));
+    var queryCounter = mock(QueryCounter.class);
+    wellQueryService = new WellQueryService(
+        wellboreApi,
+        new EnergyPortalApiWrapper(serviceConfigurationProperties, queryCounter)
+    );
   }
 
   @Test

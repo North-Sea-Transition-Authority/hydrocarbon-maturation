@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.api;
 
-import java.util.UUID;
 import java.util.function.BiFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +8,8 @@ import org.springframework.stereotype.Component;
 import uk.co.fivium.energyportalapi.client.LogCorrelationId;
 import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.correlationid.CorrelationIdUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 
 @Component
 public class EnergyPortalApiWrapper {
@@ -18,16 +19,22 @@ public class EnergyPortalApiWrapper {
   static final String API_REQUEST_PREFIX = "EPA-request";
 
   private final ServiceConfigurationProperties serviceConfigurationProperties;
+  private final QueryCounter queryCounter;
 
   @Autowired
-  public EnergyPortalApiWrapper(ServiceConfigurationProperties serviceConfigurationProperties) {
+  public EnergyPortalApiWrapper(ServiceConfigurationProperties serviceConfigurationProperties,
+                                QueryCounter queryCounter) {
     this.serviceConfigurationProperties = serviceConfigurationProperties;
+    this.queryCounter = queryCounter;
   }
 
   public <T> T makeRequest(BiFunction<LogCorrelationId, RequestPurpose, T> request) {
-    var logCorrelationId = getDefaultLogCorrelationId();
+    queryCounter.incrementEpa();
+
+    var logCorrelationId = getLogCorrelationId();
     var requestPurpose = getRequestPurpose();
-    logEpaRequest(logCorrelationId, requestPurpose);
+    LOGGER.debug("{} ({})", logCorrelationId, requestPurpose);
+
     return request.apply(logCorrelationId, requestPurpose);
   }
 
@@ -44,16 +51,8 @@ public class EnergyPortalApiWrapper {
     return new RequestPurpose("%s: %s".formatted(getServiceIdentifier(), callingMethod));
   }
 
-  private LogCorrelationId getLogCorrelationId(String logCorrelationId) {
-    return new LogCorrelationId("%s %s: %s".formatted(getServiceIdentifier(), API_REQUEST_PREFIX, logCorrelationId));
-  }
-
-  private LogCorrelationId getDefaultLogCorrelationId() {
-    return getLogCorrelationId(String.valueOf(UUID.randomUUID()));
-  }
-
-  private void logEpaRequest(LogCorrelationId logCorrelationId, RequestPurpose requestPurpose) {
-    LOGGER.info("%s (%s)".formatted(logCorrelationId.id(), requestPurpose.purpose()));
+  private LogCorrelationId getLogCorrelationId() {
+    return new LogCorrelationId(CorrelationIdUtil.getCorrelationIdFromMdc());
   }
 
   private String getServiceIdentifier() {
