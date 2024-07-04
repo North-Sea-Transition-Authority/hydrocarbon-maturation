@@ -150,7 +150,7 @@ class ResourceQueryCommonService {
                             .and(SD_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))))
                     .where(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID)
                         .and(SUBMISSIONS.WITHDRAWN.isNull()))
-                    .orderBy(SD_2.ACCEPTED_TIMESTAMP.desc().nullsLast())
+                    .orderBy(SD_2.ACCEPTED_TIMESTAMP.desc().nullsLast(), SD_2.LEGACY_RES_DATA_ID.desc())
                     .limit(1)))
             .leftJoin(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(RESOURCE_GROUP_LINKS).on(RESOURCE_GROUP_LINKS.RESOURCE_ID.eq(RESOURCES.ID))
@@ -174,6 +174,7 @@ class ResourceQueryCommonService {
         .having(aggregateConditionList)
         .orderBy(SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP.desc().nullsLast(),
             SUBMISSION_DETAILS.CREATED_TIMESTAMP.desc(),
+            SUBMISSION_DETAILS.LEGACY_RES_DATA_ID.desc(),
             RESOURCE_DETAILS.RESOURCE_NAME)
         .limit(ResourceQueryCommonService.MAX_RESULTS)
         .fetchInto(ResourceRecordQueryResult.class);

@@ -105,7 +105,7 @@ class ResourceRecordSummaryQueryService {
             FIELDS.FIELD_IDENTIFIER,
             FIELD_STATUS_HISTORY.FIELD_IDENTIFIER
         ))
-        .orderBy(SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP.desc().nullsLast())
+        .orderBy(SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP.desc().nullsLast(), SUBMISSION_DETAILS.LEGACY_RES_DATA_ID.desc())
         .limit(1)
         .fetchOptionalInto(ResourceRecordSummaryQueryResult.class);
   }
