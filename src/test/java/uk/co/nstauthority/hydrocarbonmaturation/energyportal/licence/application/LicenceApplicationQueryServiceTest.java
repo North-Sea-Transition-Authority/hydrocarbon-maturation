@@ -22,6 +22,7 @@ import uk.co.fivium.energyportalapi.generated.types.LicenceApplication;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 
 @ExtendWith(MockitoExtension.class)
 class LicenceApplicationQueryServiceTest {
@@ -35,15 +36,15 @@ class LicenceApplicationQueryServiceTest {
 
   private static LicenceApplicationApi licenceApplicationApi;
   private static LicenceApplicationQueryService licenceApplicationQueryService;
-  private static SearchSelectorService searchSelectorService;
 
   @BeforeAll
   static void setup() {
     licenceApplicationApi = mock(LicenceApplicationApi.class);
-    searchSelectorService = new SearchSelectorService();
+    var queryCounter = mock(QueryCounter.class);
+    var searchSelectorService = new SearchSelectorService();
     licenceApplicationQueryService = new LicenceApplicationQueryService(
         licenceApplicationApi,
-        new EnergyPortalApiWrapper(serviceConfigurationProperties),
+        new EnergyPortalApiWrapper(serviceConfigurationProperties, queryCounter),
         searchSelectorService);
   }
 

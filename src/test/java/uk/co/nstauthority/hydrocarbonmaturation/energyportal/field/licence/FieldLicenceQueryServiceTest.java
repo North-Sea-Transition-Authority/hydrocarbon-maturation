@@ -21,28 +21,30 @@ import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationPro
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceViewByReferenceComparator;
+import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 
 @ExtendWith(MockitoExtension.class)
 class FieldLicenceQueryServiceTest {
+
   @Mock
   private FieldApi fieldApi;
+
+  @Mock
+  private QueryCounter queryCounter;
+
   private final ServiceConfigurationProperties serviceConfigurationProperties = new ServiceConfigurationProperties(
       "name",
       "mnemonic"
   );
 
-  private final EnergyPortalApiWrapper energyPortalApiWrapper = new EnergyPortalApiWrapper(
-      serviceConfigurationProperties
-  );
-
   private FieldLicenceQueryService fieldLicenceQueryService;
-  private final int FIELD_IDENTIFIER = 100;
+  private static final int FIELD_IDENTIFIER = 100;
 
   @BeforeEach
   void setUp() {
     fieldLicenceQueryService = new FieldLicenceQueryService(
         fieldApi,
-        energyPortalApiWrapper
+        new EnergyPortalApiWrapper(serviceConfigurationProperties, queryCounter)
     );
   }
 

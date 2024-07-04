@@ -19,10 +19,13 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlResponseParser;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.ServiceLogoutSuccessHandler;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ServiceAccessDeniedHandler;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.access.EnergyPortalAccessApiConfiguration;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.PostAuthenticationRequestMdcFilter;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.RequestLogFilter;
 
 @Configuration
 public class WebSecurityConfiguration {
@@ -41,16 +44,22 @@ public class WebSecurityConfiguration {
   private final SamlResponseParser samlResponseParser;
   private final ServiceLogoutSuccessHandler serviceLogoutSuccessHandler;
   private final EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration;
+  private final RequestLogFilter requestLogFilter;
+  private final PostAuthenticationRequestMdcFilter postAuthenticationRequestMdcFilter;
 
   @Autowired
   public WebSecurityConfiguration(SamlProperties samlProperties,
                                   SamlResponseParser samlResponseParser,
                                   ServiceLogoutSuccessHandler serviceLogoutSuccessHandler,
-                                  EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration) {
+                                  EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration,
+                                  RequestLogFilter requestLogFilter,
+                                  PostAuthenticationRequestMdcFilter postAuthenticationRequestMdcFilter) {
     this.samlProperties = samlProperties;
     this.samlResponseParser = samlResponseParser;
     this.serviceLogoutSuccessHandler = serviceLogoutSuccessHandler;
     this.energyPortalAccessApiConfiguration = energyPortalAccessApiConfiguration;
+    this.requestLogFilter = requestLogFilter;
+    this.postAuthenticationRequestMdcFilter = postAuthenticationRequestMdcFilter;
   }
 
   @Bean
@@ -67,6 +76,8 @@ public class WebSecurityConfiguration {
         .csrf(csrfConfigurer -> csrfConfigurer.ignoringRequestMatchers(NO_AUTH_ENDPOINTS))
         .saml2Login(saml2 -> saml2.authenticationManager(new ProviderManager(authenticationProvider)))
         .logout(logoutConfigurer -> logoutConfigurer.logoutSuccessHandler(serviceLogoutSuccessHandler))
+        .addFilterBefore(requestLogFilter, SecurityContextHolderFilter.class)
+        .addFilterAfter(postAuthenticationRequestMdcFilter, SecurityContextHolderFilter.class)
         .exceptionHandling(exceptionHandling -> exceptionHandling.accessDeniedHandler(accessDeniedHandler()));
 
     return httpSecurity.build();

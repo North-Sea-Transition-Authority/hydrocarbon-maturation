@@ -42,7 +42,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorPermissionManagementHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.metrics.MetricsProvider;
+import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ErrorSummaryHandlerInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.PostAuthenticationRequestMdcFilter;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.RequestLogFilter;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ValidationTypeArgumentResolver;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTemplateService;
@@ -73,7 +76,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnica
     IsProjectExtantInterceptorRule.class,
     RegulatorForProjectFieldInterceptorRule.class,
     MetricsProvider.class,
-    TeamManagementHandlerInterceptor.class
+    TeamManagementHandlerInterceptor.class,
+    RequestLogFilter.class,
+    PostAuthenticationRequestMdcFilter.class
 })
 @ActiveProfiles("test")
 @IncludeServiceBrandingConfigurationProperties
@@ -163,6 +168,11 @@ public abstract class AbstractControllerTest {
     @Bean
     public ExternalApiAuthenticationEntryPoint externalApiAuthenticationEntryPoint() {
       return new ExternalApiAuthenticationEntryPoint(new ObjectMapper());
+    }
+
+    @Bean
+    public QueryCounter queryCounter() {
+      return new QueryCounter();
     }
   }
 }

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService.ORGANISATION_UNIT_PROJECTION_ROOT;
@@ -29,6 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 
 @ExtendWith(MockitoExtension.class)
 class OrganisationUnitQueryServiceTest {
@@ -66,9 +68,10 @@ class OrganisationUnitQueryServiceTest {
 
   @BeforeEach
   void setUp() {
+    var queryCounter = mock(QueryCounter.class);
     organisationUnitQueryService = new OrganisationUnitQueryService(
         organisationApi,
-        new EnergyPortalApiWrapper(serviceConfigurationProperties),
+        new EnergyPortalApiWrapper(serviceConfigurationProperties, queryCounter),
         userService,
         industryTeamService,
         regulatorTeamService,

@@ -22,6 +22,7 @@ import uk.co.fivium.energyportalapi.generated.types.Licence;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
+import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 
 @ExtendWith(MockitoExtension.class)
 class LicenceQueryServiceTest {
@@ -39,9 +40,10 @@ class LicenceQueryServiceTest {
   @BeforeEach
   void setUp() {
     licenceApi = mock(LicenceApi.class);
+    var queryCounter = mock(QueryCounter.class);
     licenceQueryService = new LicenceQueryService(
         licenceApi,
-        new EnergyPortalApiWrapper(serviceConfigurationProperties)
+        new EnergyPortalApiWrapper(serviceConfigurationProperties, queryCounter)
     );
   }
 

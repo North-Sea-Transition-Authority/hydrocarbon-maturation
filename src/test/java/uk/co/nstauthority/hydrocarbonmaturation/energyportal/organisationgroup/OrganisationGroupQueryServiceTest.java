@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -24,6 +25,7 @@ import uk.co.fivium.energyportalapi.generated.client.OrganisationGroupsProjectio
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
+import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 
 @ExtendWith(MockitoExtension.class)
 class OrganisationGroupQueryServiceTest {
@@ -43,9 +45,10 @@ class OrganisationGroupQueryServiceTest {
 
   @BeforeEach
   void setup() {
+    var queryCounter = mock(QueryCounter.class);
     organisationGroupQueryService = new OrganisationGroupQueryService(
         organisationApi,
-        new EnergyPortalApiWrapper(serviceConfigurationProperties)
+        new EnergyPortalApiWrapper(serviceConfigurationProperties, queryCounter)
     );
 
     groupList = List.of(
@@ -111,7 +114,7 @@ class OrganisationGroupQueryServiceTest {
         any(RequestPurpose.class)))
         .thenReturn(Optional.of(organisationGroup));
 
-    var returnedOrganisation = organisationGroupQueryService.getOrganisationGroupById(1);
+    organisationGroupQueryService.getOrganisationGroupById(1);
 
     verify(organisationApi).findOrganisationGroup(
         eq(organisationGroup.getOrganisationGroupId()),
