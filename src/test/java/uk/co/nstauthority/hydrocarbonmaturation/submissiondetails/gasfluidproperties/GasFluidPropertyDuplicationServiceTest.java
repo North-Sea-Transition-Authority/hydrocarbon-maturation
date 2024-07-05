@@ -11,12 +11,9 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
@@ -63,18 +60,6 @@ class GasFluidPropertyDuplicationServiceTest {
 
     when(gasFluidPropertyPersistenceService.getGasFluidProperty(oldSubmissionDetail))
         .thenReturn(Optional.empty());
-
-    gasFluidPropertyDuplicationService.duplicateReservoirSection(oldSubmissionDetail, newSubmissionDetail);
-
-    verify(reservoirDuplicationPersistenceService, never())
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(GasFluidProperty.class), eq(GasFluidProperty.class));
-  }
-
-  @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"UPDATE_DISCOVERY"}, mode = EnumSource.Mode.EXCLUDE)
-  void duplicateSubmissionSection_GasFluidPropertyDoesNotExist_DoesNotDuplicate(SubmissionType submissionType) {
-    var oldSubmissionDetail = mock(ReservoirSubmissionDetail.class);
-    newSubmissionDetail.getSubmissionDetail().setSubmissionType(submissionType);
 
     gasFluidPropertyDuplicationService.duplicateReservoirSection(oldSubmissionDetail, newSubmissionDetail);
 

@@ -25,24 +25,20 @@ class DrillStemTestDuplicationService implements ReservoirSectionDuplicationServ
 
   @Override
   @Transactional
-  public void duplicateReservoirSection(ReservoirSubmissionDetail oldSubmissionDetail,
-                                        ReservoirSubmissionDetail newSubmissionDetail) {
-    if (newSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()) {
-      drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(oldSubmissionDetail)
-          .ifPresent(drillStemTest -> {
-            var newDrillStemTest = reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(
-                newSubmissionDetail,
-                drillStemTest,
-                DrillStemTest.class
-            );
+  public void duplicateReservoirSection(ReservoirSubmissionDetail oldReservoirSubmissionDetail,
+                                        ReservoirSubmissionDetail newReservoirSubmissionDetail) {
+    drillStemTestInitialPersistenceService.getDrillStemTestByReservoirSubmissionDetail(oldReservoirSubmissionDetail)
+        .ifPresent(drillStemTest -> {
+          var newDrillStemTest = reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(
+              newReservoirSubmissionDetail, drillStemTest, DrillStemTest.class
+          );
 
-            drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest)
-                .forEach(drillStemTestResult ->
-                    reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(
-                        newDrillStemTest,
-                        drillStemTestResult,
-                        DrillStemTestResult.class));
-          });
-    }
+          drillStemTestResultPersistenceService.getDrillStemTestResultsByDrillStemTest(drillStemTest)
+              .forEach(drillStemTestResult ->
+                  reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(
+                      newDrillStemTest, drillStemTestResult, DrillStemTestResult.class
+                  )
+              );
+        });
   }
 }

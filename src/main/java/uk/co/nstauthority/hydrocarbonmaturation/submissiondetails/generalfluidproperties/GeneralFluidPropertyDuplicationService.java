@@ -13,7 +13,7 @@ class GeneralFluidPropertyDuplicationService implements ReservoirSectionDuplicat
 
   @Autowired
   GeneralFluidPropertyDuplicationService(GeneralFluidPropertyPersistenceService generalFluidPropertyPersistenceService,
-                                     ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
+                                         ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
     this.generalFluidPropertyPersistenceService = generalFluidPropertyPersistenceService;
     this.reservoirDuplicationPersistenceService = reservoirDuplicationPersistenceService;
   }
@@ -21,13 +21,11 @@ class GeneralFluidPropertyDuplicationService implements ReservoirSectionDuplicat
   @Override
   public void duplicateReservoirSection(ReservoirSubmissionDetail oldReservoirSubmissionDetail,
                                         ReservoirSubmissionDetail newReservoirSubmissionDetail) {
-    if (newReservoirSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()) {
-      generalFluidPropertyPersistenceService.getGeneralFluidProperty(oldReservoirSubmissionDetail)
-          .ifPresent(generalFluidProperty -> reservoirDuplicationPersistenceService
-              .duplicateChildAndReplaceParent(
-                  newReservoirSubmissionDetail,
-                  generalFluidProperty,
-                  GeneralFluidProperty.class));
-    }
+    generalFluidPropertyPersistenceService.getGeneralFluidProperty(oldReservoirSubmissionDetail)
+        .ifPresent(generalFluidProperty ->
+            reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(
+                newReservoirSubmissionDetail, generalFluidProperty, GeneralFluidProperty.class
+            )
+        );
   }
 }

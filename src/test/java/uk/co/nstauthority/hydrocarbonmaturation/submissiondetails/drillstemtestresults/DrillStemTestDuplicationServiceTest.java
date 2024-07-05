@@ -37,9 +37,7 @@ class DrillStemTestDuplicationServiceTest {
   private DrillStemTestDuplicationService drillStemTestDuplicationService;
 
   @ParameterizedTest
-  @EnumSource(value = SubmissionType.class,
-      names = {"UPDATE_DISCOVERY", "RELINQUISHMENT_DISCOVERY"},
-      mode = EnumSource.Mode.INCLUDE)
+  @EnumSource(value = SubmissionType.class)
   void duplicateSubmissionSection_DiscoveryUpdate_DrillStemTestResultExists_DoesDuplicate(
       SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);

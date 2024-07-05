@@ -21,13 +21,11 @@ class GasFluidPropertyDuplicationService implements ReservoirSectionDuplicationS
   @Override
   public void duplicateReservoirSection(ReservoirSubmissionDetail oldReservoirSubmissionDetail,
                                         ReservoirSubmissionDetail newReservoirSubmissionDetail) {
-    if (newReservoirSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()) {
-      gasFluidPropertyPersistenceService.getGasFluidProperty(oldReservoirSubmissionDetail)
-          .ifPresent(gasFluidProperty ->
-              reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(
-                  newReservoirSubmissionDetail,
-                  gasFluidProperty,
-                  GasFluidProperty.class));
-    }
+    gasFluidPropertyPersistenceService.getGasFluidProperty(oldReservoirSubmissionDetail)
+        .ifPresent(gasFluidProperty ->
+            reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(
+                newReservoirSubmissionDetail, gasFluidProperty, GasFluidProperty.class
+            )
+        );
   }
 }

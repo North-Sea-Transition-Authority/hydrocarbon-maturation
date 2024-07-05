@@ -11,12 +11,9 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
@@ -62,18 +59,6 @@ class OilFluidPropertyDuplicationServiceTest {
 
     when(oilFluidPropertyPersistenceService.getOilFluidProperty(oldSubmissionDetail))
         .thenReturn(Optional.empty());
-
-    oilFluidPropertyDuplicationService.duplicateReservoirSection(oldSubmissionDetail, newSubmissionDetail);
-
-    verify(reservoirDuplicationPersistenceService, never())
-        .duplicateChildAndReplaceParent(eq(newSubmissionDetail), any(OilFluidProperty.class), eq(OilFluidProperty.class));
-  }
-
-  @ParameterizedTest
-  @EnumSource(value = SubmissionType.class, names = {"UPDATE_DISCOVERY"}, mode = EnumSource.Mode.EXCLUDE)
-  void duplicateSubmissionSection_OilFluidPropertyDoesNotExist_DoesNotDuplicate(SubmissionType submissionType) {
-    var oldSubmissionDetail = mock(ReservoirSubmissionDetail.class);
-    newSubmissionDetail.getSubmissionDetail().setSubmissionType(submissionType);
 
     oilFluidPropertyDuplicationService.duplicateReservoirSection(oldSubmissionDetail, newSubmissionDetail);
 

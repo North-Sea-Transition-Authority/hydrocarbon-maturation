@@ -20,15 +20,13 @@ class OilFluidPropertyDuplicationService implements ReservoirSectionDuplicationS
   }
 
   @Override
-  public void duplicateReservoirSection(ReservoirSubmissionDetail oldSubmissionDetail,
-                                        ReservoirSubmissionDetail newSubmissionDetail) {
-    if (newSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()) {
-      oilFluidPropertyPersistenceService.getOilFluidProperty(oldSubmissionDetail)
-          .ifPresent(oilFluidProperty ->
-              reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(
-                  newSubmissionDetail,
-                  oilFluidProperty,
-                  OilFluidProperty.class));
-    }
+  public void duplicateReservoirSection(ReservoirSubmissionDetail oldReservoirSubmissionDetail,
+                                        ReservoirSubmissionDetail newReservoirSubmissionDetail) {
+    oilFluidPropertyPersistenceService.getOilFluidProperty(oldReservoirSubmissionDetail)
+        .ifPresent(oilFluidProperty ->
+            reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(
+                newReservoirSubmissionDetail, oilFluidProperty, OilFluidProperty.class
+            )
+        );
   }
 }
