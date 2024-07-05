@@ -1,5 +1,6 @@
 <#include '../layout/layout.ftl'>
 <#import '../probabilitydistribution/probabilitydistribution.ftl' as probabilityDistribution>
+<#import './_hydrocarbonCaseInsetText.ftl' as hydrocarbonCaseInsetText>
 
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
@@ -20,9 +21,7 @@ breadcrumbsMap=breadcrumbsMap>
         fieldsetHeadingClass="govuk-fieldset__legend--xl"
         hiddenContent=true>
             <@fdsRadio.radioYes path="form.hasPromotedVolumes">
-                <@fdsInsetText.insetText>
-                  This is a ${hydrocarbonCase.getInlineDisplayText()} field. If this is incorrect you must update the hydrocarbons discovered in the field reservoirs section.
-                </@fdsInsetText.insetText>
+                <@hydrocarbonCaseInsetText.hydrocarbonCaseInsetText hydrocarbonCase=hydrocarbonCase/>
 
                 <#if hydrocarbonCase == "OIL_ONLY">
                     <@probabilityDistribution.probabilityDistributionSingularTemplate

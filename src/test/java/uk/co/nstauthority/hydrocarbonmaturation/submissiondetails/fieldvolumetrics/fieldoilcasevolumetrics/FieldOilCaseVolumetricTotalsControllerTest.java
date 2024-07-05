@@ -41,6 +41,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
@@ -205,6 +206,7 @@ class FieldOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionContr
     assertThat(modelMap)
         .doesNotContainKey("fieldSubmissionCarriedForward")
         .contains(
+            entry("hydrocarbonCase", HydrocarbonsDiscovered.OIL_ONLY),
             entry("form", form),
             entry("resourceType", submissionDetail.getSubmission().getResource().getType().toString()),
             entry("submissionType", submissionDetail.getSubmissionType().getEnumName()),
@@ -282,6 +284,7 @@ class FieldOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionContr
 
     assertThat(modelMap)
         .contains(
+            entry("hydrocarbonCase", HydrocarbonsDiscovered.OIL_ONLY),
             entry("form", form),
             entry("resourceType", submissionDetail.getSubmission().getResource().getType().toString()),
             entry("submissionType", submissionDetail.getSubmissionType().getEnumName()),

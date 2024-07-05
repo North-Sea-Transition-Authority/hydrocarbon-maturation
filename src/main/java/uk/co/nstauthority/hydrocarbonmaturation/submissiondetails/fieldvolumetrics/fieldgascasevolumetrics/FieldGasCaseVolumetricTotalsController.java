@@ -25,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
@@ -83,6 +84,7 @@ public class FieldGasCaseVolumetricTotalsController {
   private ModelAndView getFieldGasCaseVolumetricTotalsModelAndView(GasCaseOutputsForm form,
                                                                    SubmissionDetail submissionDetail) {
     var modelAndView = new ModelAndView("remi/submissiondetails/gasCaseOutputs")
+        .addObject("hydrocarbonCase", HydrocarbonsDiscovered.GAS_ONLY)
         .addObject("form", form)
         .addObject("resourceType", submissionDetail.getSubmission().getResource().getType().toString())
         .addObject("submissionType", submissionDetail.getSubmissionType().getEnumName())
@@ -156,7 +158,6 @@ public class FieldGasCaseVolumetricTotalsController {
     var modelAndView = getFieldGasCaseVolumetricTotalsModelAndView(form, submissionDetail);
 
     modelAndView
-        .addObject("form", form)
         .addObject("gasInPlaceError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,

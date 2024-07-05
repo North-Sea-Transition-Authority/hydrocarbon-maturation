@@ -1,5 +1,6 @@
 <#include '../layout/layout.ftl'>
 <#import '../probabilitydistribution/probabilitydistribution.ftl' as probabilityDistribution>
+<#import './_hydrocarbonCaseInsetText.ftl' as hydrocarbonCaseInsetText>
 
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
@@ -22,7 +23,11 @@
   errorItems=errorList
   breadcrumbsMap=breadcrumbsMap>
   <@fdsForm.htmlForm>
-    <@probabilityDistribution.probabilityDistributionSingularTemplate
+      <#if hydrocarbonCase?has_content>
+          <@hydrocarbonCaseInsetText.hydrocarbonCaseInsetText hydrocarbonCase=hydrocarbonCase/>
+      </#if>
+
+      <@probabilityDistribution.probabilityDistributionSingularTemplate
       probabilityDistributionPath="form.gasInPlace"
       labelText="Gas initially in place"
       template=gasInPlaceTemplate
