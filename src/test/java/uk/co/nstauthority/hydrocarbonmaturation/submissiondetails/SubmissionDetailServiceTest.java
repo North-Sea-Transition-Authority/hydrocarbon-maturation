@@ -27,13 +27,20 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionRepository;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionDetailServiceTest {
+
   @Mock
   private SubmissionDetailRepository submissionDetailRepository;
+
+  @Mock
+  private SubmissionRepository submissionRepository;
+
   @Mock
   private SubmissionPersistenceService submissionPersistenceService;
+
   @InjectMocks
   private SubmissionDetailService submissionDetailService;
 
@@ -423,20 +430,15 @@ class SubmissionDetailServiceTest {
   )
   void hasFieldSubmissionDataBeenCarriedForward_whenAField_notCarriedForward_thenFalse(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
-    var resourceId = submissionDetail.getSubmission().getResource().getId();
 
-    // when only one FIELD submission detail for a resource
-    var submissionDetailForDifferentResource = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
-    submissionDetailForDifferentResource.getSubmission().getResource().setId(UUID.randomUUID());
+    var submission = submissionDetail.getSubmission();
+    var resource = submission.getResource();
 
-    var nonFieldSubmissionDetailWithSameResource = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
-    nonFieldSubmissionDetailWithSameResource.getSubmission().getResource().setId(resourceId);
+    when(submissionRepository.findSubmissionsByResource(resource))
+        .thenReturn(List.of(submission));
+    when(submissionDetailRepository.findAllBySubmission(submission))
+        .thenReturn(List.of(submissionDetail));
 
-    when(submissionDetailRepository.findAll())
-        .thenReturn(
-            List.of(submissionDetail, submissionDetailForDifferentResource, nonFieldSubmissionDetailWithSameResource));
-
-    // then not carried forward
     assertThat(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
         .isFalse();
   }
@@ -449,16 +451,20 @@ class SubmissionDetailServiceTest {
   )
   void hasFieldSubmissionDataBeenCarriedForward_whenAField_carriedForward_thenTrue(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
-    var resourceId = submissionDetail.getSubmission().getResource().getId();
 
-    // when only one submission detail for a resource
-    var submissionDetailForSameResource = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
-    submissionDetailForSameResource.getSubmission().getResource().setId(resourceId);
+    var submission = submissionDetail.getSubmission();
+    var resource = submission.getResource();
 
-    when(submissionDetailRepository.findAll())
-        .thenReturn(List.of(submissionDetail, submissionDetailForSameResource));
+    var otherSubmission = new Submission();
+    var otherSubmissionDetail = new SubmissionDetail();
 
-    // then not carried forward
+    when(submissionRepository.findSubmissionsByResource(resource))
+        .thenReturn(List.of(submission, otherSubmission));
+    when(submissionDetailRepository.findAllBySubmission(submission))
+        .thenReturn(List.of(submissionDetail));
+    when(submissionDetailRepository.findAllBySubmission(otherSubmission))
+        .thenReturn(List.of(otherSubmissionDetail));
+
     assertThat(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
         .isTrue();
   }

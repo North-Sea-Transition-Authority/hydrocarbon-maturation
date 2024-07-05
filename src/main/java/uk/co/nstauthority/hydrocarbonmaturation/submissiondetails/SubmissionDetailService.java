@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -7,7 +8,6 @@ import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Streamable;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundExce
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionRepository;
 
 @Service
 public class SubmissionDetailService {
@@ -26,16 +27,19 @@ public class SubmissionDetailService {
   private final ResourceLinkService resourceLinkService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final SubmissionPersistenceService submissionPersistenceService;
+  private final SubmissionRepository submissionRepository;
 
   @Autowired
   public SubmissionDetailService(SubmissionDetailRepository submissionDetailRepository,
                                  ResourceLinkService resourceLinkService,
                                  ResourceDetailsPersistenceService resourceDetailsPersistenceService,
-                                 SubmissionPersistenceService submissionPersistenceService) {
+                                 SubmissionPersistenceService submissionPersistenceService,
+                                 SubmissionRepository submissionRepository) {
     this.submissionDetailRepository = submissionDetailRepository;
     this.resourceLinkService = resourceLinkService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.submissionPersistenceService = submissionPersistenceService;
+    this.submissionRepository = submissionRepository;
   }
 
   public Optional<SubmissionDetail> getSubmissionDetail(UUID id) {
@@ -194,13 +198,15 @@ public class SubmissionDetailService {
       return false;
     }
 
-    var numberFieldSubmissionDetails = Streamable.of(submissionDetailRepository.findAll())
+    var resource = submissionDetail.getSubmission().getResource();
+    var allSubmissionDetails = submissionRepository.findSubmissionsByResource(resource)
         .stream()
-        .filter(SubmissionDetail::isFieldSubmission)
-        .filter(foundSubmissionDetail -> submissionDetailsBelongToSameResource(submissionDetail, foundSubmissionDetail))
-        .count();
+        .map(submissionDetailRepository::findAllBySubmission)
+        .flatMap(Collection::stream)
+        .filter(storedSubmissionDetail -> !storedSubmissionDetail.equals(submissionDetail))
+        .toList();
 
-    return numberFieldSubmissionDetails > 1;
+    return !allSubmissionDetails.isEmpty();
   }
 
   /*
@@ -218,11 +224,5 @@ public class SubmissionDetailService {
         submissionTypes,
         List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)
     );
-  }
-
-  private boolean submissionDetailsBelongToSameResource(SubmissionDetail submissionDetailOne,
-                                                        SubmissionDetail submissionDetailTwo) {
-    return submissionDetailOne.getSubmission().getResource().getId()
-        .equals(submissionDetailTwo.getSubmission().getResource().getId());
   }
 }

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 
 @Repository
-interface SubmissionRepository extends CrudRepository<Submission, UUID> {
+public interface SubmissionRepository extends CrudRepository<Submission, UUID> {
 
   List<Submission> findSubmissionsByResource(Resource resource);
 }
