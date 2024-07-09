@@ -111,6 +111,10 @@ class FdpaPromotedVolumesServiceTest {
       when(fdpaPromotedVolumesRepository.findBySubmissionDetail(fdpaSubmissionDetail))
           .thenReturn(Optional.of(promotedVolume));
 
+      when(reservoirHydrocarbonCaseService.isOilCaseOnly(fdpaSubmissionDetail))
+          .thenReturn(false);
+      mockEmptyProbabilityDistributions(fdpaSubmissionDetail);
+
       var generatedForm = volumesService.submissionDetailToForm(fdpaSubmissionDetail);
 
       assertThat(generatedForm)
@@ -419,6 +423,7 @@ class FdpaPromotedVolumesServiceTest {
   private static FdpaPromotedVolume fdpaPromotedVolumeWithoutPromotedVolumes(
       SubmissionDetail submissionDetail) {
     var promotedVolume = baseFdpaPromotedVolume(submissionDetail);
+    promotedVolume.setComment(null);
     promotedVolume.setResourcesAreBeingPromoted(Boolean.FALSE);
     return promotedVolume;
   }
@@ -462,6 +467,21 @@ class FdpaPromotedVolumesServiceTest {
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail, ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RESERVES_PROMOTED_VOLUMES_FDPA))
         .thenReturn(validOilEquivalentReservesForm());
+  }
+
+  private void mockEmptyProbabilityDistributions(SubmissionDetail submissionDetail) {
+   when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.ASSOCIATED_CONDENSATE_RESERVES_PROMOTED_VOLUMES_FDPA))
+        .thenReturn(new ProbabilityDistributionForm());
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.NATURAL_GAS_LIQUIDS_RESERVES_PROMOTED_VOLUMES_FDPA))
+        .thenReturn(new ProbabilityDistributionForm());
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.SALES_GAS_RESERVES_PROMOTED_VOLUMES_FDPA))
+        .thenReturn(new ProbabilityDistributionForm());
+    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
+        submissionDetail, ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RESERVES_PROMOTED_VOLUMES_FDPA))
+        .thenReturn(new ProbabilityDistributionForm());
   }
 
   private static FdpaPromotedVolumesForm getFdpaPromotedVolumesForm(

@@ -154,8 +154,8 @@ class FdpaPromotedVolumesFormValidatorTest {
 
     @Test
     void whenNoPromotedVolumes_thenNoValidationErrors() {
-      var form = new FdpaPromotedVolumesForm();
-      form.setHasPromotedVolumes(false);
+      var hasPromotedVolumes = false;
+      var form = getEmptyForm(hasPromotedVolumes);
 
       var bindingResult = new BeanPropertyBindingResult(form, "form");
       formValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
@@ -165,7 +165,7 @@ class FdpaPromotedVolumesFormValidatorTest {
 
     @Test
     void whenPromotedVolumeRadioNotSelected_thenValidationErrors() {
-      var form = new FdpaPromotedVolumesForm();
+      var form = getEmptyForm(null);
 
       var bindingResult = new BeanPropertyBindingResult(form, "form");
       formValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
@@ -181,7 +181,8 @@ class FdpaPromotedVolumesFormValidatorTest {
       when(reservoirHydrocarbonCaseService.isOilCaseOnly(submissionDetail))
           .thenReturn(true);
 
-      var form = getEmptyForm();
+      var hasPromotedVolumes = true;
+      var form = getEmptyForm(hasPromotedVolumes);
 
       var bindingResult = new BeanPropertyBindingResult(form, "form");
       formValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
@@ -313,10 +314,10 @@ class FdpaPromotedVolumesFormValidatorTest {
     return form;
   }
 
-  private FdpaPromotedVolumesForm getEmptyForm() {
+  private FdpaPromotedVolumesForm getEmptyForm(Boolean hasPromotedVolumes) {
     var form = new FdpaPromotedVolumesForm();
 
-    form.setHasPromotedVolumes(Boolean.TRUE);
+    form.setHasPromotedVolumes(hasPromotedVolumes);
 
     form.setOilReserves(ProbabilityDistributionTestUtil.getEmptyCustomProbabilityDistributionForm());
     form.setOilEquivalentReserves(ProbabilityDistributionTestUtil.getEmptyCustomProbabilityDistributionForm());

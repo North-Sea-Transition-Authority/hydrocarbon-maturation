@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fdpapromotedvolumes;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -26,7 +27,7 @@ public class FdpaPromotedVolumesFormValidator implements SubmissionValidator {
   public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var fdpaPromotedVolumesForm = (FdpaPromotedVolumesForm) form;
 
-    if (Boolean.TRUE.equals(fdpaPromotedVolumesForm.getHasPromotedVolumes())) {
+    if (BooleanUtils.isTrue(fdpaPromotedVolumesForm.getHasPromotedVolumes())) {
       validateProbabilityDistributionsPartial(fdpaPromotedVolumesForm, errors, submissionDetail);
     }
   }
@@ -42,7 +43,7 @@ public class FdpaPromotedVolumesFormValidator implements SubmissionValidator {
         "Select yes if any resources are being promoted to reserves"
     );
 
-    if (!errors.hasErrors()) {
+    if (BooleanUtils.isTrue(fdpaPromotedVolumesForm.getHasPromotedVolumes())) {
       validateProbabilityDistributionsFull(fdpaPromotedVolumesForm, errors, submissionDetail);
     }
   }
@@ -122,19 +123,19 @@ public class FdpaPromotedVolumesFormValidator implements SubmissionValidator {
     );
 
     ProbabilityDistributionValidationUtil.validateCustomFull(
-        form.getOilEquivalentReserves(),
-        errors,
-        "oilEquivalentReserves",
-        "Oil equivalent reserves promoted volumes",
-        ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RESERVES_PROMOTED_VOLUMES_FDPA
-    );
-
-    ProbabilityDistributionValidationUtil.validateCustomFull(
         form.getSalesGasReserves(),
         errors,
         "salesGasReserves",
         "Sales gas reserves promoted volumes",
         ProbabilityDistributionFieldInstance.SALES_GAS_RESERVES_PROMOTED_VOLUMES_FDPA
+    );
+
+    ProbabilityDistributionValidationUtil.validateCustomFull(
+        form.getOilEquivalentReserves(),
+        errors,
+        "oilEquivalentReserves",
+        "Oil equivalent reserves promoted volumes",
+        ProbabilityDistributionFieldInstance.OIL_EQUIVALENT_RESERVES_PROMOTED_VOLUMES_FDPA
     );
   }
 

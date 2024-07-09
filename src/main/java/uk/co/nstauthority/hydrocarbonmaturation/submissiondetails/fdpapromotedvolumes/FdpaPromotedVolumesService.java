@@ -40,10 +40,8 @@ public class FdpaPromotedVolumesService {
     var hasPromotedResources = fdpaPromotedVolume.getResourcesAreBeingPromoted();
     fdpaPromotedVolumesForm.setHasPromotedVolumes(hasPromotedResources);
 
-    if (BooleanUtils.isTrue(hasPromotedResources)) {
-      setProbabilityDistributions(fdpaPromotedVolumesForm, submissionDetail);
-      fdpaPromotedVolumesForm.setComment(fdpaPromotedVolume.getComment());
-    }
+    setProbabilityDistributions(fdpaPromotedVolumesForm, submissionDetail);
+    fdpaPromotedVolumesForm.setComment(fdpaPromotedVolume.getComment());
 
     return fdpaPromotedVolumesForm;
   }
