@@ -4,6 +4,7 @@
 <#import '../systemofrecord/submissionHistorySearchSelector.ftl' as submissionSelector>
 <#import '../summarylistcards/regulatorManagedInformationSummaryCard.ftl' as regulatorManagedInformationSummary>
 <#import '../summary/_simpleSummary.ftl' as simpleSummary>
+<#import '../summary/_regulatorInformationSummary.ftl' as regulatorSummary>
 
 <#-- @ftlvariable name="submissionType" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType" -->
 <#-- @ftlvariable name="resourceRecord" type="uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceRecordSummaryView" -->
@@ -98,13 +99,13 @@ wrapperWidth=true>
   <h2 class="govuk-heading-l">${regulatorManagedInformationHeading}</h2>
   <#if canViewRegulatorManagementInfo>
     <#if isFieldResource>
-      <@simpleSummary.simpleSummaryCard
-      summaryDataView=fieldRegulatorManagedInformationSummaryCard.summaryData()
-      summaryHeading=fieldRegulatorManagedInformationSummaryCard.displayName()!""/>
+      <@regulatorSummary.regulatorInformationSummary
+        fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
+        fieldMapView=fieldMapView/>
     <#else>
-    <@regulatorManagedInformationSummary.regulatorManagedInformationSummaryCard
-      regulatorManagedInformationValues=regulatorManagedInformationSummaryView
-      resourceGroupsValues=resourceGroupsSummaryView/>
+      <@regulatorManagedInformationSummary.regulatorManagedInformationSummaryCard
+        regulatorManagedInformationValues=regulatorManagedInformationSummaryView
+        resourceGroupsValues=resourceGroupsSummaryView/>
     </#if>
   </#if>
 

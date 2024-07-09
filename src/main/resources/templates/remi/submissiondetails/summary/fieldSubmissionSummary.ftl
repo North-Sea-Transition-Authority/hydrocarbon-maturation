@@ -6,6 +6,7 @@
 <#import '../../summary/_simpleSummary.ftl' as simpleSummary>
 <#import '../../summary/_submissionSummary.ftl' as submissionSummary>
 <#import '../../summary/_reservoirSummary.ftl' as reservoirSummary>
+<#import '../../summary/_regulatorInformationSummary.ftl' as regulatorSummary>
 
 <#-- @ftlvariable name="pageName" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -44,9 +45,9 @@ caption=resourceName>
     </#if>
     <@fdsForm.htmlForm>
         <#if isRegulatorOrAreaTeamUser>
-            <@simpleSummary.simpleSummaryCard
-            summaryDataView=fieldRegulatorManagedInformationSummaryCard.summaryData()
-            summaryHeading=fieldRegulatorManagedInformationSummaryCard.displayName()!""/>
+            <@regulatorSummary.regulatorInformationSummary
+              fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
+              fieldMapView=fieldMapView/>
         </#if>
         <@submissionSummary.submissionSummary accordionId>
             <@reservoirSummary.reservoirSummary reservoirSummaries=reservoirSummaries/>

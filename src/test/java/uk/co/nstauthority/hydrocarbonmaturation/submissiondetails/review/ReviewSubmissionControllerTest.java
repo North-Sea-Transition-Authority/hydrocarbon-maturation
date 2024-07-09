@@ -36,8 +36,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.ViewFieldStatusHistoryController;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationSummaryService;
@@ -50,10 +50,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.RequestUpdateController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.StartUpdateController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdate;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapViewUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -372,25 +374,32 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
   @SuppressWarnings("unchecked")
   void showSubmissionModelAndView_whenIsRegulator_fieldSubmission_assertModelPropertiesAndVerifyAddRegulatorAttributes(SubmissionType submissionType) throws Exception {
     submissionDetail.setSubmissionType(submissionType);
-    when(reviewSubmissionService.canViewSubmission(submissionRecordSummaryView, USER, submissionDetail)).thenReturn(true);
+
+    when(reviewSubmissionService.canViewSubmission(submissionRecordSummaryView, USER, submissionDetail))
+        .thenReturn(true);
     when(reviewSubmissionService.canReviewSubmission(submissionRecordSummaryView, USER, submissionDetail))
         .thenReturn(true);
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
+
     var summaryCard = new SummaryCard("Test", SummaryCardType.SIMPLE_SUMMARY, null);
     when(fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
         .thenReturn(summaryCard);
+
     var resourceGroupSummary = new ResourceGroupSummaryView(List.of(), ResourceType.PROSPECT, "");
     when(resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
         .thenReturn(resourceGroupSummary);
+
     var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(submissionDetail));
     mockModelAndViewCreation(submissionDetail, queryResult);
-    when(responsibleTeamService.isInResponsibleTeam(USER, submissionRecordSummaryView.responsibleTeamType())).thenReturn(true);
 
+    when(responsibleTeamService.isInResponsibleTeam(USER, submissionRecordSummaryView.responsibleTeamType()))
+        .thenReturn(true);
 
-    var field = new Field();
+    var field = FieldTestUtils.createField("Alex", OnshoreOffshore.ONSHORE);
     field.setFieldIdentifier(8000);
-    when(fieldPersistenceService.getFieldOrThrow(resource)).thenReturn(field);
+    when(fieldPersistenceService.getFieldOrThrow(resource))
+        .thenReturn(field);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resourceId)))
@@ -406,7 +415,8 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
                   .getRegulatorManagedInformationPageWithSubmissionDetail(resourceId, submissionDetail.getId(), null))),
             entry("manageResourceInformationText", "Manage field information"),
             entry("fieldStatusUrl", ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
-                .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId(), null)))
+                .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId(), null))),
+            entry("fieldMapView", FieldMapViewUtil.getFieldGeoJsonUrl(field))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

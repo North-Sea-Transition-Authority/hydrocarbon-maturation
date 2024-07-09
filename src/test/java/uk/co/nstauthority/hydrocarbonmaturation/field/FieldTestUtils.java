@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 import java.util.UUID;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 
 public class FieldTestUtils {
   private FieldTestUtils() {
@@ -20,6 +21,13 @@ public class FieldTestUtils {
   public static Field createField(UUID resourceId, Integer fieldIdentifier) {
     var field = createField(fieldIdentifier);
     field.getResource().setId(resourceId);
+    return field;
+  }
+
+  public static Field createField(String fieldName, OnshoreOffshore onshoreOffshore) {
+    var field = new Field();
+    field.setCommonNameForField(fieldName);
+    field.setOnshoreOffshore(onshoreOffshore);
     return field;
   }
 }

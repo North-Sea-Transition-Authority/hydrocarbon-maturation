@@ -36,7 +36,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.ViewFieldStatusHistoryController;
@@ -51,6 +50,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Resp
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapViewUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
@@ -224,7 +225,9 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   void showSubmissionSummary_fieldSubmission_assertModelProperties() throws Exception {
     resource.setType(ResourceType.FIELD);
 
-    when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, USER)).thenReturn(true);
+    when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, USER))
+        .thenReturn(true);
+
     submissionDetail.setAcceptedTimestamp(Instant.now());
     var otherSubmissionOnResource = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR, resource);
     when(submissionDetailService.getSubmissionDetailForIdOrError(otherSubmissionOnResource.getId()))
@@ -233,9 +236,12 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .thenReturn(Optional.of(resource));
     when(viewResourceRecordService.canViewSubmissionDetail(otherSubmissionOnResource, resource))
         .thenReturn(true);
-    when(correctionService.canStartCorrection(resource, USER)).thenReturn(true);
+    when(correctionService.canStartCorrection(resource, USER))
+        .thenReturn(true);
+
     var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(otherSubmissionOnResource));
     mockModelAndViewCreation(otherSubmissionOnResource, queryResult);
+
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class)
                 .showSubmissionSummary(resourceId, otherSubmissionOnResource.getId(), null)))
@@ -272,7 +278,6 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .thenReturn(false);
     when(viewResourceRecordService.isRegulatorOrAreaTeamUser(USER))
         .thenReturn(false);
-    var resource = new Resource();
     resource.setId(resourceId);
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
@@ -316,7 +321,6 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .thenReturn(true);
     when(responsibleTeamService.isInResponsibleTeam(USER, resourceRecordSummaryView.responsibleTeam()))
         .thenReturn(true);
-    var resource = new Resource();
     resource.setId(resourceId);
     resource.setType(ResourceType.FIELD);
     when(resourceService.getResourceById(resourceId))
@@ -332,7 +336,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(otherSubmissionOnResource));
     mockModelAndViewCreation(submissionDetail, queryResult);
 
-    var field = new Field();
+    var field = FieldTestUtils.createField("Alex", OnshoreOffshore.ONSHORE);
     field.setFieldIdentifier(8000);
     field.setResource(resource);
     when(fieldPersistenceService.getFieldOrThrow(resource))
@@ -364,7 +368,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("manageResourceInformationText", "Manage field information"),
             entry("projectTrackerUrl",
                 ReverseRouter.route(on(ProjectListController.class)
-                    .getProjectList(field.getResource().getId(), null)))
+                    .getProjectList(field.getResource().getId(), null))),
+            entry("fieldMapView", FieldMapViewUtil.getFieldGeoJsonUrl(field))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -378,8 +383,10 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   @Test
   @SuppressWarnings("unchecked")
   void showResourceRecordModelAndView_whenIsRegulator_fieldResourceWithNoSubmissions_assertModelPropertiesAndVerifyAddRegulatorAttributes() throws Exception {
-    when(submissionDetailService.getSubmissionDetail(resourceRecordSummaryView.submissionDetailId())).thenReturn(Optional.empty());
-    when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, USER)).thenReturn(true);
+    when(submissionDetailService.getSubmissionDetail(resourceRecordSummaryView.submissionDetailId()))
+        .thenReturn(Optional.empty());
+    when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, USER))
+        .thenReturn(true);
     when(viewResourceRecordService.isRegulatorOrAreaTeamUser(USER))
         .thenReturn(true);
     when(regulatorTeamService.isRegulatorUser(USER))
@@ -387,13 +394,14 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     when(responsibleTeamService.isInResponsibleTeam(USER, resourceRecordSummaryView.responsibleTeam()))
         .thenReturn(true);
 
-    var resource = new Resource();
     resource.setId(resourceId);
     resource.setType(ResourceType.FIELD);
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
 
-    var field = FieldTestUtils.createField(8000);
+    var field = FieldTestUtils.createField("Alex", OnshoreOffshore.ONSHORE);
+    field.setFieldIdentifier(8000);
+    field.setResource(resource);
     when(fieldPersistenceService.getFieldOrThrow(resource))
         .thenReturn(field);
 
@@ -416,7 +424,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
                 .getRegulatorManagedInformationPage(resourceId, null))),
             entry("fieldRegulatorManagedInformationSummaryCard", regulatorSummary),
             entry("canViewRegulatorManagementInfo", true),
-            entry("manageResourceInformationText", "Manage field information")
+            entry("manageResourceInformationText", "Manage field information"),
+            entry("fieldMapView", FieldMapViewUtil.getFieldGeoJsonUrl(field))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -442,7 +451,6 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var regulatorSummary = RegulatorManagedInformationSummaryView.empty(false);
     when(regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(any()))
         .thenReturn(regulatorSummary);
-    var resource = new Resource();
     resource.setId(resourceId);
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
@@ -508,7 +516,6 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var regulatorSummary = RegulatorManagedInformationSummaryView.empty(false);
     when(regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(any()))
         .thenReturn(regulatorSummary);
-    var resource = new Resource();
     resource.setId(resourceId);
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
@@ -582,7 +589,6 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, USER)).thenReturn(true);
     when(regulatorTeamService.isReservesAndResourcesAdvisor(USER)).thenReturn(true);
 
-    var resource = new Resource();
     resource.setId(resourceId);
     resource.setType(ResourceType.DISCOVERY);
     when(resourceService.getResourceById(resourceId)).thenReturn(Optional.of(resource));

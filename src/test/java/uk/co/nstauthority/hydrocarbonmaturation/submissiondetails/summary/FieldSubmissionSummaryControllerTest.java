@@ -35,6 +35,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
@@ -44,7 +45,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshoreService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
@@ -75,7 +75,6 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
   @MockBean
   private FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
 
-  private ResourceDetailSummaryView resourceDetailSummaryView;
   private List<SummarySection> summarySections;
   private List<ReservoirSummary> reservoirSummaries;
 
@@ -87,7 +86,6 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
     submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     submissionDetailId = submissionDetail.getId();
     summarySections = Collections.emptyList();
-    resourceDetailSummaryView = ResourceDetailSummaryView.empty("Field");
     reservoirSummaries = Collections.emptyList();
     when(submissionDetailService.getSubmissionDetail(submissionDetailId)).thenReturn(Optional.of(submissionDetail));
     var field = new Field();
@@ -105,6 +103,11 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
         .thenReturn(managedInformationCard);
     mockCreateFieldSubmissionSummaryModelAndView();
     setUpWhenUserIsResponsibleTeam_forField_passSecurity(USER, submissionDetail);
+
+    var field = FieldTestUtils.createField("Alex", OnshoreOffshore.ONSHORE);
+    when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
+        .thenReturn(field);
+
     mockMvc.perform(
             get(ReverseRouter.route(
                 on(FieldSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
@@ -183,6 +186,10 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
         eq(ValidationType.FULL))
     ).thenReturn(false);
 
+    var field = FieldTestUtils.createField("Alex", OnshoreOffshore.ONSHORE);
+    when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
+        .thenReturn(field);
+
     mockCreateFieldSubmissionSummaryModelAndView();
 
     mockMvc.perform(
@@ -218,6 +225,10 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
         .getFieldRegulatorManagedInformationSummaryCard(submissionDetail.getSubmission().getResource()))
         .thenReturn(managedInformationCard);
 
+    var field = FieldTestUtils.createField("Alex", OnshoreOffshore.ONSHORE);
+    when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
+        .thenReturn(field);
+
     mockCreateFieldSubmissionSummaryModelAndView();
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -237,7 +248,8 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
             entry("reservoirSummaries", reservoirSummaries),
             entry("accordionId", submissionDetailId),
             entry("isOffshore", true),
-            entry("fieldRegulatorManagedInformationSummaryCard", managedInformationCard)
+            entry("fieldRegulatorManagedInformationSummaryCard", managedInformationCard),
+            entry("fieldMapView", FieldMapViewUtil.getFieldGeoJsonUrl(field))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

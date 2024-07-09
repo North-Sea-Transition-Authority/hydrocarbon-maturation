@@ -5,6 +5,7 @@
 <#import '../summarylistcards/regulatorManagedInformationSummaryCard.ftl' as regulatorManagedInformationSummary>
 <#import '../review/updateSummaryDetails.ftl' as updateSummaryDetails>
 <#import '../summary/_simpleSummary.ftl' as simpleSummary>
+<#import '../summary/_regulatorInformationSummary.ftl' as regulatorSummary>
 
 <#-- @ftlvariable name="submissionType" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType" -->
 <#-- @ftlvariable name="submissionRecord" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.SubmissionRecordSummaryView" -->
@@ -108,14 +109,14 @@
   <h2 class="govuk-heading-l">${submissionType.getTypeName()}</h2>
   <#if isInResponsibleTeam>
       <#if isFieldSubmission>
-          <@simpleSummary.simpleSummaryCard
-          summaryDataView=fieldRegulatorManagedInformationSummaryCard.summaryData()
-          summaryHeading=fieldRegulatorManagedInformationSummaryCard.displayName()!""/>
-    <#else>
+        <@regulatorSummary.regulatorInformationSummary
+          fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
+          fieldMapView=fieldMapView/>
+      <#else>
         <@regulatorManagedInformationSummary.regulatorManagedInformationSummaryCard
           regulatorManagedInformationValues=regulatorManagedInformationSummaryView
           resourceGroupsValues=resourceGroupsSummaryView/>
-    </#if>
+      </#if>
   </#if>
   <@submissionSummary.submissionSummary
     submissionType="${submissionType.name()}"/>

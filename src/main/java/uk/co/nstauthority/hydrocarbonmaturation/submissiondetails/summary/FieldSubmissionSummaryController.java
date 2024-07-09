@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -47,6 +48,7 @@ public class FieldSubmissionSummaryController {
   private final OnshoreOffshoreService onshoreOffshoreService;
   private final InternalTeamService internalTeamService;
   private final FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
+  private final FieldPersistenceService fieldPersistenceService;
 
   @Autowired
   public FieldSubmissionSummaryController(
@@ -57,7 +59,8 @@ public class FieldSubmissionSummaryController {
       SubmissionApprovalService submissionApprovalService,
       OnshoreOffshoreService onshoreOffshoreService,
       InternalTeamService internalTeamService,
-      FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService) {
+      FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService,
+      FieldPersistenceService fieldPersistenceService) {
     this.submissionDetailService = submissionDetailService;
     this.submissionReadyService = submissionReadyService;
     this.submissionSummaryModelService = submissionSummaryModelService;
@@ -66,6 +69,7 @@ public class FieldSubmissionSummaryController {
     this.onshoreOffshoreService = onshoreOffshoreService;
     this.internalTeamService = internalTeamService;
     this.fieldRegulatorManagedInformationSummaryService = fieldRegulatorManagedInformationSummaryService;
+    this.fieldPersistenceService = fieldPersistenceService;
   }
 
   @GetMapping
@@ -94,6 +98,8 @@ public class FieldSubmissionSummaryController {
         "remi/submissiondetails/summary/fieldSubmissionSummary"
     );
 
+    var field = fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource());
+
     modelAndView
         .addObject("form", form)
         .addObject("pageName", PAGE_NAME)
@@ -103,7 +109,8 @@ public class FieldSubmissionSummaryController {
         .addObject("isOffshore", onshoreOffshoreService.getOnshoreOffshore(submissionDetail) == OnshoreOffshore.OFFSHORE)
         .addObject("fieldRegulatorManagedInformationSummaryCard",
             fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(
-                submissionDetail.getSubmission().getResource()));
+                submissionDetail.getSubmission().getResource()))
+        .addObject("fieldMapView", FieldMapViewUtil.getFieldGeoJsonUrl(field));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(
         modelAndView,

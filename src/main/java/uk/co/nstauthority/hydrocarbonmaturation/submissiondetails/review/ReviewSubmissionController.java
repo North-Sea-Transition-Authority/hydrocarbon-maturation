@@ -34,6 +34,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.RequestUpdateController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.StartUpdateController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapViewUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistoryQueryService;
@@ -243,7 +244,8 @@ public class ReviewSubmissionController {
           .addObject("manageResourceInformationText", "Manage field information")
           .addObject("fieldStatusUrl", ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
               .getViewFieldStatusHistoryWithSubmissionDetail(
-                  field.getFieldIdentifier(), selectedSubmissionDetail.getId(), null)));
+                  field.getFieldIdentifier(), selectedSubmissionDetail.getId(), null)))
+          .addObject("fieldMapView", FieldMapViewUtil.getFieldGeoJsonUrl(field));
     } else {
       modelAndView
           .addObject("regulatorManagedInformationSummaryView",

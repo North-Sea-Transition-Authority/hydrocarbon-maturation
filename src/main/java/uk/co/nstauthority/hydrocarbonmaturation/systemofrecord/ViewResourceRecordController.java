@@ -37,6 +37,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Resp
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapViewUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionSelectionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionService;
@@ -201,7 +202,8 @@ public class ViewResourceRecordController {
           .addObject("manageResourceInformationText", "Manage field information")
           .addObject("projectTrackerUrl",
               ReverseRouter.route(on(ProjectListController.class)
-                  .getProjectList(field.getResource().getId(), null)));
+                  .getProjectList(field.getResource().getId(), null)))
+          .addObject("fieldMapView", FieldMapViewUtil.getFieldGeoJsonUrl(field));
     } else {
       modelAndView
           .addObject("regulatorManagedInformationUrl",

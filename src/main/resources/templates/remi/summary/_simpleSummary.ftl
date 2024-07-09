@@ -14,5 +14,6 @@
   headingSize="h3"
   summaryListId="summary-data-card-list">
     <@simpleSummary summaryDataView=summaryDataView/>
+    <#nested/>
   </@fdsSummaryList.summaryListCard>
 </#macro>
