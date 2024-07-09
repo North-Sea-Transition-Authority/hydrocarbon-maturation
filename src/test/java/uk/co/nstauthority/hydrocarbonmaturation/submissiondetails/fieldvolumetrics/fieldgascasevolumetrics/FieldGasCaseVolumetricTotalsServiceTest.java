@@ -93,9 +93,6 @@ class FieldGasCaseVolumetricTotalsServiceTest {
     var gasInPlace = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
     );
-    var recoverableResources = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
-        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD
-    );
     var oilEquivalentResources = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD
     );
@@ -113,11 +110,6 @@ class FieldGasCaseVolumetricTotalsServiceTest {
         submissionDetail,
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
     )).thenReturn(gasInPlace);
-
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD
-    )).thenReturn(recoverableResources);
 
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
@@ -143,8 +135,6 @@ class FieldGasCaseVolumetricTotalsServiceTest {
         .extracting(
             form -> form.getGasInPlace().getProbabilityDistributionType(),
             form -> form.getGasInPlace().getConstant().getConstant(),
-            form -> form.getGasRecoverableResources().getProbabilityDistributionType(),
-            form -> form.getGasRecoverableResources().getConstant().getConstant(),
             form -> form.getAssociatedCondensateRecoverableResources().getProbabilityDistributionType(),
             form -> form.getAssociatedCondensateRecoverableResources().getConstant(),
             form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
@@ -157,8 +147,6 @@ class FieldGasCaseVolumetricTotalsServiceTest {
         .containsExactly(
             gasInPlace.getProbabilityDistributionType(),
             gasInPlace.getConstant().getConstant(),
-            recoverableResources.getProbabilityDistributionType(),
-            recoverableResources.getConstant().getConstant(),
             associatedCondensateResources.getProbabilityDistributionType(),
             associatedCondensateResources.getConstant(),
             oilEquivalentResources.getProbabilityDistributionType(),
@@ -185,9 +173,6 @@ class FieldGasCaseVolumetricTotalsServiceTest {
     )).thenReturn(gasInPlace);
 
     // mock resources
-    var gasRecoverableResources = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
-        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD
-    );
     var oilEquivalentResources = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD
     );
@@ -200,11 +185,6 @@ class FieldGasCaseVolumetricTotalsServiceTest {
     var salesGasResources = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD
     );
-
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD
-    )).thenReturn(gasRecoverableResources);
 
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
@@ -227,9 +207,6 @@ class FieldGasCaseVolumetricTotalsServiceTest {
     )).thenReturn(salesGasResources);
 
     // mock reserves
-    var gasRecoverableReserves = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
-        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD
-    );
     var oilEquivalentReserves = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
     );
@@ -242,11 +219,6 @@ class FieldGasCaseVolumetricTotalsServiceTest {
     var salesGasReserves = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD
     );
-
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD
-    )).thenReturn(gasRecoverableReserves);
 
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
@@ -274,8 +246,6 @@ class FieldGasCaseVolumetricTotalsServiceTest {
             form -> form.getGasInPlace().getProbabilityDistributionType(),
             form -> form.getGasInPlace().getConstant().getConstant(),
 
-            form -> form.getGasRecoverableResources().getProbabilityDistributionType(),
-            form -> form.getGasRecoverableResources().getConstant().getConstant(),
             form -> form.getAssociatedCondensateRecoverableResources().getProbabilityDistributionType(),
             form -> form.getAssociatedCondensateRecoverableResources().getConstant(),
             form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
@@ -285,8 +255,6 @@ class FieldGasCaseVolumetricTotalsServiceTest {
             form -> form.getSalesGasResources().getProbabilityDistributionType(),
             form -> form.getSalesGasResources().getConstant().getConstant(),
 
-            form -> form.getGasRecoverableReserves().getProbabilityDistributionType(),
-            form -> form.getGasRecoverableReserves().getConstant().getConstant(),
             form -> form.getAssociatedCondensateRecoverableReserves().getProbabilityDistributionType(),
             form -> form.getAssociatedCondensateRecoverableReserves().getConstant(),
             form -> form.getOilEquivalentRecoverableReserves().getProbabilityDistributionType(),
@@ -300,8 +268,6 @@ class FieldGasCaseVolumetricTotalsServiceTest {
             gasInPlace.getProbabilityDistributionType(),
             gasInPlace.getConstant().getConstant(),
 
-            gasRecoverableResources.getProbabilityDistributionType(),
-            gasRecoverableResources.getConstant().getConstant(),
             associatedCondensateResources.getProbabilityDistributionType(),
             associatedCondensateResources.getConstant(),
             oilEquivalentResources.getProbabilityDistributionType(),
@@ -311,8 +277,6 @@ class FieldGasCaseVolumetricTotalsServiceTest {
             salesGasResources.getProbabilityDistributionType(),
             salesGasResources.getConstant().getConstant(),
 
-            gasRecoverableReserves.getProbabilityDistributionType(),
-            gasRecoverableReserves.getConstant().getConstant(),
             associatedCondensateReserves.getProbabilityDistributionType(),
             associatedCondensateReserves.getConstant(),
             oilEquivalentReserves.getProbabilityDistributionType(),
@@ -410,12 +374,6 @@ class FieldGasCaseVolumetricTotalsServiceTest {
   private void verifyResourcesSaved(GasCaseOutputsForm gasCaseOutputsForm, SubmissionDetail submissionDetail) {
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
-            ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD,
-            gasCaseOutputsForm.getGasRecoverableResources(),
-            submissionDetail
-        );
-    verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD,
             gasCaseOutputsForm.getAssociatedCondensateRecoverableResources(),
             submissionDetail
@@ -441,12 +399,6 @@ class FieldGasCaseVolumetricTotalsServiceTest {
   }
 
   private void verifyReservesSaved(GasCaseOutputsForm gasCaseOutputsForm, SubmissionDetail submissionDetail) {
-    verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistributionWhenNotNull(
-            ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD,
-            gasCaseOutputsForm.getGasRecoverableReserves(),
-            submissionDetail
-        );
     verify(probabilityDistributionPersistenceService, times(1))
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD,

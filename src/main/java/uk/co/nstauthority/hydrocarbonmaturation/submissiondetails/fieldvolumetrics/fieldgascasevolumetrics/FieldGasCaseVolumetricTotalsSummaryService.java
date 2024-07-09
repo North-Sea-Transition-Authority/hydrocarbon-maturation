@@ -70,12 +70,9 @@ public class FieldGasCaseVolumetricTotalsSummaryService implements SummarySectio
 
   private SummaryItem getResourcesAndReservesSummary(SubmissionDetail submissionDetail) {
     var listOfInstances = new ArrayList<>(List.of(
-        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD,
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD
-    )
-    );
+    ));
 
     var gasCaseVolumetricTotal = gasCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail)
         .orElse(new GasCaseVolumetricTotal());
@@ -85,15 +82,21 @@ public class FieldGasCaseVolumetricTotalsSummaryService implements SummarySectio
       );
     }
 
-    if (!submissionDetail.isConceptSelectReportSubmission()) {
+    var withReserves = !submissionDetail.isConceptSelectReportSubmission();
+    if (BooleanUtils.isTrue(withReserves)) {
       listOfInstances.addAll(List.of(
-              ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD,
               ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD,
-              ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD,
               ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESERVES_FIELD,
               ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD
           )
       );
+    }
+
+    listOfInstances.add(
+        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD);
+    if (BooleanUtils.isTrue(withReserves)) {
+      listOfInstances.add(
+          ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD);
     }
 
     var listOfCards = new ArrayList<SummaryCard>();

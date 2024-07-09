@@ -204,11 +204,7 @@ class FieldCombinedCaseVolumetricTotalsControllerTest extends AbstractSubmission
             entry("oilInPlaceError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
-            entry("associatedGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
-            entry("associatedGasRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasInPlaceError", ProbabilityDistributionTypeError.emptyError()),
-            entry("gasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
-            entry("gasRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
             entry("associatedCondensateRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
             entry("associatedCondensateRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilEquivalentRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
@@ -219,9 +215,6 @@ class FieldCombinedCaseVolumetricTotalsControllerTest extends AbstractSubmission
             entry("salesGasReservesError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasInPlaceTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD)),
-            entry("gasRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD,
-                contingentUncertaintyCategoryPromptOverrides)),
             entry("associatedCondensateRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
                 ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD,
                 contingentUncertaintyCategoryPromptOverrides)),
@@ -278,11 +271,7 @@ class FieldCombinedCaseVolumetricTotalsControllerTest extends AbstractSubmission
             entry("oilInPlaceError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
-            entry("associatedGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
-            entry("associatedGasRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
             entry("gasInPlaceError", ProbabilityDistributionTypeError.emptyError()),
-            entry("gasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
-            entry("gasRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
             entry("associatedCondensateRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
             entry("associatedCondensateRecoverableReservesError", ProbabilityDistributionTypeError.emptyError()),
             entry("oilEquivalentRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError()),
@@ -299,12 +288,6 @@ class FieldCombinedCaseVolumetricTotalsControllerTest extends AbstractSubmission
             entry("oilRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
                 ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD,
                 contingentUncertaintyCategoryPromptOverrides)),
-            entry("associatedGasRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD,
-                contingentUncertaintyCategoryPromptOverrides)),
-            entry("gasRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD,
-                contingentUncertaintyCategoryPromptOverrides)),
             entry("associatedCondensateRecoverableResourcesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
                 ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD,
                 contingentUncertaintyCategoryPromptOverrides)),
@@ -320,12 +303,6 @@ class FieldCombinedCaseVolumetricTotalsControllerTest extends AbstractSubmission
 
             entry("oilRecoverableReservesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
                 ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD,
-                contingentUncertaintyCategoryPromptOverrides)),
-            entry("associatedGasRecoverableReservesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD,
-                contingentUncertaintyCategoryPromptOverrides)),
-            entry("gasRecoverableReservesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
-                ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD,
                 contingentUncertaintyCategoryPromptOverrides)),
             entry("associatedCondensateRecoverableReservesTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstanceAndPromptOverrides(
                 ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD,

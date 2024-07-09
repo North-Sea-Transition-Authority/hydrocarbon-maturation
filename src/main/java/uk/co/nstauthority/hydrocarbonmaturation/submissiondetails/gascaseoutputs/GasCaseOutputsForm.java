@@ -7,7 +7,6 @@ public class GasCaseOutputsForm implements SubmissionForm {
 
   private ProbabilityDistributionForm gasInPlace = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm gasRecoverableResources = new ProbabilityDistributionForm();
-  private ProbabilityDistributionForm gasRecoverableReserves = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm associatedCondensateRecoverableResources = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm associatedCondensateRecoverableReserves = new ProbabilityDistributionForm();
   private ProbabilityDistributionForm oilEquivalentRecoverableResources = new ProbabilityDistributionForm();
@@ -33,14 +32,6 @@ public class GasCaseOutputsForm implements SubmissionForm {
 
   public void setGasRecoverableResources(ProbabilityDistributionForm gasRecoverableResources) {
     this.gasRecoverableResources = gasRecoverableResources;
-  }
-
-  public ProbabilityDistributionForm getGasRecoverableReserves() {
-    return gasRecoverableReserves;
-  }
-
-  public void setGasRecoverableReserves(ProbabilityDistributionForm gasRecoverableReserves) {
-    this.gasRecoverableReserves = gasRecoverableReserves;
   }
 
   public ProbabilityDistributionForm getAssociatedCondensateRecoverableResources() {

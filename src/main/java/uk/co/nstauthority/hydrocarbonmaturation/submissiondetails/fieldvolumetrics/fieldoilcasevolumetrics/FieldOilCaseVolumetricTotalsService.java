@@ -48,11 +48,6 @@ public class FieldOilCaseVolumetricTotalsService {
             ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD
         ));
 
-    form.setAssociatedGasRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD
-    ));
-
     form.setOilEquivalentRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD
@@ -79,11 +74,6 @@ public class FieldOilCaseVolumetricTotalsService {
               submissionDetail,
               ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD
           ));
-
-      form.setAssociatedGasRecoverableReserves(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
-          ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD
-      ));
 
       form.setOilEquivalentRecoverableReserves(probabilityDistributionFormService.probabilityDistributionEntityToForm(
           submissionDetail,
@@ -154,12 +144,6 @@ public class FieldOilCaseVolumetricTotalsService {
     );
 
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD,
-        oilCaseOutputsForm.getAssociatedGasRecoverableResources(),
-        submissionDetail
-    );
-
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD,
         oilCaseOutputsForm.getOilEquivalentRecoverableResources(),
         submissionDetail
@@ -188,12 +172,6 @@ public class FieldOilCaseVolumetricTotalsService {
       probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD,
           oilCaseOutputsForm.getAssociatedCondensateRecoverableReserves(),
-          submissionDetail
-      );
-
-      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-          ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD,
-          oilCaseOutputsForm.getAssociatedGasRecoverableReserves(),
           submissionDetail
       );
 

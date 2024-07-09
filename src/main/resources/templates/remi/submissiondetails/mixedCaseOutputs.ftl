@@ -35,16 +35,16 @@
       </#if>
 
       <@probabilityDistribution.probabilityDistributionSingularTemplate
-      probabilityDistributionPath="form.oilInPlace"
-      labelText="Oil initially in place"
-      template=oilInPlaceTemplate
-      error=oilInPlaceError/>
+        probabilityDistributionPath="form.oilInPlace"
+        labelText="Oil initially in place"
+        template=oilInPlaceTemplate
+        error=oilInPlaceError/>
 
       <@probabilityDistribution.probabilityDistributionSingularTemplate
-      probabilityDistributionPath="form.gasInPlace"
-      labelText="Gas initially in place"
-      template=gasInPlaceTemplate
-      error=gasInPlaceError/>
+        probabilityDistributionPath="form.gasInPlace"
+        labelText="Gas initially in place"
+        template=gasInPlaceTemplate
+        error=gasInPlaceError/>
 
     <@probabilityDistribution.probabilityDistributionSingularTemplate
       probabilityDistributionPath="form.oilRecoverableResources"
@@ -54,29 +54,31 @@
 
     <#if resourceType == 'PROSPECT'>
       <@fdsRadio.radioGroup hiddenContent=true path="form.hasAssociatedGasRecoverableResources"
-      labelText="Do you expect to find associated gas recoverable resources?">
+        labelText="Do you expect to find associated gas recoverable resources?">
           <@fdsRadio.radioYes path="form.hasAssociatedGasRecoverableResources">
               <@probabilityDistribution.probabilityDistributionSingularTemplate
-              probabilityDistributionPath="form.associatedGasRecoverableResources"
-              labelText="Associated gas recoverable resources"
-              template=associatedGasRecoverableResourcesTemplate
-              error=associatedGasRecoverableResourcesError/>
+                probabilityDistributionPath="form.associatedGasRecoverableResources"
+                labelText="Associated gas recoverable resources"
+                template=associatedGasRecoverableResourcesTemplate
+                error=associatedGasRecoverableResourcesError/>
           </@fdsRadio.radioYes>
           <@fdsRadio.radioNo path="form.hasAssociatedGasRecoverableResources"/>
       </@fdsRadio.radioGroup>
-      <#else>
-          <@probabilityDistribution.probabilityDistributionSingularTemplate
+    <#elseif resourceType == 'DISCOVERY'>
+        <@probabilityDistribution.probabilityDistributionSingularTemplate
           probabilityDistributionPath="form.associatedGasRecoverableResources"
           labelText="Associated gas recoverable resources"
           template=associatedGasRecoverableResourcesTemplate
           error=associatedGasRecoverableResourcesError/>
-      </#if>
+    </#if>
 
-    <@probabilityDistribution.probabilityDistributionSingularTemplate
-      probabilityDistributionPath="form.gasRecoverableResources"
-      labelText="Gas recoverable resources"
-      template=gasRecoverableResourcesTemplate
-      error=gasRecoverableResourcesError/>
+    <#if resourceType != 'FIELD'>
+      <@probabilityDistribution.probabilityDistributionSingularTemplate
+        probabilityDistributionPath="form.gasRecoverableResources"
+        labelText="Gas recoverable resources"
+        template=gasRecoverableResourcesTemplate
+        error=gasRecoverableResourcesError/>
+    </#if>
 
     <@fdsRadio.radioGroup
       path="form.hasAssociatedCondensateRecoverableResources"
@@ -84,13 +86,61 @@
       hiddenContent=true>
           <@fdsRadio.radioYes path="form.hasAssociatedCondensateRecoverableResources">
               <@probabilityDistribution.probabilityDistributionSingularTemplate
-              probabilityDistributionPath="form.associatedCondensateRecoverableResources"
-              labelText="Associated condensate recoverable resources"
-              template=associatedCondensateRecoverableResourcesTemplate
-              error=associatedCondensateRecoverableResourcesError/>
+                probabilityDistributionPath="form.associatedCondensateRecoverableResources"
+                labelText="Associated condensate recoverable resources"
+                template=associatedCondensateRecoverableResourcesTemplate
+                error=associatedCondensateRecoverableResourcesError/>
           </@fdsRadio.radioYes>
           <@fdsRadio.radioNo path="form.hasAssociatedCondensateRecoverableResources"/>
       </@fdsRadio.radioGroup>
+
+      <#if resourceType == 'FIELD'>
+        <@probabilityDistribution.probabilityDistributionSingularTemplate
+          probabilityDistributionPath="form.naturalGasLiquidsResources"
+          labelText="Natural gas liquid resources"
+          template=naturalGasLiquidsResourcesTemplate
+          error=naturalGasLiquidsResourcesError/>
+
+        <@probabilityDistribution.probabilityDistributionSingularTemplate
+          probabilityDistributionPath="form.salesGasResources"
+          labelText="Sales gas resources"
+          template=salesGasResourcesTemplate
+          error=salesGasResourcesError/>
+      </#if>
+
+      <#if resourceType == 'FIELD' && showReserves>
+          <@probabilityDistribution.probabilityDistributionSingularTemplate
+            probabilityDistributionPath="form.oilRecoverableReserves"
+            labelText="Oil reserves"
+            template=oilRecoverableReservesTemplate
+            error=oilRecoverableReservesError/>
+
+          <#if resourceType != 'FIELD'>
+            <@probabilityDistribution.probabilityDistributionSingularTemplate
+              probabilityDistributionPath="form.associatedGasRecoverableReserves"
+              labelText="Associated gas reserves"
+              template=associatedGasRecoverableReservesTemplate
+              error=associatedGasRecoverableReservesError/>
+          </#if>
+
+          <@probabilityDistribution.probabilityDistributionSingularTemplate
+            probabilityDistributionPath="form.associatedCondensateRecoverableReserves"
+            labelText="Associated condensate reserves"
+            template=associatedCondensateRecoverableReservesTemplate
+            error=associatedCondensateRecoverableReservesError/>
+
+          <@probabilityDistribution.probabilityDistributionSingularTemplate
+            probabilityDistributionPath="form.naturalGasLiquidsReserves"
+            labelText="Natural gas liquids reserves"
+            template=naturalGasLiquidsReservesTemplate
+            error=naturalGasLiquidsReservesError/>
+
+          <@probabilityDistribution.probabilityDistributionSingularTemplate
+            probabilityDistributionPath="form.salesGasReserves"
+            labelText="Sales gas reserves"
+            template=salesGasReservesTemplate
+            error=salesGasReservesError/>
+      </#if>
 
     <@probabilityDistribution.probabilityDistributionSingularTemplate
       probabilityDistributionPath="form.oilEquivalentRecoverableResources"
@@ -98,76 +148,26 @@
       template=oilEquivalentRecoverableResourcesTemplate
       error=oilEquivalentRecoverableResourcesError/>
 
-      <#if resourceType == 'FIELD'>
-        <@probabilityDistribution.probabilityDistributionSingularTemplate
-        probabilityDistributionPath="form.naturalGasLiquidsResources"
-        labelText="Natural gas liquid resources"
-        template=naturalGasLiquidsResourcesTemplate
-        error=naturalGasLiquidsResourcesError/>
-
-        <@probabilityDistribution.probabilityDistributionSingularTemplate
-        probabilityDistributionPath="form.salesGasResources"
-        labelText="Sales gas resources"
-        template=salesGasResourcesTemplate
-        error=salesGasResourcesError/>
-      </#if>
-
       <#if resourceType == 'FIELD' && showReserves>
-          <@probabilityDistribution.probabilityDistributionSingularTemplate
-          probabilityDistributionPath="form.oilRecoverableReserves"
-          labelText="Oil reserves"
-          template=oilRecoverableReservesTemplate
-          error=oilRecoverableReservesError/>
-
-          <@probabilityDistribution.probabilityDistributionSingularTemplate
-          probabilityDistributionPath="form.associatedGasRecoverableReserves"
-          labelText="Associated gas reserves"
-          template=associatedGasRecoverableReservesTemplate
-          error=associatedGasRecoverableReservesError/>
-
-          <@probabilityDistribution.probabilityDistributionSingularTemplate
-          probabilityDistributionPath="form.gasRecoverableReserves"
-          labelText="Gas reserves"
-          template=gasRecoverableReservesTemplate
-          error=gasRecoverableReservesError/>
-
-          <@probabilityDistribution.probabilityDistributionSingularTemplate
-          probabilityDistributionPath="form.associatedCondensateRecoverableReserves"
-          labelText="Associated condensate reserves"
-          template=associatedCondensateRecoverableReservesTemplate
-          error=associatedCondensateRecoverableReservesError/>
-
-          <@probabilityDistribution.probabilityDistributionSingularTemplate
+        <@probabilityDistribution.probabilityDistributionSingularTemplate
           probabilityDistributionPath="form.oilEquivalentRecoverableReserves"
           labelText="Oil equivalent reserves"
           template=oilEquivalentRecoverableReservesTemplate
           error=oilEquivalentRecoverableReservesError/>
-
-          <@probabilityDistribution.probabilityDistributionSingularTemplate
-          probabilityDistributionPath="form.naturalGasLiquidsReserves"
-          labelText="Natural gas liquids reserves"
-          template=naturalGasLiquidsReservesTemplate
-          error=naturalGasLiquidsReservesError/>
-
-          <@probabilityDistribution.probabilityDistributionSingularTemplate
-          probabilityDistributionPath="form.salesGasReserves"
-          labelText="Sales gas reserves"
-          template=salesGasReservesTemplate
-          error=salesGasReservesError/>
       </#if>
 
-    <#if resourceType == 'PROSPECT'>
+      <#if resourceType == 'PROSPECT'>
         <@probabilityDistribution.probabilityDistributionSingularTemplate
-        probabilityDistributionPath="form.riskedOilEquivalentRecoverableMean"
-        labelText="Risked oil equivalent recoverable"
-        template=riskedOilEquivalentRecoverableMeanTemplate
-        error=riskedOilEquivalentRecoverableMeanError/>
-    </#if>
+          probabilityDistributionPath="form.riskedOilEquivalentRecoverableMean"
+          labelText="Risked oil equivalent recoverable"
+          template=riskedOilEquivalentRecoverableMeanTemplate
+          error=riskedOilEquivalentRecoverableMeanError/>
+      </#if>
 
     <#if fieldSubmissionCarriedForward?? && fieldSubmissionCarriedForward==true>
         <@fdsCheckbox.checkboxItem
-        labelText="The field volumetric information reflects the current state of the field"
-        path="form.fieldVolumetricInformationCorrect"/>
+          labelText="The field volumetric information reflects the current state of the field"
+          path="form.fieldVolumetricInformationCorrect"/>
     </#if>
 
     <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>

@@ -90,8 +90,6 @@ public class FieldGasCaseVolumetricTotalsController {
         .addObject("submissionType", submissionDetail.getSubmissionType().getEnumName())
         .addObject("pageTitle", PAGE_NAME)
         .addObject("gasInPlaceError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("gasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("gasRecoverableReservesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("associatedCondensateRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("associatedCondensateRecoverableReservesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilEquivalentRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
@@ -105,9 +103,6 @@ public class FieldGasCaseVolumetricTotalsController {
         .addObject("gasInPlaceTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD))
-        .addObject("gasRecoverableResourcesTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD))
         .addObject("associatedCondensateRecoverableResourcesTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD))
@@ -124,9 +119,6 @@ public class FieldGasCaseVolumetricTotalsController {
 
     if (!submissionDetail.isConceptSelectReportSubmission()) {
       modelAndView
-          .addObject("gasRecoverableReservesTemplate",
-              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                  ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD))
           .addObject("associatedCondensateRecoverableReservesTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                   ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD))
@@ -163,11 +155,6 @@ public class FieldGasCaseVolumetricTotalsController {
                 bindingResult,
                 "gasInPlace",
                 form.getGasInPlace()))
-        .addObject("gasRecoverableResourcesError",
-            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
-                bindingResult,
-                "gasRecoverableResources",
-                form.getGasRecoverableResources()))
         .addObject("associatedCondensateRecoverableResourcesError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,
@@ -191,11 +178,6 @@ public class FieldGasCaseVolumetricTotalsController {
 
     if (!submissionDetail.isConceptSelectReportSubmission()) {
       modelAndView
-          .addObject("gasRecoverableReservesError",
-              probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
-                  bindingResult,
-                  "gasRecoverableReserves",
-                  form.getGasRecoverableReserves()))
           .addObject("associatedCondensateRecoverableReservesError",
               probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                   bindingResult,

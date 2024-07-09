@@ -479,16 +479,6 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.MMBBL,
       "Oil reserves"
   ),
-  TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD(
-      FieldVolumetricsResourcesBehaviour.class,
-      ProbabilityOfExceedanceUnits.BCF,
-      "Associated gas recoverable resources"
-  ),
-  TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD(
-      FieldVolumetricsReservesBehaviour.class,
-      ProbabilityOfExceedanceUnits.BCF,
-      "Associated gas reserves"
-  ),
 
   // Total oil case volumetrics
   TOTAL_OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY(
@@ -550,17 +540,6 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.BCF,
       "Gas initially in place"
   ),
-  TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD(
-      FieldVolumetricsResourcesBehaviour.class,
-      ProbabilityOfExceedanceUnits.BCF,
-      "Gas recoverable resources"
-  ),
-  TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD(
-      FieldVolumetricsReservesBehaviour.class,
-      ProbabilityOfExceedanceUnits.BCF,
-      "Gas reserves"
-  ),
-
 
   // Total discovery gas case volumetrics
   TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY(

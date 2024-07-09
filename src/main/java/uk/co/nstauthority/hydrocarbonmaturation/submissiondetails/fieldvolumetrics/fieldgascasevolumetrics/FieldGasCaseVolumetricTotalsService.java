@@ -38,11 +38,6 @@ public class FieldGasCaseVolumetricTotalsService {
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD
     ));
 
-    form.setGasRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD
-    ));
-
     var gasCaseVolumetricTotal = gasCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail)
         .orElse(new GasCaseVolumetricTotal());
 
@@ -73,11 +68,6 @@ public class FieldGasCaseVolumetricTotalsService {
     ));
 
     if (!submissionDetail.isConceptSelectReportSubmission()) {
-      form.setGasRecoverableReserves(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
-          ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD
-      ));
-
       form.setAssociatedCondensateRecoverableReserves(
           probabilityDistributionFormService.probabilityDistributionEntityToForm(
               submissionDetail,
@@ -133,12 +123,6 @@ public class FieldGasCaseVolumetricTotalsService {
         submissionDetail
     );
 
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD,
-        gasCaseOutputsForm.getGasRecoverableResources(),
-        submissionDetail
-    );
-
     var hasAssociatedCondensateRecoverableResources = gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources();
     if (BooleanUtils.isTrue(hasAssociatedCondensateRecoverableResources)) {
       probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
@@ -173,12 +157,6 @@ public class FieldGasCaseVolumetricTotalsService {
 
     if (!submissionDetail.isConceptSelectReportSubmission()) {
       // Save the fields related to reserves if it's not a concept select report submission
-      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-          ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD,
-          gasCaseOutputsForm.getGasRecoverableReserves(),
-          submissionDetail
-      );
-
       probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD,
           gasCaseOutputsForm.getAssociatedCondensateRecoverableReserves(),

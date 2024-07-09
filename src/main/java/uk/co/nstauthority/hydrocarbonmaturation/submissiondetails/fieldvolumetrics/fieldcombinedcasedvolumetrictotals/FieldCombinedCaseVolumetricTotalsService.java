@@ -69,11 +69,6 @@ public class FieldCombinedCaseVolumetricTotalsService {
             ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD
         ));
 
-    form.setAssociatedGasRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD
-    ));
-
     form.setOilEquivalentRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD
@@ -89,11 +84,6 @@ public class FieldCombinedCaseVolumetricTotalsService {
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD
     ));
 
-    form.setGasRecoverableResources(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD
-    ));
-
     if (!submissionDetail.isConceptSelectReportSubmission()) {
       form.setOilRecoverableReserves(probabilityDistributionFormService.probabilityDistributionEntityToForm(
           submissionDetail,
@@ -105,12 +95,6 @@ public class FieldCombinedCaseVolumetricTotalsService {
               submissionDetail,
               ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD
           ));
-
-      form.setAssociatedGasRecoverableReserves(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
-          ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD
-      ));
-
       form.setOilEquivalentRecoverableReserves(probabilityDistributionFormService.probabilityDistributionEntityToForm(
           submissionDetail,
           ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
@@ -124,11 +108,6 @@ public class FieldCombinedCaseVolumetricTotalsService {
       form.setSalesGasReserves(probabilityDistributionFormService.probabilityDistributionEntityToForm(
           submissionDetail,
           ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD
-      ));
-
-      form.setGasRecoverableReserves(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-          submissionDetail,
-          ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD
       ));
     }
 
@@ -173,21 +152,10 @@ public class FieldCombinedCaseVolumetricTotalsService {
         mixedCaseOutputsForm.getOilRecoverableResources(),
         submissionDetail
     );
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD,
-        mixedCaseOutputsForm.getAssociatedGasRecoverableResources(),
-        submissionDetail
-    );
 
     probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
         ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD,
         mixedCaseOutputsForm.getGasInPlace(),
-        submissionDetail
-    );
-
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD,
-        mixedCaseOutputsForm.getGasRecoverableResources(),
         submissionDetail
     );
 
@@ -228,17 +196,6 @@ public class FieldCombinedCaseVolumetricTotalsService {
       probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
           ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD,
           mixedCaseOutputsForm.getOilRecoverableReserves(),
-          submissionDetail
-      );
-      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-          ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD,
-          mixedCaseOutputsForm.getAssociatedGasRecoverableReserves(),
-          submissionDetail
-      );
-
-      probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(
-          ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD,
-          mixedCaseOutputsForm.getGasRecoverableReserves(),
           submissionDetail
       );
 

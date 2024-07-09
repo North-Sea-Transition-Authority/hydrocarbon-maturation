@@ -131,8 +131,6 @@ class FieldOilCaseVolumetricTotalsFormValidatorTest {
                 Set.of("oilRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
-            entry("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("naturalGasLiquidsResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
@@ -145,8 +143,7 @@ class FieldOilCaseVolumetricTotalsFormValidatorTest {
                 Set.of("oilRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
-            entry("associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+
             entry("oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("naturalGasLiquidsReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
@@ -176,8 +173,6 @@ class FieldOilCaseVolumetricTotalsFormValidatorTest {
                 Set.of("oilRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
-            entry("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("naturalGasLiquidsResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
@@ -189,8 +184,7 @@ class FieldOilCaseVolumetricTotalsFormValidatorTest {
                 Set.of("oilRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
-            entry("associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+
             entry("oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("naturalGasLiquidsReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
@@ -238,8 +232,6 @@ class FieldOilCaseVolumetricTotalsFormValidatorTest {
                 Set.of("oilRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
-            entry("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("naturalGasLiquidsResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
@@ -252,8 +244,7 @@ class FieldOilCaseVolumetricTotalsFormValidatorTest {
                 Set.of("oilRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
-            entry("associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
+
             entry("oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("naturalGasLiquidsReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
@@ -282,8 +273,6 @@ class FieldOilCaseVolumetricTotalsFormValidatorTest {
                 Set.of("oilRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("associatedCondensateRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
-            entry("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedGasRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilEquivalentRecoverableResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("naturalGasLiquidsResources." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
@@ -295,8 +284,6 @@ class FieldOilCaseVolumetricTotalsFormValidatorTest {
                 Set.of("oilRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("associatedCondensateRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
-            entry("associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
-                Set.of("associatedGasRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
                 Set.of("oilEquivalentRecoverableReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error.error")),
             entry("naturalGasLiquidsReserves." + ProbabilityDistributionType.CUSTOM.getPath() + ".error",
@@ -317,13 +304,11 @@ class FieldOilCaseVolumetricTotalsFormValidatorTest {
     form.setOilRecoverableResources(probabilityDistributionForm);
     form.setOilEquivalentRecoverableResources(probabilityDistributionForm);
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionForm);
-    form.setAssociatedGasRecoverableResources(probabilityDistributionForm);
     form.setNaturalGasLiquidsResources(probabilityDistributionForm);
     form.setSalesGasResources(probabilityDistributionForm);
 
     form.setOilRecoverableReserves(probabilityDistributionForm);
     form.setAssociatedCondensateRecoverableReserves(probabilityDistributionForm);
-    form.setAssociatedGasRecoverableReserves(probabilityDistributionForm);
     form.setOilEquivalentRecoverableReserves(probabilityDistributionForm);
     form.setNaturalGasLiquidsReserves(probabilityDistributionForm);
     form.setSalesGasReserves(probabilityDistributionForm);
@@ -344,9 +329,6 @@ class FieldOilCaseVolumetricTotalsFormValidatorTest {
     var associatedCondensateResources = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD
     );
-    var associatedGasResources = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
-        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD
-    );
     var naturalGasLiquidsResources = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD
     );
@@ -359,9 +341,6 @@ class FieldOilCaseVolumetricTotalsFormValidatorTest {
     );
     var associatedCondensateReserves = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD
-    );
-    var associatedGasReserves = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
-        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD
     );
     var oilEquivalentReserves = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
@@ -380,13 +359,11 @@ class FieldOilCaseVolumetricTotalsFormValidatorTest {
     form.setOilRecoverableResources(recoverableResources);
     form.setOilEquivalentRecoverableResources(oilEquivalentResources);
     form.setAssociatedCondensateRecoverableResources(associatedCondensateResources);
-    form.setAssociatedGasRecoverableResources(associatedGasResources);
     form.setNaturalGasLiquidsResources(naturalGasLiquidsResources);
     form.setSalesGasResources(salesGasResources);
 
     form.setOilRecoverableReserves(oilRecoverableReserves);
     form.setAssociatedCondensateRecoverableReserves(associatedCondensateReserves);
-    form.setAssociatedGasRecoverableReserves(associatedGasReserves);
     form.setOilEquivalentRecoverableReserves(oilEquivalentReserves);
     form.setNaturalGasLiquidsReserves(naturalGasLiquidsReserves);
     form.setSalesGasReserves(salesGasReserves);
@@ -422,13 +399,11 @@ class FieldOilCaseVolumetricTotalsFormValidatorTest {
     form.setOilRecoverableResources(probabilityDistributionForm);
     form.setOilEquivalentRecoverableResources(probabilityDistributionForm);
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionForm);
-    form.setAssociatedGasRecoverableResources(probabilityDistributionForm);
     form.setNaturalGasLiquidsResources(probabilityDistributionForm);
     form.setSalesGasResources(probabilityDistributionForm);
 
     form.setOilRecoverableReserves(probabilityDistributionForm);
     form.setAssociatedCondensateRecoverableReserves(probabilityDistributionForm);
-    form.setAssociatedGasRecoverableReserves(probabilityDistributionForm);
     form.setOilEquivalentRecoverableReserves(probabilityDistributionForm);
     form.setNaturalGasLiquidsReserves(probabilityDistributionForm);
     form.setSalesGasReserves(probabilityDistributionForm);

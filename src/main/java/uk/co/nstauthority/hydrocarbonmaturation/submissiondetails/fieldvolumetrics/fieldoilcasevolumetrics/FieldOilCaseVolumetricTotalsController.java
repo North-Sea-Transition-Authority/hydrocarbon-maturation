@@ -95,8 +95,6 @@ public class FieldOilCaseVolumetricTotalsController {
         .addObject("oilRecoverableReservesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("associatedCondensateRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("associatedCondensateRecoverableReservesError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("associatedGasRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
-        .addObject("associatedGasRecoverableReservesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilEquivalentRecoverableResourcesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("oilEquivalentRecoverableReservesError", ProbabilityDistributionTypeError.emptyError())
         .addObject("naturalGasLiquidsResourcesError", ProbabilityDistributionTypeError.emptyError())
@@ -114,9 +112,6 @@ public class FieldOilCaseVolumetricTotalsController {
         .addObject("associatedCondensateRecoverableResourcesTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD))
-        .addObject("associatedGasRecoverableResourcesTemplate",
-            probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD))
         .addObject("oilEquivalentRecoverableResourcesTemplate",
             probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD))
@@ -136,9 +131,6 @@ public class FieldOilCaseVolumetricTotalsController {
           .addObject("associatedCondensateRecoverableReservesTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                   ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD))
-          .addObject("associatedGasRecoverableReservesTemplate",
-              probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
-                  ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD))
           .addObject("oilEquivalentRecoverableReservesTemplate",
               probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                   ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD))
@@ -182,11 +174,6 @@ public class FieldOilCaseVolumetricTotalsController {
                 bindingResult,
                 "associatedCondensateRecoverableResources",
                 form.getAssociatedCondensateRecoverableResources()))
-        .addObject("associatedGasRecoverableResourcesError",
-            probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
-                bindingResult,
-                "associatedGasRecoverableResources",
-                form.getAssociatedGasRecoverableResources()))
         .addObject("oilEquivalentRecoverableResourcesError",
             probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                 bindingResult,
@@ -215,11 +202,6 @@ public class FieldOilCaseVolumetricTotalsController {
                   bindingResult,
                   "associatedCondensateRecoverableReserves",
                   form.getAssociatedCondensateRecoverableReserves()))
-          .addObject("associatedGasRecoverableReservesError",
-              probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
-                  bindingResult,
-                  "associatedGasRecoverableReserves",
-                  form.getAssociatedGasRecoverableReserves()))
           .addObject("oilEquivalentRecoverableReservesError",
               probabilityDistributionTemplateService.getProbabilityDistributionTypeError(
                   bindingResult,

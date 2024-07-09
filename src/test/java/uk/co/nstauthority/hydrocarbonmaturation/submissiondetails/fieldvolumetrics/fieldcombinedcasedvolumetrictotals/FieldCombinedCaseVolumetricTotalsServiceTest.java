@@ -168,8 +168,6 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
     var oilInPlace = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD);
 
-    var gasRecoverableResources = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
-        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD);
     var associatedCondensateRecoverableResources = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD);
     var oilEquivalentRecoverableResources = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
@@ -180,28 +178,22 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD);
     var oilRecoverableResources = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD);
-    var associatedGasRecoverableResources = ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
-        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD);
 
     var expectedForm = new MixedCaseOutputsForm();
     expectedForm.setGasInPlace(gasInPlace);
     expectedForm.setOilInPlace(oilInPlace);
 
-    expectedForm.setGasRecoverableResources(gasRecoverableResources);
     expectedForm.setHasAssociatedCondensateRecoverableResources(true);
     expectedForm.setAssociatedCondensateRecoverableResources(associatedCondensateRecoverableResources);
     expectedForm.setOilEquivalentRecoverableResources(oilEquivalentRecoverableResources);
     expectedForm.setNaturalGasLiquidsResources(naturalGasLiquidsResources);
     expectedForm.setSalesGasResources(salesGasResources);
     expectedForm.setOilRecoverableResources(oilRecoverableResources);
-    expectedForm.setAssociatedGasRecoverableResources(associatedGasRecoverableResources);
 
     return expectedForm;
   }
 
   private MixedCaseOutputsForm createFormWithReserves() {
-    var gasRecoverableReserves= ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
-        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD);
     var associatedCondensateRecoverableReserves= ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD);
     var oilEquivalentRecoverableReserves= ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
@@ -212,17 +204,13 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD);
     var oilRecoverableReserves= ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD);
-    var associatedGasRecoverableReserves= ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(
-        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD);
 
     var expectedForm = createFormWithNoReserves();
-    expectedForm.setGasRecoverableReserves(gasRecoverableReserves);
     expectedForm.setAssociatedCondensateRecoverableReserves(associatedCondensateRecoverableReserves);
     expectedForm.setOilEquivalentRecoverableReserves(oilEquivalentRecoverableReserves);
     expectedForm.setNaturalGasLiquidsReserves(naturalGasLiquidsReserves);
     expectedForm.setSalesGasReserves(salesGasReserves);
     expectedForm.setOilRecoverableReserves(oilRecoverableReserves);
-    expectedForm.setAssociatedGasRecoverableReserves(associatedGasRecoverableReserves);
 
     return expectedForm;
   }
@@ -236,11 +224,6 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
         submissionDetail,
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD
     )).thenReturn(form.getOilInPlace());
-
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD
-    )).thenReturn(form.getGasRecoverableResources());
 
     var combinedCaseVolumetricTotal = new CombinedCaseVolumetricTotal();
     combinedCaseVolumetricTotal.setHasAssociatedCondensateRecoverableResources(true);
@@ -267,19 +250,11 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
         submissionDetail,
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD
     )).thenReturn(form.getOilRecoverableResources());
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD
-    )).thenReturn(form.getAssociatedGasRecoverableResources());
   }
 
   private void mockFormWithReserves(MixedCaseOutputsForm form, SubmissionDetail submissionDetail) {
     mockFormWithNoReserves(form, submissionDetail);
 
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD
-    )).thenReturn(form.getGasRecoverableReserves());
     when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         submissionDetail,
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESERVES_FIELD
@@ -300,10 +275,6 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
         submissionDetail,
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD
     )).thenReturn(form.getOilRecoverableReserves());
-    when(probabilityDistributionFormService.probabilityDistributionEntityToForm(
-        submissionDetail,
-        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD
-    )).thenReturn(form.getAssociatedGasRecoverableReserves());
   }
 
   private void verifyResourcesSaved(MixedCaseOutputsForm mixedCaseOutputsForm, SubmissionDetail submissionDetail) {
@@ -311,18 +282,6 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD,
             mixedCaseOutputsForm.getOilRecoverableResources(),
-            submissionDetail
-        );
-    verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistributionWhenNotNull(
-            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_FIELD,
-            mixedCaseOutputsForm.getAssociatedGasRecoverableResources(),
-            submissionDetail
-        );
-    verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistributionWhenNotNull(
-            ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESOURCES_FIELD,
-            mixedCaseOutputsForm.getGasRecoverableResources(),
             submissionDetail
         );
     verify(probabilityDistributionPersistenceService, times(1))
@@ -356,18 +315,6 @@ class FieldCombinedCaseVolumetricTotalsServiceTest {
         .saveProbabilityDistributionWhenNotNull(
             ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESERVES_FIELD,
             mixedCaseOutputsForm.getOilRecoverableReserves(),
-            submissionDetail
-        );
-    verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistributionWhenNotNull(
-            ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_ASSOCIATED_GAS_RECOVERABLE_RESERVES_FIELD,
-            mixedCaseOutputsForm.getAssociatedGasRecoverableReserves(),
-            submissionDetail
-        );
-    verify(probabilityDistributionPersistenceService, times(1))
-        .saveProbabilityDistributionWhenNotNull(
-            ProbabilityDistributionFieldInstance.TOTAL_GAS_VOLUMETRICS_GAS_RECOVERABLE_RESERVES_FIELD,
-            mixedCaseOutputsForm.getGasRecoverableReserves(),
             submissionDetail
         );
     verify(probabilityDistributionPersistenceService, times(1))
