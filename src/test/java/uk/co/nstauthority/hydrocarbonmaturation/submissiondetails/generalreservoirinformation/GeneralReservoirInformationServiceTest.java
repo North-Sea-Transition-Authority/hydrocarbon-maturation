@@ -307,12 +307,12 @@ class GeneralReservoirInformationServiceTest {
   }
 
   @ParameterizedTest
-  @MethodSource({"allNonCopFieldSubmissionTypes"})
-  void saveGeneralReservoirInformation_fieldNonCop_noExistingFutureWorksDetail_answerYes(SubmissionType submissionType) {
+  @MethodSource("allNonCopFieldSubmissionTypes")
+  void saveGeneralReservoirInformation_fieldNonCop_noExistingFutureWorksDetail_answerNo(SubmissionType submissionType) {
     reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(submissionType);
 
     var form = new GeneralReservoirInformationForm();
-    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(false);
     form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
     form.setAssociatedDiscoveryReservoirs(Set.of());
 
@@ -328,7 +328,7 @@ class GeneralReservoirInformationServiceTest {
     assertThat(reservoirFutureWorksDetailCaptor.getValue())
         .extracting(
             ReservoirFutureWorksDetail::getReservoirSubmissionDetail,
-            ReservoirFutureWorksDetail::isReservoirBeingDevelopedUnderFuturePhase
+            ReservoirFutureWorksDetail::getIsReservoirBeingDevelopedUnderFuturePhase
         ).containsExactly(
             reservoirSubmissionDetail,
             form.getIsReservoirBeingDevelopedUnderFuturePhase()
@@ -365,16 +365,16 @@ class GeneralReservoirInformationServiceTest {
       value = SubmissionType.class,
       names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA"}
   )
-  void saveGeneralReservoirInformation_existingFutureWorksDetail_answerYes(SubmissionType submissionType) {
+  void saveGeneralReservoirInformation_existingFutureWorksDetail_answerNo(SubmissionType submissionType) {
     reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(submissionType);
     var form = new GeneralReservoirInformationForm();
-    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(false);
     form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
     form.setAssociatedDiscoveryReservoirs(Set.of());
 
     var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
     reservoirFutureWorksDetail.setReservoirSubmissionDetail(reservoirSubmissionDetail);
-    reservoirFutureWorksDetail.setReservoirBeingDevelopedUnderFuturePhase(false);
+    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(false);
 
     when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirFutureWorksDetail));
@@ -388,7 +388,7 @@ class GeneralReservoirInformationServiceTest {
     assertThat(reservoirFutureWorksDetailCaptor.getValue())
         .extracting(
             ReservoirFutureWorksDetail::getReservoirSubmissionDetail,
-            ReservoirFutureWorksDetail::isReservoirBeingDevelopedUnderFuturePhase
+            ReservoirFutureWorksDetail::getIsReservoirBeingDevelopedUnderFuturePhase
         ).containsExactly(
             reservoirSubmissionDetail,
             form.getIsReservoirBeingDevelopedUnderFuturePhase()
@@ -408,10 +408,10 @@ class GeneralReservoirInformationServiceTest {
       value = SubmissionType.class,
       names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA"}
   )
-  void saveGeneralReservoirInformation_existingFutureWorksDetail_answerNo(SubmissionType submissionType) {
+  void saveGeneralReservoirInformation_existingFutureWorksDetail_answerYes(SubmissionType submissionType) {
     reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(submissionType);
     var form = new GeneralReservoirInformationForm();
-    form.setIsReservoirBeingDevelopedUnderFuturePhase(false);
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
     form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
     form.setAssociatedDiscoveryReservoirs(Set.of());
 
@@ -430,7 +430,7 @@ class GeneralReservoirInformationServiceTest {
     assertThat(reservoirFutureWorksDetailCaptor.getValue())
         .extracting(
             ReservoirFutureWorksDetail::getReservoirSubmissionDetail,
-            ReservoirFutureWorksDetail::isReservoirBeingDevelopedUnderFuturePhase
+            ReservoirFutureWorksDetail::getIsReservoirBeingDevelopedUnderFuturePhase
         ).containsExactly(
             reservoirSubmissionDetail,
             form.getIsReservoirBeingDevelopedUnderFuturePhase()
@@ -524,9 +524,9 @@ class GeneralReservoirInformationServiceTest {
   }
 
   @Test
-  void getGeneralReservoirInformationForm_futureWorkDetails_answeredNo() {
+  void getGeneralReservoirInformationForm_futureWorkDetails_answeredYes() {
     var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
-    reservoirFutureWorksDetail.setReservoirBeingDevelopedUnderFuturePhase(false);
+    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(true);
 
     when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirFutureWorksDetail));
@@ -536,15 +536,15 @@ class GeneralReservoirInformationServiceTest {
             GeneralReservoirInformationForm::getIsReservoirBeingDevelopedUnderFuturePhase,
             GeneralReservoirInformationForm::getReservoirSubmissionSections)
         .containsExactly(
-            reservoirFutureWorksDetail.isReservoirBeingDevelopedUnderFuturePhase(),
+            reservoirFutureWorksDetail.getIsReservoirBeingDevelopedUnderFuturePhase(),
             emptySet()
         );
   }
 
   @Test
-  void getGeneralReservoirInformationForm_futureWorkDetails_answeredYes() {
+  void getGeneralReservoirInformationForm_futureWorkDetails_answeredNo() {
     var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
-    reservoirFutureWorksDetail.setReservoirBeingDevelopedUnderFuturePhase(true);
+    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(false);
 
     when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirFutureWorksDetail));
@@ -560,7 +560,7 @@ class GeneralReservoirInformationServiceTest {
             GeneralReservoirInformationForm::getIsReservoirBeingDevelopedUnderFuturePhase,
             GeneralReservoirInformationForm::getReservoirSubmissionSections)
         .containsExactly(
-            reservoirFutureWorksDetail.isReservoirBeingDevelopedUnderFuturePhase(),
+            reservoirFutureWorksDetail.getIsReservoirBeingDevelopedUnderFuturePhase(),
             Set.of(reservoirSection.getReservoirSectionType())
         );
   }

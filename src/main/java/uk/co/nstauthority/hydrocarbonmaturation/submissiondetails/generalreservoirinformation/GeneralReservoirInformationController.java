@@ -84,17 +84,18 @@ public class GeneralReservoirInformationController {
                                                                   ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var isFieldSubmission = submissionDetail.isFieldSubmission();
+    var submissionTypeDisplay = submissionDetail.getSubmissionType().getTypeName().toLowerCase();
     var modelAndView = new ModelAndView("remi/submissiondetails/generalreservoirinformation/generalReservoirInformation")
         .addObject("form", form)
         .addObject("pageTitle",
             "%s reservoir".formatted(isFieldSubmission ? "Field" : "Discovery"))
-        .addObject("isFieldSubmission", submissionDetail.isFieldSubmission())
+        .addObject("isFieldSubmission", isFieldSubmission)
         .addObject("hydrocarbonsDiscovered",
             DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class))
         .addObject("reservoirSubmissionSectionTypeOptions",
             ReservoirSubmissionSectionType.getReservoirSectionSubmissionTypeOptions())
-        .addObject("isCessationOfProduction", submissionDetail.isCessationOfProductionSubmission());
-
+        .addObject("isCessationOfProduction", submissionDetail.isCessationOfProductionSubmission())
+        .addObject("submissionTypeDisplay", submissionTypeDisplay);
 
     if (isFieldSubmission) {
       modelAndView

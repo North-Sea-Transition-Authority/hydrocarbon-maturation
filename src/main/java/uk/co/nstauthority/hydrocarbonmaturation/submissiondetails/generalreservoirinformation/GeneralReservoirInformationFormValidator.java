@@ -34,7 +34,7 @@ public class GeneralReservoirInformationFormValidator implements ReservoirSubmis
 
   private void validateSectionsAreForHydrocarbonSelected(GeneralReservoirInformationForm form,
                                                          Errors errors) {
-    if (Boolean.TRUE.equals(form.getIsReservoirBeingDevelopedUnderFuturePhase())) {
+    if (Boolean.FALSE.equals(form.getIsReservoirBeingDevelopedUnderFuturePhase())) {
       var hydrocarbonsDiscovered = form.getHydrocarbonsDiscovered();
       var selectedSections = form.getReservoirSubmissionSections();
 
@@ -85,7 +85,7 @@ public class GeneralReservoirInformationFormValidator implements ReservoirSubmis
       ValidationUtils.rejectIfEmpty(errors,
           "isReservoirBeingDevelopedUnderFuturePhase",
           "isReservoirBeingDevelopedUnderFuturePhase.required",
-          "Select if this reservoir is being developed under a future phase of work");
+          "Select yes if this reservoir is being developed under a future phase of work");
     }
 
     validateSectionsAreForHydrocarbonSelected((GeneralReservoirInformationForm) form, errors);

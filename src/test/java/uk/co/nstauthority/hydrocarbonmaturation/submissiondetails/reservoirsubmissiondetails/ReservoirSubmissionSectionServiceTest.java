@@ -93,7 +93,7 @@ class ReservoirSubmissionSectionServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
     var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
     reservoirFutureWorksDetail.setReservoirSubmissionDetail(reservoirSubmissionDetail);
-    reservoirFutureWorksDetail.setReservoirBeingDevelopedUnderFuturePhase(false);
+    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(false);
     when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirFutureWorksDetail));
     when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
@@ -108,7 +108,7 @@ class ReservoirSubmissionSectionServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
     var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
     reservoirFutureWorksDetail.setReservoirSubmissionDetail(reservoirSubmissionDetail);
-    reservoirFutureWorksDetail.setReservoirBeingDevelopedUnderFuturePhase(true);
+    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(true);
     when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirFutureWorksDetail));
 
@@ -139,7 +139,7 @@ class ReservoirSubmissionSectionServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
 
     var workDetail = new ReservoirFutureWorksDetail();
-    workDetail.setReservoirBeingDevelopedUnderFuturePhase(true);
+    workDetail.setIsReservoirBeingDevelopedUnderFuturePhase(true);
 
     when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(workDetail));
@@ -164,7 +164,7 @@ class ReservoirSubmissionSectionServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
 
     var workDetail = new ReservoirFutureWorksDetail();
-    workDetail.setReservoirBeingDevelopedUnderFuturePhase(true);
+    workDetail.setIsReservoirBeingDevelopedUnderFuturePhase(true);
 
     when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(workDetail));
@@ -193,7 +193,7 @@ class ReservoirSubmissionSectionServiceTest {
 
     var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
     var isBeingDevelopedUnderFuturePhase = true;
-    reservoirFutureWorksDetail.setReservoirBeingDevelopedUnderFuturePhase(isBeingDevelopedUnderFuturePhase);
+    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(isBeingDevelopedUnderFuturePhase);
     when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirFutureWorksDetail));
 
@@ -230,7 +230,7 @@ class ReservoirSubmissionSectionServiceTest {
 
     var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
     var isBeingDevelopedUnderFuturePhase = true;
-    reservoirFutureWorksDetail.setReservoirBeingDevelopedUnderFuturePhase(isBeingDevelopedUnderFuturePhase);
+    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(isBeingDevelopedUnderFuturePhase);
     when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirFutureWorksDetail));
 
@@ -267,7 +267,7 @@ class ReservoirSubmissionSectionServiceTest {
 
     var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
     var isBeingDevelopedUnderFuturePhase = true;
-    reservoirFutureWorksDetail.setReservoirBeingDevelopedUnderFuturePhase(isBeingDevelopedUnderFuturePhase);
+    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(isBeingDevelopedUnderFuturePhase);
     when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirFutureWorksDetail));
 
@@ -304,7 +304,7 @@ class ReservoirSubmissionSectionServiceTest {
 
     var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
     var isBeingDevelopedUnderFuturePhase = true;
-    reservoirFutureWorksDetail.setReservoirBeingDevelopedUnderFuturePhase(isBeingDevelopedUnderFuturePhase);
+    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(isBeingDevelopedUnderFuturePhase);
     when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirFutureWorksDetail));
 
@@ -341,7 +341,7 @@ class ReservoirSubmissionSectionServiceTest {
 
     var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
     var isBeingDevelopedUnderFuturePhase = true;
-    reservoirFutureWorksDetail.setReservoirBeingDevelopedUnderFuturePhase(isBeingDevelopedUnderFuturePhase);
+    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(isBeingDevelopedUnderFuturePhase);
     when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirFutureWorksDetail));
 
@@ -378,7 +378,7 @@ class ReservoirSubmissionSectionServiceTest {
 
     var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
     var isBeingDevelopedUnderFuturePhase = true;
-    reservoirFutureWorksDetail.setReservoirBeingDevelopedUnderFuturePhase(isBeingDevelopedUnderFuturePhase);
+    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(isBeingDevelopedUnderFuturePhase);
     when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirFutureWorksDetail));
 
@@ -415,7 +415,7 @@ class ReservoirSubmissionSectionServiceTest {
 
     var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
     var isBeingDevelopedUnderFuturePhase = true;
-    reservoirFutureWorksDetail.setReservoirBeingDevelopedUnderFuturePhase(isBeingDevelopedUnderFuturePhase);
+    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(isBeingDevelopedUnderFuturePhase);
     when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirFutureWorksDetail));
 
@@ -452,7 +452,7 @@ class ReservoirSubmissionSectionServiceTest {
 
     var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
     var isBeingDevelopedUnderFuturePhase = false;
-    reservoirFutureWorksDetail.setReservoirBeingDevelopedUnderFuturePhase(isBeingDevelopedUnderFuturePhase);
+    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(isBeingDevelopedUnderFuturePhase);
     when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirFutureWorksDetail));
 

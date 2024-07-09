@@ -125,14 +125,14 @@ public class GeneralReservoirInformationService {
               .orElse(new ReservoirFutureWorksDetail());
 
       reservoirFutureWorksDetail.setReservoirSubmissionDetail(reservoirSubmissionDetail);
-      reservoirFutureWorksDetail.setReservoirBeingDevelopedUnderFuturePhase(
+      reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(
           form.getIsReservoirBeingDevelopedUnderFuturePhase()
       );
       reservoirFutureWorksDetailRepository.save(reservoirFutureWorksDetail);
 
       // clear all existing sections
       reservoirSubmissionSectionService.deleteSelectedReservoirSubmissionSectionOptions(reservoirSubmissionDetail);
-      if (BooleanUtils.isTrue(form.getIsReservoirBeingDevelopedUnderFuturePhase())) {
+      if (BooleanUtils.isFalse(form.getIsReservoirBeingDevelopedUnderFuturePhase())) {
         // save selected
         reservoirSubmissionSectionService.saveReservoirSubmissionSections(
             form.getReservoirSubmissionSections(),
@@ -166,10 +166,10 @@ public class GeneralReservoirInformationService {
     reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail)
         .ifPresent(reservoirFutureWorksDetail -> {
           form.setIsReservoirBeingDevelopedUnderFuturePhase(
-              reservoirFutureWorksDetail.isReservoirBeingDevelopedUnderFuturePhase()
+              reservoirFutureWorksDetail.getIsReservoirBeingDevelopedUnderFuturePhase()
           );
 
-          if (Boolean.TRUE.equals(reservoirFutureWorksDetail.isReservoirBeingDevelopedUnderFuturePhase())) {
+          if (Boolean.FALSE.equals(reservoirFutureWorksDetail.getIsReservoirBeingDevelopedUnderFuturePhase())) {
             setReservoirSubmissionSectionsForm(reservoirSubmissionDetail, form);
           }
         });

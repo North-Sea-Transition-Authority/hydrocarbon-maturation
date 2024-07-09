@@ -89,7 +89,7 @@ public class ReservoirSubmissionSectionService {
         reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail)
             .orElse(new ReservoirFutureWorksDetail());
 
-    if (Boolean.TRUE.equals(reservoirFutureWorksDetail.isReservoirBeingDevelopedUnderFuturePhase())) {
+    if (Boolean.TRUE.equals(reservoirFutureWorksDetail.getIsReservoirBeingDevelopedUnderFuturePhase())) {
       return getAllReservoirSubmissionSections(reservoirSubmissionDetail)
           .stream().map(ReservoirSubmissionSection::getReservoirSectionType)
           .collect(Collectors.toSet());

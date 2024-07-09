@@ -8,7 +8,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelld
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSectionType;
 
 @ApplyFormErrorOrdering
-class GeneralReservoirInformationForm implements SubmissionForm {
+public class GeneralReservoirInformationForm implements SubmissionForm {
 
   @ErrorSummaryDisplayOrder(1)
   private String reservoirName;

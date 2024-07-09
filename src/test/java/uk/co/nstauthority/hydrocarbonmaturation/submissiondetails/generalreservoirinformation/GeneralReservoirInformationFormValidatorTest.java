@@ -267,10 +267,9 @@ class GeneralReservoirInformationFormValidatorTest {
   }
 
   @Test
-  void isValid_field_sectionsDoNotMatchHydroCarbonCase_thenNoErrors() {
+  void isValid_field_sectionsDoNotMatchHydroCarbonCase_thenErrors() {
     var form = getValidForm_field();
 
-    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
     form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.GAS_ONLY);
     form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.OIL_PROPERTIES));
 
@@ -291,7 +290,7 @@ class GeneralReservoirInformationFormValidatorTest {
     var form = new GeneralReservoirInformationForm();
     form.setReservoirName(reservoirSubmissionDetail.getReservoir().getName());
     form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
-    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(false);
     form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
     return form;
   }
@@ -301,7 +300,7 @@ class GeneralReservoirInformationFormValidatorTest {
     form.setReservoirName(reservoirSubmissionDetail.getReservoir().getName());
     form.setAssociatedDiscoveryReservoirs(Set.of("associatedDiscoveryId"));
     form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
-    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(false);
     form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
     return form;
   }
@@ -311,7 +310,7 @@ class GeneralReservoirInformationFormValidatorTest {
     form.setReservoirName("");
     form.setAssociatedDiscoveryReservoirs(Set.of("associatedDiscoveryId"));
     form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
-    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(false);
     form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
     return form;
   }
@@ -321,7 +320,7 @@ class GeneralReservoirInformationFormValidatorTest {
     form.setReservoirName(reservoirSubmissionDetail.getReservoir().getName());
     form.setAssociatedDiscoveryReservoirs(Set.of());
     form.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.OIL_ONLY);
-    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(false);
     form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
     return form;
   }
@@ -330,7 +329,7 @@ class GeneralReservoirInformationFormValidatorTest {
     var form = new GeneralReservoirInformationForm();
     form.setReservoirName(reservoirSubmissionDetail.getReservoir().getName());
     form.setAssociatedDiscoveryReservoirs(Set.of("associatedDiscoveryId"));
-    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(false);
     form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
     return form;
   }
@@ -339,7 +338,7 @@ class GeneralReservoirInformationFormValidatorTest {
     var form = new GeneralReservoirInformationForm();
     form.setReservoirName("");
     form.setAssociatedDiscoveryReservoirs(Set.of());
-    form.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    form.setIsReservoirBeingDevelopedUnderFuturePhase(false);
     form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
     return form;
   }

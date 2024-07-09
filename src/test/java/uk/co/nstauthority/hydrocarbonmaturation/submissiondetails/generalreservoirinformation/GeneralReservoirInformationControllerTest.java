@@ -125,7 +125,8 @@ class GeneralReservoirInformationControllerTest extends AbstractSubmissionContro
             entry("hydrocarbonsDiscovered", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class)),
             entry("reservoirSubmissionSectionTypeOptions",
                 ReservoirSubmissionSectionType.getReservoirSectionSubmissionTypeOptions()),
-            entry("isCessationOfProduction", submissionDetail.isCessationOfProductionSubmission())
+            entry("isCessationOfProduction", submissionDetail.isCessationOfProductionSubmission()),
+            entry("submissionTypeDisplay", submissionDetail.getSubmissionType().getTypeName().toLowerCase())
         )
         .doesNotContainKeys("alreadyAddedAssociatedDiscoveryReservoirs", "discoveryReservoirsApiEndpoint", "resourceNames");
 
@@ -177,7 +178,8 @@ class GeneralReservoirInformationControllerTest extends AbstractSubmissionContro
             entry("discoveryReservoirsApiEndpoint",
                 SearchSelectorService.route(on(ResourceRestController.class)
                     .searchDiscoveryReservoirs(null, submissionDetail.getId().toString()))),
-            entry("resourceNames", resourceNames)
+            entry("resourceNames", resourceNames),
+            entry("submissionTypeDisplay", submissionDetail.getSubmissionType().getTypeName().toLowerCase())
         );
 
     assertEquals(GeneralReservoirInformationForm.class, modelMap.get("form").getClass());
