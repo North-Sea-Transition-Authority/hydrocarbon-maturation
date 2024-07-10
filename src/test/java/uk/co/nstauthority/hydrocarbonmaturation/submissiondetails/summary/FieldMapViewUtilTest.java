@@ -9,9 +9,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 class FieldMapViewUtilTest {
 
   static final String FIELD_NAME = "Davy";
-  static final String ONSHORE_URL = "https:/data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/" +
+  static final String ONSHORE_URL = "https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/" +
       "ENG_Onshore_Fields_WGS84/FeatureServer/0/query?where=FIELDNAME%3D%27DAVY%27&f=geoJson&outFields=*";
-  static final String OFFSHORE_URL = "https:/data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/" +
+  static final String OFFSHORE_URL = "https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/" +
       "UKCS_Offshore_Fields_WGS84/FeatureServer/0/query?where=FIELDNAME%3D%27DAVY%27&f=geoJson&outFields=*";
 
   @Test

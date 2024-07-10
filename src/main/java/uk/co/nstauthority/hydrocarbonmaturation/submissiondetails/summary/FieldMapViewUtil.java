@@ -23,7 +23,7 @@ public class FieldMapViewUtil {
 
     var fieldName = field.getCommonNameForField().trim();
 
-    var url = UriComponentsBuilder.fromPath(URL_TEMPLATE)
+    var url = UriComponentsBuilder.fromUriString(URL_TEMPLATE)
         .buildAndExpand(onshoreOffshore, fieldName.toUpperCase())
         .toString();
 
