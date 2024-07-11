@@ -202,6 +202,26 @@ class PlannedSanctionedWellsSummaryServiceTest {
         );
   }
 
+  @Test
+  void getPlannedSanctionedWellsCard_existingData_noStimulationTypeSet() {
+    var plannedSanctionedWell = getPlannedSanctionedWells_withNoWellNumbers();
+    plannedSanctionedWell.setStimulationTypeRequired(null);
+
+    when(plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(plannedSanctionedWell));
+
+    var summaryCard = plannedSanctionedWellsSummaryService.getPlannedSanctionedWellsCard(submissionDetail);
+    var summaryDataView = ((SummaryDataView) summaryCard.summaryData()).keyValues();
+    assertThat(summaryDataView)
+        .extracting(
+            SummaryKeyValue::key,
+            SummaryKeyValue::value)
+        .contains(Tuple.tuple(
+            PlannedSanctionedWellsSummaryService.STIMULATION_TYPE_REQUIRED,
+            ""
+        ));
+  }
+
   private void testSummary_hasTextFields_andHasWellTypes_andDoesNotHaveKeys(
       List<Tuple> expectedTextFields, List<Tuple> expectedWellTypes, List<String> keysNotInSummaries) {
 
@@ -255,7 +275,8 @@ class PlannedSanctionedWellsSummaryServiceTest {
 
   }
 
-  private void testSummary_hasTextFields_andHasWellTypes(List<Tuple> expectedTextFields, List<Tuple> expectedWellTypes) {
+  private void testSummary_hasTextFields_andHasWellTypes(List<Tuple> expectedTextFields,
+                                                         List<Tuple> expectedWellTypes) {
     testSummary_hasTextFields_andHasWellTypes_andDoesNotHaveKeys(
         expectedTextFields, expectedWellTypes, Collections.emptyList());
   }
@@ -371,7 +392,7 @@ class PlannedSanctionedWellsSummaryServiceTest {
     var expectedTextFields = List.of(
         Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_HORIZONTAL_WELLS,
             BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyHorizontalWells()))
-        );
+    );
 
     var notPresentKeys = List.of(
         PlannedSanctionedWellsSummaryService.NUMBER_OF_HORIZONTAL_WELLS,
@@ -396,8 +417,8 @@ class PlannedSanctionedWellsSummaryServiceTest {
 
     var expectedWellTypes = List.of(
         Tuple.tuple(
-          PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLBORE_STABILITY_CHALLENGES,
-          plannedSanctionedWells.getNumberOfWellboreStabilityChallenges()
+            PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLBORE_STABILITY_CHALLENGES,
+            plannedSanctionedWells.getNumberOfWellboreStabilityChallenges()
         )
     );
 

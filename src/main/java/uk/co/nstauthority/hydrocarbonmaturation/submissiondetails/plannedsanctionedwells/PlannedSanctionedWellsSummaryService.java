@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedsancti
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Objects;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -130,14 +131,15 @@ public class PlannedSanctionedWellsSummaryService {
                 plannedSanctionedWells.getDrillingChallengesMitigations());
           }
 
-          summaryDataView.addKeyValue(STIMULATION_TYPE_REQUIRED,
-              plannedSanctionedWells.getStimulationTypeRequired().getDisplayName());
+          var stimulatedTypeRequired = Objects.nonNull(plannedSanctionedWells.getStimulationTypeRequired())
+              ? plannedSanctionedWells.getStimulationTypeRequired().getDisplayName()
+              : "";
+          summaryDataView.addKeyValue(STIMULATION_TYPE_REQUIRED, stimulatedTypeRequired);
 
           summaryDataView.addKeyValue(IS_EXPECTING_FORMATION_DAMAGE,
               BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getIsExpectingFormationDamage()));
           if (BooleanUtils.isTrue(plannedSanctionedWells.getIsExpectingFormationDamage())) {
-            summaryDataView.addKeyValue(EXPECTED_FORMATION_DAMAGE,
-                plannedSanctionedWells.getExpectedFormationDamage());
+            summaryDataView.addKeyValue(EXPECTED_FORMATION_DAMAGE, plannedSanctionedWells.getExpectedFormationDamage());
           }
 
           summaryDataView.addKeyValue(ANY_HEAVY_OIL, plannedSanctionedWells.getAnyHeavyOil());
