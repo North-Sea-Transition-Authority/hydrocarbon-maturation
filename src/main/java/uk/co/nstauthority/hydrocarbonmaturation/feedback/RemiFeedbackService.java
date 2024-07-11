@@ -60,7 +60,7 @@ class RemiFeedbackService {
     feedback.setComment(form.getFeedback());
     feedback.setGivenDatetime(clock.instant());
     feedback.setSubmitterEmail(user.emailAddress());
-    feedback.setSubmitterName("%s %s".formatted(user.forename(), user.surname()));
+    feedback.setSubmitterName(user.displayNameIncludingAnyProxyUser());
     try {
       feedbackClientService.saveFeedback(feedback);
     } catch (CannotSendFeedbackException e) {

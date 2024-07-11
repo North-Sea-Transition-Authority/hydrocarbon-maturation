@@ -20,4 +20,9 @@ public record User(Long wuaId,
   public String displayName() {
     return "%s %s".formatted(forename, surname);
   }
+
+  public String displayNameIncludingAnyProxyUser() {
+    var userDisplayName = displayName();
+    return proxyWuaId != null ? String.format("%s/%s", proxyUsername, userDisplayName) : userDisplayName;
+  }
 }

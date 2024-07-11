@@ -106,7 +106,7 @@ class RemiFeedbackServiceTest {
         Feedback::getTransactionReference,
         Feedback::getTransactionLink
     ).containsExactly(
-        USER.displayName(),
+        USER.displayNameIncludingAnyProxyUser(),
         USER.emailAddress(),
         form.getServiceRating().getEnumName(),
         form.getFeedback(),
@@ -140,7 +140,7 @@ class RemiFeedbackServiceTest {
         Feedback::getTransactionReference,
         Feedback::getTransactionLink
     ).containsExactly(
-        USER.displayName(),
+        USER.displayNameIncludingAnyProxyUser(),
         USER.emailAddress(),
         form.getServiceRating().getEnumName(),
         form.getFeedback(),
