@@ -18,7 +18,7 @@ public class FdpaIncreasedVolumesSummarySectionService
 
   public static final String SUMMARY_TITLE = "Increased volumes";
   public static final String SUMMARY_DESCRIPTION = "Changes to volumetrics as a result of this FDPA";
-  public static final int SECTION_ORDER = 50;
+  public static final int SECTION_ORDER = 60;
 
   private final FdpaIncreasedVolumesSummaryService fdpaIncreasedVolumesService;
 

@@ -17,7 +17,7 @@ public class FdpaPromotedVolumesSummarySectionService implements SummarySectionS
 
   public static final String SUMMARY_TITLE = "Promoted resources";
   public static final String SUMMARY_DESCRIPTION = "Resources being promoted to reserves as a result of this FDPA";
-  public static final int SECTION_ORDER = 40;
+  public static final int SECTION_ORDER = 50;
 
   private final FdpaPromotedVolumesSummaryService fdpaPromotedVolumesSummaryService;
 

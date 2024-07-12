@@ -56,6 +56,6 @@
         </@fdsAccordion.accordionSection>
       </#list>
     </#list>
-      <#nested/>
+    <#nested/>
   </@fdsAccordion.accordion>
 </#macro>
