@@ -16,7 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Form
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
 @Service
-class ReservoirPropertiesPersistenceService {
+public class ReservoirPropertiesPersistenceService {
 
   private final ReservoirPropertiesRepository reservoirPropertiesRepository;
   private final BarrierBaffleDetailRepository barrierBaffleDetailRepository;

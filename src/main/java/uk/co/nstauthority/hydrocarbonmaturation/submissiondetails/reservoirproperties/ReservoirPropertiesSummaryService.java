@@ -93,6 +93,7 @@ public class ReservoirPropertiesSummaryService implements SummarySectionService<
 
     addGrossReservoirThickness(submissionDetail, listOfInstances);
     addGrossRockVolume(submissionDetail, listOfInstances);
+
     if (submissionDetail.isDryWellSubmission()) {
       addPercentOfGrvOilBearing(submissionDetail, listOfInstances);
     } else if (submissionDetail.isProspectSubmission()) {
@@ -452,7 +453,7 @@ public class ReservoirPropertiesSummaryService implements SummarySectionService<
 
   private void addNetPorosity(SubmissionDetail submissionDetail,
                               List<ProbabilityDistributionFieldInstance> listOfInstances) {
-    if (submissionDetail.isProspectSubmission()) {
+    if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT);
     } else if (submissionDetail.isDiscoverySubmission()) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY);
@@ -461,7 +462,7 @@ public class ReservoirPropertiesSummaryService implements SummarySectionService<
 
   private void addNetToGross(SubmissionDetail submissionDetail,
                              List<ProbabilityDistributionFieldInstance> listOfInstances) {
-    if (submissionDetail.isProspectSubmission()) {
+    if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT);
     } else if (submissionDetail.isDiscoverySubmission()) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY);
@@ -502,7 +503,7 @@ public class ReservoirPropertiesSummaryService implements SummarySectionService<
 
   private void addGrossReservoirThickness(SubmissionDetail submissionDetail,
                                           List<ProbabilityDistributionFieldInstance> listOfInstances) {
-    if (submissionDetail.isProspectSubmission()) {
+    if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT);
     } else if (submissionDetail.isDiscoverySubmission()) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_DISCOVERY);
@@ -511,7 +512,7 @@ public class ReservoirPropertiesSummaryService implements SummarySectionService<
 
   private void addGrossRockVolume(SubmissionDetail submissionDetail,
                                   List<ProbabilityDistributionFieldInstance> listOfInstances) {
-    if (submissionDetail.isProspectSubmission()) {
+    if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT);
     } else if (submissionDetail.isDiscoverySubmission()) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_DISCOVERY);
@@ -536,7 +537,7 @@ public class ReservoirPropertiesSummaryService implements SummarySectionService<
 
   private void addPercentOfGrvOilBearing(SubmissionDetail submissionDetail,
                                          List<ProbabilityDistributionFieldInstance> listOfInstances) {
-    if (submissionDetail.isProspectSubmission()) {
+    if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT);
     } else if (submissionDetail.isDiscoverySubmission()) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_DISCOVERY);

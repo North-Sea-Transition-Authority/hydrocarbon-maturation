@@ -58,8 +58,8 @@ class OilCaseVolumetricParametersSummaryServiceTest {
             List.of(
                 ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_PROSPECT,
                 ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_PROSPECT,
-                ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT,
-                ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD
+                ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
+                ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_PROSPECT
             ),
             propspectSubmissionDetail,
             prospectReservoirSubmissionDetail))
@@ -83,8 +83,8 @@ class OilCaseVolumetricParametersSummaryServiceTest {
             List.of(
                 ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_DISCOVERY,
                 ProbabilityDistributionFieldInstance.OIL_HYDROCARBON_SATURATION_DISCOVERY,
-                ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_DISCOVERY,
-                ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD
+                ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD,
+                ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_DISCOVERY
             ),
             discoverySubmissionDetail,
             discoveryReservoirSubmissionDetail))

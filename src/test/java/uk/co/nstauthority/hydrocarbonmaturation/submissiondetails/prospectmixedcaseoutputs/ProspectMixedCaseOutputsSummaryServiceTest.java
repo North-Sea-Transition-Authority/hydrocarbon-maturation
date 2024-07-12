@@ -41,9 +41,9 @@ class ProspectMixedCaseOutputsSummaryServiceTest {
   private final MixedCaseOutput mixedCaseOutput = new MixedCaseOutput();
   private static final List<ProbabilityDistributionFieldInstance> INSTANCES = List.of(
       ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT,
+      ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_PROSPECT,
       ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT,
       ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT,
-      ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_PROSPECT,
       ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT,
       ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT,
       ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT,
@@ -107,14 +107,13 @@ class ProspectMixedCaseOutputsSummaryServiceTest {
                 summaryBehaviour,
                 List.of(
                     ProbabilityDistributionSummaryView.empty("Oil initially in place"),
+                    ProbabilityDistributionSummaryView.empty("Gas initially in place"),
                     ProbabilityDistributionSummaryView.empty("Oil recoverable resources"),
                     ProbabilityDistributionSummaryView.empty("Associated gas recoverable resources"),
-                    ProbabilityDistributionSummaryView.empty("Oil equivalent recoverable resources"),
-                    ProbabilityDistributionSummaryView.empty("Risked oil equivalent recoverable"),
-                    ProbabilityDistributionSummaryView.empty("Gas initially in place"),
                     ProbabilityDistributionSummaryView.empty("Gas recoverable resources"),
                     ProbabilityDistributionSummaryView.empty("Associated condensate recoverable resources"),
-                    ProbabilityDistributionSummaryView.empty("Oil equivalent recoverable resources")
+                    ProbabilityDistributionSummaryView.empty("Oil equivalent recoverable resources"),
+                    ProbabilityDistributionSummaryView.empty("Risked oil equivalent recoverable")
                 )
             )
         );

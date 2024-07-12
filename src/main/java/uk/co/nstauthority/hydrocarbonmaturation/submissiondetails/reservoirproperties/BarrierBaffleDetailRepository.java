@@ -6,7 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-interface BarrierBaffleDetailRepository extends CrudRepository<BarrierBaffleDetail, UUID> {
+public interface BarrierBaffleDetailRepository extends CrudRepository<BarrierBaffleDetail, UUID> {
   Set<BarrierBaffleDetail> findAllByReservoirPropertyAndVerticalLateralType(ReservoirProperty reservoirProperty,
                                                                             VerticalLateralType verticalLateralType);
 

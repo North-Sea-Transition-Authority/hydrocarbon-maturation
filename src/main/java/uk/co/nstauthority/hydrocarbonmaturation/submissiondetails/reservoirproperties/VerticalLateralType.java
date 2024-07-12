@@ -1,6 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirproperties;
 
-enum VerticalLateralType {
+public enum VerticalLateralType {
   VERTICAL,
   LATERAL
 }

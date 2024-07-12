@@ -112,8 +112,8 @@ class FieldGasVolumetricParametersSummaryServiceTest {
 
     var fieldOilVolumetricParametersInstances = List.of(
         ProbabilityDistributionFieldInstance.GAS_FORMATION_VOLUME_FACTOR_FIELD,
-        ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR_FIELD,
-        ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD_CONSTANT
+        ProbabilityDistributionFieldInstance.CONDENSATE_GAS_RATIO_LIFE_OF_FIELD_CONSTANT,
+        ProbabilityDistributionFieldInstance.GAS_RECOVERY_FACTOR_FIELD
     );
 
     var fieldOilTableView = ProbabilityDistributionTableView.empty();

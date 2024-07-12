@@ -255,7 +255,12 @@ class ReservoirPropertiesSummaryServiceTest {
 
     var probabilityTableView = ProbabilityDistributionTableView.empty();
     var probabilityInstances = List.of(
-        ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL
+        ProbabilityDistributionFieldInstance.AVERAGE_NET_RESERVOIR_THICKNESS_DRY_WELL,
+        ProbabilityDistributionFieldInstance.GROSS_RESERVOIR_THICKNESS_PROSPECT,
+        ProbabilityDistributionFieldInstance.GROSS_ROCK_VOLUME_PROSPECT,
+        ProbabilityDistributionFieldInstance.PERCENT_OF_GRV_OIL_BEARING_PROSPECT,
+        ProbabilityDistributionFieldInstance.NET_TO_GROSS_PROSPECT,
+        ProbabilityDistributionFieldInstance.NET_POROSITY_PROSPECT
     );
     when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         probabilityInstances, submissionDetail, reservoirSubmissionDetail))

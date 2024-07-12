@@ -112,8 +112,8 @@ class FieldOilVolumetricParametersSummaryServiceTest {
 
     var fieldOilVolumetricParametersInstances = List.of(
         ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_FIELD,
-        ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_FIELD,
-        ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD_CONSTANT
+        ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD_CONSTANT,
+        ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_FIELD
     );
 
     var probabilityTableView = ProbabilityDistributionTableView.empty();

@@ -22,9 +22,9 @@ public class FieldOilVolumetricParametersSummaryService implements SummarySectio
 
   private static final List<ProbabilityDistributionFieldInstance> FIELD_OIL_VOLUMETRIC_PARAMETERS_INSTANCES = List.of(
       ProbabilityDistributionFieldInstance.OIL_FORMATION_VOLUME_FACTOR_FIELD,
-      ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_FIELD,
-      ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD_CONSTANT
-  );
+      ProbabilityDistributionFieldInstance.ASSOCIATED_GAS_OIL_RATIO_LIFE_OF_FIELD_CONSTANT,
+      ProbabilityDistributionFieldInstance.OIL_RECOVERY_FACTOR_FIELD
+      );
 
   private final GeneralReservoirInformationService generalReservoirInformationService;
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;

@@ -10,7 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.AgeSeries;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.GroupName;
 
-class ReservoirPropertiesForm implements SubmissionForm {
+public class ReservoirPropertiesForm implements SubmissionForm {
 
   private String formationName;
   private String subUnit;

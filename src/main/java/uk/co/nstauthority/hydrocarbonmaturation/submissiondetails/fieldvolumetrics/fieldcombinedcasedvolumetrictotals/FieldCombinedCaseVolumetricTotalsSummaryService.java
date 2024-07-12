@@ -69,11 +69,8 @@ public class FieldCombinedCaseVolumetricTotalsSummaryService implements SummaryS
 
   private SummaryItem getResourcesAndReservesSummary(SubmissionDetail submissionDetail) {
     var listOfInstances = new ArrayList<>(List.of(
-        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD,
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD,
-        ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD
-    )
-    );
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD
+    ));
 
     var combinedCaseVolumetricTotal = combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail)
         .orElse(new CombinedCaseVolumetricTotal());
@@ -82,6 +79,9 @@ public class FieldCombinedCaseVolumetricTotalsSummaryService implements SummaryS
           ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_FIELD
       );
     }
+
+    listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_NATURAL_GAS_LIQUIDS_RESOURCES_FIELD);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD);
 
     var withReserves = !submissionDetail.isConceptSelectReportSubmission();
     if (BooleanUtils.isTrue(withReserves)) {
