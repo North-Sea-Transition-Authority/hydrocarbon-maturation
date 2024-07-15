@@ -9,7 +9,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedExcept
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSubmissionStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
+import uk.co.nstauthority.hydrocarbonmaturation.notify.OldSubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
@@ -20,7 +20,7 @@ public class SubmissionApprovalService {
   private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
   private final RegulatorTeamService regulatorTeamService;
   private final UserService userService;
-  private final SubmissionEmailService submissionEmailService;
+  private final OldSubmissionEmailService oldSubmissionEmailService;
   private final SubmissionUpdateService submissionUpdateService;
   private final ResponsibleTeamService responsibleTeamService;
   private final AreaTeamService areaTeamService;
@@ -33,7 +33,7 @@ public class SubmissionApprovalService {
       SubmissionDetailPersistenceService submissionDetailPersistenceService,
       RegulatorTeamService regulatorTeamService,
       UserService userService,
-      SubmissionEmailService submissionEmailService,
+      OldSubmissionEmailService oldSubmissionEmailService,
       SubmissionUpdateService submissionUpdateService,
       ResponsibleTeamService responsibleTeamService,
       AreaTeamService areaTeamService, ReservoirTotalsCleanAndCopyService reservoirTotalsCleanAndCopyService,
@@ -42,7 +42,7 @@ public class SubmissionApprovalService {
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
     this.regulatorTeamService = regulatorTeamService;
     this.userService = userService;
-    this.submissionEmailService = submissionEmailService;
+    this.oldSubmissionEmailService = oldSubmissionEmailService;
     this.submissionUpdateService = submissionUpdateService;
     this.responsibleTeamService = responsibleTeamService;
     this.areaTeamService = areaTeamService;
@@ -77,7 +77,7 @@ public class SubmissionApprovalService {
           fieldSubmissionStatusService.updateFieldStatusForAcceptance(submissionDetail);
         }
       } else {
-        submissionEmailService.sendSubmittedSubmissionEmails(submissionDetail);
+        oldSubmissionEmailService.sendSubmittedSubmissionEmails(submissionDetail);
         if (submissionDetail.isFieldSubmission()) {
           fieldSubmissionStatusService.updateFieldStatusForSubmission(submissionDetail);
         }
@@ -94,7 +94,7 @@ public class SubmissionApprovalService {
         fieldSubmissionStatusService.updateFieldStatusForAcceptance(submissionDetail);
       }
 
-      submissionEmailService.sendSubmissionApprovalEmail(submissionDetail);
+      oldSubmissionEmailService.sendSubmissionApprovalEmail(submissionDetail);
     } else {
       throw new ActionNotAllowedException("Submission cannot be accepted by user with ID %s"
           .formatted(userService.getUserWuaId()));

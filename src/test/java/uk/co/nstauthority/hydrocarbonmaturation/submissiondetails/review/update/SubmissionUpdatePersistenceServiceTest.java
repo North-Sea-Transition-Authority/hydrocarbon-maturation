@@ -22,7 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
-import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
+import uk.co.nstauthority.hydrocarbonmaturation.notify.OldSubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -41,7 +41,7 @@ class SubmissionUpdatePersistenceServiceTest {
   @Mock
   private Clock clock;
   @Mock
-  private SubmissionEmailService submissionEmailService;
+  private OldSubmissionEmailService oldSubmissionEmailService;
   @Mock
   private SubmissionCreateService submissionCreateService;
   @Mock
@@ -72,7 +72,7 @@ class SubmissionUpdatePersistenceServiceTest {
           underTest.requestUpdate(submissionDetail, form);
 
       verify(submissionUpdateRepository, times(1)).save(captor.capture());
-      verify(submissionEmailService, times(1))
+      verify(oldSubmissionEmailService, times(1))
           .sendReturnedForUpdateEmails(submissionDetail);
 
       assertThat(captor.getValue())

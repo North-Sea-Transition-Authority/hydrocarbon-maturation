@@ -60,7 +60,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewS
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 
 @ExtendWith(MockitoExtension.class)
-class SubmissionEmailServiceTest {
+class OldSubmissionEmailServiceTest {
 
   private static final String CONTEXT_PATH = "/remi";
   private static final String SERVICE_URL = "http://localhost" + CONTEXT_PATH;
@@ -109,7 +109,7 @@ class SubmissionEmailServiceTest {
   private SubmissionDetailService submissionDetailService;
 
   @InjectMocks
-  private SubmissionEmailService submissionEmailService;
+  private OldSubmissionEmailService oldSubmissionEmailService;
 
   @Captor
   ArgumentCaptor<EmailProperties> argumentCaptor;
@@ -163,7 +163,7 @@ class SubmissionEmailServiceTest {
           ReverseRouter.route(on(ViewResourceRecordController.class)
               .showResourceRecord(SUBMISSION_DETAIL.getSubmission().getResource().getId()));
 
-      submissionEmailService.sendSubmissionApprovalEmail(SUBMISSION_DETAIL);
+      oldSubmissionEmailService.sendSubmissionApprovalEmail(SUBMISSION_DETAIL);
 
       verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient.emailAddress()));
 
@@ -221,7 +221,7 @@ class SubmissionEmailServiceTest {
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(SUBMISSION_DETAIL))
         .thenReturn(submissionTypeWithAcronym);
 
-    submissionEmailService.sendSubmissionApprovalEmail(SUBMISSION_DETAIL);
+    oldSubmissionEmailService.sendSubmissionApprovalEmail(SUBMISSION_DETAIL);
 
     verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient.emailAddress()));
 
@@ -251,7 +251,7 @@ class SubmissionEmailServiceTest {
       when(energyPortalUserService.findByWuaId(WebUserAccountId.valueOf(invalidWuaId)))
           .thenReturn(Optional.empty());
 
-      submissionEmailService.sendSubmissionApprovalEmail(SUBMISSION_DETAIL);
+      oldSubmissionEmailService.sendSubmissionApprovalEmail(SUBMISSION_DETAIL);
 
       verifyNoInteractions(notifyEmailService);
     }
@@ -295,7 +295,7 @@ class SubmissionEmailServiceTest {
           .thenReturn(responsibleTeam);
       when(serviceBrandingConfigurationProperties.getServiceConfigurationProperties())
           .thenReturn(new ServiceConfigurationProperties("", SERVICE_NAME));
-      submissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
+      oldSubmissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
 
       verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient1.emailAddress()));
       verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient2.emailAddress()));
@@ -346,7 +346,7 @@ class SubmissionEmailServiceTest {
       when(submissionDetailService.getSubmissionTypeNameWithAcronym(SUBMISSION_DETAIL))
           .thenReturn(submissionTypeWithAcronym);
 
-      submissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
+      oldSubmissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
 
       verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient1.emailAddress()));
       verifyNoMoreInteractions(notifyEmailService);
@@ -413,7 +413,7 @@ class SubmissionEmailServiceTest {
       when(submissionDetailService.getSubmissionTypeNameWithAcronym(SUBMISSION_DETAIL))
           .thenReturn(submissionTypeWithAcronym);
 
-      submissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
+      oldSubmissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
 
       verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient1.emailAddress()));
       verifyNoMoreInteractions(notifyEmailService);
@@ -447,7 +447,7 @@ class SubmissionEmailServiceTest {
           SUBMISSION_DETAIL.getSubmission().getResource()))
           .thenReturn(regulatorManagedInformation);
 
-      submissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
+      oldSubmissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
 
       verifyNoInteractions(notifyEmailService);
     }
@@ -463,7 +463,7 @@ class SubmissionEmailServiceTest {
       when(responsibleTeamService.getResponsibleTeamUsers(ResponsibleTeamType.EXPLORATION))
           .thenReturn(List.of());
 
-      submissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
+      oldSubmissionEmailService.sendSubmittedSubmissionEmails(SUBMISSION_DETAIL);
 
       verifyNoInteractions(notifyEmailService);
     }
@@ -509,7 +509,7 @@ class SubmissionEmailServiceTest {
       when(submissionDetailService.getSubmissionTypeNameWithAcronym(SUBMISSION_DETAIL))
           .thenReturn(submissionTypeWithAcronym);
 
-      submissionEmailService.sendSubmissionWithdrawalEmail(SUBMISSION_DETAIL);
+      oldSubmissionEmailService.sendSubmissionWithdrawalEmail(SUBMISSION_DETAIL);
 
       verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient.emailAddress()));
 
@@ -567,7 +567,7 @@ class SubmissionEmailServiceTest {
       when(submissionDetailService.getSubmissionTypeNameWithAcronym(SUBMISSION_DETAIL))
           .thenReturn(submissionTypeWithAcronym);
 
-      submissionEmailService.sendSubmissionWithdrawalEmail(SUBMISSION_DETAIL);
+      oldSubmissionEmailService.sendSubmissionWithdrawalEmail(SUBMISSION_DETAIL);
 
       verify(notifyEmailService).sendEmail(argumentCaptor.capture(), eq(recipient.emailAddress()));
 
@@ -597,7 +597,7 @@ class SubmissionEmailServiceTest {
       when(energyPortalUserService.findByWuaId(WebUserAccountId.valueOf(invalidWuaId)))
           .thenReturn(Optional.empty());
 
-      submissionEmailService.sendSubmissionWithdrawalEmail(
+      oldSubmissionEmailService.sendSubmissionWithdrawalEmail(
           SUBMISSION_DETAIL);
 
       verifyNoInteractions(notifyEmailService);
@@ -675,7 +675,7 @@ class SubmissionEmailServiceTest {
       when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail))
           .thenReturn(List.of());
 
-      submissionEmailService.sendReturnedForUpdateEmails(
+      oldSubmissionEmailService.sendReturnedForUpdateEmails(
           SUBMISSION_DETAIL);
 
       verify(notifyEmailService, times(1))
@@ -737,7 +737,7 @@ class SubmissionEmailServiceTest {
       when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail))
           .thenReturn(List.of());
 
-      submissionEmailService.sendReturnedForUpdateEmails(
+      oldSubmissionEmailService.sendReturnedForUpdateEmails(
           SUBMISSION_DETAIL);
 
       verify(notifyEmailService, times(1))
@@ -752,7 +752,7 @@ class SubmissionEmailServiceTest {
           .thenReturn(Optional.of(resourceDetail));
       when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(ORGANISATION_ID))
           .thenReturn(List.of());
-      submissionEmailService.sendReturnedForUpdateEmails(
+      oldSubmissionEmailService.sendReturnedForUpdateEmails(
           SUBMISSION_DETAIL);
 
       verifyNoInteractions(notifyEmailService);
@@ -763,7 +763,7 @@ class SubmissionEmailServiceTest {
       when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(SUBMISSION_DETAIL))
           .thenReturn(Optional.empty());
 
-      submissionEmailService.sendReturnedForUpdateEmails(
+      oldSubmissionEmailService.sendReturnedForUpdateEmails(
           SUBMISSION_DETAIL);
 
       verifyNoInteractions(notifyEmailService);

@@ -19,7 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
-import uk.co.nstauthority.hydrocarbonmaturation.notify.SubmissionEmailService;
+import uk.co.nstauthority.hydrocarbonmaturation.notify.OldSubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -37,7 +37,7 @@ class WithdrawSubmissionServiceTest {
   @Mock
   private UserService userService;
   @Mock
-  private SubmissionEmailService submissionEmailService;
+  private OldSubmissionEmailService oldSubmissionEmailService;
   @Mock
   private WithdrawSubmissionFormValidator withdrawSubmissionFormValidator;
   @Mock
@@ -67,7 +67,7 @@ class WithdrawSubmissionServiceTest {
     underTest.withdrawSubmissionOrThrow(submissionDetail, form);
 
     verify(submissionPersistenceService).withdrawSubmission(submissionDetail.getSubmission(), form.getWithdrawReason());
-    verify(submissionEmailService).sendSubmissionWithdrawalEmail(submissionDetail);
+    verify(oldSubmissionEmailService).sendSubmissionWithdrawalEmail(submissionDetail);
   }
 
   @Test
@@ -81,7 +81,7 @@ class WithdrawSubmissionServiceTest {
             .formatted(USER.wuaId()));
 
     verifyNoInteractions(submissionPersistenceService);
-    verifyNoInteractions(submissionEmailService);
+    verifyNoInteractions(oldSubmissionEmailService);
   }
 
   @Test

@@ -29,8 +29,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetail
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 
 @Service
-public class SubmissionEmailService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(SubmissionEmailService.class);
+public class OldSubmissionEmailService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(OldSubmissionEmailService.class);
   private static final String LICENCES = "LICENCES";
   private static final String LICENCES_WITHOUT_LEADING_COLON = "LICENCES_WITHOUT_LEADING_COLON";
   private static final String RESOURCE_NAME_WITH_QUAD_BLOCK = "RESOURCE_NAME_WITH_QUAD_BLOCK";
@@ -55,18 +55,18 @@ public class SubmissionEmailService {
   private final SubmissionDetailService submissionDetailService;
   private final ResponsibleTeamService responsibleTeamService;
 
-  SubmissionEmailService(NotifyEmailService notifyEmailService,
-                         EnergyPortalUserService energyPortalUserService,
-                         SubmissionResourceService submissionResourceService,
-                         GeneralDetailsPersistenceService generalDetailsPersistenceService,
-                         LicencePersistenceService licencePersistenceService,
-                         RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
-                         ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties,
-                         ResourceDetailsPersistenceService resourceDetailsPersistenceService,
-                         IndustryTeamService industryTeamService,
-                         OrganisationUnitQueryService organisationUnitQueryService,
-                         SubmissionDetailService submissionDetailService,
-                         ResponsibleTeamService responsibleTeamService) {
+  OldSubmissionEmailService(NotifyEmailService notifyEmailService,
+                            EnergyPortalUserService energyPortalUserService,
+                            SubmissionResourceService submissionResourceService,
+                            GeneralDetailsPersistenceService generalDetailsPersistenceService,
+                            LicencePersistenceService licencePersistenceService,
+                            RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
+                            ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties,
+                            ResourceDetailsPersistenceService resourceDetailsPersistenceService,
+                            IndustryTeamService industryTeamService,
+                            OrganisationUnitQueryService organisationUnitQueryService,
+                            SubmissionDetailService submissionDetailService,
+                            ResponsibleTeamService responsibleTeamService) {
     this.notifyEmailService = notifyEmailService;
     this.energyPortalUserService = energyPortalUserService;
     this.submissionResourceService = submissionResourceService;

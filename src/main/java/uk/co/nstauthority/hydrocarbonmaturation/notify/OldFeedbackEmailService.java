@@ -9,7 +9,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.TechnicalSuppor
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @Service
-public class FeedbackEmailService {
+public class OldFeedbackEmailService {
 
   private static final String SERVICE_NAME_MNEMONIC = "SERVICE_NAME_MNEMONIC";
   private static final String SUBMITTER_NAME = "SUBMITTER_NAME";
@@ -24,9 +24,9 @@ public class FeedbackEmailService {
   private final ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties;
 
   @Autowired
-  public FeedbackEmailService(NotifyEmailService notifyEmailService,
-                              TechnicalSupportConfiguration technicalSupportConfiguration,
-                              ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties) {
+  public OldFeedbackEmailService(NotifyEmailService notifyEmailService,
+                                 TechnicalSupportConfiguration technicalSupportConfiguration,
+                                 ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties) {
     this.notifyEmailService = notifyEmailService;
     this.technicalSupportConfiguration = technicalSupportConfiguration;
     this.serviceBrandingConfigurationProperties = serviceBrandingConfigurationProperties;

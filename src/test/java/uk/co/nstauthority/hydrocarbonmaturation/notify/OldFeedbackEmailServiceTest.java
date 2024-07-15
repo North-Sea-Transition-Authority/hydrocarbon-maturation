@@ -27,7 +27,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ExtendWith(MockitoExtension.class)
-class FeedbackEmailServiceTest {
+class OldFeedbackEmailServiceTest {
 
   private static final String SUBMITTER_EMAIL_VALUE = "test@email.com";
   private static final String SERVICE_FEEDBACK_RATING = ServiceFeedbackRating.DISSATISFIED.name();
@@ -45,7 +45,7 @@ class FeedbackEmailServiceTest {
   @Mock
   private ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties;
   @InjectMocks
-  private FeedbackEmailService underTest;
+  private OldFeedbackEmailService underTest;
 
   @Captor
   private ArgumentCaptor<EmailProperties> emailPropertiesArgumentCaptor;

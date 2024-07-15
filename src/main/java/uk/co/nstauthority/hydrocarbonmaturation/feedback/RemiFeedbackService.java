@@ -9,7 +9,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.fivium.feedbackmanagementservice.client.CannotSendFeedbackException;
 import uk.co.fivium.feedbackmanagementservice.client.FeedbackClientService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.notify.FeedbackEmailService;
+import uk.co.nstauthority.hydrocarbonmaturation.notify.OldFeedbackEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.utils.RemiAbsoluteUrlUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
@@ -21,18 +21,18 @@ class RemiFeedbackService {
   private final FeedbackClientService feedbackClientService;
   private final FeedbackFormValidator feedbackFormValidator;
   private final SubmissionResourceService submissionResourceService;
-  private final FeedbackEmailService feedbackEmailService;
+  private final OldFeedbackEmailService oldFeedbackEmailService;
   private final Clock clock;
 
   @Autowired
   RemiFeedbackService(FeedbackClientService feedbackClientService,
                       FeedbackFormValidator feedbackFormValidator,
                       SubmissionResourceService submissionResourceService,
-                      FeedbackEmailService feedbackEmailService, Clock clock) {
+                      OldFeedbackEmailService oldFeedbackEmailService, Clock clock) {
     this.feedbackClientService = feedbackClientService;
     this.feedbackFormValidator = feedbackFormValidator;
     this.submissionResourceService = submissionResourceService;
-    this.feedbackEmailService = feedbackEmailService;
+    this.oldFeedbackEmailService = oldFeedbackEmailService;
     this.clock = clock;
   }
 
@@ -64,7 +64,7 @@ class RemiFeedbackService {
     try {
       feedbackClientService.saveFeedback(feedback);
     } catch (CannotSendFeedbackException e) {
-      feedbackEmailService.sendFeedbackFailedToSendEmail(feedback);
+      oldFeedbackEmailService.sendFeedbackFailedToSendEmail(feedback);
       LOGGER.warn("Feedback failed to send: {} ", e.getMessage());
     }
   }
