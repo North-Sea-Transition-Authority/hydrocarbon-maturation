@@ -9,8 +9,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.fivium.feedbackmanagementservice.client.CannotSendFeedbackException;
 import uk.co.fivium.feedbackmanagementservice.client.FeedbackClientService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.notify.OldFeedbackEmailService;
-import uk.co.nstauthority.hydrocarbonmaturation.notify.utils.RemiAbsoluteUrlUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.notify.RemiAbsoluteUrlUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 
@@ -21,18 +20,19 @@ class RemiFeedbackService {
   private final FeedbackClientService feedbackClientService;
   private final FeedbackFormValidator feedbackFormValidator;
   private final SubmissionResourceService submissionResourceService;
-  private final OldFeedbackEmailService oldFeedbackEmailService;
+  private final FeedbackEmailService feedbackEmailService;
   private final Clock clock;
 
   @Autowired
   RemiFeedbackService(FeedbackClientService feedbackClientService,
                       FeedbackFormValidator feedbackFormValidator,
                       SubmissionResourceService submissionResourceService,
-                      OldFeedbackEmailService oldFeedbackEmailService, Clock clock) {
+                      FeedbackEmailService feedbackEmailService,
+                      Clock clock) {
     this.feedbackClientService = feedbackClientService;
     this.feedbackFormValidator = feedbackFormValidator;
     this.submissionResourceService = submissionResourceService;
-    this.oldFeedbackEmailService = oldFeedbackEmailService;
+    this.feedbackEmailService = feedbackEmailService;
     this.clock = clock;
   }
 
@@ -61,10 +61,11 @@ class RemiFeedbackService {
     feedback.setGivenDatetime(clock.instant());
     feedback.setSubmitterEmail(user.emailAddress());
     feedback.setSubmitterName(user.displayNameIncludingAnyProxyUser());
+
     try {
       feedbackClientService.saveFeedback(feedback);
     } catch (CannotSendFeedbackException e) {
-      oldFeedbackEmailService.sendFeedbackFailedToSendEmail(feedback);
+      feedbackEmailService.sendFeedbackFailedToSendEmail(feedback);
       LOGGER.warn("Feedback failed to send: {} ", e.getMessage());
     }
   }

@@ -113,7 +113,7 @@ breadcrumbsMap=breadcrumbsMap>
 
             <@probabilityDistribution.probabilityDistributionSingularTemplate
               probabilityDistributionPath="form.salesGasReserves"
-              labelText="Total sales gas reserves"
+              labelText="Sales gas reserves"
               template=salesGasReservesTemplate
               error=salesGasReservesError/>
         </#if>

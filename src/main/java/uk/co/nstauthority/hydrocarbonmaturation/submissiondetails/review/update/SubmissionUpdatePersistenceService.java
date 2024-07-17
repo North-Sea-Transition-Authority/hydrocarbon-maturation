@@ -6,12 +6,12 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
-import uk.co.nstauthority.hydrocarbonmaturation.notify.OldSubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionEmailService;
 
 @Service
 class SubmissionUpdatePersistenceService {
@@ -20,7 +20,7 @@ class SubmissionUpdatePersistenceService {
   private final UserService userService;
   private final SubmissionDetailService submissionDetailService;
   private final SubmissionCreateService submissionCreateService;
-  private final OldSubmissionEmailService oldSubmissionEmailService;
+  private final SubmissionEmailService submissionEmailService;
   private final Clock clock;
 
   @Autowired
@@ -28,12 +28,13 @@ class SubmissionUpdatePersistenceService {
                                      UserService userService,
                                      SubmissionDetailService submissionDetailService,
                                      SubmissionCreateService submissionCreateService,
-                                     OldSubmissionEmailService oldSubmissionEmailService, Clock clock) {
+                                     SubmissionEmailService submissionEmailService,
+                                     Clock clock) {
     this.submissionUpdateRepository = submissionUpdateRepository;
     this.userService = userService;
     this.submissionDetailService = submissionDetailService;
     this.submissionCreateService = submissionCreateService;
-    this.oldSubmissionEmailService = oldSubmissionEmailService;
+    this.submissionEmailService = submissionEmailService;
     this.clock = clock;
   }
 
@@ -47,7 +48,7 @@ class SubmissionUpdatePersistenceService {
     submissionUpdate.setRequestedTimestamp(clock.instant());
     submissionUpdate.setResolved(false);
     submissionUpdateRepository.save(submissionUpdate);
-    oldSubmissionEmailService.sendReturnedForUpdateEmails(submissionDetail);
+    submissionEmailService.sendReturnedForUpdateEmails(submissionDetail);
   }
 
   Optional<SubmissionUpdate> getLatestUnresolvedSubmissionUpdateBySubmission(Submission submission) {

@@ -64,7 +64,7 @@
 
       <@probabilityDistribution.probabilityDistributionSingularTemplate
         probabilityDistributionPath="form.salesGasResources"
-        labelText="Total sales gas resources"
+        labelText="Sales gas resources resources"
         template=salesGasResourcesTemplate
         error=salesGasResourcesError/>
     </#if>

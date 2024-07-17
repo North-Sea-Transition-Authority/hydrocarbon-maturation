@@ -19,12 +19,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
-import uk.co.nstauthority.hydrocarbonmaturation.notify.OldSubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,7 +37,7 @@ class WithdrawSubmissionServiceTest {
   @Mock
   private UserService userService;
   @Mock
-  private OldSubmissionEmailService oldSubmissionEmailService;
+  private SubmissionEmailService submissionEmailService;
   @Mock
   private WithdrawSubmissionFormValidator withdrawSubmissionFormValidator;
   @Mock
@@ -67,7 +67,7 @@ class WithdrawSubmissionServiceTest {
     underTest.withdrawSubmissionOrThrow(submissionDetail, form);
 
     verify(submissionPersistenceService).withdrawSubmission(submissionDetail.getSubmission(), form.getWithdrawReason());
-    verify(oldSubmissionEmailService).sendSubmissionWithdrawalEmail(submissionDetail);
+    verify(submissionEmailService).sendSubmissionWithdrawalEmail(submissionDetail);
   }
 
   @Test
@@ -81,7 +81,7 @@ class WithdrawSubmissionServiceTest {
             .formatted(USER.wuaId()));
 
     verifyNoInteractions(submissionPersistenceService);
-    verifyNoInteractions(oldSubmissionEmailService);
+    verifyNoInteractions(submissionEmailService);
   }
 
   @Test

@@ -1,4 +1,4 @@
-package uk.co.nstauthority.hydrocarbonmaturation.notify.utils;
+package uk.co.nstauthority.hydrocarbonmaturation.notify;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 

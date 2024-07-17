@@ -22,7 +22,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
-import uk.co.nstauthority.hydrocarbonmaturation.notify.OldSubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -30,6 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionEmailService;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionUpdatePersistenceServiceTest {
@@ -41,7 +41,7 @@ class SubmissionUpdatePersistenceServiceTest {
   @Mock
   private Clock clock;
   @Mock
-  private OldSubmissionEmailService oldSubmissionEmailService;
+  private SubmissionEmailService submissionEmailService;
   @Mock
   private SubmissionCreateService submissionCreateService;
   @Mock
@@ -72,7 +72,7 @@ class SubmissionUpdatePersistenceServiceTest {
           underTest.requestUpdate(submissionDetail, form);
 
       verify(submissionUpdateRepository, times(1)).save(captor.capture());
-      verify(oldSubmissionEmailService, times(1))
+      verify(submissionEmailService, times(1))
           .sendReturnedForUpdateEmails(submissionDetail);
 
       assertThat(captor.getValue())

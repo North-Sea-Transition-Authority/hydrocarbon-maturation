@@ -38,9 +38,10 @@ track changes over time.
 - In your IntelliJ run configuration for the Spring app, include `development` in your active profiles
 - The following environment variables are required when using this profile:
 
-| Environment Variable                     | Description  |
-|------------------------------------------|--------------|
+| Environment Variable                     | Description                                                  |
+|------------------------------------------|--------------------------------------------------------------|
 | NOTIFY_API_KEY                           | [TPM link](https://tpm.fivium.co.uk/index.php/pwd/view/2035) |
+| REMI_EMAIL_TEST_RECIPIENT                | Your intended recipient during testing for emails            |
 
 ### Production
 - In your IntelliJ run configuration for the Spring app, include `production` in your active profiles

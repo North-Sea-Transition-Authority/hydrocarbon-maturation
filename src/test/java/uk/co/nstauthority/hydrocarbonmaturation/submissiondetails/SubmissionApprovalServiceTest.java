@@ -31,10 +31,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedExcept
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSubmissionStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.notify.OldSubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionEmailService;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionApprovalServiceTest {
@@ -50,7 +50,7 @@ class SubmissionApprovalServiceTest {
   @Mock
   private UserService userService;
   @Mock
-  private OldSubmissionEmailService oldSubmissionEmailService;
+  private SubmissionEmailService submissionEmailService;
   @Mock
   private SubmissionUpdateService submissionUpdateService;
   @Mock
@@ -116,8 +116,8 @@ class SubmissionApprovalServiceTest {
       verify(submissionDetailPersistenceService).submitSubmission(submissionDetail);
       verify(submissionUpdateService, times(1))
           .resolveUpdateOnSubmission(submissionDetail);
-      verify(oldSubmissionEmailService, times(1))
-          .sendSubmittedSubmissionEmails(submissionDetail);
+      verify(submissionEmailService, times(1))
+          .sendSubmissionConfirmationEmails(submissionDetail);
     }
 
     @Test
@@ -131,7 +131,7 @@ class SubmissionApprovalServiceTest {
       verify(submissionDetailPersistenceService).saveSubmissionDetail(submissionDetailArgumentCaptor.capture());
       assertEquals(SubmissionDetailStatus.ACCEPTED, submissionDetailArgumentCaptor.getValue().getStatus());
       verifyNoInteractions(submissionUpdateService);
-      verifyNoInteractions(oldSubmissionEmailService);
+      verifyNoInteractions(submissionEmailService);
     }
 
     @Test
@@ -146,8 +146,8 @@ class SubmissionApprovalServiceTest {
       verify(reservoirTotalsCleanAndCopyService).cleanAndCopyVolumetricTotals(submissionDetail);
       verify(submissionDetailPersistenceService).submitSubmission(submissionDetail);
       verifyNoInteractions(submissionUpdateService);
-      verify(oldSubmissionEmailService, times(1))
-          .sendSubmittedSubmissionEmails(submissionDetail);
+      verify(submissionEmailService, times(1))
+          .sendSubmissionConfirmationEmails(submissionDetail);
     }
 
     @ParameterizedTest
@@ -166,7 +166,7 @@ class SubmissionApprovalServiceTest {
       verify(reservoirTotalsCleanAndCopyService).cleanAndCopyVolumetricTotals(submissionDetail);
       verify(submissionDetailPersistenceService).submitSubmission(submissionDetail);
       verify(submissionDetailPersistenceService).approveSubmission(submissionDetail);
-      verifyNoInteractions(oldSubmissionEmailService);
+      verifyNoInteractions(submissionEmailService);
       verifyNoInteractions(submissionUpdateService);
     }
 
@@ -187,6 +187,7 @@ class SubmissionApprovalServiceTest {
 
       verify(fieldSubmissionStatusService, times(1)).updateFieldStatusForAcceptance(submissionDetail);
       verifyNoMoreInteractions(fieldSubmissionStatusService);
+      verifyNoInteractions(submissionEmailService);
     }
 
     @ParameterizedTest
@@ -206,6 +207,7 @@ class SubmissionApprovalServiceTest {
       submissionApprovalService.submitSubmission(submissionDetail);
 
       verifyNoInteractions(fieldSubmissionStatusService);
+      verifyNoInteractions(submissionEmailService);
     }
 
     @ParameterizedTest
@@ -215,8 +217,10 @@ class SubmissionApprovalServiceTest {
 
       submissionApprovalService.submitSubmission(submissionDetail);
 
-      verify(reservoirTotalsCleanAndCopyService, times(1)).cleanAndCopyVolumetricTotals(submissionDetail);
-      verify(reservoirSubmissionSectionService, times(1)).cleanReservoirSubmissionSections(submissionDetail);
+      verify(reservoirTotalsCleanAndCopyService, times(1))
+          .cleanAndCopyVolumetricTotals(submissionDetail);
+      verify(reservoirSubmissionSectionService, times(1))
+          .cleanReservoirSubmissionSections(submissionDetail);
       verifyNoMoreInteractions(reservoirTotalsCleanAndCopyService, reservoirSubmissionSectionService);
     }
 
@@ -246,7 +250,7 @@ class SubmissionApprovalServiceTest {
           .thenReturn(true);
       submissionApprovalService.approveSubmissionOrThrow(submissionDetail);
       verify(submissionDetailPersistenceService).approveSubmission(submissionDetail);
-      verify(oldSubmissionEmailService).sendSubmissionApprovalEmail(submissionDetail);
+      verify(submissionEmailService).sendSubmissionApprovalEmail(submissionDetail);
     }
 
     @Test
@@ -257,7 +261,7 @@ class SubmissionApprovalServiceTest {
           .hasMessage("Submission cannot be accepted by user with ID %s"
               .formatted(USER.wuaId()));
       verifyNoInteractions(submissionDetailPersistenceService);
-      verifyNoInteractions(oldSubmissionEmailService);
+      verifyNoInteractions(submissionEmailService);
     }
 
     @ParameterizedTest

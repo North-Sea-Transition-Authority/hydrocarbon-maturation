@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
-import uk.co.nstauthority.hydrocarbonmaturation.notify.OldSubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
 
 @Service
@@ -17,24 +17,24 @@ class WithdrawSubmissionService {
 
   private final SubmissionPersistenceService submissionPersistenceService;
   private final UserService userService;
-  private final OldSubmissionEmailService oldSubmissionEmailService;
   private final WithdrawSubmissionFormValidator withdrawSubmissionFormValidator;
   private final SubmissionUpdateService submissionUpdateService;
   private final ResponsibleTeamService responsibleTeamService;
+  private final SubmissionEmailService submissionEmailService;
 
   @Autowired
   public WithdrawSubmissionService(SubmissionPersistenceService submissionPersistenceService,
                                    UserService userService,
-                                   OldSubmissionEmailService oldSubmissionEmailService,
                                    WithdrawSubmissionFormValidator withdrawSubmissionFormValidator,
                                    SubmissionUpdateService submissionUpdateService,
-                                   ResponsibleTeamService responsibleTeamService) {
+                                   ResponsibleTeamService responsibleTeamService,
+                                   SubmissionEmailService submissionEmailService) {
     this.submissionPersistenceService = submissionPersistenceService;
     this.userService = userService;
-    this.oldSubmissionEmailService = oldSubmissionEmailService;
     this.withdrawSubmissionFormValidator = withdrawSubmissionFormValidator;
     this.submissionUpdateService = submissionUpdateService;
     this.responsibleTeamService = responsibleTeamService;
+    this.submissionEmailService = submissionEmailService;
   }
 
   BindingResult validate(BindingResult bindingResult, WithdrawSubmissionForm form) {
@@ -46,8 +46,7 @@ class WithdrawSubmissionService {
                                  WithdrawSubmissionForm form) {
     if (canWithdrawSubmission(submissionDetail)) {
       submissionPersistenceService.withdrawSubmission(submissionDetail.getSubmission(), form.getWithdrawReason());
-
-      oldSubmissionEmailService.sendSubmissionWithdrawalEmail(submissionDetail);
+      submissionEmailService.sendSubmissionWithdrawalEmail(submissionDetail);
     } else {
       throw new ActionNotAllowedException("Submission cannot be withdrawn by user with ID %s"
           .formatted(userService.getUserWuaId()));

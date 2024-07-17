@@ -1,9 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.feedback;
 
 import java.time.Instant;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.DomainReference;
 import uk.co.fivium.feedbackmanagementservice.client.FeedbackManagementServiceFeedback;
 
-public class Feedback implements FeedbackManagementServiceFeedback {
+public class Feedback implements FeedbackManagementServiceFeedback, DomainReference {
 
   private String submitterName;
   private String submitterEmail;
@@ -84,5 +85,15 @@ public class Feedback implements FeedbackManagementServiceFeedback {
 
   public void setTransactionLink(String transactionLink) {
     this.transactionLink = transactionLink;
+  }
+
+  @Override
+  public String getDomainId() {
+    return "%s at %s".formatted(submitterEmail, givenDatetime);
+  }
+
+  @Override
+  public String getDomainType() {
+    return "FEEDBACK";
   }
 }

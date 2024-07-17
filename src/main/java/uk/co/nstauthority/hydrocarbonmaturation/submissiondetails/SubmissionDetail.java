@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -11,16 +10,16 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UuidGenerator;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.DomainReference;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 
 @Entity
 @Table(name = "submission_details")
-public class SubmissionDetail {
+public class SubmissionDetail implements DomainReference {
 
   @Id
-  @GeneratedValue(generator = "uuid")
-  @GenericGenerator(name = "uuid", strategy = "uuid2")
+  @UuidGenerator
   private UUID id;
 
   @JoinColumn(name = "submission_id")
@@ -282,5 +281,15 @@ public class SubmissionDetail {
 
   public void setLegacyResDataId(Integer legacyResDataId) {
     this.legacyResDataId = legacyResDataId;
+  }
+
+  @Override
+  public String getDomainId() {
+    return String.valueOf(id);
+  }
+
+  @Override
+  public String getDomainType() {
+    return "SUBMISSION_DETAIL";
   }
 }

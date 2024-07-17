@@ -116,7 +116,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         salesGasResources,
         errors,
         "salesGasResources",
-        "Total sales gas resources",
+        "Sales gas resources resources",
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD
     );
   }
@@ -147,7 +147,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         salesGasReserves,
         errors,
         "salesGasReserves",
-        "Total sales gas reserves",
+        "Sales gas reserves",
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD
     );
   }
@@ -187,7 +187,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         salesGasResources,
         errors,
         "salesGasResources",
-        "Total sales gas resources",
+        "Sales gas resources resources",
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESOURCES_FIELD
     );
   }
@@ -216,7 +216,7 @@ public class FieldGasCaseVolumetricTotalsFormValidator implements SubmissionVali
         salesGasReserves,
         errors,
         "salesGasReserves",
-        "Total sales gas reserves",
+        "Sales gas reserves",
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_SALES_GAS_RESERVES_FIELD
     );
   }

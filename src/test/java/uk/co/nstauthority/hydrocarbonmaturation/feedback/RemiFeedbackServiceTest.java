@@ -30,7 +30,6 @@ import uk.co.fivium.feedbackmanagementservice.client.FeedbackClientService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.notify.OldFeedbackEmailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
@@ -59,7 +58,7 @@ class RemiFeedbackServiceTest {
   private FeedbackFormValidator feedbackFormValidator;
 
   @Mock
-  private OldFeedbackEmailService oldFeedbackEmailService;
+  private FeedbackEmailService feedbackEmailService;
 
   @Mock
   private SubmissionResourceService submissionResourceService;
@@ -116,7 +115,7 @@ class RemiFeedbackServiceTest {
         null
     );
 
-    verify(oldFeedbackEmailService, times(1))
+    verify(feedbackEmailService, times(1))
         .sendFeedbackFailedToSendEmail(feedbackArgumentCaptor.getValue());
   }
 
@@ -150,7 +149,7 @@ class RemiFeedbackServiceTest {
         EXPECTED_SUBMISSION_URL
     );
 
-    verifyNoInteractions(oldFeedbackEmailService);
+    verifyNoInteractions(feedbackEmailService);
   }
 
   @Test
