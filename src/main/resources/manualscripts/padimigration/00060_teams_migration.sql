@@ -12,7 +12,7 @@ BEGIN
         AND NOT EXISTS (
             SELECT 1
             FROM remi.teams t
-            WHERE t.scope_id = pom.org_grp_id
+            WHERE t.scope_id::integer = pom.org_grp_id
         )
         GROUP BY pom.org_grp_id, pom.org_grp_name
     )
