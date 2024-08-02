@@ -11,7 +11,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidat
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class SubmissionSummaryFormValidator implements SubmissionValidator {
+public class SubmissionSummaryFormValidator implements SubmissionValidator {
 
   private final InternalTeamService internalTeamService;
   private final SubmissionReadyService submissionReadyService;

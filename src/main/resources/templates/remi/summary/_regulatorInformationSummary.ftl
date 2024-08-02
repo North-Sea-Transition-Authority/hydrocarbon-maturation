@@ -1,5 +1,6 @@
 <#import '../summarylistcards/shapeMapSummaryCard.ftl' as shapeMapSummaryCard>
 <#import '_simpleSummary.ftl' as simpleSummary>
+<#include '../layout/layout.ftl'>
 
 <#-- @ftlvariable name="fieldMapView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapView" -->
 <#-- @ftlvariable name="fieldMapView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapView" -->
@@ -8,10 +9,17 @@
     <@simpleSummary.simpleSummaryCard
       summaryDataView=fieldRegulatorInformationCard.summaryData()
       summaryHeading=fieldRegulatorInformationCard.displayName()!"">
-        <@shapeMapSummaryCard.shapeMapSummary
-          geoJsonDataUrl=fieldMapView.fieldGeoJsonUrl()
-          dataMapAttributions=""
-          shapeName=fieldMapView.fieldName()
-          keyText="Field map"/>
+        <#if fieldMapView?has_content>
+          <@shapeMapSummaryCard.shapeMapSummary
+            geoJsonDataUrl=fieldMapView.fieldGeoJsonUrl()
+            dataMapAttributions=""
+            shapeName=fieldMapView.fieldName()
+            keyText="Field map"
+            showShapeNameKey=false/>
+        <#else>
+          <@fdsSummaryList.summaryListRowNoAction keyText="Field map">
+            Field shape information is not currently available.
+          </@fdsSummaryList.summaryListRowNoAction>
+        </#if>
     </@simpleSummary.simpleSummaryCard>
 </#macro>

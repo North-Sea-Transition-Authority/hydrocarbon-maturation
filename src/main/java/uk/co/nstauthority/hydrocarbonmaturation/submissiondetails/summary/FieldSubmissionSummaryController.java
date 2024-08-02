@@ -49,6 +49,7 @@ public class FieldSubmissionSummaryController {
   private final InternalTeamService internalTeamService;
   private final FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
   private final FieldPersistenceService fieldPersistenceService;
+  private final FieldMapViewService fieldMapViewService;
 
   @Autowired
   public FieldSubmissionSummaryController(
@@ -60,7 +61,7 @@ public class FieldSubmissionSummaryController {
       OnshoreOffshoreService onshoreOffshoreService,
       InternalTeamService internalTeamService,
       FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService,
-      FieldPersistenceService fieldPersistenceService) {
+      FieldPersistenceService fieldPersistenceService, FieldMapViewService fieldMapViewService) {
     this.submissionDetailService = submissionDetailService;
     this.submissionReadyService = submissionReadyService;
     this.submissionSummaryModelService = submissionSummaryModelService;
@@ -70,6 +71,7 @@ public class FieldSubmissionSummaryController {
     this.internalTeamService = internalTeamService;
     this.fieldRegulatorManagedInformationSummaryService = fieldRegulatorManagedInformationSummaryService;
     this.fieldPersistenceService = fieldPersistenceService;
+    this.fieldMapViewService = fieldMapViewService;
   }
 
   @GetMapping
@@ -99,6 +101,8 @@ public class FieldSubmissionSummaryController {
     );
 
     var field = fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource());
+    fieldMapViewService.getFieldGeoJsonUrl(field)
+        .ifPresent(fieldMapView -> modelAndView.addObject("fieldMapView", fieldMapView));
 
     modelAndView
         .addObject("form", form)
@@ -109,8 +113,7 @@ public class FieldSubmissionSummaryController {
         .addObject("isOffshore", onshoreOffshoreService.getOnshoreOffshore(submissionDetail) == OnshoreOffshore.OFFSHORE)
         .addObject("fieldRegulatorManagedInformationSummaryCard",
             fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(
-                submissionDetail.getSubmission().getResource()))
-        .addObject("fieldMapView", FieldMapViewUtil.getFieldGeoJsonUrl(field));
+                submissionDetail.getSubmission().getResource()));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(
         modelAndView,

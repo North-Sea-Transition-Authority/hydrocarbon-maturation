@@ -51,7 +51,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapViewUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapViewService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
@@ -85,6 +86,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   private CorrectionService correctionService;
   @MockBean
   private FieldPersistenceService fieldPersistenceService;
+  @MockBean
+  private FieldMapViewService fieldMapViewService;
 
   private Resource resource;
   private UUID resourceId;
@@ -341,6 +344,10 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     field.setResource(resource);
     when(fieldPersistenceService.getFieldOrThrow(resource))
         .thenReturn(field);
+    var fieldMapView = new FieldMapView("", "");
+    when(fieldMapViewService.getFieldGeoJsonUrl(field))
+        .thenReturn(Optional.of(fieldMapView));
+
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)))
@@ -369,7 +376,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("projectTrackerUrl",
                 ReverseRouter.route(on(ProjectListController.class)
                     .getProjectList(field.getResource().getId(), null))),
-            entry("fieldMapView", FieldMapViewUtil.getFieldGeoJsonUrl(field))
+            entry("fieldMapView", fieldMapView)
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -404,6 +411,9 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     field.setResource(resource);
     when(fieldPersistenceService.getFieldOrThrow(resource))
         .thenReturn(field);
+    var fieldMapView = new FieldMapView("", "");
+    when(fieldMapViewService.getFieldGeoJsonUrl(field))
+        .thenReturn(Optional.of(fieldMapView));
 
     var regulatorSummary = new SummaryCard("", SummaryCardType.EMPTY_SUMMARY, SummaryDataView.newWithKeyValue("", ""));
     when(fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
@@ -425,7 +435,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("fieldRegulatorManagedInformationSummaryCard", regulatorSummary),
             entry("canViewRegulatorManagementInfo", true),
             entry("manageResourceInformationText", "Manage field information"),
-            entry("fieldMapView", FieldMapViewUtil.getFieldGeoJsonUrl(field))
+            entry("fieldMapView", fieldMapView)
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -434,6 +444,45 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         entry(ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null)),
             SearchFieldRecordsController.PAGE_TITLE)
     );
+  }
+
+  @Test
+  void showResourceRecordModelAndView_assertModelProperties_noFieldMapView() throws Exception {
+    when(submissionDetailService.getSubmissionDetail(resourceRecordSummaryView.submissionDetailId()))
+        .thenReturn(Optional.empty());
+    when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, USER))
+        .thenReturn(true);
+    when(viewResourceRecordService.isRegulatorOrAreaTeamUser(USER))
+        .thenReturn(true);
+    when(regulatorTeamService.isRegulatorUser(USER))
+        .thenReturn(true);
+    when(responsibleTeamService.isInResponsibleTeam(USER, resourceRecordSummaryView.responsibleTeam()))
+        .thenReturn(true);
+
+    resource.setId(resourceId);
+    resource.setType(ResourceType.FIELD);
+    when(resourceService.getResourceById(resourceId))
+        .thenReturn(Optional.of(resource));
+
+    var field = FieldTestUtils.createField("Alex", OnshoreOffshore.ONSHORE);
+    field.setFieldIdentifier(8000);
+    field.setResource(resource);
+    when(fieldPersistenceService.getFieldOrThrow(resource))
+        .thenReturn(field);
+    when(fieldMapViewService.getFieldGeoJsonUrl(field))
+        .thenReturn(Optional.empty());
+
+    var regulatorSummary = new SummaryCard("", SummaryCardType.EMPTY_SUMMARY, SummaryDataView.newWithKeyValue("", ""));
+    when(fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
+        .thenReturn(regulatorSummary);
+
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertThat(modelMap).doesNotContainKey("fieldMapView");
   }
 
   @Test

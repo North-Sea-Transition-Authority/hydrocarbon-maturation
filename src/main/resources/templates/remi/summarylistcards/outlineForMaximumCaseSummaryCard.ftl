@@ -14,6 +14,7 @@
         geoJsonDataUrl=springUrl(outlineForMaximumCaseValues.mapGeoJsonDataRoute())
         dataMapAttributions=outlineForMaximumCaseValues.mapAttributions()
         shapeName=shapeName
+        showShapeNameKey=true
       />
     </#if>
   </@fdsSummaryList.summaryListCard>

@@ -25,6 +25,7 @@
         showQuadBlocksLayer=true
         showLicenceBlocksLayer=true
         showFieldBlobsLayer=true
+        showShapeNameKey=true
         />
 
       <@fdsRadio.radioGroup

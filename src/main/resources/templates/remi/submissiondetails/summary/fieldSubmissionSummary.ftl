@@ -47,7 +47,7 @@ caption=resourceName>
         <#if isRegulatorOrAreaTeamUser>
             <@regulatorSummary.regulatorInformationSummary
               fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
-              fieldMapView=fieldMapView/>
+              fieldMapView=fieldMapView!""/>
         </#if>
         <@submissionSummary.submissionSummary accordionId>
             <@reservoirSummary.reservoirSummary reservoirSummaries=reservoirSummaries/>

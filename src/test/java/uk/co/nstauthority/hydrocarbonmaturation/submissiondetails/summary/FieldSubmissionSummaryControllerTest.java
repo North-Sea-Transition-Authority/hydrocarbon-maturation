@@ -75,6 +75,9 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
   @MockBean
   private FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
 
+  @MockBean
+  private FieldMapViewService fieldMapViewService;
+
   private List<SummarySection> summarySections;
   private List<ReservoirSummary> reservoirSummaries;
 
@@ -228,6 +231,9 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
     var field = FieldTestUtils.createField("Alex", OnshoreOffshore.ONSHORE);
     when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
         .thenReturn(field);
+    var fieldMapView = new FieldMapView("", "");
+    when(fieldMapViewService.getFieldGeoJsonUrl(field))
+        .thenReturn(Optional.of(fieldMapView));
 
     mockCreateFieldSubmissionSummaryModelAndView();
 
@@ -249,7 +255,7 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
             entry("accordionId", submissionDetailId),
             entry("isOffshore", true),
             entry("fieldRegulatorManagedInformationSummaryCard", managedInformationCard),
-            entry("fieldMapView", FieldMapViewUtil.getFieldGeoJsonUrl(field))
+            entry("fieldMapView", fieldMapView)
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -257,6 +263,35 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME));
+  }
+
+  @Test
+  void getSubmissionSummaryModelAndView_assertModelProperties_noFieldMapView() throws Exception {
+    when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
+    when(submissionReadyService.isSubmissionSubmittable(submissionDetail)).thenReturn(true);
+    when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.OFFSHORE);
+    when(internalTeamService.isRegulatorOrAreaTeamUser()).thenReturn(false);
+    var managedInformationCard = SummaryCard.simpleSummaryCard(new SummaryDataView(List.of()));
+    when(fieldRegulatorManagedInformationSummaryService
+        .getFieldRegulatorManagedInformationSummaryCard(submissionDetail.getSubmission().getResource()))
+        .thenReturn(managedInformationCard);
+
+    var field = FieldTestUtils.createField("Alex", OnshoreOffshore.ONSHORE);
+    when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
+        .thenReturn(field);
+    when(fieldMapViewService.getFieldGeoJsonUrl(field))
+        .thenReturn(Optional.empty());
+
+    mockCreateFieldSubmissionSummaryModelAndView();
+
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(
+                on(FieldSubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertThat(modelMap).doesNotContainKey("fieldMapView");
   }
 
   private void mockCreateFieldSubmissionSummaryModelAndView() {

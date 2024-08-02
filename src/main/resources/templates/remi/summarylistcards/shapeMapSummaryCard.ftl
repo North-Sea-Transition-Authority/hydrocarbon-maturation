@@ -4,12 +4,13 @@
 <#-- @ftlvariable name="dataMapAttributions" type="String" -->
 <#-- @ftlvariable name="shapeName" type="String" -->
 
-<#macro shapeMapSummary geoJsonDataUrl dataMapAttributions shapeName keyText="Shapefile map">
+<#macro shapeMapSummary geoJsonDataUrl dataMapAttributions shapeName keyText="Shapefile map" showShapeNameKey=false>
     <@fdsSummaryList.summaryListRowNoAction keyText=keyText rowClass="govuk-summary-list__row--align-key-top">
       <@maps.shapeMap
         geoJsonDataUrl=geoJsonDataUrl
         dataMapAttributions=dataMapAttributions
         shapeName=shapeName
+        showShapeNameKey=showShapeNameKey
         showFieldDeterminationBoundariesLayer=true
         showQuadBlocksLayer=true
         showLicenceBlocksLayer=true

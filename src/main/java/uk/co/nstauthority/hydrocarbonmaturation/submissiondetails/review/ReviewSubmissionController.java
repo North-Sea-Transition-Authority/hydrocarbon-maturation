@@ -34,7 +34,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.RequestUpdateController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.StartUpdateController;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapViewUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapViewService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistoryQueryService;
@@ -57,6 +57,7 @@ public class ReviewSubmissionController {
   private final ResponsibleTeamService responsibleTeamService;
   private final FieldPersistenceService fieldPersistenceService;
   private final FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
+  private final FieldMapViewService fieldMapViewService;
 
   @Autowired
   public ReviewSubmissionController(
@@ -70,7 +71,8 @@ public class ReviewSubmissionController {
       ResourceGroupSummaryService resourceGroupSummaryService,
       ResponsibleTeamService responsibleTeamService,
       FieldPersistenceService fieldPersistenceService,
-      FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService) {
+      FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService,
+      FieldMapViewService fieldMapViewService) {
     this.reviewSubmissionService = reviewSubmissionService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
@@ -82,6 +84,7 @@ public class ReviewSubmissionController {
     this.responsibleTeamService = responsibleTeamService;
     this.fieldPersistenceService = fieldPersistenceService;
     this.fieldRegulatorManagedInformationSummaryService = fieldRegulatorManagedInformationSummaryService;
+    this.fieldMapViewService = fieldMapViewService;
   }
 
   @GetMapping
@@ -234,6 +237,9 @@ public class ReviewSubmissionController {
 
     if (selectedSubmissionDetail.isFieldSubmission()) {
       var field = fieldPersistenceService.getFieldOrThrow(resource);
+      fieldMapViewService.getFieldGeoJsonUrl(field)
+          .ifPresent(fieldMapView -> modelAndView.addObject("fieldMapView", fieldMapView));
+
       modelAndView
           .addObject("fieldRegulatorManagedInformationSummaryCard",
               fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
@@ -244,8 +250,7 @@ public class ReviewSubmissionController {
           .addObject("manageResourceInformationText", "Manage field information")
           .addObject("fieldStatusUrl", ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
               .getViewFieldStatusHistoryWithSubmissionDetail(
-                  field.getFieldIdentifier(), selectedSubmissionDetail.getId(), null)))
-          .addObject("fieldMapView", FieldMapViewUtil.getFieldGeoJsonUrl(field));
+                  field.getFieldIdentifier(), selectedSubmissionDetail.getId(), null)));
     } else {
       modelAndView
           .addObject("regulatorManagedInformationSummaryView",

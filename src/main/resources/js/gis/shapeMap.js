@@ -95,7 +95,7 @@ export default class ShapeMap {
 
     const layers = this.getBaseLayers();
 
-    const shapeLayer = this.getShapeLayer(this.shapeStyle);
+    const shapeLayer = this.getShapeLayer(this.shapeStyle, this.fieldBlobStyles);
     layers.push(shapeLayer);
 
     const map = this.createMap(layers);
@@ -216,13 +216,20 @@ export default class ShapeMap {
     });
   }
 
-  getShapeLayer(style) {
+  getShapeLayer(fixedStyle, fieldStyles) {
     return new VectorLayer({
       source: new VectorSource({
         url: this.geoJsonDataUrl,
         format: new GeoJSON(),
       }),
-      style: style,
+      style: function (feature) {
+        let dynamicStyle = fieldStyles.find(({name}) => name === feature.get("FIELDTYPE"));
+        if (dynamicStyle === undefined) {
+          return fixedStyle;
+        }
+
+        return ShapeMap._getStyle(dynamicStyle.fillColour, dynamicStyle.strokeColour, dynamicStyle.strokeWidth);
+      }
     });
   }
 

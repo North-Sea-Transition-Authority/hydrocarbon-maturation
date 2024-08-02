@@ -7,7 +7,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListSectionService;
 
 @Service
-class SubmissionReadyService {
+public class SubmissionReadyService {
 
   private final List<TaskListSectionService> taskListSectionServices;
 

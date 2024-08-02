@@ -9,6 +9,7 @@
   showQuadBlocksLayer=false <#-- Show quad/blocks on map. -->
   showLicenceBlocksLayer=false <#-- Show licence blocks on map. -->
   showFieldBlobsLayer=false <#-- Show field blobs on map. -->
+  showShapeNameKey=false <#-- Show key for the given shape -->
 >
 
   <@ifIe.showIfIe>
@@ -44,7 +45,9 @@
           <div class="shape-map__legend-item"><span class="shape-map__legend-box" id="oil-fields-legend"></span>Oil fields</div>
           <div class="shape-map__legend-item"><span class="shape-map__legend-box" id="cond-fields-legend"></span>Condensate fields</div>
         </#if>
-        <div class="shape-map__legend-item"><span class="shape-map__legend-box" id="shape-legend"></span>${shapeName}</div>
+        <#if showShapeNameKey>
+          <div class="shape-map__legend-item"><span class="shape-map__legend-box" id="shape-legend"></span>${shapeName}</div>
+        </#if>
       </div>
     </div>
   </@ifIe.hideIfIe>

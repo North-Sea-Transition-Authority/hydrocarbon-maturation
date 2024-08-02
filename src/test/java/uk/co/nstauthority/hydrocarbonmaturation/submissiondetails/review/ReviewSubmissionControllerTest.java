@@ -55,7 +55,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.StartUpdateController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdate;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapViewUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapView;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapViewService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -93,6 +94,8 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
   FieldPersistenceService fieldPersistenceService;
   @MockBean
   private FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
+  @MockBean
+  private FieldMapViewService fieldMapViewService;
 
   private Resource resource;
   private UUID resourceId;
@@ -400,6 +403,9 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     field.setFieldIdentifier(8000);
     when(fieldPersistenceService.getFieldOrThrow(resource))
         .thenReturn(field);
+    var fieldMapView = new FieldMapView("", "");
+    when(fieldMapViewService.getFieldGeoJsonUrl(field))
+        .thenReturn(Optional.of(fieldMapView));
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resourceId)))
@@ -416,7 +422,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
             entry("manageResourceInformationText", "Manage field information"),
             entry("fieldStatusUrl", ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
                 .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId(), null))),
-            entry("fieldMapView", FieldMapViewUtil.getFieldGeoJsonUrl(field))
+            entry("fieldMapView", fieldMapView)
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -425,6 +431,47 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
             WorkAreaController.WORK_AREA_TITLE)
     );
+  }
+
+  @Test
+  void showSubmissionModelAndView_whenIsRegulator_fieldSubmission_assertModelProperties_noFieldMapView() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_COP);
+
+    when(reviewSubmissionService.canViewSubmission(submissionRecordSummaryView, USER, submissionDetail))
+        .thenReturn(true);
+    when(reviewSubmissionService.canReviewSubmission(submissionRecordSummaryView, USER, submissionDetail))
+        .thenReturn(true);
+    when(resourceService.getResourceById(resourceId))
+        .thenReturn(Optional.of(resource));
+
+    var summaryCard = new SummaryCard("Test", SummaryCardType.SIMPLE_SUMMARY, null);
+    when(fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
+        .thenReturn(summaryCard);
+
+    var resourceGroupSummary = new ResourceGroupSummaryView(List.of(), ResourceType.PROSPECT, "");
+    when(resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
+        .thenReturn(resourceGroupSummary);
+
+    var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(submissionDetail));
+    mockModelAndViewCreation(submissionDetail, queryResult);
+
+    when(responsibleTeamService.isInResponsibleTeam(USER, submissionRecordSummaryView.responsibleTeamType()))
+        .thenReturn(true);
+
+    var field = FieldTestUtils.createField("Alex", OnshoreOffshore.ONSHORE);
+    field.setFieldIdentifier(8000);
+    when(fieldPersistenceService.getFieldOrThrow(resource))
+        .thenReturn(field);
+    when(fieldMapViewService.getFieldGeoJsonUrl(field))
+        .thenReturn(Optional.empty());
+
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resourceId)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertThat(modelMap).doesNotContainKey("fieldMapView");
   }
 
   @Test

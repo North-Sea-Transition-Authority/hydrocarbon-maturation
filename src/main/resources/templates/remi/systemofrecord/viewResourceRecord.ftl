@@ -101,7 +101,7 @@ wrapperWidth=true>
     <#if isFieldResource>
       <@regulatorSummary.regulatorInformationSummary
         fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
-        fieldMapView=fieldMapView/>
+        fieldMapView=fieldMapView!""/>
     <#else>
       <@regulatorManagedInformationSummary.regulatorManagedInformationSummaryCard
         regulatorManagedInformationValues=regulatorManagedInformationSummaryView
