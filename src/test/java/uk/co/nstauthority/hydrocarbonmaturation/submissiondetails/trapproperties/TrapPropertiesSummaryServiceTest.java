@@ -4,11 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryService.FILE_ROW_KEY;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -19,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
@@ -27,7 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.FileSummaryUtil;
 
 @ExtendWith(MockitoExtension.class)
 class TrapPropertiesSummaryServiceTest {
@@ -91,7 +88,7 @@ class TrapPropertiesSummaryServiceTest {
             "",
             "",
             tableView,
-            Collections.emptyMap(),
+            List.of(),
             "",
             ""
         );
@@ -139,10 +136,6 @@ class TrapPropertiesSummaryServiceTest {
         submissionDetail,
         FileDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(List.of(uploadedFile));
 
-    var fileMap = new HashMap<UploadedFile, String>();
-    fileMap.put(uploadedFile, ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
-        .download(submissionDetail.getId(), fileUploadForm.getUploadedFileId())));
-
     var trapPropertiesSummaryView = trapPropertiesSummaryService.getTrapPropertiesSummaryFromSubmissionDetail(
         submissionDetail);
 
@@ -174,7 +167,11 @@ class TrapPropertiesSummaryServiceTest {
             "10\"",
             "East",
             tableView,
-            fileMap,
+            FileSummaryUtil.convertSubmissionSupportingFilesToSummaryRows(
+                FILE_ROW_KEY,
+                List.of(uploadedFile),
+                submissionDetail
+            ),
             ReservoirDatum.ED50.getDisplayName(),
             "10/15"
         );
@@ -184,7 +181,6 @@ class TrapPropertiesSummaryServiceTest {
   void getTrapPropertiesSummaryFromSubmissionDetail_whenDiscovery_whenTrapPropertyPresent() {
     var tableView = ProbabilityDistributionTableView.empty();
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-
 
     var trapProperty = new TrapProperty();
     trapProperty.setTrapDescription("desc");
@@ -224,10 +220,6 @@ class TrapPropertiesSummaryServiceTest {
         discoverySubmissionDetail,
         FileDocumentType.PROSPECT_DEPTH_MAP)).thenReturn(List.of(uploadedFile));
 
-    var fileMap = new HashMap<UploadedFile, String>();
-    fileMap.put(uploadedFile, ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
-        .download(discoverySubmissionDetail.getId(), fileUploadForm.getUploadedFileId())));
-
     var trapPropertiesSummaryView = trapPropertiesSummaryService.getTrapPropertiesSummaryFromSubmissionDetail(
         discoverySubmissionDetail);
 
@@ -259,7 +251,11 @@ class TrapPropertiesSummaryServiceTest {
             "10\"",
             "East",
             tableView,
-            fileMap,
+            FileSummaryUtil.convertSubmissionSupportingFilesToSummaryRows(
+                FILE_ROW_KEY,
+                List.of(uploadedFile),
+                discoverySubmissionDetail
+            ),
             ReservoirDatum.ED50.getDisplayName(),
             "10/15"
         );

@@ -9,7 +9,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @Service
-class OutlineForMaximumCaseMapService {
+public class OutlineForMaximumCaseMapService {
   private final CustomerConfigurationProperties customerConfigurationProperties;
 
   @Autowired

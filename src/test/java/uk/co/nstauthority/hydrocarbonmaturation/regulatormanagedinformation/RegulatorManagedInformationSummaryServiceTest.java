@@ -4,11 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService.FILE_ROW_KEY;
 
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,14 +17,15 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentsController;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 
 @ExtendWith(MockitoExtension.class)
 class RegulatorManagedInformationSummaryServiceTest {
@@ -68,7 +68,7 @@ class RegulatorManagedInformationSummaryServiceTest {
             geographicalArea.getDisplayName(),
             false,
             ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName(),
-            Collections.emptyMap()
+            List.of()
         );
     verifyNoInteractions(resourceSupportingDocumentService);
   }
@@ -87,23 +87,28 @@ class RegulatorManagedInformationSummaryServiceTest {
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.of(regulatorManagedInfo));
 
-    var fileMap = new HashMap<UploadedFile, String>();
+    var expectedFileViews = new ArrayList<SummaryFileViewRow>();
 
     if (isBeingRelinquished) {
-      var uploadedFile = new UploadedFile();
-      uploadedFile.setId(UUID.randomUUID());
-      uploadedFile.setName("uploadedfile.txt");
-      uploadedFile.setDescription("description");
+      var uploadedFile = UploadedFileTestUtil.builder()
+          .withId(UUID.randomUUID())
+          .withName("uploadedfile.txt")
+          .withDescription("description")
+          .build();
 
       var fileUploadForm = new UploadedFileForm();
       fileUploadForm.setFileId(uploadedFile.getId());
       fileUploadForm.setUploadedFileDescription("description");
 
-      fileMap = new HashMap<>();
-      fileMap.put(uploadedFile, ReverseRouter.route(on(ResourceSupportingDocumentsController.class)
-          .download(resource.getId(), fileUploadForm.getUploadedFileId())));
+      expectedFileViews.add(SummaryFileViewRow.from(
+          FILE_ROW_KEY,
+          uploadedFile,
+          ReverseRouter.route(on(ResourceSupportingDocumentsController.class)
+              .download(resource.getId(), fileUploadForm.getUploadedFileId()))
+      ));
 
-      when(resourceSupportingDocumentService.getUploadedFiles(regulatorManagedInfo.getResource(), FileDocumentType.RELINQUISHMENT_REPORT))
+      when(resourceSupportingDocumentService.getUploadedFiles(regulatorManagedInfo.getResource(),
+          FileDocumentType.RELINQUISHMENT_REPORT))
           .thenReturn(List.of(uploadedFile));
     }
     var regulatorManagedInformationSummaryView = regulatorManagedInformationSummaryService
@@ -122,9 +127,10 @@ class RegulatorManagedInformationSummaryServiceTest {
 
     if (isBeingRelinquished) {
       assertThat(regulatorManagedInformationSummaryView.relinquishmentReport())
-          .isEqualTo(fileMap);
+          .isEqualTo(expectedFileViews);
     } else {
-      assertThat(regulatorManagedInformationSummaryView.relinquishmentReport()).isEqualTo(Map.of());
+      assertThat(regulatorManagedInformationSummaryView.relinquishmentReport())
+          .isEqualTo(List.of());
     }
   }
 
@@ -151,7 +157,7 @@ class RegulatorManagedInformationSummaryServiceTest {
             "",
             isBeingRelinquished,
             "",
-            Collections.emptyMap()
+            List.of(SummaryFileViewRow.empty(FILE_ROW_KEY))
         );
   }
 }

@@ -1,6 +1,6 @@
 <#include '../layout/layout.ftl'>
 <#import '../summary/_probabilityDistributionSummary.ftl' as probabilityDistribution>
-<#import 'fileUploadSummaryCard.ftl' as fileUploadSummary>
+<#import 'fileUploadSummaryRows.ftl' as fileUploadSummary>
 
 <#-- @ftlvariable name="trapPropertiesValues" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView" -->
 
@@ -36,9 +36,7 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Quadrant and block the centre of interest is within">
       ${trapPropertiesValues.quadAndBlockCentreOfInterest()}
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fileUploadSummary.fileUploadSummary
-      filesUploaded=trapPropertiesValues.prospectDepthMap()
-      fieldName="Prospect depth map"/>
+    <@fileUploadSummary.fileUploadSummary filesUploaded=trapPropertiesValues.prospectDepthMap()/>
   </@fdsSummaryList.summaryListCard>
 
     <@fdsSummaryList.summaryListCard headingText="Trap property distributions" summaryListId="trappropertydistributions">

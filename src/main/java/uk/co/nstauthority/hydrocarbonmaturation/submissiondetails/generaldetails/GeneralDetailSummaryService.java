@@ -2,8 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocu
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileView;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
@@ -60,16 +60,19 @@ public class GeneralDetailSummaryService {
 
   public GeneralDetailSummaryView getGeneralDetailSummaryFromSubmissionDetail(SubmissionDetail submissionDetail) {
     var generalDetail = generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail);
-    return generalDetail.map(detail -> {
-      var quadrantAndBlocks = quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(detail)
-              .stream()
-              .toList();
-      var licences = licencePersistenceService.getLicencesByGeneralDetail(detail)
-          .stream()
-          .toList();
-      return createSummaryViewFromGeneralDetail(detail, quadrantAndBlocks, licences);
-    })
-    .orElse(GeneralDetailSummaryView.empty(submissionDetail.getSubmissionType(), getResourceTypeDisplay(submissionDetail)));
+    return generalDetail.map(
+            detail -> {
+              var quadrantAndBlocks = quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(detail)
+                  .stream()
+                  .toList();
+
+              var licences = licencePersistenceService.getLicencesByGeneralDetail(detail)
+                  .stream()
+                  .toList();
+              return createSummaryViewFromGeneralDetail(detail, quadrantAndBlocks, licences);
+            })
+        .orElse(GeneralDetailSummaryView.empty(submissionDetail.getSubmissionType(),
+            getResourceTypeDisplay(submissionDetail)));
   }
 
   private GeneralDetailSummaryView createSummaryViewFromGeneralDetail(GeneralDetail detail,
@@ -190,31 +193,28 @@ public class GeneralDetailSummaryService {
 
     addFieldSummaryValues(submissionDetail, generalDetail, summaryDataView);
 
-    return SummaryCard.simpleSummaryCardWithHeading(GENERAL_DETAILS, summaryDataView);
+    List<SummaryFileViewRow> summaryFileViews = new ArrayList<>();
+    if (!submissionDetail.isCessationOfProductionSubmission()) {
+      addFieldReportFileIfPresent(summaryFileViews, submissionDetail);
+    }
+
+    return SummaryCard.simpleSummaryWithFiles(GENERAL_DETAILS, summaryDataView, summaryFileViews);
   }
 
-  public Optional<SummaryCard> getFieldReportSummary(SubmissionDetail submissionDetail) {
+  private void addFieldReportFileIfPresent(List<SummaryFileViewRow> summaryFileViews,
+                                           SubmissionDetail submissionDetail) {
+    var cardHeading = getFieldReportTypeForSubmissionDetail(submissionDetail.getSubmissionType());
+
     var uploadedFiles = supportingDocumentService.getUploadedFiles(submissionDetail, FileDocumentType.FIELD_REPORT);
-
-    var cardHeading = "%s - %s"
-        .formatted(GENERAL_DETAILS, getFieldReportTypeForSubmissionDetail(submissionDetail.getSubmissionType()));
-
     if (uploadedFiles.isEmpty()) {
-      if (submissionDetail.isCessationOfProductionSubmission()) {
-        return Optional.empty();
-      }
-      return Optional.of(SummaryCard.emptySummaryCardWithHeading(cardHeading));
+      summaryFileViews.add(SummaryFileViewRow.empty(cardHeading));
+    } else {
+      var fieldReportFile = uploadedFiles.get(0);
+      var downloadUrl = ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
+          .download(submissionDetail.getId(), fieldReportFile.getId()));
+
+      summaryFileViews.add(SummaryFileViewRow.from(cardHeading, fieldReportFile, downloadUrl));
     }
-    var fieldReportFile = uploadedFiles.get(0);
-
-    var downloadUrl = ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
-        .download(submissionDetail.getId(), fieldReportFile.getId()));
-
-    var summaryFileView = SummaryFileView.from(fieldReportFile, downloadUrl);
-
-    return Optional.of(SummaryCard.filesSummaryCardWithHeading(
-        cardHeading,
-        List.of(summaryFileView)));
   }
 
   private void addFieldSummaryValues(SubmissionDetail submissionDetail,

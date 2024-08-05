@@ -74,7 +74,8 @@ class ProjectCapexSummaryService implements SummarySectionService<Project> {
         PROJECT_CAPEX,
         SummaryCardType.TIMELINE_SUMMARY,
         new SummaryTimelineView(timelineEvents),
-        actions
+        actions,
+        List.of()
     );
   }
 

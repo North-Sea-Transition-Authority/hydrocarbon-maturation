@@ -120,7 +120,7 @@ class SubmissionEstimateSummaryService implements SummarySectionService<Project>
     if (summaryTableView.tableRows().size() == 1) {
       return SummaryCard.emptySummaryCardWithActions(cardTitle, cardActions);
     }
-    return new SummaryCard(cardTitle, SummaryCardType.TABLE_SUMMARY, summaryTableView, cardActions);
+    return new SummaryCard(cardTitle, SummaryCardType.TABLE_SUMMARY, summaryTableView, cardActions, List.of());
   }
 
   private ArrayList<String> getHeadingRow() {

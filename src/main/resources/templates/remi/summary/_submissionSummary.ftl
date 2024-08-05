@@ -2,7 +2,6 @@
 <#import '_simpleSummary.ftl' as simpleSummary>
 <#import '_tableSummary.ftl' as tableSummary>
 <#import '_emptySummary.ftl' as emptySummary>
-<#import '_fileSummary.ftl' as filesSummary>
 <#import '_probabilityDistributionSummary.ftl' as probabilityDistributionSummary>
 
 <#-- @ftlvariable name="summarySections" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection>" -->
@@ -44,12 +43,13 @@
                     <@tableSummary.tableSummary
                     summaryTableView=summaryCard.summaryData()
                     hiddenHeadingText=summaryCard.displayName()/>
-                  <#elseif summaryCard.summaryCardType() == "FILES_SUMMARY">
-                    <@filesSummary.fileSummary
-                    fileViews=summaryCard.summaryData()/>
                   <#elseif summaryCard.summaryCardType() == "TABLE_FIXED_WIDTH_SUMMARY">
                     <@tableSummary.tableFixedWidthSummary
                     summaryTableView=summaryCard.summaryData()/>
+                  <#elseif summaryCard.summaryCardType() == "SIMPLE_SUMMARY_WITH_FILES">
+                    <@simpleSummary.simpleSummaryWithFiles
+                      summaryDataView=summaryCard.summaryData()
+                      fileViews=summaryCard.fileViews()/>
                   </#if>
               </@fdsSummaryList.summaryListCard>
             </#if>

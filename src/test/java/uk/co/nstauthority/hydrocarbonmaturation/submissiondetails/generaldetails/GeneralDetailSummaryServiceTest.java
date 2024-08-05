@@ -2,14 +2,13 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetail
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailSummaryService.FINAL_CONCEPT_SELECT_REPORT;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,20 +17,18 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
-import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.FileSummaryUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
-import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileView;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralDetailSummaryServiceTest {
@@ -289,8 +286,10 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
-    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_UKCS, generalDetail.getResourceLocatedInUkcs());
-    summaryDataView.addKeyValue(GeneralDetailSummaryService.PERCENT_WITHIN_UKCS, generalDetail.getPercentageLocatedInUkcs());
+    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_UKCS,
+        generalDetail.getResourceLocatedInUkcs());
+    summaryDataView.addKeyValue(GeneralDetailSummaryService.PERCENT_WITHIN_UKCS,
+        generalDetail.getPercentageLocatedInUkcs());
     summaryDataView.addKeyValue(
         GeneralDetailSummaryService.QUADRANT_AND_BLOCKS,
         String.join(", ", List.of(quadBlockRef1, quadBlockRef2))
@@ -299,7 +298,12 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.CURRENT_DRIVE_MECHANISM, generalDetail.getCurrentDriveMechanism().getDisplayName()
     );
 
-    var expectedSummaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
+    var expectedSummaryCard = SummaryCard.simpleSummaryWithFiles(
+        GeneralDetailSummaryService.GENERAL_DETAILS,
+        summaryDataView,
+        List.of(SummaryFileViewRow.empty(FINAL_CONCEPT_SELECT_REPORT))
+    );
+
     assertThat(generalDetailSummaryService.getGeneralDetailsSummary(submissionDetail))
         .usingRecursiveComparison()
         .isEqualTo(expectedSummaryCard);
@@ -330,7 +334,8 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
-    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_UKCS, generalDetail.getResourceLocatedInUkcs());
+    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_UKCS,
+        generalDetail.getResourceLocatedInUkcs());
     summaryDataView.addKeyValue(
         GeneralDetailSummaryService.QUADRANT_AND_BLOCKS,
         String.join(", ", List.of(quadBlockRef1, quadBlockRef2))
@@ -339,7 +344,21 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.CURRENT_DRIVE_MECHANISM, generalDetail.getCurrentDriveMechanism().getDisplayName()
     );
 
-    var summaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
+    var fieldReportFile = UploadedFileTestUtil.builder().build();
+    var files = List.of(fieldReportFile);
+
+    when(supportingDocumentService.getUploadedFiles(submissionDetail, FileDocumentType.FIELD_REPORT))
+        .thenReturn(files);
+
+    var summaryCard = SummaryCard.simpleSummaryWithFiles(
+        GeneralDetailSummaryService.GENERAL_DETAILS,
+        summaryDataView,
+        FileSummaryUtil.convertSubmissionSupportingFilesToSummaryRows(
+            FINAL_CONCEPT_SELECT_REPORT,
+            files,
+            submissionDetail
+        )
+    );
     assertThat(generalDetailSummaryService.getGeneralDetailsSummary(submissionDetail))
         .usingRecursiveComparison()
         .isEqualTo(summaryCard);
@@ -371,8 +390,10 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
-    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_ENGLAND, generalDetail.getResourceLocatedInEngland());
-    summaryDataView.addKeyValue(GeneralDetailSummaryService.PERCENT_WITHIN_ENGLAND, generalDetail.getPercentageLocatedInEngland());
+    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_ENGLAND,
+        generalDetail.getResourceLocatedInEngland());
+    summaryDataView.addKeyValue(GeneralDetailSummaryService.PERCENT_WITHIN_ENGLAND,
+        generalDetail.getPercentageLocatedInEngland());
     summaryDataView.addKeyValue(
         GeneralDetailSummaryService.QUADRANT_AND_BLOCKS,
         String.join(", ", List.of(quadBlockRef1, quadBlockRef2))
@@ -381,7 +402,11 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.CURRENT_DRIVE_MECHANISM, generalDetail.getCurrentDriveMechanism().getDisplayName()
     );
 
-    var summaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
+    var summaryCard = SummaryCard.simpleSummaryWithFiles(
+        GeneralDetailSummaryService.GENERAL_DETAILS,
+        summaryDataView,
+        List.of(SummaryFileViewRow.empty(FINAL_CONCEPT_SELECT_REPORT))
+    );
     assertThat(generalDetailSummaryService.getGeneralDetailsSummary(submissionDetail))
         .usingRecursiveComparison()
         .isEqualTo(summaryCard);
@@ -412,7 +437,8 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
-    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_ENGLAND, generalDetail.getResourceLocatedInEngland());
+    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_ENGLAND,
+        generalDetail.getResourceLocatedInEngland());
     summaryDataView.addKeyValue(
         GeneralDetailSummaryService.QUADRANT_AND_BLOCKS,
         String.join(", ", List.of(quadBlockRef1, quadBlockRef2))
@@ -422,7 +448,11 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.CURRENT_DRIVE_MECHANISM, generalDetail.getCurrentDriveMechanism().getDisplayName()
     );
 
-    var summaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
+    var summaryCard = SummaryCard.simpleSummaryWithFiles(
+        GeneralDetailSummaryService.GENERAL_DETAILS,
+        summaryDataView,
+        List.of(SummaryFileViewRow.empty(FINAL_CONCEPT_SELECT_REPORT))
+    );
     assertThat(generalDetailSummaryService.getGeneralDetailsSummary(submissionDetail))
         .usingRecursiveComparison()
         .isEqualTo(summaryCard);
@@ -456,7 +486,8 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
-    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_ENGLAND, generalDetail.getResourceLocatedInEngland());
+    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_ENGLAND,
+        generalDetail.getResourceLocatedInEngland());
     summaryDataView.addKeyValue(
         GeneralDetailSummaryService.QUADRANT_AND_BLOCKS,
         String.join(", ", List.of(quadBlockRef1, quadBlockRef2))
@@ -470,7 +501,8 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.CURRENT_DRIVE_MECHANISM, generalDetail.getOtherDriveMechanism()
     );
 
-    var summaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
+    var summaryCard = SummaryCard.simpleSummaryWithFiles(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView,
+        List.of());
     assertThat(generalDetailSummaryService.getGeneralDetailsSummary(submissionDetail))
         .usingRecursiveComparison()
         .isEqualTo(summaryCard);
@@ -482,7 +514,7 @@ class GeneralDetailSummaryServiceTest {
       names = {"CREATE_FDP", "CREATE_FDPA"}
   )
   void getGeneralDetailsSummary_generalDetailsSummary_FdpOrFdpa(SubmissionType submissionType) {
-    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+    submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     generalDetail.setResourceLocatedInEngland(true);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
@@ -508,7 +540,8 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
-    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_ENGLAND, generalDetail.getResourceLocatedInEngland());
+    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_ENGLAND,
+        generalDetail.getResourceLocatedInEngland());
     summaryDataView.addKeyValue(
         GeneralDetailSummaryService.QUADRANT_AND_BLOCKS,
         String.join(", ", List.of(quadBlockRef1, quadBlockRef2))
@@ -521,126 +554,19 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.CURRENT_DRIVE_MECHANISM, generalDetail.getOtherDriveMechanism()
     );
 
-    var summaryCard = SummaryCard.simpleSummaryCardWithHeading(GeneralDetailSummaryService.GENERAL_DETAILS, summaryDataView);
+    var summaryCard = SummaryCard.simpleSummaryWithFiles(
+        GeneralDetailSummaryService.GENERAL_DETAILS,
+        summaryDataView,
+        List.of(SummaryFileViewRow.empty("Final %s".formatted(submissionType.getTypeName().toLowerCase())))
+    );
     assertThat(generalDetailSummaryService.getGeneralDetailsSummary(submissionDetail))
         .usingRecursiveComparison()
         .isEqualTo(summaryCard);
   }
 
   @Test
-  void getFieldReportSummaryCard_fileUploaded_assertProperties() {
-    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
-
-    var fieldReportFileForm = new UploadedFileForm();
-    fieldReportFileForm.setUploadedFileId(UUID.randomUUID());
-
-    var fieldReportFile = new UploadedFile();
-    fieldReportFile.setName("filename.pdf");
-    fieldReportFile.setDescription("file description");
-
-    var fieldReportDownloadUrl = ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
-        .download(submissionDetail.getId(), fieldReportFile.getId()));
-
-    when(supportingDocumentService.getUploadedFiles(submissionDetail, FileDocumentType.FIELD_REPORT))
-        .thenReturn(List.of(fieldReportFile));
-
-    var summaryFieldViews = (List<SummaryFileView>) generalDetailSummaryService.getFieldReportSummary(submissionDetail).get().summaryData();
-
-    assertThat(summaryFieldViews.get(0))
-        .extracting(
-            SummaryFileView::filename,
-            SummaryFileView::description,
-            SummaryFileView::downloadUrl
-        ).contains(
-            fieldReportFile.getName(),
-            fieldReportFile.getDescription(),
-            fieldReportDownloadUrl
-        );
-  }
-
-  @Test
-  void getFieldReportSummaryCard_csr_assertCardHeading() {
-    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
-
-    when(supportingDocumentService.getUploadedFiles(submissionDetail, FileDocumentType.FIELD_REPORT))
-        .thenReturn(List.of());
-
-    var expectedHeading = "General details - " + GeneralDetailSummaryService.FINAL_CONCEPT_SELECT_REPORT;
-
-    assertThat(generalDetailSummaryService.getFieldReportSummary(submissionDetail).get())
-        .usingRecursiveComparison()
-        .isEqualTo(SummaryCard.emptySummaryCardWithHeading(expectedHeading));
-  }
-
-  @Test
-  void getFieldReportSummaryCard_fdp_assertCardHeading() {
-    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_FDP);
-
-    when(supportingDocumentService.getUploadedFiles(submissionDetail, FileDocumentType.FIELD_REPORT))
-        .thenReturn(List.of());
-
-    var expectedHeading = "General details - " + GeneralDetailSummaryService.FINAL_FIELD_DEVELOPMENT_PLAN;
-
-    assertThat(generalDetailSummaryService.getFieldReportSummary(submissionDetail).get())
-        .usingRecursiveComparison()
-        .isEqualTo(SummaryCard.emptySummaryCardWithHeading(expectedHeading));
-  }
-
-  @Test
-  void getFieldReportSummaryCard_fdpa_assertCardHeading() {
-    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_FDPA);
-
-    when(supportingDocumentService.getUploadedFiles(submissionDetail, FileDocumentType.FIELD_REPORT))
-        .thenReturn(List.of());
-
-    var expectedHeading = "General details - " + GeneralDetailSummaryService.FINAL_FIELD_DEVELOPMENT_PLAN_ADDENDUM;
-
-    assertThat(generalDetailSummaryService.getFieldReportSummary(submissionDetail).get())
-        .usingRecursiveComparison()
-        .isEqualTo(SummaryCard.emptySummaryCardWithHeading(expectedHeading));
-  }
-
-  @Test
-  void getFieldReportSummaryCard_cop_assertCardHeading() {
-    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_COP);
-
-    when(supportingDocumentService.getUploadedFiles(submissionDetail, FileDocumentType.FIELD_REPORT))
-        .thenReturn(List.of(new UploadedFile()));
-
-    var expectedHeading = "General details - " + GeneralDetailSummaryService.CESSATION_OF_PRODUCTION_REPORT;
-
-    assertThat(generalDetailSummaryService.getFieldReportSummary(submissionDetail).get())
-        .extracting(SummaryCard::displayName)
-        .isEqualTo(expectedHeading);
-  }
-
-  @Test
-  void getFieldReportSummaryCard_noFileUploaded_nonCopSubmission_assertNotStartedYetCard() {
-    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
-
-    when(supportingDocumentService.getUploadedFiles(submissionDetail, FileDocumentType.FIELD_REPORT))
-        .thenReturn(List.of());
-
-    var expectedHeading = "General details - Final concept select report";
-
-    assertThat(generalDetailSummaryService.getFieldReportSummary(submissionDetail).get())
-        .usingRecursiveComparison()
-        .isEqualTo(SummaryCard.emptySummaryCardWithHeading(expectedHeading));
-  }
-
-  @Test
-  void getFieldReportSummaryCard_noFileUploaded_copSubmission_assertEmpty() {
-    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_COP);
-
-    when(supportingDocumentService.getUploadedFiles(submissionDetail, FileDocumentType.FIELD_REPORT))
-        .thenReturn(List.of());
-
-    assertThat(generalDetailSummaryService.getFieldReportSummary(submissionDetail)).isEmpty();
-  }
-
-  @Test
   void getGeneralDetailsSummary_noExistingGeneralDetails_thenEmptySummaryCard() {
-    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+    submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.empty());
 

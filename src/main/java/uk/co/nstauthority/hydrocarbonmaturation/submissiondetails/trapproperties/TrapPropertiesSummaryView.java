@@ -1,10 +1,9 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
 import java.util.List;
-import java.util.Map;
-import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.SummaryBehaviour;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 
 public record TrapPropertiesSummaryView(String trapDescription,
                                         String trapType,
@@ -19,11 +18,12 @@ public record TrapPropertiesSummaryView(String trapDescription,
                                         String datum,
                                         String quadAndBlockCentreOfInterest,
                                         ProbabilityDistributionTableView tableView,
-                                        Map<UploadedFile, String> prospectDepthMap) {
+                                        List<SummaryFileViewRow> prospectDepthMap) {
   public static TrapPropertiesSummaryView empty() {
     return new TrapPropertiesSummaryView("", "", "", "",
         "", "", "", "",
         "", "", "", "",
-        new ProbabilityDistributionTableView(new SummaryBehaviour(), List.of()), Map.of());
+        new ProbabilityDistributionTableView(new SummaryBehaviour(), List.of()),
+        List.of(SummaryFileViewRow.empty("")));
   }
 }

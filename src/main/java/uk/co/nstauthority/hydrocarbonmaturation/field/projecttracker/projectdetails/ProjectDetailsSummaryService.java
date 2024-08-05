@@ -106,7 +106,8 @@ public class ProjectDetailsSummaryService implements SummarySectionService<Proje
         PROJECT_DETAILS,
         SummaryCardType.SIMPLE_SUMMARY,
         summaryData,
-        actions
+        actions,
+        List.of()
     );
   }
 

@@ -93,6 +93,6 @@ class EnvironmentalActivitySummaryService implements SummarySectionService<Proje
         ObjectUtils.defaultIfNull(activity.getConsultationClosingDate(), "")
     );
 
-    return new SummaryCard(ENVIRONMENTAL_ACTIVITY, SummaryCardType.SIMPLE_SUMMARY, summaryDataView, actions);
+    return new SummaryCard(ENVIRONMENTAL_ACTIVITY, SummaryCardType.SIMPLE_SUMMARY, summaryDataView, actions, List.of());
   }
 }

@@ -2,10 +2,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformax
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseSummaryService.FILE_ROW_KEY;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -16,10 +15,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.FileSummaryUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 
 @ExtendWith(MockitoExtension.class)
 class OutlineForMaximumCaseSummaryServiceTest {
@@ -45,8 +45,9 @@ class OutlineForMaximumCaseSummaryServiceTest {
 
     @BeforeEach
     void setup() {
-      UPLOADED_FILE = new UploadedFile();
-      UPLOADED_FILE.setId(UUID.randomUUID());
+      UPLOADED_FILE = UploadedFileTestUtil.builder()
+          .withId(UUID.randomUUID())
+          .build();
 
       ROUTE = "route";
       when(outlineForMaximumCaseMapService.getMapGeoJsonDataRoute(submissionDetail)).thenReturn(ROUTE);
@@ -58,7 +59,8 @@ class OutlineForMaximumCaseSummaryServiceTest {
     @Test
     void hasUpload() {
       var documentType = FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE_OFFSHORE;
-      when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail)).thenReturn(documentType);
+      when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail)).thenReturn(
+          documentType);
       when(supportingDocumentService.getUploadedFiles(
           submissionDetail,
           documentType
@@ -76,18 +78,22 @@ class OutlineForMaximumCaseSummaryServiceTest {
               OutlineForMaximumCaseSummaryView::mapAttributions
           )
           .containsExactly(
-              Map.of(UPLOADED_FILE, ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
-                  .download(submissionDetail.getId(), UPLOADED_FILE.getId()))),
+              FileSummaryUtil.convertSubmissionSupportingFilesToSummaryRows(
+                  FILE_ROW_KEY,
+                  List.of(UPLOADED_FILE),
+                  submissionDetail
+              ),
               true,
               ROUTE,
               ATTRIBUTIONS
-      );
+          );
     }
 
     @Test
     void noUpload() {
       var documentType = FileDocumentType.SHAPE_FILE_OUTLINE_FOR_MAXIMUM_CASE_OFFSHORE;
-      when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail)).thenReturn(documentType);
+      when(outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail)).thenReturn(
+          documentType);
       when(supportingDocumentService.getUploadedFiles(
           submissionDetail,
           documentType
@@ -105,11 +111,11 @@ class OutlineForMaximumCaseSummaryServiceTest {
               OutlineForMaximumCaseSummaryView::mapAttributions
           )
           .containsExactly(
-              Map.of(),
+              List.of(SummaryFileViewRow.empty(FILE_ROW_KEY)),
               false,
               ROUTE,
               ATTRIBUTIONS
-      );
+          );
     }
   }
 }

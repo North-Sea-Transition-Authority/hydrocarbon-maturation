@@ -1,11 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.summary;
 
-/**
- * This class holds the file data for downloading from the summary
- */
-
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 
+/**
+ * This class holds the file data for downloading from the summary.
+ */
 public record SummaryFileView(
     String filename,
     String description,

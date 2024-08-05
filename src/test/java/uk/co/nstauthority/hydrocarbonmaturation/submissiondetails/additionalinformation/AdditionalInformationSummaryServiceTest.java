@@ -2,12 +2,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinf
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinformation.AdditionalInformationSummaryService.FILE_ROW_KEY;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,11 +14,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.FileSummaryUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 
 @ExtendWith(MockitoExtension.class)
 class AdditionalInformationSummaryServiceTest {
@@ -55,7 +52,7 @@ class AdditionalInformationSummaryServiceTest {
             "",
             "",
             "",
-            Collections.emptyMap()
+            List.of(SummaryFileViewRow.empty(FILE_ROW_KEY))
         );
   }
 
@@ -81,7 +78,7 @@ class AdditionalInformationSummaryServiceTest {
             "No",
             "",
             "No",
-            Map.of()
+            List.of()
         );
   }
 
@@ -104,9 +101,11 @@ class AdditionalInformationSummaryServiceTest {
         submissionDetail,
         FileDocumentType.ADDITIONAL_DOCUMENT)).thenReturn(List.of(uploadedFile));
 
-    var fileMap = new HashMap<UploadedFile, String>();
-    fileMap.put(uploadedFile, ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
-        .download(submissionDetail.getId(), fileUploadForm.getUploadedFileId())));
+    var fileViews = FileSummaryUtil.convertSubmissionSupportingFilesToSummaryRows(
+        FILE_ROW_KEY,
+        List.of(uploadedFile),
+        submissionDetail
+    );
 
     var additionalInformationSummaryView =
         additionalInformationSummaryService.getAdditionalInformationSummaryFromSubmissionDetail(submissionDetail);
@@ -121,7 +120,7 @@ class AdditionalInformationSummaryServiceTest {
             "Yes",
             "comment",
             "Yes",
-            fileMap
+            fileViews
         );
   }
 }

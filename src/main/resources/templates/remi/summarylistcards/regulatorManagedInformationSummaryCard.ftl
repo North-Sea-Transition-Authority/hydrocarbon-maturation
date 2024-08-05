@@ -1,5 +1,5 @@
 <#include '../layout/layout.ftl'>
-<#import 'fileUploadSummaryCard.ftl' as fileUploadSummary>
+<#import 'fileUploadSummaryRows.ftl' as fileUploadSummary>
 
 <#-- @ftlvariable name="regulatorManagedInformationValues" type="uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView" -->
 <#-- @ftlvariable name="resourceGroupsValues" type="uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView" -->
@@ -14,9 +14,7 @@
       ${regulatorManagedInformationValues.geographicalArea()}
     </@fdsSummaryList.summaryListRowNoAction>
     <#if regulatorManagedInformationValues.isBeingRelinquished()>
-      <@fileUploadSummary.fileUploadSummary
-        filesUploaded=regulatorManagedInformationValues.relinquishmentReport()
-        fieldName="Relinquishment report"/>
+      <@fileUploadSummary.fileUploadSummary filesUploaded=regulatorManagedInformationValues.relinquishmentReport()/>
     </#if>
     <@fdsSummaryList.summaryListRowNoAction keyText="${resourceGroupsValues.resourceType().getDisplayName()} group preferred view">
       ${resourceGroupsValues.isPreferredView()}

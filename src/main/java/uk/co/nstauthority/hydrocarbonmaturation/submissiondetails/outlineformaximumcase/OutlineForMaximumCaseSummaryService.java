@@ -1,20 +1,18 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.FileSummaryUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 
 @Service
 public class OutlineForMaximumCaseSummaryService {
+
+  static final String FILE_ROW_KEY = "Outline for maximum case shapefile";
 
   private final OutlineForMaximumCaseMapService outlineForMaximumCaseMapService;
   private final SubmissionSupportingDocumentService supportingDocumentService;
@@ -32,29 +30,31 @@ public class OutlineForMaximumCaseSummaryService {
     this.outlineForMaximumCaseDocumentTypeService = outlineForMaximumCaseDocumentTypeService;
   }
 
-  public OutlineForMaximumCaseSummaryView getOutlineForMaximumCaseSummaryFromSubmissionDetail(SubmissionDetail submissionDetail) {
-    var fileUploadMap = getFileUploadMap(submissionDetail);
+  public OutlineForMaximumCaseSummaryView getOutlineForMaximumCaseSummaryFromSubmissionDetail(
+      SubmissionDetail submissionDetail) {
+    var uploadedFiles = getUploadedFiles(submissionDetail);
 
     var hasVerifiedShapefile = outlineForMaximumCasePersistenceService.hasVerifiedShapefile(submissionDetail);
 
+    List<SummaryFileViewRow> fileViews = FileSummaryUtil.convertSubmissionSupportingFilesToSummaryRows(
+        FILE_ROW_KEY,
+        uploadedFiles,
+        submissionDetail
+    );
+    if (fileViews.isEmpty()) {
+      fileViews = List.of(SummaryFileViewRow.empty(FILE_ROW_KEY));
+    }
+
     return new OutlineForMaximumCaseSummaryView(
-        fileUploadMap,
+        fileViews,
         hasVerifiedShapefile,
         outlineForMaximumCaseMapService.getMapGeoJsonDataRoute(submissionDetail),
         outlineForMaximumCaseMapService.getMapAttributions()
     );
   }
 
-  private Map<UploadedFile, String> getFileUploadMap(SubmissionDetail submissionDetail) {
+  private List<UploadedFile> getUploadedFiles(SubmissionDetail submissionDetail) {
     var documentType = outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail);
-    return supportingDocumentService.getUploadedFiles(submissionDetail, documentType)
-        .stream()
-        .collect(Collectors.toMap(Function.identity(), getUploadedFileDownloadRoute(submissionDetail)));
-  }
-
-  private static Function<UploadedFile, String> getUploadedFileDownloadRoute(SubmissionDetail submissionDetail) {
-    return uploadedFile ->
-        ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
-            .download(submissionDetail.getId(), uploadedFile.getId()));
+    return supportingDocumentService.getUploadedFiles(submissionDetail, documentType);
   }
 }

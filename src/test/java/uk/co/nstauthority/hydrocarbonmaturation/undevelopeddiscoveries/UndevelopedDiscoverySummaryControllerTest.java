@@ -54,6 +54,7 @@ class UndevelopedDiscoverySummaryControllerTest extends AbstractUndevelopedDisco
         "Tracking details",
         SummaryCardType.SIMPLE_SUMMARY,
         SummaryDataView.newWithKeyValue("Included...", "Yes"),
+        List.of(),
         List.of()
     );
 

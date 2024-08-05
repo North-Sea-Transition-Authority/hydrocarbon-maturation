@@ -5,7 +5,7 @@ import java.util.List;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
-class AdditionalInformationForm implements SubmissionForm {
+public class AdditionalInformationForm implements SubmissionForm {
 
   private Boolean providingAdditionalComments;
   private String additionalComments;

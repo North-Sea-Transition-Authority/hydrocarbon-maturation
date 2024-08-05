@@ -7,11 +7,12 @@ public record SummaryCard(
     String displayName,
     SummaryCardType summaryCardType,
     Object summaryData,
-    List<SummaryAction> summaryActions
+    List<SummaryAction> summaryActions,
+    List<SummaryFileViewRow> fileViews
 ) {
 
   public SummaryCard(String displayName, SummaryCardType summaryCardType, Object summaryData) {
-    this(displayName, summaryCardType, summaryData, List.of());
+    this(displayName, summaryCardType, summaryData, List.of(), List.of());
   }
 
   public static SummaryCard simpleSummaryCardWithHeading(String displayName,
@@ -56,10 +57,6 @@ public record SummaryCard(
     );
   }
 
-  public static SummaryCard tableSummaryCard(SummaryTableView summaryData) {
-    return tableSummaryCardWithHeading(null, summaryData);
-  }
-
   public static SummaryCard probabilitySummaryCardWithHeading(String displayName,
                                                               ProbabilityDistributionTableView tableView) {
     return new SummaryCard(
@@ -83,10 +80,13 @@ public record SummaryCard(
     );
   }
 
-  public static SummaryCard filesSummaryCardWithHeading(String heading, List<SummaryFileView> fileViews) {
+  public static SummaryCard simpleSummaryWithFiles(String heading, SummaryDataView summaryData,
+                                                   List<SummaryFileViewRow> fileViews) {
     return new SummaryCard(
         heading,
-        SummaryCardType.FILES_SUMMARY,
+        SummaryCardType.SIMPLE_SUMMARY_WITH_FILES,
+        summaryData,
+        List.of(),
         fileViews
     );
   }
@@ -96,7 +96,8 @@ public record SummaryCard(
         heading,
         SummaryCardType.EMPTY_SUMMARY,
         null,
-        actions
+        actions,
+        List.of()
     );
   }
 
@@ -105,6 +106,7 @@ public record SummaryCard(
         heading,
         SummaryCardType.CROSS_TAB,
         crossTabView,
+        List.of(),
         List.of()
     );
   }

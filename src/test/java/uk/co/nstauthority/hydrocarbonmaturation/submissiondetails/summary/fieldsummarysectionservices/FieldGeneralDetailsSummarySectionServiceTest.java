@@ -44,14 +44,11 @@ class FieldGeneralDetailsSummarySectionServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
 
     var generalDetailsCard = new SummaryCard("General details", SummaryCardType.SIMPLE_SUMMARY, null);
-    var generalDetailsFieldReportCard = new SummaryCard("Field report", SummaryCardType.FILES_SUMMARY, null);
     var consideringCcusCard = new SummaryCard("Considering CCUS", SummaryCardType.SIMPLE_SUMMARY, null);
     var fieldComplexityCard = new SummaryCard("Field complexity", SummaryCardType.SIMPLE_SUMMARY, null);
 
     when(generalDetailSummaryService.getGeneralDetailsSummary(submissionDetail))
         .thenReturn(generalDetailsCard);
-    when(generalDetailSummaryService.getFieldReportSummary(submissionDetail))
-        .thenReturn(Optional.of(generalDetailsFieldReportCard));
     when(consideringCcusSummaryService.getConsideringCcusSummary(submissionDetail))
         .thenReturn(consideringCcusCard);
     when(fieldComplexitySummaryService.getFieldComplexitySummary(submissionDetail))
@@ -61,7 +58,6 @@ class FieldGeneralDetailsSummarySectionServiceTest {
         FieldGeneralDetailsSummarySectionService.GENERAL_DETAILS,
         List.of(
             generalDetailsCard,
-            generalDetailsFieldReportCard,
             consideringCcusCard,
             fieldComplexityCard
         ));
@@ -87,8 +83,6 @@ class FieldGeneralDetailsSummarySectionServiceTest {
 
     when(generalDetailSummaryService.getGeneralDetailsSummary(submissionDetail))
         .thenReturn(generalDetailsCard);
-    when(generalDetailSummaryService.getFieldReportSummary(submissionDetail))
-        .thenReturn(Optional.empty());
     when(consideringCcusSummaryService.getConsideringCcusSummary(submissionDetail))
         .thenReturn(consideringCcusCard);
     when(fieldComplexitySummaryService.getFieldComplexitySummary(submissionDetail))

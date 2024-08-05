@@ -12,7 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PartialFullFormVa
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidationUtils;
 
 @Service
-class OpportunityDetailsFormValidator extends PartialFullFormValidator {
+public class OpportunityDetailsFormValidator extends PartialFullFormValidator {
 
   private SubmissionDetail submissionDetail;
 

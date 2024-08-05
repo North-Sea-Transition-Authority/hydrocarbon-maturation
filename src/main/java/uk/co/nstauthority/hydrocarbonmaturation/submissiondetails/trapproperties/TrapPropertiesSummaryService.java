@@ -1,24 +1,21 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.FileSummaryUtil;
 
 @Service
 public class TrapPropertiesSummaryService {
+
+  static final String FILE_ROW_KEY = "Prospect depth map";
 
   private final TrapPropertiesPersistenceService trapPropertiesPersistenceService;
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
@@ -91,18 +88,6 @@ public class TrapPropertiesSummaryService {
             listOfInstances, submissionDetail, null
         );
 
-    var fileUploadList = supportingDocumentService.getUploadedFiles(
-        submissionDetail,
-        FileDocumentType.PROSPECT_DEPTH_MAP);
-
-    var prospectDepthMapUploadsAndLinks = new HashMap<UploadedFile, String>();
-
-    fileUploadList.forEach(file -> prospectDepthMapUploadsAndLinks.put(
-        file,
-        ReverseRouter.route(
-            on(SubmissionSupportingDocumentsController.class).download(submissionDetail.getId(), file.getId())))
-    );
-
     var datumDisplay = trapProperty.getDatum() != null
         ? trapProperty.getDatum().getDisplayName()
         : "";
@@ -110,6 +95,12 @@ public class TrapPropertiesSummaryService {
     var quadBlock = trapProperty.getCentreOfInterestQuadrantBlock() != null
         ? trapProperty.getCentreOfInterestQuadrantBlock()
         : "";
+
+    var fileUploadList = supportingDocumentService.getUploadedFiles(
+        submissionDetail,
+        FileDocumentType.PROSPECT_DEPTH_MAP);
+    var prospectDepthMapFileViews = FileSummaryUtil.convertSubmissionSupportingFilesToSummaryRows(FILE_ROW_KEY,
+        fileUploadList, submissionDetail);
 
     return new TrapPropertiesSummaryView(
         trapDescription,
@@ -125,7 +116,7 @@ public class TrapPropertiesSummaryService {
         datumDisplay,
         quadBlock,
         probabilityDistributionTableView,
-        prospectDepthMapUploadsAndLinks
+        prospectDepthMapFileViews
     );
   }
 }

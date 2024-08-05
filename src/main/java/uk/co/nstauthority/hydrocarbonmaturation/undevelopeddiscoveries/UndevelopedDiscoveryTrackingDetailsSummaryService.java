@@ -50,7 +50,8 @@ public class UndevelopedDiscoveryTrackingDetailsSummaryService implements Summar
         TRACKING_DETAILS,
         SummaryCardType.SIMPLE_SUMMARY,
         summaryData,
-        actions
+        actions,
+        List.of()
     );
   }
 }

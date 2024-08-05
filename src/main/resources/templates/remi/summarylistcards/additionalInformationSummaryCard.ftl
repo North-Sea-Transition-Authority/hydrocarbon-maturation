@@ -1,5 +1,5 @@
 <#include '../layout/layout.ftl'>
-<#import 'fileUploadSummaryCard.ftl' as fileUploadSummary>
+<#import 'fileUploadSummaryRows.ftl' as fileUploadSummary>
 
 <#-- @ftlvariable name="additionalInformationValues" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinformation.AdditionalInformationSummaryView" -->
 
@@ -18,9 +18,7 @@
     </@fdsSummaryList.summaryListRowNoAction>
 
     <#if additionalInformationValues.providingAdditionalDocuments() == "Yes">
-      <@fileUploadSummary.fileUploadSummary
-        filesUploaded=additionalInformationValues.additionalDocuments()
-        fieldName="Additional documents"/>
+      <@fileUploadSummary.fileUploadSummary filesUploaded=additionalInformationValues.additionalDocuments()/>
     </#if>
   </@fdsSummaryList.summaryListCard>
 </#macro>

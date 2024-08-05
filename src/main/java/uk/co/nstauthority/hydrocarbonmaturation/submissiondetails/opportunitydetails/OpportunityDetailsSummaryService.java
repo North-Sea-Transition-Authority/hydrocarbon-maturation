@@ -1,23 +1,21 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentsController;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.FileSummaryUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 
 @Service
 public class OpportunityDetailsSummaryService {
+
+  static final String MAP_OF_OPPORTUNITY_FILE_KEY = "Map of opportunity";
+  static final String REPRESENTATIVE_SEISMIC_SECTION_FILE_KEY = "Representative seismic section";
+  static final String GEOLOGICAL_FILE_KEY = "Geological cross section";
 
   private final OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;
   private final SubmissionSupportingDocumentService supportingDocumentService;
@@ -29,7 +27,8 @@ public class OpportunityDetailsSummaryService {
     this.supportingDocumentService = supportingDocumentService;
   }
 
-  public OpportunityDetailsSummaryView getOpportunityDetailsSummaryFromSubmissionDetail(SubmissionDetail submissionDetail) {
+  public OpportunityDetailsSummaryView getOpportunityDetailsSummaryFromSubmissionDetail(
+      SubmissionDetail submissionDetail) {
     var opportunityDetails = opportunityDetailsPersistenceService.getOpportunityDetail(submissionDetail);
 
     return opportunityDetails
@@ -65,27 +64,42 @@ public class OpportunityDetailsSummaryService {
         FileDocumentType.REPRESENTATIVE_SEISMIC_SECTION
     );
 
+    var opportunityFiles = FileSummaryUtil.convertSubmissionSupportingFilesToSummaryRows(
+        MAP_OF_OPPORTUNITY_FILE_KEY,
+        mapOfOpportunityUploadFormList,
+        submissionDetail
+    );
+    if (opportunityFiles.isEmpty()) {
+      opportunityFiles = List.of(SummaryFileViewRow.empty(MAP_OF_OPPORTUNITY_FILE_KEY));
+    }
+
+    var seismicFiles = FileSummaryUtil.convertSubmissionSupportingFilesToSummaryRows(
+        REPRESENTATIVE_SEISMIC_SECTION_FILE_KEY,
+        representativeSeismicSectionUploadFormList,
+        submissionDetail
+    );
+    if (seismicFiles.isEmpty()) {
+      seismicFiles = List.of(SummaryFileViewRow.empty(REPRESENTATIVE_SEISMIC_SECTION_FILE_KEY));
+    }
+
+    var geologicalFiles = FileSummaryUtil.convertSubmissionSupportingFilesToSummaryRows(
+        GEOLOGICAL_FILE_KEY,
+        geologicalCrossSectionUploadFormList,
+        submissionDetail
+    );
+    if (geologicalFiles.isEmpty()) {
+      geologicalFiles = List.of(SummaryFileViewRow.empty(GEOLOGICAL_FILE_KEY));
+    }
+
     return new OpportunityDetailsSummaryView(opportunityType,
         otherOpportunity,
         otherOpportunityType,
         opportunityComments,
         keyEvaluationWork,
         keyWorkRequired,
-        getFileUploadList(mapOfOpportunityUploadFormList, submissionDetail),
-        getFileUploadList(representativeSeismicSectionUploadFormList, submissionDetail),
-        getFileUploadList(geologicalCrossSectionUploadFormList, submissionDetail));
-  }
-
-  private Map<UploadedFile, String> getFileUploadList(List<UploadedFile> fileUploadForms,
-                                                      SubmissionDetail submissionDetail) {
-    return fileUploadForms
-        .stream()
-        .collect(
-            Collectors.toMap(
-                Function.identity(),
-                value -> ReverseRouter.route(on(SubmissionSupportingDocumentsController.class)
-                    .download(submissionDetail.getId(), value.getId()))
-            )
-        );
+        opportunityFiles,
+        seismicFiles,
+        geologicalFiles
+    );
   }
 }

@@ -135,6 +135,7 @@ class DeleteProjectControllerTest extends AbstractControllerTest {
         "",
         SummaryCardType.SIMPLE_SUMMARY,
         new SummaryDataView(List.of()),
+        List.of(),
         List.of());
 
     when(projectDetailsSummaryService.getProjectSummaryCard(project))

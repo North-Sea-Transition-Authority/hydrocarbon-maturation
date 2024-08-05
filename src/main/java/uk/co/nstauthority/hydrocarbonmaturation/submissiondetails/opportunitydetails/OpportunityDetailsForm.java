@@ -5,7 +5,7 @@ import java.util.List;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
-class OpportunityDetailsForm implements SubmissionForm {
+public class OpportunityDetailsForm implements SubmissionForm {
   private OpportunityType opportunityType;
   private String otherTypeOfOpportunity;
   private String opportunityComments;

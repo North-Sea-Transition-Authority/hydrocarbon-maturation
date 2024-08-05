@@ -66,7 +66,8 @@ class ProjectStageSummaryService implements SummarySectionService<Project> {
         PROJECT_STAGE,
         SummaryCardType.TIMELINE_SUMMARY,
         new SummaryTimelineView(timelineEvents),
-        actions
+        actions,
+        List.of()
     );
   }
 

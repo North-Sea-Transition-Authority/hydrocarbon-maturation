@@ -14,7 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormVal
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-class OpportunityDetailsFormService implements SubmissionFormService {
+public class OpportunityDetailsFormService implements SubmissionFormService {
 
   private final OpportunityDetailsFormValidator opportunityDetailsFormValidator;
   private final OpportunityDetailsPersistenceService opportunityDetailsPersistenceService;

@@ -1,22 +1,21 @@
 package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentsController;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.FileSummaryUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 
 @Service
 public class RegulatorManagedInformationSummaryService {
+
+  static final String FILE_ROW_KEY = "Relinquishment report";
+
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final SubmissionDetailService submissionDetailService;
   private final ResourceSupportingDocumentService resourceSupportingDocumentService;
@@ -31,14 +30,14 @@ public class RegulatorManagedInformationSummaryService {
     this.resourceSupportingDocumentService = resourceSupportingDocumentService;
   }
 
-
   public RegulatorManagedInformationSummaryView getRegulatorManagedInformationSummaryFromResource(
       Resource resource) {
     var regulatorManagedInformation = regulatorManagedInformationPersistenceService
         .getRegulatorManagedInformationByResource(resource);
     var isBeingRelinquished = submissionDetailService.isLatestSubmissionForResourceRelinquishment(resource);
     return regulatorManagedInformation
-        .map(regulatorManagedInfo -> createSummaryViewFromRegulatorManagedInformation(regulatorManagedInfo, isBeingRelinquished))
+        .map(regulatorManagedInfo -> createSummaryViewFromRegulatorManagedInformation(regulatorManagedInfo,
+            isBeingRelinquished))
         .orElse(RegulatorManagedInformationSummaryView.empty(isBeingRelinquished));
   }
 
@@ -48,21 +47,17 @@ public class RegulatorManagedInformationSummaryService {
         DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(regulatorManagedInformation.getResponsibleTeamType()),
         DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(regulatorManagedInformation.getGeographicalArea()),
         isBeingRelinquished,
-        isBeingRelinquished ? getRelinquishmentReportUploads(regulatorManagedInformation) : Map.of()
+        isBeingRelinquished ? getRelinquishmentReportUploads(regulatorManagedInformation) : List.of()
     );
   }
 
-  private Map<UploadedFile, String> getRelinquishmentReportUploads(
+  private List<SummaryFileViewRow> getRelinquishmentReportUploads(
       RegulatorManagedInformation regulatorManagedInformation) {
-    var relinquishmentReportUploadsAndLinks = new HashMap<UploadedFile, String>();
     var fileUploadList = resourceSupportingDocumentService.getUploadedFiles(
-        regulatorManagedInformation.getResource(),
-        FileDocumentType.RELINQUISHMENT_REPORT);
-    fileUploadList.forEach(file -> relinquishmentReportUploadsAndLinks.put(
-        file,
-        ReverseRouter.route(on(ResourceSupportingDocumentsController.class)
-            .download(regulatorManagedInformation.getResource().getId(), file.getId())))
+        regulatorManagedInformation.getResource(), FileDocumentType.RELINQUISHMENT_REPORT
     );
-    return relinquishmentReportUploadsAndLinks;
+
+    return FileSummaryUtil.convertResourceSupportingFilesToSummaryRows(FILE_ROW_KEY, fileUploadList,
+        regulatorManagedInformation.getResource());
   }
 }

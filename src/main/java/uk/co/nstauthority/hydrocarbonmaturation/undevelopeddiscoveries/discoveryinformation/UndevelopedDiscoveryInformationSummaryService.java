@@ -79,8 +79,7 @@ public class UndevelopedDiscoveryInformationSummaryService implements SummarySec
     return new SummaryCard(
         VOLUMETRICS_DIFFERENCE_HEADING,
         SummaryCardType.SIMPLE_SUMMARY,
-        summaryData,
-        List.of()
+        summaryData
     );
   }
 
@@ -95,8 +94,7 @@ public class UndevelopedDiscoveryInformationSummaryService implements SummarySec
     return new SummaryCard(
         DISCOVERY_COMPLEXITY,
         SummaryCardType.SIMPLE_SUMMARY,
-        summaryData,
-        List.of()
+        summaryData
     );
   }
 

@@ -1,13 +1,15 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinformation;
 
-import java.util.Map;
-import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.additionalinformation.AdditionalInformationSummaryService.FILE_ROW_KEY;
+
+import java.util.List;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 
 public record AdditionalInformationSummaryView(String providingAdditionalComments,
                                                String additionalComments,
                                                String providingAdditionalDocuments,
-                                               Map<UploadedFile, String> additionalDocuments) {
+                                               List<SummaryFileViewRow> additionalDocuments) {
   public static AdditionalInformationSummaryView empty() {
-    return new AdditionalInformationSummaryView("", "", "", Map.of());
+    return new AdditionalInformationSummaryView("", "", "", List.of(SummaryFileViewRow.empty(FILE_ROW_KEY)));
   }
 }

@@ -1,13 +1,20 @@
 package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
-import java.util.Map;
-import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import static uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService.FILE_ROW_KEY;
+
+import java.util.List;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 
 public record RegulatorManagedInformationSummaryView(String responsibleTeamType,
                                               String geographicalArea,
                                               boolean isBeingRelinquished,
-                                              Map<UploadedFile, String> relinquishmentReport) {
+                                              List<SummaryFileViewRow> relinquishmentReport) {
   public static RegulatorManagedInformationSummaryView empty(boolean isBeingRelinquished) {
-    return new RegulatorManagedInformationSummaryView("", "", isBeingRelinquished, Map.of());
+    return new RegulatorManagedInformationSummaryView(
+        "",
+        "",
+        isBeingRelinquished,
+        List.of(SummaryFileViewRow.empty(FILE_ROW_KEY))
+    );
   }
 }

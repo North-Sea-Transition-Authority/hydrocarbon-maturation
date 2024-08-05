@@ -1,7 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails;
 
-import java.util.Map;
-import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryService.GEOLOGICAL_FILE_KEY;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryService.MAP_OF_OPPORTUNITY_FILE_KEY;
+import static uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityDetailsSummaryService.REPRESENTATIVE_SEISMIC_SECTION_FILE_KEY;
+
+import java.util.List;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 
 public record OpportunityDetailsSummaryView(String opportunityType,
                                             Boolean otherOpportunity,
@@ -9,9 +13,9 @@ public record OpportunityDetailsSummaryView(String opportunityType,
                                             String opportunityComments,
                                             String keyEvaluationWork,
                                             String keyWorkRequired,
-                                            Map<UploadedFile, String> mapOfOpportunity,
-                                            Map<UploadedFile, String> representativeSeismicSection,
-                                            Map<UploadedFile, String> geologicalCrossSection) {
+                                            List<SummaryFileViewRow> mapOfOpportunity,
+                                            List<SummaryFileViewRow> representativeSeismicSection,
+                                            List<SummaryFileViewRow> geologicalCrossSection) {
 
   public static OpportunityDetailsSummaryView empty() {
     return new OpportunityDetailsSummaryView(
@@ -21,8 +25,9 @@ public record OpportunityDetailsSummaryView(String opportunityType,
         "",
         "",
         "",
-        Map.of(),
-        Map.of(),
-        Map.of());
+        List.of(SummaryFileViewRow.empty(MAP_OF_OPPORTUNITY_FILE_KEY)),
+        List.of(SummaryFileViewRow.empty(REPRESENTATIVE_SEISMIC_SECTION_FILE_KEY)),
+        List.of(SummaryFileViewRow.empty(GEOLOGICAL_FILE_KEY))
+    );
   }
 }

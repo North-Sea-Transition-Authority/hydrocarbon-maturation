@@ -45,13 +45,10 @@ public class FieldGeneralDetailsSummarySectionService implements SummarySectionS
 
   private SummaryItem getGeneralDetailsSummaryItem(SubmissionDetail submissionDetail) {
     var cards = new ArrayList<>(List.of(
-        generalDetailSummaryService.getGeneralDetailsSummary((submissionDetail))
+        generalDetailSummaryService.getGeneralDetailsSummary((submissionDetail)),
+        consideringCcusSummaryService.getConsideringCcusSummary(submissionDetail),
+        fieldComplexitySummaryService.getFieldComplexitySummary(submissionDetail)
     ));
-
-    generalDetailSummaryService.getFieldReportSummary(submissionDetail).ifPresent(cards::add);
-
-    cards.add(consideringCcusSummaryService.getConsideringCcusSummary(submissionDetail));
-    cards.add(fieldComplexitySummaryService.getFieldComplexitySummary(submissionDetail));
 
     return SummaryItem.withCards(GENERAL_DETAILS, cards);
   }

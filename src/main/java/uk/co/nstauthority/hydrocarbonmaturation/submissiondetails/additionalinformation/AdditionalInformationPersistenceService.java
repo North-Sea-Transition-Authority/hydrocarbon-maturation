@@ -10,7 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 
 @Service
-class AdditionalInformationPersistenceService {
+public class AdditionalInformationPersistenceService {
 
   private final AdditionalInformationRepository additionalInformationRepository;
   private final SubmissionSupportingDocumentService supportingDocumentService;
