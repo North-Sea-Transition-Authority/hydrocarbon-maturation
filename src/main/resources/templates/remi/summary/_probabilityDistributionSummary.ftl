@@ -1,4 +1,5 @@
 <#include '../layout/layout.ftl'>
+<#import 'tableSummaryCard.ftl' as tableSummaryCard>
 
 <#-- @ftlvariable name="tableView" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView>" -->
 <#-- @ftlvariable name="probabilityDistribution" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView" -->
@@ -8,18 +9,19 @@
 tableView
 withDistributionType=true
 withContingentUncertaintyCategories=false
-heading="">
+heading=""
+summaryCardId="summary-data-card-list">
   <#if tableView.probabilityDistributions()?has_content>
     <#if heading?has_content>
-      <@fdsSummaryList.summaryListCard
+      <@tableSummaryCard.tableCard
       headingText=heading
       headingSize="h3"
-      summaryListId="summary-data-card-list">
+      summaryCardId=summaryCardId>
         <@probabilityDistributionTableInner
         tableView=tableView
         withDistributionType=withDistributionType
         withContingentUncertaintyCategories=withContingentUncertaintyCategories/>
-      </@fdsSummaryList.summaryListCard>
+      </@tableSummaryCard.tableCard>
     <#else>
       <@probabilityDistributionTableInner
       tableView=tableView

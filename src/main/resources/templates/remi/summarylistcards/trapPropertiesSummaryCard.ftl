@@ -39,8 +39,8 @@
     <@fileUploadSummary.fileUploadSummary filesUploaded=trapPropertiesValues.prospectDepthMap()/>
   </@fdsSummaryList.summaryListCard>
 
-    <@fdsSummaryList.summaryListCard headingText="Trap property distributions" summaryListId="trappropertydistributions">
-        <@probabilityDistribution.probabilityDistributionTable
-        tableView=trapPropertiesValues.tableView()/>
-    </@fdsSummaryList.summaryListCard>
+  <@probabilityDistribution.probabilityDistributionTable
+    heading="Trap property distributions"
+    summaryCardId="trap-property-distributions-table"
+    tableView=trapPropertiesValues.tableView()/>
 </#macro>

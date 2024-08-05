@@ -8,10 +8,10 @@
         </@fdsSummaryList.summaryListRowNoAction>
     </@fdsSummaryList.summaryListCard>
 
-    <@fdsSummaryList.summaryListCard headingText="Gas case volumetric totals" summaryListId="gascasevolumetrictotalsprobabilities">
-        <@probabilityDistribution.probabilityDistributionTable
-        withDistributionType=false
-        withContingentUncertaintyCategories=true
-        tableView=gasCaseVolumetricTotals.tableView()/>
-    </@fdsSummaryList.summaryListCard>
+    <@probabilityDistribution.probabilityDistributionTable
+    heading="Gas case volumetric totals"
+    withDistributionType=false
+    withContingentUncertaintyCategories=true
+    tableView=gasCaseVolumetricTotals.tableView()
+    summaryCardId="gascasevolumetrictotalsprobabilities"/>
 </#macro>

@@ -4,8 +4,8 @@
 <#-- @ftlvariable name="mixedCaseVolumetricsValues" type="uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView" -->
 
 <#macro mixedCaseVolumetricsSummary mixedCaseVolumetricsValues>
-    <@fdsSummaryList.summaryListCard headingText="Mixed case volumetric parameters" summaryListId="mixedcasevolumetricparams">
-        <@probabilityDistribution.probabilityDistributionTable
-        tableView=mixedCaseVolumetricsValues/>
-    </@fdsSummaryList.summaryListCard>
+    <@probabilityDistribution.probabilityDistributionTable
+    heading="Mixed case volumetric parameters"
+    summaryCardId="mixed-case-volumetric-parameters-table"
+    tableView=mixedCaseVolumetricsValues/>
 </#macro>

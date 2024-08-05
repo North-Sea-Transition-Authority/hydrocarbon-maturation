@@ -13,10 +13,10 @@
     </@fdsSummaryList.summaryListRowNoAction>
   </@fdsSummaryList.summaryListCard>
 
-    <@fdsSummaryList.summaryListCard headingText="Mixed case outputs" summaryListId="mixedcaseoutputs">
-        <@probabilityDistribution.probabilityDistributionTable
-          withDistributionType=false
-          withContingentUncertaintyCategories=withContingentUncertaintyCategories
-          tableView=mixedCaseOutputsValues.tableView()/>
-    </@fdsSummaryList.summaryListCard>
+  <@probabilityDistribution.probabilityDistributionTable
+    heading="Mixed case outputs"
+    summaryCardId="mixed-case-outputs-table"
+    withDistributionType=false
+    withContingentUncertaintyCategories=withContingentUncertaintyCategories
+    tableView=mixedCaseOutputsValues.tableView()/>
 </#macro>

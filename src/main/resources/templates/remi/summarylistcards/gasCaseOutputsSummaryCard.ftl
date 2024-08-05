@@ -10,10 +10,10 @@
     </@fdsSummaryList.summaryListRowNoAction>
   </@fdsSummaryList.summaryListCard>
 
-    <@fdsSummaryList.summaryListCard headingText="Gas case outputs" summaryListId="gascaseoutputs">
-      <@probabilityDistribution.probabilityDistributionTable
-        withDistributionType=false
-        withContingentUncertaintyCategories=withContingentUncertaintyCategories
-        tableView=gasCaseOutputsValues.tableView()/>
-    </@fdsSummaryList.summaryListCard>
+  <@probabilityDistribution.probabilityDistributionTable
+    heading="Gas case outputs"
+    summaryCardId="gas-case-outputs-table"
+    withDistributionType=false
+    withContingentUncertaintyCategories=withContingentUncertaintyCategories
+    tableView=gasCaseOutputsValues.tableView()/>
 </#macro>

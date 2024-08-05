@@ -3,6 +3,7 @@
 <#import '_tableSummary.ftl' as tableSummary>
 <#import '_emptySummary.ftl' as emptySummary>
 <#import '_probabilityDistributionSummary.ftl' as probabilityDistributionSummary>
+<#import 'tableSummaryCard.ftl' as tableSummaryCard>
 
 <#-- @ftlvariable name="summarySections" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection>" -->
 <#-- @ftlvariable name="summaryItem" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem>" -->
@@ -31,27 +32,38 @@
                 </@fdsSummaryList.summaryListCardActionList>
               </#assign>
 
-              <@fdsSummaryList.summaryListCard
-              headingText=summaryCard.displayName()
-              headingSize="h3"
-              summaryListId="summary-data-card-list"
-              cardActionsContent=actionsContent>
-                  <#if summaryCard.summaryCardType() == "SIMPLE_SUMMARY">
-                    <@simpleSummary.simpleSummary
-                    summaryDataView=summaryCard.summaryData()/>
-                  <#elseif summaryCard.summaryCardType() == "TABLE_SUMMARY">
-                    <@tableSummary.tableSummary
-                    summaryTableView=summaryCard.summaryData()
-                    hiddenHeadingText=summaryCard.displayName()/>
-                  <#elseif summaryCard.summaryCardType() == "TABLE_FIXED_WIDTH_SUMMARY">
-                    <@tableSummary.tableFixedWidthSummary
-                    summaryTableView=summaryCard.summaryData()/>
-                  <#elseif summaryCard.summaryCardType() == "SIMPLE_SUMMARY_WITH_FILES">
-                    <@simpleSummary.simpleSummaryWithFiles
+              <#if summaryCard.summaryCardType() == "TABLE_SUMMARY"
+                || summaryCard.summaryCardType() == "TABLE_FIXED_WIDTH_SUMMARY">
+                  <@tableSummaryCard.tableCard
+                  headingText=summaryCard.displayName()
+                  headingSize="h3"
+                  summaryCardId="summary-data-card-list"
+                  cardActionsContent=actionsContent>
+                      <#if summaryCard.summaryCardType() == "TABLE_SUMMARY">
+                          <@tableSummary.tableSummary
+                          summaryTableView=summaryCard.summaryData()
+                          hiddenHeadingText=summaryCard.displayName()/>
+                      <#elseif summaryCard.summaryCardType() == "TABLE_FIXED_WIDTH_SUMMARY">
+                          <@tableSummary.tableFixedWidthSummary
+                          summaryTableView=summaryCard.summaryData()/>
+                      </#if>
+                  </@tableSummaryCard.tableCard>
+              <#else>
+                <@fdsSummaryList.summaryListCard
+                headingText=summaryCard.displayName()
+                headingSize="h3"
+                summaryListId="summary-data-card-list"
+                cardActionsContent=actionsContent>
+                    <#if summaryCard.summaryCardType() == "SIMPLE_SUMMARY">
+                      <@simpleSummary.simpleSummary
+                      summaryDataView=summaryCard.summaryData()/>
+                    <#elseif summaryCard.summaryCardType() == "SIMPLE_SUMMARY_WITH_FILES">
+                      <@simpleSummary.simpleSummaryWithFiles
                       summaryDataView=summaryCard.summaryData()
                       fileViews=summaryCard.fileViews()/>
-                  </#if>
-              </@fdsSummaryList.summaryListCard>
+                    </#if>
+                </@fdsSummaryList.summaryListCard>
+              </#if>
             </#if>
           </#list>
         </@fdsAccordion.accordionSection>

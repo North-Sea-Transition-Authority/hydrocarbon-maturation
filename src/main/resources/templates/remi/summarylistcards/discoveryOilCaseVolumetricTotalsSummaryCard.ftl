@@ -4,10 +4,10 @@
 <#-- @ftlvariable name="oilCaseVolumetricTotals" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSummaryView" -->
 
 <#macro oilCaseVolumetricTotalsSummaryCard oilCaseVolumetricTotals>
-    <@fdsSummaryList.summaryListCard headingText="Total oil case volumetrics" summaryListId="oilcasevolumetrictotals">
-        <@probabilityDistribution.probabilityDistributionTable
-        withDistributionType=false
-        withContingentUncertaintyCategories=true
-        tableView=oilCaseVolumetricTotals.tableView()/>
-    </@fdsSummaryList.summaryListCard>
+    <@probabilityDistribution.probabilityDistributionTable
+    heading="Total oil case volumetrics"
+    summaryCardId="total-oil-case-volumetrics-table"
+    withDistributionType=false
+    withContingentUncertaintyCategories=true
+    tableView=oilCaseVolumetricTotals.tableView()/>
 </#macro>

@@ -3,6 +3,7 @@
 <#import '_timelineSummary.ftl' as timelineSummary>
 <#import '_emptySummary.ftl' as emptySummary>
 <#import '_tableSummary.ftl' as tableSummary>
+<#import 'tableSummaryCard.ftl' as tableSummaryCard>
 
 <#-- @ftlvariable name="summarySections" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection>" -->
 <#-- @ftlvariable name="summaryItem" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem>" -->
@@ -23,25 +24,33 @@
                             </@fdsSummaryList.summaryListCardActionList>
                         </#assign>
 
-                        <@fdsSummaryList.summaryListCard
-                        headingText=summaryCard.displayName()
-                        headingSize="h3"
-                        summaryListId="summary-data-card-list"
-                        cardActionsContent=actionsContent>
-                            <#if summaryCard.summaryCardType() == "SIMPLE_SUMMARY">
-                                <@simpleSummary.simpleSummary
-                                summaryDataView=summaryCard.summaryData()/>
-                            <#elseif summaryCard.summaryCardType() == "EMPTY_SUMMARY">
-                                <@emptySummary.emptySummary/>
-                            <#elseif summaryCard.summaryCardType() == "TIMELINE_SUMMARY">
-                                <@timelineSummary.timelineSummary
-                                summaryTimelineView=summaryCard.summaryData()/>
-                            <#elseif summaryCard.summaryCardType() == "TABLE_SUMMARY">
+                        <#if summaryCard.summaryCardType() == "TABLE_SUMMARY">
+                            <@tableSummaryCard.tableCard
+                            headingText=summaryCard.displayName()
+                            headingSize="h3"
+                            summaryCardId="summary-data-card-list"
+                            cardActionsContent=actionsContent>
                                 <@tableSummary.tableSummary
                                 summaryTableView=summaryCard.summaryData()
                                 hiddenHeadingText=summaryCard.displayName()/>
-                            </#if>
-                        </@fdsSummaryList.summaryListCard>
+                            </@tableSummaryCard.tableCard>
+                        <#else>
+                            <@fdsSummaryList.summaryListCard
+                            headingText=summaryCard.displayName()
+                            headingSize="h3"
+                            summaryListId="summary-data-card-list"
+                            cardActionsContent=actionsContent>
+                                <#if summaryCard.summaryCardType() == "SIMPLE_SUMMARY">
+                                    <@simpleSummary.simpleSummary
+                                    summaryDataView=summaryCard.summaryData()/>
+                                <#elseif summaryCard.summaryCardType() == "EMPTY_SUMMARY">
+                                    <@emptySummary.emptySummary/>
+                                <#elseif summaryCard.summaryCardType() == "TIMELINE_SUMMARY">
+                                    <@timelineSummary.timelineSummary
+                                    summaryTimelineView=summaryCard.summaryData()/>
+                                </#if>
+                            </@fdsSummaryList.summaryListCard>
+                        </#if>
                     </#list>
                 </@fdsAccordion.accordionSection>
             </#list>

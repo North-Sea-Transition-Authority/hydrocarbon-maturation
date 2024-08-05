@@ -1,5 +1,6 @@
 <#include '../layout/layout.ftl'>
 <#import '../summary/_probabilityDistributionSummary.ftl' as probabilityDistribution>
+<#import '../summary/tableSummaryCard.ftl' as tableSummaryCard>
 
 <#macro combinedCaseVolumetricTotalsSummaryCard combinedCaseVolumetricTotals>
     <@fdsSummaryList.summaryListCard headingText="Oil and gas case volumetric totals" summaryListId="combinedcasevolumetrictotals">
@@ -8,10 +9,10 @@
         </@fdsSummaryList.summaryListRowNoAction>
     </@fdsSummaryList.summaryListCard>
 
-    <@fdsSummaryList.summaryListCard headingText="Oil and gas case volumetric totals" summaryListId="combinedcasevolumetrictotalsprobabilities">
-        <@probabilityDistribution.probabilityDistributionTable
-        withDistributionType=false
-        withContingentUncertaintyCategories=true
-        tableView=combinedCaseVolumetricTotals.tableView()/>
-    </@fdsSummaryList.summaryListCard>
+    <@probabilityDistribution.probabilityDistributionTable
+    heading="Oil and gas case volumetric totals"
+    summaryCardId="combinedcasevolumetrictotalsprobabilities"
+    withDistributionType=false
+    withContingentUncertaintyCategories=true
+    tableView=combinedCaseVolumetricTotals.tableView()/>
 </#macro>

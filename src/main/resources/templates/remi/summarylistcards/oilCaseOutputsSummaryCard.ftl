@@ -10,10 +10,10 @@
     </@fdsSummaryList.summaryListRowNoAction>
   </@fdsSummaryList.summaryListCard>
 
-    <@fdsSummaryList.summaryListCard headingText="Oil case outputs" summaryListId="oilcaseoutputs">
-        <@probabilityDistribution.probabilityDistributionTable
-          withDistributionType=false
-          withContingentUncertaintyCategories=withContingentUncertaintyCategories
-          tableView=oilCaseOutputsValues.tableView()/>
-    </@fdsSummaryList.summaryListCard>
+  <@probabilityDistribution.probabilityDistributionTable
+    heading="Oil case outputs"
+    summaryCardId="oil-case-outputs-table"
+    withDistributionType=false
+    withContingentUncertaintyCategories=withContingentUncertaintyCategories
+    tableView=oilCaseOutputsValues.tableView()/>
 </#macro>
