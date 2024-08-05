@@ -2,7 +2,7 @@
 <#import '_tableSummaryValue.ftl' as value>
 <#-- @ftlvariable name="rowValue" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableValue>" -->
 
-<#macro tableSummary summaryTableView>
+<#macro tableSummary summaryTableView hiddenHeadingText="">
     <#assign hasRowHeadings = summaryTableView.tableHeadingStyle() == "ROW"
     || summaryTableView.tableHeadingStyle() == "ROW_AND_COLUMN" />
     <#assign hasColumnHeadings = summaryTableView.tableHeadingStyle() == "COLUMN"
@@ -10,16 +10,22 @@
 
     <table class="govuk-table">
         <thead class="govuk-table__head">
-        <tr class="govuk-table__row">
-            <!-- the first row contains the headers -->
-            <#list summaryTableView.tableRows()[0].rowValues() as rowValue>
-                <#if hasRowHeadings>
-                    <th class="govuk-table__header">${rowValue.value()!""}</th>
-                <#else>
+          <tr class="govuk-table__row">
+              <!-- the first row contains the headers -->
+              <#list summaryTableView.tableRows()[0].rowValues() as rowValue>
+                  <#if hasRowHeadings>
+                      <th class="govuk-table__header">
+                        <#if rowValue.value()?has_content>
+                          ${rowValue.value()}
+                        <#else>
+                          <span class="govuk-visually-hidden">${hiddenHeadingText}</span>
+                        </#if>
+                      </th>
+                  <#else>
                     <@value.tableSummaryValue tableValue=rowValue/>
-                </#if>
-            </#list>
-        </tr>
+                  </#if>
+              </#list>
+          </tr>
         </thead>
         <tbody class="govuk-table__body">
         <#list summaryTableView.tableRows() as tableRow>

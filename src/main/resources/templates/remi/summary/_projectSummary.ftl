@@ -38,7 +38,8 @@
                                 summaryTimelineView=summaryCard.summaryData()/>
                             <#elseif summaryCard.summaryCardType() == "TABLE_SUMMARY">
                                 <@tableSummary.tableSummary
-                                summaryTableView=summaryCard.summaryData()/>
+                                summaryTableView=summaryCard.summaryData()
+                                hiddenHeadingText=summaryCard.displayName()/>
                             </#if>
                         </@fdsSummaryList.summaryListCard>
                     </#list>

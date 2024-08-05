@@ -172,7 +172,9 @@ withContingentUncertaintyCategories=false>
   <table class="govuk-table remi-table">
     <thead class="govuk-table__head">
     <tr class="govuk-table__row">
-      <th scope="col" class="govuk-table__header"/>
+      <th scope="col" class="govuk-table__header">
+        <span class="govuk-visually-hidden">Probability distribution fields</span>
+      </th>
 
       <#if withDistributionType && summaryBehaviour.isMinAvailable()>
         <th scope="col" class="govuk-table__header">Min</th>

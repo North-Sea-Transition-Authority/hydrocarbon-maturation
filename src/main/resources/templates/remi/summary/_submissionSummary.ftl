@@ -42,7 +42,8 @@
                     summaryDataView=summaryCard.summaryData()/>
                   <#elseif summaryCard.summaryCardType() == "TABLE_SUMMARY">
                     <@tableSummary.tableSummary
-                    summaryTableView=summaryCard.summaryData()/>
+                    summaryTableView=summaryCard.summaryData()
+                    hiddenHeadingText=summaryCard.displayName()/>
                   <#elseif summaryCard.summaryCardType() == "FILES_SUMMARY">
                     <@filesSummary.fileSummary
                     fileViews=summaryCard.summaryData()/>
