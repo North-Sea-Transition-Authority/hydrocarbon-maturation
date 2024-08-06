@@ -20,7 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 @Service
 public class ReservoirSubmissionSectionService {
   private final ReservoirSubmissionSectionRepository reservoirSubmissionSectionRepository;
-  private final ReservoirFutureWorksDetailRepository reservoirFutureWorksDetailRepository;
+  private final ReservoirCurrentWorksDetailRepository reservoirCurrentWorksDetailRepository;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
   private final PermeabilityDetailRepository permeabilityDetailRepository;
@@ -33,7 +33,7 @@ public class ReservoirSubmissionSectionService {
   @Autowired
   public ReservoirSubmissionSectionService(
       ReservoirSubmissionSectionRepository reservoirSubmissionSectionRepository,
-      ReservoirFutureWorksDetailRepository reservoirFutureWorksDetailRepository,
+      ReservoirCurrentWorksDetailRepository reservoirCurrentWorksDetailRepository,
       ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
       PermeabilityDetailRepository permeabilityDetailRepository,
       ReservoirPropertiesRepository reservoirPropertiesRepository,
@@ -42,7 +42,7 @@ public class ReservoirSubmissionSectionService {
       OilFluidPropertyRepository oilFluidPropertyRepository,
       DrillStemTestResultPersistenceService drillStemTestResultPersistenceService) {
     this.reservoirSubmissionSectionRepository = reservoirSubmissionSectionRepository;
-    this.reservoirFutureWorksDetailRepository = reservoirFutureWorksDetailRepository;
+    this.reservoirCurrentWorksDetailRepository = reservoirCurrentWorksDetailRepository;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.permeabilityDetailRepository = permeabilityDetailRepository;
     this.reservoirPropertiesRepository = reservoirPropertiesRepository;
@@ -85,11 +85,11 @@ public class ReservoirSubmissionSectionService {
    */
   public Set<ReservoirSubmissionSectionType> getRequiredReservoirSubmissionSections(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    var reservoirFutureWorksDetail =
-        reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail)
-            .orElse(new ReservoirFutureWorksDetail());
+    var reservoirCurrentWorksDetail =
+        reservoirCurrentWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail)
+            .orElse(new ReservoirCurrentWorksDetail());
 
-    if (Boolean.TRUE.equals(reservoirFutureWorksDetail.getIsReservoirBeingDevelopedUnderFuturePhase())) {
+    if (Boolean.FALSE.equals(reservoirCurrentWorksDetail.getIsReservoirBeingDevelopedUnderThisPhase())) {
       return getAllReservoirSubmissionSections(reservoirSubmissionDetail)
           .stream().map(ReservoirSubmissionSection::getReservoirSectionType)
           .collect(Collectors.toSet());

@@ -6,6 +6,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ReservoirFutureWorksDetailRepository extends CrudRepository<ReservoirFutureWorksDetail, UUID> {
-  Optional<ReservoirFutureWorksDetail> findByReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail);
+public interface ReservoirCurrentWorksDetailRepository extends CrudRepository<ReservoirCurrentWorksDetail, UUID> {
+  Optional<ReservoirCurrentWorksDetail> findByReservoirSubmissionDetail(ReservoirSubmissionDetail reservoirSubmissionDetail);
 }

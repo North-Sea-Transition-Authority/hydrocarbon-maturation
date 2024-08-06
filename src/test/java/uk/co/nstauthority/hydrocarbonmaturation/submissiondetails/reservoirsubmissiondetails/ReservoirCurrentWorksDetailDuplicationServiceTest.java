@@ -15,47 +15,47 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirDuplicationPersistenceService;
 
 @ExtendWith(MockitoExtension.class)
-class ReservoirFutureWorksDetailDuplicationServiceTest {
+class ReservoirCurrentWorksDetailDuplicationServiceTest {
 
   @Mock
-  private ReservoirFutureWorksDetailRepository futureWorksDetailRepository;
+  private ReservoirCurrentWorksDetailRepository futureWorksDetailRepository;
 
   @Mock
   private ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @InjectMocks
-  private ReservoirFutureWorksDetailDuplicationService reservoirFutureWorksDetailDuplicationService;
+  private ReservoirCurrentWorksDetailDuplicationService reservoirCurrentWorksDetailDuplicationService;
 
   private static final ReservoirSubmissionDetail OLD_SUBMISSION_DETAIL = new ReservoirSubmissionDetail();
   private static final ReservoirSubmissionDetail NEW_SUBMISSION_DETAIL = new ReservoirSubmissionDetail();
 
   @Test
   void whenEntityFound_andIsDevelopedUnderFuturePhase_thenCarriedForward() {
-    var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
-    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    var reservoirCurrentWorksDetail = new ReservoirCurrentWorksDetail();
+    reservoirCurrentWorksDetail.setIsReservoirBeingDevelopedUnderThisPhase(true);
 
     when(futureWorksDetailRepository.findByReservoirSubmissionDetail(OLD_SUBMISSION_DETAIL))
-        .thenReturn(Optional.of(reservoirFutureWorksDetail));
+        .thenReturn(Optional.of(reservoirCurrentWorksDetail));
 
-    reservoirFutureWorksDetailDuplicationService.duplicateReservoirSection(OLD_SUBMISSION_DETAIL, NEW_SUBMISSION_DETAIL);
+    reservoirCurrentWorksDetailDuplicationService.duplicateReservoirSection(OLD_SUBMISSION_DETAIL, NEW_SUBMISSION_DETAIL);
 
     verify(reservoirDuplicationPersistenceService, times(1))
         .duplicateChildAndReplaceParent(
             NEW_SUBMISSION_DETAIL,
-            reservoirFutureWorksDetail,
-            ReservoirFutureWorksDetail.class
+            reservoirCurrentWorksDetail,
+            ReservoirCurrentWorksDetail.class
         );
   }
 
   @Test
   void whenEntityFound_andNotDevelopedUnderFuturePhase_thenNotCarriedForward() {
-    var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
-    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(false);
+    var reservoirCurrentWorksDetail = new ReservoirCurrentWorksDetail();
+    reservoirCurrentWorksDetail.setIsReservoirBeingDevelopedUnderThisPhase(false);
 
     when(futureWorksDetailRepository.findByReservoirSubmissionDetail(OLD_SUBMISSION_DETAIL))
-        .thenReturn(Optional.of(reservoirFutureWorksDetail));
+        .thenReturn(Optional.of(reservoirCurrentWorksDetail));
 
-    reservoirFutureWorksDetailDuplicationService.duplicateReservoirSection(OLD_SUBMISSION_DETAIL, NEW_SUBMISSION_DETAIL);
+    reservoirCurrentWorksDetailDuplicationService.duplicateReservoirSection(OLD_SUBMISSION_DETAIL, NEW_SUBMISSION_DETAIL);
 
     verify(reservoirDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(
@@ -70,7 +70,7 @@ class ReservoirFutureWorksDetailDuplicationServiceTest {
     when(futureWorksDetailRepository.findByReservoirSubmissionDetail(OLD_SUBMISSION_DETAIL))
         .thenReturn(Optional.empty());
 
-    reservoirFutureWorksDetailDuplicationService.duplicateReservoirSection(OLD_SUBMISSION_DETAIL, NEW_SUBMISSION_DETAIL);
+    reservoirCurrentWorksDetailDuplicationService.duplicateReservoirSection(OLD_SUBMISSION_DETAIL, NEW_SUBMISSION_DETAIL);
 
     verify(reservoirDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(

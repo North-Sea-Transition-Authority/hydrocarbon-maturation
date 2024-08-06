@@ -10,8 +10,8 @@ import org.hibernate.annotations.UuidGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSubmissionDetailChildEntity;
 
 @Entity
-@Table(name = "reservoir_future_works_detail")
-public class ReservoirFutureWorksDetail implements ReservoirSubmissionDetailChildEntity {
+@Table(name = "reservoir_current_works_detail")
+public class ReservoirCurrentWorksDetail implements ReservoirSubmissionDetailChildEntity {
 
   @Id
   @UuidGenerator
@@ -21,7 +21,7 @@ public class ReservoirFutureWorksDetail implements ReservoirSubmissionDetailChil
   @JoinColumn(name = "reservoir_submission_detail_id")
   private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
-  private Boolean isReservoirBeingDevelopedUnderFuturePhase;
+  private Boolean isReservoirBeingDevelopedUnderThisPhase;
 
   public UUID getId() {
     return id;
@@ -39,11 +39,11 @@ public class ReservoirFutureWorksDetail implements ReservoirSubmissionDetailChil
     this.reservoirSubmissionDetail = reservoirSubmissionDetail;
   }
 
-  public Boolean getIsReservoirBeingDevelopedUnderFuturePhase() {
-    return isReservoirBeingDevelopedUnderFuturePhase;
+  public Boolean getIsReservoirBeingDevelopedUnderThisPhase() {
+    return isReservoirBeingDevelopedUnderThisPhase;
   }
 
-  public void setIsReservoirBeingDevelopedUnderFuturePhase(Boolean reservoirBeingDevelopedUnderFuturePhase) {
-    isReservoirBeingDevelopedUnderFuturePhase = reservoirBeingDevelopedUnderFuturePhase;
+  public void setIsReservoirBeingDevelopedUnderThisPhase(Boolean reservoirBeingDevelopedUnderFuturePhase) {
+    isReservoirBeingDevelopedUnderThisPhase = reservoirBeingDevelopedUnderFuturePhase;
   }
 }

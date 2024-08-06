@@ -1,0 +1,5 @@
+ALTER TABLE reservoir_future_works_detail
+RENAME COLUMN is_reservoir_being_developed_under_future_phase TO is_reservoir_being_developed_under_this_phase;
+
+ALTER TABLE reservoir_future_works_detail
+RENAME TO reservoir_current_works_detail;

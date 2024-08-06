@@ -25,8 +25,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertyPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertyPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirFutureWorksDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirFutureWorksDetailRepository;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirCurrentWorksDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirCurrentWorksDetailRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSection;
@@ -50,7 +50,7 @@ public class GeneralReservoirInformationService {
   private final OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService;
   private final GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService;
   private final ReservoirSubmissionSectionService reservoirSubmissionSectionService;
-  private final ReservoirFutureWorksDetailRepository reservoirFutureWorksDetailRepository;
+  private final ReservoirCurrentWorksDetailRepository reservoirCurrentWorksDetailRepository;
 
   @Autowired
   public GeneralReservoirInformationService(ReservoirPersistenceService reservoirPersistenceService,
@@ -66,7 +66,7 @@ public class GeneralReservoirInformationService {
                                             OilFluidPropertyPersistenceService oilFluidPropertyPersistenceService,
                                             GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService,
                                             ReservoirSubmissionSectionService reservoirSubmissionSectionService,
-                                            ReservoirFutureWorksDetailRepository reservoirFutureWorksDetailRepository) {
+                                            ReservoirCurrentWorksDetailRepository reservoirCurrentWorksDetailRepository) {
     this.reservoirPersistenceService = reservoirPersistenceService;
     this.reservoirLinkService = reservoirLinkService;
     this.reservoirHydrocarbonsRepository = reservoirHydrocarbonsRepository;
@@ -79,7 +79,7 @@ public class GeneralReservoirInformationService {
     this.oilFluidPropertyPersistenceService = oilFluidPropertyPersistenceService;
     this.gasFluidPropertyPersistenceService = gasFluidPropertyPersistenceService;
     this.reservoirSubmissionSectionService = reservoirSubmissionSectionService;
-    this.reservoirFutureWorksDetailRepository = reservoirFutureWorksDetailRepository;
+    this.reservoirCurrentWorksDetailRepository = reservoirCurrentWorksDetailRepository;
   }
 
   @Transactional
@@ -120,15 +120,15 @@ public class GeneralReservoirInformationService {
 
     if (submissionDetail.isFieldSubmission() && !submissionDetail.isCessationOfProductionSubmission()) {
       // save answer to future development question
-      var reservoirFutureWorksDetail =
-          reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail)
-              .orElse(new ReservoirFutureWorksDetail());
+      var reservoirCurrentWorksDetail =
+          reservoirCurrentWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail)
+              .orElse(new ReservoirCurrentWorksDetail());
 
-      reservoirFutureWorksDetail.setReservoirSubmissionDetail(reservoirSubmissionDetail);
-      reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(
+      reservoirCurrentWorksDetail.setReservoirSubmissionDetail(reservoirSubmissionDetail);
+      reservoirCurrentWorksDetail.setIsReservoirBeingDevelopedUnderThisPhase(
           form.getIsReservoirBeingDevelopedUnderFuturePhase()
       );
-      reservoirFutureWorksDetailRepository.save(reservoirFutureWorksDetail);
+      reservoirCurrentWorksDetailRepository.save(reservoirCurrentWorksDetail);
 
       // clear all existing sections
       reservoirSubmissionSectionService.deleteSelectedReservoirSubmissionSectionOptions(reservoirSubmissionDetail);
@@ -163,13 +163,13 @@ public class GeneralReservoirInformationService {
     form.setHydrocarbonsDiscovered(hydrocarbonsDiscovered);
 
     // set answer to is future works question
-    reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail)
-        .ifPresent(reservoirFutureWorksDetail -> {
+    reservoirCurrentWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail)
+        .ifPresent(reservoirCurrentWorksDetail -> {
           form.setIsReservoirBeingDevelopedUnderFuturePhase(
-              reservoirFutureWorksDetail.getIsReservoirBeingDevelopedUnderFuturePhase()
+              reservoirCurrentWorksDetail.getIsReservoirBeingDevelopedUnderThisPhase()
           );
 
-          if (Boolean.FALSE.equals(reservoirFutureWorksDetail.getIsReservoirBeingDevelopedUnderFuturePhase())) {
+          if (Boolean.FALSE.equals(reservoirCurrentWorksDetail.getIsReservoirBeingDevelopedUnderThisPhase())) {
             setReservoirSubmissionSectionsForm(reservoirSubmissionDetail, form);
           }
         });

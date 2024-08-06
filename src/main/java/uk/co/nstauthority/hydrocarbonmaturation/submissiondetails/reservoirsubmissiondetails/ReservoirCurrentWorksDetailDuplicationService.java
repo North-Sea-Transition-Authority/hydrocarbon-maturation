@@ -7,30 +7,30 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.Rese
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.ReservoirSectionDuplicationService;
 
 @Service
-public class ReservoirFutureWorksDetailDuplicationService implements ReservoirSectionDuplicationService {
+public class ReservoirCurrentWorksDetailDuplicationService implements ReservoirSectionDuplicationService {
 
-  private final ReservoirFutureWorksDetailRepository reservoirFutureWorksDetailRepository;
+  private final ReservoirCurrentWorksDetailRepository reservoirCurrentWorksDetailRepository;
   private final ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService;
 
   @Autowired
-  public ReservoirFutureWorksDetailDuplicationService(
-      ReservoirFutureWorksDetailRepository reservoirFutureWorksDetailRepository,
+  public ReservoirCurrentWorksDetailDuplicationService(
+      ReservoirCurrentWorksDetailRepository reservoirCurrentWorksDetailRepository,
       ReservoirDuplicationPersistenceService reservoirDuplicationPersistenceService) {
-    this.reservoirFutureWorksDetailRepository = reservoirFutureWorksDetailRepository;
+    this.reservoirCurrentWorksDetailRepository = reservoirCurrentWorksDetailRepository;
     this.reservoirDuplicationPersistenceService = reservoirDuplicationPersistenceService;
   }
 
   @Override
   public void duplicateReservoirSection(ReservoirSubmissionDetail oldReservoirSubmissionDetail,
                                         ReservoirSubmissionDetail newReservoirSubmissionDetail) {
-    reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(oldReservoirSubmissionDetail)
-        .ifPresent(reservoirFutureWorksDetail -> {
-              var developedUnderFuturePhase = reservoirFutureWorksDetail.getIsReservoirBeingDevelopedUnderFuturePhase();
+    reservoirCurrentWorksDetailRepository.findByReservoirSubmissionDetail(oldReservoirSubmissionDetail)
+        .ifPresent(reservoirCurrentWorksDetail -> {
+              var developedUnderFuturePhase = reservoirCurrentWorksDetail.getIsReservoirBeingDevelopedUnderThisPhase();
               if (BooleanUtils.isTrue(developedUnderFuturePhase)) {
                 reservoirDuplicationPersistenceService.duplicateChildAndReplaceParent(
                     newReservoirSubmissionDetail,
-                    reservoirFutureWorksDetail,
-                    ReservoirFutureWorksDetail.class
+                    reservoirCurrentWorksDetail,
+                    ReservoirCurrentWorksDetail.class
                 );
               }
             }

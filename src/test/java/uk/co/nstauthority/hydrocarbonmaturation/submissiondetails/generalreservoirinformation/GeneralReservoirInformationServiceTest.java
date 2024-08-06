@@ -47,8 +47,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gasfluidproperties.GasFluidPropertyPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilfluidproperties.OilFluidPropertyPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirFutureWorksDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirFutureWorksDetailRepository;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirCurrentWorksDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirCurrentWorksDetailRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
@@ -98,7 +98,7 @@ class GeneralReservoirInformationServiceTest {
   private ReservoirSubmissionSectionService reservoirSubmissionSectionService;
 
   @Mock
-  private ReservoirFutureWorksDetailRepository reservoirFutureWorksDetailRepository;
+  private ReservoirCurrentWorksDetailRepository reservoirCurrentWorksDetailRepository;
 
   @Captor
   private ArgumentCaptor<ReservoirHydrocarbons> reservoirHydrocarbonsArgumentCaptor;
@@ -302,7 +302,7 @@ class GeneralReservoirInformationServiceTest {
     generalReservoirInformationService.saveGeneralReservoirInformation(form, reservoirSubmissionDetail);
 
     // check saving
-    verifyNoInteractions(reservoirFutureWorksDetailRepository);
+    verifyNoInteractions(reservoirCurrentWorksDetailRepository);
     verifyNoInteractions(reservoirSubmissionSectionService);
   }
 
@@ -316,24 +316,24 @@ class GeneralReservoirInformationServiceTest {
     form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
     form.setAssociatedDiscoveryReservoirs(Set.of());
 
-    when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
+    when(reservoirCurrentWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
-    var reservoirFutureWorksDetailCaptor = ArgumentCaptor.forClass(ReservoirFutureWorksDetail.class);
+    var reservoirCurrentWorksDetailCaptor = ArgumentCaptor.forClass(ReservoirCurrentWorksDetail.class);
 
     generalReservoirInformationService.saveGeneralReservoirInformation(form, reservoirSubmissionDetail);
 
     // check yes no saved
-    verify(reservoirFutureWorksDetailRepository, times(1))
-        .save(reservoirFutureWorksDetailCaptor.capture());
-    assertThat(reservoirFutureWorksDetailCaptor.getValue())
+    verify(reservoirCurrentWorksDetailRepository, times(1))
+        .save(reservoirCurrentWorksDetailCaptor.capture());
+    assertThat(reservoirCurrentWorksDetailCaptor.getValue())
         .extracting(
-            ReservoirFutureWorksDetail::getReservoirSubmissionDetail,
-            ReservoirFutureWorksDetail::getIsReservoirBeingDevelopedUnderFuturePhase
+            ReservoirCurrentWorksDetail::getReservoirSubmissionDetail,
+            ReservoirCurrentWorksDetail::getIsReservoirBeingDevelopedUnderThisPhase
         ).containsExactly(
             reservoirSubmissionDetail,
             form.getIsReservoirBeingDevelopedUnderFuturePhase()
         );
-    verifyNoMoreInteractions(reservoirFutureWorksDetailRepository);
+    verifyNoMoreInteractions(reservoirCurrentWorksDetailRepository);
 
     // check sections saved
     verify(reservoirSubmissionSectionService, times(1))
@@ -356,7 +356,7 @@ class GeneralReservoirInformationServiceTest {
     generalReservoirInformationService.saveGeneralReservoirInformation(form, reservoirSubmissionDetail);
 
     // check saving
-    verifyNoInteractions(reservoirFutureWorksDetailRepository);
+    verifyNoInteractions(reservoirCurrentWorksDetailRepository);
     verifyNoInteractions(reservoirSubmissionSectionService);
   }
 
@@ -372,28 +372,28 @@ class GeneralReservoirInformationServiceTest {
     form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
     form.setAssociatedDiscoveryReservoirs(Set.of());
 
-    var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
-    reservoirFutureWorksDetail.setReservoirSubmissionDetail(reservoirSubmissionDetail);
-    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(false);
+    var reservoirCurrentWorksDetail = new ReservoirCurrentWorksDetail();
+    reservoirCurrentWorksDetail.setReservoirSubmissionDetail(reservoirSubmissionDetail);
+    reservoirCurrentWorksDetail.setIsReservoirBeingDevelopedUnderThisPhase(false);
 
-    when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
-        .thenReturn(Optional.of(reservoirFutureWorksDetail));
-    var reservoirFutureWorksDetailCaptor = ArgumentCaptor.forClass(ReservoirFutureWorksDetail.class);
+    when(reservoirCurrentWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirCurrentWorksDetail));
+    var reservoirCurrentWorksDetailCaptor = ArgumentCaptor.forClass(ReservoirCurrentWorksDetail.class);
 
     generalReservoirInformationService.saveGeneralReservoirInformation(form, reservoirSubmissionDetail);
 
     // check yes no saved
-    verify(reservoirFutureWorksDetailRepository, times(1))
-        .save(reservoirFutureWorksDetailCaptor.capture());
-    assertThat(reservoirFutureWorksDetailCaptor.getValue())
+    verify(reservoirCurrentWorksDetailRepository, times(1))
+        .save(reservoirCurrentWorksDetailCaptor.capture());
+    assertThat(reservoirCurrentWorksDetailCaptor.getValue())
         .extracting(
-            ReservoirFutureWorksDetail::getReservoirSubmissionDetail,
-            ReservoirFutureWorksDetail::getIsReservoirBeingDevelopedUnderFuturePhase
+            ReservoirCurrentWorksDetail::getReservoirSubmissionDetail,
+            ReservoirCurrentWorksDetail::getIsReservoirBeingDevelopedUnderThisPhase
         ).containsExactly(
             reservoirSubmissionDetail,
             form.getIsReservoirBeingDevelopedUnderFuturePhase()
         );
-    verifyNoMoreInteractions(reservoirFutureWorksDetailRepository);
+    verifyNoMoreInteractions(reservoirCurrentWorksDetailRepository);
 
     // check sections saved
     verify(reservoirSubmissionSectionService, times(1))
@@ -415,27 +415,27 @@ class GeneralReservoirInformationServiceTest {
     form.setReservoirSubmissionSections(Set.of(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES));
     form.setAssociatedDiscoveryReservoirs(Set.of());
 
-    var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
-    reservoirFutureWorksDetail.setReservoirSubmissionDetail(reservoirSubmissionDetail);
+    var reservoirCurrentWorksDetail = new ReservoirCurrentWorksDetail();
+    reservoirCurrentWorksDetail.setReservoirSubmissionDetail(reservoirSubmissionDetail);
 
-    when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
-        .thenReturn(Optional.of(reservoirFutureWorksDetail));
-    var reservoirFutureWorksDetailCaptor = ArgumentCaptor.forClass(ReservoirFutureWorksDetail.class);
+    when(reservoirCurrentWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirCurrentWorksDetail));
+    var reservoirCurrentWorksDetailCaptor = ArgumentCaptor.forClass(ReservoirCurrentWorksDetail.class);
 
     generalReservoirInformationService.saveGeneralReservoirInformation(form, reservoirSubmissionDetail);
 
     // check yes no saved
-    verify(reservoirFutureWorksDetailRepository, times(1))
-        .save(reservoirFutureWorksDetailCaptor.capture());
-    assertThat(reservoirFutureWorksDetailCaptor.getValue())
+    verify(reservoirCurrentWorksDetailRepository, times(1))
+        .save(reservoirCurrentWorksDetailCaptor.capture());
+    assertThat(reservoirCurrentWorksDetailCaptor.getValue())
         .extracting(
-            ReservoirFutureWorksDetail::getReservoirSubmissionDetail,
-            ReservoirFutureWorksDetail::getIsReservoirBeingDevelopedUnderFuturePhase
+            ReservoirCurrentWorksDetail::getReservoirSubmissionDetail,
+            ReservoirCurrentWorksDetail::getIsReservoirBeingDevelopedUnderThisPhase
         ).containsExactly(
             reservoirSubmissionDetail,
             form.getIsReservoirBeingDevelopedUnderFuturePhase()
         );
-    verifyNoMoreInteractions(reservoirFutureWorksDetailRepository);
+    verifyNoMoreInteractions(reservoirCurrentWorksDetailRepository);
 
     // check sections saved
     verify(reservoirSubmissionSectionService, times(1))
@@ -510,7 +510,7 @@ class GeneralReservoirInformationServiceTest {
 
   @Test
   void getGeneralReservoirInformationForm_noFutureWorkDetails() {
-    when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
+    when(reservoirCurrentWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
     assertThat(generalReservoirInformationService.getGeneralReservoirInformationForm(reservoirSubmissionDetail))
@@ -525,29 +525,29 @@ class GeneralReservoirInformationServiceTest {
 
   @Test
   void getGeneralReservoirInformationForm_futureWorkDetails_answeredYes() {
-    var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
-    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(true);
+    var reservoirCurrentWorksDetail = new ReservoirCurrentWorksDetail();
+    reservoirCurrentWorksDetail.setIsReservoirBeingDevelopedUnderThisPhase(true);
 
-    when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
-        .thenReturn(Optional.of(reservoirFutureWorksDetail));
+    when(reservoirCurrentWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirCurrentWorksDetail));
 
     assertThat(generalReservoirInformationService.getGeneralReservoirInformationForm(reservoirSubmissionDetail))
         .extracting(
             GeneralReservoirInformationForm::getIsReservoirBeingDevelopedUnderFuturePhase,
             GeneralReservoirInformationForm::getReservoirSubmissionSections)
         .containsExactly(
-            reservoirFutureWorksDetail.getIsReservoirBeingDevelopedUnderFuturePhase(),
+            reservoirCurrentWorksDetail.getIsReservoirBeingDevelopedUnderThisPhase(),
             emptySet()
         );
   }
 
   @Test
   void getGeneralReservoirInformationForm_futureWorkDetails_answeredNo() {
-    var reservoirFutureWorksDetail = new ReservoirFutureWorksDetail();
-    reservoirFutureWorksDetail.setIsReservoirBeingDevelopedUnderFuturePhase(false);
+    var reservoirCurrentWorksDetail = new ReservoirCurrentWorksDetail();
+    reservoirCurrentWorksDetail.setIsReservoirBeingDevelopedUnderThisPhase(false);
 
-    when(reservoirFutureWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
-        .thenReturn(Optional.of(reservoirFutureWorksDetail));
+    when(reservoirCurrentWorksDetailRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(reservoirCurrentWorksDetail));
 
     var reservoirSection = new ReservoirSubmissionSection();
     reservoirSection.setReservoirSectionType(ReservoirSubmissionSectionType.RESERVOIR_PROPERTIES);
@@ -560,7 +560,7 @@ class GeneralReservoirInformationServiceTest {
             GeneralReservoirInformationForm::getIsReservoirBeingDevelopedUnderFuturePhase,
             GeneralReservoirInformationForm::getReservoirSubmissionSections)
         .containsExactly(
-            reservoirFutureWorksDetail.getIsReservoirBeingDevelopedUnderFuturePhase(),
+            reservoirCurrentWorksDetail.getIsReservoirBeingDevelopedUnderThisPhase(),
             Set.of(reservoirSection.getReservoirSectionType())
         );
   }
