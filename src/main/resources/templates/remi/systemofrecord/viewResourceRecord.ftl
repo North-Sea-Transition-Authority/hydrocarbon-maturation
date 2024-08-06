@@ -97,12 +97,12 @@ wrapperWidth=true>
 
   <#assign regulatorManagedInformationHeading = submissionType?has_content?then(submissionType.getTypeName(), "") />
   <h2 class="govuk-heading-l">${regulatorManagedInformationHeading}</h2>
-  <#if canViewRegulatorManagementInfo>
-    <#if isFieldResource>
-      <@regulatorSummary.regulatorInformationSummary
-        fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
-        fieldMapView=fieldMapView!""/>
-    <#else>
+  <#if isFieldResource>
+    <@regulatorSummary.regulatorInformationSummary
+      fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
+      fieldMapView=fieldMapView!""/>
+  <#else>
+    <#if canViewRegulatorManagementInfo>
       <@regulatorManagedInformationSummary.regulatorManagedInformationSummaryCard
         regulatorManagedInformationValues=regulatorManagedInformationSummaryView
         resourceGroupsValues=resourceGroupsSummaryView/>

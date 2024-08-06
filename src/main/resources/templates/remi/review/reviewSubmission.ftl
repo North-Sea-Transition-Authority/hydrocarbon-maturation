@@ -24,7 +24,6 @@
 <#-- @ftlvariable name="submissionUpdateReason" type="String"-->
 <#-- @ftlvariable name="updateRequested" type="boolean"-->
 <#-- @ftlvariable name="isIndustrySubmitter" type="boolean"-->
-<#-- @ftlvariable name="isInResponsibleTeam" type="boolean"-->
 <#-- @ftlvariable name="regulatorManagedInformationSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView" -->
 <#-- @ftlvariable name="resourceGroupsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView" -->
 
@@ -107,16 +106,16 @@
  </@fdsForm.htmlForm>
 
   <h2 class="govuk-heading-l">${submissionType.getTypeName()}</h2>
-  <#if isInResponsibleTeam>
-      <#if isFieldSubmission>
-        <@regulatorSummary.regulatorInformationSummary
-          fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
-          fieldMapView=fieldMapView!""/>
-      <#else>
-        <@regulatorManagedInformationSummary.regulatorManagedInformationSummaryCard
-          regulatorManagedInformationValues=regulatorManagedInformationSummaryView
-          resourceGroupsValues=resourceGroupsSummaryView/>
-      </#if>
+  <#if isFieldSubmission>
+    <@regulatorSummary.regulatorInformationSummary
+      fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
+      fieldMapView=fieldMapView!""/>
+  <#else>
+    <#if isInResponsibleTeam>
+      <@regulatorManagedInformationSummary.regulatorManagedInformationSummaryCard
+        regulatorManagedInformationValues=regulatorManagedInformationSummaryView
+        resourceGroupsValues=resourceGroupsSummaryView/>
+    </#if>
   </#if>
   <@submissionSummary.submissionSummary
     submissionType="${submissionType.name()}"/>

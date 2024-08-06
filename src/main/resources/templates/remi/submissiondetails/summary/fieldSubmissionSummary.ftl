@@ -12,7 +12,6 @@
 <#-- @ftlvariable name="actionUrl" type="String" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="submittable" type="Boolean" -->
-<#-- @ftlvariable name="isRegulatorOrAreaTeamUser" type="Boolean" -->
 <#-- @ftlvariable name="breadcrumbsMap" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.nstauthority.hydrocarbonmaturation.fds.ErrorItem>" -->
 <#-- @ftlvariable name="isSubmissionUpdate" type="Boolean" -->
@@ -44,11 +43,9 @@ caption=resourceName>
         <@updateSummaryDetails.updateDetails submissionUpdateReason=submissionUpdateReason/>
     </#if>
     <@fdsForm.htmlForm>
-        <#if isRegulatorOrAreaTeamUser>
-            <@regulatorSummary.regulatorInformationSummary
-              fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
-              fieldMapView=fieldMapView!""/>
-        </#if>
+        <@regulatorSummary.regulatorInformationSummary
+        fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
+        fieldMapView=fieldMapView!""/>
         <@submissionSummary.submissionSummary accordionId>
             <@reservoirSummary.reservoirSummary reservoirSummaries=reservoirSummaries/>
         </@submissionSummary.submissionSummary>

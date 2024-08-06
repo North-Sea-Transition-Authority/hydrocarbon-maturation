@@ -249,7 +249,6 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
             entry("pageName", PAGE_NAME),
             entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))),
             entry("submittable", true),
-            entry("isRegulatorOrAreaTeamUser", false),
             entry("summarySections", summarySections),
             entry("reservoirSummaries", reservoirSummaries),
             entry("accordionId", submissionDetailId),
