@@ -228,6 +228,7 @@ export default class ShapeMap {
           return fixedStyle;
         }
 
+        dynamicStyle.getText().setText(String(feature.get("FIELDNAME")));
         return ShapeMap._getStyle(dynamicStyle.fillColour, dynamicStyle.strokeColour, dynamicStyle.strokeWidth);
       }
     });

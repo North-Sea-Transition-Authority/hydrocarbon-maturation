@@ -1,6 +1,8 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -28,10 +30,11 @@ public class FieldMapViewService {
         ? ONSHORE_PATH_VARIABLE
         : OFFSHORE_PATH_VARIABLE;
 
-    var fieldName = field.getCommonNameForField().trim();
+    var fieldName = field.getCommonNameForField().trim().toUpperCase();
+    var encodedFieldName = URLEncoder.encode(fieldName, Charset.defaultCharset());
 
     var url = UriComponentsBuilder.fromUriString(URL_TEMPLATE)
-        .buildAndExpand(onshoreOffshore, fieldName.toUpperCase())
+        .buildAndExpand(onshoreOffshore, encodedFieldName)
         .toUriString();
 
     if (!returnsValidShapeMap(url)) {

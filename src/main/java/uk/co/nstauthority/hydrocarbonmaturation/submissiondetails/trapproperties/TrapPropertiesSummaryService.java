@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.FileSummaryUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 
 @Service
 public class TrapPropertiesSummaryService {
@@ -101,6 +103,9 @@ public class TrapPropertiesSummaryService {
         FileDocumentType.PROSPECT_DEPTH_MAP);
     var prospectDepthMapFileViews = FileSummaryUtil.convertSubmissionSupportingFilesToSummaryRows(FILE_ROW_KEY,
         fileUploadList, submissionDetail);
+    if (prospectDepthMapFileViews.isEmpty()) {
+      prospectDepthMapFileViews = List.of(SummaryFileViewRow.empty(FILE_ROW_KEY));
+    }
 
     return new TrapPropertiesSummaryView(
         trapDescription,

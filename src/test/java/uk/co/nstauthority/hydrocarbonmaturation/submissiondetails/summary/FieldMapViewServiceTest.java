@@ -24,11 +24,11 @@ class FieldMapViewServiceTest {
 
   private FieldMapViewService fieldMapViewService;
 
-  static final String FIELD_NAME = "Davy";
+  static final String FIELD_NAME = "Field name";
   static final String ONSHORE_URL = "https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/" +
-      "ENG_Onshore_Fields_WGS84/FeatureServer/0/query?where=FIELDNAME%3D%27DAVY%27&f=geoJson&outFields=*";
+      "ENG_Onshore_Fields_WGS84/FeatureServer/0/query?where=FIELDNAME%3D%27FIELD+NAME%27&f=geoJson&outFields=*";
   static final String OFFSHORE_URL = "https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/" +
-      "UKCS_Offshore_Fields_WGS84/FeatureServer/0/query?where=FIELDNAME%3D%27DAVY%27&f=geoJson&outFields=*";
+      "UKCS_Offshore_Fields_WGS84/FeatureServer/0/query?where=FIELDNAME%3D%27FIELD+NAME%27&f=geoJson&outFields=*";
 
   @BeforeEach
   void setUp() {
@@ -51,7 +51,7 @@ class FieldMapViewServiceTest {
         )
         .containsExactly(
             ONSHORE_URL,
-            FIELD_NAME
+            FIELD_NAME.toUpperCase()
         );
   }
 
@@ -70,7 +70,7 @@ class FieldMapViewServiceTest {
         )
         .containsExactly(
             OFFSHORE_URL,
-            FIELD_NAME
+            FIELD_NAME.toUpperCase()
         );
   }
 

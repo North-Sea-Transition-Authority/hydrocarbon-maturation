@@ -25,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.FileSummaryUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 
 @ExtendWith(MockitoExtension.class)
 class TrapPropertiesSummaryServiceTest {
@@ -88,7 +89,7 @@ class TrapPropertiesSummaryServiceTest {
             "",
             "",
             tableView,
-            List.of(),
+            List.of(SummaryFileViewRow.empty(FILE_ROW_KEY)),
             "",
             ""
         );
