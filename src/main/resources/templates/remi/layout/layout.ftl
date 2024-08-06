@@ -98,7 +98,7 @@
     </#if>
 
     <#assign hydrocarbonScripts>
-      <#assign allScripts = springUrl('/assets/remi/javascript/all.js')/>
+      <#assign allScripts = springUrl('/assets/static/js/remi-all-bundle.js')/>
       <script type="module" src="${allScripts}"></script>
 
       <#-- GIS -->

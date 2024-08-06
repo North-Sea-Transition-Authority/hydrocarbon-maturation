@@ -1,3 +1,5 @@
+import announce from "../../../../templates/fds/js/accessibility";
+
 let summaryListValue;
 let total = 0;
 
@@ -43,4 +45,5 @@ function calculateTotalHydrocarbonCase(module) {
 
 function setTotalHydrocarbonProbability() {
   summaryListValue.innerHTML = `${total}%`;
+  announce(`${total} percent total hydrocarbon case`);
 }

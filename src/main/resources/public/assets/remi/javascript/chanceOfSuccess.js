@@ -1,3 +1,5 @@
+import announce from "../../../../templates/fds/js/accessibility";
+
 let percentListKeyElements;
 let totalPlayChanceOfSuccess;
 let totalProspectSpecificChance;
@@ -18,7 +20,12 @@ export function chanceOfSuccessFormHandler(module) {
 function calculateTotals(module) {
     let totalPlayChanceOfSuccess = calculateTotalPlayChanceOfSuccess(module);
     let totalProspectSpecificChance = calculateTotalProspectSpecificChance(module);
-    calculateOverallChanceOfSuccess(totalProspectSpecificChance, totalPlayChanceOfSuccess);
+    let overallChanceOfSuccess = calculateOverallChanceOfSuccess(totalProspectSpecificChance, totalPlayChanceOfSuccess);
+    announce(`
+      ${roundToTwoDecimalPlaces((totalPlayChanceOfSuccess * 100))} percent total play chance of success. 
+      ${roundToTwoDecimalPlaces((totalProspectSpecificChance * 100))} percent total prospect specific chance of success. 
+      ${roundToTwoDecimalPlaces((overallChanceOfSuccess * 100))} percent overall chance of success.
+    `)
   }
 
 function calculateTotalPlayChanceOfSuccess(module) {
@@ -74,7 +81,8 @@ function calculateTotalProspectSpecificChance(module) {
 function calculateOverallChanceOfSuccess(totalProspectSpecificChance, totalPlayChanceOfSuccess) {
     let total = totalPlayChanceOfSuccess * totalProspectSpecificChance;
     overallChanceElem.innerHTML = roundToTwoDecimalPlaces((total * 100)) + "%";
-  }
+    return total;
+}
 
 function roundToTwoDecimalPlaces(value) {
     return value.toFixed(2)

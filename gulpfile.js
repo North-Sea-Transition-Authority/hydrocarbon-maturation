@@ -87,6 +87,23 @@ gulp.task('rollup-babel-gis', () =>
   )
 );
 
+gulp.task('rollup-remi-js', () =>
+  rollup.rollup({
+    input: './src/main/resources/public/assets/remi/javascript/all.js',
+    plugins: [
+      commonjs(),
+      babel(babelOptions),
+      resolve()
+    ]
+  }).then(bundle =>
+    bundle.write({
+      file: './src/main/resources/public/assets/static/js/remi-all-bundle.js',
+      format: "iife",
+      sourcemap: true
+    })
+  )
+);
+
 // copy FDS into public/assets
 gulp.task('copyFdsResources', () => {
   return gulp.src(['fivium-design-system-core/fds/**/*'])
@@ -136,4 +153,4 @@ gulp.task('sassCi', gulp.series(['initFds'], () => {
   return compileSass(true);
 }));
 
-gulp.task('buildAll', gulp.series(['sassCi', 'rollup-babel-gis']));
+gulp.task('buildAll', gulp.series(['sassCi', 'rollup-babel-gis', 'rollup-remi-js']));
