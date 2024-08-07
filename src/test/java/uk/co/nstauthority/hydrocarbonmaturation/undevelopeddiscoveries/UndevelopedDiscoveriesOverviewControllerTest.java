@@ -48,7 +48,7 @@ class UndevelopedDiscoveriesOverviewControllerTest extends AbstractControllerTes
 
     assertThat(modelMap).contains(
         entry("pageTitle", UndevelopedDiscoveriesOverviewController.PAGE_TITLE),
-        entry("summaryTableView", summaryTable),
+        entry("summaryTableView", summaryTable.toString()),
         entry("keyStats", overviewStats)
     );
   }

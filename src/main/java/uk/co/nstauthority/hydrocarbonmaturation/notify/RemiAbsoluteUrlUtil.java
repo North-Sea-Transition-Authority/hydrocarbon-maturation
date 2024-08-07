@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.notify;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -18,8 +19,12 @@ public class RemiAbsoluteUrlUtil {
   }
 
   public static String getSystemOfRecordResourceUrl(SubmissionDetail submissionDetail) {
+    return getSystemOfRecordResourceUrl(submissionDetail.getSubmission().getResource());
+  }
+
+  public static String getSystemOfRecordResourceUrl(Resource resource) {
     var resourceSystemOfRecordUrl = ReverseRouter.route(on(ViewResourceRecordController.class)
-        .showResourceRecord(submissionDetail.getSubmission().getResource().getId()));
+        .showResourceRecord(resource.getId()));
     return "%s%s".formatted(getBaseUrl(), resourceSystemOfRecordUrl);
   }
 

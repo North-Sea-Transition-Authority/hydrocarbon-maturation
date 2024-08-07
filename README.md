@@ -17,7 +17,7 @@ track changes over time.
 
 ## Pre-requisites
 - Java 17
-- Node LTS + NPM
+- Node 18 + NPM
 - [Docker for Windows](https://hub.docker.com/editions/community/docker-ce-desktop-windows)
   (See [Docker setup](https://confluence.fivium.co.uk/display/JAVA/Java+development+environment+setup#Javadevelopmentenvironmentsetup-Docker)
   for further information about adding your account to the `docker-users` group)
@@ -85,7 +85,7 @@ track changes over time.
 | REMI_ANALYTICS_SERVICE_IDENTIFIER           | The service specific google analytics tag                                                           |
 ### 3. Initialise the Fivium Design System
 - `git submodule update --init --recursive`
-- `cd fivium-design-system-core && npm install && npx gulp build && cd ..`
+- `cd fivium-design-system-core && npm install && npx gulp buildAll && cd ..`
 
 ### 4. Build frontend components
 - `npm install`

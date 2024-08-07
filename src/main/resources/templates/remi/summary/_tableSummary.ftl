@@ -13,7 +13,7 @@
           <tr class="govuk-table__row">
               <!-- the first row contains the headers -->
               <#list summaryTableView.tableRows()[0].rowValues() as rowValue>
-                  <#if hasRowHeadings>
+                  <#if hasColumnHeadings>
                       <th class="govuk-table__header">
                         <#if rowValue.value()?has_content>
                           ${rowValue.value()}
@@ -33,7 +33,7 @@
             <#if tableRow?index != 0>
                 <tr class="govuk-table__row">
                     <#list tableRow.rowValues() as rowValue>
-                        <#if rowValue?index == 0 && hasColumnHeadings>
+                        <#if rowValue?index == 0 && hasRowHeadings>
                             <th class="govuk-table__header">${rowValue.value()!""}</th>
                         <#else>
                             <@value.tableSummaryValue tableValue=rowValue/>

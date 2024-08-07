@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,6 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
@@ -29,19 +31,19 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.FieldStatusHistory;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.FieldStatusHistoryService;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.notify.RemiAbsoluteUrlUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
+import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableSortDirection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableValue;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.Tag;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.TagColour;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceRecordSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordService;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformationService;
 
@@ -87,17 +89,25 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
   @BeforeEach
   void setUp() {
-    EXPECTED_SUMMARY_TABLE = SummaryTableView.newWithHeading(
-        UndevelopedDiscoveriesOverviewService.DISCOVERY_HEADING,
-        UndevelopedDiscoveriesOverviewService.YEAR_ADDED_HEADING,
-        UndevelopedDiscoveriesOverviewService.LICENSED_HEADING,
-        UndevelopedDiscoveriesOverviewService.AREA_HEADING,
-        UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_1C_HEADING,
-        UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_2C_HEADING,
-        UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_3C_HEADING,
-        UndevelopedDiscoveriesOverviewService.PERCENTAGE_GAS_HEADING,
-        UndevelopedDiscoveriesOverviewService.COMPLEXITY_HEADING
-    );
+    var request = new MockHttpServletRequest();
+    request.setContextPath("/remi");
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+    EXPECTED_SUMMARY_TABLE = SummaryTableView.sortableTableBuilder()
+        .withDefaultSortDirection(SummaryTableSortDirection.ASCENDING)
+        .withDefaultSortIndex(0)
+        .newWithHeadings(
+            UndevelopedDiscoveriesOverviewService.DISCOVERY_HEADING,
+            UndevelopedDiscoveriesOverviewService.YEAR_ADDED_HEADING,
+            UndevelopedDiscoveriesOverviewService.LICENSED_HEADING,
+            UndevelopedDiscoveriesOverviewService.AREA_HEADING,
+            UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_1C_HEADING,
+            UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_2C_HEADING,
+            UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_3C_HEADING,
+            UndevelopedDiscoveriesOverviewService.PERCENTAGE_GAS_HEADING,
+            UndevelopedDiscoveriesOverviewService.COMPLEXITY_HEADING
+        )
+        .build();
   }
 
   @Test
@@ -142,7 +152,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
     // THEN the row has tags
     var expectedDiscoveryValue = new SummaryTableValue(
         resourceName,
-        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+        RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
         List.of(
             new Tag("Duplicate", TagColour.RED),
             new Tag("%1$s, %1$s".formatted(FieldStatus.STATUS_200.getDisplayName()), TagColour.YELLOW)
@@ -203,7 +213,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
     // THEN there are no tags
     var expectedDiscoveryValue = new SummaryTableValue(
         resourceName,
-        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+        RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
         List.of()
     );
 
@@ -259,7 +269,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
     var expectedDiscoveryValue = new SummaryTableValue(
         resourceName,
-        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+        RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
         List.of()
     );
 
@@ -317,7 +327,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
     var expectedDiscoveryValue = new SummaryTableValue(
         resourceName,
-        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+        RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
         List.of()
     );
 
@@ -376,7 +386,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
     var expectedDiscoveryValue = new SummaryTableValue(
         resourceName,
-        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+        RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
         List.of()
     );
 
@@ -427,7 +437,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
     var expectedDiscoveryValue = new SummaryTableValue(
         resourceName,
-        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+        RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
         List.of()
     );
 
@@ -595,7 +605,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
       return new SummaryTableValue(
           resourceName,
-          ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+          RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
           List.of()
       );
     }
@@ -625,7 +635,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
       return new SummaryTableValue(
           resourceName,
-          ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+          RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
           List.of()
       );
     }
@@ -758,7 +768,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
     // THEN there is a duplicate tag
     return new SummaryTableValue(
         resourceName,
-        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+        RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
         List.of(new Tag("Duplicate", TagColour.RED))
     );
   }

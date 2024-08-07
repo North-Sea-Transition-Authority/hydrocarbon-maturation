@@ -27,7 +27,7 @@ public class UndevelopedDiscoveriesOverviewController {
 
     return new ModelAndView("remi/undevelopeddiscoveries/undevelopedDiscoveriesOverview")
         .addObject("pageTitle", PAGE_TITLE)
-        .addObject("summaryTableView", overviewData.summaryTableView())
+        .addObject("summaryTableView", overviewData.summaryTableView().toString())
         .addObject("keyStats", overviewData.overviewStats());
   }
 }
