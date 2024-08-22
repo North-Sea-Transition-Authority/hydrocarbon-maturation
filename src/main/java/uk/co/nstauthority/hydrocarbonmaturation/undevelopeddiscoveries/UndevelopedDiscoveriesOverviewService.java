@@ -1,7 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
@@ -25,7 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.FieldStatusHistory;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.FieldStatusHistoryService;
-import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.notify.RemiAbsoluteUrlUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -38,7 +36,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.TableHeadingStyle;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.Tag;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.TagColour;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceRecordSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordService;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformationService;
@@ -186,7 +183,7 @@ public class UndevelopedDiscoveriesOverviewService {
 
     var discoveryValue = new SummaryTableValue(
         resourceRecord.resourceName(),
-        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null)),
+        RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
         getTags(resource, duplicateResourceIds)
     );
 
