@@ -48,6 +48,7 @@ class SubmissionFeedbackControllerTest extends AbstractSubmissionControllerTest 
 
   @Test
   void getFeedback_assertModelProperties() throws Exception{
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionFeedbackController.class)
                 .getFeedback(SUBMISSION_DETAIL_ID, null)))
@@ -60,10 +61,10 @@ class SubmissionFeedbackControllerTest extends AbstractSubmissionControllerTest 
     assertThat(modelMap)
         .contains(
             entry("actionUrl", ReverseRouter.route(on(SubmissionFeedbackController.class)
-                .submitFeedback(SUBMISSION_DETAIL_ID, null, null, null))),
+                .submitFeedback(SUBMISSION_DETAIL_ID, null, null, null, null))),
             entry("serviceRatings", DisplayableEnumOptionUtil.getDisplayableOptions(ServiceFeedbackRating.class)),
             entry("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null)))
         );
   }
 
@@ -94,6 +95,7 @@ class SubmissionFeedbackControllerTest extends AbstractSubmissionControllerTest 
 
   @Test
   void submitFeedback_assertRedirect() throws Exception{
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(remiFeedbackService.validateFeedbackForm(any(), any()))
         .thenReturn(ReverseRouter.emptyBindingResult());
     mockMvc.perform(

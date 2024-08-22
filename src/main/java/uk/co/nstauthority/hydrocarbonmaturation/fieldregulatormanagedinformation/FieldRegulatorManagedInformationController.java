@@ -16,8 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
@@ -36,7 +35,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.NewFieldService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.StartFieldController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -45,22 +43,19 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchFieldRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Controller
-@HasPermission(
-    permissions = {
-        RolePermission.EXPLORATION,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER
-    }
-)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.NORTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.SOUTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.ONSHORE_AREA)
+@HasAnyRole(role = Role.INDUSTRY_SUBMIT, teamType = TeamType.INDUSTRY)
 @RequestMapping("review/resource/{resourceId}/field-regulator-managed-information/")
 public class FieldRegulatorManagedInformationController {
   public static final String PAGE_NAME = "Field information";
 
-  private final UserService userService;
   private final ResponsibleTeamService responsibleTeamService;
   private final ResourceService resourceService;
   private final NewFieldService newFieldService;
@@ -71,14 +66,12 @@ public class FieldRegulatorManagedInformationController {
 
   @Autowired
   public FieldRegulatorManagedInformationController(
-      UserService userService,
       ResponsibleTeamService responsibleTeamService, ResourceService resourceService,
       NewFieldService newFieldService,
       FieldRegulatorManagedInformationService fieldRegulatorManagedInformationService,
       FieldPersistenceService fieldPersistenceService,
       SubmissionDetailService submissionDetailService,
       FieldLicenceService fieldLicenceService) {
-    this.userService = userService;
     this.responsibleTeamService = responsibleTeamService;
     this.resourceService = resourceService;
     this.newFieldService = newFieldService;
@@ -135,7 +128,7 @@ public class FieldRegulatorManagedInformationController {
           "Success",
           "The regulator managed information has been updated for the resource %s".formatted(resourceName));
 
-      return ReverseRouter.redirect(on(ViewResourceRecordController.class).showResourceRecord(resource.getId()));
+      return ReverseRouter.redirect(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null));
     }
 
     var modelAndView = getFieldRegulatorManagedInformationModelAndView(form);
@@ -150,6 +143,7 @@ public class FieldRegulatorManagedInformationController {
       @PathVariable("submissionDetailId") UUID submissionDetailId,
       @ModelAttribute("form") FieldForm form,
       BindingResult bindingResult,
+      User user,
       RedirectAttributes redirectAttributes) {
 
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
@@ -169,12 +163,11 @@ public class FieldRegulatorManagedInformationController {
           "Success",
           "The regulator managed information has been updated for the resource %s".formatted(resourceName));
 
-      var user = userService.getUser();
       var isInResponsibleTeam =
           responsibleTeamService.isInResponsibleTeam(user, form.getResponsibleTeamType());
 
       if (isInResponsibleTeam) {
-        return ReverseRouter.redirect(on(ReviewSubmissionController.class).showReviewPage(resource.getId()));
+        return ReverseRouter.redirect(on(ReviewSubmissionController.class).showReviewPage(resource.getId(), null));
       } else {
         // if they have updated the permissions the above redirects will throw forbidden so instead go to work area
         return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea(null));
@@ -193,7 +186,7 @@ public class FieldRegulatorManagedInformationController {
         .addObject("backLinkUrl", ReverseRouter.route(on(StartFieldController.class).getStartPage()))
         .addObject("pageTitle", PAGE_NAME)
         .addObject("organisationUnitEndpoint",
-            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null)))
+            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null, null)))
         .addObject("responsibleOrganisation", newFieldService
             .getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
         .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())
@@ -218,7 +211,7 @@ public class FieldRegulatorManagedInformationController {
     var field = fieldPersistenceService.getFieldOrThrow(resource);
 
     var cancelUrl = ReverseRouter.route(on(ViewResourceRecordController.class)
-        .showResourceRecord(resource.getId()));
+        .showResourceRecord(resource.getId(), null));
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
         .addBreadcrumb(
             SearchFieldRecordsController.PAGE_TITLE,
@@ -236,7 +229,7 @@ public class FieldRegulatorManagedInformationController {
     var field = fieldPersistenceService.getFieldOrThrow(resource);
 
     var cancelUrl = ReverseRouter.route(on(ReviewSubmissionController.class)
-        .showReviewPage(resource.getId()));
+        .showReviewPage(resource.getId(), null));
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
         .addWorkAreaBreadcrumb()
         .addBreadcrumb(field.getCorrectedLegalFieldName(),

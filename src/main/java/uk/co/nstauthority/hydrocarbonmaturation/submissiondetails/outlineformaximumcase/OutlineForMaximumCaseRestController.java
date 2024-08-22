@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailAccessService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -23,24 +23,22 @@ public class OutlineForMaximumCaseRestController {
 
   private final OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService;
   private final SubmissionDetailService submissionDetailService;
-  private final UserService userService;
   private final SubmissionDetailAccessService submissionDetailAccessService;
 
   @Autowired
   public OutlineForMaximumCaseRestController(OutlineForMaximumCasePersistenceService outlineForMaximumCasePersistenceService,
-                                             SubmissionDetailService submissionDetailService, UserService userService,
+                                             SubmissionDetailService submissionDetailService,
                                              SubmissionDetailAccessService submissionDetailAccessService) {
     this.outlineForMaximumCasePersistenceService = outlineForMaximumCasePersistenceService;
     this.submissionDetailService = submissionDetailService;
-    this.userService = userService;
     this.submissionDetailAccessService = submissionDetailAccessService;
   }
 
   @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  public ResponseEntity<String> getGeoJsonForOutlineForMaximumCase(@PathVariable("submissionDetailId") UUID submissionDetailId) {
+  public ResponseEntity<String> getGeoJsonForOutlineForMaximumCase(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                                                   User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    var user = userService.getUser();
 
     if (!submissionDetailAccessService.canViewSubmissionDetail(submissionDetail, user)) {
       throw new ResponseStatusException(

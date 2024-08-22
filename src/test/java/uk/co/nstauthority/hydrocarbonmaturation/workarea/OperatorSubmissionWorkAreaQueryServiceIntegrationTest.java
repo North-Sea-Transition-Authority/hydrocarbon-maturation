@@ -8,8 +8,10 @@ import jakarta.persistence.EntityManager;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.BooleanUtils;
 import org.assertj.core.groups.Tuple;
 import org.jetbrains.annotations.NotNull;
@@ -22,17 +24,16 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
+import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -47,6 +48,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetail
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapProperty;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Transactional
 @IntegrationTest
@@ -56,11 +60,16 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
       .withWuaId(2000L)
       .build();
 
+  private static final Integer ORG_GRP_ID = 50;
+
   @Autowired
   private DSLContext dslContext;
 
   @MockBean
-  private IndustryTeamService industryTeamService;
+  private TeamQueryService teamQueryService;
+
+  @MockBean
+  private OrganisationGroupQueryService organisationGroupQueryService;
 
   @Autowired
   private EntityManager entityManager;
@@ -77,7 +86,8 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     var team = TeamTestUtil.Builder()
         .withTeamType(TeamType.INDUSTRY)
         .withId(null)
-        .build();
+        .withScopeId(String.valueOf(ORG_GRP_ID))
+        .buildScopedTeam();
 
     entityManager.persist(team);
     entityManager.flush();
@@ -86,7 +96,6 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
   @Test
   void getSubmissions_whenNonSubmitterRole_asIndustryInResponsibleOrganisation_assertEmpty() {
     var responsibleOrganisationIdForSubmission = 46;
-    var userOrgUnits = List.of(responsibleOrganisationIdForSubmission);
     setUpIndustryNonSubmitterTest(USER);
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
     submissionDetail.setId(null);
@@ -654,12 +663,22 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
   }
 
   private void setUpIndustrySubmitterTest(List<Integer> userResponsibleOrganisationUnitIds, User user) {
-    when(industryTeamService.getOrganisationUnitIdsForUserWithIndustryTeamRoles(user, Collections.singleton(IndustryTeamRole.SUBMITTER)))
-        .thenReturn(userResponsibleOrganisationUnitIds);
+    var team = TeamTestUtil.Builder().withTeamType(TeamType.INDUSTRY).withScopeId(String.valueOf(ORG_GRP_ID)).buildScopedTeam();
+    when(teamQueryService.getTeamsOfTypeUserIsMemberOf(user.wuaId(), TeamType.INDUSTRY)).thenReturn(Set.of(team));
+    var orgGroup = new OrganisationGroup();
+    orgGroup.setOrganisationGroupId(ORG_GRP_ID);
+    var orgGroupUnits = new ArrayList<OrganisationUnit>();
+    userResponsibleOrganisationUnitIds.forEach(unitId -> {
+      var orgUnit = new OrganisationUnit();
+      orgUnit.setOrganisationUnitId(unitId);
+      orgGroupUnits.add(orgUnit);
+    });
+    orgGroup.setOrganisationUnits(orgGroupUnits);
+
+    when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(ORG_GRP_ID))).thenReturn(List.of(orgGroup));
   }
 
   private void setUpIndustryNonSubmitterTest(User user) {
-    when(industryTeamService.getOrganisationUnitIdsForUserWithIndustryTeamRoles(user, Collections.singleton(IndustryTeamRole.SUBMITTER)))
-        .thenReturn(List.of());
+    when(teamQueryService.getTeamsOfTypeUserIsMemberOf(user.wuaId(), TeamType.INDUSTRY)).thenReturn(Collections.emptySet());
   }
 }

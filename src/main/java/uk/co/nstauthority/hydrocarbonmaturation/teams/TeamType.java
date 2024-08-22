@@ -28,21 +28,21 @@ public enum TeamType {
       "Northern North Sea and West of Shetland",
       "northern-offshore-area",
       false,
-      List.of(Role.MANAGE_TEAM, Role.AREA_TEAM_MEMBER),
+      List.of(Role.MANAGE_TEAM, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM),
       null
   ),
   SOUTHERN_OFFSHORE_AREA(
       "Central North Sea, Southern North Sea and East Irish Sea",
       "southern-offshore-area",
       false,
-      List.of(Role.MANAGE_TEAM, Role.AREA_TEAM_MEMBER),
+      List.of(Role.MANAGE_TEAM, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM),
       null
   ),
   ONSHORE_AREA(
       "Onshore area",
       "onshore-area",
       false,
-      List.of(Role.MANAGE_TEAM, Role.AREA_TEAM_MEMBER),
+      List.of(Role.MANAGE_TEAM, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM),
       null
   ),
   INDUSTRY(

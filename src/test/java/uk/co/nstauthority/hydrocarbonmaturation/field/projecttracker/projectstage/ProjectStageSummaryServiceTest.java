@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,15 +18,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectPhase;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.projectstagehistory.ProjectStageHistory;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -36,20 +33,23 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTimelineView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.TimelineEvent;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectStageSummaryServiceTest {
+
+  private static final User USER = UserTestUtil.Builder().build();
+  private static final LocalDate FIXED_DATE = LocalDate.of(2024, Month.MARCH, 4);
+
   @Mock
-  private UserService userService;
-  @Mock
-  private PermissionService permissionService;
+  private TeamQueryService teamQueryService;
   @Mock
   private ProjectStageService projectStageService;
   @InjectMocks
   private ProjectStageSummaryService projectStageSummaryService;
-
-  private static final LocalDate FIXED_DATE = LocalDate.of(2024, Month.MARCH, 4);
 
   private Project project;
 
@@ -67,7 +67,7 @@ class ProjectStageSummaryServiceTest {
   class GivenAnyUser {
     @Test
     void whenGetSummarySection_andProjectHasNotStages_thenAssertCommonProperties() {
-      var summarySectionOptional = projectStageSummaryService.getSummarySection(project);
+      var summarySectionOptional = projectStageSummaryService.getSummarySection(project, USER);
 
       assertThat(summarySectionOptional)
           .isPresent()
@@ -127,7 +127,7 @@ class ProjectStageSummaryServiceTest {
       when(projectStageService.getOrderedProjectStages(project))
           .thenReturn(List.of(firstCreatedStageHistory, secondCreatedStageHistory, lastCreatedStageHistory));
 
-      var summarySectionOptional = projectStageSummaryService.getSummarySection(project);
+      var summarySectionOptional = projectStageSummaryService.getSummarySection(project, USER);
 
       assertThat(summarySectionOptional)
           .isPresent()
@@ -241,7 +241,7 @@ class ProjectStageSummaryServiceTest {
       when(projectStageService.getOrderedProjectStages(project))
           .thenReturn(List.of(firstCreatedStageHistory, secondCreatedStageHistory, lastCreatedStageHistory));
 
-      var summarySectionOptional = projectStageSummaryService.getSummarySection(project);
+      var summarySectionOptional = projectStageSummaryService.getSummarySection(project, USER);
       var summaryItems = summarySectionOptional.get().summaryItems();
       var summaryItem = summaryItems.get(0);
       var summaryCard = summaryItem.summaryCards().get(0);
@@ -337,7 +337,7 @@ class ProjectStageSummaryServiceTest {
       when(projectStageService.getOrderedProjectStages(project))
           .thenReturn(List.of(firstCreatedStageHistory, secondCreatedStageHistory, lastCreatedStageHistory));
 
-      var summarySectionOptional = projectStageSummaryService.getSummarySection(project);
+      var summarySectionOptional = projectStageSummaryService.getSummarySection(project, USER);
       var summaryItems = summarySectionOptional.get().summaryItems();
       var summaryItem = summaryItems.get(0);
       var summaryCard = summaryItem.summaryCards().get(0);
@@ -353,10 +353,7 @@ class ProjectStageSummaryServiceTest {
   }
 
   private void mockUserCallsWithPermissions(boolean isProjectAnalyst) {
-    var projectAnalystUser = UserTestUtil.Builder().build();
-    when(userService.getUser())
-        .thenReturn(projectAnalystUser);
-    when(permissionService.hasPermission(projectAnalystUser, Set.of(RolePermission.PROJECT_ANALYST)))
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
         .thenReturn(isProjectAnalyst);
   }
 
@@ -367,7 +364,7 @@ class ProjectStageSummaryServiceTest {
     when(projectStageService.getOrderedProjectStages(project))
         .thenReturn(List.of(stage));
 
-    var summarySectionOptional = projectStageSummaryService.getSummarySection(project);
+    var summarySectionOptional = projectStageSummaryService.getSummarySection(project, USER);
 
     var summaryItems = summarySectionOptional.get().summaryItems();
 
@@ -377,7 +374,7 @@ class ProjectStageSummaryServiceTest {
   }
 
   private SummaryCard getSectionSummaryCardWhenNoStages() {
-    var summarySectionOptional = projectStageSummaryService.getSummarySection(project);
+    var summarySectionOptional = projectStageSummaryService.getSummarySection(project, USER);
 
     var summaryItems = summarySectionOptional.get().summaryItems();
 

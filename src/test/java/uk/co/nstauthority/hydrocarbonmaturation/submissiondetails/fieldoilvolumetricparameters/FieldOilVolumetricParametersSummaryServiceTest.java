@@ -20,6 +20,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
@@ -38,6 +40,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 
 @ExtendWith(MockitoExtension.class)
 class FieldOilVolumetricParametersSummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
   @Mock
   private GeneralReservoirInformationService generalReservoirInformationService;
   @Mock
@@ -62,7 +65,7 @@ class FieldOilVolumetricParametersSummaryServiceTest {
     var nonFieldReservoirSubmissionDetail =
         ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(nonFieldSubmissionDetail);
 
-    assertThat(fieldOilVolumetricParametersSummaryService.getSummarySection(nonFieldReservoirSubmissionDetail))
+    assertThat(fieldOilVolumetricParametersSummaryService.getSummarySection(nonFieldReservoirSubmissionDetail, USER))
         .isEmpty();
   }
 
@@ -72,7 +75,7 @@ class FieldOilVolumetricParametersSummaryServiceTest {
         .thenReturn(Optional.empty());
 
     var captor = ArgumentCaptor.forClass(ReservoirHydrocarbons.class);
-    assertThat(fieldOilVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(fieldOilVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isEmpty();
 
     verify(generalReservoirInformationService).isOilOnly(captor.capture());
@@ -92,7 +95,7 @@ class FieldOilVolumetricParametersSummaryServiceTest {
     when(generalReservoirInformationService.isCombinedOilAndGas(gasReservoirHydrocarbon))
         .thenReturn(false);
 
-    assertThat(fieldOilVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(fieldOilVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isEmpty();
   }
 
@@ -132,7 +135,7 @@ class FieldOilVolumetricParametersSummaryServiceTest {
             reservoirSubmissionDetail)
     ).thenReturn(saturationTableView);
 
-    var summarySection = fieldOilVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = fieldOilVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
     assertThat(summarySection)
         .isPresent()
         .get()

@@ -149,6 +149,7 @@ class DiscoveryMixedCaseVolumetricsControllerTest extends AbstractSubmissionCont
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveMixedCaseOutputs_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(discoveryMixedCaseVolumetricsFormValidator.isValid(
         any(MixedCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(true);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
@@ -168,6 +169,7 @@ class DiscoveryMixedCaseVolumetricsControllerTest extends AbstractSubmissionCont
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveMixedCaseOutputs_partialValidation_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
     when(discoveryMixedCaseVolumetricsFormValidator.isValid(
         any(MixedCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(false);
@@ -190,6 +192,7 @@ class DiscoveryMixedCaseVolumetricsControllerTest extends AbstractSubmissionCont
     var discoverySubmissionDetailId = discoverySubmissionDetail.getId();
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, discoverySubmissionDetail);
 
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
     when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
@@ -209,7 +212,7 @@ class DiscoveryMixedCaseVolumetricsControllerTest extends AbstractSubmissionCont
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME),
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId, null)), TaskListController.PAGE_NAME),
             entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
         );
 

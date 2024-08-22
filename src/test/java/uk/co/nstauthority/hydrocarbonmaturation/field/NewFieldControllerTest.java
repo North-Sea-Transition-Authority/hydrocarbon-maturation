@@ -18,7 +18,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -35,9 +34,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceView;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = NewFieldController.class)
@@ -51,10 +51,9 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void getNewFieldPage_whenNoPermission_assertForbidden() throws Exception {
     var form = new FieldForm();
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(NewFieldController.class).getNewFieldPage(form)))
@@ -65,6 +64,8 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getNewFieldPage_assertModelProperties() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(true);
+
     var form = new FieldForm();
 
     var preselectedOrganisation = Map.of("25", "Shell Gas");
@@ -108,7 +109,7 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
         .contains(
             entry("backLinkUrl", ReverseRouter.route(on(StartFieldController.class).getStartPage())),
             entry("pageTitle", NewFieldController.PAGE_NAME),
-            entry("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null))),
+            entry("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null, null))),
             entry("responsibleOrganisation", preselectedOrganisation),
             entry("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore()),
             entry("geographicalAreas", geographicalAreas),
@@ -125,6 +126,7 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void saveResourceDetailsPage_whenInValidForm_assertStatusOk() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(true);
     var form = new FieldForm();
     var bindingResult = new BeanPropertyBindingResult(FieldForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
@@ -141,6 +143,8 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void saveResourceDetails_whenValidForm_assertSaveAndRedirect() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(true);
+
     var form = new FieldForm();
     var bindingResult = new BeanPropertyBindingResult(FieldForm.class, "form");
     when(newFieldService.validate(any(), any())).thenReturn(bindingResult);

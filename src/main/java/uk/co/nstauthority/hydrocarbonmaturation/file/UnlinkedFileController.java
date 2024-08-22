@@ -19,7 +19,6 @@ import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.FileDeleteResponse;
 import uk.co.fivium.fileuploadlibrary.fds.FileUploadResponse;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.util.StringUtil;
 
@@ -29,19 +28,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.StringUtil;
 public class UnlinkedFileController {
 
   private final FileService fileService;
-  private final UserService userService;
   private final FileUploadCustomValidatorFactory fileUploadCustomValidatorFactory;
 
   public UnlinkedFileController(FileService fileService,
-                                UserService userService,
                                 FileUploadCustomValidatorFactory fileUploadCustomValidatorFactory) {
     this.fileService = fileService;
-    this.userService = userService;
     this.fileUploadCustomValidatorFactory = fileUploadCustomValidatorFactory;
   }
 
   @GetMapping("/download/{fileId}")
-  public ResponseEntity<InputStreamResource> download(@PathVariable String fileId) {
+  public ResponseEntity<InputStreamResource> download(@PathVariable String fileId, User user) {
 
     var fileUuid = StringUtil.toUuid(fileId)
         .orElseThrow(() -> new ResponseStatusException(
@@ -50,13 +46,13 @@ public class UnlinkedFileController {
         ));
 
     return fileService.find(fileUuid)
-        .filter(uploadedFile -> canAccessFile(uploadedFile, userService.getUser()))
+        .filter(uploadedFile -> canAccessFile(uploadedFile, user))
         .map(fileService::download)
         .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
   }
 
   @PostMapping("/upload")
-  public FileUploadResponse upload(MultipartFile file, @RequestParam("document-type") String stringDocumentType) {
+  public FileUploadResponse upload(MultipartFile file, @RequestParam("document-type") String stringDocumentType, User user) {
     if (!EnumUtils.isValidEnum(FileDocumentType.class, stringDocumentType)) {
       throw new ResponseStatusException(
           HttpStatus.BAD_REQUEST,
@@ -75,13 +71,13 @@ public class UnlinkedFileController {
 
       return builder
           .withMultipartFile(file)
-          .withUploadedBy(userService.getUser().wuaId().toString())
+          .withUploadedBy(user.wuaId().toString())
           .build();
     });
   }
 
   @PostMapping("/delete/{fileId}")
-  public FileDeleteResponse delete(@PathVariable String fileId) {
+  public FileDeleteResponse delete(@PathVariable String fileId, User user) {
 
     var fileUuid = StringUtil.toUuid(fileId)
         .orElseThrow(() -> new ResponseStatusException(
@@ -89,7 +85,6 @@ public class UnlinkedFileController {
             "Unable to convert file id [%s] to UUID".formatted(fileId)
         ));
 
-    var user = userService.getUser();
     return fileService.find(fileUuid)
         .stream()
         .filter(uploadedFile -> canAccessFile(uploadedFile, user))

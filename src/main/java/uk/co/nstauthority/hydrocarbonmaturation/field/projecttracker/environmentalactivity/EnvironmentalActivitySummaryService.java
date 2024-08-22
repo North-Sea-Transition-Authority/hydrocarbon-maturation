@@ -10,11 +10,9 @@ import java.util.Set;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -23,6 +21,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Service
 class EnvironmentalActivitySummaryService implements SummarySectionService<Project> {
@@ -37,35 +38,31 @@ class EnvironmentalActivitySummaryService implements SummarySectionService<Proje
       EnumSet.of(ProjectType.FIELD_DEVELOPMENT_PLAN, ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM);
 
   private final EnvironmentalActivityService environmentalActivityService;
-  private final UserService userService;
-  private final PermissionService permissionService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   EnvironmentalActivitySummaryService(EnvironmentalActivityService environmentalActivityService,
-                                      UserService userService,
-                                      PermissionService permissionService) {
+                                      TeamQueryService teamQueryService) {
     this.environmentalActivityService = environmentalActivityService;
-    this.userService = userService;
-    this.permissionService = permissionService;
+    this.teamQueryService = teamQueryService;
   }
 
   @Override
-  public Optional<SummarySection> getSummarySection(Project project) {
+  public Optional<SummarySection> getSummarySection(Project project, User user) {
     if (!PROJECT_TYPES_FOR_SECTION.contains(project.getProjectType())) {
       return Optional.empty();
     }
 
     var summaryItems = List.of(
-        SummaryItem.withCard(ENVIRONMENTAL_ACTIVITY, getEnvironmentalActivitySummaryCard(project)));
+        SummaryItem.withCard(ENVIRONMENTAL_ACTIVITY, getEnvironmentalActivitySummaryCard(project, user)));
 
     return Optional.of(new SummarySection(DISPLAY_ORDER, summaryItems, ""));
 
   }
 
-  private SummaryCard getEnvironmentalActivitySummaryCard(Project project) {
+  private SummaryCard getEnvironmentalActivitySummaryCard(Project project, User user) {
     var actions = new ArrayList<SummaryAction>();
-    var user = userService.getUser();
-    if (permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))) {
+    if (teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)) {
       actions.add(
           new SummaryAction(
               "Change",

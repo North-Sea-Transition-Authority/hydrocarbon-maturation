@@ -73,9 +73,6 @@ class UndevelopedDiscoveriesOverviewControllerTest extends AbstractControllerTes
   }
 
   private void setUpUserIsRegulatorOrAreaTeam(boolean response) {
-    when(areaTeamService.isAreaUser(user))
-        .thenReturn(response);
-    when(regulatorTeamService.isRegulatorUser(user))
-        .thenReturn(response);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(user)).thenReturn(response);
   }
 }

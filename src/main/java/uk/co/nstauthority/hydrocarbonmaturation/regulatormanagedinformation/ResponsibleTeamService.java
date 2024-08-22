@@ -1,36 +1,30 @@
 package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.northernoffshore.NorthernOffshoreAreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.onshore.OnshoreAreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.southernoffshore.SouthernOffshoreAreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Service
 public class ResponsibleTeamService {
 
-  private final RegulatorTeamService regulatorTeamService;
-  private final NorthernOffshoreAreaTeamService northernOffshoreAreaTeamService;
-  private final SouthernOffshoreAreaTeamService southernOffshoreAreaTeamService;
-  private final OnshoreAreaTeamService onshoreAreaTeamService;
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
+  private final TeamQueryService teamQueryService;
 
-  public ResponsibleTeamService(RegulatorTeamService regulatorTeamService,
-                                NorthernOffshoreAreaTeamService northernOffshoreAreaTeamService,
-                                SouthernOffshoreAreaTeamService southernOffshoreAreaTeamService,
-                                OnshoreAreaTeamService onshoreAreaTeamService,
-                                RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService) {
-    this.regulatorTeamService = regulatorTeamService;
-    this.northernOffshoreAreaTeamService = northernOffshoreAreaTeamService;
-    this.southernOffshoreAreaTeamService = southernOffshoreAreaTeamService;
-    this.onshoreAreaTeamService = onshoreAreaTeamService;
+  @Autowired
+  public ResponsibleTeamService(RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
+                                TeamQueryService teamQueryService) {
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
+    this.teamQueryService = teamQueryService;
   }
 
   public boolean isInResponsibleTeam(User user, SubmissionDetail submissionDetail) {
@@ -42,46 +36,50 @@ public class ResponsibleTeamService {
 
   public boolean isInResponsibleTeam(User user, ResponsibleTeamType responsibleTeamType) {
     return switch (responsibleTeamType) {
-      case EXPLORATION -> regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.EXPLORATION);
-      case NORTHERN_NORTH_SEA_WEST_OF_SHETLAND -> northernOffshoreAreaTeamService
-          .isNorthernOffshoreTeamMember(user);
-      case CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA -> southernOffshoreAreaTeamService
-          .isSouthernOffshoreTeamMember(user);
-      case ONSHORE -> onshoreAreaTeamService
-          .isOnshoreTeamMember(user);
+      case EXPLORATION -> teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION);
+      case NORTHERN_NORTH_SEA_WEST_OF_SHETLAND ->
+          teamQueryService.userHasRoleInTeamType(
+              user.wuaId(),
+              TeamType.NORTHERN_OFFSHORE_AREA,
+              Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM
+          );
+      case CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA ->
+          teamQueryService.userHasRoleInTeamType(
+              user.wuaId(),
+              TeamType.SOUTHERN_OFFSHORE_AREA,
+              Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM
+          );
+      case ONSHORE ->
+          teamQueryService.userHasRoleInTeamType(
+              user.wuaId(),
+              TeamType.ONSHORE_AREA,
+              Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM
+          );
     };
   }
 
   public List<EnergyPortalUserDto> getResponsibleTeamUsers(ResponsibleTeamType responsibleTeamType) {
     return switch (responsibleTeamType) {
-      case EXPLORATION -> regulatorTeamService.getExplorationTeamEnergyPortalUsers();
-      case NORTHERN_NORTH_SEA_WEST_OF_SHETLAND -> northernOffshoreAreaTeamService
-          .getNorthernOffShoreAreaTeamEnergyPortalUsers();
-      case CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA -> southernOffshoreAreaTeamService
-          .getSouthernOffShoreAreaTeamEnergyPortalUsers();
-      case ONSHORE -> onshoreAreaTeamService.getOnShoreAreaTeamEnergyPortalUsers();
+      case EXPLORATION -> teamQueryService.getUsersInTeamsWithRoles(
+          Set.of(teamQueryService.getStaticTeam(TeamType.REGULATOR)),
+          Set.of(Role.EXPLORATION));
+      case NORTHERN_NORTH_SEA_WEST_OF_SHETLAND -> teamQueryService.getUsersInTeamsWithRoles(
+          Set.of(teamQueryService.getStaticTeam(TeamType.NORTHERN_OFFSHORE_AREA)),
+          Set.of(Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM));
+      case CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA -> teamQueryService.getUsersInTeamsWithRoles(
+          Set.of(teamQueryService.getStaticTeam(TeamType.SOUTHERN_OFFSHORE_AREA)),
+          Set.of(Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM));
+      case ONSHORE -> teamQueryService.getUsersInTeamsWithRoles(
+          Set.of(teamQueryService.getStaticTeam(TeamType.ONSHORE_AREA)),
+          Set.of(Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM));
     };
   }
 
   public List<ResponsibleTeamType> getResponsibleTeamTypesForUser(User user) {
-    var responsibleTeamTypeList = new ArrayList<ResponsibleTeamType>();
+    var teamRoles = teamQueryService.getTeamRolesForUser(user.wuaId());
+    Map<TeamType, Role> teamTypeRoleMap = teamRoles.stream()
+        .collect(Collectors.toMap(teamRole -> teamRole.getTeam().getTeamType(), TeamRole::getRole));
 
-    if (regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.EXPLORATION)) {
-      responsibleTeamTypeList.add(ResponsibleTeamType.EXPLORATION);
-    }
-
-    if (northernOffshoreAreaTeamService.isNorthernOffshoreTeamMember(user)) {
-      responsibleTeamTypeList.add(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
-    }
-
-    if (southernOffshoreAreaTeamService.isSouthernOffshoreTeamMember(user)) {
-      responsibleTeamTypeList.add(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
-    }
-
-    if (onshoreAreaTeamService.isOnshoreTeamMember(user)) {
-      responsibleTeamTypeList.add(ResponsibleTeamType.ONSHORE);
-    }
-
-    return responsibleTeamTypeList;
+    return ResponsibleTeamType.getResponsibleTeamTypesForTeamsAndRoles(teamTypeRoleMap);
   }
 }

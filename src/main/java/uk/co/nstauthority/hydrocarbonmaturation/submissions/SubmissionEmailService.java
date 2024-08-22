@@ -15,8 +15,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.RemiAbsoluteUrlUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
@@ -30,6 +28,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.LicenceReferenceComparator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 
 @Service
 public class SubmissionEmailService {
@@ -250,11 +250,9 @@ public class SubmissionEmailService {
       return List.of();
     }
 
-    var submitterWuaIds = industryTeamService
-        .getWuaIdsOfUsersWithRoleForOrganisationGroupIds(organisationGroupIds, Set.of(IndustryTeamRole.SUBMITTER))
-        .stream()
-        .map(id -> WebUserAccountId.valueOf(id.toString()))
-        .toList();
-    return energyPortalUserService.findByWuaIds(submitterWuaIds);
+    return industryTeamService.getWuaIdsOfUsersWithRoleForOrganisationGroupIds(
+        organisationGroupIds,
+        Set.of(Role.INDUSTRY_SUBMIT)
+    );
   }
 }

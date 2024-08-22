@@ -11,6 +11,8 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fdpaincreasedvolumes.FdpaIncreasedVolumesSummaryService;
@@ -20,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 
 @ExtendWith(MockitoExtension.class)
 class FdpaIncreasedVolumesSummarySectionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private FdpaIncreasedVolumesSummaryService fdpaIncreasedVolumesSummaryService;
@@ -46,7 +49,7 @@ class FdpaIncreasedVolumesSummarySectionServiceTest {
         List.of(informationCard, volumetricsCard1, volumetricsCard2)
     );
 
-    assertThat(summarySectionService.getSummarySection(submissionDetail))
+    assertThat(summarySectionService.getSummarySection(submissionDetail, USER))
         .isPresent()
         .get()
         .usingRecursiveComparison()
@@ -65,7 +68,7 @@ class FdpaIncreasedVolumesSummarySectionServiceTest {
     var submissionDetail = new SubmissionDetail();
     submissionDetail.setSubmissionType(submissionType);
 
-    assertThat(summarySectionService.getSummarySection(submissionDetail))
+    assertThat(summarySectionService.getSummarySection(submissionDetail, USER))
         .isEmpty();
   }
 }

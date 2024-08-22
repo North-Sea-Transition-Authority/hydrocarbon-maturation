@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
@@ -63,15 +64,16 @@ public class ChanceOfSuccessController {
   @PostMapping
   public ModelAndView saveChanceOfSuccess(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                           @ModelAttribute("form") ChanceOfSuccessForm form, BindingResult bindingResult,
-                                          ValidationType validationType) {
+                                          ValidationType validationType,
+                                          User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    bindingResult = chanceOfSuccessFormService.validate(form, bindingResult, validationType, submissionDetail);
+    bindingResult = chanceOfSuccessFormService.validate(form, bindingResult, validationType, submissionDetail, user);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getChanceOfSuccessModelAndView(form, submissionDetail),
         () -> {
           chanceOfSuccessPersistenceService.saveChanceOfSuccess(form, submissionDetail);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
         }
     );
   }

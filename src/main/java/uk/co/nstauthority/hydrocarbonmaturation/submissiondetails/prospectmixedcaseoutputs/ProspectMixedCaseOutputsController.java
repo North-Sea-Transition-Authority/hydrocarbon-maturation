@@ -83,7 +83,7 @@ public class ProspectMixedCaseOutputsController {
       return getMixedOutputsModelAndViewWithErrors(bindingResult, form, submissionDetail);
     } else {
       prospectMixedCaseOutputsPersistenceService.saveMixedCaseOutputs(form, reservoirSubmissionDetail);
-      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
     }
   }
 

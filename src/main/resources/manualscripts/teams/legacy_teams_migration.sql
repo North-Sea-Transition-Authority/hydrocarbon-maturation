@@ -204,7 +204,7 @@ BEGIN
     LOOP
 
         INSERT INTO remi.team_roles(id, team_id, role, wua_id)
-        VALUES (gen_random_uuid(), new_northern_team_id, 'AREA_TEAM_MEMBER', northern_members.wua_id);
+        VALUES (gen_random_uuid(), new_northern_team_id, 'MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM', northern_members.wua_id);
 
     END LOOP;
 
@@ -230,7 +230,7 @@ BEGIN
     LOOP
 
         INSERT INTO remi.team_roles(id, team_id, role, wua_id)
-        VALUES (gen_random_uuid(), new_southern_team_id, 'AREA_TEAM_MEMBER', southern_members.wua_id);
+        VALUES (gen_random_uuid(), new_southern_team_id, 'MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM', southern_members.wua_id);
 
     END LOOP;
 
@@ -256,7 +256,7 @@ BEGIN
     LOOP
 
         INSERT INTO remi.team_roles(id, team_id, role, wua_id)
-        VALUES (gen_random_uuid(), new_onshore_team_id, 'AREA_TEAM_MEMBER', onshore_members.wua_id);
+        VALUES (gen_random_uuid(), new_onshore_team_id, 'MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM', onshore_members.wua_id);
 
     END LOOP;
 

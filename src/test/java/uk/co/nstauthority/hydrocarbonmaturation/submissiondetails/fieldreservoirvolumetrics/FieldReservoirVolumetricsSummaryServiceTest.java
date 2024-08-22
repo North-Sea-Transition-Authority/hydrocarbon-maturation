@@ -16,6 +16,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
@@ -31,6 +33,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 
 @ExtendWith(MockitoExtension.class)
 class FieldReservoirVolumetricsSummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
@@ -52,7 +55,7 @@ class FieldReservoirVolumetricsSummaryServiceTest {
   void getSummarySection_notFieldSubmission_empty(SubmissionType submissionType) {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionType);
 
-    assertThat(fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isEmpty();
   }
 
@@ -79,7 +82,7 @@ class FieldReservoirVolumetricsSummaryServiceTest {
         reservoirSubmissionDetail)
     ).thenReturn(probabilityTableView);
 
-    var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
     assertThat(summarySection).isPresent();
 
     var expectedCard = SummaryCard.probabilitySummaryCard(probabilityTableView);
@@ -118,7 +121,7 @@ class FieldReservoirVolumetricsSummaryServiceTest {
         reservoirSubmissionDetail)
     ).thenReturn(probabilityTableView);
 
-    var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
     assertThat(summarySection).isPresent();
 
     var expectedCard = SummaryCard.probabilitySummaryCard(probabilityTableView);
@@ -161,7 +164,7 @@ class FieldReservoirVolumetricsSummaryServiceTest {
         reservoirSubmissionDetail)
     ).thenReturn(probabilityTableView);
 
-    var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
     assertThat(summarySection).isPresent();
 
     var probabilityCard = SummaryCard.probabilitySummaryCard(probabilityTableView);
@@ -204,7 +207,7 @@ class FieldReservoirVolumetricsSummaryServiceTest {
         reservoirSubmissionDetail)
     ).thenReturn(probabilityTableView);
 
-    var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
     assertThat(summarySection).isPresent();
 
     var expectedCard = SummaryCard.probabilitySummaryCard(probabilityTableView);
@@ -242,7 +245,7 @@ class FieldReservoirVolumetricsSummaryServiceTest {
         reservoirSubmissionDetail)
     ).thenReturn(probabilityTableView);
 
-    var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = fieldReservoirVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
     assertThat(summarySection).isPresent();
 
     var expectedCard = SummaryCard.probabilitySummaryCard(probabilityTableView);

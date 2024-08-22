@@ -20,13 +20,12 @@ import uk.co.fivium.energyportalapi.generated.client.OrganisationUnitProjectionR
 import uk.co.fivium.energyportalapi.generated.client.OrganisationUnitsProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 
 @Service
 public class OrganisationUnitQueryService {
@@ -43,38 +42,28 @@ public class OrganisationUnitQueryService {
 
   private final OrganisationApi organisationApi;
   private final EnergyPortalApiWrapper energyPortalApiWrapper;
-  private final UserService userService;
-  private final IndustryTeamService industryTeamService;
-  private final RegulatorTeamService regulatorTeamService;
+  private final InternalTeamService internalTeamService;
   private final OrganisationGroupQueryService organisationGroupQueryService;
   private final SearchSelectorService searchSelectorService;
-  private final AreaTeamService areaTeamService;
+  private final IndustryTeamService industryTeamService;
 
   @Autowired
   public OrganisationUnitQueryService(OrganisationApi organisationApi,
                                       EnergyPortalApiWrapper energyPortalApiWrapper,
-                                      UserService userService,
-                                      IndustryTeamService industryTeamService,
-                                      RegulatorTeamService regulatorTeamService,
                                       OrganisationGroupQueryService organisationGroupQueryService,
                                       SearchSelectorService searchSelectorService,
-                                      AreaTeamService areaTeamService) {
+                                      InternalTeamService internalTeamService,
+                                      IndustryTeamService industryTeamService) {
     this.organisationApi = organisationApi;
     this.energyPortalApiWrapper = energyPortalApiWrapper;
-    this.userService = userService;
-    this.industryTeamService = industryTeamService;
-    this.regulatorTeamService = regulatorTeamService;
+    this.internalTeamService = internalTeamService;
     this.organisationGroupQueryService = organisationGroupQueryService;
     this.searchSelectorService = searchSelectorService;
-    this.areaTeamService = areaTeamService;
+    this.industryTeamService = industryTeamService;
   }
 
-  public List<OrganisationUnitDto> getOrganisationSearchableResults(String organisationName) {
-    var user = userService.getUser();
-    var isRegulatorUser = regulatorTeamService.isRegulatorUser(user);
-    var isAreaUser = areaTeamService.isAreaUser(user);
-
-    if (isRegulatorUser || isAreaUser) {
+  public List<OrganisationUnitDto> getOrganisationSearchableResults(String organisationName, User user) {
+    if (internalTeamService.isRegulatorOrAreaTeamUser(user)) {
       return searchOrganisationUnitsWithName(organisationName);
     } else {
       var userOrganisationGroupIds = industryTeamService.getOrganisationGroupIdsForUser(user);

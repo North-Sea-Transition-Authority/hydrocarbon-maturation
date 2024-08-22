@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -20,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 
 @ExtendWith(MockitoExtension.class)
 class UndevelopedDiscoveryTrackingDetailsSummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @InjectMocks
   private UndevelopedDiscoveryTrackingDetailsSummaryService summaryService;
@@ -28,7 +31,7 @@ class UndevelopedDiscoveryTrackingDetailsSummaryServiceTest {
   void getSummarySection() {
     var resource = ResourceTestUtils.buildResource(ResourceType.DISCOVERY);
     var undevelopedDiscovery = UndevelopedDiscoveryTestUtils.createUndevelopedDiscovery(resource, Boolean.FALSE);
-    var summarySection = summaryService.getSummarySection(undevelopedDiscovery);
+    var summarySection = summaryService.getSummarySection(undevelopedDiscovery, USER);
 
     var expectedSummaryActions = List.of(new SummaryAction(
         "Change",

@@ -57,6 +57,7 @@ class PlannedSanctionedWellsControllerTest extends AbstractSubmissionControllerT
 
   @SecurityTest
   void getPlannedSanctionedWells_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(PlannedSanctionedWellsController.class).getPlannedSanctionedWells(submissionDetailId)))
@@ -76,6 +77,7 @@ class PlannedSanctionedWellsControllerTest extends AbstractSubmissionControllerT
 
   @Test
   void getPlannedSanctionedWellsModelAndView_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail)).thenReturn(form);
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(

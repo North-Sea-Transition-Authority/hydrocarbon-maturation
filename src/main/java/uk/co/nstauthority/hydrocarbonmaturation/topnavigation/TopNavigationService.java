@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.navigation.TopNavigationItem;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.InternalTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.LegacyTeamManagementController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SystemOfRecordLandingPageController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.management.TeamManagementController;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoveriesOverviewController;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -20,14 +20,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 public class TopNavigationService {
 
   public static final String TEAMS = "Teams";
-  public static final String LEGACY_TEAMS = "Legacy teams";
   public static final String SEARCH_RESOURCE_RECORDS = "Search";
   public static final String UNDEVELOPED_DISCOVERIES = "Undeveloped discoveries";
   private final InternalTeamService internalTeamService;
+  private final UserService userService;
 
   @Autowired
-  public TopNavigationService(InternalTeamService internalTeamService) {
+  public TopNavigationService(InternalTeamService internalTeamService, UserService userService) {
     this.internalTeamService = internalTeamService;
+    this.userService = userService;
   }
 
   public List<TopNavigationItem> getTopNavigationItems() {
@@ -42,16 +43,12 @@ public class TopNavigationService {
     );
 
     navigationItems.add(
-        new TopNavigationItem(LEGACY_TEAMS,
-            ReverseRouter.route(on(LegacyTeamManagementController.class).renderTeamListOrRedirect()))
-    );
-
-    navigationItems.add(
         new TopNavigationItem(SEARCH_RESOURCE_RECORDS,
             ReverseRouter.route(on(SystemOfRecordLandingPageController.class).getLandingPage()))
     );
 
-    if (Boolean.TRUE.equals(internalTeamService.isRegulatorOrAreaTeamUser())) {
+    var user = userService.getOptionalUserDetail();
+    if (user.isPresent() && Boolean.TRUE.equals(internalTeamService.isRegulatorOrAreaTeamUser(user.get()))) {
       navigationItems.add(
           new TopNavigationItem(UNDEVELOPED_DISCOVERIES,
               ReverseRouter.route(on(UndevelopedDiscoveriesOverviewController.class)

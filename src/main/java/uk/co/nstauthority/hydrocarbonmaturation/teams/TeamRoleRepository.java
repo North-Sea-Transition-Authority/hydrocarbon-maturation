@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.teams;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -8,6 +9,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TeamRoleRepository extends CrudRepository<TeamRole, UUID> {
   List<TeamRole> findByWuaIdAndRole(Long wuaId, Role role);
+
+  List<TeamRole> findByWuaIdAndRoleIn(Long wuaId, Set<Role> roles);
 
   List<TeamRole> findByWuaIdAndTeam(Long wuaId, Team team);
 
@@ -18,4 +21,8 @@ public interface TeamRoleRepository extends CrudRepository<TeamRole, UUID> {
   boolean existsByTeamAndWuaId(Team team, Long wuaId);
 
   List<TeamRole> findAllByWuaId(long wuaId);
+
+  Set<TeamRole> findAllByTeamAndRole(Team team, Role role);
+
+  Set<TeamRole> findByTeamIn(Set<Team> teams);
 }

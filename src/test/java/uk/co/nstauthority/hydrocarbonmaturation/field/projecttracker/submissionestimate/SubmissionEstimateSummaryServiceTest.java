@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimate;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -10,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
@@ -23,14 +21,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
@@ -42,16 +37,20 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableRow;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableValue;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableView;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionEstimateSummaryServiceTest {
+
+  private static final User USER = UserTestUtil.Builder().build();
+
   @Mock
   private SubmissionEstimateService submissionEstimateService;
   @Mock
-  private UserService userService;
-  @Mock
-  private PermissionService permissionService;
+  private TeamQueryService teamQueryService;
   @Mock
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   @InjectMocks
@@ -60,15 +59,10 @@ class SubmissionEstimateSummaryServiceTest {
   private final LocalDate FIXED_DATE = LocalDate.of(2023, 3, 19);
 
   private Project project;
-  private User user;
-  private Set<RolePermission> responsibleRegPermissions;
 
   @BeforeEach
   void setUp() {
     project = ProjectTestUtils.createProject(FieldTestUtils.createField(8000), UUID.randomUUID());
-
-    user = UserTestUtil.Builder().build();
-    when(userService.getUser()).thenReturn(user);
 
     mockGetRegManagedTeamPermissions();
   }
@@ -89,7 +83,7 @@ class SubmissionEstimateSummaryServiceTest {
     class WhenNotAllEstimatesProvided {
       @Test
       void thenEmptySummaryCards() {
-        var summarySection = submissionEstimateSummaryService.getSummarySection(project).orElseThrow();
+        var summarySection = submissionEstimateSummaryService.getSummarySection(project, USER).orElseThrow();
 
         assertEmptySummaryCardOnSection(SubmissionEstimateType.CSR.getDisplayName(), summarySection);
         assertEmptySummaryCardOnSection(SubmissionEstimateType.FDP.getDisplayName(), summarySection);
@@ -109,7 +103,7 @@ class SubmissionEstimateSummaryServiceTest {
       @Test
       void whenAnyUser_andEstimatesAllProvided_assertPopulatedCards() {
 
-        var summarySection = submissionEstimateSummaryService.getSummarySection(project).orElseThrow();
+        var summarySection = submissionEstimateSummaryService.getSummarySection(project, USER).orElseThrow();
 
         assertSummaryCardOnSection(
             SubmissionEstimateType.CSR.getDisplayName(),
@@ -130,7 +124,7 @@ class SubmissionEstimateSummaryServiceTest {
 
       @Test
       void whenProjectAnalyst_assertActionsAndHeader() {
-        when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
+        when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
             .thenReturn(true);
 
         var summaryCards = invokeAndGetSummaryCards();
@@ -156,10 +150,16 @@ class SubmissionEstimateSummaryServiceTest {
 
       @Test
       void whenResponsibleRegulator_assertActionsAndHeader() {
-        when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
-            .thenReturn(false);
-        when(permissionService.hasPermission(user, responsibleRegPermissions))
-            .thenReturn(true);
+        when(teamQueryService.userHasStaticRole(
+                USER.wuaId(),
+                TeamType.REGULATOR,
+                Role.PROJECT_ANALYST)
+        ).thenReturn(false);
+        when(teamQueryService.userHasStaticRole(
+                USER.wuaId(),
+                ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
+                Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
+        ).thenReturn(true);
 
         var summaryCards = invokeAndGetSummaryCards();
 
@@ -184,10 +184,16 @@ class SubmissionEstimateSummaryServiceTest {
 
       @Test
       void whenCannotManageProject_assertActionsAndHeader() {
-        when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
-            .thenReturn(false);
-        when(permissionService.hasPermission(user, responsibleRegPermissions))
-            .thenReturn(false);
+        when(teamQueryService.userHasStaticRole(
+                USER.wuaId(),
+                TeamType.REGULATOR,
+                Role.PROJECT_ANALYST)
+        ).thenReturn(false);
+        when(teamQueryService.userHasStaticRole(
+                USER.wuaId(),
+                ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
+                Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
+        ).thenReturn(false);
 
         var summaryCards = invokeAndGetSummaryCards();
 
@@ -228,7 +234,7 @@ class SubmissionEstimateSummaryServiceTest {
     class WhenNotAllEstimatesProvided {
       @Test
       void thenEmptySummaryCards() {
-        var summarySection = submissionEstimateSummaryService.getSummarySection(project).orElseThrow();
+        var summarySection = submissionEstimateSummaryService.getSummarySection(project, USER).orElseThrow();
 
         assertEmptySummaryCardOnSection(SubmissionEstimateType.CSR.getDisplayName(), summarySection);
         assertEmptySummaryCardOnSection(SubmissionEstimateType.FDPA.getDisplayName(), summarySection);
@@ -248,7 +254,7 @@ class SubmissionEstimateSummaryServiceTest {
       @Test
       void whenAnyUser_andEstimatesAllProvided_assertPopulatedCards() {
 
-        var summarySection = submissionEstimateSummaryService.getSummarySection(project).orElseThrow();
+        var summarySection = submissionEstimateSummaryService.getSummarySection(project, USER).orElseThrow();
 
         assertSummaryCardOnSection(
             SubmissionEstimateType.CSR.getDisplayName(),
@@ -269,8 +275,11 @@ class SubmissionEstimateSummaryServiceTest {
 
       @Test
       void whenProjectAnalyst_assertActionsAndHeader() {
-        when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
-            .thenReturn(true);
+        when(teamQueryService.userHasStaticRole(
+                USER.wuaId(),
+                TeamType.REGULATOR,
+                Role.PROJECT_ANALYST)
+        ).thenReturn(true);
 
         var summaryCards = invokeAndGetSummaryCards();
 
@@ -295,10 +304,16 @@ class SubmissionEstimateSummaryServiceTest {
 
       @Test
       void whenResponsibleRegulator_assertActionsAndHeader() {
-        when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
-            .thenReturn(false);
-        when(permissionService.hasPermission(user, responsibleRegPermissions))
-            .thenReturn(true);
+        when(teamQueryService.userHasStaticRole(
+                USER.wuaId(),
+                TeamType.REGULATOR,
+                Role.PROJECT_ANALYST)
+        ).thenReturn(false);
+        when(teamQueryService.userHasStaticRole(
+                USER.wuaId(),
+                ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
+                Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
+        ).thenReturn(true);
 
         var summaryCards = invokeAndGetSummaryCards();
 
@@ -323,10 +338,16 @@ class SubmissionEstimateSummaryServiceTest {
 
       @Test
       void whenCannotManageProject_assertActionsAndHeader() {
-        when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
-            .thenReturn(false);
-        when(permissionService.hasPermission(user, responsibleRegPermissions))
-            .thenReturn(false);
+        when(teamQueryService.userHasStaticRole(
+                USER.wuaId(),
+                TeamType.REGULATOR,
+                Role.PROJECT_ANALYST)
+        ).thenReturn(false);
+        when(teamQueryService.userHasStaticRole(
+                USER.wuaId(),
+                ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
+                Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
+        ).thenReturn(false);
 
         var summaryCards = invokeAndGetSummaryCards();
 
@@ -365,7 +386,7 @@ class SubmissionEstimateSummaryServiceTest {
     class WhenNotAllEstimatesProvided {
       @Test
       void thenEmptySummaryCards() {
-        var summarySection = submissionEstimateSummaryService.getSummarySection(project).orElseThrow();
+        var summarySection = submissionEstimateSummaryService.getSummarySection(project, USER).orElseThrow();
 
         assertEmptySummaryCardOnSection(SubmissionEstimateType.COP.getDisplayName(), summarySection);
       }
@@ -381,7 +402,7 @@ class SubmissionEstimateSummaryServiceTest {
       @Test
       void whenAnyUser_andEstimatesAllProvided_assertPopulatedCards() {
 
-        var summarySection = submissionEstimateSummaryService.getSummarySection(project).orElseThrow();
+        var summarySection = submissionEstimateSummaryService.getSummarySection(project, USER).orElseThrow();
 
         assertSummaryCardOnSection(
             SubmissionEstimateType.COP.getDisplayName(),
@@ -392,8 +413,11 @@ class SubmissionEstimateSummaryServiceTest {
 
       @Test
       void whenProjectAnalyst_assertActionsAndHeader() {
-        when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
-            .thenReturn(true);
+        when(teamQueryService.userHasStaticRole(
+                USER.wuaId(),
+                TeamType.REGULATOR,
+                Role.PROJECT_ANALYST)
+        ).thenReturn(true);
 
         var summaryCards = invokeAndGetSummaryCards();
 
@@ -406,10 +430,16 @@ class SubmissionEstimateSummaryServiceTest {
 
       @Test
       void whenResponsibleRegulator_assertActionsAndHeader() {
-        when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
-            .thenReturn(false);
-        when(permissionService.hasPermission(user, responsibleRegPermissions))
-            .thenReturn(true);
+        when(teamQueryService.userHasStaticRole(
+                USER.wuaId(),
+                TeamType.REGULATOR,
+                Role.PROJECT_ANALYST)
+        ).thenReturn(false);
+        when(teamQueryService.userHasStaticRole(
+                USER.wuaId(),
+                ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
+                Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
+        ).thenReturn(true);
 
         var summaryCards = invokeAndGetSummaryCards();
 
@@ -422,10 +452,16 @@ class SubmissionEstimateSummaryServiceTest {
 
       @Test
       void whenCannotManageProject_assertActionsAndHeader() {
-        when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
-            .thenReturn(false);
-        when(permissionService.hasPermission(user, responsibleRegPermissions))
-            .thenReturn(false);
+        when(teamQueryService.userHasStaticRole(
+                USER.wuaId(),
+                TeamType.REGULATOR,
+                Role.PROJECT_ANALYST)
+        ).thenReturn(false);
+        when(teamQueryService.userHasStaticRole(
+                USER.wuaId(),
+                ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
+                Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
+        ).thenReturn(false);
 
         var summaryCards = invokeAndGetSummaryCards();
 
@@ -472,15 +508,10 @@ class SubmissionEstimateSummaryServiceTest {
 
   @SuppressWarnings("unchecked")
   private void mockGetRegManagedTeamPermissions() {
-    var regulatorManagedInformation = mock(RegulatorManagedInformation.class);
+    var regulatorManagedInformation = new RegulatorManagedInformation();
+    regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(project.getField().getResource()))
         .thenReturn(regulatorManagedInformation);
-    var responsibleTeamType = mock(ResponsibleTeamType.class);
-    when(regulatorManagedInformation.getResponsibleTeamType())
-        .thenReturn(responsibleTeamType);
-    responsibleRegPermissions = mock(Set.class);
-    when(responsibleTeamType.getRolePermissions())
-        .thenReturn(responsibleRegPermissions);
   }
 
   private LocalDate getRandomDate() {
@@ -600,7 +631,7 @@ class SubmissionEstimateSummaryServiceTest {
   }
 
   private List<SummaryCard> invokeAndGetSummaryCards() {
-    var summarySection = submissionEstimateSummaryService.getSummarySection(project).orElseThrow();
+    var summarySection = submissionEstimateSummaryService.getSummarySection(project, USER).orElseThrow();
     var summaryItems = summarySection.summaryItems();
     return summaryItems.get(0).summaryCards();
   }

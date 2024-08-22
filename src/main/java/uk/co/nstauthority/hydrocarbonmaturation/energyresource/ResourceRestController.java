@@ -41,23 +41,27 @@ public class ResourceRestController {
 
   @GetMapping("/prospects/{submissionType}")
   public RestSearchResult searchProspects(@RequestParam("term") String searchTerm,
-                                          @PathVariable("submissionType") SubmissionType submissionType) {
+                                          @PathVariable("submissionType") SubmissionType submissionType,
+                                          User user) {
     return searchSelectorService.search(
         searchTerm,
         submissionQueryService.getLatestProspectsByNameForSubmissionType(
             searchTerm,
-            submissionType)
+            submissionType,
+            user)
     );
   }
 
   @GetMapping("/discoveries/{submissionType}")
   public RestSearchResult searchDiscoveries(@RequestParam("term") String searchTerm,
-                                            @PathVariable("submissionType") SubmissionType submissionType) {
+                                            @PathVariable("submissionType") SubmissionType submissionType,
+                                            User user) {
     return searchSelectorService.search(
         searchTerm,
         submissionQueryService.getLatestDiscoveriesByNameForSubmissionType(
             searchTerm,
-            submissionType)
+            submissionType,
+            user)
     );
   }
 
@@ -71,13 +75,13 @@ public class ResourceRestController {
   }
 
   @GetMapping("/resources/prospects-and-discoveries")
-  public RestSearchResult searchProspectsAndDiscoveries(@RequestParam("term") String searchTerm) {
-    return searchResourceRecordsQueryService.searchProspectsAndDiscoveries(searchTerm);
+  public RestSearchResult searchProspectsAndDiscoveries(@RequestParam("term") String searchTerm, User user) {
+    return searchResourceRecordsQueryService.searchProspectsAndDiscoveries(searchTerm, user);
   }
 
   @GetMapping("/resources/fields")
-  public RestSearchResult searchFieldsByFieldName(@RequestParam("term") String searchTerm) {
-    return searchResourceRecordsQueryService.searchFields(searchTerm);
+  public RestSearchResult searchFieldsByFieldName(@RequestParam("term") String searchTerm, User user) {
+    return searchResourceRecordsQueryService.searchFields(searchTerm, user);
   }
 
   @GetMapping("field/{submissionType}")

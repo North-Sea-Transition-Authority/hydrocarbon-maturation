@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
@@ -46,13 +47,14 @@ public class DeleteSubmissionController {
   }
 
   @GetMapping
-  public ModelAndView showDeleteConfirmationPage(@PathVariable("submissionDetailId") UUID submissionDetailId) {
+  public ModelAndView showDeleteConfirmationPage(@PathVariable("submissionDetailId") UUID submissionDetailId, User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
 
     var pageName = getPageName(submissionDetail);
     var modelAndView = submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(
         submissionDetail,
-        "remi/submissiondetails/deleteConfirmation"
+        "remi/submissiondetails/deleteConfirmation",
+        user
     );
 
     String deleteButtonText;
@@ -71,7 +73,7 @@ public class DeleteSubmissionController {
         .addObject("deleteUrl",
             ReverseRouter.route(on(DeleteSubmissionController.class).deleteSubmission(submissionDetailId, null)))
         .addObject("cancelUrl",
-            ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)));
+            ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)));
 
     TaskListBreadcrumbUtil
         .addTaskListAndWorkAreaToModelAndView(modelAndView, "Delete", submissionDetail);

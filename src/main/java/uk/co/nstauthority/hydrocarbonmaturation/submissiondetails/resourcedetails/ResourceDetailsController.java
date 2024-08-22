@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
@@ -21,8 +21,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmission
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -30,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -44,58 +43,58 @@ public class ResourceDetailsController {
   private final ControllerHelperService controllerHelperService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final ResourceDetailsFormService resourceDetailsFormService;
-  private final UserService userService;
-  private final RegulatorTeamService regulatorTeamService;
   private final SubmissionDetailService submissionDetailService;
-  private final AreaTeamService areaTeamService;
+  private final InternalTeamService internalTeamService;
 
   @Autowired
   public ResourceDetailsController(ControllerHelperService controllerHelperService,
                                    ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                                    ResourceDetailsFormService resourceDetailsFormService,
-                                   UserService userService, RegulatorTeamService regulatorTeamService,
-                                   SubmissionDetailService submissionDetailService, AreaTeamService areaTeamService) {
+                                   SubmissionDetailService submissionDetailService,
+                                   InternalTeamService internalTeamService) {
     this.controllerHelperService = controllerHelperService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.resourceDetailsFormService = resourceDetailsFormService;
-    this.userService = userService;
-    this.regulatorTeamService = regulatorTeamService;
     this.submissionDetailService = submissionDetailService;
-    this.areaTeamService = areaTeamService;
+    this.internalTeamService = internalTeamService;
   }
 
   @GetMapping
-  public ModelAndView getResourceDetails(@PathVariable("submissionDetailId") UUID submissionDetailId) {
+  public ModelAndView getResourceDetails(@PathVariable("submissionDetailId") UUID submissionDetailId, User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var form = resourceDetailsFormService.getResourceDetailsForm(submissionDetail);
-    return getResourceDetailsPageModelAndView(form, submissionDetail);
+    return getResourceDetailsPageModelAndView(form, submissionDetail, user);
   }
 
   @PostMapping
   public ModelAndView saveResourceDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                           @ModelAttribute("form") ResourceDetailsForm form,
-                                          BindingResult bindingResult, ValidationType validationType) {
+                                          BindingResult bindingResult,
+                                          ValidationType validationType,
+                                          User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    bindingResult = resourceDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
+    bindingResult = resourceDetailsFormService.validate(form, bindingResult, validationType, submissionDetail, user);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getResourceDetailsPageModelAndView(form, submissionDetail),
+        getResourceDetailsPageModelAndView(form, submissionDetail, user),
         () -> {
           resourceDetailsPersistenceService.saveResourceDetails(form, submissionDetail);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
         });
   }
 
-  private ModelAndView getResourceDetailsPageModelAndView(ResourceDetailsForm form, SubmissionDetail submissionDetail) {
+  private ModelAndView getResourceDetailsPageModelAndView(ResourceDetailsForm form,
+                                                          SubmissionDetail submissionDetail,
+                                                          User user) {
     var modelAndView = new ModelAndView("remi/submissiondetails/resourceDetails")
         .addObject("organisationUnitEndpoint",
-            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null)))
+            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null, null)))
         .addObject("resourceType",
             submissionDetail.getSubmission().getResource().getType().getDisplayName().toLowerCase())
         .addObject("responsibleOrganisation", resourceDetailsFormService
             .getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
         .addObject("form", form)
         .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())
-        .addObject("isRegulatorOrAreaTeamUser", isRegulatorOrAreaTeamUser())
+        .addObject("isRegulatorOrAreaTeamUser", isRegulatorOrAreaTeamUser(user))
         .addObject("relinquishmentSubmission",
             submissionDetail.isDiscoveryRelinquishment()
                 || submissionDetail.isProspectRelinquishment());
@@ -104,8 +103,7 @@ public class ResourceDetailsController {
         .addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);
   }
 
-  private boolean isRegulatorOrAreaTeamUser() {
-    var user = userService.getUser();
-    return regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user);
+  private boolean isRegulatorOrAreaTeamUser(User user) {
+    return internalTeamService.isRegulatorOrAreaTeamUser(user);
   }
 }

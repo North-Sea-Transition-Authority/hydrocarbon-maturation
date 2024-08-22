@@ -97,6 +97,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getGeneralDetails_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(GeneralDetailsController.class).getGeneralDetails(submissionDetailId, null)))
@@ -106,6 +107,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getGeneralDetails_andNotResponsibleOrganisationOrTeam_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
@@ -129,6 +131,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveGeneralDetailsPage_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.OFFSHORE);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(generalDetailsFormValidator.isValid(any(), any(), any(), any())).thenReturn(true);
@@ -139,7 +142,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
 
     verify(generalDetailsPersistenceService, times(1))
         .saveGeneralDetails(any(GeneralDetailsForm.class), eq(submissionDetail), eq(OnshoreOffshore.OFFSHORE));
@@ -148,6 +151,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveGeneralDetailsPage_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.OFFSHORE);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(generalDetailsFormValidator.isValid(any(), any(), any(), any())).thenReturn(false);
@@ -164,6 +168,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getGeneralDetailsModelAndView_offshoreProspectSubmission_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.OFFSHORE);
     var form = new GeneralDetailsForm();
@@ -206,7 +211,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("alreadyAddedLicences", licenceViewList),
             entry("isOffshore", true),
             entry("submissionType", submissionDetail.getSubmissionType()),
-            entry("isRegulatorSubmission", true)
+            entry("isRegulatorSubmission", false)
         );
     assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
 
@@ -215,12 +220,13 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
     );
   }
 
   @Test
   void getGeneralDetailsModelAndView_onshoreDiscoverySubmission_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.ONSHORE);
     var discovery = new Resource();
@@ -270,7 +276,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("alreadyAddedLicences", licenceViewList),
             entry("isOffshore", false),
             entry("submissionType", submissionDetail.getSubmissionType()),
-            entry("isRegulatorSubmission", true)
+            entry("isRegulatorSubmission", false)
         );
     assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
 
@@ -279,13 +285,14 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)),
             TaskListController.PAGE_NAME)
     );
   }
 
   @Test
   void getGeneralDetailsModelAndView_whenCorrection_assertLicenceEndpoint() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setCorrection(true);
     var form = new GeneralDetailsForm();
     when(generalDetailsFormService.getGeneralDetailsForm(submissionDetail)).thenReturn(form);
@@ -307,13 +314,9 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest
   @MethodSource("allFieldSubmissionTypes")
   void getGeneralDetailsModelAndView_fieldSubmission_assertModelProperties(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
     when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.ONSHORE);
-    var discovery = new Resource();
-    discovery.setType(ResourceType.DISCOVERY);
-    var submission = new Submission();
-    submission.setResource(discovery);
-    submissionDetail.setSubmission(submission);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var form = new GeneralDetailsForm();
     var preselectedLicenceApplication = Map.of("licenceapp1", "licence app 1");
@@ -353,6 +356,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getGeneralDetailsModelAndView_csr_assertFieldReportType() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
 
     when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.ONSHORE);
@@ -400,6 +404,7 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
       names = {"RELINQUISHMENT_PROSPECT", "RELINQUISHMENT_DISCOVERY"},
       mode = EnumSource.Mode.INCLUDE)
   void getGeneralDetailsModelAndView_relinquishmentSubmission_assertRelinquishmentTrue(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(submissionType);
     var resourceDetail = new ResourceDetail();
     resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);

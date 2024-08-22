@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsExtantProject;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
@@ -23,13 +23,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectServ
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ViewProjectController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.projectstagehistory.ProjectStageHistory;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.projectstagehistory.ProjectStageHistoryService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}/project-tracker/{projectId}")
-@HasPermission(permissions = RolePermission.PROJECT_ANALYST)
+@HasAnyRole(role = Role.PROJECT_ANALYST, teamType = TeamType.REGULATOR)
 @IsExtantProject
 class ProjectStageController {
   static final String PROJECT_STAGE_TITLE = "Project stage";

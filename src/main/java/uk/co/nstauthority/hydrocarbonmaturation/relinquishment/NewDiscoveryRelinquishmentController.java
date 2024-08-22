@@ -12,23 +12,24 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Controller
 @RequestMapping("relinquishment/discovery/new")
-@HasPermission(permissions = {
-    RolePermission.EXPLORATION,
-    RolePermission.INDUSTRY_SUBMIT,
-    RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.ONSHORE_AREA_TEAM_MEMBER})
+@HasAnyRole(role = Role.EXPLORATION, teamType = TeamType.REGULATOR)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.NORTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.SOUTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.ONSHORE_AREA)
+@HasAnyRole(role = Role.INDUSTRY_SUBMIT, teamType = TeamType.INDUSTRY)
 public class NewDiscoveryRelinquishmentController {
 
   private final ControllerHelperService controllerHelperService;
@@ -48,13 +49,14 @@ public class NewDiscoveryRelinquishmentController {
 
   @PostMapping
   public ModelAndView createNewDiscoveryRelinquishmentSubmission(@Valid @ModelAttribute("form") DiscoveryRelinquishmentForm form,
-                                                                 BindingResult bindingResult) {
+                                                                 BindingResult bindingResult,
+                                                                 User user) {
     bindingResult = discoveryRelinquishmentService.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getNewRelinquishmentPageModelAndView(form),
         () -> {
-          var submissionDetail = discoveryRelinquishmentService.createDiscoveryRelinquishment(form);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId()));
+          var submissionDetail = discoveryRelinquishmentService.createDiscoveryRelinquishment(form, user);
+          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId(), null));
         });
   }
 
@@ -62,12 +64,12 @@ public class NewDiscoveryRelinquishmentController {
     return new ModelAndView("remi/relinquishment/newDiscoveryRelinquishment")
         .addObject("form", form)
         .addObject("discoveryApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
-            .searchDiscoveries(null, SubmissionType.RELINQUISHMENT_DISCOVERY)))
+            .searchDiscoveries(null, SubmissionType.RELINQUISHMENT_DISCOVERY, null)))
         .addObject("backLinkUrl",
             ReverseRouter.route(on(StartRelinquishmentSubmissionController.class)
                 .getStartDiscoveryRelinquishmentPage()))
         .addObject("actionUrl",
             ReverseRouter.route(on(NewDiscoveryRelinquishmentController.class)
-                .createNewDiscoveryRelinquishmentSubmission(null, null)));
+                .createNewDiscoveryRelinquishmentSubmission(null, null, null)));
   }
 }

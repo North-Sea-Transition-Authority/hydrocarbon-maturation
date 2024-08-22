@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
@@ -47,7 +48,8 @@ class AdditionalInformationFormService implements SubmissionFormService {
   public BindingResult validate(SubmissionForm form,
                                 BindingResult bindingResult,
                                 ValidationType validationType,
-                                SubmissionDetail submissionDetail) {
+                                SubmissionDetail submissionDetail,
+                                User user) {
     additionalInformationFormValidator.validate(
         form,
         bindingResult,

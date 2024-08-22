@@ -17,6 +17,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
@@ -32,6 +34,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 
 @ExtendWith(MockitoExtension.class)
 class OilCaseOutputsSummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   static final List<ProbabilityDistributionFieldInstance> OIL_VOLUMETRIC_INSTANCES_PROSPECTS = List.of(
       ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT,
@@ -192,7 +195,7 @@ class OilCaseOutputsSummaryServiceTest {
   void getSummarySection_nonDiscoverySubmission() {
     reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.PROSPECT_UPDATE);
 
-    assertThat(oilCaseOutputsSummaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(oilCaseOutputsSummaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isEmpty();
   }
 
@@ -203,7 +206,7 @@ class OilCaseOutputsSummaryServiceTest {
     when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
         .thenReturn(false);
 
-    assertThat(oilCaseOutputsSummaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(oilCaseOutputsSummaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isEmpty();
   }
 
@@ -216,7 +219,7 @@ class OilCaseOutputsSummaryServiceTest {
         .thenReturn(true);
 
     var captor = ArgumentCaptor.forClass(List.class);
-    assertThat(oilCaseOutputsSummaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(oilCaseOutputsSummaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isPresent()
         .get()
         .extracting(

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverycominbedcasevolumetrictotals.DiscoveryCombinedCaseVolTotalsController;
@@ -68,12 +69,12 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
     this.fdpaIncreasedVolumesSubmissionService = fdpaIncreasedVolumesSubmissionService;
   }
 
-  public boolean sectionIsPresent(SubmissionDetail submissionDetail) {
-    return getSection(submissionDetail).isPresent();
+  public boolean sectionIsPresent(SubmissionDetail submissionDetail, User user) {
+    return getSection(submissionDetail, user).isPresent();
   }
 
   @Override
-  public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail) {
+  public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail, User user) {
     if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
       return Optional.empty();
     }
@@ -96,7 +97,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
       return Optional.empty();
     }
 
-    var items = getTaskListItems(submissionDetail, reservoirSubmissionDetails);
+    var items = getTaskListItems(submissionDetail, reservoirSubmissionDetails, user);
     return Optional.of(
         new TaskListSection(
             String.format("Total volumes for %s",
@@ -108,7 +109,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
   }
 
   @Override
-  public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
+  public Boolean isSectionSubmittable(SubmissionDetail submissionDetail, User user) {
     if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
       return true;
     }
@@ -122,57 +123,60 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
       return true;
     }
     if (submissionDetail.isDiscoverySubmission()) {
-      return isDiscoveryHydrocarbonCaseSubmittable(submissionDetail, reservoirSubmissionDetails);
+      return isDiscoveryHydrocarbonCaseSubmittable(submissionDetail, reservoirSubmissionDetails, user);
     } else if (submissionDetail.isFieldDevelopmentPlanAddendumSubmission()) {
-      return isFieldHydrocarbonCaseSectionSubmittable(submissionDetail, reservoirSubmissionDetails)
-          && isFdpaPromotedVolumesSectionSubmittable(submissionDetail)
-          && isFdpaIncreasedVolumesSectionSubmittable(submissionDetail);
+      return isFieldHydrocarbonCaseSectionSubmittable(submissionDetail, reservoirSubmissionDetails, user)
+          && isFdpaPromotedVolumesSectionSubmittable(submissionDetail, user)
+          && isFdpaIncreasedVolumesSectionSubmittable(submissionDetail, user);
     } else if (submissionDetail.isFieldSubmission()) {
-      return isFieldHydrocarbonCaseSectionSubmittable(submissionDetail, reservoirSubmissionDetails);
+      return isFieldHydrocarbonCaseSectionSubmittable(submissionDetail, reservoirSubmissionDetails, user);
     }
     return false;
   }
 
   private boolean isFieldHydrocarbonCaseSectionSubmittable(SubmissionDetail submissionDetail,
-                                                           List<ReservoirSubmissionDetail> reservoirSubmissionDetails) {
+                                                           List<ReservoirSubmissionDetail> reservoirSubmissionDetails,
+                                                           User user) {
     if (reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails)) {
-      return fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail);
+      return fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, user);
     } else if (reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails)) {
-      return fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail);
+      return fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, user);
     } else if (reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails)) {
-      return fieldCombinedCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail);
+      return fieldCombinedCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, user);
     }
     return false;
   }
 
   private boolean isDiscoveryHydrocarbonCaseSubmittable(SubmissionDetail submissionDetail,
-                                                        List<ReservoirSubmissionDetail> reservoirSubmissionDetails) {
+                                                        List<ReservoirSubmissionDetail> reservoirSubmissionDetails,
+                                                        User user) {
     if (reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails)) {
-      return discoveryOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail);
+      return discoveryOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, user);
     } else if (reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails)) {
-      return discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail);
+      return discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, user);
     } else if (reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails)) {
-      return discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail);
+      return discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail, user);
     }
     return false;
   }
 
-  private boolean isFdpaPromotedVolumesSectionSubmittable(SubmissionDetail submissionDetail) {
-    return fdpaPromotedVolumesSubmissionService.isSectionSubmittable(submissionDetail);
+  private boolean isFdpaPromotedVolumesSectionSubmittable(SubmissionDetail submissionDetail, User user) {
+    return fdpaPromotedVolumesSubmissionService.isSectionSubmittable(submissionDetail, user);
   }
 
-  private boolean isFdpaIncreasedVolumesSectionSubmittable(SubmissionDetail submissionDetail) {
-    return fdpaIncreasedVolumesSubmissionService.isSectionSubmittable(submissionDetail);
+  private boolean isFdpaIncreasedVolumesSectionSubmittable(SubmissionDetail submissionDetail, User user) {
+    return fdpaIncreasedVolumesSubmissionService.isSectionSubmittable(submissionDetail, user);
   }
 
   private List<TaskListItem> getTaskListItems(SubmissionDetail submissionDetail,
-                                              List<ReservoirSubmissionDetail> reservoirSubmissionDetails) {
+                                              List<ReservoirSubmissionDetail> reservoirSubmissionDetails,
+                                              User user) {
     var listOfItems = new ArrayList<TaskListItem>();
     if (submissionDetail.isDiscoverySubmission()) {
       if (reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails)) {
         listOfItems.add(new TaskListItem("Total oil case volumetrics",
             TaskListLabel.notStartedOrComplete(
-                discoveryOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail)
+                discoveryOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, user)
             ),
             ReverseRouter.route(on(DiscoveryOilCaseVolumetricTotalsController.class)
                 .getDiscoveryOilCaseVolumetricTotals(submissionDetail.getId())))
@@ -181,7 +185,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
       if (reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails)) {
         listOfItems.add(new TaskListItem("Total gas case volumetrics",
             TaskListLabel.notStartedOrComplete(
-                discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail)
+                discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, user)
             ),
             ReverseRouter.route(on(DiscoveryGasCaseVolumetricTotalsController.class)
                 .getDiscoveryGasCaseVolumetricTotals(submissionDetail.getId())))
@@ -190,7 +194,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
       if (reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails)) {
         listOfItems.add(new TaskListItem("Total oil and gas case volumetrics",
             TaskListLabel.notStartedOrComplete(
-                discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail)
+                discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail, user)
             ),
             ReverseRouter.route(on(DiscoveryCombinedCaseVolTotalsController.class)
                 .getDiscoveryCombinedCaseVolumetricTotals(submissionDetail.getId())))
@@ -200,7 +204,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
       if (reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails)) {
         listOfItems.add(new TaskListItem("Total oil case volumetrics",
             TaskListLabel.notStartedOrComplete(
-                fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail)
+                fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, user)
             ),
             ReverseRouter.route(on(FieldOilCaseVolumetricTotalsController.class)
                 .getFieldOilCaseVolumetricTotals(submissionDetail.getId())))
@@ -209,7 +213,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
       if (reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails)) {
         listOfItems.add(new TaskListItem("Total gas case volumetrics",
             TaskListLabel.notStartedOrComplete(
-                fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail)
+                fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, user)
             ),
             ReverseRouter.route(on(FieldGasCaseVolumetricTotalsController.class)
                 .getFieldGasCaseVolumetricTotals(submissionDetail.getId())))
@@ -218,7 +222,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
       if (reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails)) {
         listOfItems.add(new TaskListItem("Total oil and gas case volumetrics",
             TaskListLabel.notStartedOrComplete(
-                fieldCombinedCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail)
+                fieldCombinedCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, user)
             ),
             ReverseRouter.route(on(FieldCombinedCaseVolumetricTotalsController.class)
                 .getFieldCombinedCaseVolumetricTotals(submissionDetail.getId())))
@@ -230,7 +234,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
       listOfItems.add(new TaskListItem(
           "FDPA promoted volumes",
           TaskListLabel.notStartedOrComplete(
-              fdpaPromotedVolumesSubmissionService.isSectionSubmittable(submissionDetail)),
+              fdpaPromotedVolumesSubmissionService.isSectionSubmittable(submissionDetail, user)),
           ReverseRouter.route(on(FdpaVolumesController.class)
               .getFdpaPromotedVolumes(submissionDetail.getId()))
       ));
@@ -238,7 +242,7 @@ public class TotalVolumesTaskListSectionService implements TaskListSectionServic
       listOfItems.add(new TaskListItem(
           "FDPA increased volumes",
           TaskListLabel.notStartedOrComplete(
-              fdpaIncreasedVolumesSubmissionService.isSectionSubmittable(submissionDetail)),
+              fdpaIncreasedVolumesSubmissionService.isSectionSubmittable(submissionDetail, user)),
           ReverseRouter.route(on(FdpaIncreasedVolumesController.class)
               .getFdpaIncreasedVolumes(submissionDetail.getId()))
       ));

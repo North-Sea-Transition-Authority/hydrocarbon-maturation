@@ -9,44 +9,44 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamMemberService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Service
 public class FieldQueryService {
 
+  public static final Role AREA_TEAM_MEMBER = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM;
+
   private final FieldPersistenceService fieldPersistenceService;
   private final FieldStatusService fieldStatusService;
   private final SubmissionDetailService submissionDetailService;
-  private final AreaTeamService areaTeamService;
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final ResponsibleTeamService responsibleTeamService;
   private final IndustryTeamService industryTeamService;
-  private final IndustryTeamMemberService industryTeamMemberService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   public FieldQueryService(FieldPersistenceService fieldPersistenceService,
                            FieldStatusService fieldStatusService,
                            SubmissionDetailService submissionDetailService,
-                           AreaTeamService areaTeamService,
                            RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
                            ResponsibleTeamService responsibleTeamService,
                            IndustryTeamService industryTeamService,
-                           IndustryTeamMemberService industryTeamMemberService) {
+                           TeamQueryService teamQueryService) {
     this.fieldPersistenceService = fieldPersistenceService;
     this.fieldStatusService = fieldStatusService;
     this.submissionDetailService = submissionDetailService;
-    this.areaTeamService = areaTeamService;
+    this.teamQueryService = teamQueryService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.responsibleTeamService = responsibleTeamService;
     this.industryTeamService = industryTeamService;
-    this.industryTeamMemberService = industryTeamMemberService;
   }
 
   public List<FieldView> getFieldByNameForSubmissionType(String name, SubmissionType submissionType, User user) {
@@ -98,13 +98,21 @@ public class FieldQueryService {
    * @return True if the user can select the field
    */
   private boolean filterFieldByUser(Field field, User user) {
-    if (areaTeamService.isAreaTeamMember(user)) {
+    var isAreaTeamMember =
+        teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, AREA_TEAM_MEMBER)
+        || teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, AREA_TEAM_MEMBER)
+        || teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, AREA_TEAM_MEMBER);
+    if (isAreaTeamMember) {
       var responsibleTeamType = regulatorManagedInformationPersistenceService
           .getRegulatorManagedInformationByResourceOrThrow(field.getResource())
           .getResponsibleTeamType();
       return responsibleTeamService.isInResponsibleTeam(user, responsibleTeamType);
-    } else if (industryTeamService.isSubmitter(user)) {
-      return industryTeamMemberService.isSubmitterOfOrganisationUnit(user, field.getResponsibleOrganisationId());
+    } else if (teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)) {
+      if (field.getResponsibleOrganisationId() == null) {
+        return false;
+      }
+      return industryTeamService.getOrganisationUnitIdsForUserWithRoles(user, Set.of(Role.INDUSTRY_SUBMIT))
+          .contains(field.getResponsibleOrganisationId());
     }
     return false;
   }

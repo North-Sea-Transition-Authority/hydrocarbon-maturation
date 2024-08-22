@@ -133,6 +133,7 @@ class FieldCombinedCaseVolumetricTotalsControllerTest extends AbstractSubmission
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveCombinedVolumetricTotals_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(any(MixedCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(false);
@@ -152,6 +153,7 @@ class FieldCombinedCaseVolumetricTotalsControllerTest extends AbstractSubmission
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveCombinedVolumetricTotals_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(fieldCombinedCaseVolumetricTotalsFormValidator.isValid(any(MixedCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(false);
@@ -171,6 +173,7 @@ class FieldCombinedCaseVolumetricTotalsControllerTest extends AbstractSubmission
 
   @Test
   void getOilVolumetricTotalsModelAndView_isCsrField_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
 
     when(fieldCombinedCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail)).thenReturn(form);
@@ -187,7 +190,7 @@ class FieldCombinedCaseVolumetricTotalsControllerTest extends AbstractSubmission
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
         );
 
     var contingentUncertaintyCategoryPromptOverrides =
@@ -236,6 +239,7 @@ class FieldCombinedCaseVolumetricTotalsControllerTest extends AbstractSubmission
       names = {"CREATE_FDP", "CREATE_FDPA", "CREATE_COP"}
   )
   void getOilVolumetricTotalsModelAndView_isNotCsrField_assertModelProperties(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
 
     when(fieldCombinedCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail))
@@ -255,7 +259,7 @@ class FieldCombinedCaseVolumetricTotalsControllerTest extends AbstractSubmission
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
         );
 
     var contingentUncertaintyCategoryPromptOverrides =

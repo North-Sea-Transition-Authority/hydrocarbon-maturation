@@ -70,7 +70,7 @@ class FieldReservoirCombinedVolumetricsControllerTest extends AbstractSubmission
   }
 
   @SecurityTest
-  void getFieldCombinedVolumetrics_assertOkay() throws Exception {
+  void getFieldCombinedVolumetrics_assertOk() throws Exception {
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
 
     when(fieldReservoirVolumetricsFormService.getFieldReservoirVolumetricsForm(reservoirSubmissionDetail))
@@ -93,6 +93,7 @@ class FieldReservoirCombinedVolumetricsControllerTest extends AbstractSubmission
   )
   void getFieldCombinedReservoirVolumetrics_andStatusIsNotDraft_assertForbidden(
       SubmissionDetailStatus submissionDetailStatus) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
 
     submissionDetail.setStatus(submissionDetailStatus);
     mockMvc.perform(get(ReverseRouter.route(on(FieldReservoirCombinedVolumetricsController.class)
@@ -105,6 +106,7 @@ class FieldReservoirCombinedVolumetricsControllerTest extends AbstractSubmission
   @MethodSource("allNonFieldSubmissionTypes")
   void getFieldCombinedReservoirVolumetrics_andTypeIsNotField_assertForbidden(
       SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
 
     submissionDetail.setSubmissionType(submissionType);
     mockMvc.perform(get(ReverseRouter.route(on(FieldReservoirCombinedVolumetricsController.class)
@@ -115,8 +117,9 @@ class FieldReservoirCombinedVolumetricsControllerTest extends AbstractSubmission
 
   @ParameterizedTest
   @MethodSource("allFieldSubmissionTypes")
-  void getFieldCombinedReservoirVolumetrics_andTypeIsField_assertOkay(
+  void getFieldCombinedReservoirVolumetrics_andTypeIsField_assertOk(
       SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
 
     submissionDetail.setSubmissionType(submissionType);
 
@@ -187,6 +190,7 @@ class FieldReservoirCombinedVolumetricsControllerTest extends AbstractSubmission
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {"CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
   void getFieldReservoirVolumetricsModelAndView_assertModelProperties_reservoirCarriedForward(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
 
     var form = new FieldReservoirVolumetricsForm();
@@ -229,7 +233,7 @@ class FieldReservoirCombinedVolumetricsControllerTest extends AbstractSubmission
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME),
+            .getTaskList(submissionDetail.getId(), null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class)
             .getReservoirTaskList(submissionDetail.getId(), null)), ReservoirTaskListController.PAGE_TITLE)
     );
@@ -237,6 +241,7 @@ class FieldReservoirCombinedVolumetricsControllerTest extends AbstractSubmission
 
   @Test
   void getFieldReservoirVolumetricsModelAndView_assertModelProperties_reservoirNotCarriedForward() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
 
     var form = new FieldReservoirVolumetricsForm();
@@ -275,7 +280,7 @@ class FieldReservoirCombinedVolumetricsControllerTest extends AbstractSubmission
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME),
+            .getTaskList(submissionDetail.getId(), null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class)
             .getReservoirTaskList(submissionDetail.getId(), null)), ReservoirTaskListController.PAGE_TITLE)
     );
@@ -285,6 +290,7 @@ class FieldReservoirCombinedVolumetricsControllerTest extends AbstractSubmission
   @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
   void saveFieldCombinedReservoirVolumetrics_invalidForm_assertErrorAdded(
       SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
 
     when(reservoirSubmissionDetailPersistenceService
@@ -330,6 +336,7 @@ class FieldReservoirCombinedVolumetricsControllerTest extends AbstractSubmission
   @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
   void saveFieldCombinedReservoirVolumetrics_validForm_assertSavedandRedirection(
       SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
 
     when(reservoirSubmissionDetailPersistenceService

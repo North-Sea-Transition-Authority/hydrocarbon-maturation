@@ -132,6 +132,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
   @SecurityTest
   void getReservoirProperties_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
 
     mockMvc.perform(
@@ -165,6 +166,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = SubmissionType.class, names = {"CREATE_DISCOVERY", "UPDATE_DISCOVERY"})
   void getReservoirProperties_whenDiscovery_assertStatusOk() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail)).thenReturn(new ReservoirPropertiesForm());
@@ -180,6 +182,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveReservoirProperties_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(reservoirPropertiesFormValidator.isValid(any(), any(), eq(reservoirSubmissionDetail), eq(validationType))).thenReturn(true);
 
     mockMvc.perform(
@@ -189,7 +192,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
 
     verify(reservoirPropertiesPersistenceService, times(1))
         .saveReservoirProperty(any(ReservoirPropertiesForm.class), eq(reservoirSubmissionDetail));
@@ -198,6 +201,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveReservoirProperties_whenValidForm_assertSaveAndRedirection_discovery(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
 
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
@@ -224,6 +228,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveReservoirProperties_whenValidForm_assertSaveAndRedirection_postDrillDryHole(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
 
     var dryHoleReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
@@ -242,7 +247,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetailId))));
+            .getTaskList(submissionDetailId, null))));
 
     verify(reservoirPropertiesPersistenceService, times(1))
         .saveReservoirProperty(any(ReservoirPropertiesForm.class), eq(dryHoleReservoirSubmissionDetail));
@@ -251,6 +256,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveReservoirProperties_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(reservoirPropertiesFormValidator.isValid(any(), any(), eq(reservoirSubmissionDetail), eq(validationType))).thenReturn(false);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
@@ -269,6 +275,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = SubmissionType.class, names = {"CREATE_PROSPECT", "PROSPECT_UPDATE", "RELINQUISHMENT_PROSPECT"})
   void saveReservoirProperties_whenInvalidForm_andProspectSubmission_assertModelProperties(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(submissionType);
     when(reservoirPropertiesFormValidator.isValid(any(), any(), eq(reservoirSubmissionDetail), eq(ValidationType.FULL))).thenReturn(false);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
@@ -299,7 +306,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
     );
 
     assertThat(modelMap)
@@ -347,6 +354,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     discoverySubmissionDetail.setAcceptedTimestamp(Instant.now());
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, discoverySubmissionDetail);
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(discoveryReservoirSubmissionDetailId))
         .thenReturn(discoveryReservoirSubmissionDetail);
@@ -379,7 +387,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
 
@@ -427,6 +435,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
     var fieldReservoirSubmissionDetailId = fieldReservoirSubmissionDetail.getId();
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, fieldSubmissionDetail);
 
     when(submissionDetailService.getSubmissionDetail(fieldSubmissionDetailId)).thenReturn(Optional.of(fieldSubmissionDetail));
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(fieldReservoirSubmissionDetailId))
@@ -461,7 +470,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
 
@@ -502,6 +511,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = SubmissionType.class, names = {"POST_DRILL_DRY_HOLE"})
   void saveReservoirProperties_whenInvalidForm_andDryWellSubmission_assertModelProperties(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(submissionType);
     when(reservoirPropertiesFormValidator.isValid(any(), any(), eq(reservoirSubmissionDetail), eq(ValidationType.FULL))).thenReturn(false);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
@@ -532,7 +542,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
     );
 
     assertThat(modelMap)
@@ -570,6 +580,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
   @Test
   void getReservoirPropertiesModelAndView_whenProspectSubmission_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(reservoirPropertiesFormService.getReservoirPropertiesForm(reservoirSubmissionDetail)).thenReturn(form);
 
@@ -602,7 +613,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
     );
 
     assertThat(modelMap)
@@ -655,6 +666,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     discoverySubmissionDetail.setAcceptedTimestamp(Instant.now());
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, discoverySubmissionDetail);
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
 
     var form = new ReservoirPropertiesForm();
@@ -695,7 +707,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
 
@@ -753,6 +765,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     discoverySubmissionDetail.setAcceptedTimestamp(Instant.now());
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, discoverySubmissionDetail);
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
 
     var form = new ReservoirPropertiesForm();
@@ -794,7 +807,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
 
@@ -844,6 +857,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     discoverySubmissionDetail.setAcceptedTimestamp(Instant.now());
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, discoverySubmissionDetail);
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
 
     var form = new ReservoirPropertiesForm();
@@ -885,7 +899,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
 
@@ -935,6 +949,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         fieldSubmissionDetailId);
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, fieldSubmissionDetail);
     fieldSubmissionDetail.setAcceptedTimestamp(Instant.now());
     when(submissionDetailService.getSubmissionDetail(fieldSubmissionDetailId)).thenReturn(Optional.of(fieldSubmissionDetail));
 
@@ -973,7 +988,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
 
@@ -1026,6 +1041,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
     fieldSubmissionDetail.setAcceptedTimestamp(Instant.now());
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, fieldSubmissionDetail);
     when(submissionDetailService.getSubmissionDetail(fieldSubmissionDetailId)).thenReturn(Optional.of(fieldSubmissionDetail));
 
     var form = new ReservoirPropertiesForm();
@@ -1063,7 +1079,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
 
@@ -1120,6 +1136,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
     var fieldReservoirSubmissionDetailId = fieldReservoirSubmissionDetail.getId();
     fieldSubmissionDetail.setAcceptedTimestamp(Instant.now());
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, fieldSubmissionDetail);
     when(submissionDetailService.getSubmissionDetail(fieldSubmissionDetailId)).thenReturn(Optional.of(fieldSubmissionDetail));
 
     var form = new ReservoirPropertiesForm();
@@ -1158,7 +1175,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
 
@@ -1217,6 +1234,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     var fieldReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
     var fieldReservoirSubmissionDetailId = fieldReservoirSubmissionDetail.getId();
     fieldSubmissionDetail.setAcceptedTimestamp(Instant.now());
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, fieldSubmissionDetail);
     when(submissionDetailService.getSubmissionDetail(fieldSubmissionDetailId)).thenReturn(Optional.of(fieldSubmissionDetail));
 
     var form = new ReservoirPropertiesForm();
@@ -1254,7 +1272,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
 
@@ -1324,6 +1342,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
     fieldSubmissionDetail.setAcceptedTimestamp(Instant.now());
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, fieldSubmissionDetail);
     when(submissionDetailService.getSubmissionDetail(fieldSubmissionDetailId)).thenReturn(Optional.of(fieldSubmissionDetail));
 
     var form = new ReservoirPropertiesForm();
@@ -1362,7 +1381,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
 
@@ -1415,6 +1434,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
     fieldSubmissionDetail.setAcceptedTimestamp(Instant.now());
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, fieldSubmissionDetail);
     when(submissionDetailService.getSubmissionDetail(fieldSubmissionDetailId)).thenReturn(Optional.of(fieldSubmissionDetail));
 
     var form = new ReservoirPropertiesForm();
@@ -1452,7 +1472,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
 
@@ -1504,6 +1524,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
   @Test
   void getReservoirPropertiesModelAndView_whenDryHoleSubmission_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     var form = new ReservoirPropertiesForm();
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
@@ -1532,7 +1553,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
     );
 
     assertThat(modelMap)
@@ -1575,6 +1596,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
   @Test
   void getReservoirPropertiesModelAndView_whenDiscoverySubmission_whenNoDiscoveryWell_assertHydrocarbonCasesFalse() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     var form = new ReservoirPropertiesForm();
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
@@ -1599,6 +1621,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
   @Test
   void saveReservoirProperties_whenDiscoverySubmission_whenErrors_assertErrorsAdded() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     var form = new ReservoirPropertiesForm();
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
@@ -1646,6 +1669,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(fieldSubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
     fieldSubmissionDetail.setAcceptedTimestamp(Instant.now());
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, fieldSubmissionDetail);
     when(submissionDetailService.getSubmissionDetail(fieldSubmissionDetailId)).thenReturn(Optional.of(fieldSubmissionDetail));
 
     var form = new ReservoirPropertiesForm();
@@ -1683,7 +1707,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
 

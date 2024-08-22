@@ -2,34 +2,26 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 
 @Component
 public class ResourceRecordQueryServiceFactory {
   private final RegulatorResourceRecordQueryService regulatorResourceRecordQueryService;
   private final OperatorResourceRecordQueryService operatorResourceRecordQueryService;
-  private final AreaTeamService areaTeamService;
-  private final UserService userService;
-  private final RegulatorTeamService regulatorTeamService;
+  private final InternalTeamService internalTeamService;
 
   @Autowired
   public ResourceRecordQueryServiceFactory(RegulatorResourceRecordQueryService regulatorResourceRecordQueryService,
-                                    OperatorResourceRecordQueryService operatorResourceRecordQueryService,
-                                    AreaTeamService areaTeamService,
-                                    UserService userService,
-                                    RegulatorTeamService regulatorTeamService) {
+                                           OperatorResourceRecordQueryService operatorResourceRecordQueryService,
+                                           InternalTeamService internalTeamService) {
     this.regulatorResourceRecordQueryService = regulatorResourceRecordQueryService;
     this.operatorResourceRecordQueryService = operatorResourceRecordQueryService;
-    this.areaTeamService = areaTeamService;
-    this.userService = userService;
-    this.regulatorTeamService = regulatorTeamService;
+    this.internalTeamService = internalTeamService;
   }
 
-  public ResourceRecordQueryServiceStrategy getQueryServiceStrategy() {
-    var user = userService.getUser();
-    if (regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user)) {
+  public ResourceRecordQueryServiceStrategy getQueryServiceStrategy(User user) {
+    if (internalTeamService.isRegulatorOrAreaTeamUser(user)) {
       return regulatorResourceRecordQueryService;
     } else {
       return operatorResourceRecordQueryService;

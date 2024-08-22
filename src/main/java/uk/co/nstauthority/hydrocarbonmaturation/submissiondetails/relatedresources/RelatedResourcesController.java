@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsRegulatorInResponsibleTeam;
@@ -60,15 +61,17 @@ public class RelatedResourcesController {
   @PostMapping
   public ModelAndView saveRelatedResources(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                            @ModelAttribute("form") RelatedResourcesForm form,
-                                           BindingResult bindingResult, ValidationType validationType) {
+                                           BindingResult bindingResult,
+                                           ValidationType validationType,
+                                           User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
 
-    bindingResult = relatedResourcesFormService.validate(form, bindingResult, validationType, submissionDetail);
+    bindingResult = relatedResourcesFormService.validate(form, bindingResult, validationType, submissionDetail, user);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getRelatedResourcesModelAndView(form, submissionDetail),
         () -> {
           relatedResourcesPersistenceService.saveRelatedResources(form, submissionDetail);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
         });
   }
 

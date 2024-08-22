@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
@@ -21,17 +21,17 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUt
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Controller
 @RequestMapping("field/create")
-@HasPermission(permissions = {
-    RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.ONSHORE_AREA_TEAM_MEMBER})
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.NORTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.SOUTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.ONSHORE_AREA)
 class NewFieldController {
 
   public static final String PAGE_NAME = "Create a new field";
@@ -77,7 +77,7 @@ class NewFieldController {
         .addObject("backLinkUrl", ReverseRouter.route(on(StartFieldController.class).getStartPage()))
         .addObject("pageTitle", PAGE_NAME)
         .addObject("organisationUnitEndpoint",
-            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null)))
+            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null, null)))
         .addObject("responsibleOrganisation", newFieldService
             .getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
         .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())

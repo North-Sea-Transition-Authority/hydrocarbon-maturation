@@ -11,15 +11,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamMemberService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
 @Service
@@ -27,33 +26,29 @@ public class ViewResourceRecordService {
 
   private final ResourceRecordSummaryQueryService resourceRecordSummaryQueryService;
   private final SubmissionDetailDisplayService submissionDetailDisplayService;
-  private final RegulatorTeamService regulatorTeamService;
-  private final IndustryTeamMemberService industryTeamMemberService;
   private final LicenceQueryService licenceQueryService;
   private final ResourceLinkService resourceLinkService;
   private final SubmissionDetailService submissionDetailService;
-  private final AreaTeamService areaTeamService;
   private final FieldDisplayService fieldDisplayService;
+  private final IndustryTeamService industryTeamService;
+  private final InternalTeamService internalTeamService;
 
   @Autowired
   ViewResourceRecordService(ResourceRecordSummaryQueryService resourceRecordSummaryQueryService,
                             SubmissionDetailDisplayService submissionDetailDisplayService,
-                            RegulatorTeamService regulatorTeamService,
-                            IndustryTeamMemberService industryTeamMemberService,
                             LicenceQueryService licenceQueryService,
                             ResourceLinkService resourceLinkService,
                             SubmissionDetailService submissionDetailService,
-                            AreaTeamService areaTeamService,
-                            FieldDisplayService fieldDisplayService) {
+                            FieldDisplayService fieldDisplayService,
+                            IndustryTeamService industryTeamService, InternalTeamService internalTeamService) {
     this.resourceRecordSummaryQueryService = resourceRecordSummaryQueryService;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
-    this.regulatorTeamService = regulatorTeamService;
-    this.industryTeamMemberService = industryTeamMemberService;
     this.licenceQueryService = licenceQueryService;
     this.resourceLinkService = resourceLinkService;
     this.submissionDetailService = submissionDetailService;
-    this.areaTeamService = areaTeamService;
     this.fieldDisplayService = fieldDisplayService;
+    this.industryTeamService = industryTeamService;
+    this.internalTeamService = internalTeamService;
   }
 
   public ResourceRecordSummaryView getResourceRecordOrThrow(UUID resourceId) {
@@ -107,7 +102,7 @@ public class ViewResourceRecordService {
     }
 
     var organisationUnitId = resourceRecord.responsibleOrganisationId();
-    var memberOfOrganisationUnit = industryTeamMemberService.isMemberOfOrganisationUnit(user, organisationUnitId);
+    var memberOfOrganisationUnit = industryTeamService.getOrganisationUnitIdsForUser(user).contains(organisationUnitId);
 
     var resourceIsAssociatedWithAnExtantLicence = isResourceAssociatedWithAnExtantLicence(resourceRecord);
 
@@ -115,7 +110,7 @@ public class ViewResourceRecordService {
   }
 
   public boolean isRegulatorOrAreaTeamUser(User user) {
-    return regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user);
+    return internalTeamService.isRegulatorOrAreaTeamUser(user);
   }
 
   private boolean isResourceAssociatedWithAnExtantLicence(ResourceRecordSummaryView resourceRecord) {

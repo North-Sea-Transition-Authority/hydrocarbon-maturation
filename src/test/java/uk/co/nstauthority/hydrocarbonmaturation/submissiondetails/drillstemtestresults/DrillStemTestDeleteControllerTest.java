@@ -78,6 +78,7 @@ class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest
 
   @Test
   void getDrillStemTestResultDeleteConfirmationPage_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     var drillStemTestResult = mock(DrillStemTestResult.class);
     var summaryView = DrillStemTestResultSummaryView.empty(1, "url", "url");
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
@@ -116,7 +117,7 @@ class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest
             .getWorkArea(null)),
             WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME),
+            .getTaskList(submissionDetail.getId(), null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class)
             .getReservoirTaskList(submissionDetail.getId(), null)),
             ReservoirTaskListController.PAGE_TITLE),
@@ -188,6 +189,7 @@ class DrillStemTestDeleteControllerTest extends AbstractSubmissionControllerTest
 
   @Test
   void deleteDrillStemTestResult_lastResult_assertRedirectToSummaryPage() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     var drillStemTestResult = new DrillStemTestResult();
 
     when(drillStemTestResultPersistenceService.getDrillStemTestResultByIdOrThrow(drillStemTestResultId))

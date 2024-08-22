@@ -74,6 +74,7 @@ class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getDryWellDetails_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(DryWellDetailsController.class).getDryWellDetails(submissionDetailId, null)))
@@ -83,6 +84,7 @@ class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getDryWellDetails_andTypeIsNotPostDrill_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     mockMvc.perform(
             get(ReverseRouter.route(on(DryWellDetailsController.class).getDryWellDetails(submissionDetailId, null)))
@@ -93,22 +95,23 @@ class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveDryWellDetails_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(DryWellDetailsForm.class, "form");
-    when(dryWellDetailsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    when(dryWellDetailsFormService.validate(any(), any(), any(), eq(submissionDetail), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(DryWellDetailsController.class)
-            .saveDryWellDetails(submissionDetailId, null, null, null)))
+            .saveDryWellDetails(submissionDetailId, null, null, null, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(
-            ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+            ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
 
     verify(dryWellDetailsFormService, times(1)).validate(
-        any(), any(), eq(validationType), eq(submissionDetail));
+        any(), any(), eq(validationType), eq(submissionDetail), eq(USER));
     verify(dryWellDetailsPersistenceService, times(1))
         .saveDryWellDetails(any(DryWellDetailsForm.class), eq(submissionDetail));
   }
@@ -116,27 +119,29 @@ class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveDryWellDetailsPage_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     var bindingResult = new BeanPropertyBindingResult(DryWellDetailsForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(dryWellDetailsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    when(dryWellDetailsFormService.validate(any(), any(), any(), eq(submissionDetail), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(DryWellDetailsController.class)
-            .saveDryWellDetails(submissionDetailId, null, null, null)))
+            .saveDryWellDetails(submissionDetailId, null, null, null, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().isOk());
 
     verify(dryWellDetailsFormService, times(1)).validate(
-        any(), any(), eq(validationType), eq(submissionDetail));
+        any(), any(), eq(validationType), eq(submissionDetail), any());
     verify(dryWellDetailsPersistenceService, never()).saveDryWellDetails(any(), any());
   }
 
   @Test
   void getDryWellDetailsModelAndView_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var form = new DryWellDetailsForm();
     var preselectedWell = Map.of("well1", "well1");
@@ -180,7 +185,7 @@ class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)),
             TaskListController.PAGE_NAME)
     );
   }

@@ -72,7 +72,7 @@ public class FdpaVolumesController {
 
     if (fdpaPromotedVolumesFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
       fdpaPromotedVolumesService.saveFdpaPromotedVolumes(form, submissionDetail);
-      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
     } else {
       return getModelAndViewWithErrors(form, bindingResult, submissionDetail);
     }

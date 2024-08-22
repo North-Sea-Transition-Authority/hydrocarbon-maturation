@@ -66,7 +66,7 @@ class ProjectDetailsControllerTest extends AbstractProjectTrackerControllerTest 
   void getUpdateProject_whenProjectIsNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
-    setupUserIsRegulator(user);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(ProjectDetailsController.class)

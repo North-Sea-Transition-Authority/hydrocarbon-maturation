@@ -16,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
@@ -25,6 +27,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class OutlineForMaximumCaseUploadFormServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private OutlineForMaximumCaseUploadFormValidator outlineForMaximumCaseFormValidator;
@@ -71,7 +74,7 @@ class OutlineForMaximumCaseUploadFormServiceTest {
     void verifyMethodCall() {
       var argument = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
 
-      var result = underTest.validate(form, bindingResult, VALIDATION_TYPE, submissionDetail);
+      var result = underTest.validate(form, bindingResult, VALIDATION_TYPE, submissionDetail, USER);
       verify(outlineForMaximumCaseFormValidator).validate(eq(form), eq(bindingResult), argument.capture());
 
       assertThat(result).isEqualTo(bindingResult);

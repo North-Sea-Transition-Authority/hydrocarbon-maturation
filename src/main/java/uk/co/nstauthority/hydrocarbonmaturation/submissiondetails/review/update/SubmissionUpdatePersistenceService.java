@@ -5,7 +5,7 @@ import java.time.Clock;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -17,7 +17,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionEmailServi
 class SubmissionUpdatePersistenceService {
 
   private final SubmissionUpdateRepository submissionUpdateRepository;
-  private final UserService userService;
   private final SubmissionDetailService submissionDetailService;
   private final SubmissionCreateService submissionCreateService;
   private final SubmissionEmailService submissionEmailService;
@@ -25,13 +24,11 @@ class SubmissionUpdatePersistenceService {
 
   @Autowired
   SubmissionUpdatePersistenceService(SubmissionUpdateRepository submissionUpdateRepository,
-                                     UserService userService,
                                      SubmissionDetailService submissionDetailService,
                                      SubmissionCreateService submissionCreateService,
                                      SubmissionEmailService submissionEmailService,
                                      Clock clock) {
     this.submissionUpdateRepository = submissionUpdateRepository;
-    this.userService = userService;
     this.submissionDetailService = submissionDetailService;
     this.submissionCreateService = submissionCreateService;
     this.submissionEmailService = submissionEmailService;
@@ -39,8 +36,7 @@ class SubmissionUpdatePersistenceService {
   }
 
   @Transactional
-  public void requestUpdate(SubmissionDetail submissionDetail, RequestUpdateForm form) {
-    var user = userService.getUser();
+  public void requestUpdate(SubmissionDetail submissionDetail, RequestUpdateForm form, User user) {
     var submissionUpdate = new SubmissionUpdate();
     submissionUpdate.setSubmission(submissionDetail.getSubmission());
     submissionUpdate.setReason(form.getUpdateReason());
@@ -60,15 +56,15 @@ class SubmissionUpdatePersistenceService {
   }
 
   @Transactional
-  SubmissionDetail startUpdate(SubmissionDetail parentSubmissionDetail) {
-    return submissionCreateService.createUpdateSubmissionDetail(parentSubmissionDetail);
+  SubmissionDetail startUpdate(SubmissionDetail parentSubmissionDetail, User user) {
+    return submissionCreateService.createUpdateSubmissionDetail(parentSubmissionDetail, user);
   }
 
   @Transactional
-  SubmissionUpdate resolveUpdate(SubmissionUpdate submissionUpdate) {
+  SubmissionUpdate resolveUpdate(SubmissionUpdate submissionUpdate, User user) {
     submissionUpdate.setResolved(true);
     submissionUpdate.setResolvedTimestamp(clock.instant());
-    submissionUpdate.setResolvedByWuaId(userService.getUserWuaId());
+    submissionUpdate.setResolvedByWuaId(user.wuaId().intValue());
     submissionUpdateRepository.save(submissionUpdate);
     return submissionUpdate;
   }

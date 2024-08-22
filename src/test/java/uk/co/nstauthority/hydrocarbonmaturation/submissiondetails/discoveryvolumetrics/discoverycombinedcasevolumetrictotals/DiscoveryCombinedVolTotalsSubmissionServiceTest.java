@@ -12,6 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.Errors;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverycominbedcasevolumetrictotals.DiscoveryCombinedCaseVolTotalsFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverycominbedcasevolumetrictotals.DiscoveryCombinedCaseVolTotalsService;
@@ -21,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class DiscoveryCombinedVolTotalsSubmissionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private DiscoveryCombinedCaseVolTotalsService discoveryCombinedCaseVolTotalsService;
@@ -41,7 +44,7 @@ class DiscoveryCombinedVolTotalsSubmissionServiceTest {
         eq(form), any(Errors.class), eq(submissionDetail), eq(ValidationType.FULL))
     ).thenReturn(true);
 
-    assertTrue(discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
@@ -54,6 +57,6 @@ class DiscoveryCombinedVolTotalsSubmissionServiceTest {
         eq(form), any(Errors.class), eq(submissionDetail), eq(ValidationType.FULL))
     ).thenReturn(false);
 
-    assertFalse(discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER));
   }
 }

@@ -22,6 +22,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
@@ -39,6 +41,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryKeyValue;
 
 @ExtendWith(MockitoExtension.class)
 class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
   @Mock
   private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
 
@@ -60,7 +63,7 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
   @Test
   void getSummarySection_notField_thenEmpty() {
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
-    assertThat(fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(discoverySubmissionDetail))
+    assertThat(fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(discoverySubmissionDetail, USER))
         .isEmpty();
   }
 
@@ -69,7 +72,7 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
     when(reservoirHydrocarbonCaseService.isCombinedCase(anyList()))
         .thenReturn(false);
-    assertThat(fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail))
+    assertThat(fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER))
         .isEmpty();
   }
 
@@ -95,9 +98,9 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
     when(reservoirHydrocarbonCaseService.isCombinedCase(anyList()))
         .thenReturn(true);
 
-    assertThat(fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail)).isPresent();
+    assertThat(fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER)).isPresent();
 
-    var summarySection = fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail).get();
+    var summarySection = fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER).get();
     assertThat(summarySection.displayOrder()).isEqualTo(TOTAL_GAS_VOLUMETRICS_ORDER);
 
     var summaryItems = summarySection.summaryItems();
@@ -166,9 +169,9 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
     when(reservoirHydrocarbonCaseService.isCombinedCase(anyList()))
         .thenReturn(true);
 
-    assertThat(fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail)).isPresent();
+    assertThat(fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER)).isPresent();
 
-    var summarySection = fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail).get();
+    var summarySection = fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER).get();
     assertThat(summarySection.displayOrder()).isEqualTo(TOTAL_GAS_VOLUMETRICS_ORDER);
 
     var summaryItems = summarySection.summaryItems();
@@ -221,9 +224,9 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
     when(reservoirHydrocarbonCaseService.isCombinedCase(anyList()))
         .thenReturn(true);
 
-    assertThat(fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail)).isPresent();
+    assertThat(fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER)).isPresent();
 
-    var summarySection = fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail).get();
+    var summarySection = fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER).get();
     assertThat(summarySection.displayOrder()).isEqualTo(TOTAL_GAS_VOLUMETRICS_ORDER);
 
     var summaryItems = summarySection.summaryItems();
@@ -281,7 +284,7 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_FIELD
     );
 
-    fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail);
+    fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER);
 
     verify(probabilityDistributionSummaryService, times(1))
         .getProbabilityDistributionTableViewFromInstancesAndSubmission(
@@ -321,7 +324,7 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
         ProbabilityDistributionFieldInstance.TOTAL_VOLUMETRICS_OIL_EQUIVALENT_RECOVERABLE_RESERVES_FIELD
     );
 
-    fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail);
+    fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER);
 
     verify(probabilityDistributionSummaryService, times(1))
         .getProbabilityDistributionTableViewFromInstancesAndSubmission(
@@ -355,7 +358,7 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
     when(combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(combinedCaseVolumetricTotal));
 
-    fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail);
+    fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER);
 
     var resourceAndReserveInstances = List.of(
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD,
@@ -401,7 +404,7 @@ class FieldCombinedCaseVolumetricTotalsSummaryServiceTest {
     when(combinedCaseVolumetricTotalsRepository.findBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(combinedCaseVolumetricTotal));
 
-    fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail);
+    fieldCombinedCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER);
 
     var resourceAndReserveInstances = List.of(
         ProbabilityDistributionFieldInstance.TOTAL_OIL_VOLUMETRICS_OIL_RECOVERABLE_RESOURCES_FIELD,

@@ -148,6 +148,7 @@ class FieldTrapPropertiesControllerTest extends AbstractSubmissionControllerTest
 
   @Test
   void getFieldTrapProperties_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
 
     when(fieldTrapPropertiesFormService.submissionDetailToForm(submissionDetail)).thenReturn(form);
@@ -168,7 +169,7 @@ class FieldTrapPropertiesControllerTest extends AbstractSubmissionControllerTest
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
         );
 
     assertThat(modelMap)
@@ -197,6 +198,7 @@ class FieldTrapPropertiesControllerTest extends AbstractSubmissionControllerTest
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveFieldTrapProperties_whenValidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(fieldTrapPropertiesFormValidator.isValid(
@@ -224,6 +226,7 @@ class FieldTrapPropertiesControllerTest extends AbstractSubmissionControllerTest
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveFieldTrapProperties_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(fieldTrapPropertiesFormValidator.isValid(

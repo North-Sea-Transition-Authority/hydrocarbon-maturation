@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedsanctionedwells.PlannedSanctionedWellsController;
@@ -30,7 +31,7 @@ public class WellInformationTaskListSectionService implements TaskListSectionSer
   }
 
   @Override
-  public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail) {
+  public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail, User user) {
     var isNotFdpOrFdpa = !(submissionDetail.isFieldDevelopmentPlanSubmission()
         || submissionDetail.isFieldDevelopmentPlanAddendumSubmission());
 
@@ -38,25 +39,25 @@ public class WellInformationTaskListSectionService implements TaskListSectionSer
       return Optional.empty();
     }
 
-    var items = getTaskListItemsBySubmissionType(submissionDetail);
+    var items = getTaskListItemsBySubmissionType(submissionDetail, user);
 
     return Optional.of(new TaskListSection(SECTION_NAME, 15, items));
   }
 
   @Override
-  public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
-    return plannedSanctionedWellsSubmissionService.isSectionSubmittable(submissionDetail)
-        && plannedUnsanctionedWellsSubmissionService.isSectionSubmittable(submissionDetail);
+  public Boolean isSectionSubmittable(SubmissionDetail submissionDetail, User user) {
+    return plannedSanctionedWellsSubmissionService.isSectionSubmittable(submissionDetail, user)
+        && plannedUnsanctionedWellsSubmissionService.isSectionSubmittable(submissionDetail, user);
   }
 
-  private List<TaskListItem> getTaskListItemsBySubmissionType(SubmissionDetail submissionDetail) {
+  private List<TaskListItem> getTaskListItemsBySubmissionType(SubmissionDetail submissionDetail, User user) {
     var listOfItems = new ArrayList<TaskListItem>();
 
     listOfItems.add(
         new TaskListItem(
             PlannedSanctionedWellsController.PAGE_NAME,
             TaskListLabel.notStartedOrComplete(
-                plannedSanctionedWellsSubmissionService.isSectionSubmittable(submissionDetail)),
+                plannedSanctionedWellsSubmissionService.isSectionSubmittable(submissionDetail, user)),
             ReverseRouter.route(on(PlannedSanctionedWellsController.class)
                 .getPlannedSanctionedWells(submissionDetail.getId())))
     );
@@ -65,7 +66,7 @@ public class WellInformationTaskListSectionService implements TaskListSectionSer
         new TaskListItem(
             PlannedUnsanctionedWellsController.PAGE_NAME,
             TaskListLabel.notStartedOrComplete(
-                plannedUnsanctionedWellsSubmissionService.isSectionSubmittable(submissionDetail)),
+                plannedUnsanctionedWellsSubmissionService.isSectionSubmittable(submissionDetail, user)),
             ReverseRouter.route(on(PlannedUnsanctionedWellsController.class)
                 .getPlannedUnsanctionedWells(submissionDetail.getId())))
     );

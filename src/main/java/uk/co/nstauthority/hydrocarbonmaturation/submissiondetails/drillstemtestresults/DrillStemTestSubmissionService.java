@@ -30,7 +30,7 @@ public class DrillStemTestSubmissionService implements ReservoirSectionSubmissio
 
     var form = drillStemTestFormService.getDrillStemTestInitialForm(reservoirSubmissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult = drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
+    bindingResult = drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail, null);
     var drillStemTestResults = drillStemTestResultPersistenceService
         .getDrillStemTestResultsByReservoirSubmissionDetail(reservoirSubmissionDetail);
     var hasErrors = drillStemTestResultFormService.validateDrillStemTestResults(

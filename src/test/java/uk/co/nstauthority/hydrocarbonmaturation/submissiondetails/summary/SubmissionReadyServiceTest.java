@@ -11,12 +11,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListSectionService;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionReadyServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   private SubmissionReadyService submissionReadyService;
   private List<TaskListSectionService> taskListSectionServices;
@@ -39,17 +42,17 @@ class SubmissionReadyServiceTest {
 
   @Test
   void isSubmissionSubmittable_whenSectionsSubmittable_assertTrue() {
-    when(taskListSectionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(taskListSectionService2.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(taskListSectionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(taskListSectionService2.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
 
-    assertTrue(submissionReadyService.isSubmissionSubmittable(submissionDetail));
+    assertTrue(submissionReadyService.isSubmissionSubmittable(submissionDetail, USER));
   }
 
   @Test
   void isSubmissionSubmittable_whenSectionNotSubmittable_assertTrue() {
-    when(taskListSectionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(taskListSectionService2.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    when(taskListSectionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(taskListSectionService2.isSectionSubmittable(submissionDetail, USER)).thenReturn(false);
 
-    assertFalse(submissionReadyService.isSubmissionSubmittable(submissionDetail));
+    assertFalse(submissionReadyService.isSubmissionSubmittable(submissionDetail, USER));
   }
 }

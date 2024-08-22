@@ -93,6 +93,7 @@ class OilCaseVolumetricParametersControllerTest extends AbstractSubmissionContro
 
   @SecurityTest
   void getOilCaseVolumetrics_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(OilCaseVolumetricParametersController.class)
@@ -103,6 +104,7 @@ class OilCaseVolumetricParametersControllerTest extends AbstractSubmissionContro
 
   @SecurityTest
   void getOilCaseVolumetrics_andTypeIsNotDiscoveryOrProspect_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     mockMvc.perform(
             get(ReverseRouter.route(on(OilCaseVolumetricParametersController.class)
@@ -135,6 +137,7 @@ class OilCaseVolumetricParametersControllerTest extends AbstractSubmissionContro
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveOilCaseVolumetrics_whenValidForm_assertRedirection_whenProspect(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(oilCaseVolumetricParametersFormValidator.isValid(any(), any(), eq(submissionDetail), any())).thenReturn(true);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
@@ -145,7 +148,7 @@ class OilCaseVolumetricParametersControllerTest extends AbstractSubmissionContro
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
 
     verify(oilCaseVolumetricParametersPersistenceService, times(1)).saveOilCaseVolumetrics(any(OilCaseVolumetricParametersForm.class), eq(reservoirSubmissionDetail));
   }
@@ -153,6 +156,7 @@ class OilCaseVolumetricParametersControllerTest extends AbstractSubmissionContro
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveOilCaseVolumetrics_whenValidForm_assertRedirection_whenDiscovery(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     when(oilCaseVolumetricParametersFormValidator.isValid(any(), any(), eq(submissionDetail), any())).thenReturn(true);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
@@ -172,6 +176,7 @@ class OilCaseVolumetricParametersControllerTest extends AbstractSubmissionContro
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveOilCaseVolumetrics_partialValidation_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
     when(oilCaseVolumetricParametersFormValidator.isValid(any(), any(), eq(submissionDetail), any())).thenReturn(false);
 
@@ -188,6 +193,7 @@ class OilCaseVolumetricParametersControllerTest extends AbstractSubmissionContro
 
   @Test
   void getOilCaseVolumetricsModelAndView_whenProspect_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(oilCaseVolumetricParametersFormService.getOilCaseVolumetricsForm(reservoirSubmissionDetail)).thenReturn(
         form);
@@ -204,7 +210,7 @@ class OilCaseVolumetricParametersControllerTest extends AbstractSubmissionContro
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
         );
 
     assertThat(modelMap)
@@ -233,6 +239,7 @@ class OilCaseVolumetricParametersControllerTest extends AbstractSubmissionContro
     discoverySubmissionDetail.setAcceptedTimestamp(Instant.now());
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, discoverySubmissionDetail);
 
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
     when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
@@ -252,7 +259,7 @@ class OilCaseVolumetricParametersControllerTest extends AbstractSubmissionContro
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME),
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId, null)), TaskListController.PAGE_NAME),
             entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
         );
 

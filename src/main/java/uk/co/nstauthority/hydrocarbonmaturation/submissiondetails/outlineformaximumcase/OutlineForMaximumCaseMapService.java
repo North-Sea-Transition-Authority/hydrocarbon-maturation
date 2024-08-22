@@ -24,6 +24,6 @@ public class OutlineForMaximumCaseMapService {
 
   String getMapGeoJsonDataRoute(SubmissionDetail submissionDetail) {
     return ReverseRouter.route(on(OutlineForMaximumCaseRestController.class)
-        .getGeoJsonForOutlineForMaximumCase(submissionDetail.getId()));
+        .getGeoJsonForOutlineForMaximumCase(submissionDetail.getId(), null));
   }
 }

@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
@@ -25,16 +24,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSubmissionStatusService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionEmailService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionApprovalServiceTest {
@@ -46,21 +43,17 @@ class SubmissionApprovalServiceTest {
   @Mock
   private FieldSubmissionStatusService fieldSubmissionStatusService;
   @Mock
-  private RegulatorTeamService regulatorTeamService;
-  @Mock
-  private UserService userService;
-  @Mock
   private SubmissionEmailService submissionEmailService;
   @Mock
   private SubmissionUpdateService submissionUpdateService;
   @Mock
   private ResponsibleTeamService responsibleTeamService;
   @Mock
-  private AreaTeamService areaTeamService;
-  @Mock
   private ReservoirTotalsCleanAndCopyService reservoirTotalsCleanAndCopyService;
   @Mock
   private ReservoirSubmissionSectionService reservoirSubmissionSectionService;
+  @Mock
+  private InternalTeamService internalTeamService;
   @InjectMocks
   private SubmissionApprovalService submissionApprovalService;
 
@@ -83,7 +76,7 @@ class SubmissionApprovalServiceTest {
       submissionDetail.setSubmissionType(submissionType);
       submissionDetail.setCorrection(false);
 
-      submissionApprovalService.submitSubmission(submissionDetail);
+      submissionApprovalService.submitSubmission(submissionDetail, USER);
 
       verify(fieldSubmissionStatusService, times(1)).updateFieldStatusForSubmission(submissionDetail);
       verifyNoMoreInteractions(fieldSubmissionStatusService);
@@ -98,7 +91,7 @@ class SubmissionApprovalServiceTest {
     void whenNotFieldSubmission_thenVerifyNoFieldStatusUpdate(SubmissionType submissionType) {
       submissionDetail.setSubmissionType(submissionType);
 
-      submissionApprovalService.submitSubmission(submissionDetail);
+      submissionApprovalService.submitSubmission(submissionDetail, USER);
 
       verifyNoInteractions(fieldSubmissionStatusService);
     }
@@ -106,16 +99,14 @@ class SubmissionApprovalServiceTest {
     @Test
     void whenVersionNumberGreaterThanOne_thenVerifyUpdateResolved() {
       submissionDetail.setVersionNumber(2);
-      when(userService.getUser()).thenReturn(USER);
-      when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
-      when(areaTeamService.isAreaUser(USER)).thenReturn(false);
+      when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
 
-      submissionApprovalService.submitSubmission(submissionDetail);
+      submissionApprovalService.submitSubmission(submissionDetail, USER);
 
       verify(reservoirTotalsCleanAndCopyService).cleanAndCopyVolumetricTotals(submissionDetail);
-      verify(submissionDetailPersistenceService).submitSubmission(submissionDetail);
+      verify(submissionDetailPersistenceService).submitSubmission(submissionDetail, USER);
       verify(submissionUpdateService, times(1))
-          .resolveUpdateOnSubmission(submissionDetail);
+          .resolveUpdateOnSubmission(submissionDetail, USER);
       verify(submissionEmailService, times(1))
           .sendSubmissionConfirmationEmails(submissionDetail);
     }
@@ -124,7 +115,7 @@ class SubmissionApprovalServiceTest {
     void whenCorrection_thenVerifyOnlyStatusUpdated() {
       submissionDetail.setCorrection(true);
 
-      submissionApprovalService.submitSubmission(submissionDetail);
+      submissionApprovalService.submitSubmission(submissionDetail, USER);
 
       verify(reservoirTotalsCleanAndCopyService).cleanAndCopyVolumetricTotals(submissionDetail);
       var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
@@ -137,35 +128,26 @@ class SubmissionApprovalServiceTest {
     @Test
     void andCanNotAutoApprove_ThenVerifyCallToSubmit() {
       submissionDetail.setVersionNumber(1);
-      when(userService.getUser()).thenReturn(USER);
-      when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
-      when(areaTeamService.isAreaUser(USER)).thenReturn(false);
+      when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
 
-      submissionApprovalService.submitSubmission(submissionDetail);
+      submissionApprovalService.submitSubmission(submissionDetail, USER);
 
       verify(reservoirTotalsCleanAndCopyService).cleanAndCopyVolumetricTotals(submissionDetail);
-      verify(submissionDetailPersistenceService).submitSubmission(submissionDetail);
+      verify(submissionDetailPersistenceService).submitSubmission(submissionDetail, USER);
       verifyNoInteractions(submissionUpdateService);
       verify(submissionEmailService, times(1))
           .sendSubmissionConfirmationEmails(submissionDetail);
     }
 
-    @ParameterizedTest
-    @CsvSource(value = { "true, true",
-                         "true, false",
-                         "false, true"})
-    void andCanAutoApprove_ThenVerifyCallsToSubmitAndApprove(boolean isRegulatorUser, boolean isAreaUser) {
-      when(userService.getUser()).thenReturn(USER);
-      when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(isRegulatorUser);
-      if (!isRegulatorUser) {
-        when(areaTeamService.isAreaUser(USER)).thenReturn(isAreaUser);
-      }
+    @Test
+    void andCanAutoApprove_ThenVerifyCallsToSubmitAndApprove() {
+      when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
-      submissionApprovalService.submitSubmission(submissionDetail);
+      submissionApprovalService.submitSubmission(submissionDetail, USER);
 
       verify(reservoirTotalsCleanAndCopyService).cleanAndCopyVolumetricTotals(submissionDetail);
-      verify(submissionDetailPersistenceService).submitSubmission(submissionDetail);
-      verify(submissionDetailPersistenceService).approveSubmission(submissionDetail);
+      verify(submissionDetailPersistenceService).submitSubmission(submissionDetail, USER);
+      verify(submissionDetailPersistenceService).approveSubmission(submissionDetail, USER);
       verifyNoInteractions(submissionEmailService);
       verifyNoInteractions(submissionUpdateService);
     }
@@ -176,14 +158,11 @@ class SubmissionApprovalServiceTest {
         names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"}
     )
     void andCanAutoApprove_whenFieldSubmission_verifyFieldStatusUpdate(SubmissionType submissionType) {
-      var isRegulatorUser = true;
-
       submissionDetail.setSubmissionType(submissionType);
 
-      when(userService.getUser()).thenReturn(USER);
-      when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(isRegulatorUser);
+      when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
-      submissionApprovalService.submitSubmission(submissionDetail);
+      submissionApprovalService.submitSubmission(submissionDetail, USER);
 
       verify(fieldSubmissionStatusService, times(1)).updateFieldStatusForAcceptance(submissionDetail);
       verifyNoMoreInteractions(fieldSubmissionStatusService);
@@ -197,14 +176,11 @@ class SubmissionApprovalServiceTest {
         mode = EnumSource.Mode.EXCLUDE
     )
     void andCanAutoApprove_whenNotFieldSubmission_verifyNoFieldStatusUpdate(SubmissionType submissionType) {
-      var isRegulatorUser = true;
-
       submissionDetail.setSubmissionType(submissionType);
 
-      when(userService.getUser()).thenReturn(USER);
-      when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(isRegulatorUser);
+      when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
-      submissionApprovalService.submitSubmission(submissionDetail);
+      submissionApprovalService.submitSubmission(submissionDetail, USER);
 
       verifyNoInteractions(fieldSubmissionStatusService);
       verifyNoInteractions(submissionEmailService);
@@ -215,7 +191,7 @@ class SubmissionApprovalServiceTest {
     void whenFieldSubmission_thenVerifyCallsToCleanReservoirData(SubmissionType submissionType) {
       submissionDetail.setSubmissionType(submissionType);
 
-      submissionApprovalService.submitSubmission(submissionDetail);
+      submissionApprovalService.submitSubmission(submissionDetail, USER);
 
       verify(reservoirTotalsCleanAndCopyService, times(1))
           .cleanAndCopyVolumetricTotals(submissionDetail);
@@ -245,18 +221,16 @@ class SubmissionApprovalServiceTest {
 
     @Test
     void approveSubmission_verifyMethodCalls_whenCanApprove() {
-      when(userService.getUser()).thenReturn(USER);
-      when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
+      when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail))
           .thenReturn(true);
-      submissionApprovalService.approveSubmissionOrThrow(submissionDetail);
-      verify(submissionDetailPersistenceService).approveSubmission(submissionDetail);
+      submissionApprovalService.approveSubmissionOrThrow(submissionDetail, USER);
+      verify(submissionDetailPersistenceService).approveSubmission(submissionDetail, USER);
       verify(submissionEmailService).sendSubmissionApprovalEmail(submissionDetail);
     }
 
     @Test
     void approveSubmission_verifyNoMethodCalls_whenCannotApprove() {
-      when(userService.getUserWuaId()).thenReturn(1);
-      assertThatThrownBy(() -> submissionApprovalService.approveSubmissionOrThrow(submissionDetail))
+      assertThatThrownBy(() -> submissionApprovalService.approveSubmissionOrThrow(submissionDetail, USER))
           .isExactlyInstanceOf(ActionNotAllowedException.class)
           .hasMessage("Submission cannot be accepted by user with ID %s"
               .formatted(USER.wuaId()));
@@ -270,12 +244,11 @@ class SubmissionApprovalServiceTest {
         names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"}
     )
     void approveSubmission_canApproveAndFieldSubmission_thenVerifyFieldStatusUpdate(SubmissionType submissionType) {
-      when(userService.getUser()).thenReturn(USER);
-      when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
+      when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail))
           .thenReturn(true);
       submissionDetail.setSubmissionType(submissionType);
 
-      submissionApprovalService.approveSubmissionOrThrow(submissionDetail);
+      submissionApprovalService.approveSubmissionOrThrow(submissionDetail, USER);
 
       verify(fieldSubmissionStatusService, times(1)).updateFieldStatusForAcceptance(submissionDetail);
       verifyNoMoreInteractions(fieldSubmissionStatusService);
@@ -288,43 +261,39 @@ class SubmissionApprovalServiceTest {
         mode = EnumSource.Mode.EXCLUDE
     )
     void approveSubmission_canApproveAndNotFieldSubmission_thenVerifyNoFieldStatusUpdate(SubmissionType submissionType) {
-      when(userService.getUser()).thenReturn(USER);
-      when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
+      when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail))
           .thenReturn(true);
 
       submissionDetail.setSubmissionType(submissionType);
 
-      submissionApprovalService.approveSubmissionOrThrow(submissionDetail);
+      submissionApprovalService.approveSubmissionOrThrow(submissionDetail, USER);
 
       verifyNoInteractions(fieldSubmissionStatusService);
     }
 
     @Test
     void canApproveSubmission_whenRegulator_inResponsibleTeam() {
-      when(userService.getUser()).thenReturn(USER);
-      when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
+      when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail))
           .thenReturn(true);
 
-      assertThat(submissionApprovalService.canApproveSubmission(submissionDetail)).isTrue();
+      assertThat(submissionApprovalService.canApproveSubmission(submissionDetail, USER)).isTrue();
     }
 
     @Test
     void canApproveSubmission_whenRegulator_notInResponsibleTeam() {
-      when(userService.getUser()).thenReturn(USER);
-      when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
+      when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail))
           .thenReturn(false);
 
-      assertThat(submissionApprovalService.canApproveSubmission(submissionDetail)).isFalse();
+      assertThat(submissionApprovalService.canApproveSubmission(submissionDetail, USER)).isFalse();
     }
 
     @Test
     void canApproveSubmission_whenRegulator_inResponsibleTeam_hasUnresolvedUpdate_assertFalse() {
-      when(userService.getUser()).thenReturn(USER);
-      when(responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail))
+      when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail))
           .thenReturn(true);
       when(submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission()))
           .thenReturn(true);
-      assertThat(submissionApprovalService.canApproveSubmission(submissionDetail)).isFalse();
+      assertThat(submissionApprovalService.canApproveSubmission(submissionDetail, USER)).isFalse();
     }
   }
 }

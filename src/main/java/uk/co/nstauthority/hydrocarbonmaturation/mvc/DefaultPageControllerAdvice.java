@@ -3,8 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.mvc;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.ui.Model;
@@ -26,7 +24,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ControllerAdvice
 public class DefaultPageControllerAdvice {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPageControllerAdvice.class);
 
   private final ServiceBrandingConfigurationProperties serviceBrandingConfigurationProperties;
   private final TopNavigationService topNavigationService;

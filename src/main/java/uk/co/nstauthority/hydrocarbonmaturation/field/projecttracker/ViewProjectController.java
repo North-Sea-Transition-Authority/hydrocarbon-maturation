@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,15 +12,16 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorOrAreaUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsExtantProject;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbItem;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchFieldRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}/project-tracker")
@@ -30,15 +30,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecor
 public class ViewProjectController {
   private final ProjectService projectService;
   private final ProjectSummaryService projectSummaryService;
-  private final PermissionService permissionService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   public ViewProjectController(ProjectService projectService,
                                ProjectSummaryService projectSummaryService,
-                               PermissionService permissionService) {
+                               TeamQueryService teamQueryService) {
     this.projectService = projectService;
     this.projectSummaryService = projectSummaryService;
-    this.permissionService = permissionService;
+    this.teamQueryService = teamQueryService;
   }
 
   @GetMapping("/{projectId}")
@@ -56,7 +56,7 @@ public class ViewProjectController {
   }
 
   private ModelAndView getViewProjectModelAndView(Project project, User user) {
-    var summarySections = projectSummaryService.getSummarySections(project);
+    var summarySections = projectSummaryService.getSummarySections(project, user);
 
     var modelAndView = new ModelAndView("remi/field/projecttracker/viewProject")
         .addObject("pageTitle", project.getProjectName())
@@ -64,11 +64,11 @@ public class ViewProjectController {
         .addObject("summarySections", summarySections)
         .addObject("accordionId", project.getId().toString());
 
-    if (permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))) {
+    if (teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)) {
       modelAndView.addObject(
           "deleteUrl",
           ReverseRouter.route(on(DeleteProjectController.class)
-              .getDeleteProjectConfirmation(project.getField().getResource().getId(), project.getId()))
+              .getDeleteProjectConfirmation(project.getField().getResource().getId(), project.getId(), null))
       );
     }
 
@@ -87,7 +87,7 @@ public class ViewProjectController {
         .addBreadcrumb(new BreadcrumbItem(
             project.getField().getCorrectedLegalFieldName(),
             ReverseRouter.route(on(ViewResourceRecordController.class)
-                .showResourceRecord(project.getField().getResource().getId()))
+                .showResourceRecord(project.getField().getResource().getId(), null))
         ))
         .addBreadcrumb(new BreadcrumbItem(
             ProjectListController.PAGE_TITLE,

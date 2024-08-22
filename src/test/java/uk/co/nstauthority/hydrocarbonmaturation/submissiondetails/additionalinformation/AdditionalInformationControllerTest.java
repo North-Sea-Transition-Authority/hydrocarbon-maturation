@@ -113,18 +113,18 @@ class AdditionalInformationControllerTest extends AbstractSubmissionControllerTe
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveAdditionalInformationPage_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(additionalInformationFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(additionalInformationFormService.validate(any(), any(), any(), any(), any())).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
         .thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(AdditionalInformationController.class)
-                .saveAdditionalInformation(submissionDetail.getId(), form, bindingResult, null)))
+                .saveAdditionalInformation(submissionDetail.getId(), form, bindingResult, null, null)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId()))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId(), null))));
 
     verify(additionalInformationPersistenceService, times(1))
         .saveAdditionalInformation(any(AdditionalInformationForm.class), eq(submissionDetail));
@@ -135,14 +135,14 @@ class AdditionalInformationControllerTest extends AbstractSubmissionControllerTe
   void saveAdditionalInformationPage_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
-    when(additionalInformationFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(additionalInformationFormService.validate(any(), any(), any(), any(), any())).thenReturn(bindingResult);
     when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), eq(FileDocumentType.ADDITIONAL_DOCUMENT), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(AdditionalInformationController.class)
-                .saveAdditionalInformation(submissionDetail.getId(), form, bindingResult, null)))
+                .saveAdditionalInformation(submissionDetail.getId(), form, bindingResult, null, null)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(user(USER))
                 .with(csrf()))

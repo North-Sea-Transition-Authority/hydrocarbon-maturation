@@ -99,6 +99,7 @@ class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionCont
 
   @SecurityTest
   void getMixedCaseVolumetrics_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(MixedCaseVolumetricParametersController.class)
@@ -109,6 +110,7 @@ class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionCont
 
   @SecurityTest
   void getMixedCaseVolumetrics_andTypeNotProspectOrDiscovery_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     mockMvc.perform(
             get(ReverseRouter.route(on(MixedCaseVolumetricParametersController.class)
@@ -140,6 +142,7 @@ class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionCont
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveMixedCaseVolumetrics_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(mixedCaseVolumetricParametersFormValidator.isValid(
         any(SubmissionForm.class),
         any(Errors.class),
@@ -155,7 +158,7 @@ class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionCont
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
 
     verify(mixedCaseVolumetricParametersPersistenceService, times(1)).saveMixedCaseVolumetrics(any(
         MixedCaseVolumetricParametersForm.class), eq(reservoirSubmissionDetail));
@@ -164,6 +167,7 @@ class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionCont
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveMixedCaseVolumetrics_partialValidation_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(mixedCaseVolumetricParametersFormValidator.isValid(
@@ -188,6 +192,7 @@ class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionCont
 
   @Test
   void getMixedCaseVolumetricsModelAndView_whenProspect_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(mixedCaseVolumetricParametersFormService.getMixedCaseVolumetricsForm(reservoirSubmissionDetail)).thenReturn(
         form);
@@ -204,7 +209,7 @@ class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionCont
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
         );
 
     assertThat(modelMap)
@@ -253,6 +258,7 @@ class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionCont
     discoverySubmissionDetail.setAcceptedTimestamp(Instant.now());
     var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
     var discoveryReservoirSubmissionDetailId = discoveryReservoirSubmissionDetail.getId();
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, discoverySubmissionDetail);
 
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
     when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
@@ -271,7 +277,7 @@ class MixedCaseVolumetricParametersControllerTest extends AbstractSubmissionCont
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME)
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId, null)), TaskListController.PAGE_NAME)
         );
 
     assertThat(modelMap)

@@ -16,7 +16,6 @@ import uk.co.fivium.fileuploadlibrary.core.FileService;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.FileDeleteResponse;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUsageType;
@@ -34,17 +33,14 @@ public class SubmissionSupportingDocumentsController {
   private final SubmissionSupportingDocumentService submissionSupportingDocumentService;
   private final SubmissionDetailService submissionDetailService;
   private final FileService fileService;
-  private final UserService userService;
 
   @Autowired
   public SubmissionSupportingDocumentsController(SubmissionSupportingDocumentService submissionSupportingDocumentService,
                                                  SubmissionDetailService submissionDetailService,
-                                                 FileService fileService,
-                                                 UserService userService) {
+                                                 FileService fileService) {
     this.submissionSupportingDocumentService = submissionSupportingDocumentService;
     this.submissionDetailService = submissionDetailService;
     this.fileService = fileService;
-    this.userService = userService;
   }
 
   @GetMapping("download/{fileId}")
@@ -65,7 +61,7 @@ public class SubmissionSupportingDocumentsController {
   }
 
   @PostMapping("/delete/{fileId}")
-  public FileDeleteResponse delete(@PathVariable UUID submissionDetailId, @PathVariable String fileId) {
+  public FileDeleteResponse delete(@PathVariable UUID submissionDetailId, @PathVariable String fileId, User user) {
 
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
 
@@ -75,7 +71,6 @@ public class SubmissionSupportingDocumentsController {
             "Unable to convert file id [%s] to UUID".formatted(fileId)
         ));
 
-    var user = userService.getUser();
     return fileService.find(fileUuid)
         .filter(uploadedFile -> canAccessFile(uploadedFile, user, submissionDetail))
         .map(fileService::delete)

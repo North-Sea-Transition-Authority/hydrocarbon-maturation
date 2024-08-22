@@ -15,30 +15,27 @@ import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NumberUtil;
 
 @Service
-class OperatorResourceRecordQueryService implements ResourceRecordQueryServiceStrategy {
+public class OperatorResourceRecordQueryService implements ResourceRecordQueryServiceStrategy {
 
-  private final UserService userService;
   private final IndustryTeamService industryTeamService;
   private final LicenceQueryService licenceQueryService;
   private final DSLContext context;
   private final ResourceQueryCommonService resourceQueryCommonService;
 
   @Autowired
-  OperatorResourceRecordQueryService(UserService userService,
-                                     IndustryTeamService industryTeamService,
+  OperatorResourceRecordQueryService(IndustryTeamService industryTeamService,
                                      LicenceQueryService licenceQueryService,
                                      DSLContext context,
                                      ResourceQueryCommonService resourceQueryCommonService) {
-    this.userService = userService;
     this.industryTeamService = industryTeamService;
     this.licenceQueryService = licenceQueryService;
     this.context = context;
@@ -46,10 +43,9 @@ class OperatorResourceRecordQueryService implements ResourceRecordQueryServiceSt
   }
 
   @Override
-  public List<ResourceRecordQueryResult> getResourceRecordSearchResults(SearchResourceRecordsForm form) {
-    var user = userService.getUser();
-    var userOrgUnitIds = industryTeamService.getOrganisationUnitIdsForUserWithIndustryTeamRoles(
-          user, Set.of(IndustryTeamRole.SUBMITTER, IndustryTeamRole.VIEWER));
+  public List<ResourceRecordQueryResult> getResourceRecordSearchResults(SearchResourceRecordsForm form, User user) {
+    var userOrgUnitIds = industryTeamService.getOrganisationUnitIdsForUserWithRoles(
+          user, Set.of(Role.INDUSTRY_SUBMIT, Role.INDUSTRY_VIEWER));
 
     var resourceTypes = form.getResourceTypes();
     if (resourceTypes.contains(ResourceType.FIELD.getEnumName())) {

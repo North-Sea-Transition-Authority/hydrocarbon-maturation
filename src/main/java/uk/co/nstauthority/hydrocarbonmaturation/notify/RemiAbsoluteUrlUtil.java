@@ -24,19 +24,19 @@ public class RemiAbsoluteUrlUtil {
 
   public static String getSystemOfRecordResourceUrl(Resource resource) {
     var resourceSystemOfRecordUrl = ReverseRouter.route(on(ViewResourceRecordController.class)
-        .showResourceRecord(resource.getId()));
+        .showResourceRecord(resource.getId(), null));
     return "%s%s".formatted(getBaseUrl(), resourceSystemOfRecordUrl);
   }
 
   public static String getReviewSubmissionPageUrl(SubmissionDetail submissionDetail) {
     var reviewPageUrl = ReverseRouter.route(on(ReviewSubmissionController.class)
-        .showReviewPage(submissionDetail.getSubmission().getResource().getId()));
+        .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null));
     return "%s%s".formatted(getBaseUrl(), reviewPageUrl);
   }
 
   public static String getTasklistPageUrl(SubmissionDetail submissionDetail) {
     var tasklistUrl = ReverseRouter.route(on(TaskListController.class)
-        .getTaskList(submissionDetail.getId()));
+        .getTaskList(submissionDetail.getId(), null));
     return "%s%s".formatted(getBaseUrl(), tasklistUrl);
   }
 

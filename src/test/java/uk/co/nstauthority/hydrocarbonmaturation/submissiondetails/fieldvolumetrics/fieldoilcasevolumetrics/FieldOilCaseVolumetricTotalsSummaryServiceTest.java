@@ -15,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -30,6 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryKeyValue;
 
 @ExtendWith(MockitoExtension.class)
 class FieldOilCaseVolumetricTotalsSummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
@@ -52,7 +55,7 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
   @Test
   void getSummarySection_notField_thenEmpty() {
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
-    assertThat(fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(discoverySubmissionDetail))
+    assertThat(fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(discoverySubmissionDetail, USER))
         .isEmpty();
   }
 
@@ -68,7 +71,7 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
     when(reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails))
         .thenReturn(false);
 
-    assertThat(fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail))
+    assertThat(fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER))
         .isEmpty();
   }
 
@@ -95,9 +98,9 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
             eq(null)
         )).thenReturn(probabilityTableView);
 
-    assertThat(fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail)).isPresent();
+    assertThat(fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER)).isPresent();
 
-    var summarySection = fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail).get();
+    var summarySection = fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER).get();
     assertThat(summarySection.displayOrder()).isEqualTo(TOTAL_OIL_VOLUMETRICS_ORDER);
 
     var summaryItems = summarySection.summaryItems();
@@ -156,9 +159,9 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
             eq(null)
         )).thenReturn(probabilityTableView);
 
-    assertThat(fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail)).isPresent();
+    assertThat(fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER)).isPresent();
 
-    var summarySection = fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail).get();
+    var summarySection = fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER).get();
     assertThat(summarySection.displayOrder()).isEqualTo(TOTAL_OIL_VOLUMETRICS_ORDER);
 
     var summaryItems = summarySection.summaryItems();
@@ -221,9 +224,9 @@ class FieldOilCaseVolumetricTotalsSummaryServiceTest {
             eq(null)
         )).thenReturn(probabilityTableView);
 
-    assertThat(fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail)).isPresent();
+    assertThat(fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER)).isPresent();
 
-    var summarySection = fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail).get();
+    var summarySection = fieldOilCaseVolumetricTotalsSummaryService.getSummarySection(submissionDetail, USER).get();
     assertThat(summarySection.displayOrder()).isEqualTo(TOTAL_OIL_VOLUMETRICS_ORDER);
 
     var summaryItems = summarySection.summaryItems();

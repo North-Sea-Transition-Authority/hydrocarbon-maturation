@@ -78,7 +78,7 @@ public class FieldOilCaseVolumetricTotalsController {
       return getFieldOilCaseVolumetricTotalsModelAndViewWithErrors(bindingResult, form, submissionDetail);
     } else {
       fieldOilCaseVolumetricTotalsService.saveFieldOilCaseVolumetricTotals(form, submissionDetail);
-      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
     }
   }
 

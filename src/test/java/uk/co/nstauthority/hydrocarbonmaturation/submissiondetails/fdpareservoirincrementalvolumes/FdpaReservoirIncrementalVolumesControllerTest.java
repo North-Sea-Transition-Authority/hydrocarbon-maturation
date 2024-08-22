@@ -57,6 +57,7 @@ class FdpaReservoirIncrementalVolumesControllerTest extends AbstractSubmissionCo
 
   @Test
   void getIncrementalVolumes_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_FDPA);
 
     var form = new FdpaReservoirIncrementalVolumesForm();
@@ -103,6 +104,7 @@ class FdpaReservoirIncrementalVolumesControllerTest extends AbstractSubmissionCo
   @EnumSource(value = SubmissionType.class, names = {"CREATE_FDPA"}, mode = EnumSource.Mode.EXCLUDE)
   void getFdpaReservoirIncrementalVolumes_andTypeIsNotFdpa_assertForbidden(
       SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
     mockMvc.perform(
             get(ReverseRouter.route(on(FdpaReservoirIncrementalVolumesController.class)
@@ -125,6 +127,7 @@ class FdpaReservoirIncrementalVolumesControllerTest extends AbstractSubmissionCo
   @EnumSource(value = SubmissionDetailStatus.class, names = {"DRAFT"}, mode = EnumSource.Mode.EXCLUDE)
   void getFdpaReservoirIncrementalVolumes_whenIsNotDraft_assertForbidden(
       SubmissionDetailStatus submissionDetailStatus) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setStatus(submissionDetailStatus);
     mockMvc.perform(
             get(ReverseRouter.route(on(FdpaReservoirIncrementalVolumesController.class)
@@ -143,6 +146,7 @@ class FdpaReservoirIncrementalVolumesControllerTest extends AbstractSubmissionCo
 
   @Test
   void getIncrementalVolumes_whenReservoirNotCarriedForward_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_FDPA);
 
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(
@@ -163,6 +167,7 @@ class FdpaReservoirIncrementalVolumesControllerTest extends AbstractSubmissionCo
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveFdpaReservoirIncrementalVolumes_whenValidForm_assertSaveAndRedirection(
       ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_FDPA);
 
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(
@@ -196,6 +201,7 @@ class FdpaReservoirIncrementalVolumesControllerTest extends AbstractSubmissionCo
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveFdpaReservoirIncrementalVolumes_whenInvalidForm_assertNotSaved_andNotRedirected(
       ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_FDPA);
 
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(
@@ -231,6 +237,7 @@ class FdpaReservoirIncrementalVolumesControllerTest extends AbstractSubmissionCo
   @EnumSource(value = SubmissionType.class, names = {"CREATE_FDPA"}, mode = EnumSource.Mode.EXCLUDE)
   void saveFdpaReservoirIncrementalVolumes_andTypeIsNotFdpa_assertForbidden(
       SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
     mockMvc.perform(
             post(ReverseRouter.route(on(FdpaReservoirIncrementalVolumesController.class)
@@ -255,6 +262,7 @@ class FdpaReservoirIncrementalVolumesControllerTest extends AbstractSubmissionCo
   @EnumSource(value = SubmissionDetailStatus.class, names = {"DRAFT"}, mode = EnumSource.Mode.EXCLUDE)
   void saveFdpaReservoirIncrementalVolumes_whenIsNotDraft_assertForbidden(
       SubmissionDetailStatus submissionDetailStatus) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setStatus(submissionDetailStatus);
     mockMvc.perform(
             post(ReverseRouter.route(on(FdpaReservoirIncrementalVolumesController.class)
@@ -277,6 +285,7 @@ class FdpaReservoirIncrementalVolumesControllerTest extends AbstractSubmissionCo
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveFdpaReservoirIncrementalVolumes_whenReservoirNotCarriedForward_assertForbidden(
       ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_FDPA);
 
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(

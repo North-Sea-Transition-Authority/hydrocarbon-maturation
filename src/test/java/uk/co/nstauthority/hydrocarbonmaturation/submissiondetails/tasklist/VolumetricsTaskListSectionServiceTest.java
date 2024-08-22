@@ -15,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -39,6 +41,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 
 @ExtendWith(MockitoExtension.class)
 class VolumetricsTaskListSectionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private HydrocarbonCasePersistenceService hydrocarbonCasePersistenceService;
@@ -77,7 +80,7 @@ class VolumetricsTaskListSectionServiceTest {
 
   @Test
   void getSection_prospectSubmission_whenNoCase_assertEmptyOptional() {
-    var taskListSectionOptional = volumetricsTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = volumetricsTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(taskListSectionOptional).isNotPresent();
   }
@@ -99,7 +102,7 @@ class VolumetricsTaskListSectionServiceTest {
     when(hydrocarbonCasePersistenceService.isGasOnlyPresent(hydrocarbonCase)).thenReturn(true);
     when(hydrocarbonCasePersistenceService.isOilOnlyPresent(hydrocarbonCase)).thenReturn(true);
     when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(hydrocarbonCase)).thenReturn(true);
-    var taskListSectionOptional = volumetricsTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = volumetricsTaskListSectionService.getSection(submissionDetail, USER);
 
     var section = taskListSectionOptional.get();
     assertThat(section)
@@ -138,7 +141,7 @@ class VolumetricsTaskListSectionServiceTest {
   @Test
   void getSection_discoverySubmission_assertEmptyOptional() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
-    var taskListSectionOptional = volumetricsTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = volumetricsTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(taskListSectionOptional).isNotPresent();
   }
@@ -146,7 +149,7 @@ class VolumetricsTaskListSectionServiceTest {
   @Test
   void getSection_fieldSubmission_assertEmptyOptional() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_FIELD);
-    var taskListSectionOptional = volumetricsTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = volumetricsTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(taskListSectionOptional).isNotPresent();
   }
@@ -170,7 +173,7 @@ class VolumetricsTaskListSectionServiceTest {
     when(mixedCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(prospectMixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
 
-    assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
@@ -187,7 +190,7 @@ class VolumetricsTaskListSectionServiceTest {
 
     when(gasCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
-    assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
@@ -205,7 +208,7 @@ class VolumetricsTaskListSectionServiceTest {
     when(gasCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(gasCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
-    assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
@@ -222,7 +225,7 @@ class VolumetricsTaskListSectionServiceTest {
 
     when(oilCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
-    assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
@@ -240,7 +243,7 @@ class VolumetricsTaskListSectionServiceTest {
     when(oilCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(oilCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
-    assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
@@ -257,7 +260,7 @@ class VolumetricsTaskListSectionServiceTest {
 
     when(gasCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
-    assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
@@ -274,7 +277,7 @@ class VolumetricsTaskListSectionServiceTest {
 
     when(mixedCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
-    assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
@@ -292,7 +295,7 @@ class VolumetricsTaskListSectionServiceTest {
     when(mixedCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(prospectMixedCaseOutputsSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
-    assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
@@ -309,7 +312,7 @@ class VolumetricsTaskListSectionServiceTest {
 
     when(gasCaseVolumetricParametersSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
-    assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
@@ -320,24 +323,24 @@ class VolumetricsTaskListSectionServiceTest {
     when(hydrocarbonCasePersistenceService.isOilOnlyPresent(any())).thenReturn(false);
     when(hydrocarbonCasePersistenceService.isMixedOilAndGasPresent(any())).thenReturn(false);
 
-    assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
   void isSectionSubmittable_whenNotProspectOrDiscoverySubmission_assertTrue() {
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
-    assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
   void isSectionSubmittable_whenPostDrillSubmission_assertTrue() {
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
-    assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
   void isSectionSubmittable_whenDiscoverySubmission_whenMixedDiscovery_assertTrue() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
-    assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(volumetricsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 }

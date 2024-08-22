@@ -60,7 +60,7 @@ class UndevelopedDiscoveryTrackingDetailsControllerTest extends AbstractUndevelo
         entry("pageTitle", UndevelopedDiscoveryTrackingDetailsController.PAGE_TITLE),
         entry("form", form),
         entry("cancelUrl", ReverseRouter.route(on(UndevelopedDiscoverySummaryController.class)
-            .getUndevelopedDiscoverySummary(RESOURCE_ID)))
+            .getUndevelopedDiscoverySummary(RESOURCE_ID, null)))
     );
   }
 
@@ -135,7 +135,7 @@ class UndevelopedDiscoveryTrackingDetailsControllerTest extends AbstractUndevelo
         .thenReturn(resource);
 
     var summaryUrl = ReverseRouter.route(on(UndevelopedDiscoverySummaryController.class)
-        .getUndevelopedDiscoverySummary(RESOURCE_ID));
+        .getUndevelopedDiscoverySummary(RESOURCE_ID, null));
 
     mockMvc.perform(post(ReverseRouter.route(on(UndevelopedDiscoveryTrackingDetailsController.class)
             .saveTrackingDetails(RESOURCE_ID, null, null)))

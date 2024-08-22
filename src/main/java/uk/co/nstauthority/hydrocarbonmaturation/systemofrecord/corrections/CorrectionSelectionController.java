@@ -17,23 +17,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistoryQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistorySelectorUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}/correction")
-@HasPermission(permissions = {
-    RolePermission.EXPLORATION,
-    RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.ONSHORE_AREA_TEAM_MEMBER})
+@HasAnyRole(role = Role.EXPLORATION, teamType = TeamType.REGULATOR)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.NORTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.SOUTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.ONSHORE_AREA)
 public class CorrectionSelectionController {
 
   private final ResourceService resourceService;
@@ -101,7 +101,7 @@ public class CorrectionSelectionController {
         .addObject("removableSubmissions", removableSubmissionMap)
         .addObject("form", form)
         .addObject("cancelUrl",
-            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId()))
+            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null))
         );
 
     return modelAndView;

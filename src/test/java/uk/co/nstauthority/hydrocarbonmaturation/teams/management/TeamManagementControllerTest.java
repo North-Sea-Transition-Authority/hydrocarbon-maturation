@@ -640,7 +640,7 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
     assertThat(roleMap)
         .containsExactly(
             Map.entry(Role.MANAGE_TEAM.name(), Role.MANAGE_TEAM.getName()),
-            Map.entry(Role.AREA_TEAM_MEMBER.name(), Role.AREA_TEAM_MEMBER.getName())
+            Map.entry(Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM.name(), Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM.getName())
         );
 
     var teamMemberViewModel = (TeamMemberView) modelAndView.getModel().get("teamMemberView");
@@ -651,7 +651,7 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
     assertThat(rolesInTeam)
         .containsExactly(
             Role.MANAGE_TEAM,
-            Role.AREA_TEAM_MEMBER
+            Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM
         );
   }
 

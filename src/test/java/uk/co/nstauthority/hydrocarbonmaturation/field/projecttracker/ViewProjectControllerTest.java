@@ -13,7 +13,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,11 +21,12 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchFieldRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = ViewProjectController.class)
 class ViewProjectControllerTest extends AbstractProjectTrackerControllerTest {
@@ -51,7 +51,7 @@ class ViewProjectControllerTest extends AbstractProjectTrackerControllerTest {
   void whenGetViewProject_andProjectIsNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
-    setupUserIsRegulator(user);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(ViewProjectController.class)
@@ -64,13 +64,13 @@ class ViewProjectControllerTest extends AbstractProjectTrackerControllerTest {
   class GivenRegulatorAndProjectExists {
     @BeforeEach
     void setUp() {
-      setupUserIsRegulator(user);
+      when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     }
 
     @Test
     void whenGetViewProject_andNonProjectAnalyst_thenAssertModelProperties() throws Exception {
       var summarySections = List.of(mock(SummarySection.class));
-      when(projectSummaryService.getSummarySections(project))
+      when(projectSummaryService.getSummarySections(project, USER))
           .thenReturn(summarySections);
 
       var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -99,11 +99,11 @@ class ViewProjectControllerTest extends AbstractProjectTrackerControllerTest {
       assertThat(breadcrumbsMap.entrySet())
           .containsExactly(
               entry(
-                  ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null)),
+                  ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null, null)),
                   SearchFieldRecordsController.PAGE_TITLE
               ),
               entry(
-                  ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID)),
+                  ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID, USER)),
                   field.getCorrectedLegalFieldName()
               ),
               entry(
@@ -115,11 +115,11 @@ class ViewProjectControllerTest extends AbstractProjectTrackerControllerTest {
 
     @Test
     void whenGetViewProject_andProjectAnalyst_thenAssertModelProperties() throws Exception {
-      when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
+      when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
           .thenReturn(true);
 
       var summarySections = List.of(mock(SummarySection.class));
-      when(projectSummaryService.getSummarySections(project))
+      when(projectSummaryService.getSummarySections(project, USER))
           .thenReturn(summarySections);
 
       var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -139,7 +139,7 @@ class ViewProjectControllerTest extends AbstractProjectTrackerControllerTest {
               entry("summarySections", summarySections),
               entry("accordionId", project.getId().toString()),
               entry("deleteUrl", ReverseRouter.route(on(DeleteProjectController.class)
-                  .getDeleteProjectConfirmation(project.getField().getResource().getId(), project.getId()))))
+                  .getDeleteProjectConfirmation(project.getField().getResource().getId(), project.getId(), null))))
           .containsKey("breadcrumbsMap");
 
       @SuppressWarnings(value = "unchecked")
@@ -148,11 +148,11 @@ class ViewProjectControllerTest extends AbstractProjectTrackerControllerTest {
       assertThat(breadcrumbsMap.entrySet())
           .containsExactly(
               entry(
-                  ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null)),
+                  ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null, null)),
                   SearchFieldRecordsController.PAGE_TITLE
               ),
               entry(
-                  ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID)),
+                  ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID, null)),
                   field.getCorrectedLegalFieldName()
               ),
               entry(

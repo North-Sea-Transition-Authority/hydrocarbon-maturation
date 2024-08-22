@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
@@ -87,7 +88,7 @@ public class GasCaseOutputsSummaryService implements SummarySectionService<Reser
   }
 
   @Override
-  public Optional<SummarySection> getSummarySection(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+  public Optional<SummarySection> getSummarySection(ReservoirSubmissionDetail reservoirSubmissionDetail, User user) {
     if (!reservoirSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()
         || !generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail)) {
       return Optional.empty();

@@ -25,10 +25,10 @@ public class SystemOfRecordLandingPageController {
         .addObject("pageTitle", PAGE_TITLE)
         .addObject("prospectAndDiscoverySearchUrl",
             ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
-                .showSearchResourceRecordsScreen(null)))
+                .showSearchResourceRecordsScreen(null, null)))
         .addObject("fieldSearchUrl",
             ReverseRouter.route(on(SearchFieldRecordsController.class)
-                .showSearchFieldRecordsScreen(null)));
+                .showSearchFieldRecordsScreen(null, null)));
 
   }
 }

@@ -174,7 +174,7 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
         .thenReturn(fileUploadComponentAttributes);
     mockMvc.perform(
             post(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class)
-                .saveOutlineForMaximumCaseUpload(submissionDetailId, null, null)))
+                .saveOutlineForMaximumCaseUpload(submissionDetailId, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isForbidden());
@@ -198,10 +198,11 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveOutlineForMaximumCasePage_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(outlineForMaximumCaseFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+    when(outlineForMaximumCaseFormService.validate(any(), any(), any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).saveOutlineForMaximumCaseUpload(submissionDetailId, form, bindingResult)))
+        post(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).saveOutlineForMaximumCaseUpload(submissionDetailId, form, bindingResult, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
@@ -213,15 +214,16 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveOutlineForMaximumCasePage_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
-    when(outlineForMaximumCaseFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(outlineForMaximumCaseFormService.validate(any(), any(), any(), any(), any())).thenReturn(bindingResult);
     when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).saveOutlineForMaximumCaseUpload(submissionDetailId, form, bindingResult)))
+        post(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class).saveOutlineForMaximumCaseUpload(submissionDetailId, form, bindingResult, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
@@ -231,6 +233,7 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
 
   @Test
   void getOutlineForMaximumCaseModelAndView_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(outlineForMaximumCaseFormService.getOutlineForMaximumCaseUploadForm(submissionDetail)).thenReturn(new OutlineForMaximumCaseUploadForm());
     when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
@@ -246,7 +249,7 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
         entry("pageTitle", OutlineForMaximumCaseUploadController.PAGE_NAME),
         entry("cancelUrl",
             ReverseRouter.route(on(TaskListController.class)
-                .getTaskList(submissionDetailId))),
+                .getTaskList(submissionDetailId, null))),
         entry("isOffshore", true)
     );
 
@@ -254,7 +257,7 @@ class OutlineForMaximumCaseUploadControllerTest extends AbstractSubmissionContro
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
     );
   }
 

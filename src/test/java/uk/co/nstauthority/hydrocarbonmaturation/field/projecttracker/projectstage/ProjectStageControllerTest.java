@@ -22,7 +22,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.util.NotificationBannerTe
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -35,7 +34,6 @@ import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
@@ -48,13 +46,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ViewProject
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.projectstagehistory.ProjectStageHistory;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.projectstagehistory.ProjectStageHistoryService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = ProjectStageController.class)
 class ProjectStageControllerTest extends AbstractControllerTest {
-  @MockBean
-  private PermissionService permissionService;
   @MockBean
   private ProjectStageService projectStageService;
   @MockBean
@@ -96,8 +93,7 @@ class ProjectStageControllerTest extends AbstractControllerTest {
   void getCreateProjectStageUpdate_andProjectIsNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     when(projectService.getProjectOrThrow(PROJECT_ID))
         .thenReturn(project);
 
@@ -126,8 +122,7 @@ class ProjectStageControllerTest extends AbstractControllerTest {
   void saveProjectStageUpdate_andProjectIsNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     when(projectService.getProjectOrThrow(PROJECT_ID))
         .thenReturn(project);
 
@@ -157,8 +152,7 @@ class ProjectStageControllerTest extends AbstractControllerTest {
   void getRemoveProjectStageUpdate_andProjectIsNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     when(projectService.getProjectOrThrow(PROJECT_ID))
         .thenReturn(project);
 
@@ -187,8 +181,7 @@ class ProjectStageControllerTest extends AbstractControllerTest {
   void removeProjectStage_andProjectIsNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(ProjectStageController.class)
@@ -202,8 +195,7 @@ class ProjectStageControllerTest extends AbstractControllerTest {
   class GivenIsProjectAnalystAndProjectIsExtant {
     @BeforeEach
     void setUp() {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+      when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
       project.setProjectStatus(ProjectStatus.EXTANT);
     }
 

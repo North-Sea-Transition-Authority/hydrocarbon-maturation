@@ -13,76 +13,72 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Controller
 @RequestMapping("prospect/create")
-@HasPermission(permissions = {RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT})
+@HasAnyRole(role = Role.INDUSTRY_SUBMIT, teamType = TeamType.INDUSTRY)
+@HasAnyRole(role = Role.EXPLORATION, teamType = TeamType.REGULATOR)
 public class NewProspectController {
 
   private final ControllerHelperService controllerHelperService;
   private final StartProspectService startProspectService;
-  private final UserService userService;
-  private final RegulatorTeamService regulatorTeamService;
-  private final AreaTeamService areaTeamService;
   private final OrganisationUnitQueryService organisationUnitQueryService;
+  private final InternalTeamService internalTeamService;
 
   @Autowired
   public NewProspectController(ControllerHelperService controllerHelperService,
                                StartProspectService startProspectService,
-                               UserService userService,
-                               RegulatorTeamService regulatorTeamService,
-                               AreaTeamService areaTeamService,
-                               OrganisationUnitQueryService organisationUnitQueryService) {
+                               OrganisationUnitQueryService organisationUnitQueryService,
+                               InternalTeamService internalTeamService) {
     this.controllerHelperService = controllerHelperService;
     this.startProspectService = startProspectService;
-    this.userService = userService;
-    this.regulatorTeamService = regulatorTeamService;
-    this.areaTeamService = areaTeamService;
     this.organisationUnitQueryService = organisationUnitQueryService;
+    this.internalTeamService = internalTeamService;
   }
 
   @GetMapping
-  public ModelAndView getNewProspectPage(@ModelAttribute("form") ResourceDetailsForm form) {
-    return getNewProspectPageModelAndView(form);
+  public ModelAndView getNewProspectPage(@ModelAttribute("form") ResourceDetailsForm form, User user) {
+    return getNewProspectPageModelAndView(form, user);
   }
 
   @PostMapping
   public ModelAndView createProspect(@Valid @ModelAttribute("form") ResourceDetailsForm form,
-                                     BindingResult bindingResult) {
-    bindingResult = startProspectService.validate(form, bindingResult);
+                                     BindingResult bindingResult,
+                                     User user) {
+    bindingResult = startProspectService.validate(form, bindingResult, user);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getNewProspectPageModelAndView(form),
+        getNewProspectPageModelAndView(form, user),
         () -> {
-          var submissionDetail = startProspectService.createInitialProspect(form);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId()));
+          var submissionDetail = startProspectService.createInitialProspect(form, user);
+          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId(), null));
         }
     );
   }
 
-  private ModelAndView getNewProspectPageModelAndView(ResourceDetailsForm form) {
+  private ModelAndView getNewProspectPageModelAndView(ResourceDetailsForm form, User user) {
     return new ModelAndView("remi/prospect/newResource")
         .addObject("backLinkUrl", ReverseRouter.route(on(StartProspectController.class).getStartPage()))
         .addObject("actionUrl", ReverseRouter.route(on(NewProspectController.class)
-            .createProspect(null, null)))
+            .createProspect(null, null, null)))
         .addObject("organisationUnitEndpoint",
-            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null)))
+            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null, null)))
         .addObject("resourceType",
             ResourceType.PROSPECT.getDisplayName().toLowerCase())
-        .addObject("isRegulatorOrAreaTeamUser", isRegulatorOrAreaTeamUser())
+        .addObject("isRegulatorOrAreaTeamUser", isRegulatorOrAreaTeamUser(user))
         .addObject("form", form)
         .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())
         .addObject("alreadySelectedOrganisation",
@@ -91,8 +87,7 @@ public class NewProspectController {
         );
   }
 
-  private boolean isRegulatorOrAreaTeamUser() {
-    var user = userService.getUser();
-    return regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user);
+  private boolean isRegulatorOrAreaTeamUser(User user) {
+    return internalTeamService.isRegulatorOrAreaTeamUser(user);
   }
 }

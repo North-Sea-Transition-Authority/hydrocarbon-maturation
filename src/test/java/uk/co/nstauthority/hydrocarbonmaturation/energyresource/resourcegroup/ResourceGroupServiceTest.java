@@ -20,6 +20,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -29,6 +31,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresourc
 
 @ExtendWith(MockitoExtension.class)
 class ResourceGroupServiceTest {
+
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private RelatedResourcesPersistenceService relatedResourcesPersistenceService;
@@ -70,7 +74,7 @@ class ResourceGroupServiceTest {
     void setUp() {
       submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
-      when(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+      when(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
     }
 
     @Nested
@@ -98,7 +102,7 @@ class ResourceGroupServiceTest {
         resourceGroupLinkForRelatedProspect.setPreferredView(true);
 
         var argumentCaptor = ArgumentCaptor.forClass(ResourceGroupLink.class);
-        resourceGroupService.createResourceGroupLink(submissionDetail);
+        resourceGroupService.createResourceGroupLink(submissionDetail, USER);
 
         verify(resourceGroupLinksRepository).save(argumentCaptor.capture());
 
@@ -127,7 +131,7 @@ class ResourceGroupServiceTest {
             .thenReturn(Optional.of(otherResourceGroupLink));
 
         var argumentCaptor = ArgumentCaptor.forClass(ResourceGroupLink.class);
-        resourceGroupService.createResourceGroupLink(submissionDetail);
+        resourceGroupService.createResourceGroupLink(submissionDetail, USER);
 
         verify(resourceGroupLinksRepository).save(argumentCaptor.capture());
 
@@ -153,7 +157,7 @@ class ResourceGroupServiceTest {
         resourceGroupLinkForRelatedProspect.setPreferredView(true);
 
         var argumentCaptor = ArgumentCaptor.forClass(ResourceGroupLink.class);
-        resourceGroupService.createResourceGroupLink(submissionDetail);
+        resourceGroupService.createResourceGroupLink(submissionDetail, USER);
 
         verify(resourceGroupLinksRepository).save(argumentCaptor.capture());
 
@@ -196,7 +200,7 @@ class ResourceGroupServiceTest {
       void currentProspectIsToBePreferredView() {
         @SuppressWarnings("unchecked")
         ArgumentCaptor<List<ResourceGroupLink>> argumentCaptor = ArgumentCaptor.forClass(List.class);
-        resourceGroupService.createResourceGroupLink(submissionDetail);
+        resourceGroupService.createResourceGroupLink(submissionDetail, USER);
 
         verify(resourceGroupLinksRepository).saveAll(argumentCaptor.capture());
 
@@ -227,7 +231,7 @@ class ResourceGroupServiceTest {
 
         @SuppressWarnings("unchecked")
         ArgumentCaptor<List<ResourceGroupLink>> argumentCaptor = ArgumentCaptor.forClass(List.class);
-        resourceGroupService.createResourceGroupLink(submissionDetail);
+        resourceGroupService.createResourceGroupLink(submissionDetail, USER);
 
         verify(resourceGroupLinksRepository).saveAll(argumentCaptor.capture());
 
@@ -263,7 +267,7 @@ class ResourceGroupServiceTest {
 
       @Test
       void dontCreateResourceGroupLink() {
-        resourceGroupService.createResourceGroupLink(submissionDetail);
+        resourceGroupService.createResourceGroupLink(submissionDetail, USER);
 
         verify(resourceGroupLinksRepository, never()).saveAll(anyList());
         verify(resourceGroupLinksRepository, never()).save(any(ResourceGroupLink.class));

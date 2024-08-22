@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
@@ -32,17 +32,14 @@ public class SubmissionFeedbackController {
 
   private final RemiFeedbackService remiFeedbackService;
   private final ControllerHelperService controllerHelperService;
-  private final UserService userService;
   private final SubmissionDetailService submissionDetailService;
 
   @Autowired
   public SubmissionFeedbackController(RemiFeedbackService remiFeedbackService,
                                       ControllerHelperService controllerHelperService,
-                                      UserService userService,
                                       SubmissionDetailService submissionDetailService) {
     this.remiFeedbackService = remiFeedbackService;
     this.controllerHelperService = controllerHelperService;
-    this.userService = userService;
     this.submissionDetailService = submissionDetailService;
   }
 
@@ -57,14 +54,15 @@ public class SubmissionFeedbackController {
   public ModelAndView submitFeedback(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                      @ModelAttribute("form") FeedbackForm form,
                                      BindingResult bindingResult,
-                                     RedirectAttributes redirectAttributes) {
+                                     RedirectAttributes redirectAttributes,
+                                     User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     bindingResult = remiFeedbackService.validateFeedbackForm(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getFeedbackModelAndView(form, submissionDetail),
         () -> {
-          remiFeedbackService.saveFeedback(submissionDetail, form, userService.getUser());
+          remiFeedbackService.saveFeedback(submissionDetail, form, user);
           NotificationBannerUtil.addSuccessNotification(
               redirectAttributes, "Success", "Your feedback has been submitted");
           return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea(null));
@@ -76,9 +74,9 @@ public class SubmissionFeedbackController {
     return new ModelAndView("remi/feedback/feedback")
         .addObject("form", feedbackForm)
         .addObject("actionUrl", ReverseRouter.route(on(SubmissionFeedbackController.class)
-            .submitFeedback(submissionDetail.getId(), null, null, null)))
+            .submitFeedback(submissionDetail.getId(), null, null, null, null)))
         .addObject("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null)))
         .addObject("serviceRatings",
             DisplayableEnumOptionUtil.getDisplayableOptions(ServiceFeedbackRating.class));
   }

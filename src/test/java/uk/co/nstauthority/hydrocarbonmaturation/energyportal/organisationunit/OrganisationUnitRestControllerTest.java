@@ -30,7 +30,7 @@ class OrganisationUnitRestControllerTest extends AbstractControllerTest {
   @SecurityTest
   void searchOrganisationUnits() throws Exception {
     mockMvc.perform(get(SearchSelectorService.route(on(OrganisationUnitRestController.class)
-            .searchOrganisationUnits(null)))
+            .searchOrganisationUnits(null, null)))
             .param("term", SEARCH_TERM)
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .with(user(USER)))

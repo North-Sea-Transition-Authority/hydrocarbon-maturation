@@ -23,6 +23,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -40,6 +42,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @ContextConfiguration(classes = DeleteReservoirController.class)
 class DeleteReservoirControllerTest extends AbstractSubmissionControllerTest {
 
+  private static final User USER = UserTestUtil.Builder().build();
   public static final String VIEW_NAME = "remi/submissiondetails/reservoir/deleteReservoir";
   public static final String RESERVOIR_NAME = "reservoir name";
 
@@ -64,7 +67,7 @@ class DeleteReservoirControllerTest extends AbstractSubmissionControllerTest {
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
         .thenReturn(reservoirSubmissionDetail);
     reservoirSummary = new ReservoirSummary(RESERVOIR_NAME, Collections.emptyList());
-    when(reservoirSummaryService.getReservoirSummaryForIndividualReservoir(reservoirSubmissionDetail))
+    when(reservoirSummaryService.getReservoirSummaryForIndividualReservoir(reservoirSubmissionDetail, USER))
         .thenReturn(reservoirSummary);
   }
 
@@ -73,7 +76,7 @@ class DeleteReservoirControllerTest extends AbstractSubmissionControllerTest {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     mockMvc.perform(get(ReverseRouter.route(on(DeleteReservoirController.class).getDeleteReservoirPage(
             submissionDetail.getId(),
-            reservoirSubmissionDetail.getId())))
+            reservoirSubmissionDetail.getId(), null)))
             .with(user(USER)))
         .andExpect(status().isOk());
   }
@@ -84,7 +87,7 @@ class DeleteReservoirControllerTest extends AbstractSubmissionControllerTest {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     mockMvc.perform(get(ReverseRouter.route(on(DeleteReservoirController.class).getDeleteReservoirPage(
             submissionDetail.getId(),
-            reservoirSubmissionDetail.getId())))
+            reservoirSubmissionDetail.getId(), null)))
             .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -95,7 +98,7 @@ class DeleteReservoirControllerTest extends AbstractSubmissionControllerTest {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     mockMvc.perform(get(ReverseRouter.route(on(DeleteReservoirController.class).getDeleteReservoirPage(
             submissionDetail.getId(),
-            reservoirSubmissionDetail.getId())))
+            reservoirSubmissionDetail.getId(), null)))
             .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -106,19 +109,20 @@ class DeleteReservoirControllerTest extends AbstractSubmissionControllerTest {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER, submissionDetail);
     mockMvc.perform(get(ReverseRouter.route(on(DeleteReservoirController.class).getDeleteReservoirPage(
             submissionDetail.getId(),
-            reservoirSubmissionDetail.getId())))
+            reservoirSubmissionDetail.getId(), null)))
             .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
   @Test
   void getDeleteReservoirPage_assertModelProperties_canDeleteReservoir() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(deleteReservoirService.canDeleteReservoir(reservoirSubmissionDetail)).thenReturn(true);
     var modelMap =
         Objects.requireNonNull(
             mockMvc.perform(get(ReverseRouter.route(on(DeleteReservoirController.class).getDeleteReservoirPage(
                     submissionDetail.getId(),
-                    reservoirSubmissionDetail.getId())))
+                    reservoirSubmissionDetail.getId(), null)))
                     .with(user(USER)))
                 .andReturn()
                 .getModelAndView()).getModelMap();
@@ -141,13 +145,14 @@ class DeleteReservoirControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId(), null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId(), null)), ReservoirTaskListController.PAGE_TITLE)
     );
   }
 
   @Test
   void getDeleteReservoirPage_assertModelProperties_cantDeleteReservoir() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(deleteReservoirService.canDeleteReservoir(reservoirSubmissionDetail)).thenReturn(false);
     var fieldNames = List.of("field1", "field2");
     when(deleteReservoirService.getLinkedFieldNamesForDiscoveryReservoir(reservoirSubmissionDetail)).thenReturn(fieldNames);
@@ -155,7 +160,7 @@ class DeleteReservoirControllerTest extends AbstractSubmissionControllerTest {
         Objects.requireNonNull(
             mockMvc.perform(get(ReverseRouter.route(on(DeleteReservoirController.class).getDeleteReservoirPage(
                     submissionDetail.getId(),
-                    reservoirSubmissionDetail.getId())))
+                    reservoirSubmissionDetail.getId(), null)))
                     .with(user(USER)))
                 .andReturn()
                 .getModelAndView()).getModelMap();
@@ -178,13 +183,14 @@ class DeleteReservoirControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId(), null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId(), null)), ReservoirTaskListController.PAGE_TITLE)
     );
   }
 
   @Test
   void deleteReservoir_assertRedirection() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     var flashMap = mockMvc.perform(
             post(ReverseRouter.route(on(DeleteReservoirController.class)
                 .deleteReservoir(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)))

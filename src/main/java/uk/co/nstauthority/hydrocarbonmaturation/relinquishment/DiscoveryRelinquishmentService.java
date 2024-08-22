@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.relinquishment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
@@ -19,8 +20,8 @@ class DiscoveryRelinquishmentService {
     this.discoveryRelinquishmentFormValidator = discoveryRelinquishmentFormValidator;
   }
 
-  public SubmissionDetail createDiscoveryRelinquishment(DiscoveryRelinquishmentForm form) {
-    return submissionCreateService.createDiscoveryRelinquishment(form);
+  public SubmissionDetail createDiscoveryRelinquishment(DiscoveryRelinquishmentForm form, User user) {
+    return submissionCreateService.createDiscoveryRelinquishment(form, user);
   }
 
   public BindingResult validate(DiscoveryRelinquishmentForm form, BindingResult bindingResult) {

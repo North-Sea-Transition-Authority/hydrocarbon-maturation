@@ -20,7 +20,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,11 +31,12 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = WithdrawSubmissionController.class)
@@ -57,37 +57,33 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
         .thenReturn(submissionDetail);
     doReturn(new ModelAndView())
-        .when(submissionSummaryModelService).createSummaryForSubmissionTypeToModelAndView(eq(submissionDetail), anyString());
+        .when(submissionSummaryModelService).createSummaryForSubmissionTypeToModelAndView(eq(submissionDetail), anyString(), any());
   }
 
   @SecurityTest
   void showWithdrawConfirmationPage_NoUser_assertStatusUnauthorized() throws Exception {
     mockMvc.perform(
             get(ReverseRouter.route(on(WithdrawSubmissionController.class)
-                .showWithdrawConfirmationPage(SUBMISSION_DETAIL_ID))))
+                .showWithdrawConfirmationPage(SUBMISSION_DETAIL_ID, null))))
         .andExpect(status().isUnauthorized());
   }
 
   @SecurityTest
   void showWithdrawConfirmationPage_UserCannotWithdraw_assertStatusUnauthorized() throws Exception {
-    when(withdrawSubmissionService.canWithdrawSubmission(submissionDetail)).thenReturn(false);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
+    when(withdrawSubmissionService.canWithdrawSubmission(submissionDetail, USER)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(WithdrawSubmissionController.class)
-                .showWithdrawConfirmationPage(SUBMISSION_DETAIL_ID)))
+                .showWithdrawConfirmationPage(SUBMISSION_DETAIL_ID, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
   @SecurityTest
   void showWithdrawConfirmationPage_UserCanWithdraw_assertStatusAuthorized() throws Exception {
-    when(withdrawSubmissionService.canWithdrawSubmission(submissionDetail)).thenReturn(true);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
+    when(withdrawSubmissionService.canWithdrawSubmission(submissionDetail, USER)).thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn("name");
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
@@ -96,7 +92,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
 
     mockMvc.perform(
             get(ReverseRouter.route(on(WithdrawSubmissionController.class)
-                .showWithdrawConfirmationPage(SUBMISSION_DETAIL_ID)))
+                .showWithdrawConfirmationPage(SUBMISSION_DETAIL_ID, null)))
                 .with(user(USER)))
         .andExpect(status().isOk());
   }
@@ -107,10 +103,11 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
       mode = EnumSource.Mode.EXCLUDE,
       names = {"SUBMITTED"})
   void showWithdrawConfirmationPage_whenNotSubmittedStatus_assertStatusForbidden(SubmissionDetailStatus status) throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     submissionDetail.setStatus(status);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(WithdrawSubmissionController.class).showWithdrawConfirmationPage(SUBMISSION_DETAIL_ID)))
+            get(ReverseRouter.route(on(WithdrawSubmissionController.class).showWithdrawConfirmationPage(SUBMISSION_DETAIL_ID, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -118,10 +115,8 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
   @Test
   @SuppressWarnings("unchecked")
   void showWithdrawConfirmationPageModelAndView_assertModelProperties() throws Exception {
-    when(withdrawSubmissionService.canWithdrawSubmission(submissionDetail)).thenReturn(true);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
+    when(withdrawSubmissionService.canWithdrawSubmission(submissionDetail, USER)).thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     var expectedName = "Res name 123";
     when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(expectedName);
@@ -131,7 +126,7 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
     setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(WithdrawSubmissionController.class).showWithdrawConfirmationPage(SUBMISSION_DETAIL_ID)))
+            get(ReverseRouter.route(on(WithdrawSubmissionController.class).showWithdrawConfirmationPage(SUBMISSION_DETAIL_ID, null)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -142,9 +137,9 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
             entry("pageName", "Are you sure you want to withdraw this %s?".formatted(expectedTypeName)),
             entry("resourceName", expectedName),
             entry("actionUrl", ReverseRouter.route(on(WithdrawSubmissionController.class)
-                .withdrawSubmission(SUBMISSION_DETAIL_ID, null, null, null))),
+                .withdrawSubmission(SUBMISSION_DETAIL_ID, null, null, null, null))),
             entry("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null)))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -153,14 +148,15 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
             WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(submissionDetail.getSubmission().getResource().getId())),
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null)),
             expectedName)
     );
   }
 
   @Test
   void withdrawSubmission_canWithdraw_verifyMethodCall() throws Exception{
-    when(withdrawSubmissionService.canWithdrawSubmission(submissionDetail)).thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
+    when(withdrawSubmissionService.canWithdrawSubmission(submissionDetail, USER)).thenReturn(true);
     var expectedName = "Res name 123";
     when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(expectedName);
@@ -172,13 +168,13 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
     setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
     mockMvc.perform(
             post(ReverseRouter.route(on(WithdrawSubmissionController.class)
-                .withdrawSubmission(SUBMISSION_DETAIL_ID, null, null, null)))
+                .withdrawSubmission(SUBMISSION_DETAIL_ID, null, null, null, null)))
                 .with(user(USER)).with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class)
             .getWorkArea(null))));
 
-    verify(withdrawSubmissionService).withdrawSubmissionOrThrow(eq(submissionDetail), any());
+    verify(withdrawSubmissionService).withdrawSubmissionOrThrow(eq(submissionDetail), any(), any());
   }
 
   @SecurityTest
@@ -186,10 +182,8 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
     doAnswer(invocation -> {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Submission cannot be withdrawn by user with ID %s "
           .formatted(USER.wuaId().toString()));
-    }).when(withdrawSubmissionService).withdrawSubmissionOrThrow(eq(submissionDetail), any());
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
+    }).when(withdrawSubmissionService).withdrawSubmissionOrThrow(eq(submissionDetail), any(), any());
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     when(withdrawSubmissionService.validate(any(), any()))
         .thenReturn(ReverseRouter.emptyBindingResult());
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
@@ -198,20 +192,21 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
 
     mockMvc.perform(
             post(ReverseRouter.route(on(WithdrawSubmissionController.class)
-                .withdrawSubmission(SUBMISSION_DETAIL_ID, null, null, null)))
+                .withdrawSubmission(SUBMISSION_DETAIL_ID, null, null, null, null)))
                 .with(user(USER)).with(csrf()))
         .andExpect(status().isUnauthorized());
   }
 
   @SecurityTest
   void withdrawSubmission_whenDoesNotHaveRegulatorPermission() throws Exception{
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(WithdrawSubmissionController.class)
-                .withdrawSubmission(SUBMISSION_DETAIL_ID, null, null, null)))
+                .withdrawSubmission(SUBMISSION_DETAIL_ID, null, null, null, null)))
                 .with(user(USER)).with(csrf()))
         .andExpect(status().isForbidden());
     verifyNoInteractions(withdrawSubmissionService);

@@ -19,7 +19,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
@@ -34,10 +33,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionEmailServi
 @ExtendWith(MockitoExtension.class)
 class SubmissionUpdatePersistenceServiceTest {
 
+  private static final User USER = UserTestUtil.Builder().build();
+
   @Mock
   private SubmissionUpdateRepository submissionUpdateRepository;
-  @Mock
-  private UserService userService;
   @Mock
   private Clock clock;
   @Mock
@@ -52,14 +51,12 @@ class SubmissionUpdatePersistenceServiceTest {
   @Nested
   class WhenRequestingUpdate {
     private static final String UPDATE_REASON = "Reason for update here";
-    private static final User USER = UserTestUtil.Builder().build();
     private static final Instant REQUESTED_TIMESTAMP = Instant.parse("2022-12-03T10:15:30.00Z");
     private SubmissionDetail submissionDetail;
     private RequestUpdateForm form;
 
     @BeforeEach
     void setup() {
-      when(userService.getUser()).thenReturn(USER);
       when(clock.instant()).thenReturn(REQUESTED_TIMESTAMP);
       submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
       form = new RequestUpdateForm();
@@ -69,7 +66,7 @@ class SubmissionUpdatePersistenceServiceTest {
     void withReason_assertAllValues() {
       form.setUpdateReason(UPDATE_REASON);
       var captor = ArgumentCaptor.forClass(SubmissionUpdate.class);
-          underTest.requestUpdate(submissionDetail, form);
+          underTest.requestUpdate(submissionDetail, form, USER);
 
       verify(submissionUpdateRepository, times(1)).save(captor.capture());
       verify(submissionEmailService, times(1))
@@ -147,10 +144,10 @@ class SubmissionUpdatePersistenceServiceTest {
 
     @Test
     void startUpdate() {
-      when(submissionCreateService.createUpdateSubmissionDetail(submissionDetail))
+      when(submissionCreateService.createUpdateSubmissionDetail(submissionDetail, USER))
           .thenReturn(updateSubmissionDetail);
 
-      assertThat(underTest.startUpdate(submissionDetail)).isEqualTo(updateSubmissionDetail);
+      assertThat(underTest.startUpdate(submissionDetail, USER)).isEqualTo(updateSubmissionDetail);
     }
   }
 
@@ -206,7 +203,6 @@ class SubmissionUpdatePersistenceServiceTest {
     private static final Submission SUBMISSION = SubmissionTestUtils.createSubmission(mock(Resource.class));
     private static final String REASON = "reason for update";
     private static final Integer REQUESTED_BY_WUA_ID = 4;
-    private static final Integer RESOLVED_BY_WUA_ID = 7;
 
     @Test
     void whenPassingEmptySubmissionUpdate_assertResolvedFields() {
@@ -215,10 +211,8 @@ class SubmissionUpdatePersistenceServiceTest {
 
       when(clock.instant())
           .thenReturn(RESOLVED_TIMESTAMP);
-      when(userService.getUserWuaId())
-          .thenReturn(RESOLVED_BY_WUA_ID);
 
-      underTest.resolveUpdate(submissionUpdate);
+      underTest.resolveUpdate(submissionUpdate, USER);
 
       verify(submissionUpdateRepository, times(1))
           .save(captor.capture());
@@ -233,7 +227,7 @@ class SubmissionUpdatePersistenceServiceTest {
           .containsExactly(
               true,
               RESOLVED_TIMESTAMP,
-              RESOLVED_BY_WUA_ID);
+              USER.wuaId().intValue());
     }
 
     @Test
@@ -249,10 +243,8 @@ class SubmissionUpdatePersistenceServiceTest {
 
       when(clock.instant())
           .thenReturn(RESOLVED_TIMESTAMP);
-      when(userService.getUserWuaId())
-          .thenReturn(RESOLVED_BY_WUA_ID);
 
-      underTest.resolveUpdate(submissionUpdate);
+      underTest.resolveUpdate(submissionUpdate, USER);
 
       verify(submissionUpdateRepository, times(1))
           .save(captor.capture());
@@ -271,7 +263,8 @@ class SubmissionUpdatePersistenceServiceTest {
               REQUESTED_TIMESTAMP,
               true,
               RESOLVED_TIMESTAMP,
-              RESOLVED_BY_WUA_ID);
+              USER.wuaId().intValue()
+          );
     }
   }
 }

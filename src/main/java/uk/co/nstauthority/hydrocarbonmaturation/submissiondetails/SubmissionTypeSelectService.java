@@ -1,26 +1,26 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRole;
 
 @Service
 public class SubmissionTypeSelectService {
 
   private final SubmissionTypeSelectFormValidator submissionTypeSelectFormValidator;
-  private final UserService userService;
-  private final PermissionService permissionService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   public SubmissionTypeSelectService(SubmissionTypeSelectFormValidator submissionTypeSelectFormValidator,
-                                     UserService userService, PermissionService permissionService) {
+                                     TeamQueryService teamQueryService) {
     this.submissionTypeSelectFormValidator = submissionTypeSelectFormValidator;
-    this.userService = userService;
-    this.permissionService = permissionService;
+    this.teamQueryService = teamQueryService;
   }
 
   public BindingResult validate(SubmissionTypeSelectForm form, BindingResult bindingResult) {
@@ -28,10 +28,12 @@ public class SubmissionTypeSelectService {
     return bindingResult;
   }
 
-  public List<SubmissionType> getSubmissionTypeOptions(ResourceType resourceType) {
-    var user = userService.getUser();
+  public List<SubmissionType> getSubmissionTypeOptions(ResourceType resourceType, User user) {
+    var userRoles = teamQueryService.getTeamRolesForUser(user.wuaId()).stream()
+        .map(TeamRole::getRole)
+        .collect(Collectors.toSet());
     return SubmissionType.getSubmissionTypesForResourceType(resourceType).stream()
-        .filter(submissionType -> permissionService.hasPermission(user, submissionType.getPermissions()))
+        .filter(submissionType -> submissionType.getRoles().stream().anyMatch(userRoles::contains))
         .toList();
   }
 }

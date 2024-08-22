@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.complexity.ComplexityUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
@@ -37,7 +38,7 @@ public class UndevelopedDiscoveryInformationSummaryService implements SummarySec
   }
 
   @Override
-  public Optional<SummarySection> getSummarySection(UndevelopedDiscovery undevelopedDiscovery) {
+  public Optional<SummarySection> getSummarySection(UndevelopedDiscovery undevelopedDiscovery, User user) {
     var summaryItems = informationService.getOrderedDiscoveryInformation(undevelopedDiscovery)
         .stream()
         .map(this::getSummaryItem)

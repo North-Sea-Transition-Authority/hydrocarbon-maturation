@@ -18,6 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -25,6 +27,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class ConsideringCcusSubmissionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private ConsideringCcusFormValidator consideringCcusFormValidator;
@@ -40,7 +43,7 @@ class ConsideringCcusSubmissionServiceTest {
   void isSectionSubmittable_nonFieldSubmission_thenTrue(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
 
-    assertTrue(consideringCcusSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(consideringCcusSubmissionService.isSectionSubmittable(submissionDetail, USER));
 
     verifyNoInteractions(consideringCcusFormValidator);
     verifyNoInteractions(consideringCcusFormService);
@@ -58,7 +61,7 @@ class ConsideringCcusSubmissionServiceTest {
     when(consideringCcusFormValidator.isValid(eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
         .thenReturn(true);
 
-    assertTrue(consideringCcusSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(consideringCcusSubmissionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -73,7 +76,7 @@ class ConsideringCcusSubmissionServiceTest {
     when(consideringCcusFormValidator.isValid(eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
         .thenReturn(false);
 
-    assertFalse(consideringCcusSubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(consideringCcusSubmissionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   private static Stream<Arguments> allNonFieldSubmissionTypes() {

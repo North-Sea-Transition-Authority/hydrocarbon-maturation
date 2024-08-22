@@ -19,7 +19,7 @@ public enum Role {
   INDUSTRY_VIEWER(
       "Viewer",
       "View all prospects, discoveries and fields relevant to my organisation"),
-  AREA_TEAM_MEMBER(
+  MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM(
       "Area team member",
       "Manage discoveries and fields allocated to my area team");
 

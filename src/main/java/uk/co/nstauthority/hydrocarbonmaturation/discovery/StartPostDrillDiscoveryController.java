@@ -7,13 +7,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Controller
 @RequestMapping("/discovery/start")
-@HasPermission(permissions = {RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT})
+@HasAnyRole(role = Role.EXPLORATION, teamType = TeamType.REGULATOR)
+@HasAnyRole(role = Role.INDUSTRY_SUBMIT, teamType = TeamType.INDUSTRY)
 public class StartPostDrillDiscoveryController {
 
   @GetMapping
@@ -22,7 +24,7 @@ public class StartPostDrillDiscoveryController {
         .addObject("actionUrl",
             ReverseRouter.route(on(StartPostDrillDiscoveryController.class).startPostDrillDiscovery()))
         .addObject("backLinkUrl",
-            ReverseRouter.route(on(DiscoveryPurposeController.class).getDiscoveryPurposeForm()));
+            ReverseRouter.route(on(DiscoveryPurposeController.class).getDiscoveryPurposeForm(null)));
   }
 
   @PostMapping

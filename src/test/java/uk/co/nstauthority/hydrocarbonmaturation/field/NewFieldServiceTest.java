@@ -73,7 +73,7 @@ class NewFieldServiceTest {
   }
 
   @Nested
-  class WhenGettingResponsibleLegacyTeamTypeDisplayableOptions {
+  class WhenGettingResponsibleTeamTypeDisplayableOptions {
 
     @Test
     void onlyOffshoreTeamOptions() {

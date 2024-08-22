@@ -6,51 +6,42 @@ import java.time.Instant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 
 @Service
 public class SubmissionDetailPersistenceService {
 
   private final SubmissionDetailRepository submissionDetailRepository;
   private final Clock clock;
-  private final UserService userService;
   private final ResourceGroupService resourceGroupService;
-  private final RegulatorTeamService regulatorTeamService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
-  private final AreaTeamService areaTeamService;
+  private final InternalTeamService internalTeamService;
 
   @Autowired
   public SubmissionDetailPersistenceService(SubmissionDetailRepository submissionDetailRepository,
                                             Clock clock,
-                                            UserService userService,
                                             ResourceGroupService resourceGroupService,
-                                            RegulatorTeamService regulatorTeamService,
                                             ResourceDetailsPersistenceService resourceDetailsPersistenceService,
-                                            AreaTeamService areaTeamService) {
+                                            InternalTeamService internalTeamService) {
     this.submissionDetailRepository = submissionDetailRepository;
     this.clock = clock;
-    this.userService = userService;
     this.resourceGroupService = resourceGroupService;
-    this.regulatorTeamService = regulatorTeamService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
-    this.areaTeamService = areaTeamService;
+    this.internalTeamService = internalTeamService;
   }
 
-  public SubmissionDetail createInitialSubmissionDetail(Submission submission, SubmissionType submissionType) {
+  public SubmissionDetail createInitialSubmissionDetail(Submission submission, SubmissionType submissionType, User user) {
     var submissionDetail = new SubmissionDetail();
-    var user = userService.getUser();
     submissionDetail.setCreatedByWuaId(user.wuaId().intValue());
     submissionDetail.setCreatedTimestamp(clock.instant());
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     submissionDetail.setSubmissionType(submissionType);
     submissionDetail.setSubmission(submission);
     submissionDetail.setVersionNumber(SubmissionDetailService.FIRST_VERSION);
-    if (regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user)) {
+    if (internalTeamService.isRegulatorOrAreaTeamUser(user)) {
       submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
     } else {
       submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
@@ -59,15 +50,15 @@ public class SubmissionDetailPersistenceService {
     return submissionDetail;
   }
 
-  SubmissionDetail createUpdateSubmissionDetail(SubmissionDetail previousSubmissionDetail) {
-    var submissionDetail = createBaseSubmissionDetailFromPrevious(previousSubmissionDetail);
+  SubmissionDetail createUpdateSubmissionDetail(SubmissionDetail previousSubmissionDetail, User user) {
+    var submissionDetail = createBaseSubmissionDetailFromPrevious(previousSubmissionDetail, user);
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     submissionDetailRepository.save(submissionDetail);
     return submissionDetail;
   }
 
   SubmissionDetail createCorrectionSubmissionDetail(SubmissionDetail previousSubmissionDetail, User user) {
-    var submissionDetail = createBaseSubmissionDetailFromPrevious(previousSubmissionDetail);
+    var submissionDetail = createBaseSubmissionDetailFromPrevious(previousSubmissionDetail, user);
     submissionDetail.setCorrection(true);
     submissionDetail.setCorrectionByWuaId(user.wuaId().intValue());
     submissionDetail.setCorrectionTimestamp(Instant.now());
@@ -76,9 +67,9 @@ public class SubmissionDetailPersistenceService {
     return submissionDetail;
   }
 
-  private SubmissionDetail createBaseSubmissionDetailFromPrevious(SubmissionDetail previousSubmissionDetail) {
+  private SubmissionDetail createBaseSubmissionDetailFromPrevious(SubmissionDetail previousSubmissionDetail, User user) {
     var submissionDetail = new SubmissionDetail();
-    submissionDetail.setCreatedByWuaId(userService.getUserWuaId());
+    submissionDetail.setCreatedByWuaId(user.wuaId().intValue());
     submissionDetail.setCreatedTimestamp(clock.instant());
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     submissionDetail.setSubmissionType(previousSubmissionDetail.getSubmissionType());
@@ -88,24 +79,24 @@ public class SubmissionDetailPersistenceService {
   }
 
   @Transactional
-  void approveSubmission(SubmissionDetail submissionDetail) {
+  void approveSubmission(SubmissionDetail submissionDetail, User user) {
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     submissionDetail.setAcceptedTimestamp(clock.instant());
-    submissionDetail.setAcceptedByWuaId(userService.getUserWuaId());
+    submissionDetail.setAcceptedByWuaId(user.wuaId().intValue());
 
     resourceDetailsPersistenceService.updateOrganisationName(submissionDetail);
     submissionDetailRepository.save(submissionDetail);
 
     if (submissionDetail.isInitialResourceSubmission()) {
-      resourceGroupService.createResourceGroupLink(submissionDetail);
+      resourceGroupService.createResourceGroupLink(submissionDetail, user);
     }
   }
 
   @Transactional
-  void submitSubmission(SubmissionDetail submissionDetail) {
+  void submitSubmission(SubmissionDetail submissionDetail, User user) {
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetail.setSubmittedTimestamp(clock.instant());
-    submissionDetail.setSubmittedByWuaId(userService.getUserWuaId());
+    submissionDetail.setSubmittedByWuaId(user.wuaId().intValue());
     submissionDetailRepository.save(submissionDetail);
   }
 

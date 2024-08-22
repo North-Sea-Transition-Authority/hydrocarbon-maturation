@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
@@ -21,10 +21,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.Refe
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 
 @Controller
 @RequestMapping("/search-resource-records/prospects-and-discoveries")
@@ -35,25 +34,21 @@ public class SearchProspectAndDiscoveryRecordsController {
   public static final String PAGE_TITLE = "Search prospect and discovery records";
   private final SearchResourceRecordsService searchResourceRecordsService;
   private final ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory;
-  private final RegulatorTeamService regulatorTeamService;
-  private final UserService userService;
-  private final AreaTeamService areaTeamService;
+  private final InternalTeamService internalTeamService;
 
   @Autowired
   public SearchProspectAndDiscoveryRecordsController(SearchResourceRecordsService searchResourceRecordsService,
                                                      ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory,
-                                                     RegulatorTeamService regulatorTeamService,
-                                                     UserService userService, AreaTeamService areaTeamService) {
+                                                     InternalTeamService internalTeamService) {
     this.searchResourceRecordsService = searchResourceRecordsService;
     this.resourceRecordQueryServiceFactory = resourceRecordQueryServiceFactory;
-    this.regulatorTeamService = regulatorTeamService;
-    this.userService = userService;
-    this.areaTeamService = areaTeamService;
+    this.internalTeamService = internalTeamService;
   }
 
   @GetMapping
   public ModelAndView showSearchResourceRecordsScreen(
-      @ModelAttribute("searchProspectAndDiscoveryRecordsFilter") SearchProspectAndDiscoveryRecordsFilter filter) {
+      @ModelAttribute("searchProspectAndDiscoveryRecordsFilter") SearchProspectAndDiscoveryRecordsFilter filter,
+      User user) {
     var form = SearchResourceRecordsForm.from(filter);
 
     if (filter.isShowResults()) {
@@ -61,13 +56,13 @@ public class SearchProspectAndDiscoveryRecordsController {
           form,
           searchResourceRecordsService.getResourceRecordSearchResults(
               form,
-              resourceRecordQueryServiceFactory.getQueryServiceStrategy()),
+              resourceRecordQueryServiceFactory.getQueryServiceStrategy(user), user),
           FiltersAdded.YES,
-          isRegulatorOrAreaTeamUser()
+          isRegulatorOrAreaTeamUser(user)
       );
     }
 
-    return getModelAndViewWithNoFiltersAdded(form);
+    return getModelAndViewWithNoFiltersAdded(form, user);
   }
 
   @GetMapping("/clear-filters")
@@ -76,7 +71,8 @@ public class SearchProspectAndDiscoveryRecordsController {
       SessionStatus sessionStatus) {
     sessionStatus.setComplete();
     filter.clearFilter();
-    return ReverseRouter.redirect(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null));
+    return ReverseRouter.redirect(on(SearchProspectAndDiscoveryRecordsController.class)
+        .showSearchResourceRecordsScreen(null, null));
   }
 
   @PostMapping
@@ -85,11 +81,11 @@ public class SearchProspectAndDiscoveryRecordsController {
       @ModelAttribute("form") SearchResourceRecordsForm form) {
     filter.update(form);
     return ReverseRouter.redirect(on(SearchProspectAndDiscoveryRecordsController.class)
-        .showSearchResourceRecordsScreen(null));
+        .showSearchResourceRecordsScreen(null, null));
   }
 
-  private ModelAndView getModelAndViewWithNoFiltersAdded(SearchResourceRecordsForm form) {
-    var isRegulatorOrAreaTeamUser = isRegulatorOrAreaTeamUser();
+  private ModelAndView getModelAndViewWithNoFiltersAdded(SearchResourceRecordsForm form, User user) {
+    var isRegulatorOrAreaTeamUser = isRegulatorOrAreaTeamUser(user);
     if (isRegulatorOrAreaTeamUser) {
       form.setShowOnlyPreferredViews(true);
     }
@@ -110,13 +106,13 @@ public class SearchProspectAndDiscoveryRecordsController {
             .clearSearchResourceRecordFilter(null, null)))
         .addObject("resourceRecordSearchResultItems", resourceRecordSearchResults)
         .addObject("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
-            .searchProspectsAndDiscoveries(null)))
+            .searchProspectsAndDiscoveries(null, null)))
         .addObject("licenceEndpoint",
             SearchSelectorService.route(on(LicenceRestController.class).searchLiveLicences(null)))
         .addObject("preselectedLicence", searchResourceRecordsService.getPreselectedLicence(form))
         .addObject("resourceName", searchResourceRecordsService.getPreSelectedResourceName(form))
         .addObject("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class)
-            .searchOrganisationUnits(null)))
+            .searchOrganisationUnits(null, null)))
         .addObject("responsibleOrganisation", searchResourceRecordsService.getPreSelectedOrganisationUnit(form))
         .addObject("centreOfInterestBlock", searchResourceRecordsService.getPreSelectedQuadAndBlock(form))
         .addObject("quadrantBlocksApiEndpoint",
@@ -132,8 +128,7 @@ public class SearchProspectAndDiscoveryRecordsController {
     return SearchProspectAndDiscoveryRecordsFilter.createInstance();
   }
 
-  private boolean isRegulatorOrAreaTeamUser() {
-    var user = userService.getUser();
-    return regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user);
+  private boolean isRegulatorOrAreaTeamUser(User user) {
+    return internalTeamService.isRegulatorOrAreaTeamUser(user);
   }
 }

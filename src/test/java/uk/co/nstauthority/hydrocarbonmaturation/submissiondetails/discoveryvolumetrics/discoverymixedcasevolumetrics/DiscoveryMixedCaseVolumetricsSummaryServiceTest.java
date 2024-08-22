@@ -18,6 +18,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
@@ -33,6 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 
 @ExtendWith(MockitoExtension.class)
 class DiscoveryMixedCaseVolumetricsSummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
@@ -77,7 +80,7 @@ class DiscoveryMixedCaseVolumetricsSummaryServiceTest {
         listOfInstances, submissionDetail, reservoirSubmissionDetail))
         .thenReturn(tableView);
 
-    var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(),
@@ -119,7 +122,7 @@ class DiscoveryMixedCaseVolumetricsSummaryServiceTest {
         listOfInstances, submissionDetail, reservoirSubmissionDetail))
         .thenReturn(tableView);
 
-    var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(),
@@ -166,7 +169,7 @@ class DiscoveryMixedCaseVolumetricsSummaryServiceTest {
         listOfInstances, submissionDetail, reservoirSubmissionDetail))
         .thenReturn(tableView);
 
-    var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(),
@@ -190,7 +193,7 @@ class DiscoveryMixedCaseVolumetricsSummaryServiceTest {
         Optional.of(reservoirHydrocarbons)
     );
 
-    var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isEmpty();
   }
@@ -203,7 +206,7 @@ class DiscoveryMixedCaseVolumetricsSummaryServiceTest {
         Optional.empty()
     );
 
-    var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isEmpty();
   }
@@ -213,7 +216,7 @@ class DiscoveryMixedCaseVolumetricsSummaryServiceTest {
   void getSummarySection_nonDiscoverySubmission_assertEmpty(SubmissionType submissionType) {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionType);
 
-    var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isEmpty();
   }

@@ -88,7 +88,7 @@ class UndevelopedDiscoveryRemoveInformationControllerTest extends AbstractUndeve
         entry("pageCaption", testDisplayName),
         entry("summaryCards", testSummaryCards),
         entry("cancelUrl", ReverseRouter.route(on(UndevelopedDiscoverySummaryController.class)
-            .getUndevelopedDiscoverySummary(RESOURCE_ID)))
+            .getUndevelopedDiscoverySummary(RESOURCE_ID, null)))
     );
   }
 
@@ -171,7 +171,7 @@ class UndevelopedDiscoveryRemoveInformationControllerTest extends AbstractUndeve
     setupUserIsReservesAndResourcesAdvisor(user);
 
     var summaryUrl = ReverseRouter.route(on(UndevelopedDiscoverySummaryController.class)
-        .getUndevelopedDiscoverySummary(RESOURCE_ID));
+        .getUndevelopedDiscoverySummary(RESOURCE_ID, null));
 
     var undevelopedDiscoveryInformation = new UndevelopedDiscoveryInformation();
     undevelopedDiscoveryInformation.setId(UUID.randomUUID());

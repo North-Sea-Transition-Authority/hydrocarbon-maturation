@@ -53,6 +53,7 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void showStartUpdatePage_whenNotStatusNotSubmitted() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(StartUpdateController.class).showStartUpdatePage(SUBMISSION_DETAIL_ID)))
@@ -93,6 +94,7 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void showStartUpdatePage_whenCannotStartUpdate_assertForbidden() throws Exception{
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
         .thenReturn(submissionDetail);
     when(submissionUpdateService.canStartUpdateSubmissionDetailOnSubmission(submissionDetail.getSubmission()))
@@ -105,6 +107,7 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void showStartUpdatePage_whenCannotFindUpdate_assertIsNotFound() throws Exception{
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
         .thenReturn(submissionDetail);
     when(submissionUpdateService.canStartUpdateSubmissionDetailOnSubmission(submissionDetail.getSubmission()))
@@ -121,6 +124,7 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void showStartUpdatePage_assertModelProperties() throws Exception{
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionUpdateService.canStartUpdateSubmissionDetailOnSubmission(submissionDetail.getSubmission()))
         .thenReturn(true);
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
@@ -144,7 +148,7 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
     assertThat(modelMap)
         .contains(
             entry("startUpdateUrl", ReverseRouter.route(on(StartUpdateController.class)
-                .startUpdate(SUBMISSION_DETAIL_ID))),
+                .startUpdate(SUBMISSION_DETAIL_ID, null))),
             entry("pageTitle", "Update submission"),
             entry("updateRequestReason", expectedReason)
         );
@@ -152,35 +156,37 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void startUpdate_assertRedirect() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionUpdateService.canStartUpdateSubmissionDetailOnSubmission(submissionDetail.getSubmission()))
         .thenReturn(true);
     var updateSubmissionDetail = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
-    when(submissionUpdatePersistenceService.startUpdate(submissionDetail))
+    when(submissionUpdatePersistenceService.startUpdate(submissionDetail, USER))
         .thenReturn(updateSubmissionDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
         .thenReturn(submissionDetail);
     setUpWhenIsLatestExtantSubmissionVersion_passSecurity(submissionDetail);
     mockMvc.perform(
-            post(ReverseRouter.route(on(StartUpdateController.class).startUpdate(SUBMISSION_DETAIL_ID)))
+            post(ReverseRouter.route(on(StartUpdateController.class).startUpdate(SUBMISSION_DETAIL_ID, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(updateSubmissionDetail.getId()))));
+            .getTaskList(updateSubmissionDetail.getId(), null))));
 
     verify(submissionUpdatePersistenceService, times(1))
-        .startUpdate(submissionDetail);
+        .startUpdate(submissionDetail, USER);
   }
 
   @Test
   void startUpdate_whenCannotStartUpdate_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionUpdateService.canStartUpdateSubmissionDetailOnSubmission(submissionDetail.getSubmission()))
         .thenReturn(false);
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
         .thenReturn(submissionDetail);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(StartUpdateController.class).startUpdate(SUBMISSION_DETAIL_ID)))
+            post(ReverseRouter.route(on(StartUpdateController.class).startUpdate(SUBMISSION_DETAIL_ID, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isForbidden());

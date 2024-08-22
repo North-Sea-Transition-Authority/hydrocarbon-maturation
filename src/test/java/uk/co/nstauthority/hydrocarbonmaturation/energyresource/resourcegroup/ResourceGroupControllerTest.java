@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,12 +41,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -92,6 +92,7 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getResourceGroupPage_whenNoResourceFound_assertStatusNotFound() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     var invalidResourceId = UUID.randomUUID();
     when(resourceService.getResourceById(invalidResourceId))
         .thenReturn(Optional.empty());
@@ -105,6 +106,7 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void saveResourceGroup_whenNoResourceFound_assertStatusNotFound() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     var invalidResourceId = UUID.randomUUID();
     when(resourceService.getResourceById(invalidResourceId))
         .thenReturn(Optional.empty());
@@ -119,6 +121,7 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getResourceGroupPage_whenNoLatestApprovedSubmissionDetailFound_assertStatusNotFound() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     when(submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource))
         .thenReturn(Optional.empty());
 
@@ -133,10 +136,7 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
   void getResourceGroupPage_assertStatusOk() throws Exception {
     when(manageResourceGroupsService.getRelatedResourcesFormFromResource(resource))
         .thenReturn(new RelatedResourcesForm());
-    when(permissionService.hasPermission(USER, Set.of(
-        RolePermission.EXPLORATION, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     mockMvc.perform(
             get(ReverseRouter.route(on(ResourceGroupController.class)
                 .getResourceGroupPage(RESOURCE_ID, null)))
@@ -146,10 +146,10 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getResourceGroupPage_andUserIsNotResponsibleTeamUser_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(
-        RolePermission.EXPLORATION, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
     mockMvc.perform(
             get(ReverseRouter.route(on(ResourceGroupController.class)
                 .getResourceGroupPage(RESOURCE_ID, null)))
@@ -159,10 +159,10 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void saveResourceGroupPage_andUserIsNotResponsibleTeamUser_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(
-        RolePermission.EXPLORATION, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
     mockMvc.perform(
             post(ReverseRouter.route(on(ResourceGroupController.class)
                 .saveResourceGroup(RESOURCE_ID, null, null)))
@@ -174,6 +174,7 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveResourceGroupPage_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     when(manageResourceGroupsService.validateForResource(any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
@@ -184,7 +185,7 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ViewResourceRecordController.class)
-            .showResourceRecord(RESOURCE_ID))));
+            .showResourceRecord(RESOURCE_ID, null))));
 
     verify(manageResourceGroupsService, times(1)).updateResourceGroupLinkFromResource(
         eq(resource),
@@ -193,6 +194,7 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void saveResourceGroupPage_whenInvalidForm_assertStatusOk() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(manageResourceGroupsService.validateForResource(any(), any(), any())).thenReturn(bindingResult);
@@ -211,6 +213,7 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getResourceGroupModelAndView_assertModelProperties() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     when(manageResourceGroupsService.getRelatedResourcesFormFromResource(resource))
         .thenReturn(form);
     var resourcesInGroup = getResourceGroupMockSummary();
@@ -233,7 +236,7 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
             entry("resourceTypePlural", "prospects"),
             entry("resourcesInGroup", resourcesInGroup),
             entry("cancelUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
-                .showResourceRecord(RESOURCE_ID))),
+                .showResourceRecord(RESOURCE_ID, null))),
             entry("pageTitle", "Related prospects"),
             entry("resourceGroupsEndpoint",
                 SearchSelectorService.route(on(ResourceGroupRestController.class)
@@ -244,6 +247,7 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getResourceGroupModelAndView_whenProspect_assertModelProperties() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     when(manageResourceGroupsService.getRelatedResourcesFormFromResource(resource))
         .thenReturn(form);
     var resourcesInGroup = getResourceGroupMockSummary();
@@ -265,7 +269,7 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
             entry("resourceTypePlural", "prospects"),
             entry("resourcesInGroup", resourcesInGroup),
             entry("cancelUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
-                .showResourceRecord(RESOURCE_ID))),
+                .showResourceRecord(RESOURCE_ID, null))),
             entry("pageTitle", "Related prospects"),
             entry("resourceGroupsEndpoint",
                 SearchSelectorService.route(on(ResourceGroupRestController.class)
@@ -276,6 +280,7 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getResourceGroupModelAndView_whenDiscovery_assertModelProperties() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     resource.setType(ResourceType.DISCOVERY);
     when(manageResourceGroupsService.getRelatedResourcesFormFromResource(resource))
         .thenReturn(form);
@@ -296,7 +301,7 @@ class ResourceGroupControllerTest extends AbstractSubmissionControllerTest {
             entry("resourceTypePlural", "discoveries"),
             entry("resourcesInGroup", resourcesInGroup),
             entry("cancelUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
-                .showResourceRecord(RESOURCE_ID))),
+                .showResourceRecord(RESOURCE_ID, null))),
             entry("pageTitle", "Related discoveries"),
             entry("resourceGroupsEndpoint",
                 SearchSelectorService.route(on(ResourceGroupRestController.class)

@@ -17,15 +17,18 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class OpportunityDetailsFormServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   private static OpportunityDetailsFormValidator opportunityDetailsFormValidator;
   private static OpportunityDetailsFormService opportunityDetailsFormService;
@@ -54,7 +57,7 @@ class OpportunityDetailsFormServiceTest {
 
     var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
 
-    opportunityDetailsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
+    opportunityDetailsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail, USER);
     verify(opportunityDetailsFormValidator, times(1)).validate(
         eq(form), eq(bindingResult), captor.capture());
 

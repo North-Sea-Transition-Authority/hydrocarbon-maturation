@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
@@ -51,10 +52,11 @@ public class DeleteReservoirController {
 
   @GetMapping
   public ModelAndView getDeleteReservoirPage(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                             @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId) {
+                                             @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
+                                             User user) {
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
-    return getDeleteReservoirModelAndView(reservoirSubmissionDetail);
+    return getDeleteReservoirModelAndView(reservoirSubmissionDetail, user);
   }
 
   @PostMapping
@@ -71,14 +73,14 @@ public class DeleteReservoirController {
         .getReservoirTaskList(reservoirSubmissionDetail.getSubmissionDetail().getId(), null));
   }
 
-  private ModelAndView getDeleteReservoirModelAndView(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+  private ModelAndView getDeleteReservoirModelAndView(ReservoirSubmissionDetail reservoirSubmissionDetail, User user) {
     var modelAndView = new ModelAndView("remi/submissiondetails/reservoir/deleteReservoir");
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
     modelAndView.addObject("pageName", PAGE_NAME)
         .addObject("reservoirName", reservoirSubmissionDetail.getReservoir().getName())
         .addObject("summary",
-            reservoirSummaryService.getReservoirSummaryForIndividualReservoir(reservoirSubmissionDetail))
+            reservoirSummaryService.getReservoirSummaryForIndividualReservoir(reservoirSubmissionDetail, user))
         .addObject("deleteUrl",
             ReverseRouter.route(on(DeleteReservoirController.class)
                 .deleteReservoir(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)))

@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.DiscoverySubmissionSummaryController;
@@ -18,7 +19,7 @@ public class ReviewAndSubmitTaskListSectionService implements TaskListSectionSer
   public static final String REVIEW_SUBMIT_ITEM_NAME = "Review and submit";
 
   @Override
-  public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail) {
+  public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail, User user) {
 
     var items = getTaskListItemsBySubmissionType(submissionDetail);
 
@@ -26,7 +27,7 @@ public class ReviewAndSubmitTaskListSectionService implements TaskListSectionSer
   }
 
   @Override
-  public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
+  public Boolean isSectionSubmittable(SubmissionDetail submissionDetail, User user) {
     return true;
   }
 
@@ -35,19 +36,19 @@ public class ReviewAndSubmitTaskListSectionService implements TaskListSectionSer
       case CREATE_PROSPECT, PROSPECT_UPDATE, RELINQUISHMENT_PROSPECT ->
           List.of(new TaskListItem(REVIEW_SUBMIT_ITEM_NAME,
               ReverseRouter.route(on(ProspectSubmissionSummaryController.class)
-                  .showSubmissionSummary(submissionDetail.getId()))));
+                  .showSubmissionSummary(submissionDetail.getId(), null))));
       case POST_DRILL_DRY_HOLE ->
           List.of(new TaskListItem(REVIEW_SUBMIT_ITEM_NAME,
               ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
-                  .showSubmissionSummary(submissionDetail.getId()))));
+                  .showSubmissionSummary(submissionDetail.getId(), null))));
       case CREATE_DISCOVERY_FROM_PROSPECT, UPDATE_DISCOVERY, CREATE_DISCOVERY, RELINQUISHMENT_DISCOVERY ->
           List.of(new TaskListItem(REVIEW_SUBMIT_ITEM_NAME,
               ReverseRouter.route(on(DiscoverySubmissionSummaryController.class)
-                  .showSubmissionSummary(submissionDetail.getId()))));
+                  .showSubmissionSummary(submissionDetail.getId(), null))));
       case CREATE_FIELD, CREATE_CSR, CREATE_FDP, CREATE_FDPA, CREATE_COP ->
           List.of(new TaskListItem(REVIEW_SUBMIT_ITEM_NAME,
               ReverseRouter.route(on(FieldSubmissionSummaryController.class)
-                  .showSubmissionSummary(submissionDetail.getId()))));
+                  .showSubmissionSummary(submissionDetail.getId(), null))));
     };
   }
 }

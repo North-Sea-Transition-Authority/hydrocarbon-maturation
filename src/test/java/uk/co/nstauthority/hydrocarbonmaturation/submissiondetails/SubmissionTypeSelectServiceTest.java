@@ -1,8 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,22 +10,23 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleTestUtil;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionTypeSelectServiceTest {
 
   private static SubmissionTypeSelectFormValidator submissionTypeSelectFormValidator;
   private static SubmissionTypeSelectService submissionTypeSelectService;
-  private static UserService userService;
-  private static PermissionService permissionService;
+  private static TeamQueryService teamQueryService;
 
 
   private static final User USER = UserTestUtil.Builder().build();
@@ -35,10 +34,8 @@ class SubmissionTypeSelectServiceTest {
   @BeforeAll
   static void setup() {
     submissionTypeSelectFormValidator = mock(SubmissionTypeSelectFormValidator.class);
-    userService = mock(UserService.class);
-    permissionService = mock(PermissionService.class);
-    submissionTypeSelectService = new SubmissionTypeSelectService(submissionTypeSelectFormValidator,
-        userService, permissionService);
+    teamQueryService = mock(TeamQueryService.class);
+    submissionTypeSelectService = new SubmissionTypeSelectService(submissionTypeSelectFormValidator, teamQueryService);
   }
 
   @Test
@@ -51,11 +48,11 @@ class SubmissionTypeSelectServiceTest {
   }
 
   @Test
-  void getSubmissionTypeOptions_discovery_allPermissions() {
-    when(userService.getUser()).thenReturn(USER);
-    when(permissionService.hasPermission(eq(USER), any())).thenReturn(true);
+  void getSubmissionTypeOptions_discovery_exploration() {
+    var teamRole = TeamRoleTestUtil.Builder().withRole(Role.EXPLORATION).build();
+    when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
 
-    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY))
+    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY, USER))
         .containsExactly(
             SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
             SubmissionType.CREATE_DISCOVERY,
@@ -64,11 +61,35 @@ class SubmissionTypeSelectServiceTest {
   }
 
   @Test
-  void getSubmissionTypeOptions_prospect_allPermissions() {
-    when(userService.getUser()).thenReturn(USER);
-    when(permissionService.hasPermission(eq(USER), any())).thenReturn(true);
+  void getSubmissionTypeOptions_discovery_industry() {
+    var teamRole = TeamRoleTestUtil.Builder().withRole(Role.INDUSTRY_SUBMIT).build();
+    when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
 
-    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT))
+    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY, USER))
+        .containsExactly(
+            SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
+            SubmissionType.CREATE_DISCOVERY,
+            SubmissionType.UPDATE_DISCOVERY,
+            SubmissionType.RELINQUISHMENT_DISCOVERY);
+  }
+
+  @Test
+  void getSubmissionTypeOptions_discovery_areaTeam() {
+    var teamRole = TeamRoleTestUtil.Builder().withRole(Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM).build();
+    when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
+
+    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY, USER))
+        .containsExactly(
+            SubmissionType.UPDATE_DISCOVERY,
+            SubmissionType.RELINQUISHMENT_DISCOVERY);
+  }
+
+  @Test
+  void getSubmissionTypeOptions_prospect_exploration() {
+    var teamRole = TeamRoleTestUtil.Builder().withRole(Role.EXPLORATION).build();
+    when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
+
+    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT, USER))
         .containsExactly(
             SubmissionType.CREATE_PROSPECT,
             SubmissionType.PROSPECT_UPDATE,
@@ -78,27 +99,54 @@ class SubmissionTypeSelectServiceTest {
   }
 
   @Test
-  void getSubmissionTypeOptions_discovery_onlyAreaTeamPermissions() {
-    when(userService.getUser()).thenReturn(USER);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(false);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(true);
+  void getSubmissionTypeOptions_prospect_industry() {
+    var teamRole = TeamRoleTestUtil.Builder().withRole(Role.INDUSTRY_SUBMIT).build();
+    when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
 
-    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY))
-        .containsOnly(
-            SubmissionType.UPDATE_DISCOVERY,
-            SubmissionType.RELINQUISHMENT_DISCOVERY);
+    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT, USER))
+        .containsExactly(
+            SubmissionType.CREATE_PROSPECT,
+            SubmissionType.PROSPECT_UPDATE,
+            SubmissionType.POST_DRILL_DRY_HOLE,
+            SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT,
+            SubmissionType.RELINQUISHMENT_PROSPECT);
   }
 
   @Test
-  void getSubmissionTypeOptions_field_allPermissions() {
-    when(userService.getUser()).thenReturn(USER);
-    when(permissionService.hasPermission(eq(USER), any())).thenReturn(true);
+  void getSubmissionTypeOptions_prospect_areaTeam() {
+    var teamRole = TeamRoleTestUtil.Builder().withRole(Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM).build();
+    when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
 
-    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.FIELD))
+    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT, USER)).isEmpty();
+  }
+
+  @Test
+  void getSubmissionTypeOptions_field_exploration() {
+    var teamRole = TeamRoleTestUtil.Builder().withRole(Role.EXPLORATION).build();
+    when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
+
+    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.FIELD, USER)).isEmpty();
+  }
+
+  @Test
+  void getSubmissionTypeOptions_field_industry() {
+    var teamRole = TeamRoleTestUtil.Builder().withRole(Role.INDUSTRY_SUBMIT).build();
+    when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
+
+    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.FIELD, USER))
+        .containsOnly(
+            SubmissionType.CREATE_CSR,
+            SubmissionType.CREATE_FDP,
+            SubmissionType.CREATE_FDPA,
+            SubmissionType.CREATE_COP);
+  }
+
+  @Test
+  void getSubmissionTypeOptions_field_areaTeam() {
+    var teamRole = TeamRoleTestUtil.Builder().withRole(Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM).build();
+    when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
+
+    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.FIELD, USER))
         .containsOnly(
             SubmissionType.CREATE_FIELD,
             SubmissionType.CREATE_CSR,
@@ -107,22 +155,11 @@ class SubmissionTypeSelectServiceTest {
             SubmissionType.CREATE_COP);
   }
 
-  @Test
-  void getSubmissionTypeOptions_field_onlyIndustrySubmit() {
-    when(userService.getUser()).thenReturn(USER);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(true);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.ONSHORE_AREA_TEAM_MEMBER, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(false);
-
-    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.FIELD))
-        .containsOnly(
-            SubmissionType.CREATE_CSR,
-            SubmissionType.CREATE_FDP,
-            SubmissionType.CREATE_FDPA,
-            SubmissionType.CREATE_COP);
+  @ParameterizedTest
+  @EnumSource(value = Role.class, mode = EnumSource.Mode.EXCLUDE, names = {"INDUSTRY_SUBMIT", "EXPLORATION", "MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM"})
+  void getSubmissionTypeOptions_unexpectedRoles(Role role) {
+    var teamRole = TeamRoleTestUtil.Builder().withRole(role).build();
+    when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
+    assertThat(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.FIELD, USER)).isEmpty();
   }
 }

@@ -51,7 +51,7 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
   @SecurityTest
   void showSearchResourceRecordsScreen_NoUser_assertStatusUnauthorized() throws Exception {
     mockMvc.perform(
-            get(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null))))
+            get(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null, null))))
         .andExpect(status().isUnauthorized());
   }
 
@@ -63,7 +63,7 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
-            .showSearchResourceRecordsScreen(null))));
+            .showSearchResourceRecordsScreen(null, null))));
   }
 
   @Test
@@ -74,17 +74,16 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
-            .showSearchResourceRecordsScreen(null))));
+            .showSearchResourceRecordsScreen(null, null))));
   }
 
   @Test
   void showSearchResourceRecordsScreen_whenOperator_assertStatusOk() throws Exception {
     var form = new SearchResourceRecordsForm();
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
-    when(areaTeamService.isAreaUser(USER)).thenReturn(false);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
     mockMvc.perform(
             get(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
-                .showSearchResourceRecordsScreen(null)))
+                .showSearchResourceRecordsScreen(null, null)))
                 .with(user(USER)))
         .andExpect(status().isOk());
     assertThat(form.isShowOnlyPreferredViews()).isFalse();
@@ -93,18 +92,18 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
   @Test
   void showSearchResourceRecordsScreen_whenRegulator_whenFilterInSessionAndShowResults_verifyMethodCalls() throws Exception {
     var operatorQueryService = mock(OperatorResourceRecordQueryService.class);
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
-    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
+    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy(USER))
         .thenReturn(operatorQueryService);
     mockMvc.perform(
             get(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
-                .showSearchResourceRecordsScreen(null)))
+                .showSearchResourceRecordsScreen(null, null)))
                 .with(user(USER))
                 .flashAttr("searchProspectAndDiscoveryRecordsFilter", getFullFilter(true)))
         .andExpect(status().isOk());
 
     verify(searchResourceRecordsService, times(1))
-        .getResourceRecordSearchResults(any(SearchResourceRecordsForm.class), eq(operatorQueryService));
+        .getResourceRecordSearchResults(any(SearchResourceRecordsForm.class), eq(operatorQueryService), eq(USER));
   }
 
   @Test
@@ -117,7 +116,7 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
                 .flashAttr("searchProspectAndDiscoveryRecordsFilter", filter))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
-            .showSearchResourceRecordsScreen(null))));
+            .showSearchResourceRecordsScreen(null, null))));
 
     assertThat(filter)
         .hasAllNullFieldsOrPropertiesExcept(
@@ -148,9 +147,9 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
 
   @Test
   void showSearchResourceRecordsScreenModelAndView_whenRegulator_assertModelProperties() throws Exception {
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null)))
+            get(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null, null)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -166,10 +165,10 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
                 .clearSearchResourceRecordFilter(null, null))),
             entry("resourceRecordSearchResultItems", Collections.emptyList()),
             entry("resourceApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
-                .searchProspectsAndDiscoveries(null))),
+                .searchProspectsAndDiscoveries(null, null))),
             entry("resourceName", Map.of()),
             entry("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class)
-                .searchOrganisationUnits(null))),
+                .searchOrganisationUnits(null, null))),
             entry("responsibleOrganisation", Map.of()),
             entry("quadrantBlocksApiEndpoint", SearchSelectorService.route(on(ReferenceBlockRestController.class)
                 .searchQuadrantBlocks(null))),

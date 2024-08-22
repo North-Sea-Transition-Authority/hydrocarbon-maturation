@@ -96,6 +96,7 @@ class ProspectMixedCaseOutputsControllerTest extends AbstractSubmissionControlle
 
   @SecurityTest
   void getMixedCaseOutputs_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(ProspectMixedCaseOutputsController.class)
@@ -106,6 +107,7 @@ class ProspectMixedCaseOutputsControllerTest extends AbstractSubmissionControlle
 
   @SecurityTest
   void getMixedCaseOutputs_andNotProspectOrDiscovery_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     mockMvc.perform(
             get(ReverseRouter.route(on(ProspectMixedCaseOutputsController.class)
@@ -139,6 +141,7 @@ class ProspectMixedCaseOutputsControllerTest extends AbstractSubmissionControlle
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveMixedCaseOutputs_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(prospectMixedCaseOutputsFormValidator.isValid(
         any(MixedCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(true);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
@@ -150,7 +153,7 @@ class ProspectMixedCaseOutputsControllerTest extends AbstractSubmissionControlle
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
 
     verify(prospectMixedCaseOutputsPersistenceService, times(1)).saveMixedCaseOutputs(any(MixedCaseOutputsForm.class), eq(reservoirSubmissionDetail));
   }
@@ -158,6 +161,7 @@ class ProspectMixedCaseOutputsControllerTest extends AbstractSubmissionControlle
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveMixedCaseOutputs_partialValidation_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
     when(prospectMixedCaseOutputsFormValidator.isValid(
         any(MixedCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(false);
@@ -176,6 +180,7 @@ class ProspectMixedCaseOutputsControllerTest extends AbstractSubmissionControlle
 
   @Test
   void getMixedCaseOutputsModelAndView_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(prospectMixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)).thenReturn(form);
 
@@ -191,7 +196,7 @@ class ProspectMixedCaseOutputsControllerTest extends AbstractSubmissionControlle
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
         );
 
     assertThat(modelMap)

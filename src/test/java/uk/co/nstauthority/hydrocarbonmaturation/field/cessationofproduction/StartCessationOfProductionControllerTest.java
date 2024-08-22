@@ -11,24 +11,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPurposeController;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = StartCessationOfProductionController.class)
 class StartCessationOfProductionControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void getStartPage_assertStatusOk() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(true);
+
     mockMvc.perform(
             get(ReverseRouter.route(on(StartCessationOfProductionController.class).getStartPage()))
                 .with(user(USER)))
@@ -37,11 +34,8 @@ class StartCessationOfProductionControllerTest extends AbstractSubmissionControl
 
   @Test
   void getStartPage_assertModelProperties() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(true);
+
     var modelAndView = mockMvc.perform(
             get(ReverseRouter.route(on(StartCessationOfProductionController.class).getStartPage()))
                 .with(user(USER)))
@@ -51,16 +45,16 @@ class StartCessationOfProductionControllerTest extends AbstractSubmissionControl
     assertThat(modelAndView).isNotNull();
     var model = modelAndView.getModel();
     assertEquals(ReverseRouter.route(on(StartCessationOfProductionController.class).startCessationOfProduction()), model.get("actionUrl"));
-    assertEquals(ReverseRouter.route(on(FieldPurposeController.class).getFieldPurposeForm()), model.get("backLinkUrl"));
+    assertEquals(ReverseRouter.route(on(FieldPurposeController.class).getFieldPurposeForm(null)), model.get("backLinkUrl"));
   }
 
   @SecurityTest
   void getStartPage_whenNoPermission_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(false);
+
     mockMvc.perform(
             get(ReverseRouter.route(on(StartCessationOfProductionController.class).getStartPage()))
                 .with(user(USER)))
@@ -69,11 +63,8 @@ class StartCessationOfProductionControllerTest extends AbstractSubmissionControl
 
   @SecurityTest
   void startCessationOfProduction_assertRedirection() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(true);
+
     mockMvc.perform(
             post(ReverseRouter.route(on(StartCessationOfProductionController.class).startCessationOfProduction()))
                 .with(user(USER))

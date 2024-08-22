@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,15 +21,13 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectPhase;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -39,14 +36,18 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTimelineView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.TimelineEvent;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectCapexSummaryServiceTest {
+
+  private static final User USER = UserTestUtil.Builder().build();
+
   @Mock
-  private UserService userService;
-  @Mock
-  private PermissionService permissionService;
+  private TeamQueryService teamQueryService;
   @Mock
   private ProjectCapexService projectStageService;
   @InjectMocks
@@ -78,7 +79,7 @@ class ProjectCapexSummaryServiceTest {
     void whenGetSummarySection_andProjectIsNotApplicableType_thenAssertEmpty(ProjectType projectType) {
       project.setProjectType(projectType);
 
-      var summarySectionOptional = projectStageSummaryService.getSummarySection(project);
+      var summarySectionOptional = projectStageSummaryService.getSummarySection(project, USER);
 
       assertThat(summarySectionOptional)
           .isEmpty();
@@ -86,7 +87,7 @@ class ProjectCapexSummaryServiceTest {
 
     @Test
     void whenGetSummarySection_andProjectHasNotStages_thenAssertCommonProperties() {
-      var summarySectionOptional = projectStageSummaryService.getSummarySection(project);
+      var summarySectionOptional = projectStageSummaryService.getSummarySection(project, USER);
 
       assertThat(summarySectionOptional)
           .isPresent()
@@ -146,7 +147,7 @@ class ProjectCapexSummaryServiceTest {
       when(projectStageService.getOrderedCreatedProjectCapexs(project))
           .thenReturn(List.of(firstCreatedCapex, secondCreatedCapex, lastCreatedCapex));
 
-      var summarySectionOptional = projectStageSummaryService.getSummarySection(project);
+      var summarySectionOptional = projectStageSummaryService.getSummarySection(project, USER);
 
       assertThat(summarySectionOptional)
           .isPresent()
@@ -266,7 +267,7 @@ class ProjectCapexSummaryServiceTest {
       when(projectStageService.getOrderedCreatedProjectCapexs(project))
           .thenReturn(List.of(firstCreatedCapex, secondCreatedCapex, lastCreatedCapex));
 
-      var summarySectionOptional = projectStageSummaryService.getSummarySection(project);
+      var summarySectionOptional = projectStageSummaryService.getSummarySection(project, USER);
       var summaryItems = summarySectionOptional.get().summaryItems();
       var summaryItem = summaryItems.get(0);
       var summaryCard = summaryItem.summaryCards().get(0);
@@ -363,7 +364,7 @@ class ProjectCapexSummaryServiceTest {
       when(projectStageService.getOrderedCreatedProjectCapexs(project))
           .thenReturn(List.of(firstCreatedCapex, secondCreatedCapex, lastCreatedCapex));
 
-      var summarySectionOptional = projectStageSummaryService.getSummarySection(project);
+      var summarySectionOptional = projectStageSummaryService.getSummarySection(project, USER);
       var summaryItems = summarySectionOptional.get().summaryItems();
       var summaryItem = summaryItems.get(0);
       var summaryCard = summaryItem.summaryCards().get(0);
@@ -380,9 +381,7 @@ class ProjectCapexSummaryServiceTest {
 
   private void mockUserCallsWithPermissions(boolean isProjectAnalyst) {
     var projectAnalystUser = UserTestUtil.Builder().build();
-    when(userService.getUser())
-        .thenReturn(projectAnalystUser);
-    when(permissionService.hasPermission(projectAnalystUser, Set.of(RolePermission.PROJECT_ANALYST)))
+    when(teamQueryService.userHasStaticRole(projectAnalystUser.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
         .thenReturn(isProjectAnalyst);
   }
 
@@ -395,7 +394,7 @@ class ProjectCapexSummaryServiceTest {
     when(projectStageService.getOrderedCreatedProjectCapexs(project))
         .thenReturn(List.of(projectCapex));
 
-    var summarySectionOptional = projectStageSummaryService.getSummarySection(project);
+    var summarySectionOptional = projectStageSummaryService.getSummarySection(project, USER);
 
     var summaryItems = summarySectionOptional.get().summaryItems();
 
@@ -405,7 +404,7 @@ class ProjectCapexSummaryServiceTest {
   }
 
   private SummaryCard getSectionSummaryCardWhenNoStages() {
-    var summarySectionOptional = projectStageSummaryService.getSummarySection(project);
+    var summarySectionOptional = projectStageSummaryService.getSummarySection(project, USER);
 
     var summaryItems = summarySectionOptional.get().summaryItems();
 

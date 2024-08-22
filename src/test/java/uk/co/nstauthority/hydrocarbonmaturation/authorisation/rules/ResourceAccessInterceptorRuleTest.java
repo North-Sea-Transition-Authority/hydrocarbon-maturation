@@ -52,7 +52,7 @@ class ResourceAccessInterceptorRuleTest {
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
-    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
+    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy(user))
         .thenReturn(regulatorTeamMembershipInterceptorRule);
     when(regulatorTeamMembershipInterceptorRule.hasRequiredResourceAccessPermissions(user, submissionDetail))
         .thenReturn(SecurityRuleResult.checkFailedWithStatus(HttpStatus.FORBIDDEN));
@@ -77,7 +77,7 @@ class ResourceAccessInterceptorRuleTest {
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
-    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
+    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy(user))
         .thenReturn(operatorTeamMembershipInterceptorRule);
     when(operatorTeamMembershipInterceptorRule.hasRequiredResourceAccessPermissions(user, submissionDetail))
         .thenReturn(SecurityRuleResult.checkFailedWithStatus(HttpStatus.FORBIDDEN));
@@ -102,7 +102,7 @@ class ResourceAccessInterceptorRuleTest {
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
-    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
+    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy(user))
         .thenReturn(regulatorTeamMembershipInterceptorRule);
     when(regulatorTeamMembershipInterceptorRule.hasRequiredResourceAccessPermissions(user, submissionDetail))
         .thenReturn(SecurityRuleResult.continueAsNormal());
@@ -126,7 +126,7 @@ class ResourceAccessInterceptorRuleTest {
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.ONSHORE);
-    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy())
+    when(resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy(user))
         .thenReturn(operatorTeamMembershipInterceptorRule);
     when(operatorTeamMembershipInterceptorRule.hasRequiredResourceAccessPermissions(user, submissionDetail))
         .thenReturn(SecurityRuleResult.continueAsNormal());

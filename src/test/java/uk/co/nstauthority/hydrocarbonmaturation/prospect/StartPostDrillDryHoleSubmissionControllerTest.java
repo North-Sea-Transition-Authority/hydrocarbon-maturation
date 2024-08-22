@@ -11,23 +11,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.StartPostDrillDryHoleSubmissionController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = StartPostDrillDryHoleSubmissionController.class)
 class StartPostDrillDryHoleSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getStartPostDrillDryHolePage_assertStatusOk() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     mockMvc.perform(
         get(ReverseRouter.route(on(StartPostDrillDryHoleSubmissionController.class).getStartPostDrillDryHolePage()))
             .with(user(USER)))
@@ -36,8 +35,7 @@ class StartPostDrillDryHoleSubmissionControllerTest extends AbstractSubmissionCo
 
   @SecurityTest
   void startPostDrillDryHole_assertRedirection() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     mockMvc.perform(
         post(ReverseRouter.route(on(StartPostDrillDryHoleSubmissionController.class).startPostDrillDryHole()))
             .with(user(USER))
@@ -48,8 +46,7 @@ class StartPostDrillDryHoleSubmissionControllerTest extends AbstractSubmissionCo
 
   @Test
   void getStartPostDrillDryHolePage_assertModelProperties() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     var modelAndView = mockMvc.perform(
         get(ReverseRouter.route(on(StartPostDrillDryHoleSubmissionController.class).getStartPostDrillDryHolePage()))
             .with(user(USER)))
@@ -59,13 +56,14 @@ class StartPostDrillDryHoleSubmissionControllerTest extends AbstractSubmissionCo
     assertThat(modelAndView).isNotNull();
     var model = modelAndView.getModel();
     assertEquals(ReverseRouter.route(on(StartPostDrillDryHoleSubmissionController.class).startPostDrillDryHole()), model.get("actionUrl"));
-    assertEquals(ReverseRouter.route(on(ProspectPurposeController.class).getProspectPurposeForm()), model.get("backLinkUrl"));
+    assertEquals(ReverseRouter.route(on(ProspectPurposeController.class).getProspectPurposeForm(null)), model.get("backLinkUrl"));
   }
 
   @SecurityTest
   void getStartPostDrillDryHolePage_whenNoPermission_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(false);
+
     mockMvc.perform(
             get(ReverseRouter.route(on(StartPostDrillDryHoleSubmissionController.class).getStartPostDrillDryHolePage()))
                 .with(user(USER)))
@@ -74,8 +72,9 @@ class StartPostDrillDryHoleSubmissionControllerTest extends AbstractSubmissionCo
 
   @SecurityTest
   void startPostDrillDryHole_whenNoPermission_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(false);
+
     mockMvc.perform(
             post(ReverseRouter.route(on(StartPostDrillDryHoleSubmissionController.class).startPostDrillDryHole()))
                 .with(user(USER))

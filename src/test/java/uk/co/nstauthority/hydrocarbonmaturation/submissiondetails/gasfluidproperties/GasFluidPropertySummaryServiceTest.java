@@ -12,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
@@ -21,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 
 @ExtendWith(MockitoExtension.class)
 class GasFluidPropertySummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private GasFluidPropertyPersistenceService gasFluidPropertyPersistenceService;
@@ -145,7 +148,7 @@ class GasFluidPropertySummaryServiceTest {
     when(gasFluidPropertyPersistenceService.getGasFluidProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
-    var summarySection = gasFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = gasFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     var summaryDataView = SummaryDataView.newWithKeyValue(
@@ -187,7 +190,7 @@ class GasFluidPropertySummaryServiceTest {
     when(gasFluidPropertyPersistenceService.getGasFluidProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(gasProperty));
 
-    var summarySection = gasFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = gasFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), GasFluidPropertySummaryService.GAS_FLUID_PROPERTIES_DISPLAY_ORDER);
@@ -215,7 +218,7 @@ class GasFluidPropertySummaryServiceTest {
     when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
         .thenReturn(true);
 
-    assertThat(gasFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(gasFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isEmpty();
   }
 

@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
-import java.util.Set;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,11 +16,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -36,6 +32,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresourc
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsSubmissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralDetailsTaskListSectionServiceTest {
@@ -49,11 +48,9 @@ class GeneralDetailsTaskListSectionServiceTest {
   @Mock
   private ConsideringCcusSubmissionService consideringCcusSubmissionService;
   @Mock
-  private UserService userService;
-  @Mock
-  private PermissionService permissionService;
-  @Mock
   private FieldComplexitySubmissionService fieldComplexitySubmissionService;
+  @Mock
+  private TeamQueryService teamQueryService;
 
   @InjectMocks
   private GeneralDetailsTaskListSectionService generalDetailsTaskListSectionService;
@@ -79,9 +76,9 @@ class GeneralDetailsTaskListSectionServiceTest {
   void getSection_expectOnlyGeneralDetails(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
     if (submissionDetail.isInitialResourceSubmission()) {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+      when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     }
-    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail, USER);
 
     var section = taskListSectionOptional.get();
 
@@ -94,7 +91,7 @@ class GeneralDetailsTaskListSectionServiceTest {
             new TaskListItem("Resource details",
                 TaskListLabel.NOT_COMPLETE,
                 ReverseRouter.route(on(ResourceDetailsController.class)
-                    .getResourceDetails(submissionDetail.getId()))),
+                    .getResourceDetails(submissionDetail.getId(), null))),
             new TaskListItem("General details",
                 TaskListLabel.NOT_COMPLETE,
                 ReverseRouter.route(on(GeneralDetailsController.class)
@@ -113,10 +110,9 @@ class GeneralDetailsTaskListSectionServiceTest {
   void getSection_SubmissionTypeIsCreateProspect_ShowRelatedProspects(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
 
-    when(userService.getUser()).thenReturn(USER);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
 
-    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail, USER);
 
     var section = taskListSectionOptional.get();
 
@@ -129,7 +125,7 @@ class GeneralDetailsTaskListSectionServiceTest {
               new TaskListItem("Resource details",
                   TaskListLabel.NOT_COMPLETE,
                   ReverseRouter.route(on(ResourceDetailsController.class)
-                      .getResourceDetails(submissionDetail.getId()))),
+                      .getResourceDetails(submissionDetail.getId(), null))),
               new TaskListItem("General details",
                   TaskListLabel.NOT_COMPLETE,
                   ReverseRouter.route(on(GeneralDetailsController.class)
@@ -153,10 +149,9 @@ class GeneralDetailsTaskListSectionServiceTest {
   void getSection_whenInitialSubmissionAndHasPermission_whenDiscovery_ShowRelatedDiscoveries(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
     submissionDetail.getSubmission().getResource().setType(ResourceType.DISCOVERY);
-    when(userService.getUser()).thenReturn(USER);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
 
-    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail, USER);
 
     var section = taskListSectionOptional.get();
 
@@ -169,7 +164,7 @@ class GeneralDetailsTaskListSectionServiceTest {
                 new TaskListItem("Resource details",
                     TaskListLabel.NOT_COMPLETE,
                     ReverseRouter.route(on(ResourceDetailsController.class)
-                        .getResourceDetails(submissionDetail.getId()))),
+                        .getResourceDetails(submissionDetail.getId(), null))),
                 new TaskListItem("General details",
                     TaskListLabel.NOT_COMPLETE,
                     ReverseRouter.route(on(GeneralDetailsController.class)
@@ -193,10 +188,9 @@ class GeneralDetailsTaskListSectionServiceTest {
   void getSection_whenCorrection_dontShowRelatedResources(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
     submissionDetail.setCorrection(true);
-    when(userService.getUser()).thenReturn(USER);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
 
-    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail, USER);
 
     var section = taskListSectionOptional.get();
 
@@ -209,7 +203,7 @@ class GeneralDetailsTaskListSectionServiceTest {
                 new TaskListItem("Resource details",
                     TaskListLabel.NOT_COMPLETE,
                     ReverseRouter.route(on(ResourceDetailsController.class)
-                        .getResourceDetails(submissionDetail.getId()))),
+                        .getResourceDetails(submissionDetail.getId(), null))),
                 new TaskListItem("General details",
                     TaskListLabel.NOT_COMPLETE,
                     ReverseRouter.route(on(GeneralDetailsController.class)
@@ -228,11 +222,9 @@ class GeneralDetailsTaskListSectionServiceTest {
       mode = EnumSource.Mode.INCLUDE)
   void getSection_SubmissionTypeIsCreateProspectAndUserDoesNotHaveCorrectRole_ShowRelatedProspects(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
 
-    when(userService.getUser()).thenReturn(USER);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(false);
-
-    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail, USER);
 
     var section = taskListSectionOptional.get();
 
@@ -244,7 +236,7 @@ class GeneralDetailsTaskListSectionServiceTest {
         .containsExactly(List.of(
             new TaskListItem("Resource details", TaskListLabel.NOT_COMPLETE,
                 ReverseRouter.route(on(ResourceDetailsController.class)
-                    .getResourceDetails(submissionDetail.getId()))),
+                    .getResourceDetails(submissionDetail.getId(), null))),
             new TaskListItem("General details",
                 TaskListLabel.NOT_COMPLETE,
                 ReverseRouter.route(on(GeneralDetailsController.class)
@@ -259,10 +251,10 @@ class GeneralDetailsTaskListSectionServiceTest {
   void isSectionSubmittable_AllSubmissionTypesExceptCreateProspect_Submittable(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
 
-    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
 
-    assertTrue(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -270,9 +262,9 @@ class GeneralDetailsTaskListSectionServiceTest {
   void isSectionSubmittable_AllSubmissionTypesExceptCreateProspect_NotSubmittable(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
 
-    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(false);
 
-    assertFalse(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -280,15 +272,14 @@ class GeneralDetailsTaskListSectionServiceTest {
   void isSectionSubmittable_SubmissionTypeIsCreateProspect_Submittable(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
 
-    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
 
-    when(userService.getUser()).thenReturn(USER);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
 
-    when(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
 
-    assertTrue(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -296,13 +287,12 @@ class GeneralDetailsTaskListSectionServiceTest {
   void isSectionSubmittable_SubmissionTypeIsCreateProspectAndNstaUserDoesNotHaveCorrectRole_NotSubmittable(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
 
-    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
 
-    when(userService.getUser()).thenReturn(USER);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(false);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
 
-    assertTrue(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -310,15 +300,14 @@ class GeneralDetailsTaskListSectionServiceTest {
   void isSectionSubmittable_SubmissionTypeIsCreateProspect_NotSubmittable(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
 
-    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
 
-    when(userService.getUser()).thenReturn(USER);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
 
-    when(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    when(relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(false);
 
-    assertFalse(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -326,13 +315,12 @@ class GeneralDetailsTaskListSectionServiceTest {
   void isSectionSubmittable_whenCorrection_submittable(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
     submissionDetail.setCorrection(true);
-    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(resourceDetailsSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
 
-    when(userService.getUser()).thenReturn(USER);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
 
-    assertTrue(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -340,12 +328,11 @@ class GeneralDetailsTaskListSectionServiceTest {
   void isSectionSubmittable_whenCorrection_notSubmittable(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
     submissionDetail.setCorrection(true);
-    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    when(generalDetailSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(false);
 
-    when(userService.getUser()).thenReturn(USER);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION))).thenReturn(true);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
 
-    assertFalse(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(generalDetailsTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -358,10 +345,10 @@ class GeneralDetailsTaskListSectionServiceTest {
   void getSection_SubmissionTypeIsField_allFieldOnlySections(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
 
-    when(consideringCcusSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(fieldComplexitySubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(consideringCcusSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(fieldComplexitySubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
 
-    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = generalDetailsTaskListSectionService.getSection(submissionDetail, USER);
 
     var section = taskListSectionOptional.get();
 

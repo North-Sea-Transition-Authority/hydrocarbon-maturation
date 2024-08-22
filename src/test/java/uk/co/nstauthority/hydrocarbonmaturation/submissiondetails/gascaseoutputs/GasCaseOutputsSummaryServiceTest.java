@@ -16,6 +16,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryView;
@@ -31,6 +33,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 
 @ExtendWith(MockitoExtension.class)
 class GasCaseOutputSummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
   @Mock
   private GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService;
 
@@ -184,7 +187,7 @@ class GasCaseOutputSummaryServiceTest {
   void getSummarySection_nonDiscoverySubmission() {
     reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.PROSPECT_UPDATE);
 
-    assertThat(gasCaseOutputsSummaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(gasCaseOutputsSummaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isEmpty();
   }
 
@@ -195,7 +198,7 @@ class GasCaseOutputSummaryServiceTest {
     when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
         .thenReturn(false);
 
-    assertThat(gasCaseOutputsSummaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(gasCaseOutputsSummaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isEmpty();
   }
 
@@ -212,7 +215,7 @@ class GasCaseOutputSummaryServiceTest {
         .thenReturn(Optional.of(gasCaseOutput));
 
     var captor = ArgumentCaptor.forClass(List.class);
-    assertThat(gasCaseOutputsSummaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(gasCaseOutputsSummaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isPresent()
         .get()
         .extracting(
@@ -246,7 +249,7 @@ class GasCaseOutputSummaryServiceTest {
         .thenReturn(Optional.of(gasCaseOutput));
 
     var captor = ArgumentCaptor.forClass(List.class);
-    assertThat(gasCaseOutputsSummaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(gasCaseOutputsSummaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isPresent()
         .get()
         .extracting(
@@ -285,7 +288,7 @@ class GasCaseOutputSummaryServiceTest {
         .thenReturn(Optional.empty());
 
     var captor = ArgumentCaptor.forClass(List.class);
-    assertThat(gasCaseOutputsSummaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(gasCaseOutputsSummaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isPresent()
         .get()
         .extracting(

@@ -17,6 +17,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
@@ -40,6 +42,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 
 @ExtendWith(MockitoExtension.class)
 class ReservoirPropertiesSummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private ReservoirPropertiesPersistenceService reservoirPropertiesPersistenceService;
@@ -585,7 +588,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var summaryCard2 = SummaryCard.probabilitySummaryCard(probabilityTableView);
     var summaryItem2 = SummaryItem.withCard(RESERVOIR_PROPERTIES, summaryCard2);
 
-    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
 
@@ -651,7 +654,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var summaryItem2 = SummaryItem.withCard(RESERVOIR_PROPERTIES, summaryCard2);
 
     // check properties of cards returned
-    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
 
@@ -716,7 +719,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var summaryItem2 = SummaryItem.withCard(RESERVOIR_PROPERTIES, summaryCard2);
 
     // check properties of cards returned
-    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
 
@@ -782,7 +785,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var summaryItem2 = SummaryItem.withCard(RESERVOIR_PROPERTIES, summaryCard2);
 
     // check properties of cards returned
-    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
 
@@ -851,7 +854,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var summaryItem2 = SummaryItem.withCard(RESERVOIR_PROPERTIES, summaryCard2);
 
     // check properties of cards returned
-    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
 
@@ -919,7 +922,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var summaryItem2 = SummaryItem.withCard(RESERVOIR_PROPERTIES, summaryCard2);
 
     // check properties of cards returned
-    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
 
@@ -999,7 +1002,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var summaryItem = SummaryItem.withCard(RESERVOIR_PROPERTIES, summaryCard);
 
     // check properties of card returned
-    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
 
@@ -1046,7 +1049,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var summaryItem = SummaryItem.withCard(RESERVOIR_PROPERTIES, summaryCard);
 
     // check properties of cards returned
-    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
 
@@ -1095,7 +1098,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var summaryItem = SummaryItem.withCard(RESERVOIR_PROPERTIES, summaryCard);
 
     // check properties of cards returned
-    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
 
@@ -1138,7 +1141,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var summaryItem = SummaryItem.withCard(RESERVOIR_PROPERTIES, summaryCard);
 
     // check properties of cards returned
-    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
 
@@ -1183,7 +1186,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var summaryItem = SummaryItem.withCard(RESERVOIR_PROPERTIES, summaryCard);
 
     // check properties of cards returned
-    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
 
@@ -1226,7 +1229,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var summaryItem = SummaryItem.withCard(RESERVOIR_PROPERTIES, summaryCard);
 
     // check properties of cards returned
-    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
 
@@ -1270,7 +1273,7 @@ class ReservoirPropertiesSummaryServiceTest {
     var summaryItem = SummaryItem.withCard(RESERVOIR_PROPERTIES, summaryCard);
 
     // check properties of cards returned
-    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = reservoirPropertiesSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
 

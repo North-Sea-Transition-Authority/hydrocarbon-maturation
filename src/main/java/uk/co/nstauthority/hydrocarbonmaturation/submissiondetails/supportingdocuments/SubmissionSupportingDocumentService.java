@@ -65,9 +65,9 @@ public class SubmissionSupportingDocumentService {
     var controller = UnlinkedFileController.class;
 
     return fileDocumentService.getFileUploadComponentAttributesBuilder(existingFiles, fileDocumentType)
-        .withUploadUrl(ReverseRouter.route(on(controller).upload(null, fileDocumentType.name())))
-        .withDownloadUrl(ReverseRouter.route(on(controller).download(null)))
-        .withDeleteUrl(ReverseRouter.route(on(controller).delete(null)))
+        .withUploadUrl(ReverseRouter.route(on(controller).upload(null, fileDocumentType.name(), null)))
+        .withDownloadUrl(ReverseRouter.route(on(controller).download(null, null)))
+        .withDeleteUrl(ReverseRouter.route(on(controller).delete(null, null)))
         .build();
   }
 
@@ -78,9 +78,9 @@ public class SubmissionSupportingDocumentService {
     var controller = SubmissionSupportingDocumentsController.class;
 
     return fileDocumentService.getFileUploadComponentAttributesBuilder(existingFiles, fileDocumentType)
-        .withUploadUrl(ReverseRouter.route(on(UnlinkedFileController.class).upload(null, fileDocumentType.name())))
+        .withUploadUrl(ReverseRouter.route(on(UnlinkedFileController.class).upload(null, fileDocumentType.name(), null)))
         .withDownloadUrl(ReverseRouter.route(on(controller).download(submissionDetail.getId(), null)))
-        .withDeleteUrl(ReverseRouter.route(on(controller).delete(submissionDetail.getId(), null)))
+        .withDeleteUrl(ReverseRouter.route(on(controller).delete(submissionDetail.getId(), null, null)))
         .build();
   }
 

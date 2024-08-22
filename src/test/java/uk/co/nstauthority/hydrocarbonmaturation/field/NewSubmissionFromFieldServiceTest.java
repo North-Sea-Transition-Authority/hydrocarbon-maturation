@@ -9,6 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -16,6 +18,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 
 @ExtendWith(MockitoExtension.class)
 class NewSubmissionFromFieldServiceTest {
+
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private SubmissionCreateService submissionCreateService;
@@ -43,29 +47,29 @@ class NewSubmissionFromFieldServiceTest {
 
   @Test
   void createSubmissionFromField_createCsr() {
-    when(submissionCreateService.createCsrFieldSubmissionDetail(resource)).thenReturn(submissionDetail);
+    when(submissionCreateService.createCsrFieldSubmissionDetail(resource, USER)).thenReturn(submissionDetail);
 
-    assertThat(newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_CSR)).isEqualTo(submissionDetail);
+    assertThat(newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_CSR, USER)).isEqualTo(submissionDetail);
   }
 
   @Test
   void createSubmissionFromField_createFdp() {
-    when(submissionCreateService.createFdpFieldSubmissionDetail(resource)).thenReturn(submissionDetail);
+    when(submissionCreateService.createFdpFieldSubmissionDetail(resource, USER)).thenReturn(submissionDetail);
 
-    assertThat(newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_FDP)).isEqualTo(submissionDetail);
+    assertThat(newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_FDP, USER)).isEqualTo(submissionDetail);
   }
 
   @Test
   void createSubmissionFromField_createFdpa() {
-    when(submissionCreateService.createFdpaFieldSubmissionDetail(resource)).thenReturn(submissionDetail);
+    when(submissionCreateService.createFdpaFieldSubmissionDetail(resource, USER)).thenReturn(submissionDetail);
 
-    assertThat(newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_FDPA)).isEqualTo(submissionDetail);
+    assertThat(newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_FDPA, USER)).isEqualTo(submissionDetail);
   }
 
   @Test
   void createSubmissionFromField_createCop() {
-    when(submissionCreateService.createCoPFieldSubmissionDetail(resource)).thenReturn(submissionDetail);
+    when(submissionCreateService.createCoPFieldSubmissionDetail(resource, USER)).thenReturn(submissionDetail);
 
-    assertThat(newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_COP)).isEqualTo(submissionDetail);
+    assertThat(newSubmissionFromFieldService.createSubmissionFromField(form, SubmissionType.CREATE_COP, USER)).isEqualTo(submissionDetail);
   }
 }

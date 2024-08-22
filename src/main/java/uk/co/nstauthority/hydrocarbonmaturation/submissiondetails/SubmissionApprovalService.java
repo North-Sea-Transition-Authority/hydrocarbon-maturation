@@ -4,55 +4,48 @@ import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSubmissionStatusService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionEmailService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 
 @Service
 public class SubmissionApprovalService {
 
   private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
-  private final RegulatorTeamService regulatorTeamService;
-  private final UserService userService;
   private final SubmissionEmailService submissionEmailService;
   private final SubmissionUpdateService submissionUpdateService;
   private final ResponsibleTeamService responsibleTeamService;
-  private final AreaTeamService areaTeamService;
   private final ReservoirTotalsCleanAndCopyService reservoirTotalsCleanAndCopyService;
   private final ReservoirSubmissionSectionService reservoirSubmissionSectionService;
   private final FieldSubmissionStatusService fieldSubmissionStatusService;
+  private final InternalTeamService internalTeamService;
 
   @Autowired
   public SubmissionApprovalService(
       SubmissionDetailPersistenceService submissionDetailPersistenceService,
-      RegulatorTeamService regulatorTeamService,
-      UserService userService,
       SubmissionEmailService submissionEmailService,
       SubmissionUpdateService submissionUpdateService,
       ResponsibleTeamService responsibleTeamService,
-      AreaTeamService areaTeamService, ReservoirTotalsCleanAndCopyService reservoirTotalsCleanAndCopyService,
+      ReservoirTotalsCleanAndCopyService reservoirTotalsCleanAndCopyService,
       ReservoirSubmissionSectionService reservoirSubmissionSectionService,
-      FieldSubmissionStatusService fieldSubmissionStatusService) {
+      FieldSubmissionStatusService fieldSubmissionStatusService, InternalTeamService internalTeamService) {
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
-    this.regulatorTeamService = regulatorTeamService;
-    this.userService = userService;
     this.submissionEmailService = submissionEmailService;
     this.submissionUpdateService = submissionUpdateService;
     this.responsibleTeamService = responsibleTeamService;
-    this.areaTeamService = areaTeamService;
     this.reservoirTotalsCleanAndCopyService = reservoirTotalsCleanAndCopyService;
     this.reservoirSubmissionSectionService = reservoirSubmissionSectionService;
     this.fieldSubmissionStatusService = fieldSubmissionStatusService;
+    this.internalTeamService = internalTeamService;
   }
 
   @Transactional
-  public void submitSubmission(SubmissionDetail submissionDetail) {
+  public void submitSubmission(SubmissionDetail submissionDetail, User user) {
     reservoirTotalsCleanAndCopyService.cleanAndCopyVolumetricTotals(submissionDetail);
 
     // remove any saved data for reservoir sections not needed, selected in reservoir under future phase of work question
@@ -65,14 +58,14 @@ public class SubmissionApprovalService {
       submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
       submissionDetailPersistenceService.saveSubmissionDetail(submissionDetail);
     } else {
-      submissionDetailPersistenceService.submitSubmission(submissionDetail);
+      submissionDetailPersistenceService.submitSubmission(submissionDetail, user);
 
       if (submissionDetail.isUpdateToSubmission()) {
-        submissionUpdateService.resolveUpdateOnSubmission(submissionDetail);
+        submissionUpdateService.resolveUpdateOnSubmission(submissionDetail, user);
       }
 
-      if (canAutoApproveSubmission()) {
-        submissionDetailPersistenceService.approveSubmission(submissionDetail);
+      if (canAutoApproveSubmission(user)) {
+        submissionDetailPersistenceService.approveSubmission(submissionDetail, user);
         if (submissionDetail.isFieldSubmission()) {
           fieldSubmissionStatusService.updateFieldStatusForAcceptance(submissionDetail);
         }
@@ -87,9 +80,9 @@ public class SubmissionApprovalService {
   }
 
   @Transactional
-  public void approveSubmissionOrThrow(SubmissionDetail submissionDetail) {
-    if (canApproveSubmission(submissionDetail)) {
-      submissionDetailPersistenceService.approveSubmission(submissionDetail);
+  public void approveSubmissionOrThrow(SubmissionDetail submissionDetail, User user) {
+    if (canApproveSubmission(submissionDetail, user)) {
+      submissionDetailPersistenceService.approveSubmission(submissionDetail, user);
       if (submissionDetail.isFieldSubmission()) {
         fieldSubmissionStatusService.updateFieldStatusForAcceptance(submissionDetail);
       }
@@ -97,19 +90,18 @@ public class SubmissionApprovalService {
       submissionEmailService.sendSubmissionApprovalEmail(submissionDetail);
     } else {
       throw new ActionNotAllowedException("Submission cannot be accepted by user with ID %s"
-          .formatted(userService.getUserWuaId()));
+          .formatted(user.wuaId().intValue()));
     }
   }
 
-  public boolean canApproveSubmission(SubmissionDetail submissionDetail) {
+  public boolean canApproveSubmission(SubmissionDetail submissionDetail, User user) {
     return responsibleTeamService
-        .isInResponsibleTeam(userService.getUser(), submissionDetail)
+        .isInResponsibleTeam(user, submissionDetail)
         && !submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission());
   }
 
-  private boolean canAutoApproveSubmission() {
-    var user = userService.getUser();
-    return regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user);
+  private boolean canAutoApproveSubmission(User user) {
+    return internalTeamService.isRegulatorOrAreaTeamUser(user);
   }
 
 }

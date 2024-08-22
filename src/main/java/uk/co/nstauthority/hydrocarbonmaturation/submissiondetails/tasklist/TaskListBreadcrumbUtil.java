@@ -47,7 +47,7 @@ public class TaskListBreadcrumbUtil {
   private static BreadcrumbItem getTaskListBreadcrumb(SubmissionDetail submissionDetail) {
     return new BreadcrumbItem(
           TaskListController.PAGE_NAME,
-          ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId()))
+          ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId(), null))
     );
   }
 

@@ -13,12 +13,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class AdditionalInformationSubmissionServiceTest {
+
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private AdditionalInformationFormService additionalInformationFormService;
@@ -36,10 +40,10 @@ class AdditionalInformationSubmissionServiceTest {
     when(additionalInformationFormService.getAdditionalInformationForm(submissionDetail)).thenReturn(form);
 
     when(additionalInformationFormService.validate(eq(form), any(BindingResult.class),
-        eq(ValidationType.FULL), eq(submissionDetail)))
+        eq(ValidationType.FULL), eq(submissionDetail), eq(USER)))
         .thenReturn(emptyBindingResult);
 
-    assertTrue(additionalInformationSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(additionalInformationSubmissionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
@@ -52,9 +56,9 @@ class AdditionalInformationSubmissionServiceTest {
     when(additionalInformationFormService.getAdditionalInformationForm(submissionDetail)).thenReturn(form);
 
     when(additionalInformationFormService.validate(eq(form), any(BindingResult.class),
-        eq(ValidationType.FULL), eq(submissionDetail)))
+        eq(ValidationType.FULL), eq(submissionDetail), eq(USER)))
         .thenReturn(bindingResultWithError);
 
-    assertFalse(additionalInformationSubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(additionalInformationSubmissionService.isSectionSubmittable(submissionDetail, USER));
   }
 }

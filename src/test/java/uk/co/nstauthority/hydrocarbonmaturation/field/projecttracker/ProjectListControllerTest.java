@@ -33,18 +33,8 @@ class ProjectListControllerTest extends AbstractProjectTrackerControllerTest {
   }
 
   @SecurityTest
-  void getProjectList_whenRegulator_thenOk() throws Exception {
-    setupUserIsRegulator(user);
-    mockMvc.perform(
-            get(ReverseRouter.route(on(ProjectListController.class)
-                .getProjectList(RESOURCE_ID, null)))
-                .with(user(USER)))
-        .andExpect(status().isOk());
-  }
-
-  @SecurityTest
-  void getProjectList_whenAreaTeamMember_thenOk() throws Exception {
-    setupUserIsAreaMember(user);
+  void getProjectList_whenRegulatorOrAreaTeamMember_thenOk() throws Exception {
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     mockMvc.perform(
             get(ReverseRouter.route(on(ProjectListController.class)
                 .getProjectList(RESOURCE_ID, null)))
@@ -54,7 +44,7 @@ class ProjectListControllerTest extends AbstractProjectTrackerControllerTest {
 
   @SecurityTest
   void getProjectList_whenFieldDoesNotExist_thenNotFound() throws Exception {
-    setupUserIsRegulator(user);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     var resourceIdForFieldThatDoesNotExist = UUID.randomUUID();
     when(fieldPersistenceService.getFieldOrThrow(resourceIdForFieldThatDoesNotExist))
         .thenThrow(RemiEntityNotFoundException.class);
@@ -68,7 +58,7 @@ class ProjectListControllerTest extends AbstractProjectTrackerControllerTest {
 
   @Test
   void getProjectList_nonProjectAnalyst_assertProperties() throws Exception {
-    setupUserIsRegulator(user);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
     var views = List.of(new ProjectListView("name", "caption", "url"));
     when(projectService.getCreatedProjectListViews(field))
@@ -140,11 +130,11 @@ class ProjectListControllerTest extends AbstractProjectTrackerControllerTest {
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
             entry(
-                ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null)),
+                ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null, null)),
                 SearchFieldRecordsController.PAGE_TITLE
             ),
             entry(
-                ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID)),
+                ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID, null)),
                 field.getCorrectedLegalFieldName()
             )
         );

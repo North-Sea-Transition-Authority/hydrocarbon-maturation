@@ -10,22 +10,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
-import java.util.Set;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.StartUpdateProspectController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = StartUpdateProspectController.class)
 class StartUpdateProspectControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getStartUpdatePage() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     var modelAndView = mockMvc.perform(
         get(ReverseRouter.route(on(StartUpdateProspectController.class).getStartUpdatePage()))
             .with(user(USER)))
@@ -40,13 +39,12 @@ class StartUpdateProspectControllerTest extends AbstractSubmissionControllerTest
             "backLinkUrl")
         .containsExactly(
             ReverseRouter.route(on(StartUpdateProspectController.class).updateProspect()),
-            ReverseRouter.route(on(ProspectPurposeController.class).getProspectPurposeForm()));
+            ReverseRouter.route(on(ProspectPurposeController.class).getProspectPurposeForm(null)));
   }
 
   @SecurityTest
   void updateProspect() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     mockMvc.perform(
         post(ReverseRouter.route(on(StartUpdateProspectController.class).updateProspect()))
             .with(user(USER))
@@ -58,8 +56,9 @@ class StartUpdateProspectControllerTest extends AbstractSubmissionControllerTest
 
   @SecurityTest
   void getStartUpdatePage_whenNoPermission_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(false);
+
     mockMvc.perform(
             get(ReverseRouter.route(on(StartUpdateProspectController.class).getStartUpdatePage()))
                 .with(user(USER)))
@@ -68,8 +67,9 @@ class StartUpdateProspectControllerTest extends AbstractSubmissionControllerTest
 
   @SecurityTest
   void updateProspect_whenNoPermission_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(false);
+
     mockMvc.perform(
             post(ReverseRouter.route(on(StartUpdateProspectController.class).updateProspect()))
                 .with(user(USER))

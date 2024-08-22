@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -24,7 +25,7 @@ public class UndevelopedDiscoveryTrackingDetailsSummaryService implements Summar
   private static final String INCLUDED_IN_DISCOVERY = "Discovery included in the undeveloped discoveries tracker?";
 
   @Override
-  public Optional<SummarySection> getSummarySection(UndevelopedDiscovery undevelopedDiscovery) {
+  public Optional<SummarySection> getSummarySection(UndevelopedDiscovery undevelopedDiscovery, User user) {
     var trackingDetailsSummaryCard = getTrackingDetailsSummaryCard(undevelopedDiscovery);
     var summaryItems = List.of(SummaryItem.withCard(TRACKING_DETAILS, trackingDetailsSummaryCard));
     return Optional.of(new SummarySection(DISPLAY_ORDER, summaryItems, ""));

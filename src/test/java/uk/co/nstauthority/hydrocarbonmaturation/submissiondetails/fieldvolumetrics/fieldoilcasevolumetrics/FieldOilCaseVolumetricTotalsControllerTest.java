@@ -135,6 +135,7 @@ class FieldOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionContr
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveOilVolumetricTotals_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(fieldOilCaseVolumetricTotalsFormValidator.isValid(any(OilCaseOutputsForm.class), any(Errors.class),
@@ -157,6 +158,7 @@ class FieldOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionContr
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveOilVolumetricTotals_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(fieldOilCaseVolumetricTotalsFormValidator.isValid(any(OilCaseOutputsForm.class), any(Errors.class),
@@ -179,6 +181,7 @@ class FieldOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionContr
 
   @Test
   void getOilVolumetricTotalsModelAndView_isCsrField_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
 
     when(fieldOilCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail)).thenReturn(form);
@@ -196,7 +199,7 @@ class FieldOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionContr
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
                 WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)),
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)),
                 TaskListController.PAGE_NAME)
         );
 
@@ -249,6 +252,7 @@ class FieldOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionContr
       names = {"CREATE_FDP", "CREATE_FDPA", "CREATE_COP"}
   )
   void getOilVolumetricTotalsModelAndView_NotCsrField_assertModelProperties(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
 
     when(fieldOilCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail))
@@ -269,7 +273,7 @@ class FieldOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionContr
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
                 WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)),
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)),
                 TaskListController.PAGE_NAME)
         );
 

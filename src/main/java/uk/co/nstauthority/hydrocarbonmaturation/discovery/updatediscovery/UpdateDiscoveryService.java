@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
@@ -19,8 +20,8 @@ class UpdateDiscoveryService {
     this.updateDiscoveryFormValidator = updateDiscoveryFormValidator;
   }
 
-  public SubmissionDetail createUpdateDiscovery(UpdateDiscoveryForm form) {
-    return submissionCreateService.createUpdateDiscovery(form);
+  public SubmissionDetail createUpdateDiscovery(UpdateDiscoveryForm form, User user) {
+    return submissionCreateService.createUpdateDiscovery(form, user);
   }
 
   public BindingResult validate(UpdateDiscoveryForm form, BindingResult bindingResult) {

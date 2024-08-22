@@ -102,6 +102,7 @@ class OilFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getOilFluidProperties_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(OilFluidPropertyController.class).getOilFluidProperties(submissionDetailId, reservoirSubmissionDetail.getId())))
@@ -111,6 +112,7 @@ class OilFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getOilFluidProperties_andTypeIsNotDiscovery_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
     mockMvc.perform(
             get(ReverseRouter.route(on(OilFluidPropertyController.class).getOilFluidProperties(submissionDetailId, reservoirSubmissionDetail.getId())))
@@ -130,6 +132,7 @@ class OilFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void saveOilFluidProperties_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(oilFluidPropertyFormValidator.isValid(any(OilFluidPropertyForm.class), any(Errors.class), eq(reservoirSubmissionDetail), eq(validationType)))
         .thenReturn(true);
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
@@ -154,6 +157,7 @@ class OilFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void saveOilFluidProperties_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
     when(oilFluidPropertyFormValidator.isValid(any(OilFluidPropertyForm.class), any(Errors.class), eq(reservoirSubmissionDetail), eq(validationType)))
         .thenReturn(false);
@@ -176,6 +180,7 @@ class OilFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getOilFluidPropertiesModelAndView_alreadyExists_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     var form = new OilFluidPropertyForm();
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
         .thenReturn(reservoirSubmissionDetail);
@@ -196,13 +201,14 @@ class OilFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
   }
 
   @Test
   void getOilFluidProperties_noneAlreadyExist_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
         .thenReturn(reservoirSubmissionDetail);
     when(oilFluidPropertyFormService.getOilFluidPropertyForm(reservoirSubmissionDetail))
@@ -222,7 +228,7 @@ class OilFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
   }

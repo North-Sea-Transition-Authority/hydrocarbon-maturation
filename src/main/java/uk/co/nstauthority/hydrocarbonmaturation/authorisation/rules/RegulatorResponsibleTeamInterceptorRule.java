@@ -10,24 +10,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsRegulatorInResponsibleTeam;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
 
 @Component
 public class RegulatorResponsibleTeamInterceptorRule implements SubmissionInterceptorSecurityRule {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RegulatorResponsibleTeamInterceptorRule.class);
 
-  private final PermissionService permissionService;
+  private final TeamQueryService teamQueryService;
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @Autowired
   public RegulatorResponsibleTeamInterceptorRule(
-      PermissionService permissionService,
+      TeamQueryService teamQueryService,
       RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService) {
-    this.permissionService = permissionService;
+    this.teamQueryService = teamQueryService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
   }
 
@@ -40,15 +40,16 @@ public class RegulatorResponsibleTeamInterceptorRule implements SubmissionInterc
   public SecurityRuleResult check(Object annotation,
                                   HttpServletRequest request,
                                   HttpServletResponse response,
-                                  User users,
+                                  User user,
                                   SubmissionDetail submissionDetail) {
     var responsibleTeam = regulatorManagedInformationPersistenceService
         .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource());
-    var permissionsRequired = responsibleTeam.getResponsibleTeamType().getRolePermissions();
-    if (permissionService.hasPermission(users, permissionsRequired)) {
+    var teamType = responsibleTeam.getResponsibleTeamType().getTeamType();
+    var role = responsibleTeam.getResponsibleTeamType().getRole();
+    if (teamQueryService.userHasStaticRole(user.wuaId(), teamType, role)) {
       return SecurityRuleResult.continueAsNormal();
     } else {
-      var userId = users.wuaId();
+      var userId = user.wuaId();
       var submissionDetailId = submissionDetail.getId();
 
       LOGGER.warn("User {} attempted to access submission {} " + "without expected regulator team role {}.",

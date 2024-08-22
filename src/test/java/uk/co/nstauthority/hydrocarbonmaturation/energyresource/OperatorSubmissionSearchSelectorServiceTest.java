@@ -15,10 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -26,6 +23,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 
 @ExtendWith(MockitoExtension.class)
 class OperatorSubmissionSearchSelectorServiceTest {
@@ -34,9 +33,6 @@ class OperatorSubmissionSearchSelectorServiceTest {
 
   @Mock
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
-
-  @Mock
-  private UserService userService;
 
   @Mock
   private IndustryTeamService industryTeamService;
@@ -49,9 +45,8 @@ class OperatorSubmissionSearchSelectorServiceTest {
 
   @BeforeEach
   void setUp() {
-    when(userService.getUser()).thenReturn(USER);
     when(industryTeamService
-        .getOrganisationUnitIdsForUserWithIndustryTeamRoles(USER, Set.of(IndustryTeamRole.SUBMITTER)))
+        .getOrganisationGroupIdsForUserWithRoles(USER, Set.of(Role.INDUSTRY_SUBMIT)))
         .thenReturn(List.of(USER_ORG_UNIT));
   }
 
@@ -90,7 +85,8 @@ class OperatorSubmissionSearchSelectorServiceTest {
         Stream.of(
             resourceDetailWithUserOrgUnitAndExtantLicence.getSubmissionDetail(),
             resourceDetailWithUserOrgUnitAndNotExtantLicence.getSubmissionDetail()),
-        submissionType)
+        submissionType,
+            USER)
         .toList())
         .containsExactly(resourceDetailWithUserOrgUnitAndExtantLicence);
   }
@@ -127,7 +123,8 @@ class OperatorSubmissionSearchSelectorServiceTest {
             Stream.of(
                 resourceDetailWithUserOrgUnitAndExtantLicence.getSubmissionDetail(),
                 resourceDetailWithUserOrgUnitAndNotExtantLicence.getSubmissionDetail()),
-            submissionType)
+            submissionType,
+            USER)
         .toList())
         .containsExactly(resourceDetailWithUserOrgUnitAndExtantLicence);
   }
@@ -145,7 +142,8 @@ class OperatorSubmissionSearchSelectorServiceTest {
     assertThat(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissionsWithTeam(
             Stream.of(
                 resourceDetailWithNullResponsibleOrg.getSubmissionDetail()),
-            submissionType))
+            submissionType,
+        USER))
         .isEmpty();
   }
 

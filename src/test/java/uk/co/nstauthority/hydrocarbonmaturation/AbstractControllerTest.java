@@ -18,9 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserArgumentResol
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByRegulatorOrAreaUsersInterceptor;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermissionInterceptor;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasTeamPermissionInterceptor;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRoleInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ProjectHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SubmissionHandlerInterceptor;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules.IsProjectExtantInterceptorRule;
@@ -33,14 +31,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.configuration.IncludeAnalyticsCo
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.IncludeEnergyPortalConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamMemberService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.InternalTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.PermissionManagementHandlerInterceptor;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryPermissionManagementHandlerInterceptor;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorPermissionManagementHandlerInterceptor;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.metrics.MetricsProvider;
 import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ErrorSummaryHandlerInterceptor;
@@ -52,6 +42,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.management.TeamManagementService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.management.access.TeamManagementHandlerInterceptor;
@@ -61,13 +52,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.technicalsupport.IncludeTechnica
 @Import(value = {
     WebMvcConfiguration.class,
     AbstractControllerTest.TestConfig.class,
-    PermissionManagementHandlerInterceptor.class,
-    RegulatorPermissionManagementHandlerInterceptor.class,
-    IndustryPermissionManagementHandlerInterceptor.class,
     AccessibleByRegulatorOrAreaUsersInterceptor.class,
-    HasPermissionInterceptor.class,
-    HasTeamPermissionInterceptor.class,
-    PermissionService.class,
+    HasAnyRoleInterceptor.class,
     SubmissionStatusInterceptorRule.class,
     UserArgumentResolver.class,
     ValidationTypeArgumentResolver.class,
@@ -92,12 +78,6 @@ public abstract class AbstractControllerTest {
   protected MockMvc mockMvc;
 
   @MockBean
-  protected TeamMemberService teamMemberService;
-
-  @MockBean
-  protected TeamService teamService;
-
-  @MockBean
   protected TeamQueryService teamQueryService;
 
   @MockBean
@@ -114,12 +94,6 @@ public abstract class AbstractControllerTest {
 
   @MockBean
   protected RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
-
-  @MockBean
-  protected RegulatorTeamService regulatorTeamService;
-
-  @MockBean
-  protected AreaTeamService areaTeamService;
 
   @MockBean
   protected ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;

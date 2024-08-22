@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -26,10 +27,10 @@ public class OrganisationUnitRestController {
   }
 
   @GetMapping("/organisation-units")
-  public RestSearchResult searchOrganisationUnits(@RequestParam(value = "term") String term) {
+  public RestSearchResult searchOrganisationUnits(@RequestParam(value = "term") String term, User user) {
     return searchSelectorService.search(
         term,
-        organisationUnitQueryService::getOrganisationSearchableResults
+        organisationUnitQueryService.getOrganisationSearchableResults(term, user)
     );
   }
 }

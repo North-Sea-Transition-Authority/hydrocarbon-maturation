@@ -19,7 +19,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.util.NotificationBannerTe
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -32,7 +31,6 @@ import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
@@ -43,13 +41,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectTrac
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ViewProjectController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = ProjectCapexController.class)
 class ProjectCapexControllerTest extends AbstractControllerTest{
-  @MockBean
-  private PermissionService permissionService;
   @MockBean
   private ProjectTrackerControllerService projectTrackerControllerService;
   @MockBean
@@ -135,8 +132,7 @@ class ProjectCapexControllerTest extends AbstractControllerTest{
   class GivenGetAddProjectCapexAndIsProjectAnalyst {
     @BeforeEach
     void setUp() {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+      when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     }
 
     @SecurityTest
@@ -203,8 +199,7 @@ class ProjectCapexControllerTest extends AbstractControllerTest{
   class GivenSaveProjectCapexAndIsProjectAnalyst {
     @BeforeEach
     void setUp() {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+      when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     }
 
     @SecurityTest
@@ -311,8 +306,7 @@ class ProjectCapexControllerTest extends AbstractControllerTest{
   class GivenGetRemoveProjectCapexAndIsProjectAnalyst {
     @BeforeEach
     void setUp() {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+      when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     }
 
     @SecurityTest
@@ -395,8 +389,7 @@ class ProjectCapexControllerTest extends AbstractControllerTest{
   class GivenRemoveProjectCapexAndIsProjectAnalyst {
     @BeforeEach
     void setUp() {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+      when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     }
 
     @SecurityTest

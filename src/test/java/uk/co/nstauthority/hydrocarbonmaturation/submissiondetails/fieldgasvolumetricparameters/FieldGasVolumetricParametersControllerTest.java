@@ -104,6 +104,7 @@ class FieldGasVolumetricParametersControllerTest extends AbstractSubmissionContr
 
   @SecurityTest
   void getGasVolumetrics_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(FieldGasVolumetricParametersController.class)
@@ -114,6 +115,7 @@ class FieldGasVolumetricParametersControllerTest extends AbstractSubmissionContr
 
   @SecurityTest
   void getGasCaseVolumetrics_andTypeIsNotField_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     mockMvc.perform(
             get(ReverseRouter.route(on(FieldGasVolumetricParametersController.class)
@@ -146,6 +148,7 @@ class FieldGasVolumetricParametersControllerTest extends AbstractSubmissionContr
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveGasVolumetrics_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     when(gasCaseVolumetricParametersFormValidator.isValid(any(SubmissionForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(true);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
@@ -164,6 +167,7 @@ class FieldGasVolumetricParametersControllerTest extends AbstractSubmissionContr
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveGasVolumetrics_partialValidation_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
     when(gasCaseVolumetricParametersFormValidator.isValid(any(SubmissionForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(false);
 
@@ -180,6 +184,7 @@ class FieldGasVolumetricParametersControllerTest extends AbstractSubmissionContr
 
   @Test
   void getGasVolumetricsModelAndView_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     when(submissionDetailService.getSubmissionDetail(reservoirSubmissionDetailId)).thenReturn(Optional.of(submissionDetail));
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
@@ -198,7 +203,7 @@ class FieldGasVolumetricParametersControllerTest extends AbstractSubmissionContr
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME),
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
             entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
         );
 

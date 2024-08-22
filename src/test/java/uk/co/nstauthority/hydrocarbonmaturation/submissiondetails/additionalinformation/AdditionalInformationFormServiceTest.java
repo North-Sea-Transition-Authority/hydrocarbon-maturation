@@ -18,10 +18,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
-import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
@@ -54,7 +54,7 @@ class AdditionalInformationFormServiceTest {
 
     var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
 
-    additionalInformationFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
+    additionalInformationFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail, null);
 
     verify(additionalInformationFormValidator, times(1))
         .validate(eq(form), eq(bindingResult), captor.capture());

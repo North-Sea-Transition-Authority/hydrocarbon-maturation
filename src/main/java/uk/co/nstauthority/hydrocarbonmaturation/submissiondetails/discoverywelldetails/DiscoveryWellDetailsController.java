@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
@@ -67,15 +68,16 @@ public class DiscoveryWellDetailsController {
   public ModelAndView saveDiscoveryWellDetails(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                                @ModelAttribute("form") DiscoveryWellDetailsForm form,
                                                BindingResult bindingResult,
-                                               ValidationType validationType) {
+                                               ValidationType validationType,
+                                               User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    bindingResult = discoveryWellDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
+    bindingResult = discoveryWellDetailsFormService.validate(form, bindingResult, validationType, submissionDetail, user);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getDiscoveryWellDetailsModelAndView(form, submissionDetail),
         () -> {
           discoveryWellDetailsPersistenceService.saveDiscoveryWellDetails(form, submissionDetail);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
         }
     );
   }

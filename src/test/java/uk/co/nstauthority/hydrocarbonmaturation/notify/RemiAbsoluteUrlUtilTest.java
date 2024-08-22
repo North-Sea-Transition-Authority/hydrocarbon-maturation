@@ -34,21 +34,21 @@ class RemiAbsoluteUrlUtilTest {
   void getSystemOfRecordResourceUrl() {
     assertThat(RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(SUBMISSION_DETAIL))
         .isEqualTo(SERVICE_URL + ReverseRouter.route(on(ViewResourceRecordController.class)
-            .showResourceRecord(SUBMISSION_DETAIL.getSubmission().getResource().getId())));
+            .showResourceRecord(SUBMISSION_DETAIL.getSubmission().getResource().getId(), null)));
   }
 
   @Test
   void getReviewSubmissionPageUrl() {
     assertThat(RemiAbsoluteUrlUtil.getReviewSubmissionPageUrl(SUBMISSION_DETAIL))
         .isEqualTo(SERVICE_URL + ReverseRouter.route(on(ReviewSubmissionController.class)
-            .showReviewPage(SUBMISSION_DETAIL.getSubmission().getResource().getId())));
+            .showReviewPage(SUBMISSION_DETAIL.getSubmission().getResource().getId(), null)));
   }
 
   @Test
   void getTasklistPageUrl() {
     assertThat(RemiAbsoluteUrlUtil.getTasklistPageUrl(SUBMISSION_DETAIL))
         .isEqualTo(SERVICE_URL + ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(SUBMISSION_DETAIL.getId())));
+            .getTaskList(SUBMISSION_DETAIL.getId(), null)));
   }
 
   @Test

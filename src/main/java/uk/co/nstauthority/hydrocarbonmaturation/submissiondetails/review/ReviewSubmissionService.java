@@ -11,9 +11,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamMemberService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
@@ -27,42 +24,45 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetail
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdate;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Service
 public class ReviewSubmissionService {
 
   private final SubmissionRecordSummaryQueryService submissionRecordSummaryQueryService;
   private final SubmissionDetailDisplayService submissionDetailDisplayService;
-  private final RegulatorTeamService regulatorTeamService;
-  private final IndustryTeamMemberService industryTeamMemberService;
   private final SubmissionDetailService submissionDetailService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final SubmissionUpdateService submissionUpdateService;
   private final ResourceLinkService resourceLinkService;
   private final ResponsibleTeamService responsibleTeamService;
   private final FieldDisplayService fieldDisplayService;
+  private final IndustryTeamService industryTeamService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   ReviewSubmissionService(SubmissionRecordSummaryQueryService submissionRecordSummaryQueryService,
                           SubmissionDetailDisplayService submissionDetailDisplayService,
-                          RegulatorTeamService regulatorTeamService,
-                          IndustryTeamMemberService industryTeamMemberService,
                           SubmissionDetailService submissionDetailService,
                           ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                           SubmissionUpdateService submissionUpdateService,
                           ResourceLinkService resourceLinkService,
                           ResponsibleTeamService responsibleTeamService,
-                          FieldDisplayService fieldDisplayService) {
+                          FieldDisplayService fieldDisplayService, IndustryTeamService industryTeamService,
+                          TeamQueryService teamQueryService) {
     this.submissionRecordSummaryQueryService = submissionRecordSummaryQueryService;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
-    this.regulatorTeamService = regulatorTeamService;
-    this.industryTeamMemberService = industryTeamMemberService;
     this.submissionDetailService = submissionDetailService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.submissionUpdateService = submissionUpdateService;
     this.resourceLinkService = resourceLinkService;
     this.responsibleTeamService = responsibleTeamService;
     this.fieldDisplayService = fieldDisplayService;
+    this.industryTeamService = industryTeamService;
+    this.teamQueryService = teamQueryService;
   }
 
   public SubmissionRecordSummaryView getSubmissionRecordOrThrow(UUID resourceId) {
@@ -103,7 +103,7 @@ public class ReviewSubmissionService {
         || submissionRecord.submissionType() == SubmissionType.CREATE_DISCOVERY) {
       //when there is no latest approved submission on resource, checks the current submission
       var organisationUnitId = submissionRecord.responsibleOrganisationId();
-      return industryTeamMemberService.isMemberOfOrganisationUnit(user, organisationUnitId);
+      return industryTeamService.getOrganisationUnitIdsForUser(user).contains(organisationUnitId);
     } else {
       return isResponsibleOrganisationMemberOnLatestApprovedSubmissionOnResource(user, submissionDetail);
     }
@@ -116,7 +116,8 @@ public class ReviewSubmissionService {
         || submissionRecord.submissionType() == SubmissionType.CREATE_DISCOVERY) {
       //when there is no latest approved submission on resource, checks the current submission
       var organisationUnitId = submissionRecord.responsibleOrganisationId();
-      return industryTeamMemberService.isSubmitterOfOrganisationUnit(user, organisationUnitId);
+      return industryTeamService.getOrganisationUnitIdsForUserWithRoles(user, Set.of(Role.INDUSTRY_SUBMIT))
+          .contains(organisationUnitId);
     } else {
       return isSubmitterForResponsibleOrgOnLatestApprovedSubmissionOnResource(user, submissionDetail);
     }
@@ -127,11 +128,11 @@ public class ReviewSubmissionService {
                               SubmissionDetail currentSubmission) {
     return currentSubmission.getStatus() == SubmissionDetailStatus.SUBMITTED
         && (ResponsibleTeamType.EXPLORATION.equals(submissionRecord.responsibleTeamType())
-        && regulatorTeamService.isRegulatorTeamRole(user, RegulatorTeamRole.EXPLORATION));
+        && teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION));
   }
 
-  boolean canRequestUpdateOnSubmissionDetail(SubmissionDetail submissionDetail) {
-    return submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail);
+  boolean canRequestUpdateOnSubmissionDetail(SubmissionDetail submissionDetail, User user) {
+    return submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail, user);
   }
 
   boolean hasUpdateBeenRequestedOnSubmission(Submission submission) {
@@ -161,8 +162,8 @@ public class ReviewSubmissionService {
       User user, SubmissionDetail submissionDetail) {
     return submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail)
         .flatMap(resourceDetailsPersistenceService::getResourceDetailBySubmissionDetail)
-        .map(resourceDetail -> industryTeamMemberService
-                    .isSubmitterOfOrganisationUnit(user, resourceDetail.getOrganisationId()))
+        .map(resourceDetail -> industryTeamService.getOrganisationUnitIdsForUserWithRoles(user, Set.of(Role.INDUSTRY_SUBMIT))
+            .contains(resourceDetail.getOrganisationId()))
         .orElse(false);
   }
 
@@ -171,8 +172,8 @@ public class ReviewSubmissionService {
     return submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail)
         .map(latestSubmissionDetail ->
           resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestSubmissionDetail)
-                  .map(resourceDetail -> industryTeamMemberService
-                      .isMemberOfOrganisationUnit(user, resourceDetail.getOrganisationId()))
+                  .map(resourceDetail -> industryTeamService.getOrganisationUnitIdsForUser(user)
+                      .contains(resourceDetail.getOrganisationId()))
                   .orElse(false))
         .orElse(false);
   }

@@ -93,6 +93,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getPermeabilityPage_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(get(ReverseRouter.route(on(PermeabilityController.class)
             .getPermeabilityPage(submissionDetailId, reservoirSubmissionDetailId)))
@@ -102,6 +103,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getPermeabilityPage_andTypeIsNotDryWellOrDiscovery_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
     mockMvc.perform(get(ReverseRouter.route(on(PermeabilityController.class)
             .getPermeabilityPage(submissionDetailId, reservoirSubmissionDetailId)))
@@ -121,6 +123,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void savePermeabilityDetails_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
     when(permeabilityFormValidator.isValid(any(), any(), any(), any())).thenReturn(true);
@@ -141,6 +144,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void savePermeabilityDetails_whenValidForm_postDrillDryHole_assertRedirect() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
@@ -155,7 +159,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetailId))));
+            .getTaskList(submissionDetailId, null))));
 
     verify(permeabilityPersistenceService, times(1))
         .savePermeabilityDetail(any(PermeabilityForm.class), eq(reservoirSubmissionDetail));
@@ -164,6 +168,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void savePermeabilityDetails_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
 
@@ -186,6 +191,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void savePermeabilityDetails_whenInvalidForm_fieldSubmission_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
@@ -206,6 +212,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {"POST_DRILL_DRY_HOLE", "CREATE_DISCOVERY_FROM_PROSPECT"})
   void getPermeabilityPageModelAndView_assertModelProperties(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(submissionType);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
@@ -236,7 +243,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetailId)), TaskListController.PAGE_NAME),
+            .getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class)
             .getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
@@ -245,6 +252,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
   void getPermeabilityPageModelAndView_field_assertModelProperties(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId))
         .thenReturn(submissionDetail);
@@ -285,7 +293,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetailId)), TaskListController.PAGE_NAME),
+            .getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class)
             .getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );

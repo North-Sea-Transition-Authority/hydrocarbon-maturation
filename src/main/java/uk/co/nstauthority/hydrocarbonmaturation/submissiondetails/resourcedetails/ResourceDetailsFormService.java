@@ -6,13 +6,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
@@ -22,22 +24,19 @@ class ResourceDetailsFormService implements SubmissionFormService {
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final OrganisationUnitQueryService organisationUnitQueryService;
   private final SubmissionDetailService submissionDetailService;
-  private final RegulatorTeamService regulatorTeamService;
-  private final UserService userService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   ResourceDetailsFormService(ResourceDetailsFormValidator resourceDetailsFormValidator,
                              ResourceDetailsPersistenceService resourceDetailsPersistenceService,
                              OrganisationUnitQueryService organisationUnitQueryService,
                              SubmissionDetailService submissionDetailService,
-                             RegulatorTeamService regulatorTeamService,
-                             UserService userService) {
+                             TeamQueryService teamQueryService) {
     this.resourceDetailsFormValidator = resourceDetailsFormValidator;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.submissionDetailService = submissionDetailService;
-    this.regulatorTeamService = regulatorTeamService;
-    this.userService = userService;
+    this.teamQueryService = teamQueryService;
   }
 
   ResourceDetailsForm getResourceDetailsForm(SubmissionDetail submissionDetail) {
@@ -47,12 +46,15 @@ class ResourceDetailsFormService implements SubmissionFormService {
   }
 
   @Override
-  public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
-                                ValidationType validationType, SubmissionDetail submissionDetail) {
+  public BindingResult validate(SubmissionForm form,
+                                BindingResult bindingResult,
+                                ValidationType validationType,
+                                SubmissionDetail submissionDetail,
+                                User user) {
     resourceDetailsFormValidator.validate(
         form,
         bindingResult,
-        getValidationHints(submissionDetail, validationType));
+        getValidationHints(submissionDetail, validationType, user));
     return bindingResult;
   }
 
@@ -77,8 +79,9 @@ class ResourceDetailsFormService implements SubmissionFormService {
   }
 
   private ResourceDetailsFormValidatorHints getValidationHints(SubmissionDetail submissionDetail,
-                                                               ValidationType validationType) {
-    var isRegulator = regulatorTeamService.isRegulatorUser(userService.getUser());
+                                                               ValidationType validationType,
+                                                               User user) {
+    var isRegulator = teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION);
     if (submissionDetail.isFirstSubmission()) {
       return new ResourceDetailsFormValidatorHints(
           validationType,

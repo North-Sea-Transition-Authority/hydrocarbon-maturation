@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
@@ -29,7 +28,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.ViewFie
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectListController;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
@@ -41,6 +39,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldM
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionSelectionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoverySummaryController;
 
 @Controller
@@ -50,7 +51,6 @@ public class ViewResourceRecordController {
   private final ViewResourceRecordService viewResourceRecordService;
   private final SubmissionSummaryModelService submissionSummaryModelService;
   private final SubmissionDetailService submissionDetailService;
-  private final UserService userService;
   private final SubmissionHistoryQueryService submissionHistoryQueryService;
   private final RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
   private final ResourceGroupSummaryService resourceGroupSummaryService;
@@ -59,7 +59,7 @@ public class ViewResourceRecordController {
   private final CorrectionService correctionService;
   private final FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
   private final FieldPersistenceService fieldPersistenceService;
-  private final RegulatorTeamService regulatorTeamService;
+  private final TeamQueryService teamQueryService;
   private final FieldMapViewService fieldMapViewService;
 
   @Autowired
@@ -67,7 +67,6 @@ public class ViewResourceRecordController {
       ViewResourceRecordService viewResourceRecordService,
       SubmissionSummaryModelService submissionSummaryModelService,
       SubmissionDetailService submissionDetailService,
-      UserService userService,
       SubmissionHistoryQueryService submissionHistoryQueryService,
       RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
       ResourceGroupSummaryService resourceGroupSummaryService,
@@ -75,12 +74,12 @@ public class ViewResourceRecordController {
       ResponsibleTeamService responsibleTeamService,
       CorrectionService correctionService,
       FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService,
-      FieldPersistenceService fieldPersistenceService, RegulatorTeamService regulatorTeamService,
-      FieldMapViewService fieldMapViewService) {
+      FieldPersistenceService fieldPersistenceService,
+      FieldMapViewService fieldMapViewService,
+      TeamQueryService teamQueryService) {
     this.viewResourceRecordService = viewResourceRecordService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
-    this.userService = userService;
     this.submissionHistoryQueryService = submissionHistoryQueryService;
     this.regulatorManagedInformationSummaryService = regulatorManagedInformationSummaryService;
     this.resourceGroupSummaryService = resourceGroupSummaryService;
@@ -89,14 +88,13 @@ public class ViewResourceRecordController {
     this.correctionService = correctionService;
     this.fieldRegulatorManagedInformationSummaryService = fieldRegulatorManagedInformationSummaryService;
     this.fieldPersistenceService = fieldPersistenceService;
-    this.regulatorTeamService = regulatorTeamService;
+    this.teamQueryService = teamQueryService;
     this.fieldMapViewService = fieldMapViewService;
   }
 
   @GetMapping
-  public ModelAndView showResourceRecord(@PathVariable("resourceId") UUID resourceId) {
+  public ModelAndView showResourceRecord(@PathVariable("resourceId") UUID resourceId, User user) {
     var resourceRecord = viewResourceRecordService.getResourceRecordOrThrow(resourceId);
-    var user = userService.getUser();
 
     if (!viewResourceRecordService.canViewResource(resourceRecord, user)) {
       throw new ResponseStatusException(
@@ -113,16 +111,16 @@ public class ViewResourceRecordController {
   public ModelAndView viewSubmission(@PathVariable("resourceId") UUID resourceId,
                                      @ModelAttribute("form") SubmissionSearchSelectorForm form) {
     return ReverseRouter.redirect(on(ViewResourceRecordController.class)
-        .showSubmissionSummary(resourceId, UUID.fromString(form.getSelectedSubmissionId()), null));
+        .showSubmissionSummary(resourceId, UUID.fromString(form.getSelectedSubmissionId()), null, null));
   }
 
   @GetMapping("submission-details/{submissionDetailId}")
   public ModelAndView showSubmissionSummary(@PathVariable("resourceId") UUID resourceId,
                                             @PathVariable("submissionDetailId") UUID submissionDetailId,
-                                            @ModelAttribute("form") SubmissionSearchSelectorForm form) {
+                                            @ModelAttribute("form") SubmissionSearchSelectorForm form,
+                                            User user) {
     var selectedSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var resourceRecord = viewResourceRecordService.getResourceRecordOrThrow(resourceId);
-    var user = userService.getUser();
 
     if (!viewResourceRecordService.canViewResource(resourceRecord, user)) {
       throw new ResponseStatusException(
@@ -148,7 +146,7 @@ public class ViewResourceRecordController {
     var isDiscovery = ResourceType.DISCOVERY.equals(resource.getType());
     var isRegulatorOrAreaUser = viewResourceRecordService.isRegulatorOrAreaTeamUser(user);
 
-    ModelAndView modelAndView = getModelAndViewForSubmissionDetail(submissionDetailSelectedOptional, resource);
+    ModelAndView modelAndView = getModelAndViewForSubmissionDetail(submissionDetailSelectedOptional, resource, user);
 
     if (isInResponsibleTeam && !isFieldResource) {
       modelAndView.addObject("resourceGroupUrl",
@@ -165,9 +163,10 @@ public class ViewResourceRecordController {
           ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resourceId, null)));
     }
 
-    if (isDiscovery && regulatorTeamService.isReservesAndResourcesAdvisor(user)) {
+    if (isDiscovery
+        && teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.RESERVES_AND_RESOURCES_ADVISOR)) {
       modelAndView.addObject("undevelopedDiscoveryUrl",
-          ReverseRouter.route(on(UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(resourceId)));
+          ReverseRouter.route(on(UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(resourceId, null)));
     }
 
     addBreadCrumbsForResourceType(resourceRecord, isFieldResource, modelAndView);
@@ -240,7 +239,8 @@ public class ViewResourceRecordController {
 
   @NotNull
   private ModelAndView getModelAndViewForSubmissionDetail(Optional<SubmissionDetail> submissionDetailSelectedOptional,
-                                                          Resource resource) {
+                                                          Resource resource,
+                                                          User user) {
     return submissionDetailSelectedOptional.map(submissionDetailSelected -> {
           if (!viewResourceRecordService.canViewSubmissionDetail(submissionDetailSelected, resource)) {
             throw new ResponseStatusException(
@@ -252,7 +252,8 @@ public class ViewResourceRecordController {
 
           var modelAndViewForSubmissionType = submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(
               submissionDetailSelected,
-              "remi/systemofrecord/viewResourceRecord"
+              "remi/systemofrecord/viewResourceRecord",
+              user
           );
           var querySearchResults = submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(
               resource.getId()

@@ -75,6 +75,7 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getReservoirListForm_whenField_assertStatusOk() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     var submissionDetailId = submissionDetail.getId();
     var field = new Field();
@@ -205,7 +206,7 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
                 submissionDetail.getSubmission().getResource().getType().getDisplayName().toLowerCase()
             )),
             entry("reservoirCount", 0),
-            entry("backLinkUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId())))
+            entry("backLinkUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId(), null)))
         );
     assertEquals(ReservoirListForm.class, modelMap.get("form").getClass());
 
@@ -214,7 +215,7 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId(), null)), TaskListController.PAGE_NAME)
     );
   }
 }

@@ -16,6 +16,8 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
@@ -29,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 
 @ExtendWith(MockitoExtension.class)
 class PermeabilitySummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private PermeabilityPersistenceService permeabilityPersistenceService;
@@ -196,7 +199,7 @@ class PermeabilitySummaryServiceTest {
     when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
-    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), PermeabilitySummaryService.PERMEABILITY_DISPLAY_ORDER);
@@ -235,7 +238,7 @@ class PermeabilitySummaryServiceTest {
         reservoirSubmissionDetail
     )).thenReturn(tableView);
 
-    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), PermeabilitySummaryService.PERMEABILITY_DISPLAY_ORDER);
@@ -266,7 +269,7 @@ class PermeabilitySummaryServiceTest {
     when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(permeabilityDetail));
 
-    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), PermeabilitySummaryService.PERMEABILITY_DISPLAY_ORDER);
@@ -305,7 +308,7 @@ class PermeabilitySummaryServiceTest {
     when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(permeabilityDetail));
 
-    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), PermeabilitySummaryService.PERMEABILITY_DISPLAY_ORDER);
@@ -346,7 +349,7 @@ class PermeabilitySummaryServiceTest {
         reservoirSubmissionDetail
     )).thenReturn(tableView);
 
-    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), PermeabilitySummaryService.PERMEABILITY_DISPLAY_ORDER);
@@ -381,7 +384,7 @@ class PermeabilitySummaryServiceTest {
     when(permeabilityPersistenceService.getPermeabilityDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(permeabilityDetail));
 
-    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), PermeabilitySummaryService.PERMEABILITY_DISPLAY_ORDER);
@@ -425,7 +428,7 @@ class PermeabilitySummaryServiceTest {
         reservoirSubmissionDetail
     )).thenReturn(tableView);
 
-    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = permeabilitySummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), PermeabilitySummaryService.PERMEABILITY_DISPLAY_ORDER);

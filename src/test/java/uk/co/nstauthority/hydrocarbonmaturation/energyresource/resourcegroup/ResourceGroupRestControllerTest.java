@@ -31,7 +31,7 @@ class ResourceGroupRestControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void searchProspects() throws Exception {
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     mockMvc.perform(get(SearchSelectorService.route(on(ResourceGroupRestController.class)
             .searchProspects(null, UUID.randomUUID())))
             .param("term", SEARCH_TERM)
@@ -42,7 +42,7 @@ class ResourceGroupRestControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void searchDiscoveries() throws Exception {
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     mockMvc.perform(get(SearchSelectorService.route(on(ResourceGroupRestController.class)
             .searchDiscoveries(null, UUID.randomUUID())))
             .param("term", SEARCH_TERM)
@@ -53,7 +53,7 @@ class ResourceGroupRestControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void searchProspects_whenNotRegulator_assertForbidden() throws Exception {
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
     mockMvc.perform(get(SearchSelectorService.route(on(ResourceGroupRestController.class)
             .searchProspects(null, UUID.randomUUID())))
             .param("term", SEARCH_TERM)
@@ -64,7 +64,7 @@ class ResourceGroupRestControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void searchDiscoveries_whenNotRegulator_assertForbidden() throws Exception {
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
     mockMvc.perform(get(SearchSelectorService.route(on(ResourceGroupRestController.class)
             .searchDiscoveries(null, UUID.randomUUID())))
             .param("term", SEARCH_TERM)

@@ -8,6 +8,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLinksRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupQueryService;
@@ -103,8 +104,11 @@ public class RelatedResourcesFormService implements SubmissionFormService {
   }
 
   @Override
-  public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
-                                ValidationType validationType, SubmissionDetail submissionDetail) {
+  public BindingResult validate(SubmissionForm form,
+                                BindingResult bindingResult,
+                                ValidationType validationType,
+                                SubmissionDetail submissionDetail,
+                                User user) {
     relatedResourcesFormValidator.validate(
         form, bindingResult, new SubmissionFormValidatorHints(
             validationType, submissionDetail));

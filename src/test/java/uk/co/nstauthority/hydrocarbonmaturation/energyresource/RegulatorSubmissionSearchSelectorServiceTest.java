@@ -12,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
@@ -30,9 +29,6 @@ class RegulatorSubmissionSearchSelectorServiceTest {
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
   @Mock
-  private UserService userService;
-
-  @Mock
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @Mock
@@ -44,7 +40,6 @@ class RegulatorSubmissionSearchSelectorServiceTest {
   @ParameterizedTest
   @EnumSource(SubmissionType.class)
   void getResourceDetailsForSubmissions_whenInResponsibleTeam_assertReturn(SubmissionType submissionType) {
-    when(userService.getUser()).thenReturn(USER);
 
     var submissionDetail1 = new SubmissionDetail();
     var submissionDetail2 = new SubmissionDetail();
@@ -69,7 +64,7 @@ class RegulatorSubmissionSearchSelectorServiceTest {
 
     assertThat(regulatorSubmissionSearchSelectorService
         .getResourceDetailsForSubmissionsWithTeam(Stream.of(submissionDetail1, submissionDetail2),
-            submissionType)
+            submissionType, USER)
         .toList())
         .containsExactly(resourceDetail1, resourceDetail2);
   }
@@ -77,7 +72,6 @@ class RegulatorSubmissionSearchSelectorServiceTest {
   @ParameterizedTest
   @EnumSource(SubmissionType.class)
   void getResourceDetailsForSubmissions_whenNotInResponsibleTeam_assertEmpty(SubmissionType submissionType) {
-    when(userService.getUser()).thenReturn(USER);
 
     var submissionDetail = new SubmissionDetail();
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
@@ -86,7 +80,7 @@ class RegulatorSubmissionSearchSelectorServiceTest {
         .thenReturn(false);
 
     assertThat(regulatorSubmissionSearchSelectorService
-        .getResourceDetailsForSubmissionsWithTeam(Stream.of(submissionDetail), submissionType)
+        .getResourceDetailsForSubmissionsWithTeam(Stream.of(submissionDetail), submissionType, USER)
         .toList())
         .isEmpty();
   }
@@ -103,7 +97,7 @@ class RegulatorSubmissionSearchSelectorServiceTest {
         .thenReturn(resourceDetail);
 
     assertThat(regulatorSubmissionSearchSelectorService
-        .getResourceDetailsForSubmissionsWithTeam(Stream.of(submissionDetail), submissionType)
+        .getResourceDetailsForSubmissionsWithTeam(Stream.of(submissionDetail), submissionType, USER)
         .toList())
         .containsExactly(resourceDetail);
 

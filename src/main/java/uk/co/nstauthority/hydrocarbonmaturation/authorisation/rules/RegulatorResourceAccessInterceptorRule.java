@@ -6,43 +6,44 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.ResourceAccessInterceptorStrategy;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityRuleResult;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
 
 @Component
 public class RegulatorResourceAccessInterceptorRule implements ResourceAccessInterceptorStrategy {
   private static final Logger LOGGER = LoggerFactory.getLogger(RegulatorResourceAccessInterceptorRule.class);
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
-  private final PermissionService permissionService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   RegulatorResourceAccessInterceptorRule(
-      RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
-      PermissionService permissionService) {
+          RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
+          TeamQueryService teamQueryService) {
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
-    this.permissionService = permissionService;
+    this.teamQueryService = teamQueryService;
   }
 
   @Override
-  public SecurityRuleResult hasRequiredResourceAccessPermissions(User users,
+  public SecurityRuleResult hasRequiredResourceAccessPermissions(User user,
                                                                  SubmissionDetail submissionDetail) {
 
     var responsibleTeamType = regulatorManagedInformationPersistenceService
         .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource())
         .getResponsibleTeamType();
-    var permissionRequired = responsibleTeamType.getRolePermissions();
+    var teamType = responsibleTeamType.getTeamType();
+    var role = responsibleTeamType.getRole();
 
     if (isNotDraftIndustrySubmission(submissionDetail)
-        && permissionService.hasPermission(users, permissionRequired)) {
+        && teamQueryService.userHasStaticRole(user.wuaId(), teamType, role)) {
       return SecurityRuleResult.continueAsNormal();
     }
 
-    var userId = users.wuaId();
+    var userId = user.wuaId();
     var submissionDetailId = submissionDetail.getId();
 
     LOGGER.warn("User {} attempted to access submission {} with expected regulator role {}.",

@@ -15,13 +15,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchFieldRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Controller
 @RequestMapping("/field-status/{fieldIdentifier}")
@@ -32,17 +34,17 @@ public class ViewFieldStatusHistoryController {
   private final FieldPersistenceService fieldPersistenceService;
   private final ViewFieldStatusHistoryService viewFieldStatusHistoryService;
   private final SubmissionDetailService submissionDetailService;
-  private final RegulatorTeamService regulatorTeamService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   public ViewFieldStatusHistoryController(FieldPersistenceService fieldPersistenceService,
                                           ViewFieldStatusHistoryService viewFieldStatusHistoryService,
                                           SubmissionDetailService submissionDetailService,
-                                          RegulatorTeamService regulatorTeamService) {
+                                          TeamQueryService teamQueryService) {
     this.fieldPersistenceService = fieldPersistenceService;
     this.viewFieldStatusHistoryService = viewFieldStatusHistoryService;
     this.submissionDetailService = submissionDetailService;
-    this.regulatorTeamService = regulatorTeamService;
+    this.teamQueryService = teamQueryService;
   }
 
   @GetMapping
@@ -80,7 +82,7 @@ public class ViewFieldStatusHistoryController {
 
     var fieldStatusHistoryViews = viewFieldStatusHistoryService.getFieldStatusHistoryViews(field);
 
-    var canAddFieldStatus = regulatorTeamService.isProjectAnalyst(user);
+    var canAddFieldStatus = teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST);
     var canRemoveFieldStatus = canAddFieldStatus && fieldStatusHistoryViews.size() > 1;
 
     if (canAddFieldStatus) {
@@ -101,7 +103,7 @@ public class ViewFieldStatusHistoryController {
   private void addBreadCrumbsForReviewView(ModelAndView modelAndView, Field field) {
 
     var breadcrumbUrl = ReverseRouter.route(on(ReviewSubmissionController.class)
-        .showReviewPage(field.getResource().getId()));
+        .showReviewPage(field.getResource().getId(), null));
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_TITLE)
         .addWorkAreaBreadcrumb()
         .addBreadcrumb(field.getCorrectedLegalFieldName(),
@@ -113,7 +115,7 @@ public class ViewFieldStatusHistoryController {
 
   private void addBreadCrumbsForSystemOfRecordView(ModelAndView modelAndView, Field field) {
     var breadcrumbUrl = ReverseRouter.route(on(ViewResourceRecordController.class)
-        .showResourceRecord(field.getResource().getId()));
+        .showResourceRecord(field.getResource().getId(), null));
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_TITLE)
         .addBreadcrumb(
             SearchFieldRecordsController.PAGE_TITLE,

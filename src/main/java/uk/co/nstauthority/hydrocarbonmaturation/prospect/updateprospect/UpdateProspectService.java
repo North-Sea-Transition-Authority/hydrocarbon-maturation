@@ -4,6 +4,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -23,8 +24,8 @@ public class UpdateProspectService {
     this.licenceApplicationQueryService = licenceApplicationQueryService;
   }
 
-  public SubmissionDetail createUpdateProspect(UpdateProspectForm form) {
-    return submissionCreateService.createUpdateProspect(form);
+  public SubmissionDetail createUpdateProspect(UpdateProspectForm form, User user) {
+    return submissionCreateService.createUpdateProspect(form, user);
   }
 
   public BindingResult validate(UpdateProspectForm form, BindingResult bindingResult) {

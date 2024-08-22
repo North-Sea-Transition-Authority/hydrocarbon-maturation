@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,13 +30,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistoryQueryService;
@@ -45,6 +42,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistory
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionQuerySearchRecord;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = CorrectionSelectionController.class)
 class CorrectionSelectionControllerTest extends AbstractControllerTest {
@@ -64,9 +63,6 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
   @MockBean
   private SubmissionHistoryQueryService submissionHistoryQueryService;
 
-  @MockBean
-  private PermissionService permissionService;
-
   private Resource resource;
   private UUID resourceId;
   private CorrectionForm form;
@@ -79,10 +75,7 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
     form = new CorrectionForm();
     bindingResult = new BeanPropertyBindingResult(form, "form");
     when(resourceService.getResourceById(resource.getId())).thenReturn(Optional.of(resource));
-    when(permissionService.hasPermission(user, Set.of(
-        RolePermission.EXPLORATION, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     when(correctionService.canStartCorrection(resource, user)).thenReturn(true);
   }
 
@@ -124,10 +117,10 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void getCorrectionPage_whenUserDoesntHaveValidPermission() throws Exception {
-    when(permissionService.hasPermission(user, Set.of(
-        RolePermission.EXPLORATION, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
     mockMvc.perform(
             get(ReverseRouter.route(on(CorrectionSelectionController.class)
                 .startCorrection(resourceId, null)))
@@ -184,7 +177,7 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
             entry("correctionTypes", correctionTypes),
             entry("submissionsOnResource", submissionsOnResource),
             entry("removableSubmissions", removableSubmissionMap),
-            entry("cancelUrl", ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)))
+            entry("cancelUrl", ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
         );
   }
 }

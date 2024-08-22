@@ -101,7 +101,7 @@ class ReservoirTaskListControllerTest extends AbstractSubmissionControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME)
+            .getTaskList(submissionDetail.getId(), null)), TaskListController.PAGE_NAME)
     );
   }
 
@@ -184,7 +184,7 @@ class ReservoirTaskListControllerTest extends AbstractSubmissionControllerTest {
                 .flashAttr("form", form))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetail.getId()))));
+            .getTaskList(submissionDetail.getId(), null))));
 
     verify(reservoirAdditionsFormService, times(1))
         .updateReservoirAdditionStatus(submissionDetail, ReservoirAdditionStatus.NO);
@@ -212,7 +212,7 @@ class ReservoirTaskListControllerTest extends AbstractSubmissionControllerTest {
                 .flashAttr("form", form))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetail.getId()))));
+            .getTaskList(submissionDetail.getId(), null))));
 
     verify(reservoirAdditionsFormService, times(1))
         .updateReservoirAdditionStatus(submissionDetail, ReservoirAdditionStatus.YES_LATER);

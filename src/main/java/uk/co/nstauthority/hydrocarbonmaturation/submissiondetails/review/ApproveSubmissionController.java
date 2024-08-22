@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsLatestExtantSubmissionDetailVersion;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
@@ -24,7 +24,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.Notificat
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSubmissionStatusService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -33,15 +32,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Controller
 @RequestMapping("/review/{submissionDetailId}/accept-submission")
 @HasSubmissionStatus(statuses = {SubmissionDetailStatus.SUBMITTED})
-@HasPermission(permissions = {
-    RolePermission.EXPLORATION,
-    RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.ONSHORE_AREA_TEAM_MEMBER})
+@HasAnyRole(role = Role.EXPLORATION, teamType = TeamType.REGULATOR)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.NORTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.SOUTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.ONSHORE_AREA)
 @IsLatestExtantSubmissionDetailVersion
 public class ApproveSubmissionController {
 
@@ -49,7 +49,6 @@ public class ApproveSubmissionController {
   private final SubmissionResourceService submissionResourceService;
   private final SubmissionSummaryModelService submissionSummaryModelService;
   private final SubmissionApprovalService submissionApprovalService;
-  private final UserService userService;
   private final FieldSubmissionStatusService fieldSubmissionStatusService;
 
   @Autowired
@@ -57,39 +56,38 @@ public class ApproveSubmissionController {
                                      SubmissionResourceService submissionResourceService,
                                      SubmissionSummaryModelService submissionSummaryModelService,
                                      SubmissionApprovalService submissionApprovalService,
-                                     UserService userService,
                                      FieldSubmissionStatusService fieldSubmissionStatusService) {
     this.submissionDetailService = submissionDetailService;
     this.submissionResourceService = submissionResourceService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionApprovalService = submissionApprovalService;
-    this.userService = userService;
     this.fieldSubmissionStatusService = fieldSubmissionStatusService;
   }
 
   @GetMapping
-  public ModelAndView showApproveConfirmationPage(@PathVariable("submissionDetailId") UUID submissionDetailId) {
+  public ModelAndView showApproveConfirmationPage(@PathVariable("submissionDetailId") UUID submissionDetailId, User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
 
-    if (!submissionApprovalService.canApproveSubmission(submissionDetail)) {
+    if (!submissionApprovalService.canApproveSubmission(submissionDetail, user)) {
       throw new ResponseStatusException(
           HttpStatus.FORBIDDEN, "Submission cannot be accepted by user with ID %s "
-          .formatted(userService.getUserWuaId()));
+          .formatted(user.wuaId().intValue()));
     }
 
-    return getApproveConfirmationModelAndView(submissionDetail);
+    return getApproveConfirmationModelAndView(submissionDetail, user);
   }
 
   @PostMapping
   public ModelAndView approveSubmission(@PathVariable("submissionDetailId") UUID submissionDetailId,
+                                        User user,
                                         @Nullable RedirectAttributes redirectAttributes) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
 
-    submissionApprovalService.approveSubmissionOrThrow(submissionDetail);
+    submissionApprovalService.approveSubmissionOrThrow(submissionDetail, user);
     approvedSubmissionNotificationBanner(submissionDetail, redirectAttributes);
 
     return ReverseRouter.redirect(on(ViewResourceRecordController.class)
-        .showResourceRecord(submissionDetail.getSubmission().getResource().getId()));
+        .showResourceRecord(submissionDetail.getSubmission().getResource().getId(), null));
   }
 
   private String getPageName(SubmissionDetail submissionDetail) {
@@ -112,11 +110,12 @@ public class ApproveSubmissionController {
     NotificationBannerUtil.applyNotificationBanner(redirectAttributes, banner);
   }
 
-  private ModelAndView getApproveConfirmationModelAndView(SubmissionDetail submissionDetail) {
+  private ModelAndView getApproveConfirmationModelAndView(SubmissionDetail submissionDetail, User user) {
     var pageName = getPageName(submissionDetail);
     var modelAndView = submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(
         submissionDetail,
-        "remi/review/approveSubmissionConfirmation"
+        "remi/review/approveSubmissionConfirmation",
+        user
     );
 
     var resourceName = submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
@@ -129,10 +128,10 @@ public class ApproveSubmissionController {
         .addObject("submissionType", submissionDetail.getSubmissionType())
         .addObject("actionUrl",
             ReverseRouter.route(on(ApproveSubmissionController.class)
-                .approveSubmission(submissionDetail.getId(), null)))
+                .approveSubmission(submissionDetail.getId(), null, null)))
         .addObject("cancelUrl",
             ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null)))
         .addObject("isFieldSubmission", isFieldSubmission);
 
     if (isFieldSubmission) {

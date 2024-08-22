@@ -16,7 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
@@ -27,7 +27,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUt
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -35,15 +34,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionReso
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchProspectAndDiscoveryRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @Controller
 @RequestMapping("review/resource/{resourceId}/regulator-managed-information/")
-@HasPermission(permissions = {
-    RolePermission.EXPLORATION,
-    RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.ONSHORE_AREA_TEAM_MEMBER})
+@HasAnyRole(role = Role.EXPLORATION, teamType = TeamType.REGULATOR)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.NORTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.SOUTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.ONSHORE_AREA)
 public class RegulatorManagedInformationController {
   private static final String PAGE_NAME = "Regulator managed information";
   private final RegulatorManagedInformationFormService regulatorManagedInformationFormService;
@@ -141,7 +141,7 @@ public class RegulatorManagedInformationController {
           if (SubmissionDetailStatus.SUBMITTED.equals(submissionDetail.getStatus())) {
             // status is SUBMITTED
             if (isInResponsibleTeam) {
-              return ReverseRouter.redirect(on(ReviewSubmissionController.class).showReviewPage(resource.getId()));
+              return ReverseRouter.redirect(on(ReviewSubmissionController.class).showReviewPage(resource.getId(), null));
             } else {
               // if they have updated the permissions the above redirects will throw forbidden so instead go to work area
               return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea(null));
@@ -149,7 +149,7 @@ public class RegulatorManagedInformationController {
           }
 
           // submission status was accepted so   shoow in system of record
-          return ReverseRouter.redirect(on(ViewResourceRecordController.class).showResourceRecord(resource.getId()));
+          return ReverseRouter.redirect(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null));
         }
     );
   }
@@ -195,7 +195,7 @@ public class RegulatorManagedInformationController {
     if (submissionOnResource.getStatus().equals(SubmissionDetailStatus.ACCEPTED)) {
       // then breadcrumbs go to system of record
       cancelUrl = ReverseRouter.route(on(ViewResourceRecordController.class)
-          .showResourceRecord(resource.getId()));
+          .showResourceRecord(resource.getId(), null));
       breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
           .addBreadcrumb(
               SearchProspectAndDiscoveryRecordsController.PAGE_TITLE,
@@ -208,7 +208,7 @@ public class RegulatorManagedInformationController {
     } else {
       // then breadcrumbs go to work area
       cancelUrl = ReverseRouter.route(on(ReviewSubmissionController.class)
-          .showReviewPage(resource.getId()));
+          .showReviewPage(resource.getId(), null));
       breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(PAGE_NAME)
           .addWorkAreaBreadcrumb()
           .addBreadcrumb(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(

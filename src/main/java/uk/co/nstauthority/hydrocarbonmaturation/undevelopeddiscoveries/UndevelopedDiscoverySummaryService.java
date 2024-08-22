@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 
@@ -18,9 +19,9 @@ public class UndevelopedDiscoverySummaryService {
     this.summarySectionServices = summarySectionServices;
   }
 
-  public List<SummarySection> getSummarySections(UndevelopedDiscovery undevelopedDiscovery) {
+  public List<SummarySection> getSummarySections(UndevelopedDiscovery undevelopedDiscovery, User user) {
     return summarySectionServices.stream()
-        .map(service -> service.getSummarySection(undevelopedDiscovery))
+        .map(service -> service.getSummarySection(undevelopedDiscovery, user))
         .flatMap(Optional::stream)
         .sorted(Comparator.comparing(SummarySection::displayOrder))
         .toList();

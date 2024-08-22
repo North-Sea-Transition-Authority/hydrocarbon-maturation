@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SectionSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -25,7 +26,7 @@ public class FieldGasCaseVolumetricTotalsSubmissionService implements SectionSub
   }
 
   @Override
-  public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
+  public boolean isSectionSubmittable(SubmissionDetail submissionDetail, User user) {
     if (submissionDetail.isFieldSubmission()) {
       var form = fieldGasCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail);
       BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");

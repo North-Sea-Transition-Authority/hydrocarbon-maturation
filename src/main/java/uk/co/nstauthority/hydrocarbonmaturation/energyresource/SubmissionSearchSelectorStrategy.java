@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
 import java.util.stream.Stream;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
@@ -8,5 +9,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetail
 interface SubmissionSearchSelectorStrategy {
 
   Stream<ResourceDetail> getResourceDetailsForSubmissionsWithTeam(Stream<SubmissionDetail> submissionDetailStream,
-                                                                  SubmissionType submissionType);
+                                                                  SubmissionType submissionType,
+                                                                  User user);
 }

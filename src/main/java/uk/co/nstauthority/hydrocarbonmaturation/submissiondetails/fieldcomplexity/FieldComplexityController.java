@@ -66,7 +66,7 @@ public class FieldComplexityController {
 
     if (fieldComplexityFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
       fieldComplexityService.saveFieldComplexity(form, submissionDetail);
-      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
     } else {
       return getFieldComplexityModelAndView(form, submissionDetail);
     }

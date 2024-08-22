@@ -13,12 +13,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralDetailSubmissionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private GeneralDetailsFormService generalDetailsFormService;
@@ -40,7 +43,7 @@ class GeneralDetailSubmissionServiceTest {
     when(generalDetailsFormValidator.isValid(eq(form), any(BindingResult.class), any(), eq(ValidationType.FULL)))
         .thenReturn(true);
 
-    assertTrue(generalDetailSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(generalDetailSubmissionService.isSectionSubmittable(submissionDetail, USER));
 
   }
 
@@ -56,7 +59,7 @@ class GeneralDetailSubmissionServiceTest {
     when(generalDetailsFormValidator.isValid(eq(form), any(BindingResult.class), any(), eq(ValidationType.FULL)))
         .thenReturn(false);
 
-    assertFalse(generalDetailSubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(generalDetailSubmissionService.isSectionSubmittable(submissionDetail, USER));
   }
 
 }

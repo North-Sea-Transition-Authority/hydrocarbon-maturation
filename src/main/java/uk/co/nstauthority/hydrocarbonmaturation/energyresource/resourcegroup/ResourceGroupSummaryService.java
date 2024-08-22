@@ -79,7 +79,7 @@ public class ResourceGroupSummaryService {
                                                                        Resource resource) {
     return new ResourceItemSummaryView(
         ReverseRouter.route(on(ViewResourceRecordController.class)
-            .showResourceRecord(resourceGroupLink.getResource().getId())),
+            .showResourceRecord(resourceGroupLink.getResource().getId(), null)),
         resource.getId().equals(resourceGroupLink.getResource().getId()),
         getResourceName(resourceGroupLink.getResource()),
         BooleanUtils.isTrue(resourceGroupLink.getPreferredView()) ? "(preferred view)" : ""

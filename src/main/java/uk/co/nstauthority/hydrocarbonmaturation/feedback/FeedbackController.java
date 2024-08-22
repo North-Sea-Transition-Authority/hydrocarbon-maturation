@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
@@ -26,15 +26,12 @@ public class FeedbackController {
 
   private final RemiFeedbackService remiFeedbackService;
   private final ControllerHelperService controllerHelperService;
-  private final UserService userService;
 
   @Autowired
   public FeedbackController(RemiFeedbackService remiFeedbackService,
-                            ControllerHelperService controllerHelperService,
-                            UserService userService) {
+                            ControllerHelperService controllerHelperService) {
     this.remiFeedbackService = remiFeedbackService;
     this.controllerHelperService = controllerHelperService;
-    this.userService = userService;
   }
 
   @GetMapping
@@ -45,14 +42,15 @@ public class FeedbackController {
   @PostMapping
   public ModelAndView submitFeedback(@ModelAttribute("form") FeedbackForm form,
                                      BindingResult bindingResult,
-                                     RedirectAttributes redirectAttributes) {
+                                     RedirectAttributes redirectAttributes,
+                                     User user) {
 
     bindingResult = remiFeedbackService.validateFeedbackForm(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getFeedbackModelAndView(form),
         () -> {
-          remiFeedbackService.saveFeedback(form, userService.getUser());
+          remiFeedbackService.saveFeedback(form, user);
           NotificationBannerUtil.addSuccessNotification(
               redirectAttributes, "Success", "Your feedback has been submitted");
           return ReverseRouter.redirect(on(WorkAreaController.class).getWorkArea(null));
@@ -64,7 +62,7 @@ public class FeedbackController {
     return new ModelAndView("remi/feedback/feedback")
         .addObject("form", feedbackForm)
         .addObject("actionUrl", ReverseRouter.route(on(FeedbackController.class)
-            .submitFeedback(null, null, null)))
+            .submitFeedback(null, null, null, null)))
         .addObject("cancelUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)))
         .addObject("serviceRatings",
             DisplayableEnumOptionUtil.getDisplayableOptions(ServiceFeedbackRating.class));

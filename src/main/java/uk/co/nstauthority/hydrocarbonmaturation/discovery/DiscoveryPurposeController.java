@@ -12,25 +12,26 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.StartUpdateDiscoverySubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.StartRelinquishmentSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTypeSelectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTypeSelectService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Controller
 @RequestMapping("/discovery/purpose")
-@HasPermission(permissions = {
-    RolePermission.EXPLORATION,
-    RolePermission.INDUSTRY_SUBMIT,
-    RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.ONSHORE_AREA_TEAM_MEMBER})
+@HasAnyRole(role = Role.EXPLORATION, teamType = TeamType.REGULATOR)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.NORTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.SOUTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.ONSHORE_AREA)
+@HasAnyRole(role = Role.INDUSTRY_SUBMIT, teamType = TeamType.INDUSTRY)
 public class DiscoveryPurposeController {
 
   private final SubmissionTypeSelectService submissionTypeSelectService;
@@ -44,17 +45,18 @@ public class DiscoveryPurposeController {
   }
 
   @GetMapping
-  public ModelAndView getDiscoveryPurposeForm() {
-    return getDiscoveryPurposeTypeModelAndView(new SubmissionTypeSelectForm());
+  public ModelAndView getDiscoveryPurposeForm(User user) {
+    return getDiscoveryPurposeTypeModelAndView(new SubmissionTypeSelectForm(), user);
   }
 
   @PostMapping
   public ModelAndView startDiscoverySubmission(@ModelAttribute("form") SubmissionTypeSelectForm form,
-                                               BindingResult bindingResult) {
+                                               BindingResult bindingResult,
+                                               User user) {
     bindingResult = submissionTypeSelectService.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getDiscoveryPurposeTypeModelAndView(form),
+        getDiscoveryPurposeTypeModelAndView(form, user),
         () -> switch (form.getSubmissionType()) {
           case CREATE_DISCOVERY_FROM_PROSPECT ->
               ReverseRouter.redirect(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage());
@@ -68,13 +70,13 @@ public class DiscoveryPurposeController {
         });
   }
 
-  ModelAndView getDiscoveryPurposeTypeModelAndView(SubmissionTypeSelectForm submissionTypeSelectForm) {
+  ModelAndView getDiscoveryPurposeTypeModelAndView(SubmissionTypeSelectForm submissionTypeSelectForm, User user) {
     return new ModelAndView("remi/submissiondetails/submissionPurpose")
-        .addObject("submissionTypes", submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY))
+        .addObject("submissionTypes", submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.DISCOVERY, user))
         .addObject("form", submissionTypeSelectForm)
         .addObject("actionUrl", ReverseRouter.route(on(DiscoveryPurposeController.class)
-            .startDiscoverySubmission(null, null)))
+            .startDiscoverySubmission(null, null, user)))
         .addObject("backLinkUrl", ReverseRouter.route(on(StartSubmissionController.class)
-            .getSubmissionType()));
+            .getSubmissionType(null)));
   }
 }

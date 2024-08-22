@@ -15,6 +15,8 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -36,6 +38,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties
 
 @ExtendWith(MockitoExtension.class)
 class OpportunityTaskListSectionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private OpportunityDetailsSubmissionService opportunityDetailsSubmissionService;
@@ -66,9 +69,9 @@ class OpportunityTaskListSectionServiceTest {
   @EnumSource(value = SubmissionType.class, names = {"PROSPECT_UPDATE", "CREATE_PROSPECT", "RELINQUISHMENT_PROSPECT"})
   void getSection_prospectSubmission(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
-    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
 
-    var taskListSectionOptional = opportunityTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = opportunityTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(taskListSectionOptional).isPresent();
     var section = taskListSectionOptional.get();
@@ -108,9 +111,9 @@ class OpportunityTaskListSectionServiceTest {
   @Test
   void getSection_postDrillSubmission() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.POST_DRILL_DRY_HOLE);
-    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
 
-    var taskListSectionOptional = opportunityTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = opportunityTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(taskListSectionOptional).isPresent();
     var section = taskListSectionOptional.get();
@@ -145,9 +148,9 @@ class OpportunityTaskListSectionServiceTest {
   @EnumSource(value = SubmissionType.class, names = {"CREATE_DISCOVERY_FROM_PROSPECT", "CREATE_DISCOVERY", "UPDATE_DISCOVERY", "RELINQUISHMENT_DISCOVERY"})
   void getSection_discoverySubmission(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
-    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
 
-    var taskListSectionOptional = opportunityTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = opportunityTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(taskListSectionOptional).isPresent();
     var section = taskListSectionOptional.get();
@@ -176,7 +179,7 @@ class OpportunityTaskListSectionServiceTest {
                 new TaskListItem(
                     "Commercial chance of success",
                     TaskListLabel.notStartedOrComplete(
-                        chanceOfSuccessSubmissionService.isSectionSubmittable(submissionDetail)),
+                        chanceOfSuccessSubmissionService.isSectionSubmittable(submissionDetail, USER)),
                     ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetail.getId())))),
             "Opportunity details",
             20
@@ -187,10 +190,10 @@ class OpportunityTaskListSectionServiceTest {
   @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
   void getSection_fieldSubmission(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
-    when(fieldTrapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(fieldTrapPropertiesSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
 
-    var taskListSectionOptional = opportunityTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = opportunityTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(taskListSectionOptional).isPresent();
     var section = taskListSectionOptional.get();
@@ -219,14 +222,14 @@ class OpportunityTaskListSectionServiceTest {
   void isSectionSubmittable_whenProspectSubmissionAndSubmittable_assertTrue(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     submissionDetail.setSubmissionType(submissionType);
-    when(chanceOfSuccessSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(hydrocarbonCaseSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(chanceOfSuccessSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(hydrocarbonCaseSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
 
-    assertTrue(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -234,28 +237,28 @@ class OpportunityTaskListSectionServiceTest {
   void isSectionSubmittable_whenProspectSubmissionAndNotSubmittable_assertFalse(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     submissionDetail.setSubmissionType(submissionType);
-    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(false);
 
-    assertFalse(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
   void isSectionSubmittable_whenDryWellSubmissionAndSubmittable_assertTrue() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.POST_DRILL_DRY_HOLE);
-    when(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
 
-    assertTrue(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
   void isSectionSubmittable_whenDryWellSubmissionAndNotSubmittable_assertFalse() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.POST_DRILL_DRY_HOLE);
-    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(false);
 
-    assertFalse(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -263,12 +266,12 @@ class OpportunityTaskListSectionServiceTest {
   void isSectionSubmittable_whenDiscoverySubmissionAndSubmittable_assertTrue(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     submissionDetail.setSubmissionType(submissionType);
-    when(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(chanceOfSuccessSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    assertTrue(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail));
+    when(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(outlineForMaximumCaseSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(chanceOfSuccessSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    assertTrue(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -276,9 +279,9 @@ class OpportunityTaskListSectionServiceTest {
   void isSectionSubmittable_whenDiscoverySubmissionAndNotSubmittable_assertFalse(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     submissionDetail.setSubmissionType(submissionType);
-    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    when(opportunityDetailsSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(false);
 
-    assertFalse(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -286,10 +289,10 @@ class OpportunityTaskListSectionServiceTest {
   void isSectionSubmittable_whenFieldSubmissionAndSubmittable_assertTrue(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     submissionDetail.setSubmissionType(submissionType);
-    when(fieldTrapPropertiesSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
-    when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(true);
+    when(fieldTrapPropertiesSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
+    when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(true);
 
-    assertTrue(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -297,16 +300,16 @@ class OpportunityTaskListSectionServiceTest {
   void isSectionSubmittable_whenFieldSubmissionAndNotSubmittable_assertFalse(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
     submissionDetail.setSubmissionType(submissionType);
-    when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail)).thenReturn(false);
+    when(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail, USER)).thenReturn(false);
 
-    assertFalse(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(opportunityTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
   void isSectionSubmittable_whenNewFieldSubmissionAndNotSubmittable_assertException() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_FIELD);
 
-    assertThatThrownBy(() -> opportunityTaskListSectionService.isSectionSubmittable(submissionDetail))
+    assertThatThrownBy(() -> opportunityTaskListSectionService.isSectionSubmittable(submissionDetail, USER))
         .isInstanceOf(ActionNotAllowedException.class)
         .hasMessage("New fields do not have task lists");
   }

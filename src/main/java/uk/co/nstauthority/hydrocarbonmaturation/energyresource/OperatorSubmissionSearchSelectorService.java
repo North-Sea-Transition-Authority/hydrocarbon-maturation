@@ -5,40 +5,37 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 
 @Service
 class OperatorSubmissionSearchSelectorService implements SubmissionSearchSelectorStrategy {
 
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
-  private final UserService userService;
   private final IndustryTeamService industryTeamService;
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
 
   @Autowired
   OperatorSubmissionSearchSelectorService(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
-                                          UserService userService,
                                           IndustryTeamService industryTeamService,
                                           GeneralDetailsPersistenceService generalDetailsPersistenceService) {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
-    this.userService = userService;
     this.industryTeamService = industryTeamService;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
   }
 
   @Override
   public Stream<ResourceDetail> getResourceDetailsForSubmissionsWithTeam(Stream<SubmissionDetail> submissionDetailStream,
-                                                                         SubmissionType submissionType) {
-    var user = userService.getUser();
+                                                                         SubmissionType submissionType,
+                                                                         User user) {
     var orgUnitsWhereUserSubmitter = industryTeamService
-        .getOrganisationUnitIdsForUserWithIndustryTeamRoles(user, Set.of(IndustryTeamRole.SUBMITTER));
+        .getOrganisationGroupIdsForUserWithRoles(user, Set.of(Role.INDUSTRY_SUBMIT));
     //Gets the list of resource views for prospects to be displayed in a search selector
     return submissionDetailStream
         .map(resourceDetailsPersistenceService::getResourceDetailOrThrow)

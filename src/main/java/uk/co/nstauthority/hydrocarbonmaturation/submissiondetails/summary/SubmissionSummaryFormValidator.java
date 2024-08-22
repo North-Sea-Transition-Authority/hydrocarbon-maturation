@@ -4,14 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.InternalTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionValidator;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 
 @Service
-public class SubmissionSummaryFormValidator implements SubmissionValidator {
+public class SubmissionSummaryFormValidator {
 
   private final InternalTeamService internalTeamService;
   private final SubmissionReadyService submissionReadyService;
@@ -23,13 +21,11 @@ public class SubmissionSummaryFormValidator implements SubmissionValidator {
     this.submissionReadyService = submissionReadyService;
   }
 
-  @Override
-  public boolean isValid(SubmissionForm submissionForm,
-                         Errors errors,
+  public boolean isValid(Errors errors,
                          SubmissionDetail submissionDetail,
-                         ValidationType validationType) {
-    var isRegulatorOrAreaTeamUser = internalTeamService.isRegulatorOrAreaTeamUser();
-    var isCompleted = submissionReadyService.isSubmissionSubmittable(submissionDetail);
+                         User user) {
+    var isRegulatorOrAreaTeamUser = internalTeamService.isRegulatorOrAreaTeamUser(user);
+    var isCompleted = submissionReadyService.isSubmissionSubmittable(submissionDetail, user);
 
     if (!isCompleted && isRegulatorOrAreaTeamUser) {
       ValidationUtils.rejectIfEmpty(
@@ -40,16 +36,6 @@ public class SubmissionSummaryFormValidator implements SubmissionValidator {
     }
 
     return !errors.hasErrors();
-  }
-
-  @Override
-  public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
-    // not used here
-  }
-
-  @Override
-  public void validateFull(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
-    // not used here
   }
 
 }

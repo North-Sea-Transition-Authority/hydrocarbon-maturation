@@ -45,9 +45,9 @@ public class FileDocumentService {
     fileDocumentType.getAllowedExtensions().ifPresent(fileUploadAttributes::withAllowedExtensions);
 
     return fileUploadAttributes
-        .withUploadUrl(ReverseRouter.route(on(controller).upload(null, fileDocumentType.name())))
-        .withDownloadUrl(ReverseRouter.route(on(controller).download(null)))
-        .withDeleteUrl(ReverseRouter.route(on(controller).delete(null)))
+        .withUploadUrl(ReverseRouter.route(on(controller).upload(null, fileDocumentType.name(), null)))
+        .withDownloadUrl(ReverseRouter.route(on(controller).download(null, null)))
+        .withDeleteUrl(ReverseRouter.route(on(controller).delete(null, null)))
         .withExistingFiles(existingFiles)
         .build();
   }

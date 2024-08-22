@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,18 +16,23 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class ResourceDetailsFormServiceTest {
+
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private ResourceDetailsFormValidator resourceDetailsFormValidator;
@@ -43,10 +47,7 @@ class ResourceDetailsFormServiceTest {
   private SubmissionDetailService submissionDetailService;
 
   @Mock
-  private RegulatorTeamService regulatorTeamService;
-
-  @Mock
-  private UserService userService;
+  private TeamQueryService teamQueryService;
 
   @InjectMocks
   private ResourceDetailsFormService resourceDetailsFormService;
@@ -92,11 +93,11 @@ class ResourceDetailsFormServiceTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var validationType = ValidationType.FULL;
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
-    when(regulatorTeamService.isRegulatorUser(any()))
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
         .thenReturn(true);
     var captor = ArgumentCaptor.forClass(
         ResourceDetailsFormValidatorHints.class);
-    resourceDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
+    resourceDetailsFormService.validate(form, bindingResult, validationType, submissionDetail, USER);
 
     verify(resourceDetailsFormValidator, times(1))
         .validate(eq(form), eq(bindingResult), captor.capture());
@@ -123,7 +124,7 @@ class ResourceDetailsFormServiceTest {
     var approvedResourceDetail = new ResourceDetail();
     var approvedSubmissionDetail = new SubmissionDetail();
     submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
-    when(regulatorTeamService.isRegulatorUser(any()))
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
         .thenReturn(false);
     when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
         .thenReturn(Optional.of(approvedSubmissionDetail));
@@ -131,7 +132,7 @@ class ResourceDetailsFormServiceTest {
         .thenReturn(Optional.of(approvedResourceDetail));
     var captor = ArgumentCaptor.forClass(
         ResourceDetailsFormValidatorHints.class);
-    resourceDetailsFormService.validate(form, bindingResult, validationType, submissionDetail);
+    resourceDetailsFormService.validate(form, bindingResult, validationType, submissionDetail, USER);
 
     verify(resourceDetailsFormValidator, times(1))
         .validate(eq(form), eq(bindingResult), captor.capture());

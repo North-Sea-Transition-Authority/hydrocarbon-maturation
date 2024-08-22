@@ -13,12 +13,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class DiscoveryWellDetailsSubmissionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private DiscoveryWellDetailsFormService discoveryWellDetailsFormService;
@@ -39,10 +42,10 @@ class DiscoveryWellDetailsSubmissionServiceTest {
     when(discoveryWellDetailsFormService.getDiscoveryWellDetailsForm(submissionDetail)).thenReturn(form);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    when(discoveryWellDetailsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail))
+    when(discoveryWellDetailsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail, USER))
         .thenReturn(bindingResult);
 
-    assertTrue(discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
@@ -52,9 +55,9 @@ class DiscoveryWellDetailsSubmissionServiceTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     bindingResult.reject("testerror");
-    when(discoveryWellDetailsFormService.validate(eq(form), any(), eq(ValidationType.FULL), eq(submissionDetail)))
+    when(discoveryWellDetailsFormService.validate(eq(form), any(), eq(ValidationType.FULL), eq(submissionDetail), eq(USER)))
         .thenReturn(bindingResult);
 
-    assertFalse(discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail, USER));
   }
 }

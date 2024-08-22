@@ -4,6 +4,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetrics.fieldoilcasevolumetrics.ReservoirHydrocarbonCaseService;
@@ -52,16 +53,18 @@ public class SubmissionSummaryModelService {
     this.reservoirHydrocarbonCaseService = reservoirHydrocarbonCaseService;
   }
 
-  public ModelAndView createSummaryForSubmissionTypeToModelAndView(SubmissionDetail submissionDetail, String viewName) {
+  public ModelAndView createSummaryForSubmissionTypeToModelAndView(SubmissionDetail submissionDetail,
+                                                                   String viewName,
+                                                                   User user) {
     return switch (submissionDetail.getSubmissionType()) {
       case CREATE_PROSPECT, PROSPECT_UPDATE, RELINQUISHMENT_PROSPECT ->
           createProspectSubmissionSummaryModelAndView(submissionDetail, viewName);
       case POST_DRILL_DRY_HOLE ->
           createPostDrillDryWellSubmissionSummaryModelAndView(submissionDetail, viewName);
       case CREATE_DISCOVERY, UPDATE_DISCOVERY, CREATE_DISCOVERY_FROM_PROSPECT, RELINQUISHMENT_DISCOVERY ->
-          createDiscoverySubmissionSummaryModelAndView(submissionDetail, viewName);
+          createDiscoverySubmissionSummaryModelAndView(submissionDetail, viewName, user);
       case CREATE_FIELD, CREATE_CSR, CREATE_FDP, CREATE_FDPA, CREATE_COP ->
-          createFieldSubmissionSummaryModelAndView(submissionDetail, viewName);
+          createFieldSubmissionSummaryModelAndView(submissionDetail, viewName, user);
     };
   }
 
@@ -145,7 +148,8 @@ public class SubmissionSummaryModelService {
   }
 
   public ModelAndView createDiscoverySubmissionSummaryModelAndView(SubmissionDetail submissionDetail,
-                                                                   String viewName) {
+                                                                   String viewName,
+                                                                   User user) {
     var modelAndView = new ModelAndView(viewName);
     modelAndView
         .addObject("generalDetailsSummaryView",
@@ -161,20 +165,20 @@ public class SubmissionSummaryModelService {
         .addObject("trapPropertiesSummaryView",
             discoverySummaryService.getTrapPropertiesSummaryViewFromSubmissionDetail(submissionDetail))
         .addObject("reservoirSummaries",
-            discoverySummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail))
+            discoverySummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail, user))
         .addObject("chanceOfSuccessSummaryView",
             discoverySummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail));
 
-    addDiscoveryTotalVolumes(submissionDetail, modelAndView);
+    addDiscoveryTotalVolumes(submissionDetail, modelAndView, user);
     addCommonAttributes(submissionDetail, modelAndView);
     return modelAndView;
   }
 
-  public ModelAndView createFieldSubmissionSummaryModelAndView(SubmissionDetail submissionDetail, String viewName) {
+  public ModelAndView createFieldSubmissionSummaryModelAndView(SubmissionDetail submissionDetail, String viewName, User user) {
     var modelAndView = new ModelAndView(viewName)
-        .addObject("summarySections", submissionSummaryService.getSummarySections(submissionDetail))
+        .addObject("summarySections", submissionSummaryService.getSummarySections(submissionDetail, user))
         .addObject("reservoirSummaries",
-            fieldSummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail));
+            fieldSummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail, user));
     addCommonAttributes(submissionDetail, modelAndView);
     return modelAndView;
   }
@@ -196,8 +200,8 @@ public class SubmissionSummaryModelService {
     }
   }
 
-  private void addDiscoveryTotalVolumes(SubmissionDetail submissionDetail, ModelAndView modelAndView) {
-    if (totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail)) {
+  private void addDiscoveryTotalVolumes(SubmissionDetail submissionDetail, ModelAndView modelAndView, User user) {
+    if (totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail, user)) {
       modelAndView.addObject("totalsRequired", true);
       var reservoirSubmissionDetails =
           reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);

@@ -118,11 +118,11 @@ class WorkAreaItemService {
 
     if (submissionWorkAreaQueryResult.getStatus() == SubmissionDetailStatus.DRAFT) {
       return ReverseRouter.route(on(TaskListController.class)
-          .getTaskList(submissionDetailId));
+          .getTaskList(submissionDetailId, null));
     } else {
       var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
       return ReverseRouter.route(on(ReviewSubmissionController.class)
-          .showReviewPage(submissionDetail.getSubmission().getResource().getId()));
+          .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null));
     }
   }
 

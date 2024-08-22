@@ -32,7 +32,7 @@ class ReviewPageBreadcrumbUtilTest {
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
             WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(submissionDetail.getSubmission().getResource().getId())),
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null)),
             submissionName)
     );
   }

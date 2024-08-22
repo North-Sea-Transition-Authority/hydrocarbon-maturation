@@ -10,6 +10,8 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -22,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 
 @ExtendWith(MockitoExtension.class)
 class WellInformationSummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
   @Mock
   private PlannedSanctionedWellsSummaryService plannedSanctionedWellsSummaryService;
   @Mock
@@ -40,7 +43,7 @@ class WellInformationSummaryServiceTest {
   void getSummarySection_notFdpOrFdpa_thenEmpty(SubmissionType submissionType) {
     submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
 
-    assertThat(wellInformationSummaryService.getSummarySection(submissionDetail)).isEmpty();
+    assertThat(wellInformationSummaryService.getSummarySection(submissionDetail, USER)).isEmpty();
   }
 
   @ParameterizedTest
@@ -82,7 +85,7 @@ class WellInformationSummaryServiceTest {
     when(plannedUnsanctionedWellsSummaryService.getPlannedSanctionedWellsCard(submissionDetail))
         .thenReturn(plannedUnsanctionedWellsCard);
 
-    var summarySectionOptional = wellInformationSummaryService.getSummarySection(submissionDetail);
+    var summarySectionOptional = wellInformationSummaryService.getSummarySection(submissionDetail, USER);
 
     assertThat(summarySectionOptional).isPresent();
 

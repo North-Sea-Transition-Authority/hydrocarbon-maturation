@@ -11,23 +11,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
-import java.util.Set;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryPurposeController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.ProspectPurposeController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = StartRelinquishmentSubmissionController.class)
 class StartRelinquishmentSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getStartProspectRelinquishmentPage_hasPermission_assertIsOk() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
 
     var modelAndView = mockMvc.perform(
             get(ReverseRouter.route(on(StartRelinquishmentSubmissionController.class)
@@ -45,16 +44,13 @@ class StartRelinquishmentSubmissionControllerTest extends AbstractSubmissionCont
             "resourceType")
         .containsExactly(
             ReverseRouter.route(on(StartRelinquishmentSubmissionController.class).startProspectRelinquishment()),
-            ReverseRouter.route(on(ProspectPurposeController.class).getProspectPurposeForm()),
+            ReverseRouter.route(on(ProspectPurposeController.class).getProspectPurposeForm(null)),
             ResourceType.PROSPECT);
   }
 
   @SecurityTest
   void getStartDiscoveryRelinquishmentPage_hasPermission_assertIsOk() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
 
     var modelAndView = mockMvc.perform(
             get(ReverseRouter.route(on(StartRelinquishmentSubmissionController.class)
@@ -72,14 +68,13 @@ class StartRelinquishmentSubmissionControllerTest extends AbstractSubmissionCont
             "resourceType")
         .containsExactly(
             ReverseRouter.route(on(StartRelinquishmentSubmissionController.class).startDiscoveryRelinquishment()),
-            ReverseRouter.route(on(DiscoveryPurposeController.class).getDiscoveryPurposeForm()),
+            ReverseRouter.route(on(DiscoveryPurposeController.class).getDiscoveryPurposeForm(null)),
             ResourceType.DISCOVERY);
   }
 
   @SecurityTest
   void startProspectRelinquishment_hasPermission_assertRedirect() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(StartRelinquishmentSubmissionController.class)
@@ -93,10 +88,7 @@ class StartRelinquishmentSubmissionControllerTest extends AbstractSubmissionCont
 
   @SecurityTest
   void startDiscoveryRelinquishment_hasPermission_assertRedirect() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(StartRelinquishmentSubmissionController.class)
@@ -110,8 +102,8 @@ class StartRelinquishmentSubmissionControllerTest extends AbstractSubmissionCont
 
   @SecurityTest
   void getStartProspectRelinquishmentPage_hasNoPermissions_assertIsForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(false);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(StartRelinquishmentSubmissionController.class)
@@ -122,10 +114,11 @@ class StartRelinquishmentSubmissionControllerTest extends AbstractSubmissionCont
 
   @SecurityTest
   void getStartDiscoveryRelinquishmentPage_hasNoPermissions_assertIsForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(false);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(StartRelinquishmentSubmissionController.class)
@@ -136,8 +129,8 @@ class StartRelinquishmentSubmissionControllerTest extends AbstractSubmissionCont
 
   @SecurityTest
   void startProspectRelinquishment_hasNoPermission_assertRedirect() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(false);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(StartRelinquishmentSubmissionController.class)
@@ -149,10 +142,11 @@ class StartRelinquishmentSubmissionControllerTest extends AbstractSubmissionCont
 
   @SecurityTest
   void startDiscoveryRelinquishment_hasNoPermission_assertRedirect() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(false);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(StartRelinquishmentSubmissionController.class)

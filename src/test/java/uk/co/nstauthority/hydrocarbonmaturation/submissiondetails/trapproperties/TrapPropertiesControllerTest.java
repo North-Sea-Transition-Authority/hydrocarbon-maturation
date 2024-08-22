@@ -129,6 +129,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getTrapProperties_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(TrapPropertiesController.class).getTrapProperties(submissionDetailId)))
@@ -139,6 +140,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveTrapProperties_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(trapPropertiesFormValidator.isValid(
         any(SubmissionForm.class), any(Errors.class), eq(submissionDetail), eq(validationType)
     )).thenReturn(true);
@@ -152,7 +154,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
 
     verify(trapPropertiesPersistenceService, times(1)).saveTrapProperties(any(TrapPropertiesForm.class), eq(submissionDetail));
   }
@@ -160,6 +162,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveTrapProperties_partialValidation_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
     when(trapPropertiesFormValidator.isValid(
         any(SubmissionForm.class), any(Errors.class), eq(submissionDetail), eq(validationType)
@@ -180,6 +183,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getGeneralDetailsModelAndView_whenProspect_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(trapPropertiesFormService.getTrapPropertiesForm(submissionDetail)).thenReturn(new TrapPropertiesForm());
     when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(submissionDetail)))
@@ -218,7 +222,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
     assertThat(modelMap.get("form").getClass()).isEqualTo(TrapPropertiesForm.class);
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
     );
   }
 
@@ -228,6 +232,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_DISCOVERY,
         discoverySubmissionDetailId);
     discoverySubmissionDetail.setAcceptedTimestamp(Instant.now());
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, discoverySubmissionDetail);
     when(submissionDetailService.getSubmissionDetail(discoverySubmissionDetailId)).thenReturn(Optional.of(discoverySubmissionDetail));
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(discoverySubmissionDetailId)).thenReturn(discoverySubmissionDetail);
@@ -268,7 +273,7 @@ class TrapPropertiesControllerTest extends AbstractSubmissionControllerTest {
     assertThat(modelMap.get("form").getClass()).isEqualTo(TrapPropertiesForm.class);
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId, null)), TaskListController.PAGE_NAME)
     );
   }
 }

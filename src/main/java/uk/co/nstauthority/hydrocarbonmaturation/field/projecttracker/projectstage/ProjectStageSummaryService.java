@@ -5,15 +5,11 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectstage.projectstagehistory.ProjectStageHistory;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -23,6 +19,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTimelineView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.TimelineEvent;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @Service
@@ -31,31 +30,27 @@ class ProjectStageSummaryService implements SummarySectionService<Project> {
   static final String PROJECT_STAGE = "Project stage";
 
   private final ProjectStageService projectStageService;
-  private final UserService userService;
-  private final PermissionService permissionService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   ProjectStageSummaryService(ProjectStageService projectStageService,
-                             UserService userService,
-                             PermissionService permissionService) {
+                             TeamQueryService teamQueryService) {
     this.projectStageService = projectStageService;
-    this.userService = userService;
-    this.permissionService = permissionService;
+    this.teamQueryService = teamQueryService;
   }
 
   @Override
-  public Optional<SummarySection> getSummarySection(Project project) {
-    var summaryItems = List.of(SummaryItem.withCard(PROJECT_STAGE, getProjectStageSummaryCard(project)));
+  public Optional<SummarySection> getSummarySection(Project project, User user) {
+    var summaryItems = List.of(SummaryItem.withCard(PROJECT_STAGE, getProjectStageSummaryCard(project, user)));
 
     return Optional.of(new SummarySection(DISPLAY_ORDER, summaryItems, ""));
   }
 
-  SummaryCard getProjectStageSummaryCard(Project project) {
+  SummaryCard getProjectStageSummaryCard(Project project, User user) {
     var timelineEvents = projectStageService.getOrderedProjectStages(project).stream()
-        .map(this::toTimelineEvent)
+        .map(t -> toTimelineEvent(t, user))
         .toList();
 
-    var user = userService.getUser();
     List<SummaryAction> actions = getActionsForUser(project, user);
 
     if (timelineEvents.isEmpty()) {
@@ -72,7 +67,7 @@ class ProjectStageSummaryService implements SummarySectionService<Project> {
   }
 
   private List<SummaryAction> getActionsForUser(Project project, User user) {
-    if (!permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))) {
+    if (!teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)) {
       return List.of();
     }
     return List.of(
@@ -85,7 +80,7 @@ class ProjectStageSummaryService implements SummarySectionService<Project> {
     );
   }
 
-  private TimelineEvent toTimelineEvent(ProjectStageHistory projectStageHistory) {
+  private TimelineEvent toTimelineEvent(ProjectStageHistory projectStageHistory, User user) {
     var stage = projectStageHistory.getStage().getDisplayName();
 
     var date = DateUtil.formatLongDate(projectStageHistory.getStageDate());
@@ -100,8 +95,7 @@ class ProjectStageSummaryService implements SummarySectionService<Project> {
 
     var timelineActionsMap = new HashMap<String, String>();
 
-    var user = userService.getUser();
-    if (permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))) {
+    if (teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)) {
       timelineActionsMap.put("Remove", removeUrl);
     }
 

@@ -92,13 +92,13 @@ class UndevelopedDiscoverySummaryControllerTest extends AbstractUndevelopedDisco
         .thenReturn(resourceName);
     when(viewResourceRecordService.getResourceRecordOrThrow(RESOURCE_ID))
         .thenReturn(resourceRecordSummaryView);
-    when(undevelopedDiscoverySummaryService.getSummarySections(undevelopedDiscovery))
+    when(undevelopedDiscoverySummaryService.getSummarySections(undevelopedDiscovery, USER))
         .thenReturn(summarySections);
 
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
                 get(ReverseRouter.route(
-                    on(UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(RESOURCE_ID)))
+                    on(UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(RESOURCE_ID, null)))
                     .with(user(USER)))
             .andExpect(status().isOk())
             .andReturn()
@@ -120,7 +120,7 @@ class UndevelopedDiscoverySummaryControllerTest extends AbstractUndevelopedDisco
             Map.entry(ReverseRouter.route(
                     on(SearchProspectAndDiscoveryRecordsController.class).searchResourceRecords(null, null)),
                 SearchProspectAndDiscoveryRecordsController.PAGE_TITLE),
-            Map.entry(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID)),
+            Map.entry(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(RESOURCE_ID, null)),
                 resourceName)
         );
   }
@@ -129,7 +129,7 @@ class UndevelopedDiscoverySummaryControllerTest extends AbstractUndevelopedDisco
   void getUndevelopedDiscoverySummary_userIsNotReservesAndResourcesAdvisor() throws Exception {
     mockMvc.perform(
             get(ReverseRouter.route(
-                on(UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(RESOURCE_ID)))
+                on(UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(RESOURCE_ID, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -138,7 +138,7 @@ class UndevelopedDiscoverySummaryControllerTest extends AbstractUndevelopedDisco
   void getUndevelopedDiscoverySummary_noUser() throws Exception {
     mockMvc.perform(
             get(ReverseRouter.route(
-                on(UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(RESOURCE_ID))))
+                on(UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(RESOURCE_ID, null))))
         .andExpect(status().isUnauthorized());
   }
 
@@ -151,7 +151,7 @@ class UndevelopedDiscoverySummaryControllerTest extends AbstractUndevelopedDisco
 
     mockMvc.perform(
             get(ReverseRouter.route(
-                on(UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(RESOURCE_ID)))
+                on(UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(RESOURCE_ID, null)))
                 .with(user(USER)))
         .andExpect(status().isNotFound());
   }

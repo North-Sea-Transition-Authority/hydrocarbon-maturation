@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListSectionService;
 
@@ -16,7 +17,7 @@ public class SubmissionReadyService {
     this.taskListSectionServices = taskListSectionServices;
   }
 
-  public boolean isSubmissionSubmittable(SubmissionDetail submissionDetail) {
-    return taskListSectionServices.stream().allMatch(section -> section.isSectionSubmittable(submissionDetail));
+  public boolean isSubmissionSubmittable(SubmissionDetail submissionDetail, User user) {
+    return taskListSectionServices.stream().allMatch(section -> section.isSectionSubmittable(submissionDetail, user));
   }
 }

@@ -10,6 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.consideringccus.ConsideringCcusSummaryService;
@@ -22,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 
 @ExtendWith(MockitoExtension.class)
 class FieldGeneralDetailsSummarySectionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
   @Mock
   private GeneralDetailSummaryService generalDetailSummaryService;
   @Mock
@@ -35,7 +38,7 @@ class FieldGeneralDetailsSummarySectionServiceTest {
   void getSummarySection_notFieldSubmission_assertEmpty() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
 
-    assertThat(fieldGeneralDetailsSummarySectionService.getSummarySection(submissionDetail))
+    assertThat(fieldGeneralDetailsSummarySectionService.getSummarySection(submissionDetail, USER))
         .isEmpty();
   }
 
@@ -67,7 +70,7 @@ class FieldGeneralDetailsSummarySectionServiceTest {
         List.of(expectedSummaryItem),
         FieldGeneralDetailsSummarySectionService.GENERAL_DETAILS_SUMMARY_TEXT));
 
-    assertThat(fieldGeneralDetailsSummarySectionService.getSummarySection(submissionDetail))
+    assertThat(fieldGeneralDetailsSummarySectionService.getSummarySection(submissionDetail, USER))
         .isPresent()
         .usingRecursiveComparison()
         .isEqualTo(expectedSummarySection);
@@ -101,7 +104,7 @@ class FieldGeneralDetailsSummarySectionServiceTest {
         List.of(expectedSummaryItem),
         FieldGeneralDetailsSummarySectionService.GENERAL_DETAILS_SUMMARY_TEXT));
 
-    assertThat(fieldGeneralDetailsSummarySectionService.getSummarySection(submissionDetail))
+    assertThat(fieldGeneralDetailsSummarySectionService.getSummarySection(submissionDetail, USER))
         .isPresent()
         .usingRecursiveComparison()
         .isEqualTo(expectedSummarySection);

@@ -94,9 +94,9 @@ class SubmissionSupportingDocumentServiceTest {
             FileUploadComponentAttributes::downloadUrl,
             FileUploadComponentAttributes::deleteUrl
         ).containsExactly(
-            ReverseRouter.route(on(UnlinkedFileController.class).upload(null, DOCUMENT_TYPE.toString())),
-            ReverseRouter.route(on(UnlinkedFileController.class).download(null)),
-            ReverseRouter.route(on(UnlinkedFileController.class).delete(null))
+            ReverseRouter.route(on(UnlinkedFileController.class).upload(null, DOCUMENT_TYPE.toString(), null)),
+            ReverseRouter.route(on(UnlinkedFileController.class).download(null, null)),
+            ReverseRouter.route(on(UnlinkedFileController.class).delete(null, null))
         );
 
     verify(fileDocumentService).getFileUploadComponentAttributesBuilder(EXISTING_FILES, DOCUMENT_TYPE);
@@ -117,9 +117,9 @@ class SubmissionSupportingDocumentServiceTest {
             FileUploadComponentAttributes::downloadUrl,
             FileUploadComponentAttributes::deleteUrl
         ).containsExactly(
-            ReverseRouter.route(on(UnlinkedFileController.class).upload(null, DOCUMENT_TYPE.toString())),
+            ReverseRouter.route(on(UnlinkedFileController.class).upload(null, DOCUMENT_TYPE.toString(), null)),
             ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).download(submissionDetail.getId(), null)),
-            ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).delete(submissionDetail.getId(), null))
+            ReverseRouter.route(on(SubmissionSupportingDocumentsController.class).delete(submissionDetail.getId(), null, null))
         );
 
     verify(fileDocumentService).getFileUploadComponentAttributesBuilder(EXISTING_FILES, DOCUMENT_TYPE);

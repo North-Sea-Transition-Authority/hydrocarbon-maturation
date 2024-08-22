@@ -75,6 +75,7 @@ class HydrocarbonCaseControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getHydrocarbonCase_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(HydrocarbonCaseController.class).getHydrocarbonCase(submissionDetailId)))
@@ -85,6 +86,7 @@ class HydrocarbonCaseControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getHydrocarbonCase_andTypeIsNotProspect_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT);
     mockMvc.perform(
             get(ReverseRouter.route(on(HydrocarbonCaseController.class).getHydrocarbonCase(submissionDetailId)))
@@ -108,7 +110,7 @@ class HydrocarbonCaseControllerTest extends AbstractSubmissionControllerTest {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
             get(ReverseRouter.route(on(HydrocarbonCaseController.class).saveHydrocarbonCase(
-                submissionDetailId, null, null, null)))
+                submissionDetailId, null, null, null, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -116,17 +118,18 @@ class HydrocarbonCaseControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveHydrocarbonCase_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(hydrocarbonCaseFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
+    when(hydrocarbonCaseFormService.validate(any(), any(), any(), eq(submissionDetail), any())).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
         post(ReverseRouter.route(on(HydrocarbonCaseController.class)
-            .saveHydrocarbonCase(submissionDetailId, form, bindingResult, null)))
+            .saveHydrocarbonCase(submissionDetailId, form, bindingResult, null, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
 
     verify(hydrocarbonCasePersistenceService, times(1)).saveHydrocarbonCase(any(HydrocarbonCaseForm.class), eq(submissionDetail));
   }
@@ -134,15 +137,16 @@ class HydrocarbonCaseControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveHydrocarbonCasen_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     var form = new HydrocarbonCaseForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
-    when(hydrocarbonCaseFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    when(hydrocarbonCaseFormService.validate(any(), any(), any(), eq(submissionDetail), any())).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(HydrocarbonCaseController.class).saveHydrocarbonCase(submissionDetailId, form, bindingResult, null)))
+        post(ReverseRouter.route(on(HydrocarbonCaseController.class).saveHydrocarbonCase(submissionDetailId, form, bindingResult, null, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
@@ -153,6 +157,7 @@ class HydrocarbonCaseControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getGeneralDetailsModelAndView_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(hydrocarbonCaseFormService.getHydrocarbonCaseForm(submissionDetail)).thenReturn(new HydrocarbonCaseForm());
 
@@ -171,7 +176,7 @@ class HydrocarbonCaseControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
     );
   }
 }

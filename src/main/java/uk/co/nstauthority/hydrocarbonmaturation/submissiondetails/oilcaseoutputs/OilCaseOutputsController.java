@@ -90,7 +90,7 @@ public class OilCaseOutputsController {
     } else {
       oilCaseOutputsPersistenceService.saveOilCaseOutputs(form, reservoirSubmissionDetail);
       if (submissionDetail.isProspectSubmission()) {
-        return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+        return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
       } else {
         return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, user));
       }

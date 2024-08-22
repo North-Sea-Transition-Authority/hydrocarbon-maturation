@@ -8,7 +8,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,13 +15,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectPhase;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -33,15 +30,17 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryKeyValue;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectDetailsSummaryServiceTest {
-  private final Instant FIXED_INSTANT = Instant.parse("2024-02-01T00:00:00.00Z");
+  private static final Instant FIXED_INSTANT = Instant.parse("2024-02-01T00:00:00.00Z");
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
-  private UserService userService;
-  @Mock
-  private PermissionService permissionService;
+  private TeamQueryService teamQueryService;
   @InjectMocks
   private ProjectDetailsSummaryService projectDetailsSummaryService;
 
@@ -67,7 +66,7 @@ class ProjectDetailsSummaryServiceTest {
       acceptedSubmissionDetail.setAcceptedTimestamp(Instant.parse("2023-12-01T00:00:00.00Z"));
       project.setSubmissionDetail(acceptedSubmissionDetail);
 
-      var summarySectionOptional = projectDetailsSummaryService.getSummarySection(project);
+      var summarySectionOptional = projectDetailsSummaryService.getSummarySection(project, USER);
 
       assertThat(summarySectionOptional)
           .isPresent()
@@ -129,7 +128,7 @@ class ProjectDetailsSummaryServiceTest {
       var fdpaStartUpDate = LocalDate.of(2024, Month.MARCH, 5);
       project.setFdpaStartUpDate(fdpaStartUpDate);
 
-      var summarySectionOptional = projectDetailsSummaryService.getSummarySection(project);
+      var summarySectionOptional = projectDetailsSummaryService.getSummarySection(project, USER);
 
       assertThat(summarySectionOptional)
           .isPresent()
@@ -193,7 +192,7 @@ class ProjectDetailsSummaryServiceTest {
       acceptedSubmissionDetail.setAcceptedTimestamp(Instant.parse("2023-12-01T00:00:00.00Z"));
       project.setSubmissionDetail(acceptedSubmissionDetail);
 
-      var summaryCard = projectDetailsSummaryService.getProjectSummaryCard(project);
+      var summaryCard = projectDetailsSummaryService.getProjectSummaryCard(project, USER);
 
       assertThat(summaryCard)
           .extracting(
@@ -230,7 +229,7 @@ class ProjectDetailsSummaryServiceTest {
       acceptedSubmissionDetail.setAcceptedTimestamp(Instant.parse("2023-12-01T00:00:00.00Z"));
       project.setSubmissionDetail(acceptedSubmissionDetail);
 
-      var summaryCard = projectDetailsSummaryService.getProjectSummaryCard(project);
+      var summaryCard = projectDetailsSummaryService.getProjectSummaryCard(project, USER);
 
       assertThat(summaryCard)
           .extracting(
@@ -268,7 +267,7 @@ class ProjectDetailsSummaryServiceTest {
       acceptedSubmissionDetail.setAcceptedTimestamp(Instant.parse("2023-12-01T00:00:00.00Z"));
       project.setSubmissionDetail(acceptedSubmissionDetail);
 
-      var summarySectionOptional = projectDetailsSummaryService.getSummarySection(project);
+      var summarySectionOptional = projectDetailsSummaryService.getSummarySection(project, USER);
 
       assertThat(summarySectionOptional)
           .isPresent()
@@ -324,7 +323,7 @@ class ProjectDetailsSummaryServiceTest {
 
     @Test
     void whenGetProjectSummaryCard_thenEmptyActionMap() {
-      var summaryCard = projectDetailsSummaryService.getProjectSummaryCard(project);
+      var summaryCard = projectDetailsSummaryService.getProjectSummaryCard(project, USER);
       assertThat(summaryCard.summaryActions())
           .isEmpty();
     }
@@ -376,14 +375,12 @@ class ProjectDetailsSummaryServiceTest {
 
   private void mockUserCallsWithPermissions(boolean isProjectAnalyst) {
     var projectAnalystUser = UserTestUtil.Builder().build();
-    when(userService.getUser())
-        .thenReturn(projectAnalystUser);
-    when(permissionService.hasPermission(projectAnalystUser, Set.of(RolePermission.PROJECT_ANALYST)))
+    when(teamQueryService.userHasStaticRole(projectAnalystUser.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
         .thenReturn(isProjectAnalyst);
   }
 
   private SummaryCard invokeGetSummarySectionAndReturnSummaryCard() {
-    var summarySectionOptional = projectDetailsSummaryService.getSummarySection(project);
+    var summarySectionOptional = projectDetailsSummaryService.getSummarySection(project, USER);
 
     var summaryItems = summarySectionOptional.get().summaryItems();
 

@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -25,8 +26,8 @@ import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticationUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
@@ -37,15 +38,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.Res
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicence;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamMemberRoleService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamRoleUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.TeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.LicenceViewTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -53,11 +46,16 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTest
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.Licence;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Transactional
 @IntegrationTest
 class OperatorResourceRecordQueryServiceIntegrationTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Autowired
   private DSLContext dslContext;
@@ -71,18 +69,15 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   @MockBean
   private OrganisationGroupQueryService organisationGroupQueryService;
 
-  @Autowired
-  private TeamMemberRoleService teamMemberRoleService;
-
   @MockBean
   private LicenceQueryService licenceQueryService;
 
   @ParameterizedTest
-  @EnumSource(IndustryTeamRole.class)
+  @EnumSource(value = Role.class, names = {"INDUSTRY_SUBMIT", "INDUSTRY_VIEWER"})
   void getProspectAndDiscoveryRecordSearchResults_whenUserNotRegulator_assertOnlyUserTeamsResourcesDisplayedAndAssertValues(
-      IndustryTeamRole industryTeamRole) {
+      Role role) {
     var organisationUnitIdUserIsInGroupFor = 46;
-    setUpIndustryTest(Set.of(industryTeamRole), List.of(organisationUnitIdUserIsInGroupFor));
+    setUpIndustryTest(Set.of(role), List.of(organisationUnitIdUserIsInGroupFor));
 
     var resourceUserIsResponsibleFor = buildProspectResource();
     var submissionUserIsResponsibleFor =
@@ -106,8 +101,8 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
         .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));
     var form = new SearchResourceRecordsForm();
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
-    if (industryTeamRole == IndustryTeamRole.ACCESS_MANAGER) {
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    if (role == Role.MANAGE_TEAM) {
       assertThat(results).isEmpty();
     } else {
       assertThat(results)
@@ -125,11 +120,11 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @ParameterizedTest
-  @EnumSource(IndustryTeamRole.class)
+  @EnumSource(value = Role.class, names = {"INDUSTRY_SUBMIT", "INDUSTRY_VIEWER"})
   void getProspectAndDiscoveryRecordSearchResults_whenUserIndustry_whenUserNotInAnyTeams_assertEmpty(
-      IndustryTeamRole industryTeamRole) {
+      Role role) {
     var organisationUnitIdUserIsNotIn = 46;
-    setUpIndustryTest(Set.of(industryTeamRole), List.of());
+    setUpIndustryTest(Set.of(role), List.of());
 
     var resourceUserIsResponsibleFor = buildProspectResource();
     var submissionUserIsResponsibleFor =
@@ -150,14 +145,15 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var form = new SearchResourceRecordsForm();
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
     assertThat(results).isEmpty();
   }
 
-  @Test
-  void getProspectAndDiscoveryRecordSearchResults_whenUserIndustry_whenHasAllRoles_assertDisplayed() {
+  @ParameterizedTest
+  @EnumSource(value = Role.class, names = {"INDUSTRY_SUBMIT", "INDUSTRY_VIEWER"})
+  void getProspectAndDiscoveryRecordSearchResults_whenUserIndustry_whenHasAllRoles_assertDisplayed(Role role) {
     var organisationUnitIdUserIsInGroupFor = 46;
-    setUpIndustryTest(Set.of(IndustryTeamRole.values()), List.of(organisationUnitIdUserIsInGroupFor));
+    setUpIndustryTest(Set.of(role), List.of(organisationUnitIdUserIsInGroupFor));
 
     var resourceUserIsResponsibleFor = buildProspectResource();
     var submissionUserIsResponsibleFor =
@@ -192,7 +188,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var form = new SearchResourceRecordsForm();
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
@@ -211,7 +207,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   @Test
   void getProspectAndDiscoveryRecordSearchResults_whenIncompleteResourceName_assertOrderedResultsAllContainTextIgnoreCasing() {
     var organisationUnitIdUserIsInGroupFor = 46;
-    setUpIndustryTest(Set.of(IndustryTeamRole.values()), List.of(organisationUnitIdUserIsInGroupFor));
+    setUpIndustryTest(Set.of(Role.values()), List.of(organisationUnitIdUserIsInGroupFor));
 
     var resource1 = buildProspectResource();
     var submission1 =
@@ -250,7 +246,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.PROSPECT.getEnumName(), ResourceType.DISCOVERY.getEnumName()));
     form.setResourceNameFromResourceDetail("Resourc");
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::resourceName
@@ -263,7 +259,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   @Test
   void getProspectAndDiscoveryRecordSearchResults_whenUserIndustry_whenHasSubmitterAndViewer_andOnExtantLicence_assertDisplayed() {
     var organisationUnitIdUserIsInGroupFor = 46;
-    setUpIndustryTest(Set.of(IndustryTeamRole.SUBMITTER, IndustryTeamRole.VIEWER), List.of(organisationUnitIdUserIsInGroupFor));
+    setUpIndustryTest(Set.of(Role.INDUSTRY_SUBMIT, Role.INDUSTRY_VIEWER), List.of(organisationUnitIdUserIsInGroupFor));
 
     var resourceUserIsResponsibleFor = buildProspectResource();
     var submissionUserIsResponsibleFor =
@@ -294,7 +290,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var form = new SearchResourceRecordsForm();
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
@@ -310,7 +306,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   @Test
   void getProspectAndDiscoveryRecordSearchResults_whenUserIndustry_whenUserSubmitterAndViewer_andNotOnAlicenceAndNotExtant_assertNoneDisplayed() {
     var organisationUnitIdUserIsInGroupFor = 46;
-    setUpIndustryTest(Set.of(IndustryTeamRole.SUBMITTER, IndustryTeamRole.VIEWER), List.of(organisationUnitIdUserIsInGroupFor));
+    setUpIndustryTest(Set.of(Role.INDUSTRY_SUBMIT, Role.INDUSTRY_VIEWER), List.of(organisationUnitIdUserIsInGroupFor));
 
     var resourceWithoutLicence = buildProspectResource();
     var submissionWithoutLicence =
@@ -331,7 +327,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
         .thenReturn(List.of());
     var form = new SearchResourceRecordsForm();
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
     assertThat(results).isEmpty();
   }
 
@@ -340,7 +336,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   void getProspectAndDiscoveryRecordSearchResults_andFilterByGeographicalArea_assertOnlyTypeSpecifiedDisplayed(
       GeographicalArea geographicalArea) {
     var userOrgUnitId = 1;
-    setUpIndustryTest(Set.of(IndustryTeamRole.SUBMITTER), List.of(userOrgUnitId));
+    setUpIndustryTest(Set.of(Role.INDUSTRY_SUBMIT), List.of(userOrgUnitId));
 
     var resourceWithGeographicalArea = buildProspectResource();
     var submissionWithGeographicalArea =
@@ -378,7 +374,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var form = new SearchResourceRecordsForm();
     form.setGeographicalArea(List.of(geographicalArea.name()));
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
     if (geographicalArea == GeographicalArea.ONSHORE) {
       assertThat(results)
           .extracting(
@@ -403,7 +399,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
       boolean showOnlyPreferredView) {
     //the filter for preferred view should not work for operators
     var userOrgUnitId = 1;
-    setUpIndustryTest(Set.of(IndustryTeamRole.SUBMITTER), List.of(userOrgUnitId));
+    setUpIndustryTest(Set.of(Role.INDUSTRY_SUBMIT), List.of(userOrgUnitId));
 
     var preferredViewResource = buildProspectResource();
     var preferredViewSubmissionDetail =
@@ -430,7 +426,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var form = new SearchResourceRecordsForm();
     form.setShowOnlyPreferredViews(showOnlyPreferredView);
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::submissionDetailId)
@@ -448,7 +444,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
       withdrawn = null;
     }
     var userOrgUnitId = 1;
-    setUpIndustryTest(Set.of(IndustryTeamRole.SUBMITTER), List.of(userOrgUnitId));
+    setUpIndustryTest(Set.of(Role.INDUSTRY_SUBMIT), List.of(userOrgUnitId));
 
     var resourceWithWithdrawnSubmission = buildDiscoveryResource();
     var submissionDetailWithWithdrawnSubmission =
@@ -467,7 +463,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
 
     var form = new SearchResourceRecordsForm();
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
 
     if (BooleanUtils.isTrue(withdrawn)) {
       assertThat(results).isEmpty();
@@ -484,7 +480,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   @Test
   void getFieldRecordsSearchResults_whenIncompleteFieldName_assertResultsAllContainText() {
     var organisationUnitIdUserIsInGroupFor = 46;
-    setUpIndustryTest(Set.of(IndustryTeamRole.SUBMITTER), List.of(organisationUnitIdUserIsInGroupFor));
+    setUpIndustryTest(Set.of(Role.INDUSTRY_SUBMIT), List.of(organisationUnitIdUserIsInGroupFor));
 
     Stream.of("JH Field", "jh Field 2", "JH Field With More Text", "No sub string")
         .forEach(fieldName -> buildFieldResultWithFieldName(fieldName, organisationUnitIdUserIsInGroupFor));
@@ -493,7 +489,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
     form.setFieldNameForResourceSubmission("JH Fiel");
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
 
     var fieldNames = List.of("JH Field", "jh Field 2", "JH Field With More Text");
     assertThat(results)
@@ -523,7 +519,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   @Test
   void getFieldRecordsSearchResults_asIndustryInResponsibleOrganisation_assertOnlyUserTeamsResourcesDisplayedAndAssertValues() {
     var organisationUnitIdUserIsInGroupFor = 46;
-    setUpIndustryTest(Set.of(IndustryTeamRole.SUBMITTER), List.of(organisationUnitIdUserIsInGroupFor));
+    setUpIndustryTest(Set.of(Role.INDUSTRY_SUBMIT), List.of(organisationUnitIdUserIsInGroupFor));
 
     var resourceUserIsResponsibleFor = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
     var fixedInstant = Instant.parse("2022-12-03T10:15:30.00Z");
@@ -555,7 +551,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var form = new SearchResourceRecordsForm();
     form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
 
     assertThat(results)
         .extracting(
@@ -585,7 +581,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   @Test
   void getFieldRecordsSearchResults_asIndustryInResponsibleOrganisation_assertOnlyResourcesOnExtantLicencesDisplayedAndAssertValues() {
     var organisationUnitIdUserIsInGroupFor = 46;
-    setUpIndustryTest(Set.of(IndustryTeamRole.SUBMITTER), List.of(organisationUnitIdUserIsInGroupFor));
+    setUpIndustryTest(Set.of(Role.INDUSTRY_SUBMIT), List.of(organisationUnitIdUserIsInGroupFor));
 
     var resource1 = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
     buildSubmissionDetail(resource1, SubmissionType.CREATE_CSR, null);
@@ -616,7 +612,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var form = new SearchResourceRecordsForm();
     form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
 
-    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form);
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
 
     assertThat(results)
         .extracting(
@@ -641,9 +637,9 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
         );
   }
 
-  private void setUpIndustryTest(Set<TeamRole> userRoles, List<Integer> userOrgUnitIds) {
+  private void setUpIndustryTest(Set<Role> userRoles, List<Integer> userOrgUnitIds) {
     var user = UserTestUtil.Builder()
-        .withWuaId(1000L)
+        .withWuaId(USER.wuaId())
         .build();
 
     // Ensure user is treated as currently logged in
@@ -652,15 +648,6 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
         .setSecurityContext();
 
     var userOrgGroupId = 1;
-
-    var team = TeamTestUtil.Builder()
-        .withTeamType(TeamType.INDUSTRY)
-        .withId(null)
-        .withOrganisationGroupId(userOrgGroupId)
-        .build();
-
-    entityManager.persist(team);
-    entityManager.flush();
 
     var userOrgGroup = new OrganisationGroup();
     userOrgGroup.setOrganisationGroupId(userOrgGroupId);
@@ -673,14 +660,45 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(userOrgGroupId)))
         .thenReturn(List.of(userOrgGroup));
 
-    // Add user to team with the previously defined roles
-    teamMemberRoleService.updateUserTeamRoles(team, new WebUserAccountId(user.wuaId()),
-        TeamRoleUtil.getRoleNames(userRoles));
+    Team team;
+
+    try {
+      team = entityManager.createQuery("SELECT t FROM Team t WHERE t.teamType = :teamType AND t.scopeId = :scopeId AND t.scopeType = :scopeType", Team.class)
+          .setParameter("teamType", TeamType.INDUSTRY)
+          .setParameter("scopeId", userOrgGroupId)
+          .setParameter("scopeType", "ORGGRP")
+          .getSingleResult();
+    } catch (NoResultException exception) {
+      team = null;
+    }
+
+    // Stub team if not already created
+    if (team == null) {
+      team = TeamTestUtil.Builder()
+          .withTeamType(TeamType.INDUSTRY)
+          .withId(null)
+          .withScopeId(String.valueOf(userOrgGroupId))
+          .withScopeType("ORGGRP")
+          .buildScopedTeam();
+
+      entityManager.persist(team);
+      entityManager.flush();
+    }
+
+    Team finalTeam = team;
+    userRoles.forEach(userRole -> {
+      var teamRole = new TeamRole();
+      teamRole.setRole(userRole);
+      teamRole.setWuaId(user.wuaId());
+      teamRole.setTeam(finalTeam);
+      entityManager.persist(teamRole);
+      entityManager.flush();
+    });
   }
 
-  private RegulatorManagedInformation buildRegulatorManagedInformation(
+  private void buildRegulatorManagedInformation(
       Resource resource, GeographicalArea geographicalArea, ResponsibleTeamType responsibleTeamType) {
-    return SubmissionIntegrationTestUtils.createRegulatorManagedInformation(
+    SubmissionIntegrationTestUtils.createRegulatorManagedInformation(
         resource, responsibleTeamType, geographicalArea, entityManager);
   }
 
@@ -689,9 +707,8 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     return SubmissionIntegrationTestUtils.createLicence(id, ref, generalDetails, entityManager);
   }
 
-  private FieldLicence createFieldLicence(int id, String ref, Field field) {
-
-    return FieldIntegrationTestUtils.createLicence(id, ref, field, entityManager);
+  private void createFieldLicence(int id, String ref, Field field) {
+    FieldIntegrationTestUtils.createLicence(id, ref, field, entityManager);
   }
 
   private GeneralDetail createGeneralDetail(SubmissionDetail submissionDetail, String licenceApplicationReference) {
@@ -699,9 +716,8 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     return SubmissionIntegrationTestUtils.createGeneralDetail(submissionDetail, entityManager, licenceApplicationReference);
   }
 
-  private ResourceDetail createResourceDetail(SubmissionDetail submissionDetail, String resourceName, int organisationId) {
-
-    return SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, resourceName, organisationId, entityManager);
+  private void createResourceDetail(SubmissionDetail submissionDetail, String resourceName, int organisationId) {
+    SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail, resourceName, organisationId, entityManager);
   }
 
   private Resource buildProspectResource() {
@@ -712,14 +728,13 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     return SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.DISCOVERY);
   }
 
-  private ResourceGroupLink buildResourceGroupLink(boolean preferredView, Resource resource) {
+  private void buildResourceGroupLink(boolean preferredView, Resource resource) {
     var resourceGroupLink = new ResourceGroupLink();
     resourceGroupLink.setResource(resource);
     resourceGroupLink.setPreferredView(preferredView);
     resourceGroupLink.setResourceGroupId(UUID.randomUUID());
     entityManager.persist(resourceGroupLink);
     entityManager.flush();
-    return resourceGroupLink;
   }
 
   private SubmissionDetail buildSubmissionDetail(Resource resource, SubmissionType submissionType,

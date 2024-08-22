@@ -17,6 +17,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
@@ -33,6 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 
 @ExtendWith(MockitoExtension.class)
 class OilCaseVolumetricParametersSummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
@@ -102,7 +105,7 @@ class OilCaseVolumetricParametersSummaryServiceTest {
     when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
         .thenReturn(false);
 
-    assertThat(oilCaseVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(oilCaseVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isEmpty();
   }
 
@@ -111,7 +114,7 @@ class OilCaseVolumetricParametersSummaryServiceTest {
   void getSummarySection_whenNotDiscovery(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
 
-    assertThat(oilCaseVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(oilCaseVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isEmpty();
   }
 
@@ -137,7 +140,7 @@ class OilCaseVolumetricParametersSummaryServiceTest {
         listOfInstances, submissionDetail, reservoirSubmissionDetail
     )).thenReturn(tableView);
 
-    var summarySection = oilCaseVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = oilCaseVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), OilCaseVolumetricParametersSummaryService.OIL_CASE_VOLUMETRIC_PARAMETERS_DISPLAY_ORDER);

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SectionSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -19,11 +20,11 @@ public class DiscoveryWellDetailsSubmissionService implements SectionSubmissionS
   }
 
   @Override
-  public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
+  public boolean isSectionSubmittable(SubmissionDetail submissionDetail, User user) {
     var form = discoveryWellDetailsFormService.getDiscoveryWellDetailsForm(submissionDetail);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
     bindingResult = discoveryWellDetailsFormService.validate(
-        form, bindingResult, ValidationType.FULL, submissionDetail);
+        form, bindingResult, ValidationType.FULL, submissionDetail, user);
     return !bindingResult.hasErrors();
   }
 }

@@ -13,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs.OilCaseOutputsForm;
@@ -20,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class FieldOilCaseVolumetricTotalsSubmissionServiceTest {
+    private static final User USER = UserTestUtil.Builder().build();
 
     @Mock
     FieldOilCaseVolumetricTotalsService fieldOilCaseVolumetricTotalsService;
@@ -40,7 +43,7 @@ class FieldOilCaseVolumetricTotalsSubmissionServiceTest {
                 any(OilCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(ValidationType.FULL))
         ).thenReturn(true);
 
-        assertTrue(fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail));
+        assertTrue(fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER));
     }
 
     @Test
@@ -56,13 +59,13 @@ class FieldOilCaseVolumetricTotalsSubmissionServiceTest {
                 any(OilCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(ValidationType.FULL))
         ).thenReturn(false);
 
-        assertFalse(fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail));
+        assertFalse(fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER));
     }
 
     @Test
     void isSectionSubmittable_whenNotFieldSubmission_thenTrue() {
         var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-        assertTrue(fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail));
+        assertTrue(fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER));
     }
 
 }

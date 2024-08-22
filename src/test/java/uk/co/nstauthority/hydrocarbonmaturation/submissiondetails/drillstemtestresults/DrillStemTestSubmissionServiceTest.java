@@ -46,7 +46,7 @@ class DrillStemTestSubmissionServiceTest {
     when(dryWellDetailsFormService.getDrillStemTestInitialForm(reservoirSubmissionDetail))
         .thenReturn(form);
     when(dryWellDetailsFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail), any()))
         .thenReturn(emptyBindingResult);
 
     assertTrue(drillStemTestSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
@@ -64,7 +64,7 @@ class DrillStemTestSubmissionServiceTest {
     when(dryWellDetailsFormService.getDrillStemTestInitialForm(reservoirSubmissionDetail))
         .thenReturn(form);
     when(dryWellDetailsFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail), any()))
         .thenReturn(bindingResult);
 
     assertFalse(drillStemTestSubmissionService.isSectionSubmittable(reservoirSubmissionDetail));
@@ -82,7 +82,7 @@ class DrillStemTestSubmissionServiceTest {
     when(dryWellDetailsFormService.getDrillStemTestInitialForm(reservoirSubmissionDetail))
         .thenReturn(form);
     when(dryWellDetailsFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail), any()))
         .thenReturn(emptyBindingResult);
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(drillStemTestResults);
@@ -105,7 +105,7 @@ class DrillStemTestSubmissionServiceTest {
     when(dryWellDetailsFormService.getDrillStemTestInitialForm(reservoirSubmissionDetail))
         .thenReturn(form);
     when(dryWellDetailsFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail), any()))
         .thenReturn(emptyBindingResult);
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(drillStemTestResults);

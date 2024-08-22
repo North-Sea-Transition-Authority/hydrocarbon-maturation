@@ -65,7 +65,7 @@ public class ConsideringCcusController {
 
     if (consideringCcusFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
       consideringCcusFormService.saveConsideringCcus(form, submissionDetail);
-      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
     } else {
       return getConsideringCcusModelAndView(form, submissionDetail);
     }

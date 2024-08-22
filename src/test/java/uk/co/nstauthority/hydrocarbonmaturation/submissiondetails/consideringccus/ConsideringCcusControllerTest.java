@@ -75,6 +75,7 @@ class ConsideringCcusControllerTest extends AbstractSubmissionControllerTest {
       mode = EnumSource.Mode.EXCLUDE
   )
   void getConsideringCcus_andStatusIsNotDraft_assertForbidden(SubmissionDetailStatus submissionDetailStatus) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setStatus(submissionDetailStatus);
     mockMvc.perform(
             get(ReverseRouter.route(on(ConsideringCcusController.class).getConsideringCcus(submissionDetailId)))
@@ -89,6 +90,7 @@ class ConsideringCcusControllerTest extends AbstractSubmissionControllerTest {
       mode = EnumSource.Mode.EXCLUDE
   )
   void saveConsideringCcus_andStatusIsNotDraft_assertForbidden(SubmissionDetailStatus submissionDetailStatus) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setStatus(submissionDetailStatus);
     mockMvc.perform(
             get(ReverseRouter.route(on(ConsideringCcusController.class).getConsideringCcus(submissionDetailId)))
@@ -99,6 +101,7 @@ class ConsideringCcusControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest
   @MethodSource("allNonFieldSubmissionTypes")
   void getConsideringCcus_andSubmissionNotFieldType_assertForbidden(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
     mockMvc.perform(
             get(ReverseRouter.route(on(ConsideringCcusController.class).getConsideringCcus(submissionDetailId)))
@@ -109,6 +112,7 @@ class ConsideringCcusControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest
   @MethodSource("allNonFieldSubmissionTypes")
   void saveConsideringCcus_andSubmissionNotFieldType_assertForbidden(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
     mockMvc.perform(
             post(ReverseRouter.route(on(ConsideringCcusController.class)
@@ -141,6 +145,7 @@ class ConsideringCcusControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest
   @EnumSource(value = ValidationType.class)
   void saveConsideringCcus_validForm (ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     when(consideringCcusFormValidator.isValid(
         any(ConsideringCcusForm.class),
         any(BindingResult.class),
@@ -155,7 +160,7 @@ class ConsideringCcusControllerTest extends AbstractSubmissionControllerTest {
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
 
     verify(consideringCcusFormService, times(1))
         .saveConsideringCcus(any(ConsideringCcusForm.class), eq(submissionDetail));
@@ -165,6 +170,7 @@ class ConsideringCcusControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest
   @EnumSource(value = ValidationType.class)
   void saveConsideringCcus_invalidForm (ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     when(consideringCcusFormValidator.isValid(
         any(ConsideringCcusForm.class),
         any(BindingResult.class),

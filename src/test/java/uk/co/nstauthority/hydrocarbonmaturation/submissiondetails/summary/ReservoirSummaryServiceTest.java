@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.Reservoir;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -26,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 
 @ExtendWith(MockitoExtension.class)
 class ReservoirSummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
@@ -84,7 +87,7 @@ class ReservoirSummaryServiceTest {
         .thenReturn(List.of(reservoirSubmissionDetail1, reservoirSubmissionDetail2, reservoirSubmissionDetail3));
     var reservoirSubmissionDetailList = List.of(reservoirSubmissionDetail1, reservoirSubmissionDetail2, reservoirSubmissionDetail3);
     reservoirSubmissionDetailList.forEach(reservoirSubmissionDetail ->
-        when(generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail))
+        when(generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail, USER))
             .thenReturn(
                 Optional.of(
                     new SummarySection(
@@ -96,7 +99,7 @@ class ReservoirSummaryServiceTest {
             )
     );
 
-    var reservoirSummaries = reservoirSummaryService.getReservoirSummaries(submissionDetail);
+    var reservoirSummaries = reservoirSummaryService.getReservoirSummaries(submissionDetail, USER);
     var generalReservoirInfoSummarySection = new SummarySection(
         GeneralReservoirInformationSummarySectionService.GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER,
         null,
@@ -140,7 +143,7 @@ class ReservoirSummaryServiceTest {
         .thenReturn(List.of(reservoirSubmissionDetail1, reservoirSubmissionDetail2, reservoirSubmissionDetail3));
     var reservoirSubmissionDetailList = List.of(reservoirSubmissionDetail1, reservoirSubmissionDetail2, reservoirSubmissionDetail3);
     reservoirSubmissionDetailList.forEach(reservoirSubmissionDetail ->
-        when(oilFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail))
+        when(oilFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail, USER))
             .thenReturn(
                 Optional.of(
                     new SummarySection(
@@ -157,13 +160,13 @@ class ReservoirSummaryServiceTest {
         null,
         ""
     );
-    var reservoirSummaries = reservoirSummaryService.getReservoirSummaries(submissionDetail);
+    var reservoirSummaries = reservoirSummaryService.getReservoirSummaries(submissionDetail, USER);
 
     var reservoirSummary1 = new ReservoirSummary(reservoirName1, List.of(oilFluidPropertySummarySection));
     var reservoirSummary2 = new ReservoirSummary(reservoirName3, List.of(oilFluidPropertySummarySection));
     var reservoirSummary3 = new ReservoirSummary(reservoirName2, List.of(oilFluidPropertySummarySection));
     assertThat(reservoirSummaries).containsExactly(reservoirSummary1, reservoirSummary2, reservoirSummary3);
 
-    verify(generalReservoirInformationSummarySectionService, never()).getSummarySection(any(ReservoirSubmissionDetail.class));
+    verify(generalReservoirInformationSummarySectionService, never()).getSummarySection(any(ReservoirSubmissionDetail.class), any(User.class));
   }
 }

@@ -1,15 +1,15 @@
 package uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,20 +20,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsRegulatorForProjectField;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
 class RegulatorForProjectFieldInterceptorRuleTest extends AbstractInterceptorRuleTest{
   @Mock
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   @Mock
-  private PermissionService permissionService;
+  private TeamQueryService teamQueryService;
   @InjectMocks
   private RegulatorForProjectFieldInterceptorRule rule;
 
@@ -46,7 +47,7 @@ class RegulatorForProjectFieldInterceptorRuleTest extends AbstractInterceptorRul
 
   @Test
   void validate_isProjectAnalyst() {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
         .thenReturn(true);
 
     var annotation = getAnnotation(
@@ -65,23 +66,19 @@ class RegulatorForProjectFieldInterceptorRuleTest extends AbstractInterceptorRul
     verifyNoInteractions(response);
   }
 
-  @Test
+  @ParameterizedTest
+  @EnumSource(ResponsibleTeamType.class)
   @SuppressWarnings("unchecked")
-  void validate_isRegulator_andIsResponsibleForField() {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
+  void validate_isRegulator_andIsResponsibleForField(ResponsibleTeamType responsibleTeamType) {
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
         .thenReturn(false);
 
-    var regulatorManagedInformation = mock(RegulatorManagedInformation.class);
+    var regulatorManagedInformation = new RegulatorManagedInformation();
+    regulatorManagedInformation.setResponsibleTeamType(responsibleTeamType);
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(project.getField().getResource()))
         .thenReturn(regulatorManagedInformation);
-    var responsibleTeamType = mock(ResponsibleTeamType.class);
-    when(regulatorManagedInformation.getResponsibleTeamType())
-        .thenReturn(responsibleTeamType);
-    var rolePermissions = mock(Set.class);
-    when(responsibleTeamType.getRolePermissions())
-        .thenReturn(rolePermissions);
 
-    when(permissionService.hasPermission(USER, rolePermissions))
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), responsibleTeamType.getTeamType(), responsibleTeamType.getRole()))
         .thenReturn(true);
 
     var annotation = getAnnotation(
@@ -100,24 +97,20 @@ class RegulatorForProjectFieldInterceptorRuleTest extends AbstractInterceptorRul
     verifyNoInteractions(response);
   }
 
-  @Test
+  @ParameterizedTest
+  @EnumSource(ResponsibleTeamType.class)
   @SuppressWarnings("unchecked")
-  void validate_isRegulator_andIsNotResponsibleForField() {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(false);
+  void validate_isRegulator_andIsNotResponsibleForField(ResponsibleTeamType responsibleTeamType) {
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+            .thenReturn(false);
 
-    var regulatorManagedInformation = mock(RegulatorManagedInformation.class);
+    var regulatorManagedInformation = new RegulatorManagedInformation();
+    regulatorManagedInformation.setResponsibleTeamType(responsibleTeamType);
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(project.getField().getResource()))
-        .thenReturn(regulatorManagedInformation);
-    var responsibleTeamType = mock(ResponsibleTeamType.class);
-    when(regulatorManagedInformation.getResponsibleTeamType())
-        .thenReturn(responsibleTeamType);
-    var rolePermissions = mock(Set.class);
-    when(responsibleTeamType.getRolePermissions())
-        .thenReturn(rolePermissions);
+            .thenReturn(regulatorManagedInformation);
 
-    when(permissionService.hasPermission(USER, rolePermissions))
-        .thenReturn(false);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), responsibleTeamType.getTeamType(), responsibleTeamType.getRole()))
+            .thenReturn(false);
 
     var annotation = getAnnotation(
         RegulatorForProjectFieldInterceptorRuleTest.TestControllerExtant.class,

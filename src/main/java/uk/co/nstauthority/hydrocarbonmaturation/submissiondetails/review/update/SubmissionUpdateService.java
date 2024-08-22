@@ -5,7 +5,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -17,24 +17,22 @@ public class SubmissionUpdateService {
   private final RequestUpdateFormValidator requestUpdateFormValidator;
   private final SubmissionUpdatePersistenceService submissionUpdatePersistenceService;
   private final ResponsibleTeamService responsibleTeamService;
-  private final UserService userService;
 
   @Autowired
   SubmissionUpdateService(RequestUpdateFormValidator requestUpdateFormValidator,
                           SubmissionUpdatePersistenceService submissionUpdatePersistenceService,
-                          ResponsibleTeamService responsibleTeamService, UserService userService) {
+                          ResponsibleTeamService responsibleTeamService) {
     this.requestUpdateFormValidator = requestUpdateFormValidator;
     this.submissionUpdatePersistenceService = submissionUpdatePersistenceService;
     this.responsibleTeamService = responsibleTeamService;
-    this.userService = userService;
   }
 
-  public boolean canRequestUpdateOnSubmission(SubmissionDetail submissionDetail) {
+  public boolean canRequestUpdateOnSubmission(SubmissionDetail submissionDetail, User user) {
     if (submissionDetail.getStatus() != SubmissionDetailStatus.SUBMITTED) {
       return false;
     }
 
-    if (!responsibleTeamService.isInResponsibleTeam(userService.getUser(), submissionDetail)) {
+    if (!responsibleTeamService.isInResponsibleTeam(user, submissionDetail)) {
       return false;
     }
 
@@ -65,13 +63,13 @@ public class SubmissionUpdateService {
     return submissionUpdatePersistenceService.getDraftUpdateSubmissionDetail(submission);
   }
 
-  public void resolveUpdateOnSubmission(SubmissionDetail submissionDetail) {
+  public void resolveUpdateOnSubmission(SubmissionDetail submissionDetail, User user) {
     var submissionUpdate =
         submissionUpdatePersistenceService.getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission())
             .orElseThrow(() -> new IllegalArgumentException("Could not find an unresolved update on submission %s"
                 .formatted(submissionDetail.getSubmission().getId())));
 
-    submissionUpdatePersistenceService.resolveUpdate(submissionUpdate);
+    submissionUpdatePersistenceService.resolveUpdate(submissionUpdate, user);
   }
 
   BindingResult validate(BindingResult bindingResult, RequestUpdateForm form) {

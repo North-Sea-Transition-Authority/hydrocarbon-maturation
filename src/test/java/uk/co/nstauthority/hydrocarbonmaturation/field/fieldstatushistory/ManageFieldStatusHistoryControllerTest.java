@@ -21,7 +21,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.util.NotificationBannerTe
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -40,8 +39,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.Notificat
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = ManageFieldStatusHistoryController.class)
 class ManageFieldStatusHistoryControllerTest extends AbstractSubmissionControllerTest {
@@ -68,8 +68,8 @@ class ManageFieldStatusHistoryControllerTest extends AbstractSubmissionControlle
   // not in nested class to pass ArchRule
   @SecurityTest
   void getManageFieldStatusHistory_whenProjectAnalyst_assertOk() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
+
     when(fieldPersistenceService.getFieldOrThrow(field.getFieldIdentifier()))
         .thenReturn(field);
 
@@ -98,8 +98,7 @@ class ManageFieldStatusHistoryControllerTest extends AbstractSubmissionControlle
 
     @Test
     void getManageFieldStatusHistory_whenFieldDoesNotExist_assertThrowsEntityNotFound() throws Exception {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+      when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
       when(fieldPersistenceService.getFieldOrThrow(field.getFieldIdentifier()))
           .thenCallRealMethod();
 
@@ -112,8 +111,7 @@ class ManageFieldStatusHistoryControllerTest extends AbstractSubmissionControlle
 
     @Test
     void getManageFieldStatusHistory_assertProperties() throws Exception {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+      when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
       when(fieldPersistenceService.getFieldOrThrow(field.getFieldIdentifier()))
           .thenReturn(field);
 
@@ -143,8 +141,7 @@ class ManageFieldStatusHistoryControllerTest extends AbstractSubmissionControlle
 
     @Test
     void saveFieldStatus_whenValidForm_assertRedirection() throws Exception {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+      when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
 
       var form = new FieldStatusForm();
       form.setFieldStatus(FieldStatus.STATUS_400);
@@ -174,9 +171,8 @@ class ManageFieldStatusHistoryControllerTest extends AbstractSubmissionControlle
     }
 
     @Test
-    void saveFieldStatus_whenFieldDoesNotExist_assertThrowsEntityNotFound() throws Exception {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+    void saveFieldStatus_whenFieldDoesNotExist_assertThrowsEntityNotFound() {
+      when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
       when(fieldPersistenceService.getFieldOrThrow(field.getFieldIdentifier()))
           .thenCallRealMethod();
 
@@ -190,8 +186,7 @@ class ManageFieldStatusHistoryControllerTest extends AbstractSubmissionControlle
 
     @Test
     void saveFieldStatus_whenInvalidForm_assertProperties() throws Exception {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+      when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
 
       var form = new FieldStatusForm();
       form.setFieldStatus(FieldStatus.STATUS_400);
@@ -231,8 +226,7 @@ class ManageFieldStatusHistoryControllerTest extends AbstractSubmissionControlle
 
     @SecurityTest
     void getRemoveFieldStatusConfirmation_whenFieldStatusHistoryDoesNotExist_throwsRemiEntityNotFound() throws Exception {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+      when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
 
       when(fieldStatusHistoryService.getFieldStatusHistoryOrThrow(fieldStatusHistory.getId()))
           .thenThrow(RemiEntityNotFoundException.class);
@@ -246,8 +240,7 @@ class ManageFieldStatusHistoryControllerTest extends AbstractSubmissionControlle
 
     @SecurityTest
     void getRemoveFieldStatusConfirmation_whenFieldIdentifierDoesNotMatchFieldStatusHistory_throwsIllegalArgumentException() {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+      when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
 
       field.setFieldIdentifier(8000);
 
@@ -277,8 +270,7 @@ class ManageFieldStatusHistoryControllerTest extends AbstractSubmissionControlle
 
     @Test
     void getRemoveFieldStatusConfirmation_assertProperties() throws Exception {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+      when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
 
       fieldStatusHistory.setField(field);
 
@@ -306,8 +298,7 @@ class ManageFieldStatusHistoryControllerTest extends AbstractSubmissionControlle
 
     @Test
     void removeFieldStatus_assertCallsAndRedirection() throws Exception {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+      when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
 
       fieldStatusHistory.setField(field);
 

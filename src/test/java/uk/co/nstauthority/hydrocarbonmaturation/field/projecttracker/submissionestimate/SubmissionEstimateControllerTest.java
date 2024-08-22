@@ -1,29 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submissionestimate;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
-import static uk.co.nstauthority.hydrocarbonmaturation.util.NotificationBannerTestUtil.notificationBanner;
-
-import java.time.LocalDate;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -36,7 +12,6 @@ import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
@@ -47,16 +22,33 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectStat
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectTrackerControllerService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ViewProjectController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.StringUtil;
+
+import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
+import static uk.co.nstauthority.hydrocarbonmaturation.util.NotificationBannerTestUtil.notificationBanner;
 
 @ContextConfiguration(classes = SubmissionEstimateController.class)
 class SubmissionEstimateControllerTest extends AbstractControllerTest {
-  @MockBean
-  private PermissionService permissionService;
   @MockBean
   private ProjectTrackerControllerService projectTrackerControllerService;
   @MockBean
@@ -83,9 +75,12 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void getSubmissionEstimate_whenNotResponsibleRegulator_thenForbidden() throws Exception {
-    var rolePermissions = mockAndGetRolePermissionsForField();
+    mockRegulatorManagedInfoForField(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
 
-    when(permissionService.hasPermission(USER, rolePermissions))
+    when(teamQueryService.userHasStaticRole(
+            USER.wuaId(),
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getRole()))
         .thenReturn(false);
 
     mockMvc.perform(
@@ -98,10 +93,13 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   @ParameterizedTest
   @EnumSource(value = SubmissionEstimateType.class)
   void getSubmissionEstimate_whenResponsibleRegulator(SubmissionEstimateType type) throws Exception {
-    var rolePermissions = mockAndGetRolePermissionsForField();
+    mockRegulatorManagedInfoForField(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
 
-    when(permissionService.hasPermission(USER, rolePermissions))
-        .thenReturn(true);
+    when(teamQueryService.userHasStaticRole(
+            USER.wuaId(),
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getRole()))
+            .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 
@@ -121,7 +119,7 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   void getSubmissionEstimate_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
         .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
@@ -142,8 +140,8 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   void saveSubmissionEstimate_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+            .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 
@@ -157,10 +155,13 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void saveSubmissionEstimate_whenNotResponsibleRegulator_thenForbidden() throws Exception {
-    var rolePermissions = mockAndGetRolePermissionsForField();
+    mockRegulatorManagedInfoForField(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
 
-    when(permissionService.hasPermission(USER, rolePermissions))
-        .thenReturn(false);
+    when(teamQueryService.userHasStaticRole(
+            USER.wuaId(),
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getRole()))
+            .thenReturn(false);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(SubmissionEstimateController.class)
@@ -172,10 +173,13 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void saveSubmissionEstimate_whenResponsibleRegulator_thenOk() throws Exception {
-    var rolePermissions = mockAndGetRolePermissionsForField();
+    mockRegulatorManagedInfoForField(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
 
-    when(permissionService.hasPermission(USER, rolePermissions))
-        .thenReturn(true);
+    when(teamQueryService.userHasStaticRole(
+            USER.wuaId(),
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getRole()))
+            .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 
@@ -196,8 +200,8 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   void getRemoveConfirmation_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+            .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 
@@ -211,10 +215,13 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void getRemoveConfirmation_whenResponsibleRegulator_thenOk() throws Exception {
-    var rolePermissions = mockAndGetRolePermissionsForField();
+    mockRegulatorManagedInfoForField(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
 
-    when(permissionService.hasPermission(USER, rolePermissions))
-        .thenReturn(true);
+    when(teamQueryService.userHasStaticRole(
+            USER.wuaId(),
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getRole()))
+            .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 
@@ -235,10 +242,15 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void getRemoveConfirmation_whenNotResponsibleRegulator_assertForbidden() throws Exception {
-    var rolePermissions = mockAndGetRolePermissionsForField();
+    mockRegulatorManagedInfoForField(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
 
-    when(permissionService.hasPermission(USER, rolePermissions))
-        .thenReturn(false);
+    when(teamQueryService.userHasStaticRole(
+            USER.wuaId(),
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getRole()))
+            .thenReturn(false);
+    when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+            .thenReturn(project);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionEstimateController.class)
@@ -256,8 +268,8 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   void removeEstimate_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+            .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 
@@ -271,10 +283,15 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void removeSubmissionEstimate_whenNotResponsibleRegulator_thenForbidden() throws Exception {
-    var rolePermissions = mockAndGetRolePermissionsForField();
+    mockRegulatorManagedInfoForField(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
 
-    when(permissionService.hasPermission(USER, rolePermissions))
-        .thenReturn(false);
+    when(teamQueryService.userHasStaticRole(
+            USER.wuaId(),
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getRole()))
+            .thenReturn(false);
+    when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+            .thenReturn(project);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(SubmissionEstimateController.class)
@@ -287,10 +304,15 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   @ParameterizedTest
   @EnumSource(value = SubmissionEstimateType.class)
   void removeSubmissionEstimate_whenResponsibleRegulator_thenRedirect(SubmissionEstimateType type) throws Exception {
-    var rolePermissions = mockAndGetRolePermissionsForField();
+    mockRegulatorManagedInfoForField(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
 
-    when(permissionService.hasPermission(USER, rolePermissions))
-        .thenReturn(true);
+    when(teamQueryService.userHasStaticRole(
+            USER.wuaId(),
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getRole()))
+            .thenReturn(true);
+    when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
+            .thenReturn(project);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 
@@ -313,8 +335,8 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
 
   @Test
   void getSubmissionEstimate_whenProjectDoesNotMatchResource_thenNotFound() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+            .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenThrow(RemiEntityNotFoundException.class);
 
@@ -329,8 +351,8 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   class GivenUrlIsInValid {
     @Test
     void whenGetAddEstimate_andInvalidSubmissionEstimateType_thenNotFound() throws Exception {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+      when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+              .thenReturn(true);
       when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
           .thenReturn(project);
 
@@ -343,8 +365,8 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
 
     @Test
     void whenSaveEstimate_andInvalidSubmissionEstimateType_thenNotFound() throws Exception {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+      when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+              .thenReturn(true);
       when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
           .thenReturn(project);
 
@@ -358,8 +380,8 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
 
     @Test
     void whenGetRemoveConfirmation_andInvalidSubmissionEstimateType_thenNotFound() throws Exception {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+      when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+              .thenReturn(true);
       when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
           .thenReturn(project);
 
@@ -375,8 +397,8 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   class GivenIsProjectAnalyst {
     @BeforeEach
     void setUp() {
-      when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-          .thenReturn(true);
+      when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+              .thenReturn(true);
       when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
           .thenReturn(project);
     }
@@ -676,16 +698,10 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   }
 
   @SuppressWarnings("unchecked")
-  private Set<RolePermission> mockAndGetRolePermissionsForField() {
-    var regulatorManagedInformation = mock(RegulatorManagedInformation.class);
+  private void mockRegulatorManagedInfoForField(ResponsibleTeamType responsibleTeamType) {
+    var regulatorManagedInformation = new RegulatorManagedInformation();
+    regulatorManagedInformation.setResponsibleTeamType(responsibleTeamType);
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(project.getField().getResource()))
         .thenReturn(regulatorManagedInformation);
-    var responsibleTeamType = mock(ResponsibleTeamType.class);
-    when(regulatorManagedInformation.getResponsibleTeamType())
-        .thenReturn(responsibleTeamType);
-    Set<RolePermission> rolePermissions = mock(Set.class);
-    when(responsibleTeamType.getRolePermissions())
-        .thenReturn(rolePermissions);
-    return rolePermissions;
   }
 }

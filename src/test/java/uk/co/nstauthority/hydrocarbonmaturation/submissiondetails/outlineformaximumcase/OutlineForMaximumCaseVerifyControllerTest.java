@@ -82,7 +82,7 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
     mapAttributions = "Contains information provided by the %s"
         .formatted(applicationContext.getBean(CustomerConfigurationProperties.class).mnemonic());
     mapGeoJsonDataRoute = ReverseRouter.route(on(OutlineForMaximumCaseRestController.class)
-        .getGeoJsonForOutlineForMaximumCase(submissionDetailId));
+        .getGeoJsonForOutlineForMaximumCase(submissionDetailId, null));
     when(outlineForMaximumCaseMapService.getMapAttributions()).thenReturn(mapAttributions);
     when(outlineForMaximumCaseMapService.getMapGeoJsonDataRoute(submissionDetail)).thenReturn(mapGeoJsonDataRoute);
   }
@@ -148,7 +148,7 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
             post(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class)
-                .saveOutlineForMaximumCaseUpload(submissionDetailId,null, null)))
+                .saveOutlineForMaximumCaseUpload(submissionDetailId,null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isForbidden());
@@ -159,27 +159,29 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveOutlineForMaximumCasePage_whenValidFormAndShapeIsCorrect_assertRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(outlineForMaximumCaseVerifyFormService.getShapeIsCorrect(any(OutlineForMaximumCaseVerifyForm.class))).thenReturn(true);
-    when(outlineForMaximumCaseVerifyFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(outlineForMaximumCaseVerifyFormService.validate(any(), any(), any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).saveOutlineForMaximumCaseUpload(submissionDetailId, form, bindingResult)))
+        post(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).saveOutlineForMaximumCaseUpload(submissionDetailId, form, bindingResult, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
 
   }
 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveOutlineForMaximumCasePage_whenValidFormAndShapeIsNotCorrect_assertRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(outlineForMaximumCaseVerifyFormService.getShapeIsCorrect(any(OutlineForMaximumCaseVerifyForm.class))).thenReturn(false);
-    when(outlineForMaximumCaseVerifyFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(outlineForMaximumCaseVerifyFormService.validate(any(), any(), any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).saveOutlineForMaximumCaseUpload(submissionDetailId, form, bindingResult)))
+        post(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).saveOutlineForMaximumCaseUpload(submissionDetailId, form, bindingResult, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
@@ -191,13 +193,14 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveOutlineForMaximumCasePage_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
-    when(outlineForMaximumCaseVerifyFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(outlineForMaximumCaseVerifyFormService.validate(any(), any(), any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).saveOutlineForMaximumCaseUpload(submissionDetailId, form, bindingResult)))
+        post(ReverseRouter.route(on(OutlineForMaximumCaseVerifyController.class).saveOutlineForMaximumCaseUpload(submissionDetailId, form, bindingResult, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
@@ -207,6 +210,7 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
 
   @Test
   void getOutlineForMaximumCaseModelAndView_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(outlineForMaximumCaseVerifyFormService.getOutlineForMaximumCaseVerifyForm(submissionDetail)).thenReturn(form);
     
     var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -220,7 +224,7 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
         entry("pageTitle", OutlineForMaximumCaseVerifyController.PAGE_NAME),
         entry("cancelUrl",
             ReverseRouter.route(on(TaskListController.class)
-                .getTaskList(submissionDetailId))),
+                .getTaskList(submissionDetailId, null))),
         entry("geoJsonDataUrl",
             mapGeoJsonDataRoute),
         entry("dataMapAttributions", mapAttributions)
@@ -230,7 +234,7 @@ class OutlineForMaximumCaseVerifyControllerTest extends AbstractSubmissionContro
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(OutlineForMaximumCaseUploadController.class)
                 .getOutlineForMaximumCaseUpload(submissionDetail.getId(), null)),
             OpportunityTaskListSectionService.OUTLINE_FOR_MAXIMUM_CASE)

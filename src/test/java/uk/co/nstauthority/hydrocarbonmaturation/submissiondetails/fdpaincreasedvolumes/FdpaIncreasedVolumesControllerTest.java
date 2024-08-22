@@ -56,6 +56,7 @@ class FdpaIncreasedVolumesControllerTest extends AbstractSubmissionControllerTes
 
   @Test
   void getFdpaIncreasedVolumes_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_FDPA);
 
     var form = new FdpaIncreasedVolumesForm();
@@ -135,6 +136,7 @@ class FdpaIncreasedVolumesControllerTest extends AbstractSubmissionControllerTes
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {"CREATE_FDPA"}, mode = EnumSource.Mode.EXCLUDE)
   void getFdpaIncreasedVolumes_andTypeIsNotFdpa_assertForbidden(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
     mockMvc.perform(
             get(ReverseRouter.route(on(FdpaIncreasedVolumesController.class)
@@ -157,6 +159,7 @@ class FdpaIncreasedVolumesControllerTest extends AbstractSubmissionControllerTes
   @EnumSource(value = SubmissionDetailStatus.class, names = {"DRAFT"}, mode = EnumSource.Mode.EXCLUDE)
   void getFdpaIncreasedVolumes_whenIsNotDraft_assertForbidden(
       SubmissionDetailStatus submissionDetailStatus) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setStatus(submissionDetailStatus);
     mockMvc.perform(
             get(ReverseRouter.route(on(FdpaIncreasedVolumesController.class)
@@ -176,6 +179,7 @@ class FdpaIncreasedVolumesControllerTest extends AbstractSubmissionControllerTes
   @ParameterizedTest
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveFdpaIncreasedVolumes_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_FDPA);
 
     var form = new FdpaIncreasedVolumesForm();
@@ -191,7 +195,7 @@ class FdpaIncreasedVolumesControllerTest extends AbstractSubmissionControllerTes
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(SUBMISSION_DETAIL_ID))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(SUBMISSION_DETAIL_ID, null))));
 
     verify(increasedVolumesService, times(1))
         .saveFdpaIncreasedVolumes(form, submissionDetail);
@@ -201,6 +205,7 @@ class FdpaIncreasedVolumesControllerTest extends AbstractSubmissionControllerTes
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveFdpaIncreasedVolumes_whenInvalidForm_assertNotSaved_andNotRedirected(
       ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     when(reservoirHydrocarbonCaseService.getHydrocarbonsDiscovered(submissionDetail))
         .thenReturn(HydrocarbonsDiscovered.GAS_ONLY);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_FDPA);
@@ -227,6 +232,7 @@ class FdpaIncreasedVolumesControllerTest extends AbstractSubmissionControllerTes
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {"CREATE_FDPA"}, mode = EnumSource.Mode.EXCLUDE)
   void saveFdpaIncreasedVolumes_andTypeIsNotFdpa_assertForbidden(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
     mockMvc.perform(
             post(ReverseRouter.route(on(FdpaIncreasedVolumesController.class)
@@ -251,6 +257,7 @@ class FdpaIncreasedVolumesControllerTest extends AbstractSubmissionControllerTes
   @EnumSource(value = SubmissionDetailStatus.class, names = {"DRAFT"}, mode = EnumSource.Mode.EXCLUDE)
   void saveFdpaIncreasedVolumes_whenIsNotDraft_assertForbidden(
       SubmissionDetailStatus submissionDetailStatus) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setStatus(submissionDetailStatus);
     mockMvc.perform(
             post(ReverseRouter.route(on(FdpaIncreasedVolumesController.class)

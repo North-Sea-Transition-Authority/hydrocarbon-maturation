@@ -17,6 +17,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.ReservoirAdditionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -36,6 +38,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class ReservoirTaskListSectionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private ReservoirPropertiesSubmissionService reservoirPropertiesSubmissionService;
@@ -61,7 +64,7 @@ class ReservoirTaskListSectionServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
-    var taskListSectionOptional = reservoirTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = reservoirTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(taskListSectionOptional).isPresent();
     var section = taskListSectionOptional.get();
@@ -90,7 +93,7 @@ class ReservoirTaskListSectionServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
-    var taskListSectionOptional = reservoirTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = reservoirTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(taskListSectionOptional).isPresent();
     var section = taskListSectionOptional.get();
@@ -126,7 +129,7 @@ class ReservoirTaskListSectionServiceTest {
     when(reservoirAdditionsFormService.getReservoirAdditionsToForm(submissionDetail))
         .thenReturn(form);
 
-    var taskListSectionOptional = reservoirTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = reservoirTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(taskListSectionOptional).isPresent();
     var section = taskListSectionOptional.get();
@@ -165,7 +168,7 @@ class ReservoirTaskListSectionServiceTest {
         eq(ValidationType.FULL)))
         .thenReturn(false);
 
-    var taskListSectionOptional = reservoirTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = reservoirTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(taskListSectionOptional).isPresent();
     var section = taskListSectionOptional.get();
@@ -196,7 +199,7 @@ class ReservoirTaskListSectionServiceTest {
     when(reservoirAdditionsFormService.getReservoirAdditionsToForm(submissionDetail))
         .thenReturn(form);
 
-    var taskListSectionOptional = reservoirTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = reservoirTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(taskListSectionOptional).isPresent();
     var section = taskListSectionOptional.get();
@@ -228,7 +231,7 @@ class ReservoirTaskListSectionServiceTest {
     when(reservoirAdditionsFormService.getReservoirAdditionsToForm(submissionDetail))
         .thenReturn(form);
 
-    var taskListSectionOptional = reservoirTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = reservoirTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(taskListSectionOptional).isPresent();
     var section = taskListSectionOptional.get();
@@ -266,7 +269,7 @@ class ReservoirTaskListSectionServiceTest {
         eq(ValidationType.FULL)))
         .thenReturn(false);
 
-    var taskListSectionOptional = reservoirTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = reservoirTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(taskListSectionOptional).isPresent();
     var section = taskListSectionOptional.get();
@@ -291,7 +294,7 @@ class ReservoirTaskListSectionServiceTest {
   @Test
   void isSectionSubmittable_whenDiscoverySubmittable_assertTrue() {
     var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-    var submittable = reservoirTaskListSectionService.isSectionSubmittable(submissionDetail);
+    var submittable = reservoirTaskListSectionService.isSectionSubmittable(submissionDetail, USER);
     assertTrue(submittable);
   }
 
@@ -304,7 +307,7 @@ class ReservoirTaskListSectionServiceTest {
     when(reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
 
-    var submittable = reservoirTaskListSectionService.isSectionSubmittable(submissionDetail);
+    var submittable = reservoirTaskListSectionService.isSectionSubmittable(submissionDetail, USER);
 
     assertTrue(submittable);
   }
@@ -318,7 +321,7 @@ class ReservoirTaskListSectionServiceTest {
     when(reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(true);
     when(permeabilitySubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
-    var submittable = reservoirTaskListSectionService.isSectionSubmittable(submissionDetail);
+    var submittable = reservoirTaskListSectionService.isSectionSubmittable(submissionDetail, USER);
 
     assertFalse(submittable);
   }
@@ -333,7 +336,7 @@ class ReservoirTaskListSectionServiceTest {
         .thenReturn(reservoirSubmissionDetail);
     when(reservoirPropertiesSubmissionService.isSectionSubmittable(reservoirSubmissionDetail)).thenReturn(false);
 
-    var submittable = reservoirTaskListSectionService.isSectionSubmittable(submissionDetail);
+    var submittable = reservoirTaskListSectionService.isSectionSubmittable(submissionDetail, USER);
 
     assertFalse(submittable);
   }
@@ -348,7 +351,7 @@ class ReservoirTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetail);
 
-    var submittable = reservoirTaskListSectionService.isSectionSubmittable(submissionDetail);
+    var submittable = reservoirTaskListSectionService.isSectionSubmittable(submissionDetail, USER);
 
     assertTrue(submittable);
   }

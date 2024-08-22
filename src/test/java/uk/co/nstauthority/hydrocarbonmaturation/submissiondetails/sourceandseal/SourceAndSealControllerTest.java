@@ -90,6 +90,7 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getSourceAndSealDetails_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(SourceAndSealController.class).getSourceAndSealDetails(submissionDetailId)))
@@ -121,6 +122,7 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveSourceAndSealDetails_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(sourceAndSealFormValidator.isValid(any(), any(), eq(submissionDetail), any())).thenReturn(true);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
@@ -130,7 +132,7 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
 
     verify(sourceAndSealPersistenceService, times(1)).saveSourceAndSealDetails(any(SourceAndSealForm.class), eq(submissionDetail));
   }
@@ -138,6 +140,7 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveSourceAndSealDetails_fullValidation_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(sourceAndSealFormValidator.isValid(any(), any(), eq(submissionDetail), any())).thenReturn(false);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
 
@@ -153,6 +156,7 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getSourceAndSealModelAndView_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     form.setSourceAgeStage(AgeSeries.PLIOCENE);
     form.setTopSealAgeStage(AgeSeries.UPPER_MIOCENE);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
@@ -180,7 +184,7 @@ class SourceAndSealControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
     );
 
     assertThat(modelMap)

@@ -125,9 +125,9 @@ public class CorrectionService {
   private ModelAndView getCorrectionRedirectForType(CorrectionType correctionType, SubmissionDetail submissionDetail) {
     return switch (correctionType) {
       case HISTORIC_UPDATE, SUBMISSION_CORRECTION -> ReverseRouter.redirect(on(TaskListController.class)
-          .getTaskList(submissionDetail.getId()));
+          .getTaskList(submissionDetail.getId(), null));
       case ACCEPTED_DATE_CHANGE -> ReverseRouter.redirect(on(ViewResourceRecordController.class)
-          .showSubmissionSummary(submissionDetail.getSubmission().getResource().getId(), submissionDetail.getId(), null));
+          .showSubmissionSummary(submissionDetail.getSubmission().getResource().getId(), submissionDetail.getId(), null, null));
       case REMOVE_SUBMISSION -> ReverseRouter.redirect(on(DeleteSubmissionFromCorrectionController.class)
           .showDeleteConfirmationPage(submissionDetail.getId(), null));
     };

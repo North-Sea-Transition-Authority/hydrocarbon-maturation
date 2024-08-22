@@ -6,13 +6,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
@@ -23,6 +20,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableRow;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableView;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Service
 class SubmissionEstimateSummaryService implements SummarySectionService<Project> {
@@ -36,27 +36,24 @@ class SubmissionEstimateSummaryService implements SummarySectionService<Project>
   static final String ACTIONS = "Actions";
 
   private final SubmissionEstimateService submissionEstimateService;
-  private final UserService userService;
-  private final PermissionService permissionService;
+  private final TeamQueryService teamQueryService;
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @Autowired
   SubmissionEstimateSummaryService(SubmissionEstimateService submissionEstimateService,
-                                   UserService userService,
-                                   PermissionService permissionService,
+                                   TeamQueryService teamQueryService,
                                    RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService) {
     this.submissionEstimateService = submissionEstimateService;
-    this.userService = userService;
-    this.permissionService = permissionService;
+    this.teamQueryService = teamQueryService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
   }
 
   @Override
-  public Optional<SummarySection> getSummarySection(Project project) {
+  public Optional<SummarySection> getSummarySection(Project project, User user) {
     List<SubmissionEstimateType> estimateTypesToCollect = getEstimateTypesForProjectType(project);
 
     var summaryCards = estimateTypesToCollect.stream()
-        .map(estimateType -> getEstimateSummaryCard(project, estimateType))
+        .map(estimateType -> getEstimateSummaryCard(project, estimateType, user))
         .toList();
 
     var summaryItems = List.of(SummaryItem.withCards(ESTIMATED_DATES, summaryCards));
@@ -64,15 +61,15 @@ class SubmissionEstimateSummaryService implements SummarySectionService<Project>
     return Optional.of(new SummarySection(DISPLAY_ORDER, summaryItems, ""));
   }
 
-  SummaryCard getEstimateSummaryCard(Project project, SubmissionEstimateType type) {
-    var user = userService.getUser();
-    var responsibleTeamPermissions = regulatorManagedInformationPersistenceService
+  SummaryCard getEstimateSummaryCard(Project project, SubmissionEstimateType type, User user) {
+    var responsibleTeamType = regulatorManagedInformationPersistenceService
         .getRegulatorManagedInformationByResourceOrThrow(project.getField().getResource())
-        .getResponsibleTeamType()
-        .getRolePermissions();
+        .getResponsibleTeamType();
+    var teamType = responsibleTeamType.getTeamType();
+    var role = responsibleTeamType.getRole();
 
-    var canModifyDates = permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))
-        || permissionService.hasPermission(user, responsibleTeamPermissions);
+    var canModifyDates = teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)
+        || teamQueryService.userHasStaticRole(user.wuaId(), teamType, role);
 
     var headings = getHeadingRow();
     if (canModifyDates) {

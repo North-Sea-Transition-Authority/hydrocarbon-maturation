@@ -30,9 +30,9 @@ public class ResourceAccessInterceptorRule implements SubmissionInterceptorSecur
   public SecurityRuleResult check(Object annotation,
                                   HttpServletRequest request,
                                   HttpServletResponse response,
-                                  User users,
+                                  User user,
                                   SubmissionDetail submissionDetail) {
-    return resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy()
-        .hasRequiredResourceAccessPermissions(users, submissionDetail);
+    return resourceAccessInterceptorFactory.getResourceAccessInterceptorStrategy(user)
+        .hasRequiredResourceAccessPermissions(user, submissionDetail);
   }
 }

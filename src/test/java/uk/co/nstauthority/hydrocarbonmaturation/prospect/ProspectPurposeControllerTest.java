@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.prospect;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -13,7 +14,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
@@ -22,7 +22,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartPostDrillDiscoveryController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.StartPostDrillDryHoleSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.StartUpdateProspectController;
@@ -32,6 +31,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCrea
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTypeSelectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTypeSelectService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = ProspectPurposeController.class)
 class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
@@ -48,13 +49,13 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var submissionTypeOptions = List.of(SubmissionType.values());
 
-    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
+    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT, USER)).thenReturn(submissionTypeOptions);
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
         .thenReturn(true);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null)))
+        post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null, null)))
             .with(user(USER))
             .with(csrf())
             .param("submissionType", SubmissionType.CREATE_PROSPECT.name()))
@@ -68,11 +69,10 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(eq(USER.wuaId()), any(TeamType.class), any(Role.class))).thenReturn(false);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null)))
+            post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null, null)))
                 .with(user(USER))
                 .with(csrf())
                 .param("submissionType", SubmissionType.CREATE_PROSPECT.name()))
@@ -85,13 +85,13 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var submissionTypeOptions = List.of(SubmissionType.values());
 
-    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
+    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT, USER)).thenReturn(submissionTypeOptions);
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
         .thenReturn(true);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null)))
+            post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null, null)))
                 .with(user(USER))
                 .with(csrf())
                 .param("submissionType", SubmissionType.PROSPECT_UPDATE.name()))
@@ -105,13 +105,13 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var submissionTypeOptions = List.of(SubmissionType.values());
 
-    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
+    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT, USER)).thenReturn(submissionTypeOptions);
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
         .thenReturn(true);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null)))
+            post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null, null)))
                 .with(user(USER))
                 .with(csrf())
                 .param("submissionType", SubmissionType.POST_DRILL_DRY_HOLE.name()))
@@ -126,13 +126,13 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var submissionTypeOptions = List.of(SubmissionType.values());
 
-    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
+    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT, USER)).thenReturn(submissionTypeOptions);
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
         .thenReturn(true);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null)))
+            post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null, null)))
                 .with(user(USER))
                 .with(csrf())
                 .param("submissionType", SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT.name()))
@@ -147,13 +147,13 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var submissionTypeOptions = List.of(SubmissionType.values());
 
-    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
+    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT, USER)).thenReturn(submissionTypeOptions);
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
         .thenReturn(true);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null)))
+            post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null, null)))
                 .with(user(USER))
                 .with(csrf())
                 .param("submissionType", SubmissionType.RELINQUISHMENT_PROSPECT.name()))
@@ -168,13 +168,13 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var submissionTypeOptions = List.of(SubmissionType.values());
 
-    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
+    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT, USER)).thenReturn(submissionTypeOptions);
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
         .thenReturn(true);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null)))
+            post(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(form, null, null)))
                 .with(user(USER))
                 .with(csrf())
                 .param("submissionType", SubmissionType.CREATE_DISCOVERY.name()))
@@ -184,11 +184,10 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getProspectPurposeForm_whenNoPermission_assertForbidden() throws Exception {
-    when(submissionCreateService.getResourceTypeOptionsForUser()).thenReturn(ResourceType.getResourceTypes());
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(false);
+    when(submissionCreateService.getResourceTypeOptionsForUser(USER)).thenReturn(ResourceType.getResourceTypes());
+    when(teamQueryService.userHasRoleInTeamType(eq(USER.wuaId()), any(TeamType.class), any(Role.class))).thenReturn(false);
     mockMvc.perform(
-            get(ReverseRouter.route(on(ProspectPurposeController.class).getProspectPurposeForm()))
+            get(ReverseRouter.route(on(ProspectPurposeController.class).getProspectPurposeForm(null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -197,12 +196,12 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
   void getSubmissionPurpose_assertModelProperties() throws Exception {
     var submissionTypeOptions = List.of(SubmissionType.values());
 
-    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT)).thenReturn(submissionTypeOptions);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
+    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT, USER)).thenReturn(submissionTypeOptions);
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
         .thenReturn(true);
 
     var modelAndView = mockMvc.perform(
-        get(ReverseRouter.route(on(ProspectPurposeController.class).getProspectPurposeForm()))
+        get(ReverseRouter.route(on(ProspectPurposeController.class).getProspectPurposeForm(null)))
             .with(user(USER)))
         .andReturn()
         .getModelAndView();
@@ -212,8 +211,8 @@ class ProspectPurposeControllerTest extends AbstractSubmissionControllerTest {
 
     assertEquals(submissionTypeOptions, model.get("submissionTypes"));
     assertEquals(SubmissionTypeSelectForm.class, model.get("form").getClass());
-    assertEquals(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(null, null)),
+    assertEquals(ReverseRouter.route(on(ProspectPurposeController.class).startProspectSubmission(null, null, null)),
         model.get("actionUrl"));
-    assertEquals(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionType()), model.get("backLinkUrl"));
+    assertEquals(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionType(null)), model.get("backLinkUrl"));
   }
 }

@@ -9,7 +9,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -23,8 +22,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = ResourceSupportingDocumentsController.class)
 class ResourceSupportingDocumentsControllerTest extends AbstractSubmissionControllerTest {
@@ -44,6 +44,7 @@ class ResourceSupportingDocumentsControllerTest extends AbstractSubmissionContro
 
   @Test
   void download() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
 
     var uploadedFile = new UploadedFile();
     when(fileService.find(FILE_ID)).thenReturn(Optional.of(uploadedFile));
@@ -61,6 +62,7 @@ class ResourceSupportingDocumentsControllerTest extends AbstractSubmissionContro
 
   @Test
   void download_invalidFileId() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     when(fileService.find(FILE_ID)).thenReturn(Optional.empty());
     when(resourceSupportingDocumentService.getFileNotFoundException(FILE_ID, resource))
         .thenReturn(new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -73,6 +75,7 @@ class ResourceSupportingDocumentsControllerTest extends AbstractSubmissionContro
 
   @Test
   void download_fileNotLinkedToApplication() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
 
     var uploadedFile = new UploadedFile();
     when(fileService.find(FILE_ID)).thenReturn(Optional.of(uploadedFile));
@@ -91,8 +94,10 @@ class ResourceSupportingDocumentsControllerTest extends AbstractSubmissionContro
 
   @SecurityTest
   void download_andHasNoPermission_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
     mockMvc.perform(get(
             ReverseRouter.route(on(ResourceSupportingDocumentsController.class).download(RESOURCE_ID, FILE_ID)))
             .with(user(USER)))

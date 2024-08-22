@@ -46,18 +46,17 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
   @SecurityTest
   void showSearchFieldRecordsScreen_NoUser_assertStatusUnauthorized() throws Exception {
     mockMvc.perform(
-            get(ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null))))
+            get(ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null, null))))
         .andExpect(status().isUnauthorized());
   }
 
   @Test
   void showSearchFieldRecordsScreen_whenOperator_assertStatusOk() throws Exception {
     var form = new SearchResourceRecordsForm();
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
-    when(areaTeamService.isAreaUser(USER)).thenReturn(false);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
     mockMvc.perform(
             get(ReverseRouter.route(on(SearchFieldRecordsController.class)
-                .showSearchFieldRecordsScreen(null)))
+                .showSearchFieldRecordsScreen(null, null)))
                 .with(user(USER)))
         .andExpect(status().isOk());
     assertThat(form.isShowOnlyPreferredViews()).isFalse();
@@ -66,11 +65,10 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
   @Test
   void showSearchFieldRecordsScreen_whenRegulator_assertStatusOk() throws Exception {
     var form = new SearchResourceRecordsForm();
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
-    when(areaTeamService.isAreaUser(USER)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     mockMvc.perform(
             get(ReverseRouter.route(on(SearchFieldRecordsController.class)
-                .showSearchFieldRecordsScreen(null)))
+                .showSearchFieldRecordsScreen(null, null)))
                 .with(user(USER)))
         .andExpect(status().isOk());
     assertThat(form.isShowOnlyPreferredViews()).isFalse();
@@ -79,8 +77,8 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
   @Test
   void showSearchResourceRecordsScreen_whenFilterInSessionAndShowResults_verifyMethodCalls() throws Exception {
     var regulatorQueryService = mock(RegulatorResourceRecordQueryService.class);
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
-    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
+    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy(USER))
         .thenReturn(regulatorQueryService);
 
     var preselectedFieldName = Map.of("fieldName", "fieldName");
@@ -89,19 +87,19 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
             get(ReverseRouter.route(on(SearchFieldRecordsController.class)
-                .showSearchFieldRecordsScreen(null)))
+                .showSearchFieldRecordsScreen(null, null)))
                 .with(user(USER))
                 .flashAttr("searchFieldRecordsFilter", getFullFilter(true)));
 
     verify(searchResourceRecordsService, times(1))
-        .getResourceRecordSearchResults(any(SearchResourceRecordsForm.class), eq(regulatorQueryService));
+        .getResourceRecordSearchResults(any(SearchResourceRecordsForm.class), eq(regulatorQueryService), eq(USER));
   }
 
   @Test
   void showSearchResourceRecordsScreen_whenFilterByFieldName_assertResults() throws Exception {
     var regulatorQueryService = mock(RegulatorResourceRecordQueryService.class);
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
-    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
+    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy(USER))
         .thenReturn(regulatorQueryService);
 
     var preselectedFieldName = Map.of("JH Field", "JH Field");
@@ -119,7 +117,7 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
         emptyModelProperties);
     var results = List.of(result1, result2, result3);
     when(searchResourceRecordsService.getResourceRecordSearchResults(
-        any(SearchResourceRecordsForm.class), eq(regulatorQueryService)))
+        any(SearchResourceRecordsForm.class), eq(regulatorQueryService), eq(USER)))
         .thenReturn(results);
 
     var filter = new SearchFieldRecordsFilter();
@@ -128,7 +126,7 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SearchFieldRecordsController.class)
-                .showSearchFieldRecordsScreen(null)))
+                .showSearchFieldRecordsScreen(null, null)))
                 .with(user(USER))
                 .flashAttr("searchFieldRecordsFilter", filter))
         .andExpect(status().isOk())
@@ -148,8 +146,8 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
   @Test
   void showSearchResourceRecordsScreen_whenRegulator_whenFilterInSessionAndShowResults_assertProperties() throws Exception {
     var regulatorQueryService = mock(RegulatorResourceRecordQueryService.class);
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
-    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
+    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy(USER))
         .thenReturn(regulatorQueryService);
 
     var preselectedFieldName = Map.of("fieldName", "fieldName");
@@ -162,7 +160,7 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SearchFieldRecordsController.class)
-                .showSearchFieldRecordsScreen(null)))
+                .showSearchFieldRecordsScreen(null, null)))
                 .with(user(USER))
                 .flashAttr("searchFieldRecordsFilter", getFullFilter(true)))
         .andExpect(status().isOk())
@@ -181,7 +179,7 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
             entry("resourceRecordSearchResultItems", Collections.emptyList()),
             entry("maxResultsReturned", false),
             entry("fieldApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
-                .searchFieldsByFieldName(null))),
+                .searchFieldsByFieldName(null, null))),
             entry("fieldStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(FieldStatus.class)),
             entry("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class)),
             entry("resourceName", preselectedFieldName),
@@ -192,8 +190,8 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
   @Test
   void showSearchResourceRecordsScreen_whenOperator_whenFilterInSessionAndShowResults_assertProperties() throws Exception {
     var operatorQueryService = mock(OperatorResourceRecordQueryService.class);
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(false);
-    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
+    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy(USER))
         .thenReturn(operatorQueryService);
 
     var preselectedFieldName = Map.of("fieldName", "fieldName");
@@ -206,7 +204,7 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(SearchFieldRecordsController.class)
-                .showSearchFieldRecordsScreen(null)))
+                .showSearchFieldRecordsScreen(null, null)))
                 .with(user(USER))
                 .flashAttr("searchFieldRecordsFilter", getFullFilter(true)))
         .andExpect(status().isOk())
@@ -225,7 +223,7 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
             entry("resourceRecordSearchResultItems", Collections.emptyList()),
             entry("maxResultsReturned", false),
             entry("fieldApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
-                .searchFieldsByFieldName(null))),
+                .searchFieldsByFieldName(null, null))),
             entry("fieldStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(FieldStatus.class)),
             entry("resourceName", preselectedFieldName),
             entry("parentFieldName", preselectedParentFieldName)
@@ -242,7 +240,7 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
                 .flashAttr("searchFieldRecordsFilter", filter))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(SearchFieldRecordsController.class)
-            .showSearchFieldRecordsScreen(null))));
+            .showSearchFieldRecordsScreen(null, null))));
   }
 
   private SearchFieldRecordsFilter getFullFilter(boolean showResults) {

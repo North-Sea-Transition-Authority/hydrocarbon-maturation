@@ -21,8 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.InternalTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -31,6 +29,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionReso
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionQueryServiceTest {
@@ -98,18 +98,18 @@ class SubmissionQueryServiceTest {
       when(submissionFilterService.filterDiscoverySubmissionByOtherSubmissions(
           latestApprovedResourceDetail.getSubmissionDetail(), submissionType))
           .thenReturn(true);
-      when(submissionSearchSelectorServiceFactory.getSubmissionSearchSelectorStrategy())
+      when(submissionSearchSelectorServiceFactory.getSubmissionSearchSelectorStrategy(USER))
           .thenReturn(operatorSubmissionSearchSelectorService);
 
       ArgumentCaptor<Stream<SubmissionDetail>> lastestSubmissionStream = ArgumentCaptor.forClass(Stream.class);
 
       when(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissionsWithTeam(
-          lastestSubmissionStream.capture(), eq(submissionType)))
+          lastestSubmissionStream.capture(), eq(submissionType), eq(USER)))
           .thenReturn(Stream.of(latestApprovedResourceDetail));
       when(submissionResourceService.getResourceDisplayName(latestApprovedResourceDetail))
           .thenReturn(searchTerm);
       var result = submissionQueryService
-          .getLatestDiscoveriesByNameForSubmissionType(searchTerm, submissionType);
+          .getLatestDiscoveriesByNameForSubmissionType(searchTerm, submissionType, USER);
 
       assertThat(result)
         .extracting(ResourceView::getSelectionId, ResourceView::getSelectionText)
@@ -135,17 +135,17 @@ class SubmissionQueryServiceTest {
       when(submissionFilterService.filterDiscoverySubmissionByOtherSubmissions(
           latestApprovedResourceDetail.getSubmissionDetail(), submissionType))
           .thenReturn(false);
-      when(submissionSearchSelectorServiceFactory.getSubmissionSearchSelectorStrategy())
+      when(submissionSearchSelectorServiceFactory.getSubmissionSearchSelectorStrategy(USER))
           .thenReturn(operatorSubmissionSearchSelectorService);
 
       ArgumentCaptor<Stream<SubmissionDetail>> lastestSubmissionStream = ArgumentCaptor.forClass(Stream.class);
 
       when(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissionsWithTeam(
-          lastestSubmissionStream.capture(), eq(submissionType)))
+          lastestSubmissionStream.capture(), eq(submissionType), eq(USER)))
           .thenReturn(Stream.of());
 
       var result = submissionQueryService
-          .getLatestDiscoveriesByNameForSubmissionType(searchTerm, submissionType);
+          .getLatestDiscoveriesByNameForSubmissionType(searchTerm, submissionType, USER);
 
       assertThat(result).isEmpty();
       assertThat(lastestSubmissionStream.getValue().toList()).isEmpty();
@@ -176,18 +176,18 @@ class SubmissionQueryServiceTest {
       when(submissionFilterService.filterProspectSubmissionByOtherSubmissions(
           latestApprovedResourceDetail.getSubmissionDetail(), submissionType))
           .thenReturn(true);
-      when(submissionSearchSelectorServiceFactory.getSubmissionSearchSelectorStrategy())
+      when(submissionSearchSelectorServiceFactory.getSubmissionSearchSelectorStrategy(USER))
           .thenReturn(operatorSubmissionSearchSelectorService);
 
       ArgumentCaptor<Stream<SubmissionDetail>> lastestSubmissionStream = ArgumentCaptor.forClass(Stream.class);
 
       when(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissionsWithTeam(
-          lastestSubmissionStream.capture(), eq(submissionType)))
+          lastestSubmissionStream.capture(), eq(submissionType), eq(USER)))
           .thenReturn(Stream.of(latestApprovedResourceDetail));
       when(submissionResourceService.getResourceDisplayName(latestApprovedResourceDetail))
           .thenReturn(searchTerm);
       var result = submissionQueryService
-          .getLatestProspectsByNameForSubmissionType(searchTerm, submissionType);
+          .getLatestProspectsByNameForSubmissionType(searchTerm, submissionType, USER);
 
       assertThat(result)
           .extracting(ResourceView::getSelectionId, ResourceView::getSelectionText)
@@ -213,17 +213,17 @@ class SubmissionQueryServiceTest {
       when(submissionFilterService.filterProspectSubmissionByOtherSubmissions(
           latestApprovedResourceDetail.getSubmissionDetail(), submissionType))
           .thenReturn(false);
-      when(submissionSearchSelectorServiceFactory.getSubmissionSearchSelectorStrategy())
+      when(submissionSearchSelectorServiceFactory.getSubmissionSearchSelectorStrategy(USER))
           .thenReturn(operatorSubmissionSearchSelectorService);
 
       ArgumentCaptor<Stream<SubmissionDetail>> lastestSubmissionStream = ArgumentCaptor.forClass(Stream.class);
 
       when(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissionsWithTeam(
-          lastestSubmissionStream.capture(), eq(submissionType)))
+          lastestSubmissionStream.capture(), eq(submissionType), eq(USER)))
           .thenReturn(Stream.of());
 
       var result = submissionQueryService
-          .getLatestProspectsByNameForSubmissionType(searchTerm, submissionType);
+          .getLatestProspectsByNameForSubmissionType(searchTerm, submissionType, USER);
 
       assertThat(result).isEmpty();
       assertThat(lastestSubmissionStream.getValue().toList()).isEmpty();
@@ -259,13 +259,13 @@ class SubmissionQueryServiceTest {
       when(submissionFilterService.filterProspectSubmissionByOtherSubmissions(
           latestApprovedResourceDetail2.getSubmissionDetail(), submissionType))
           .thenReturn(true);
-      when(submissionSearchSelectorServiceFactory.getSubmissionSearchSelectorStrategy())
+      when(submissionSearchSelectorServiceFactory.getSubmissionSearchSelectorStrategy(USER))
           .thenReturn(operatorSubmissionSearchSelectorService);
 
       ArgumentCaptor<Stream<SubmissionDetail>> lastestSubmissionStream = ArgumentCaptor.forClass(Stream.class);
 
       when(operatorSubmissionSearchSelectorService.getResourceDetailsForSubmissionsWithTeam(
-          lastestSubmissionStream.capture(), eq(submissionType)))
+          lastestSubmissionStream.capture(), eq(submissionType), eq(USER)))
           .thenReturn(Stream.of(
               latestApprovedResourceDetail,
               latestApprovedResourceDetail2));
@@ -275,7 +275,7 @@ class SubmissionQueryServiceTest {
       when(submissionResourceService.getResourceDisplayName(latestApprovedResourceDetail2))
           .thenReturn(searchTerm);
       var result = submissionQueryService
-          .getLatestProspectsByNameForSubmissionType(searchTerm, submissionType);
+          .getLatestProspectsByNameForSubmissionType(searchTerm, submissionType, USER);
 
       assertThat(result)
           .extracting(ResourceView::getSelectionId, ResourceView::getSelectionText)
@@ -324,7 +324,7 @@ class SubmissionQueryServiceTest {
           .thenReturn(latestApprovedDiscoveryResourceDetail.getResourceName());
       when(submissionResourceService.getResourceDisplayName(latestApprovedProspectResourceDetail))
           .thenReturn(latestApprovedProspectResourceDetail.getResourceName());
-      when(internalTeamService.isRegulatorOrAreaTeamUser())
+      when(internalTeamService.isRegulatorOrAreaTeamUser(USER))
           .thenReturn(false);
       when(industryTeamService.getOrganisationUnitIdsForUser(USER))
           .thenReturn(List.of(latestApprovedDiscoveryResourceDetail.getOrganisationId()));
@@ -362,7 +362,7 @@ class SubmissionQueryServiceTest {
           .thenReturn(latestApprovedDiscoveryResourceDetail);
       when(submissionResourceService.getResourceDisplayName(latestApprovedDiscoveryResourceDetail))
           .thenReturn(latestApprovedDiscoveryResourceDetail.getResourceName());
-      when(internalTeamService.isRegulatorOrAreaTeamUser())
+      when(internalTeamService.isRegulatorOrAreaTeamUser(USER))
           .thenReturn(false);
       when(industryTeamService.getOrganisationUnitIdsForUser(USER))
           .thenReturn(List.of(latestApprovedDiscoveryResourceDetail.getOrganisationId()));
@@ -399,7 +399,7 @@ class SubmissionQueryServiceTest {
           .thenReturn(latestApprovedDiscoveryResourceDetail);
       when(submissionResourceService.getResourceDisplayName(latestApprovedDiscoveryResourceDetail))
           .thenReturn(latestApprovedDiscoveryResourceDetail.getResourceName());
-      when(internalTeamService.isRegulatorOrAreaTeamUser())
+      when(internalTeamService.isRegulatorOrAreaTeamUser(USER))
           .thenReturn(true);
 
       var result = submissionQueryService.getLatestResourceSubmissionsByName(searchTerm, USER);
@@ -432,7 +432,7 @@ class SubmissionQueryServiceTest {
       when(resourceDetailsPersistenceService.getResourceDetailOrThrow(
           latestApprovedDiscoveryResourceDetail.getSubmissionDetail()))
           .thenReturn(latestApprovedDiscoveryResourceDetail);
-      when(internalTeamService.isRegulatorOrAreaTeamUser())
+      when(internalTeamService.isRegulatorOrAreaTeamUser(USER))
           .thenReturn(false);
       when(industryTeamService.getOrganisationUnitIdsForUser(USER))
           .thenReturn(List.of());

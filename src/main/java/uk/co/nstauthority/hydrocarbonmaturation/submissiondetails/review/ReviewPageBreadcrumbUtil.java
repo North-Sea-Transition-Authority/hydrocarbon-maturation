@@ -33,7 +33,7 @@ public class ReviewPageBreadcrumbUtil {
     return new BreadcrumbItem(
         submissionName,
         ReverseRouter.route(on(ReviewSubmissionController.class)
-            .showReviewPage(submissionDetail.getSubmission().getResource().getId()))
+            .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null))
     );
   }
 }

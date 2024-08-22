@@ -73,6 +73,7 @@ class PlannedUnsanctionedWellsControllerTest extends AbstractSubmissionControlle
 
   @SecurityTest
   void getPlannedUnsanctionedWells_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(PlannedUnsanctionedWellsController.class).getPlannedUnsanctionedWells(submissionDetailId)))
@@ -108,6 +109,7 @@ class PlannedUnsanctionedWellsControllerTest extends AbstractSubmissionControlle
       mode = EnumSource.Mode.EXCLUDE
   )
   void savePlannedUnsanctionedWells_andStatusIsNotDraft_assertForbidden(SubmissionDetailStatus submissionDetailStatus) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setStatus(submissionDetailStatus);
     mockMvc.perform(
             get(ReverseRouter.route(on(PlannedUnsanctionedWellsController.class).getPlannedUnsanctionedWells(submissionDetailId)))
@@ -118,6 +120,7 @@ class PlannedUnsanctionedWellsControllerTest extends AbstractSubmissionControlle
   @ParameterizedTest
   @MethodSource("allNonFdpOrFdpaSubmissionTypes")
   void getPlannedUnsanctionedWells_andSubmissionNotFdpOrFdpA_assertForbidden(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
     mockMvc.perform(
             get(ReverseRouter.route(on(PlannedUnsanctionedWellsController.class).getPlannedUnsanctionedWells(submissionDetailId)))
@@ -128,6 +131,7 @@ class PlannedUnsanctionedWellsControllerTest extends AbstractSubmissionControlle
   @ParameterizedTest
   @MethodSource("allNonFdpOrFdpaSubmissionTypes")
   void savePlannedUnsanctionedWells_andSubmissionNotFdpOrFdpa_assertForbidden(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
     mockMvc.perform(
             post(ReverseRouter.route(on(PlannedUnsanctionedWellsController.class)
@@ -138,6 +142,7 @@ class PlannedUnsanctionedWellsControllerTest extends AbstractSubmissionControlle
 
   @Test
   void getPlannedUnsanctionedWellsModelAndView_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     when(plannedUnsanctionedWellsService.submissionDetailToForm(submissionDetail)).thenReturn(form);
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
@@ -159,6 +164,7 @@ class PlannedUnsanctionedWellsControllerTest extends AbstractSubmissionControlle
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void savePlannedUnsanctionedWellsModelAndView_valid_assertRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     when(plannedUnsanctionedWellsFormValidator.isValid(any(PlannedUnsanctionedWellsForm.class), any(Errors.class), eq(submissionDetail), eq(validationType)))
         .thenReturn(false);
     when(plannedUnsanctionedWellsService.submissionDetailToForm(submissionDetail)).thenReturn(form);

@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -13,7 +14,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
@@ -25,13 +25,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.cessationofproduction.Star
 import uk.co.nstauthority.hydrocarbonmaturation.field.conceptselectreport.StartConceptSelectReportController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fielddevelopmentplan.StartFieldDevelopmentPlanController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fielddevelopmentplanaddendum.StartFieldDevelopmentPlanAddendumController;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTypeSelectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTypeSelectService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = FieldPurposeController.class)
 class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
@@ -48,13 +49,11 @@ class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
         .thenReturn(true);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(form, null)))
+            post(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(form, null, null)))
                 .with(user(USER))
                 .with(csrf())
                 .param("submissionType", SubmissionType.CREATE_FIELD.name()))
@@ -68,13 +67,11 @@ class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
         .thenReturn(true);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(form, null)))
+            post(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(form, null, null)))
                 .with(user(USER))
                 .with(csrf())
                 .param("submissionType", SubmissionType.CREATE_CSR.name()))
@@ -88,13 +85,11 @@ class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
         .thenReturn(true);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(form, null)))
+            post(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(form, null, null)))
                 .with(user(USER))
                 .with(csrf())
                 .param("submissionType", SubmissionType.CREATE_FDP.name()))
@@ -108,13 +103,11 @@ class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
         .thenReturn(true);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(form, null)))
+            post(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(form, null, null)))
                 .with(user(USER))
                 .with(csrf())
                 .param("submissionType", SubmissionType.CREATE_FDPA.name()))
@@ -128,13 +121,11 @@ class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
         .thenReturn(true);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(form, null)))
+            post(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(form, null, null)))
                 .with(user(USER))
                 .with(csrf())
                 .param("submissionType", SubmissionType.CREATE_COP.name()))
@@ -148,13 +139,10 @@ class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     when(submissionTypeSelectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(eq(USER.wuaId()), any(TeamType.class), any(Role.class))).thenReturn(false);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(form, null)))
+            post(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(form, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isForbidden());
@@ -164,13 +152,11 @@ class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
   void getSubmissionPurpose_assertModelProperties() throws Exception {
     var submissionTypeOptions = List.of(SubmissionType.values());
 
-    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.FIELD)).thenReturn(submissionTypeOptions);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
+    when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.FIELD, USER)).thenReturn(submissionTypeOptions);
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
         .thenReturn(true);
     var modelAndView = mockMvc.perform(
-            get(ReverseRouter.route(on(FieldPurposeController.class).getFieldPurposeForm()))
+            get(ReverseRouter.route(on(FieldPurposeController.class).getFieldPurposeForm(null)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView();
@@ -180,8 +166,8 @@ class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
 
     assertEquals(submissionTypeOptions, model.get("submissionTypes"));
     assertEquals(SubmissionTypeSelectForm.class, model.get("form").getClass());
-    assertEquals(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(null, null)),
+    assertEquals(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(null, null, null)),
         model.get("actionUrl"));
-    assertEquals(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionType()), model.get("backLinkUrl"));
+    assertEquals(ReverseRouter.route(on(StartSubmissionController.class).getSubmissionType(null)), model.get("backLinkUrl"));
   }
 }

@@ -19,6 +19,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
@@ -36,6 +38,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 
 @ExtendWith(MockitoExtension.class)
 class GasCaseVolumetricParametersSummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
@@ -125,7 +128,7 @@ class GasCaseVolumetricParametersSummaryServiceTest {
     when(generalReservoirInformationService.isGasOnly(reservoirSubmissionDetail))
         .thenReturn(false);
 
-    assertThat(gasCaseVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(gasCaseVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isEmpty();
   }
 
@@ -134,7 +137,7 @@ class GasCaseVolumetricParametersSummaryServiceTest {
   void getSummarySection_whenNonDiscovery(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
 
-    assertThat(gasCaseVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(gasCaseVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isEmpty();
   }
 
@@ -160,7 +163,7 @@ class GasCaseVolumetricParametersSummaryServiceTest {
         listOfInstances, submissionDetail, reservoirSubmissionDetail
     )).thenReturn(tableView);
 
-    var summarySection = gasCaseVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = gasCaseVolumetricParametersSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(),

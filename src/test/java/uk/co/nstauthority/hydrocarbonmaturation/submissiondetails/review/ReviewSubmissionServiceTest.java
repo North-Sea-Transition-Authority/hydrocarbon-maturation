@@ -25,9 +25,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamMemberService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
@@ -43,6 +40,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -53,12 +54,6 @@ class ReviewSubmissionServiceTest {
 
   @Mock
   private SubmissionDetailDisplayService submissionDetailDisplayService;
-
-  @Mock
-  private RegulatorTeamService regulatorTeamService;
-
-  @Mock
-  private IndustryTeamMemberService industryTeamMemberService;
 
   @Mock
   private SubmissionDetailService submissionDetailService;
@@ -77,6 +72,12 @@ class ReviewSubmissionServiceTest {
 
   @Mock
   private FieldDisplayService fieldDisplayService;
+
+  @Mock
+  private IndustryTeamService industryTeamService;
+
+  @Mock
+  private TeamQueryService teamQueryService;
 
   @InjectMocks
   private ReviewSubmissionService reviewSubmissionService;
@@ -228,6 +229,7 @@ class ReviewSubmissionServiceTest {
   class WhenCheckingIfCanViewSubmission {
 
     private static final Integer ORGANISATION_UNIT_ID = 1;
+    private static final Integer OTHER_ORGANISATION_UNIT_ID = 2;
     private final SubmissionRecordSummaryView SUBMISSION_RECORD = SubmissionIntegrationTestUtils
         .emptyDiscoveryOrProspectSubmissionRecordSummaryView(UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.CREATE_PROSPECT);
     private final User USER_DETAIL = UserTestUtil.Builder().build();
@@ -276,7 +278,7 @@ class ReviewSubmissionServiceTest {
 
       @Test
       void AndUserIsMemberOfOrg_ThenTrue() {
-        when(industryTeamMemberService.isMemberOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID)).thenReturn(true);
+        when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(ORGANISATION_UNIT_ID));
 
         var result = reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD, USER_DETAIL, submissionDetail);
 
@@ -285,7 +287,7 @@ class ReviewSubmissionServiceTest {
 
       @Test
       void AndUserIsNotMemberOfOrg_ThenFalse() {
-        when(industryTeamMemberService.isMemberOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID)).thenReturn(false);
+        when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(OTHER_ORGANISATION_UNIT_ID));
 
         var result = reviewSubmissionService.canViewSubmission(SUBMISSION_RECORD, USER_DETAIL, submissionDetail);
 
@@ -309,9 +311,8 @@ class ReviewSubmissionServiceTest {
               .thenReturn(Optional.of(latestApprovedSubmission));
           when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmission))
               .thenReturn(Optional.of(latestApprovedResourceDetail));
-          when(industryTeamMemberService.isMemberOfOrganisationUnit(
-              USER_DETAIL, latestApprovedResourceDetail.getOrganisationId()))
-              .thenReturn(true);
+          var userOrgs = List.of(userOrgUnit);
+          when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(userOrgs);
 
           assertThat(reviewSubmissionService.canViewSubmission(UPDATE_SUBMISSION_RECORD, USER_DETAIL, submissionDetail))
               .isTrue();
@@ -325,9 +326,8 @@ class ReviewSubmissionServiceTest {
               .thenReturn(Optional.of(latestApprovedSubmission));
           when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmission))
               .thenReturn(Optional.of(latestApprovedResourceDetail));
-          when(industryTeamMemberService.isMemberOfOrganisationUnit(
-              USER_DETAIL, latestApprovedResourceDetail.getOrganisationId()))
-              .thenReturn(false);
+          var userOrgs = List.of(2);
+          when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(userOrgs);
 
           assertThat(reviewSubmissionService.canViewSubmission(UPDATE_SUBMISSION_RECORD, USER_DETAIL, submissionDetail))
               .isFalse();
@@ -356,7 +356,7 @@ class ReviewSubmissionServiceTest {
 
     @Test
     void whenIsInResponsibleTeam() {
-      when(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.EXPLORATION))
+      when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
           .thenReturn(true);
       submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
       assertThat(reviewSubmissionService.canReviewSubmission(explorationResponsibleTeamSubmissionRecord, USER, submissionDetail))
@@ -365,7 +365,7 @@ class ReviewSubmissionServiceTest {
 
     @Test
     void whenIsNotInResponsibleTeam() {
-      when(regulatorTeamService.isRegulatorTeamRole(USER, RegulatorTeamRole.EXPLORATION))
+      when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
           .thenReturn(false);
       submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
 
@@ -406,18 +406,20 @@ class ReviewSubmissionServiceTest {
   @Nested
   class WhenCheckingCanRequestUpdateOnSubmissionDetail {
 
+    private static final User USER = UserTestUtil.Builder().build();
+
     @Test
     void canRequestUpdateOnSubmissionDetail_verifyMethodCalls() {
-      reviewSubmissionService.canRequestUpdateOnSubmissionDetail(submissionDetail);
-      verify(submissionUpdateService, times(1)).canRequestUpdateOnSubmission(submissionDetail);
+      reviewSubmissionService.canRequestUpdateOnSubmissionDetail(submissionDetail, USER);
+      verify(submissionUpdateService, times(1)).canRequestUpdateOnSubmission(submissionDetail, USER);
     }
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void canRequestUpdateOnSubmissionDetail_assertReturn(boolean canRequestUpdate) {
-      when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail)).thenReturn(canRequestUpdate);
+      when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail, USER)).thenReturn(canRequestUpdate);
 
-      var result = reviewSubmissionService.canRequestUpdateOnSubmissionDetail(submissionDetail);
+      var result = reviewSubmissionService.canRequestUpdateOnSubmissionDetail(submissionDetail, USER);
       assertThat(result).isEqualTo(canRequestUpdate);
     }
   }
@@ -497,6 +499,7 @@ class ReviewSubmissionServiceTest {
   class WhenCheckingIfCanUpdateSubmission {
     private static final Integer ORGANISATION_UNIT_ID = 1;
     private static final Integer LATEST_ACCEPTED_ORG_UNIT_ID = 5;
+    private static final Integer OTHER_ORG_UNIT = 999;
 
     private final User USER_DETAIL = UserTestUtil.Builder().build();
 
@@ -516,8 +519,8 @@ class ReviewSubmissionServiceTest {
       var submissionRecord = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
           UUID.randomUUID(), ORGANISATION_UNIT_ID, submissionType);
 
-      when(industryTeamMemberService.isSubmitterOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID))
-          .thenReturn(true);
+      when(industryTeamService.getOrganisationUnitIdsForUserWithRoles(USER_DETAIL, Set.of(Role.INDUSTRY_SUBMIT)))
+          .thenReturn(List.of(ORGANISATION_UNIT_ID));
 
       var result = reviewSubmissionService.canUpdateSubmission(submissionRecord, USER_DETAIL, submissionDetail);
 
@@ -533,8 +536,8 @@ class ReviewSubmissionServiceTest {
       var submissionRecord = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
           UUID.randomUUID(), ORGANISATION_UNIT_ID, submissionType);
 
-      when(industryTeamMemberService.isSubmitterOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID))
-          .thenReturn(false);
+      when(industryTeamService.getOrganisationUnitIdsForUserWithRoles(USER_DETAIL, Set.of(Role.INDUSTRY_SUBMIT)))
+          .thenReturn(List.of(OTHER_ORG_UNIT));
 
       var result = reviewSubmissionService.canUpdateSubmission(submissionRecord, USER_DETAIL, submissionDetail);
 
@@ -551,8 +554,8 @@ class ReviewSubmissionServiceTest {
           .thenReturn(Optional.of(latestApprovedSubmissionDetail));
       when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmissionDetail))
           .thenReturn(Optional.of(resourceDetail));
-      when(industryTeamMemberService.isSubmitterOfOrganisationUnit(USER_DETAIL, LATEST_ACCEPTED_ORG_UNIT_ID))
-          .thenReturn(false);
+      when(industryTeamService.getOrganisationUnitIdsForUserWithRoles(USER_DETAIL, Set.of(Role.INDUSTRY_SUBMIT)))
+          .thenReturn(List.of(OTHER_ORG_UNIT));
 
       var result = reviewSubmissionService.canUpdateSubmission(submissionRecord, USER_DETAIL, submissionDetail);
 
@@ -569,8 +572,8 @@ class ReviewSubmissionServiceTest {
           .thenReturn(Optional.of(latestApprovedSubmissionDetail));
       when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmissionDetail))
           .thenReturn(Optional.of(resourceDetail));
-      when(industryTeamMemberService.isSubmitterOfOrganisationUnit(USER_DETAIL, LATEST_ACCEPTED_ORG_UNIT_ID))
-          .thenReturn(true);
+      when(industryTeamService.getOrganisationUnitIdsForUserWithRoles(USER_DETAIL, Set.of(Role.INDUSTRY_SUBMIT)))
+          .thenReturn(List.of(LATEST_ACCEPTED_ORG_UNIT_ID));
 
       var result = reviewSubmissionService.canUpdateSubmission(submissionRecord, USER_DETAIL, submissionDetail);
 

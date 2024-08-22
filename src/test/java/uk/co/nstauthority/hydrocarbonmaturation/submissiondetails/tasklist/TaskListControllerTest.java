@@ -69,7 +69,7 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
             new TaskListItem("item1s2", "actionUrl1s2")))
     );
 
-    when(taskListService.getAllSections(submissionDetail))
+    when(taskListService.getAllSections(submissionDetail, USER))
         .thenReturn(List.of(
             new TaskListSection(
                 "Reservoir",
@@ -89,7 +89,7 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
             get(ReverseRouter.route(on(TaskListController.class)
-                .getTaskList(submissionDetailId)))
+                .getTaskList(submissionDetailId, null)))
                 .with(user(USER)))
             .andExpect(status().isOk())
             .andExpect(view().name("remi/submissiondetails/tasklist/taskList"))
@@ -101,7 +101,7 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
             entry("taskListSections", taskListSections),
             entry("resourceName", prospectName),
             entry("deleteSubmissionUrl", ReverseRouter.route(on(DeleteSubmissionController.class)
-                .showDeleteConfirmationPage(submissionDetailId))),
+                .showDeleteConfirmationPage(submissionDetailId, null))),
             entry("isSubmissionUpdate", false),
             entry("deleteLinkText", "Delete submission")
         )
@@ -121,7 +121,7 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
 
     mockMvc.perform(
             get(ReverseRouter.route(on(TaskListController.class)
-                .getTaskList(submissionDetailId)))
+                .getTaskList(submissionDetailId, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -134,7 +134,7 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail)).thenReturn(submissionDetail.getSubmissionType().getTypeName());
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
-    when(taskListService.getAllSections(submissionDetail))
+    when(taskListService.getAllSections(submissionDetail, USER))
         .thenReturn(List.of());
 
     var submissionUpdate = new SubmissionUpdate();
@@ -145,7 +145,7 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
                     get(ReverseRouter.route(on(TaskListController.class)
-                        .getTaskList(submissionDetailId)))
+                        .getTaskList(submissionDetailId, null)))
                         .with(user(USER)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("remi/submissiondetails/tasklist/taskList"))
@@ -175,7 +175,7 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
                     get(ReverseRouter.route(on(TaskListController.class)
-                        .getTaskList(submissionDetailId)))
+                        .getTaskList(submissionDetailId, null)))
                         .with(user(USER)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("remi/submissiondetails/tasklist/taskList"))
@@ -205,7 +205,7 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
                     get(ReverseRouter.route(on(TaskListController.class)
-                        .getTaskList(submissionDetailId)))
+                        .getTaskList(submissionDetailId, null)))
                         .with(user(USER)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("remi/submissiondetails/tasklist/taskList"))

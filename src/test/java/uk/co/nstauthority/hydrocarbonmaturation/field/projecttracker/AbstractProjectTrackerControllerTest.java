@@ -5,7 +5,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -13,21 +12,18 @@ import org.springframework.context.annotation.Import;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Import(value = {
     WebMvcConfiguration.class,
-    FieldPersistenceService.class,
-    PermissionService.class})
+    FieldPersistenceService.class})
 public abstract class AbstractProjectTrackerControllerTest extends AbstractControllerTest {
-  @MockBean
-  protected PermissionService permissionService;
 
   @MockBean
   protected FieldPersistenceService fieldPersistenceService;
@@ -56,18 +52,8 @@ public abstract class AbstractProjectTrackerControllerTest extends AbstractContr
   }
 
   protected void setupUserIsProjectAnalyst(User user) {
-    setupUserIsRegulator(user);
-    when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
-  }
-
-  protected void setupUserIsRegulator(User user) {
-    when(regulatorTeamService.isRegulatorUser(user))
-        .thenReturn(true);
-  }
-
-  protected void setupUserIsAreaMember(User user) {
-    when(areaTeamService.isAreaUser(user))
-        .thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
+    when(teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
   }
 }

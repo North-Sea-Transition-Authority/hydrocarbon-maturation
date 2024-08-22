@@ -89,7 +89,7 @@ public class PermeabilityController {
 
       if (SubmissionType.POST_DRILL_DRY_HOLE.equals(submissionDetail.getSubmissionType())) {
         return ReverseRouter.redirect(on(TaskListController.class)
-            .getTaskList(submissionDetailId));
+            .getTaskList(submissionDetailId, null));
       }
       return ReverseRouter.redirect(on(ReservoirTaskListController.class)
           .getReservoirTaskList(submissionDetailId, null));

@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryView;
@@ -93,8 +94,8 @@ class DiscoverySummaryService {
     return outlineForMaximumCaseSummaryService.getOutlineForMaximumCaseSummaryFromSubmissionDetail(submissionDetail);
   }
 
-  public List<ReservoirSummary> getReservoirSummariesFromSubmissionDetail(SubmissionDetail submissionDetail) {
-    return reservoirSummaryService.getReservoirSummaries(submissionDetail);
+  public List<ReservoirSummary> getReservoirSummariesFromSubmissionDetail(SubmissionDetail submissionDetail, User user) {
+    return reservoirSummaryService.getReservoirSummaries(submissionDetail, user);
   }
 
   public DiscoveryOilCaseVolumetricTotalsSummaryView getOilCaseVolumetricTotalsFromSubmissionDetail(

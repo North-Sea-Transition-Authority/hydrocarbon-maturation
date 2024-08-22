@@ -97,14 +97,14 @@ public class ReservoirTaskListController {
         // return to task list
         reservoirAdditionsFormService.updateReservoirAdditionStatus(submissionDetail, ReservoirAdditionStatus.YES_LATER);
         return ReverseRouter.redirect(on(TaskListController.class)
-            .getTaskList(submissionDetailId));
+            .getTaskList(submissionDetailId, null));
       }
       case NO -> {
         if (reservoirAdditionsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL)) {
           // update status to no and return
           reservoirAdditionsFormService.updateReservoirAdditionStatus(submissionDetail, ReservoirAdditionStatus.NO);
           return ReverseRouter.redirect(on(TaskListController.class)
-              .getTaskList(submissionDetailId));
+              .getTaskList(submissionDetailId, null));
         } else {
           // return with errors
           return getReservoirTaskListModelAndViewWithError(form, bindingResult, submissionDetail);

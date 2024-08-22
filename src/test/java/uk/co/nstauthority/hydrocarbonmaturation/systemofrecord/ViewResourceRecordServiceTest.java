@@ -12,8 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -25,9 +23,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamMemberService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -35,6 +30,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 
 @ExtendWith(MockitoExtension.class)
 class ViewResourceRecordServiceTest {
@@ -45,37 +42,28 @@ class ViewResourceRecordServiceTest {
   @Mock
   private SubmissionDetailDisplayService submissionDetailDisplayService;
   @Mock
-  private RegulatorTeamService regulatorTeamService;
-  @Mock
-  private IndustryTeamMemberService industryTeamMemberService;
-  @Mock
   private ResourceLinkService resourceLinkService;
   @Mock
   private LicenceQueryService licenceQueryService;
   @Mock
   private SubmissionDetailService submissionDetailService;
   @Mock
-  private AreaTeamService areaTeamService;
-  @Mock
   private FieldDisplayService fieldDisplayService;
+  @Mock
+  private IndustryTeamService industryTeamService;
+  @Mock
+  private InternalTeamService internalTeamService;
 
   @InjectMocks
   private ViewResourceRecordService underTest;
 
-  @ParameterizedTest
-  @CsvSource(value = { "false, false",
-                       "false, true",
-                       "true, false",
-                       "true, true"})
-  void isRegulatorOrAreaTeamUser_assertTrue(boolean isRegulatorTeamRole, boolean isAreaTeamUser) {
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(isRegulatorTeamRole);
-    if (!isRegulatorTeamRole) {
-      when(areaTeamService.isAreaUser(USER)).thenReturn(isAreaTeamUser);
-    }
+  @Test
+  void isRegulatorOrAreaTeamUser_assertTrue() {
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
     var result = underTest.isRegulatorOrAreaTeamUser(USER);
 
-    assertThat(result).isEqualTo(isRegulatorTeamRole || isAreaTeamUser);
+    assertThat(result).isTrue();
   }
 
   @Nested
@@ -150,19 +138,14 @@ class ViewResourceRecordServiceTest {
   class WhenCheckingIfCanViewResource {
 
     private static final Integer ORGANISATION_UNIT_ID = 1;
+    private static final Integer OTHER_ORG_UNIT_ID = 2;
     private final ResourceRecordSummaryView RESOURCE_RECORD = SubmissionIntegrationTestUtils.emptyResourceRecordSummaryView(
         UUID.randomUUID(), ORGANISATION_UNIT_ID);
     private final User USER_DETAIL = UserTestUtil.Builder().build();
 
-    @ParameterizedTest
-    @CsvSource(value = { "true, true",
-                         "true, false",
-                         "false, true"})
-    void AndUserIsRegulatorOrAreaTeamUser_ThenTrue(boolean isRegulatorUser, boolean isAreaUser) {
-      when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(isRegulatorUser);
-      if (!isRegulatorUser) {
-        when(areaTeamService.isAreaUser(USER)).thenReturn(isAreaUser);
-      }
+    @Test
+    void AndUserIsRegulatorOrAreaTeamUser_ThenTrue() {
+      when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
       var result = underTest.canViewResource(RESOURCE_RECORD, USER_DETAIL);
 
@@ -174,8 +157,7 @@ class ViewResourceRecordServiceTest {
       private static final LicenceView LICENCE_VIEW = new LicenceView("licenceRef", 2, LicenceStatus.EXTANT);
       @BeforeEach
       void setup() {
-        when(regulatorTeamService.isRegulatorUser(USER_DETAIL)).thenReturn(false);
-        when(areaTeamService.isAreaUser(USER_DETAIL)).thenReturn(false);
+        when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
       }
 
       @Test
@@ -183,7 +165,7 @@ class ViewResourceRecordServiceTest {
         when(licenceQueryService.getExtantLicencesByIds(toListOfStrings(RESOURCE_RECORD.licenceIds())))
             .thenReturn(List.of(LICENCE_VIEW));
 
-        when(industryTeamMemberService.isMemberOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID)).thenReturn(true);
+        when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(ORGANISATION_UNIT_ID));
 
         var result = underTest.canViewResource(RESOURCE_RECORD, USER_DETAIL);
 
@@ -195,7 +177,7 @@ class ViewResourceRecordServiceTest {
         when(licenceQueryService.getExtantLicencesByIds(toListOfStrings(RESOURCE_RECORD.licenceIds())))
             .thenReturn(List.of(LICENCE_VIEW));
 
-        when(industryTeamMemberService.isMemberOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID)).thenReturn(false);
+        when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(OTHER_ORG_UNIT_ID));
 
         var result = underTest.canViewResource(RESOURCE_RECORD, USER_DETAIL);
 
@@ -218,7 +200,7 @@ class ViewResourceRecordServiceTest {
             null
         );
 
-        when(industryTeamMemberService.isMemberOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID)).thenReturn(true);
+        when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(ORGANISATION_UNIT_ID));
 
         var result = underTest.canViewResource(resourceRecordWithNullExtantLicence, USER_DETAIL);
 
@@ -230,7 +212,7 @@ class ViewResourceRecordServiceTest {
         when(licenceQueryService.getExtantLicencesByIds(toListOfStrings(RESOURCE_RECORD.licenceIds())))
             .thenReturn(List.of());
 
-        when(industryTeamMemberService.isMemberOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID)).thenReturn(true);
+        when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(ORGANISATION_UNIT_ID));
 
         var result = underTest.canViewResource(RESOURCE_RECORD, USER_DETAIL);
 
@@ -239,7 +221,7 @@ class ViewResourceRecordServiceTest {
 
       @Test
       void AndResourceHasNullExtantLicence_ThenFalse() {
-        when(industryTeamMemberService.isMemberOfOrganisationUnit(USER_DETAIL, ORGANISATION_UNIT_ID)).thenReturn(false);
+        when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(OTHER_ORG_UNIT_ID));
 
         var result = underTest.canViewResource(RESOURCE_RECORD, USER_DETAIL);
 

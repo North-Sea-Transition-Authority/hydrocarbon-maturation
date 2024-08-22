@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.teams;
 
+import com.google.common.annotations.VisibleForTesting;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -35,6 +36,14 @@ public class TeamRole {
 
   TeamRole(UUID id) {
     this.id = id;
+  }
+
+  @VisibleForTesting
+  public TeamRole(UUID id, Team team, Role role, Long wuaId) {
+    this.id = id;
+    this.team = team;
+    this.role = role;
+    this.wuaId = wuaId;
   }
 
   public UUID getId() {

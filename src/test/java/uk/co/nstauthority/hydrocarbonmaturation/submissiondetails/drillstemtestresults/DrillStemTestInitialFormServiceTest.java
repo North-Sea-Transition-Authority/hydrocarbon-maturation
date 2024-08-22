@@ -15,6 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
@@ -24,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class DrillStemTestInitialFormServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private DrillStemTestInitialFormValidator drillStemTestInitialFormValidator;
@@ -51,7 +54,7 @@ class DrillStemTestInitialFormServiceTest {
     var form = new DrillStemTestInitialForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
+    drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail, USER);
     verify(drillStemTestInitialFormValidator, times(1))
         .validate(form, bindingResult);
   }
@@ -63,7 +66,7 @@ class DrillStemTestInitialFormServiceTest {
 
     var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
 
-    drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
+    drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail, USER);
     verify(drillStemTestSummaryFormValidator, times(1))
         .validate(
             eq(form), eq(bindingResult), captor.capture());

@@ -47,8 +47,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserDtoTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.user.EnergyPortalUserService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.notify.RemiAbsoluteUrlUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
@@ -64,6 +62,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.LicencePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionEmailServiceTest {
@@ -695,11 +695,10 @@ class SubmissionEmailServiceTest {
       var organisationGroupIds = List.of(1, 2);
       when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(1))
           .thenReturn(organisationGroupIds);
-      when(industryTeamService.getWuaIdsOfUsersWithRoleForOrganisationGroupIds(organisationGroupIds, Set.of(
-          IndustryTeamRole.SUBMITTER)))
-          .thenReturn(List.of(1L, 2L));
-      when(energyPortalUserService.findByWuaIds(List.of(new WebUserAccountId(1), new WebUserAccountId(2))))
-          .thenReturn(ENERGY_PORTAL_USERS);
+      when(industryTeamService.getWuaIdsOfUsersWithRoleForOrganisationGroupIds(
+              organisationGroupIds,
+              Set.of(Role.INDUSTRY_SUBMIT)
+          )).thenReturn(ENERGY_PORTAL_USERS);
     }
   }
 

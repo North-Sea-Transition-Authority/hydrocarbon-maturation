@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsController;
@@ -57,7 +58,7 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
   }
 
   @Override
-  public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail) {
+  public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail, User user) {
 
     var items = new ArrayList<TaskListItem>();
     if (submissionDetail.isProspectSubmission()) {
@@ -76,7 +77,7 @@ class VolumetricsTaskListSectionService implements TaskListSectionService {
   }
 
   @Override
-  public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
+  public Boolean isSectionSubmittable(SubmissionDetail submissionDetail, User user) {
     if (submissionDetail.isProspectSubmission()) {
       var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
           .getExtantReservoirSubmissionDetail(submissionDetail);

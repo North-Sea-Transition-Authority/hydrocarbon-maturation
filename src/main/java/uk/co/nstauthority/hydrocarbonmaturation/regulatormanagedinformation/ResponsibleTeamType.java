@@ -2,34 +2,41 @@ package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
 import jakarta.annotation.Nullable;
 import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Map;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 public enum ResponsibleTeamType implements Displayable {
-  EXPLORATION("Exploration team", RolePermission.EXPLORATION),
+  EXPLORATION("Exploration team", TeamType.REGULATOR, Role.EXPLORATION),
   NORTHERN_NORTH_SEA_WEST_OF_SHETLAND("Northern North Sea and West of Shetland team",
-      RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER),
+      TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM),
   CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA("Central North Sea, Southern North Sea and East Irish Sea team",
-      RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
-  ONSHORE("Onshore team", RolePermission.ONSHORE_AREA_TEAM_MEMBER);
+      TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM),
+  ONSHORE("Onshore team", TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM);
 
   private final String displayName;
-  private final Set<RolePermission> rolePermissions;
+  private final TeamType teamType;
+  private final Role role;
 
 
-  ResponsibleTeamType(String displayName, RolePermission... rolePermissions) {
+  ResponsibleTeamType(String displayName, TeamType teamType, Role role) {
     this.displayName = displayName;
-    this.rolePermissions = Arrays.stream(rolePermissions).collect(Collectors.toSet());
+    this.teamType = teamType;
+    this.role = role;
   }
 
   public String getDisplayName() {
     return displayName;
   }
 
-  public Set<RolePermission> getRolePermissions() {
-    return rolePermissions;
+  public TeamType getTeamType() {
+    return teamType;
+  }
+
+  public Role getRole() {
+    return role;
   }
 
   public static ResponsibleTeamType fromName(@Nullable String name) {
@@ -38,5 +45,12 @@ public enum ResponsibleTeamType implements Displayable {
     }
 
     return valueOf(name);
+  }
+
+  public static List<ResponsibleTeamType> getResponsibleTeamTypesForTeamsAndRoles(Map<TeamType, Role> teamTypeRoleMap) {
+    return Arrays.stream(ResponsibleTeamType.values())
+        .filter(r -> teamTypeRoleMap.containsKey(r.teamType))
+        .filter(r -> teamTypeRoleMap.containsValue(r.role))
+        .toList();
   }
 }

@@ -16,13 +16,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionPersistenceServiceTest {
-  private static final Integer USER_WUA_ID = 1;
+  private static final User USER = UserTestUtil.Builder().build();
   private static final Instant WITHDRAWN_INSTANT = Instant.now();
   private static final String WITHDRAW_REASON = "no reason";
 
@@ -31,9 +32,6 @@ class SubmissionPersistenceServiceTest {
 
   @Mock
   private Clock clock;
-
-  @Mock
-  private UserService userService;
 
   @InjectMocks
   private SubmissionPersistenceService submissionPersistenceService;
@@ -82,10 +80,9 @@ class SubmissionPersistenceServiceTest {
     var resource = new Resource();
     var submission = SubmissionTestUtils.createSubmission(resource);
 
-    when(userService.getUserWuaId()).thenReturn(USER_WUA_ID);
     when(clock.instant()).thenReturn(WITHDRAWN_INSTANT);
 
-    var returnedSubmission = submissionPersistenceService.withdrawSubmission(submission, WITHDRAW_REASON);
+    var returnedSubmission = submissionPersistenceService.withdrawSubmission(submission, WITHDRAW_REASON, USER);
 
     verify(submissionRepository, times(1)).save(returnedSubmission);
 
@@ -102,7 +99,7 @@ class SubmissionPersistenceServiceTest {
             resource,
             true,
             WITHDRAW_REASON,
-            USER_WUA_ID,
+            USER.wuaId().intValue(),
             WITHDRAWN_INSTANT);
   }
 

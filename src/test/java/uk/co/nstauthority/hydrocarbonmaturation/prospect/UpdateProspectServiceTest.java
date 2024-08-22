@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceApplicationQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
@@ -18,6 +20,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCrea
 
 @ExtendWith(MockitoExtension.class)
 class UpdateProspectServiceTest {
+
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private SubmissionCreateService submissionCreateService;
@@ -39,8 +43,8 @@ class UpdateProspectServiceTest {
   @Test
   void createUpdateProspect() {
     var form = new UpdateProspectForm();
-    updateProspectService.createUpdateProspect(form);
-    verify(submissionCreateService, times(1)).createUpdateProspect(form);
+    updateProspectService.createUpdateProspect(form, USER);
+    verify(submissionCreateService, times(1)).createUpdateProspect(form, USER);
   }
 
   @Test

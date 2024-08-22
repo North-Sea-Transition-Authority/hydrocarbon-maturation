@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartPostDrillDiscoveryController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.StartPostDrillDryHoleSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.StartUpdateProspectController;
@@ -24,10 +24,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.relinquishment.StartRelinquishme
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTypeSelectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTypeSelectService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Controller
 @RequestMapping("/prospect/purpose")
-@HasPermission(permissions = {RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT})
+@HasAnyRole(role = Role.INDUSTRY_SUBMIT, teamType = TeamType.INDUSTRY)
+@HasAnyRole(role = Role.EXPLORATION, teamType = TeamType.REGULATOR)
 public class ProspectPurposeController {
 
   private final SubmissionTypeSelectService submissionTypeSelectService;
@@ -41,17 +44,18 @@ public class ProspectPurposeController {
   }
 
   @GetMapping
-  public ModelAndView getProspectPurposeForm() {
-    return getProspectPurposeTypeModelAndView(new SubmissionTypeSelectForm());
+  public ModelAndView getProspectPurposeForm(User user) {
+    return getProspectPurposeTypeModelAndView(new SubmissionTypeSelectForm(), user);
   }
 
   @PostMapping
   public ModelAndView startProspectSubmission(@ModelAttribute("form") SubmissionTypeSelectForm form,
-                                              BindingResult bindingResult) {
+                                              BindingResult bindingResult,
+                                              User user) {
     bindingResult = submissionTypeSelectService.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getProspectPurposeTypeModelAndView(form),
+        getProspectPurposeTypeModelAndView(form, user),
         () -> switch (form.getSubmissionType()) {
           case CREATE_PROSPECT -> ReverseRouter.redirect(on(StartProspectController.class).getStartPage());
           case PROSPECT_UPDATE -> ReverseRouter.redirect(on(StartUpdateProspectController.class).getStartUpdatePage());
@@ -66,13 +70,13 @@ public class ProspectPurposeController {
         });
   }
 
-  ModelAndView getProspectPurposeTypeModelAndView(SubmissionTypeSelectForm submissionTypeSelectForm) {
+  ModelAndView getProspectPurposeTypeModelAndView(SubmissionTypeSelectForm submissionTypeSelectForm, User user) {
     return new ModelAndView("remi/submissiondetails/submissionPurpose")
-        .addObject("submissionTypes", submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT))
+        .addObject("submissionTypes", submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.PROSPECT, user))
         .addObject("form", submissionTypeSelectForm)
         .addObject("actionUrl", ReverseRouter.route(on(ProspectPurposeController.class)
-            .startProspectSubmission(null, null)))
+            .startProspectSubmission(null, null, null)))
         .addObject("backLinkUrl", ReverseRouter.route(on(StartSubmissionController.class)
-            .getSubmissionType()));
+            .getSubmissionType(null)));
   }
 }

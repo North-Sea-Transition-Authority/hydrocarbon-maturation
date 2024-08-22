@@ -12,20 +12,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoveryService;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoverySummaryController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}/undeveloped-discovery/information/{informationId}/remove")
-@HasPermission(permissions = RolePermission.RESERVES_AND_RESOURCES_ANALYST)
+@HasAnyRole(role = Role.RESERVES_AND_RESOURCES_ADVISOR, teamType = TeamType.REGULATOR)
 public class UndevelopedDiscoveryRemoveInformationController {
   static final String PAGE_TITLE = "Delete undeveloped discovery information";
   private final UndevelopedDiscoveryInformationSummaryService informationSummaryService;
@@ -70,7 +71,7 @@ public class UndevelopedDiscoveryRemoveInformationController {
         .addObject("pageCaption", informationSummaryItem.displayName())
         .addObject("summaryCards", informationSummaryItem.summaryCards())
         .addObject("cancelUrl", ReverseRouter.route(on(UndevelopedDiscoverySummaryController.class)
-            .getUndevelopedDiscoverySummary(resourceId)));
+            .getUndevelopedDiscoverySummary(resourceId, null)));
   }
 
   private ModelAndView redirectToSummaryAndNotify(UUID resourceId, UndevelopedDiscoveryInformation information,
@@ -83,7 +84,7 @@ public class UndevelopedDiscoveryRemoveInformationController {
     );
 
     return ReverseRouter.redirect(on(UndevelopedDiscoverySummaryController.class)
-        .getUndevelopedDiscoverySummary(resourceId));
+        .getUndevelopedDiscoverySummary(resourceId, null));
   }
 
   private UndevelopedDiscoveryInformation getInformationAndVerifyValidRequest(UUID resourceId, UUID informationId) {

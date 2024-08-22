@@ -16,6 +16,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
@@ -26,6 +28,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class DiscoveryWellDetailsFormServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private DiscoveryWellDetailsFormValidator discoveryWellDetailsFormValidator;
@@ -59,7 +62,7 @@ class DiscoveryWellDetailsFormServiceTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
 
-    discoveryWellDetailsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
+    discoveryWellDetailsFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail, USER);
     verify(discoveryWellDetailsFormValidator, times(1))
         .validate(eq(form), eq(bindingResult), captor.capture());
     assertThat(captor.getValue())

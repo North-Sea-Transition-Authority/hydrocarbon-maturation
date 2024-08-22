@@ -13,12 +13,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class HydrocarbonCaseSubmissionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private HydrocarbonCaseFormService hydrocarbonCaseFormService;
@@ -35,10 +38,10 @@ class HydrocarbonCaseSubmissionServiceTest {
     when(hydrocarbonCaseFormService.getHydrocarbonCaseForm(submissionDetail)).thenReturn(form);
 
     when(hydrocarbonCaseFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail), eq(USER)))
         .thenReturn(emptyBindingResult);
 
-    assertTrue(hydrocarbonCaseSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(hydrocarbonCaseSubmissionService.isSectionSubmittable(submissionDetail, USER));
 
   }
 
@@ -52,9 +55,9 @@ class HydrocarbonCaseSubmissionServiceTest {
     when(hydrocarbonCaseFormService.getHydrocarbonCaseForm(submissionDetail)).thenReturn(form);
 
     when(hydrocarbonCaseFormService.validate(
-        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail)))
+        eq(form), any(BindingResult.class), eq(ValidationType.FULL), eq(submissionDetail), eq(USER)))
         .thenReturn(bindingResultWithError);
 
-    assertFalse(hydrocarbonCaseSubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(hydrocarbonCaseSubmissionService.isSectionSubmittable(submissionDetail, USER));
   }
 }

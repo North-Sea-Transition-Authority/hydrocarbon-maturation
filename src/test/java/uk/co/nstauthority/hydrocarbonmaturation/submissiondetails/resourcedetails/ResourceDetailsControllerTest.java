@@ -54,7 +54,7 @@ class ResourceDetailsControllerTest extends AbstractSubmissionControllerTest {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(
             get(ReverseRouter.route(on(ResourceDetailsController.class)
-                .getResourceDetails(SUBMISSION_DETAIL_ID)))
+                .getResourceDetails(SUBMISSION_DETAIL_ID, null)))
                 .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name("remi/submissiondetails/resourceDetails"));
@@ -62,9 +62,10 @@ class ResourceDetailsControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getGeneralDetails_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
-            get(ReverseRouter.route(on(ResourceDetailsController.class).getResourceDetails(SUBMISSION_DETAIL_ID)))
+            get(ReverseRouter.route(on(ResourceDetailsController.class).getResourceDetails(SUBMISSION_DETAIL_ID, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -75,7 +76,7 @@ class ResourceDetailsControllerTest extends AbstractSubmissionControllerTest {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
             get(ReverseRouter.route(on(ResourceDetailsController.class)
-                .getResourceDetails(SUBMISSION_DETAIL_ID)))
+                .getResourceDetails(SUBMISSION_DETAIL_ID, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -86,7 +87,7 @@ class ResourceDetailsControllerTest extends AbstractSubmissionControllerTest {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
             get(ReverseRouter.route(on(ResourceDetailsController.class)
-                .saveResourceDetails(SUBMISSION_DETAIL_ID, null, null, null)))
+                .saveResourceDetails(SUBMISSION_DETAIL_ID, null, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isForbidden());
@@ -95,21 +96,22 @@ class ResourceDetailsControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(ValidationType.class)
   void saveResourceDetails_whenValidForm_assertSaveAndRedirect(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     var bindingResult = new BeanPropertyBindingResult(ResourceDetailsForm.class, "form");
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
         .thenReturn(submissionDetail);
-    when(resourceDetailsFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(resourceDetailsFormService.validate(any(), any(), any(), any(), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(ResourceDetailsController.class)
-                .saveResourceDetails(SUBMISSION_DETAIL_ID, null, null, null)))
+                .saveResourceDetails(SUBMISSION_DETAIL_ID, null, null, null, null)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(SUBMISSION_DETAIL_ID))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(SUBMISSION_DETAIL_ID, null))));
 
-    verify(resourceDetailsFormService, times(1)).validate(any(), any(), eq(validationType), any());
+    verify(resourceDetailsFormService, times(1)).validate(any(), any(), eq(validationType), any(), any());
     verify(resourceDetailsPersistenceService, times(1))
         .saveResourceDetails(any(ResourceDetailsForm.class), eq(submissionDetail));
   }
@@ -117,25 +119,27 @@ class ResourceDetailsControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveResourceDetailsPage_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     var bindingResult = new BeanPropertyBindingResult(ResourceDetailsForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(resourceDetailsFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(resourceDetailsFormService.validate(any(), any(), any(), any(), any())).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
         .thenReturn(submissionDetail);
     mockMvc.perform(
             post(ReverseRouter.route(on(ResourceDetailsController.class)
-                .saveResourceDetails(SUBMISSION_DETAIL_ID, null, null, null)))
+                .saveResourceDetails(SUBMISSION_DETAIL_ID, null, null, null, null)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(resourceDetailsFormService, times(1)).validate(any(), any(), eq(validationType), any());
+    verify(resourceDetailsFormService, times(1)).validate(any(), any(), eq(validationType), any(), any());
     verify(resourceDetailsPersistenceService, never()).saveResourceDetails(any(), any());
   }
 
   @Test
   void getResourceDetailsModelAndView_prospectSubmission_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
         .thenReturn(submissionDetail);
     var form = new ResourceDetailsForm();
@@ -149,7 +153,7 @@ class ResourceDetailsControllerTest extends AbstractSubmissionControllerTest {
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
             get(ReverseRouter.route(on(ResourceDetailsController.class)
-                .getResourceDetails(SUBMISSION_DETAIL_ID)))
+                .getResourceDetails(SUBMISSION_DETAIL_ID, null)))
                 .with(user(USER)))
             .andReturn()
             .getModelAndView())
@@ -159,7 +163,7 @@ class ResourceDetailsControllerTest extends AbstractSubmissionControllerTest {
         .contains(
             entry("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore()),
             entry("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class)
-                    .searchOrganisationUnits(null))),
+                    .searchOrganisationUnits(null, null))),
             entry("responsibleOrganisation", preselectedOrganisation),
             entry("resourceType", submissionDetail.getSubmission().getResource().getType().name().toLowerCase()),
             entry("isRegulatorOrAreaTeamUser", false),
@@ -173,7 +177,7 @@ class ResourceDetailsControllerTest extends AbstractSubmissionControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
             WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(SUBMISSION_DETAIL_ID)),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(SUBMISSION_DETAIL_ID, null)),
             TaskListController.PAGE_NAME)
     );
   }

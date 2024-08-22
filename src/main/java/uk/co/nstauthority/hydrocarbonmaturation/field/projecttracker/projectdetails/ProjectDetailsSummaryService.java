@@ -5,16 +5,12 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -23,6 +19,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
@@ -40,30 +39,27 @@ public class ProjectDetailsSummaryService implements SummarySectionService<Proje
   static final String NO_ASSOCIATED_SUBMISSION = "No associated submission";
   static final String FDPA_START_UP_DATE = "FDPA start up date";
 
-  private final UserService userService;
-  private final PermissionService permissionService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
-  public ProjectDetailsSummaryService(UserService userService, PermissionService permissionService) {
-    this.userService = userService;
-    this.permissionService = permissionService;
+  public ProjectDetailsSummaryService(TeamQueryService teamQueryService) {
+    this.teamQueryService = teamQueryService;
   }
 
   @Override
-  public Optional<SummarySection> getSummarySection(Project project) {
+  public Optional<SummarySection> getSummarySection(Project project, User user) {
     var includeActions = true;
     var summaryItems = List.of(
         SummaryItem.withCard(
             PROJECT_DETAILS,
-            getSummaryCard(project, includeActions))
+            getSummaryCard(project, includeActions, user))
     );
 
     return Optional.of(new SummarySection(DISPLAY_ORDER, summaryItems, ""));
   }
 
-  private SummaryCard getSummaryCard(Project project, boolean includeCardActions) {
+  private SummaryCard getSummaryCard(Project project, boolean includeCardActions, User user) {
     var actions = new ArrayList<SummaryAction>();
-    var user = userService.getUser();
     if (includeCardActions && userCanViewActions(user)) {
       actions.add(
           new SummaryAction(
@@ -115,13 +111,13 @@ public class ProjectDetailsSummaryService implements SummarySectionService<Proje
    * @param project the project to create a summary for
    * @return a summary card with the project details with no actions
    */
-  public SummaryCard getProjectSummaryCard(Project project) {
+  public SummaryCard getProjectSummaryCard(Project project, User user) {
     var includeActions = false;
-    return getSummaryCard(project, includeActions);
+    return getSummaryCard(project, includeActions, user);
   }
 
   private boolean userCanViewActions(User user) {
-    return permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST));
+    return teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST);
   }
 
 }

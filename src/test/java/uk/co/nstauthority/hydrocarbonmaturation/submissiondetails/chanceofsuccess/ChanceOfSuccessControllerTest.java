@@ -96,7 +96,7 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
             post(ReverseRouter.route(on(ChanceOfSuccessController.class).saveChanceOfSuccess(
-                submissionDetailId, null, null, null)))
+                submissionDetailId, null, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isForbidden());
@@ -104,6 +104,7 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getChanceOfSuccess_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetailId)))
@@ -121,6 +122,7 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
       mode = EnumSource.Mode.EXCLUDE
   )
   void getChanceOfSuccess_andTypeIsNotProspectOrDiscovery_assertForbidden(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(submissionType);
     mockMvc.perform(
             get(ReverseRouter.route(on(ChanceOfSuccessController.class).getChanceOfSuccess(submissionDetailId)))
@@ -138,11 +140,12 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
       mode = EnumSource.Mode.EXCLUDE
   )
   void saveChanceOfSuccess_andTypeIsNotProspectOrDiscovery_assertForbidden(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(submissionType);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(ChanceOfSuccessController.class).saveChanceOfSuccess(
-                submissionDetailId, null, null, null)))
+                submissionDetailId, null, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isForbidden());
@@ -151,21 +154,22 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveChanceOfSuccess_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(ChanceOfSuccessForm.class, "form");
     when(chanceOfSuccessFormService.validate(any(), any(),
-        any(), eq(submissionDetail))).thenReturn(bindingResult);
+        any(), eq(submissionDetail), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
             post(ReverseRouter.route(
-                on(ChanceOfSuccessController.class).saveChanceOfSuccess(submissionDetailId, null, null, null)))
+                on(ChanceOfSuccessController.class).saveChanceOfSuccess(submissionDetailId, null, null, null, null)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
 
-    verify(chanceOfSuccessFormService, times(1)).validate(any(), any(), eq(validationType), eq(submissionDetail));
+    verify(chanceOfSuccessFormService, times(1)).validate(any(), any(), eq(validationType), eq(submissionDetail), any());
     verify(chanceOfSuccessPersistenceService, times(1)).saveChanceOfSuccess(any(ChanceOfSuccessForm.class),
         eq(submissionDetail));
   }
@@ -173,27 +177,29 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveChanceOfSuccess_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     var bindingResult = new BeanPropertyBindingResult(ChanceOfSuccessForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(chanceOfSuccessFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    when(chanceOfSuccessFormService.validate(any(), any(), any(), eq(submissionDetail), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
             post(ReverseRouter.route(
-                on(ChanceOfSuccessController.class).saveChanceOfSuccess(submissionDetailId, null, null, null)))
+                on(ChanceOfSuccessController.class).saveChanceOfSuccess(submissionDetailId, null, null, null, null)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isOk());
 
     verify(chanceOfSuccessFormService, times(1)).validate(any(), any(),
-        eq(validationType), eq(submissionDetail));
+        eq(validationType), eq(submissionDetail), any());
     verify(chanceOfSuccessPersistenceService, never()).saveChanceOfSuccess(any(), any());
   }
 
   @Test
   void getChanceOfSuccessModelAndView_prospect_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     var form = new ChanceOfSuccessForm();
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
@@ -217,13 +223,14 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)),
             TaskListController.PAGE_NAME)
     );
   }
 
   @Test
   void getChanceOfSuccessModelAndView_discovery_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     var form = new ChanceOfSuccessForm();
 
@@ -248,7 +255,7 @@ class ChanceOfSuccessControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)),
             TaskListController.PAGE_NAME)
     );
   }

@@ -11,11 +11,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 
 @ExtendWith(MockitoExtension.class)
 class ProspectRelinquishmentServiceTest {
+
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private SubmissionCreateService submissionCreateService;
@@ -30,19 +34,19 @@ class ProspectRelinquishmentServiceTest {
   void createProspectRelinquishment_verifyMethodCall() {
     var form = new ProspectRelinquishmentForm();
 
-    prospectRelinquishmentService.createProspectRelinquishment(form);
+    prospectRelinquishmentService.createProspectRelinquishment(form, USER);
 
-    verify(submissionCreateService).createProspectRelinquishment(form);
+    verify(submissionCreateService).createProspectRelinquishment(form, USER);
   }
 
   @Test
   void createProspectRelinquishment_assertReturn() {
     var form = new ProspectRelinquishmentForm();
     var submissionDetail = mock(SubmissionDetail.class);
-    when(prospectRelinquishmentService.createProspectRelinquishment(form))
+    when(prospectRelinquishmentService.createProspectRelinquishment(form, USER))
         .thenReturn(submissionDetail);
 
-    var result = prospectRelinquishmentService.createProspectRelinquishment(form);
+    var result = prospectRelinquishmentService.createProspectRelinquishment(form, USER);
 
     assertThat(result).isEqualTo(submissionDetail);
   }

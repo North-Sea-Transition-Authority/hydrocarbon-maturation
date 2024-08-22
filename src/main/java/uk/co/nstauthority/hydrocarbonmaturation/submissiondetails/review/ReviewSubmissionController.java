@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
@@ -49,7 +48,6 @@ public class ReviewSubmissionController {
   private final ReviewSubmissionService reviewSubmissionService;
   private final SubmissionSummaryModelService submissionSummaryModelService;
   private final SubmissionDetailService submissionDetailService;
-  private final UserService userService;
   private final SubmissionHistoryQueryService submissionHistoryQueryService;
   private final RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
   private final ResourceService resourceService;
@@ -64,7 +62,6 @@ public class ReviewSubmissionController {
       ReviewSubmissionService reviewSubmissionService,
       SubmissionSummaryModelService submissionSummaryModelService,
       SubmissionDetailService submissionDetailService,
-      UserService userService,
       SubmissionHistoryQueryService submissionHistoryQueryService,
       RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService,
       ResourceService resourceService,
@@ -76,7 +73,6 @@ public class ReviewSubmissionController {
     this.reviewSubmissionService = reviewSubmissionService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
-    this.userService = userService;
     this.submissionHistoryQueryService = submissionHistoryQueryService;
     this.regulatorManagedInformationSummaryService = regulatorManagedInformationSummaryService;
     this.resourceService = resourceService;
@@ -88,9 +84,8 @@ public class ReviewSubmissionController {
   }
 
   @GetMapping
-  public ModelAndView showReviewPage(@PathVariable("resourceId") UUID resourceId) {
+  public ModelAndView showReviewPage(@PathVariable("resourceId") UUID resourceId, User user) {
     var submissionRecord = reviewSubmissionService.getSubmissionRecordOrThrow(resourceId);
-    var user = userService.getUser();
 
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(
         submissionRecord.submissionDetailId());
@@ -107,7 +102,8 @@ public class ReviewSubmissionController {
   @GetMapping("submission-details/{submissionDetailId}")
   public ModelAndView showSubmissionSummary(@PathVariable("resourceId") UUID resourceId,
                                             @PathVariable("submissionDetailId") UUID submissionDetailId,
-                                            @ModelAttribute("form") SubmissionSearchSelectorForm form) {
+                                            @ModelAttribute("form") SubmissionSearchSelectorForm form,
+                                            User user) {
     var selectedSubmission = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource with id %s"
@@ -127,7 +123,6 @@ public class ReviewSubmissionController {
                 .formatted(resourceId)));
 
     var submissionRecord = reviewSubmissionService.getSubmissionRecordOrThrow(resourceId);
-    var user = userService.getUser();
 
     if (!reviewSubmissionService.canViewSubmission(submissionRecord, user, latestSubmission)) {
       throw new ResponseStatusException(
@@ -142,7 +137,7 @@ public class ReviewSubmissionController {
   public ModelAndView viewSubmission(@PathVariable("resourceId") UUID resourceId,
                                      @ModelAttribute("form") SubmissionSearchSelectorForm form) {
     return ReverseRouter.redirect(on(ReviewSubmissionController.class)
-        .showSubmissionSummary(resourceId, UUID.fromString(form.getSelectedSubmissionId()), null));
+        .showSubmissionSummary(resourceId, UUID.fromString(form.getSelectedSubmissionId()), null, null));
   }
 
   private ModelAndView getModelAndView(SubmissionRecordSummaryView submissionRecord,
@@ -152,7 +147,8 @@ public class ReviewSubmissionController {
                                        UUID resourceId) {
     var modelAndView = submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(
         submissionDetail,
-        "remi/review/reviewSubmission"
+        "remi/review/reviewSubmission",
+        user
     );
 
     var querySearchResults = submissionHistoryQueryService.getAcceptedAndSubmittedSubmissionsOnResourceWithLinkedResources(
@@ -177,7 +173,7 @@ public class ReviewSubmissionController {
     var optionalSubmissionDetailUpdate = reviewSubmissionService.getUpdateSubmissionDetailBySubmission(
         submissionDetail.getSubmission());
     if (isInResponsibleTeam) {
-      addResponsibleTeamProperties(modelAndView, resourceId, submissionDetail);
+      addResponsibleTeamProperties(modelAndView, resourceId, submissionDetail, user);
     }
 
     var isIndustrySubmitter = reviewSubmissionService
@@ -185,7 +181,7 @@ public class ReviewSubmissionController {
     if (isIndustrySubmitter) {
       var updateSubmissionUrl = optionalSubmissionDetailUpdate
           .map(detail -> ReverseRouter.route(on(TaskListController.class)
-              .getTaskList(detail.getId())))
+              .getTaskList(detail.getId(), null)))
           .orElseGet(() -> ReverseRouter.route(on(StartUpdateController.class)
               .showStartUpdatePage(submissionDetail.getId())));
 
@@ -216,7 +212,8 @@ public class ReviewSubmissionController {
   }
 
   private ModelAndView addResponsibleTeamProperties(ModelAndView modelAndView, UUID resourceId,
-                                                    SubmissionDetail selectedSubmissionDetail) {
+                                                    SubmissionDetail selectedSubmissionDetail,
+                                                    User user) {
     var resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
             .formatted(resourceId)));
@@ -225,15 +222,15 @@ public class ReviewSubmissionController {
         .addObject("resourceGroupsSummaryView",
             resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
         .addObject("canRequestUpdate", reviewSubmissionService
-            .canRequestUpdateOnSubmissionDetail(selectedSubmissionDetail))
+            .canRequestUpdateOnSubmissionDetail(selectedSubmissionDetail, user))
         .addObject("requestUpdateUrl", ReverseRouter.route(on(RequestUpdateController.class)
-            .showRequestUpdateConfirmationPage(selectedSubmissionDetail.getId())))
+            .showRequestUpdateConfirmationPage(selectedSubmissionDetail.getId(), null)))
         .addObject("approveUrl",
             ReverseRouter.route(on(ApproveSubmissionController.class)
-                .showApproveConfirmationPage(selectedSubmissionDetail.getId())))
+                .showApproveConfirmationPage(selectedSubmissionDetail.getId(), null)))
         .addObject("withdrawUrl",
             ReverseRouter.route(on(WithdrawSubmissionController.class)
-                .showWithdrawConfirmationPage(selectedSubmissionDetail.getId())));
+                .showWithdrawConfirmationPage(selectedSubmissionDetail.getId(), null)));
 
     if (selectedSubmissionDetail.isFieldSubmission()) {
       var field = fieldPersistenceService.getFieldOrThrow(resource);

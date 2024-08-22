@@ -14,7 +14,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -27,11 +26,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = PostDrillDiscoveryController.class)
 class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest {
@@ -50,10 +50,7 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
 
   @SecurityTest
   void getStartDiscoveryPage_assertModelProperties() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
 
     var form = new StartDiscoveryForm();
 
@@ -74,9 +71,9 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
             "prospectApiEndpoint")
         .containsExactly(
             ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage()),
-            ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)),
+            ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null, null)),
             form,
-            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT))
+            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT, null))
         );
   }
 
@@ -86,20 +83,17 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
 
     var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
     when(startDiscoveryService.validateDiscoveryFromProspect(any(), any())).thenReturn(bindingResult);
-    when(startDiscoveryService.createNewDiscoveryFromProspect(form)).thenReturn(submissionDetail);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(true);
+    when(startDiscoveryService.createNewDiscoveryFromProspect(form, USER)).thenReturn(submissionDetail);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)))
+            post(ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null, null)))
                 .flashAttr("form", form)
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(
-            ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+            ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
   }
 
   @SecurityTest
@@ -109,12 +103,9 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
     var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
     bindingResult.addError(new ObjectError("form", "invalid form"));
     when(startDiscoveryService.validateDiscoveryFromProspect(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     var modelAndView = mockMvc.perform(
-            post(ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)))
+            post(ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null, null)))
                 .flashAttr("form", form)
                 .with(user(USER))
                 .with(csrf()))
@@ -131,23 +122,24 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
             "prospectApiEndpoint")
         .containsExactly(
             ReverseRouter.route(on(StartPostDrillDiscoveryController.class).getStartPostDrillDiscoveryPage()),
-            ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)),
+            ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null, null)),
             form,
-            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT))
+            SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT, null))
         );
 
     verify(startDiscoveryService, times(1)).validateDiscoveryFromProspect(any(), any());
-    verify(startDiscoveryService, never()).createNewDiscoveryFromProspect(any());
+    verify(startDiscoveryService, never()).createNewDiscoveryFromProspect(any(), any());
   }
 
   @SecurityTest
   void startDiscovery_whenNoPermission_assertIsForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
     mockMvc.perform(
-            post(ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null)))
+            post(ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isForbidden());
@@ -155,10 +147,11 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
 
   @SecurityTest
   void getStartDiscoveryPage_whenNoPermission_assertIsForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
     mockMvc.perform(
             get(ReverseRouter.route(on(PostDrillDiscoveryController.class)
                 .getStartDiscoveryPage(null)))

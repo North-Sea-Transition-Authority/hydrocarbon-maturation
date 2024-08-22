@@ -13,12 +13,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class TrapPropertiesSubmissionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private TrapPropertiesFormService trapPropertiesFormService;
@@ -41,7 +44,7 @@ class TrapPropertiesSubmissionServiceTest {
         eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL))
     ).thenReturn(true);
 
-    assertTrue(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail, USER));
 
   }
 
@@ -58,6 +61,6 @@ class TrapPropertiesSubmissionServiceTest {
         eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL))
     ).thenReturn(false);
 
-    assertFalse(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(trapPropertiesSubmissionService.isSectionSubmittable(submissionDetail, USER));
   }
 }

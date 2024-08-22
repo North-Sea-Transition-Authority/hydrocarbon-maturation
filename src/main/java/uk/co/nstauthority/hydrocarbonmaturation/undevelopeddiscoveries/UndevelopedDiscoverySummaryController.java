@@ -9,23 +9,25 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchProspectAndDiscoveryRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformationController;
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}/undeveloped-discovery")
-@HasPermission(permissions = RolePermission.RESERVES_AND_RESOURCES_ANALYST)
+@HasAnyRole(role = Role.RESERVES_AND_RESOURCES_ADVISOR, teamType = TeamType.REGULATOR)
 public class UndevelopedDiscoverySummaryController {
 
   static final String PAGE_TITLE = "Undeveloped discovery";
@@ -50,17 +52,17 @@ public class UndevelopedDiscoverySummaryController {
   }
 
   @GetMapping
-  public ModelAndView getUndevelopedDiscoverySummary(@PathVariable("resourceId") UUID resourceId) {
+  public ModelAndView getUndevelopedDiscoverySummary(@PathVariable("resourceId") UUID resourceId, User user) {
     var resource = resourceService.getResourceOfTypeOrThrow(resourceId, ResourceType.DISCOVERY);
 
     var undevelopedDiscovery = undevelopedDiscoveryService.getUndevelopedDiscoveryForResource(resource)
         .orElseGet(() -> getNewUndevelopedDiscovery(resource));
 
-    return getSummaryModelAndView(undevelopedDiscovery, resourceId);
+    return getSummaryModelAndView(undevelopedDiscovery, resourceId, user);
   }
 
-  private ModelAndView getSummaryModelAndView(UndevelopedDiscovery undevelopedDiscovery, UUID resourceId) {
-    var summarySections = undevelopedDiscoverySummaryService.getSummarySections(undevelopedDiscovery);
+  private ModelAndView getSummaryModelAndView(UndevelopedDiscovery undevelopedDiscovery, UUID resourceId, User user) {
+    var summarySections = undevelopedDiscoverySummaryService.getSummarySections(undevelopedDiscovery, user);
 
     var resourceRecord = resourceRecordService.getResourceRecordOrThrow(resourceId);
 
@@ -83,7 +85,7 @@ public class UndevelopedDiscoverySummaryController {
             ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).searchResourceRecords(null, null)))
         .addBreadcrumb(
             resourceBreadcrumb,
-            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)))
+            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
         .build();
 
     BreadcrumbsUtil.addBreadcrumbsToModel(modelAndView, breadcrumbs);

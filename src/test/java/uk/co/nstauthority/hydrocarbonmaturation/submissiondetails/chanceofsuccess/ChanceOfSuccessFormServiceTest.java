@@ -16,12 +16,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class ChanceOfSuccessFormServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private ChanceOfSuccessFormValidator chanceOfSuccessFormValidator;
@@ -49,7 +52,7 @@ class ChanceOfSuccessFormServiceTest {
 
     var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
 
-    chanceOfSuccessFormService.validate(form, bindingResult, validationType, submissionDetail);
+    chanceOfSuccessFormService.validate(form, bindingResult, validationType, submissionDetail, USER);
     verify(chanceOfSuccessFormValidator, times(1))
         .validate(eq(form), eq(bindingResult), captor.capture());
     assertThat(captor.getValue())

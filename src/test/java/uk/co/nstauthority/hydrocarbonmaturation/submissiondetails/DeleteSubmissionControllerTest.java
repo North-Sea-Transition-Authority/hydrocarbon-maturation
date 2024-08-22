@@ -71,7 +71,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
         .thenReturn("test");
 
     mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
-            SUBMISSION_DETAIL_ID)))
+            SUBMISSION_DETAIL_ID, null)))
             .with(user(USER)))
         .andExpect(status().isOk());
   }
@@ -82,7 +82,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
-            SUBMISSION_DETAIL_ID)))
+            SUBMISSION_DETAIL_ID, null)))
             .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -93,7 +93,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
 
     mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
-            SUBMISSION_DETAIL_ID)))
+            SUBMISSION_DETAIL_ID, null)))
             .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -112,6 +112,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
   @Test
   void showDeleteConfirmationPage_assertModelProperties() throws Exception {
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(RESOURCE_NAME);
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
 
     when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail))
@@ -119,7 +120,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(get(
             ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
-                SUBMISSION_DETAIL_ID)))
+                SUBMISSION_DETAIL_ID, null)))
             .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -130,7 +131,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
             entry("submissionType", submissionDetail.getSubmissionType()),
             entry("deleteUrl",
                 ReverseRouter.route(on(DeleteSubmissionController.class).deleteSubmission(SUBMISSION_DETAIL_ID, null))),
-            entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(SUBMISSION_DETAIL_ID))),
+            entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(SUBMISSION_DETAIL_ID, null))),
             entry("deleteButtonText", "Delete")
         )
         .containsKeys("pageName");
@@ -140,6 +141,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
   void showDeleteConfirmationPage_whenIsDraftUpdate_assertDeleteButtonText() throws Exception {
     submissionDetail.setVersionNumber(2);
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(RESOURCE_NAME);
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
 
     when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail))
@@ -147,7 +149,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(get(
             ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
-                SUBMISSION_DETAIL_ID)))
+                SUBMISSION_DETAIL_ID, null)))
             .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -161,6 +163,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
   void showDeleteConfirmationPage_whenIsCorrection_assertDeleteButtonText() throws Exception {
     submissionDetail.setCorrection(true);
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(RESOURCE_NAME);
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
 
     when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail))
@@ -168,7 +171,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(get(
             ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(
-                SUBMISSION_DETAIL_ID)))
+                SUBMISSION_DETAIL_ID, null)))
             .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -180,6 +183,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void deleteSubmission_assertRedirection() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setVersionNumber(1);
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail))
         .thenReturn(RESOURCE_NAME);
@@ -207,7 +211,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void deleteSubmission_whenDraftUpdate_assertRedirection() throws Exception {
-
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setVersionNumber(2);
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail))
         .thenReturn(RESOURCE_NAME);
@@ -236,6 +240,7 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void deleteSubmission_whenCorrection_assertRedirection() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setCorrection(true);
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail))
         .thenReturn(RESOURCE_NAME);
@@ -295,6 +300,6 @@ class DeleteSubmissionControllerTest extends AbstractSubmissionControllerTest {
         .addObject("accordionId", submissionDetail.getId())
         .addObject("isOffshore", true);
 
-    doReturn(modelAndView).when(submissionSummaryModelService).createSummaryForSubmissionTypeToModelAndView(submissionDetail, VIEW_NAME);
+    doReturn(modelAndView).when(submissionSummaryModelService).createSummaryForSubmissionTypeToModelAndView(submissionDetail, VIEW_NAME, USER);
   }
 }

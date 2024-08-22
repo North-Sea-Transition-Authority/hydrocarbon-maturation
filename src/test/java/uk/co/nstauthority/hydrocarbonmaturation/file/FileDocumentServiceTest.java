@@ -126,9 +126,9 @@ class FileDocumentServiceTest {
             FileUploadComponentAttributes::existingFiles
         )
         .containsExactly(
-            ReverseRouter.route(on(UnlinkedFileController.class).upload(null, DOCUMENT_TYPE.name())),
-            ReverseRouter.route(on(UnlinkedFileController.class).download(null)),
-            ReverseRouter.route(on(UnlinkedFileController.class).delete(null)),
+            ReverseRouter.route(on(UnlinkedFileController.class).upload(null, DOCUMENT_TYPE.name(), null)),
+            ReverseRouter.route(on(UnlinkedFileController.class).download(null, null)),
+            ReverseRouter.route(on(UnlinkedFileController.class).delete(null, null)),
             existingFiles
         );
   }

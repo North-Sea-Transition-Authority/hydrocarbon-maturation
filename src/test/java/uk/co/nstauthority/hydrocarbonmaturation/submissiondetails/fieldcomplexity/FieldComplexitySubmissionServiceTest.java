@@ -17,6 +17,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -24,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class FieldComplexitySubmissionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private FieldComplexityFormValidator fieldComplexityFormValidator;
@@ -38,7 +41,7 @@ class FieldComplexitySubmissionServiceTest {
   @MethodSource("allNonFieldSubmissionTypes")
   void isSectionSubmittable_nonFieldSubmission_thenTrue(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
-    assertTrue(fieldComplexitySubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(fieldComplexitySubmissionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -53,7 +56,7 @@ class FieldComplexitySubmissionServiceTest {
         .isValid(eq(fieldComplexityForm), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
         .thenReturn(true);
 
-    assertTrue(fieldComplexitySubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(fieldComplexitySubmissionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -68,7 +71,7 @@ class FieldComplexitySubmissionServiceTest {
         .isValid(eq(fieldComplexityForm), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
         .thenReturn(false);
 
-    assertFalse(fieldComplexitySubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(fieldComplexitySubmissionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   private static Stream<Arguments> allFieldSubmissionTypes() {

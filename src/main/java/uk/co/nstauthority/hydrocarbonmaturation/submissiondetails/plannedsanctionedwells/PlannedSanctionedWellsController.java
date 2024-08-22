@@ -62,7 +62,7 @@ public class PlannedSanctionedWellsController {
 
     if (plannedSanctionedWellsFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
       plannedSanctionedWellsService.savePlannedSanctionedWells(form, submissionDetail);
-      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
     }
     return getPlannedSanctionedWellsModelAndView(form, submissionDetail);
   }

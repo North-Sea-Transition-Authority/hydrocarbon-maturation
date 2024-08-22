@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResource;
@@ -27,8 +28,8 @@ public class ResourceGroupService {
   }
 
   @Transactional
-  public void createResourceGroupLink(SubmissionDetail submissionDetail) {
-    if (!relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail)) {
+  public void createResourceGroupLink(SubmissionDetail submissionDetail, User user) {
+    if (!relatedResourcesSubmissionService.isSectionSubmittable(submissionDetail, user)) {
       return;
     }
 

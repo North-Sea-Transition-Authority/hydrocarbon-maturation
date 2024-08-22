@@ -9,6 +9,7 @@ import java.util.Objects;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
@@ -47,8 +48,9 @@ public class SearchResourceRecordsService {
   }
 
   List<ResourceRecordSearchResultItem> getResourceRecordSearchResults(SearchResourceRecordsForm form,
-                                                                      ResourceRecordQueryServiceStrategy queryServiceStrategy) {
-    var resourceRecordSearchResults = queryServiceStrategy.getResourceRecordSearchResults(form);
+                                                                      ResourceRecordQueryServiceStrategy queryServiceStrategy,
+                                                                      User user) {
+    var resourceRecordSearchResults = queryServiceStrategy.getResourceRecordSearchResults(form, user);
 
     var organisationUnitIds = getOrganisationUnitIdsFromResults(resourceRecordSearchResults);
     var organisationUnitMap = organisationUnitQueryService.getOrganisationUnitMapByIds(organisationUnitIds);
@@ -63,8 +65,9 @@ public class SearchResourceRecordsService {
 
   public List<String> getResourceRecordSearchResultsDistinctResourceNames(
       SearchResourceRecordsForm form,
-      ResourceRecordQueryServiceStrategy queryServiceStrategy) {
-    var resourceRecordSearchResults = queryServiceStrategy.getResourceRecordSearchResults(form);
+      ResourceRecordQueryServiceStrategy queryServiceStrategy,
+      User user) {
+    var resourceRecordSearchResults = queryServiceStrategy.getResourceRecordSearchResults(form, user);
 
     return resourceRecordSearchResults.stream()
         .map(ResourceRecordQueryResult::resourceName)
@@ -201,7 +204,7 @@ public class SearchResourceRecordsService {
 
   private String getActionUrl(ResourceRecordQueryResult resourceRecordQueryResult) {
     return ReverseRouter.route(on(ViewResourceRecordController.class)
-        .showResourceRecord(resourceRecordQueryResult.resourceId()));
+        .showResourceRecord(resourceRecordQueryResult.resourceId(), null));
   }
 
   private ResourceRecordSearchResultItemModelProperties getResultItemModelProperties(

@@ -74,6 +74,7 @@ class DiscoveryWellDetailsControllerTest extends AbstractSubmissionControllerTes
 
   @SecurityTest
   void getDiscoveryWellDetails_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(DiscoveryWellDetailsController.class).getDiscoveryWellDetails(submissionDetailId, null)))
@@ -83,6 +84,7 @@ class DiscoveryWellDetailsControllerTest extends AbstractSubmissionControllerTes
 
   @SecurityTest
   void getDiscoveryWellDetails_andTypeIsNotDiscovery_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
     mockMvc.perform(
             get(ReverseRouter.route(on(DiscoveryWellDetailsController.class).getDiscoveryWellDetails(submissionDetailId, null)))
@@ -102,23 +104,24 @@ class DiscoveryWellDetailsControllerTest extends AbstractSubmissionControllerTes
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveDiscoveryWellDetails_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(DiscoveryWellDetailsForm.class, "form");
-    when(discoveryWellDetailsFormService.validate(any(), any(), any(), eq(submissionDetail)))
+    when(discoveryWellDetailsFormService.validate(any(), any(), any(), eq(submissionDetail), any()))
         .thenReturn(bindingResult);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(DiscoveryWellDetailsController.class)
-                .saveDiscoveryWellDetails(submissionDetailId, null, null, null)))
+                .saveDiscoveryWellDetails(submissionDetailId, null, null, null, null)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(csrf())
                 .with(user(USER)))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(
-            ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+            ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
 
     verify(discoveryWellDetailsFormService, times(1)).validate(
-        any(), any(), eq(validationType), eq(submissionDetail));
+        any(), any(), eq(validationType), eq(submissionDetail), any());
     verify(discoveryWellDetailsPersistenceService, times(1))
         .saveDiscoveryWellDetails(any(DiscoveryWellDetailsForm.class), eq(submissionDetail));
   }
@@ -126,27 +129,29 @@ class DiscoveryWellDetailsControllerTest extends AbstractSubmissionControllerTes
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveGeneralDetailsPage_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     var bindingResult = new BeanPropertyBindingResult(DiscoveryWellDetailsForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(discoveryWellDetailsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    when(discoveryWellDetailsFormService.validate(any(), any(), any(), eq(submissionDetail), any())).thenReturn(bindingResult);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(DiscoveryWellDetailsController.class)
-                .saveDiscoveryWellDetails(submissionDetailId, null, null, null)))
+                .saveDiscoveryWellDetails(submissionDetailId, null, null, null, null)))
                 .params(ControllerTestUtils.validationPostParams(validationType))
                 .with(csrf())
                 .with(user(USER)))
         .andExpect(status().isOk());
 
     verify(discoveryWellDetailsFormService, times(1)).validate(
-        any(), any(), eq(validationType), eq(submissionDetail));
+        any(), any(), eq(validationType), eq(submissionDetail), any());
     verify(discoveryWellDetailsPersistenceService, never()).saveDiscoveryWellDetails(any(), any());
   }
 
   @Test
   void getDiscoveryWellDetailsModelAndView_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var form = new DiscoveryWellDetailsForm();
     var preselectedWell = Map.of("well1", "well1");
@@ -182,7 +187,7 @@ class DiscoveryWellDetailsControllerTest extends AbstractSubmissionControllerTes
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)),
             TaskListController.PAGE_NAME)
     );
   }

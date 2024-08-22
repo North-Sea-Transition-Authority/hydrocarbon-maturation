@@ -11,16 +11,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsExtantProject;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectDetailsSummaryService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}/project-tracker/{projectId}/delete")
-@HasPermission(permissions = RolePermission.PROJECT_ANALYST)
+@HasAnyRole(role = Role.PROJECT_ANALYST, teamType = TeamType.REGULATOR)
 @IsExtantProject
 class DeleteProjectController {
   public static final String DELETE_CONFIRMATION_TITLE = "Are you sure you want to delete this project?";
@@ -40,10 +42,11 @@ class DeleteProjectController {
 
   @GetMapping
   public ModelAndView getDeleteProjectConfirmation(@PathVariable("resourceId") UUID resourceId,
-                                                   @PathVariable("projectId") UUID projectId) {
+                                                   @PathVariable("projectId") UUID projectId,
+                                                   User user) {
     var project = projectTrackerControllerService.getProjectForResourceOrThrow(resourceId, projectId);
 
-    var summaryCard = projectDetailsSummaryService.getProjectSummaryCard(project);
+    var summaryCard = projectDetailsSummaryService.getProjectSummaryCard(project, user);
 
     return new ModelAndView("remi/field/projecttracker/deleteProjectConfirmation")
         .addObject("pageTitle", DELETE_CONFIRMATION_TITLE)

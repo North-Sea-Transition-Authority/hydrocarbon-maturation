@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
@@ -84,12 +85,13 @@ public class DrillStemTestSummaryController {
   public ModelAndView saveDrillStemTestSummary(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                                @PathVariable("reservoirSubmissionDetailId") UUID reservoirSubmissionDetailId,
                                                @ModelAttribute("form") DrillStemTestSummaryForm form,
-                                               BindingResult bindingResult) {
+                                               BindingResult bindingResult,
+                                               User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var reservoirSubmissionDetail = reservoirSubmissionDetailPersistenceService
         .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
 
-    bindingResult = drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
+    bindingResult = drillStemTestFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail, user);
 
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
@@ -112,7 +114,7 @@ public class DrillStemTestSummaryController {
         .addObject("form", form)
         .addObject("actionUrl",
             ReverseRouter.route(on(DrillStemTestController.class)
-                .saveDrillStemTestDetails(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null, null)))
+                .saveDrillStemTestDetails(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null, null, null)))
         .addObject("drillStemTestSummaryOptions",
             DisplayableEnumOptionUtil.getDisplayableOptions(DrillStemTestSummaryOptions.class))
         .addObject("drillStemTestResultSummaryList", drillStemTestResultsSummaryService

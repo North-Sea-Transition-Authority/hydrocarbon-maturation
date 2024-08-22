@@ -12,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.complexity.ComplexityUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
@@ -29,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.Undevelop
 
 @ExtendWith(MockitoExtension.class)
 class UndevelopedDiscoveryInformationSummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private UndevelopedDiscoveryInformationService informationService;
@@ -48,7 +51,7 @@ class UndevelopedDiscoveryInformationSummaryServiceTest {
     when(informationService.getOrderedDiscoveryInformation(undevelopedDiscovery))
         .thenReturn(List.of(undevelopedDiscoveryInformation));
 
-    var summarySection = informationSummaryService.getSummarySection(undevelopedDiscovery);
+    var summarySection = informationSummaryService.getSummarySection(undevelopedDiscovery, USER);
     assertThat(summarySection)
         .isPresent()
         .get()

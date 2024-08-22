@@ -68,6 +68,7 @@ class SubmissionConfirmationControllerTest extends AbstractSubmissionControllerT
 
   @SecurityTest
   void showSubmissionConfirmation_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(
             get(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId)))
                 .with(user(USER)))
@@ -86,6 +87,7 @@ class SubmissionConfirmationControllerTest extends AbstractSubmissionControllerT
 
   @Test
   void getSubmissionConfirmationModelAndView_whenNotAutoApproved_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
@@ -106,6 +108,7 @@ class SubmissionConfirmationControllerTest extends AbstractSubmissionControllerT
 
   @Test
   void getSubmissionConfirmationModelAndView_whenHasBeenAutoApproved_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);

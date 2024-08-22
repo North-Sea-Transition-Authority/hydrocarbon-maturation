@@ -2,8 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,7 +15,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -26,7 +23,6 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.SummaryBehaviour;
@@ -50,13 +46,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchProspectAndDiscoveryRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = DeleteSubmissionFromCorrectionController.class)
 class DeleteSubmissionFromCorrectionControllerTest extends AbstractSubmissionControllerTest {
 
-  private static final Set<RolePermission> VALID_PERMISSIONS = Set.of(
-      RolePermission.EXPLORATION, RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-      RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.ONSHORE_AREA_TEAM_MEMBER);
   private static final String RESOURCE_NAME = "test";
   private static final String SUBMISSION_TYPE_NAME = "submission type name";
 
@@ -90,8 +85,7 @@ class DeleteSubmissionFromCorrectionControllerTest extends AbstractSubmissionCon
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID)).thenReturn(submissionDetail);
-    when(permissionService.hasPermission(user, VALID_PERMISSIONS))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(RESOURCE_NAME);
     when(submissionDetailService.getSubmissionTypeNameLowercaseWithAcronym(submissionDetail)).thenReturn(SUBMISSION_TYPE_NAME);
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail)).thenReturn(SUBMISSION_TYPE_NAME);
@@ -141,7 +135,7 @@ class DeleteSubmissionFromCorrectionControllerTest extends AbstractSubmissionCon
   @SecurityTest
   void showDeleteConfirmationPage_canStartCorrection_assertStatusOk() throws Exception {
     when(correctionService.canStartCorrection(submissionDetail.getSubmission().getResource(), user)).thenReturn(true);
-    setUpWhenUserIsResponsibleTeam_passSecurity(USER, submissionDetail, VALID_PERMISSIONS);
+    setUpWhenUserIsResponsibleTeam_passSecurity(USER, submissionDetail, Role.EXPLORATION, TeamType.REGULATOR);
     mockCreateProspectSubmissionSummaryModelAndView();
     mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionFromCorrectionController.class)
             .showDeleteConfirmationPage(submissionDetail.getId(), null)))
@@ -152,7 +146,7 @@ class DeleteSubmissionFromCorrectionControllerTest extends AbstractSubmissionCon
   @SecurityTest
   void showDeleteConfirmationPage_cantStartCorrection_assertStatusForbidden() throws Exception {
     when(correctionService.canStartCorrection(submissionDetail.getSubmission().getResource(), user)).thenReturn(false);
-    setUpWhenUserIsResponsibleTeam_passSecurity(USER, submissionDetail, VALID_PERMISSIONS);
+    setUpWhenUserIsResponsibleTeam_passSecurity(USER, submissionDetail, Role.EXPLORATION, TeamType.REGULATOR);
     mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionFromCorrectionController.class).showDeleteConfirmationPage(
             submissionDetail.getId(), null)))
             .with(user(USER)))
@@ -161,7 +155,6 @@ class DeleteSubmissionFromCorrectionControllerTest extends AbstractSubmissionCon
 
   @SecurityTest
   void showDeleteConfirmationPage_wrongPermission_assertStatusForbidden() throws Exception {
-    when(permissionService.hasPermission(eq(user), anySet())).thenReturn(false);
     mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionFromCorrectionController.class).showDeleteConfirmationPage(
             submissionDetail.getId(), null)))
             .with(user(USER)))
@@ -170,7 +163,7 @@ class DeleteSubmissionFromCorrectionControllerTest extends AbstractSubmissionCon
 
   @SecurityTest
   void showDeleteConfirmationPage_notAccepted_assertStatusForbidden() throws Exception {
-    setUpWhenUserIsResponsibleTeam_passSecurity(USER, submissionDetail, VALID_PERMISSIONS);
+    setUpWhenUserIsResponsibleTeam_passSecurity(USER, submissionDetail, Role.EXPLORATION, TeamType.REGULATOR);
     submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
     mockMvc.perform(get(ReverseRouter.route(on(DeleteSubmissionFromCorrectionController.class).showDeleteConfirmationPage(
             submissionDetail.getId(), null)))
@@ -214,7 +207,7 @@ class DeleteSubmissionFromCorrectionControllerTest extends AbstractSubmissionCon
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
-            .showSearchResourceRecordsScreen(null))))
+            .showSearchResourceRecordsScreen(null, null))))
         .andReturn().getFlashMap();
 
     verify(correctionService, times(1)).deleteSubmission(submissionDetail, USER);
@@ -238,7 +231,7 @@ class DeleteSubmissionFromCorrectionControllerTest extends AbstractSubmissionCon
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ViewResourceRecordController.class)
-            .showResourceRecord(submissionDetail.getSubmission().getResource().getId()))))
+            .showResourceRecord(submissionDetail.getSubmission().getResource().getId(), null))))
         .andReturn().getFlashMap();
 
     verify(correctionService, times(1)).deleteSubmission(submissionDetail, USER);
@@ -278,7 +271,7 @@ class DeleteSubmissionFromCorrectionControllerTest extends AbstractSubmissionCon
         .addObject("isOffshore", true);
     when(submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(
         submissionDetail,
-        DeleteSubmissionFromCorrectionController.VIEW_NAME
+        DeleteSubmissionFromCorrectionController.VIEW_NAME, USER
     )).thenReturn(modelAndView);
   }
 }

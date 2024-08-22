@@ -40,7 +40,7 @@ class OutlineForMaximumCaseRestControllerTest extends AbstractSubmissionControll
     when(submissionDetailAccessService.canViewSubmissionDetail(submissionDetail, USER)).thenReturn(false);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(OutlineForMaximumCaseRestController.class).getGeoJsonForOutlineForMaximumCase(SUBMISSION_DETAIL_ID)))
+            get(ReverseRouter.route(on(OutlineForMaximumCaseRestController.class).getGeoJsonForOutlineForMaximumCase(SUBMISSION_DETAIL_ID, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -51,7 +51,7 @@ class OutlineForMaximumCaseRestControllerTest extends AbstractSubmissionControll
     when(outlineForMaximumCasePersistenceService.getGeoJsonForOutlineForMaximumCase(submissionDetail)).thenReturn("{}");
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(OutlineForMaximumCaseRestController.class).getGeoJsonForOutlineForMaximumCase(SUBMISSION_DETAIL_ID)))
+            get(ReverseRouter.route(on(OutlineForMaximumCaseRestController.class).getGeoJsonForOutlineForMaximumCase(SUBMISSION_DETAIL_ID, null)))
                 .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))

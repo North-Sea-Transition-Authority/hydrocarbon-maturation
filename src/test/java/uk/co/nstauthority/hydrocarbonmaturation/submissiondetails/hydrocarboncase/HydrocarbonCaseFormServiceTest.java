@@ -16,12 +16,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class HydrocarbonCaseFormServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   private static HydrocarbonCaseFormValidator hydrocarbonCaseFormValidator;
   private static HydrocarbonCaseFormService hydrocarbonCaseFormService;
@@ -48,7 +51,7 @@ class HydrocarbonCaseFormServiceTest {
 
     var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
 
-    hydrocarbonCaseFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
+    hydrocarbonCaseFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail, USER);
     verify(hydrocarbonCaseFormValidator, times(1))
         .validate(eq(form), eq(bindingResult), captor.capture());
 

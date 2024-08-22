@@ -57,7 +57,7 @@ class FeedbackControllerTest extends AbstractControllerTest {
     assertThat(modelMap)
         .contains(
             entry("actionUrl", ReverseRouter.route(on(FeedbackController.class)
-                    .submitFeedback(null, null, null))),
+                    .submitFeedback(null, null, null, null))),
             entry("serviceRatings", DisplayableEnumOptionUtil.getDisplayableOptions(ServiceFeedbackRating.class)),
             entry("cancelUrl", ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)))
         );

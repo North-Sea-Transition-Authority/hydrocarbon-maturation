@@ -14,12 +14,11 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -28,14 +27,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionReso
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchProspectAndDiscoveryRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Controller
 @RequestMapping("/correction/{submissionDetailId}/delete-submission")
-@HasPermission(permissions = {
-    RolePermission.EXPLORATION,
-    RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.ONSHORE_AREA_TEAM_MEMBER})
+@HasAnyRole(role = Role.EXPLORATION, teamType = TeamType.REGULATOR)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.NORTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.SOUTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.ONSHORE_AREA)
 @HasSubmissionStatus(statuses = SubmissionDetailStatus.ACCEPTED)
 public class DeleteSubmissionFromCorrectionController {
 
@@ -73,7 +73,8 @@ public class DeleteSubmissionFromCorrectionController {
     var pageName = getPageName(submissionDetail);
     var modelAndView = submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(
         submissionDetail,
-        VIEW_NAME
+        VIEW_NAME,
+        user
     );
     modelAndView
         .addObject("pageName", pageName)
@@ -101,10 +102,10 @@ public class DeleteSubmissionFromCorrectionController {
 
     if (submissionDetail.isInitialResourceSubmission()) {
       return ReverseRouter.redirect(on(SearchProspectAndDiscoveryRecordsController.class)
-          .showSearchResourceRecordsScreen(null));
+          .showSearchResourceRecordsScreen(null, null));
     } else {
       return ReverseRouter.redirect(on(ViewResourceRecordController.class)
-          .showResourceRecord(submissionDetail.getSubmission().getResource().getId()));
+          .showResourceRecord(submissionDetail.getSubmission().getResource().getId(), null));
     }
   }
 

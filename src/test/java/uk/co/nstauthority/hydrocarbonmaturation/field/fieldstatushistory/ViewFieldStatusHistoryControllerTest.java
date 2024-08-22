@@ -31,6 +31,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchFieldRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = ViewFieldStatusHistoryController.class)
@@ -55,7 +57,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
 
   @SecurityTest
   void getViewFieldStatusHistory_whenRegulator_assertOk() throws Exception {
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     when(resourceService.getResourceById(resource.getId()))
         .thenReturn(Optional.of(resource));
     when(fieldPersistenceService.getFieldOrThrow(field.getFieldIdentifier()))
@@ -69,7 +71,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
 
   @SecurityTest
   void getViewFieldStatusHistoryWithSubmissionDetail_whenRegulator_assertOk() throws Exception {
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     when(resourceService.getResourceById(resource.getId()))
         .thenReturn(Optional.of(resource));
     when(fieldPersistenceService.getFieldOrThrow(field.getFieldIdentifier()))
@@ -101,7 +103,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
 
   @Test
   void getViewFieldStatusHistory_whenFieldDoesNotExist_assertThrowsRemiEntityNotFound() {
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     when(resourceService.getResourceById(resource.getId()))
         .thenReturn(Optional.of(resource));
     when(fieldPersistenceService.getFieldOrThrow(field.getFieldIdentifier()))
@@ -117,7 +119,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
 
   @Test
   void getViewFieldStatusHistoryWithSubmissionDetail_whenFieldDoesNotExist_assertThrowsRemiEntityNotFound() {
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     when(resourceService.getResourceById(resource.getId()))
         .thenReturn(Optional.of(resource));
     when(fieldPersistenceService.getFieldOrThrow(field.getFieldIdentifier()))
@@ -133,7 +135,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
 
   @Test
   void getViewFieldStatusHistoryWithSubmissionDetail_whenSubmissionDetailDoesNotExist_assertThrowsEntityNotFound() {
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     when(resourceService.getResourceById(resource.getId()))
         .thenReturn(Optional.of(resource));
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
@@ -154,7 +156,8 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
     when(fieldPersistenceService.getFieldOrThrow(field.getFieldIdentifier()))
         .thenReturn(field);
 
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     var fieldStatusHistoryViews = List.of(
         new FieldStatusHistoryDto("/remove", FieldStatus.STATUS_200.getDisplayName(), "29th January 2024"),
         new FieldStatusHistoryDto("/remove", FieldStatus.STATUS_300.getDisplayName(), "30th January 2024")
@@ -165,7 +168,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
     var canRemoveFieldStatus = true; // because user is project analyst and there is more than one field status history
 
     var isProjectAnalyst = true;
-    when(regulatorTeamService.isProjectAnalyst(USER)).thenReturn(isProjectAnalyst);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(isProjectAnalyst);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
                 get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class).getViewFieldStatusHistory(field.getFieldIdentifier(), null)))
@@ -196,7 +199,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
     when(fieldPersistenceService.getFieldOrThrow(field.getFieldIdentifier()))
         .thenReturn(field);
 
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     var fieldStatusHistoryViews = List.of(
         new FieldStatusHistoryDto("/remove", FieldStatus.STATUS_200.getDisplayName(), "29th January 2024")
     );
@@ -206,7 +209,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
         .thenReturn(fieldStatusHistoryViews);
 
     var isProjectAnalyst = true;
-    when(regulatorTeamService.isProjectAnalyst(USER)).thenReturn(isProjectAnalyst);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(isProjectAnalyst);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
                 get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class).getViewFieldStatusHistory(field.getFieldIdentifier(), null)))
@@ -237,13 +240,13 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
     when(fieldPersistenceService.getFieldOrThrow(field.getFieldIdentifier()))
         .thenReturn(field);
 
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     var fieldStatusHistoryViews = List.of(new FieldStatusHistoryDto("/remove", FieldStatus.STATUS_200.getDisplayName(), "29th January 2024"));
     when(viewFieldStatusHistoryService.getFieldStatusHistoryViews(field))
         .thenReturn(fieldStatusHistoryViews);
 
     var isProjectAnalyst = false;
-    when(regulatorTeamService.isProjectAnalyst(USER)).thenReturn(isProjectAnalyst);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(isProjectAnalyst);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
                 get(ReverseRouter.route(on(ViewFieldStatusHistoryController.class).getViewFieldStatusHistory(field.getFieldIdentifier(), null)))
@@ -270,7 +273,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
     when(fieldPersistenceService.getFieldOrThrow(field.getFieldIdentifier()))
         .thenReturn(field);
 
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     var fieldStatusHistoryViews = List.of(new FieldStatusHistoryDto("/remove", FieldStatus.STATUS_200.getDisplayName(), "29th January 2024"));
     when(viewFieldStatusHistoryService.getFieldStatusHistoryViews(field))
         .thenReturn(fieldStatusHistoryViews);
@@ -300,7 +303,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
     when(fieldPersistenceService.getFieldOrThrow(field.getFieldIdentifier()))
         .thenReturn(field);
 
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     var fieldStatusHistoryViews = List.of(new FieldStatusHistoryDto("/remove", FieldStatus.STATUS_200.getDisplayName(), "29th January 2024"));
     when(viewFieldStatusHistoryService.getFieldStatusHistoryViews(field))
         .thenReturn(fieldStatusHistoryViews);
@@ -323,7 +326,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
                 SearchFieldRecordsController.PAGE_TITLE
             ),
             entry(
-                ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(field.getResource().getId())),
+                ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(field.getResource().getId(), null)),
                 field.getCorrectedLegalFieldName()
             )
         );
@@ -336,7 +339,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
     when(fieldPersistenceService.getFieldOrThrow(field.getFieldIdentifier()))
         .thenReturn(field);
 
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     var fieldStatusHistoryViews = List.of(new FieldStatusHistoryDto("/remove", FieldStatus.STATUS_200.getDisplayName(), "29th January 2024"));
     when(viewFieldStatusHistoryService.getFieldStatusHistoryViews(field))
         .thenReturn(fieldStatusHistoryViews);
@@ -360,7 +363,7 @@ class ViewFieldStatusHistoryControllerTest extends AbstractSubmissionControllerT
                 WorkAreaController.WORK_AREA_TITLE
             ),
             entry(
-                ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(field.getResource().getId())),
+                ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(field.getResource().getId(), null)),
                 field.getCorrectedLegalFieldName()
             )
         );

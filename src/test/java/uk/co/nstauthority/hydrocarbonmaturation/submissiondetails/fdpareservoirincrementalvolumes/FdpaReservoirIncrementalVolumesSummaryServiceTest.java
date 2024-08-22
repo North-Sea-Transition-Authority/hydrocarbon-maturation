@@ -13,6 +13,8 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
@@ -29,8 +31,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 @ExtendWith(MockitoExtension.class)
 class FdpaReservoirIncrementalVolumesSummaryServiceTest {
 
-  static final String COMMENT = "SOME COMMENT";
-  static final ProbabilityDistributionTableView TABLE_VIEW = ProbabilityDistributionTableView.empty();
+  private static final User USER = UserTestUtil.Builder().build();
+  private static final String COMMENT = "SOME COMMENT";
+  private static final ProbabilityDistributionTableView TABLE_VIEW = ProbabilityDistributionTableView.empty();
 
   @Mock
   private ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
@@ -58,7 +61,7 @@ class FdpaReservoirIncrementalVolumesSummaryServiceTest {
     reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
         submissionType);
 
-    assertThat(summaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(summaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isEmpty();
   }
 
@@ -77,7 +80,7 @@ class FdpaReservoirIncrementalVolumesSummaryServiceTest {
         reservoirSubmissionDetail.getSubmissionDetail(), reservoirSubmissionDetail))
         .thenReturn(TABLE_VIEW);
 
-    var summarySection = summaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = summaryService.getSummarySection(reservoirSubmissionDetail, USER);
     assertThat(summarySection)
         .isNotEmpty()
         .get()
@@ -148,7 +151,7 @@ class FdpaReservoirIncrementalVolumesSummaryServiceTest {
         reservoirSubmissionDetail.getSubmissionDetail(), reservoirSubmissionDetail))
         .thenReturn(TABLE_VIEW);
 
-    var summarySection = summaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = summaryService.getSummarySection(reservoirSubmissionDetail, USER);
     assertThat(summarySection)
         .isNotEmpty()
         .get()
@@ -222,7 +225,7 @@ class FdpaReservoirIncrementalVolumesSummaryServiceTest {
         reservoirSubmissionDetail.getSubmissionDetail(), reservoirSubmissionDetail))
         .thenReturn(TABLE_VIEW);
 
-    var summarySection = summaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = summaryService.getSummarySection(reservoirSubmissionDetail, USER);
     assertThat(summarySection)
         .isNotEmpty()
         .get()
@@ -289,7 +292,7 @@ class FdpaReservoirIncrementalVolumesSummaryServiceTest {
     when(incrementalVolumesRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(Optional.of(incrementalVolume));
 
-    var summarySection = summaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = summaryService.getSummarySection(reservoirSubmissionDetail, USER);
     assertThat(summarySection)
         .isNotEmpty()
         .get()

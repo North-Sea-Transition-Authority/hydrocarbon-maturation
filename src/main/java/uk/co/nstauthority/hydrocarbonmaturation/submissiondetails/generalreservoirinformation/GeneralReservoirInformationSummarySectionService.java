@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -29,7 +30,7 @@ public class GeneralReservoirInformationSummarySectionService implements Summary
   }
 
   @Override
-  public Optional<SummarySection> getSummarySection(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+  public Optional<SummarySection> getSummarySection(ReservoirSubmissionDetail reservoirSubmissionDetail, User user) {
     var summaryItems = List.of(getGeneralInformationSummary(reservoirSubmissionDetail));
     return Optional.of(new SummarySection(GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER, summaryItems, ""));
   }

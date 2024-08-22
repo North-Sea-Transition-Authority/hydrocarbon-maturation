@@ -15,6 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -28,6 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 
 @ExtendWith(MockitoExtension.class)
 class DrillStemTestResultsSummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private DrillStemTestResultPersistenceService drillStemTestResultPersistenceService;
@@ -216,7 +219,7 @@ class DrillStemTestResultsSummaryServiceTest {
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(List.of());
 
-    assertThat(drillStemTestResultsSummaryService.getSummarySection(reservoirSubmissionDetail))
+    assertThat(drillStemTestResultsSummaryService.getSummarySection(reservoirSubmissionDetail, USER))
         .isEmpty();
   }
 
@@ -238,7 +241,7 @@ class DrillStemTestResultsSummaryServiceTest {
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(List.of(drillStemTestResult));
 
-    var summarySectionOptional = drillStemTestResultsSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySectionOptional = drillStemTestResultsSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
     assertThat(summarySectionOptional)
         .isPresent()
         .get()
@@ -336,7 +339,7 @@ class DrillStemTestResultsSummaryServiceTest {
     when(drillStemTestResultPersistenceService.getDrillStemTestResultsByReservoirSubmissionDetail(reservoirSubmissionDetail))
         .thenReturn(List.of(drillStemTestResult1, drillStemTestResult2));
 
-    var summarySectionOptional = drillStemTestResultsSummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySectionOptional = drillStemTestResultsSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
     assertThat(summarySectionOptional)
         .isPresent()
         .get()

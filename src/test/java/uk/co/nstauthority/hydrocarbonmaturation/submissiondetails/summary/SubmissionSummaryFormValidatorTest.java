@@ -12,14 +12,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.InternalTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class SubmissionSummaryFormValidatorTest {
+
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private InternalTeamService internalTeamService;
@@ -43,9 +46,9 @@ class SubmissionSummaryFormValidatorTest {
     var form = new SubmissionSummaryForm();
     form.setCompleteWithoutMandatoryInformation(true);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    when(internalTeamService.isRegulatorOrAreaTeamUser()).thenReturn(true);
-    when(submissionReadyService.isSubmissionSubmittable(submissionDetail)).thenReturn(true);
-    submissionSummaryFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
+    when(submissionReadyService.isSubmissionSubmittable(submissionDetail, USER)).thenReturn(true);
+    submissionSummaryFormValidator.isValid(bindingResult, submissionDetail, USER);
 
     assertThat(bindingResult.hasErrors()).isFalse();
   }
@@ -54,9 +57,9 @@ class SubmissionSummaryFormValidatorTest {
   void validate_whenNotRegulator_whenSubmittable_noErrors() {
     var form = new SubmissionSummaryForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    when(internalTeamService.isRegulatorOrAreaTeamUser()).thenReturn(false);
-    when(submissionReadyService.isSubmissionSubmittable(submissionDetail)).thenReturn(true);
-    submissionSummaryFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
+    when(submissionReadyService.isSubmissionSubmittable(submissionDetail, USER)).thenReturn(true);
+    submissionSummaryFormValidator.isValid(bindingResult, submissionDetail, USER);
 
     assertThat(bindingResult.hasErrors()).isFalse();
   }
@@ -65,9 +68,9 @@ class SubmissionSummaryFormValidatorTest {
   void validate_whenNotChecked_whenRegulator_notSubmittable() {
     var form = new SubmissionSummaryForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    when(internalTeamService.isRegulatorOrAreaTeamUser()).thenReturn(true);
-    when(submissionReadyService.isSubmissionSubmittable(submissionDetail)).thenReturn(false);
-    submissionSummaryFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
+    when(submissionReadyService.isSubmissionSubmittable(submissionDetail, USER)).thenReturn(false);
+    submissionSummaryFormValidator.isValid(bindingResult, submissionDetail, USER);
 
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
 

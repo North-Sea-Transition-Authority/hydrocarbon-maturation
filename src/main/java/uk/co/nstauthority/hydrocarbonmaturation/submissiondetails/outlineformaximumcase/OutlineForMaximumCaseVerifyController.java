@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
@@ -72,17 +73,19 @@ public class OutlineForMaximumCaseVerifyController {
   @PostMapping
   public ModelAndView saveOutlineForMaximumCaseUpload(@PathVariable("submissionDetailId") UUID submissionDetailId,
                                                       @ModelAttribute("form") OutlineForMaximumCaseVerifyForm form,
-                                                      BindingResult bindingResult) {
+                                                      BindingResult bindingResult,
+                                                      User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
 
-    bindingResult = outlineForMaximumCaseVerifyFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
+    bindingResult = outlineForMaximumCaseVerifyFormService.validate(
+        form, bindingResult, ValidationType.FULL, submissionDetail, user);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getOutlineForMaximumCaseModelAndView(form, submissionDetail),
         () -> {
           outlineForMaximumCasePersistenceService.saveOutlineForMaximumCaseVerifyForm(submissionDetail, form);
 
           if (outlineForMaximumCaseVerifyFormService.getShapeIsCorrect(form)) {
-            return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+            return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
           }
 
           outlineForMaximumCasePersistenceService.deleteOutlineForMaximumCase(submissionDetail);
@@ -99,7 +102,7 @@ public class OutlineForMaximumCaseVerifyController {
         .addObject("form", form)
         .addObject("cancelUrl",
             ReverseRouter.route(on(TaskListController.class)
-                .getTaskList(submissionDetail.getId())))
+                .getTaskList(submissionDetail.getId(), null)))
         .addObject("geoJsonDataUrl", outlineForMaximumCaseMapService.getMapGeoJsonDataRoute(submissionDetail))
         .addObject("dataMapAttributions", outlineForMaximumCaseMapService.getMapAttributions());
 

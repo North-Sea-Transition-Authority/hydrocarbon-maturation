@@ -21,16 +21,14 @@ import uk.co.fivium.energyportalapi.client.organisation.OrganisationApi;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 
 @ExtendWith(MockitoExtension.class)
 class OrganisationUnitQueryServiceTest {
@@ -48,21 +46,16 @@ class OrganisationUnitQueryServiceTest {
   private static OrganisationApi organisationApi;
 
   @Mock
-  private UserService userService;
-
-  @Mock
   private IndustryTeamService industryTeamService;
-
-  @Mock
-  private RegulatorTeamService regulatorTeamService;
 
   @Mock
   private OrganisationGroupQueryService organisationGroupQueryService;
 
   @Mock
   private SearchSelectorService searchSelectorService;
+
   @Mock
-  private AreaTeamService areaTeamService;
+  private InternalTeamService internalTeamService;
 
   private OrganisationUnitQueryService organisationUnitQueryService;
 
@@ -72,40 +65,36 @@ class OrganisationUnitQueryServiceTest {
     organisationUnitQueryService = new OrganisationUnitQueryService(
         organisationApi,
         new EnergyPortalApiWrapper(serviceConfigurationProperties, queryCounter),
-        userService,
-        industryTeamService,
-        regulatorTeamService,
         organisationGroupQueryService,
         searchSelectorService,
-        areaTeamService
+        internalTeamService,
+        industryTeamService
     );
   }
 
   @Test
   void getOrganisationUnits_whenNotRegulator_whenNoOrganisationsFound() {
     var organisationName = "name";
-    when(userService.getUser()).thenReturn(USER);
     when(industryTeamService.getOrganisationGroupIdsForUser(USER))
         .thenReturn(List.of());
-    when(regulatorTeamService.isRegulatorUser(USER))
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER))
         .thenReturn(false);
 
-    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName))
+    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName, USER))
         .isEmpty();
   }
 
   @Test
   void getOrganisationUnits_whenNotRegulator_whenInTeam_whenNoOrganisationUnitsFound() {
     var organisationName = "name";
-    when(userService.getUser()).thenReturn(USER);
     when(industryTeamService.getOrganisationGroupIdsForUser(USER))
         .thenReturn(List.of(1,2));
-    when(regulatorTeamService.isRegulatorUser(USER))
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER))
         .thenReturn(false);
     when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(1,2)))
         .thenReturn(List.of());
 
-    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName))
+    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName, USER))
         .isEmpty();
   }
 
@@ -114,8 +103,7 @@ class OrganisationUnitQueryServiceTest {
     var organisationName = "name";
     var organisationUnit = OrganisationUnitTestUtil.Builder().build();
     var filter = OrganisationUnitQueryService.ORGANISATION_UNITS_PROJECTION_ROOT;
-    when(userService.getUser()).thenReturn(USER);
-    when(regulatorTeamService.isRegulatorUser(USER))
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER))
         .thenReturn(true);
     when(organisationApi.searchOrganisationUnits(
         eq(organisationName),
@@ -124,7 +112,7 @@ class OrganisationUnitQueryServiceTest {
         any()
     )).thenReturn(List.of(organisationUnit));
 
-    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName))
+    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName, USER))
         .extracting(
             OrganisationUnitDto::organisationUnitId,
             OrganisationUnitDto::organisationUnitName,
@@ -158,8 +146,7 @@ class OrganisationUnitQueryServiceTest {
         .build();
 
     var filter = OrganisationUnitQueryService.ORGANISATION_UNITS_PROJECTION_ROOT;
-    when(userService.getUser()).thenReturn(USER);
-    when(regulatorTeamService.isRegulatorUser(USER))
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER))
         .thenReturn(true);
     when(organisationApi.searchOrganisationUnits(
         eq(organisationName),
@@ -168,7 +155,7 @@ class OrganisationUnitQueryServiceTest {
         any()
     )).thenReturn(List.of(organisationUnit, organisationUnit2, organisationUnit3));
 
-    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName))
+    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName, USER))
         .extracting(
             OrganisationUnitDto::organisationUnitId,
             OrganisationUnitDto::organisationUnitName,
@@ -200,15 +187,14 @@ class OrganisationUnitQueryServiceTest {
         .withIsDuplicate(true)
         .build();
     organisationGroup.setOrganisationUnits(List.of(organisationUnit, organisationUnit2));
-    when(userService.getUser()).thenReturn(USER);
     when(industryTeamService.getOrganisationGroupIdsForUser(USER))
         .thenReturn(List.of(1));
-    when(regulatorTeamService.isRegulatorUser(USER))
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER))
         .thenReturn(false);
     when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(1)))
         .thenReturn(List.of(organisationGroup));
 
-    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName))
+    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName, USER))
         .extracting(
             OrganisationUnitDto::organisationUnitId,
             OrganisationUnitDto::organisationUnitName,
@@ -235,15 +221,14 @@ class OrganisationUnitQueryServiceTest {
         .withOrganisationName("name")
         .build();
     organisationGroup.setOrganisationUnits(List.of(organisationUnit));
-    when(userService.getUser()).thenReturn(USER);
     when(industryTeamService.getOrganisationGroupIdsForUser(USER))
         .thenReturn(List.of(1));
-    when(regulatorTeamService.isRegulatorUser(USER))
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER))
         .thenReturn(false);
     when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(1)))
         .thenReturn(List.of(organisationGroup));
 
-    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName))
+    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName, USER))
         .extracting(
             OrganisationUnitDto::organisationUnitId,
             OrganisationUnitDto::organisationUnitName,
@@ -270,15 +255,14 @@ class OrganisationUnitQueryServiceTest {
         .withOrganisationName("wrong")
         .build();
     organisationGroup.setOrganisationUnits(List.of(organisationUnit));
-    when(userService.getUser()).thenReturn(USER);
     when(industryTeamService.getOrganisationGroupIdsForUser(USER))
         .thenReturn(List.of(1));
-    when(regulatorTeamService.isRegulatorUser(USER))
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER))
         .thenReturn(false);
     when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(1)))
         .thenReturn(List.of(organisationGroup));
 
-    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName))
+    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName, USER))
         .isEmpty();
   }
 

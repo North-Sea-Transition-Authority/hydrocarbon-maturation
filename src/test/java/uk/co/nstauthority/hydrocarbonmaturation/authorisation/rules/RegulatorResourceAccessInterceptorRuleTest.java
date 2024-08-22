@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.authorisation.rules;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -11,14 +10,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
 class RegulatorResourceAccessInterceptorRuleTest {
@@ -27,7 +27,7 @@ class RegulatorResourceAccessInterceptorRuleTest {
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @Mock
-  private PermissionService permissionService;
+  private TeamQueryService teamQueryService;
 
   @InjectMocks
   private RegulatorResourceAccessInterceptorRule regulatorTeamMembershipInterceptorRule;
@@ -41,7 +41,7 @@ class RegulatorResourceAccessInterceptorRuleTest {
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(submissionDetail
         .getSubmission().getResource()))
         .thenReturn(regulatorManagedInformation);
-    when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
+    when(teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
         .thenReturn(true);
 
     var securityRuleResult = regulatorTeamMembershipInterceptorRule
@@ -96,7 +96,7 @@ class RegulatorResourceAccessInterceptorRuleTest {
     when(regulatorManagedInformationPersistenceService
         .getRegulatorManagedInformationByResourceOrThrow(submissionDetail.getSubmission().getResource()))
         .thenReturn(regulatorManagedInformation);
-    when(permissionService.hasPermission(user, Set.of(RolePermission.EXPLORATION)))
+    when(teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
         .thenReturn(true);
 
     var securityRuleResult = regulatorTeamMembershipInterceptorRule

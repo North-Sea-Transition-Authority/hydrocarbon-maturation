@@ -20,7 +20,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.util.NotificationBannerTe
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,6 @@ import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
@@ -43,13 +41,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectStat
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectTrackerControllerService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ViewProjectController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = EnvironmentalActivityController.class)
 class EnvironmentalActivityControllerTest extends AbstractControllerTest {
-  @MockBean
-  private PermissionService permissionService;
   @MockBean
   private ProjectTrackerControllerService projectTrackerControllerService;
   @MockBean
@@ -100,8 +97,7 @@ class EnvironmentalActivityControllerTest extends AbstractControllerTest {
   void getEnvironmentalActivity_andProjectIsNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     when(projectService.getProjectOrThrow(PROJECT_ID))
         .thenReturn(project);
 
@@ -121,8 +117,7 @@ class EnvironmentalActivityControllerTest extends AbstractControllerTest {
   void saveEnvironmentalActivity_andProjectIsNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     when(projectService.getProjectOrThrow(PROJECT_ID))
         .thenReturn(project);
 
@@ -136,8 +131,7 @@ class EnvironmentalActivityControllerTest extends AbstractControllerTest {
 
   @Test
   void getEnvironmentalActivity_whenProjectDoesNotMatchResource_thenNotFound() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenThrow(RemiEntityNotFoundException.class);
 
@@ -150,8 +144,7 @@ class EnvironmentalActivityControllerTest extends AbstractControllerTest {
 
   @Test
   void saveEnvironmentalActivity_whenProjectDoesNotMatchResource_thenNotFound() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenThrow(RemiEntityNotFoundException.class);
 
@@ -165,8 +158,7 @@ class EnvironmentalActivityControllerTest extends AbstractControllerTest {
 
   @Test
   void getEnvironmentalActivity_whenProjectExistsAndIsProjectAnalyst_assertProperties() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 
@@ -198,8 +190,7 @@ class EnvironmentalActivityControllerTest extends AbstractControllerTest {
 
   @Test
   void saveEnvironmentalActivity_whenValidForm_assertRedirection() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 
@@ -228,8 +219,7 @@ class EnvironmentalActivityControllerTest extends AbstractControllerTest {
 
   @Test
   void saveEnvironmentalActivity_whenInvalidForm_assertProperties() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 

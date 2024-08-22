@@ -17,24 +17,25 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.Objects;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSelectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSelectValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.field.NewSubmissionFromFieldService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = NewConceptSelectReportController.class)
 class NewConceptSelectReportControllerTest extends AbstractSubmissionControllerTest {
@@ -47,20 +48,15 @@ class NewConceptSelectReportControllerTest extends AbstractSubmissionControllerT
 
   @BeforeEach
   void setUp() {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(true);
   }
 
   @SecurityTest
   void getNewCsrPage_whenNoPermission_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(false);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(NewConceptSelectReportController.class).getNewCsrPage(null)))
@@ -82,7 +78,7 @@ class NewConceptSelectReportControllerTest extends AbstractSubmissionControllerT
     assertThat(modelMap)
         .contains(
             entry("actionUrl",
-                ReverseRouter.route(on(NewConceptSelectReportController.class).createNewCsr(null, null))),
+                ReverseRouter.route(on(NewConceptSelectReportController.class).createNewCsr(null, null, null))),
             entry("backLinkUrl", ReverseRouter.route(on(StartConceptSelectReportController.class).getStartPage())),
             entry("fieldApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class).searchFields(null, SubmissionType.CREATE_CSR, null)))
         );
@@ -94,30 +90,30 @@ class NewConceptSelectReportControllerTest extends AbstractSubmissionControllerT
 
     mockMvc.perform(
             post(ReverseRouter.route(on(NewConceptSelectReportController.class)
-                .createNewCsr(null, null)))
+                .createNewCsr(null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(newSubmissionFromFieldService, never()).createSubmissionFromField(any(FieldSelectForm.class), any(SubmissionType.class));
+    verify(newSubmissionFromFieldService, never()).createSubmissionFromField(any(FieldSelectForm.class), any(SubmissionType.class), any(User.class));
   }
 
   @Test
   void createdNewCsr_whenValidForm_assertSaveAndRedirect() throws Exception {
     when(fieldSelectValidator.isValid(any(BindingResult.class))).thenReturn(true);
     var submissionDetail = new SubmissionDetail();
-    when(newSubmissionFromFieldService.createSubmissionFromField(any(FieldSelectForm.class), eq(SubmissionType.CREATE_CSR)))
+    when(newSubmissionFromFieldService.createSubmissionFromField(any(FieldSelectForm.class), eq(SubmissionType.CREATE_CSR), eq(USER)))
         .thenReturn(submissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(NewConceptSelectReportController.class)
-                .createNewCsr(null, null)))
+                .createNewCsr(null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId()))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId(), null))));
 
     verify(newSubmissionFromFieldService, times(1))
-        .createSubmissionFromField(any(FieldSelectForm.class), eq(SubmissionType.CREATE_CSR));
+        .createSubmissionFromField(any(FieldSelectForm.class), eq(SubmissionType.CREATE_CSR), eq(USER));
   }
 }

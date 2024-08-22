@@ -46,7 +46,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetail
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = PostDrillDryWellSubmissionSummaryController.class)
@@ -104,11 +103,12 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
 
   @SecurityTest
   void showSubmissionSummary_whenNotPostDrill_assertStatusForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     mockMvc.perform(
             get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
-                .showSubmissionSummary(submissionDetailId)))
+                .showSubmissionSummary(submissionDetailId, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -120,7 +120,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(
         get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
-            .showSubmissionSummary(submissionDetailId)))
+            .showSubmissionSummary(submissionDetailId, null)))
             .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name(VIEW_NAME));
@@ -128,11 +128,12 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
 
   @SecurityTest
   void showSubmissionSummary_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
-                .showSubmissionSummary(submissionDetailId)))
+                .showSubmissionSummary(submissionDetailId, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -143,64 +144,65 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
 
     mockMvc.perform(
             get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
-                .showSubmissionSummary(submissionDetailId)))
+                .showSubmissionSummary(submissionDetailId, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
   @Test
   void processSubmission_whenInvalidForm_assertOk() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(SubmissionSummaryForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(submissionSummaryFormValidator.isValid(
-        any(SubmissionSummaryForm.class),
         any(Errors.class),
         eq(submissionDetail),
-        eq(ValidationType.FULL))
+        eq(USER))
     ).thenReturn(false);
 
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
+            post(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class).processSubmission(submissionDetailId, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(submissionApprovalService, never()).submitSubmission(any());
+    verify(submissionApprovalService, never()).submitSubmission(any(), any());
   }
 
   @Test
   void processSubmission_assertRedirection() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(submissionSummaryFormValidator.isValid(
-        any(SubmissionSummaryForm.class),
         any(Errors.class),
         eq(submissionDetail),
-        eq(ValidationType.FULL))
+        eq(USER))
     ).thenReturn(true);
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
     mockMvc.perform(
-        post(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
+        post(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class).processSubmission(submissionDetailId, null, null, null)))
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId))));
 
-    verify(submissionApprovalService, times(1)).submitSubmission(submissionDetail);
+    verify(submissionApprovalService, times(1)).submitSubmission(submissionDetail, USER);
   }
 
   @Test
   void getSubmissionSummaryModelAndView_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(submissionReadyService.isSubmissionSubmittable(submissionDetail)).thenReturn(true);
+    when(submissionReadyService.isSubmissionSubmittable(submissionDetail, USER)).thenReturn(true);
     mockCreatePostDrillDryWellSubmissionSummaryModelAndView();
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
         get(ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class)
-            .showSubmissionSummary(submissionDetailId)))
+            .showSubmissionSummary(submissionDetailId, null)))
             .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -208,7 +210,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
     assertThat(modelMap)
         .contains(
             entry("pageName", PAGE_NAME),
-            entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))),
+            entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))),
             entry("submittable", true),
             entry("isRegulatorOrAreaTeamUser", false),
             entry("dryWellDetailsSummaryView", dryWellDetailsSummaryView),
@@ -227,7 +229,7 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME));
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME));
   }
 
   private void mockCreatePostDrillDryWellSubmissionSummaryModelAndView() {
@@ -249,6 +251,6 @@ class PostDrillDryWellSubmissionSummaryControllerTest extends AbstractSubmission
         submissionDetail,
         VIEW_NAME)
     ).thenReturn(modelAndView);
-    when(internalTeamService.isRegulatorOrAreaTeamUser()).thenReturn(false);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
   }
 }

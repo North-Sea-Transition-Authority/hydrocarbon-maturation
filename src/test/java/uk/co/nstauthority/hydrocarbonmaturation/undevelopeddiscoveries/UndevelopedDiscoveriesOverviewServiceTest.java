@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -31,7 +32,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.FieldStatusHistory;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.FieldStatusHistoryService;
-import uk.co.nstauthority.hydrocarbonmaturation.notify.RemiAbsoluteUrlUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -44,6 +45,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.Tag;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.TagColour;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ResourceRecordSummaryView;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordService;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformationService;
 
@@ -152,7 +154,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
     // THEN the row has tags
     var expectedDiscoveryValue = new SummaryTableValue(
         resourceName,
-        RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
+        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null)),
         List.of(
             new Tag("Duplicate", TagColour.RED),
             new Tag("%1$s, %1$s".formatted(FieldStatus.STATUS_200.getDisplayName()), TagColour.YELLOW)
@@ -213,7 +215,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
     // THEN there are no tags
     var expectedDiscoveryValue = new SummaryTableValue(
         resourceName,
-        RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
+        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null)),
         List.of()
     );
 
@@ -269,7 +271,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
     var expectedDiscoveryValue = new SummaryTableValue(
         resourceName,
-        RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
+        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null)),
         List.of()
     );
 
@@ -327,7 +329,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
     var expectedDiscoveryValue = new SummaryTableValue(
         resourceName,
-        RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
+        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null)),
         List.of()
     );
 
@@ -386,7 +388,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
     var expectedDiscoveryValue = new SummaryTableValue(
         resourceName,
-        RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
+        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null)),
         List.of()
     );
 
@@ -437,7 +439,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
     var expectedDiscoveryValue = new SummaryTableValue(
         resourceName,
-        RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
+        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null)),
         List.of()
     );
 
@@ -605,7 +607,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
       return new SummaryTableValue(
           resourceName,
-          RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
+          ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null)),
           List.of()
       );
     }
@@ -635,7 +637,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
       return new SummaryTableValue(
           resourceName,
-          RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
+          ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null)),
           List.of()
       );
     }
@@ -768,7 +770,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
     // THEN there is a duplicate tag
     return new SummaryTableValue(
         resourceName,
-        RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
+        ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null)),
         List.of(new Tag("Duplicate", TagColour.RED))
     );
   }

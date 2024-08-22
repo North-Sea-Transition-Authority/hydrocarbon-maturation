@@ -136,6 +136,7 @@ class DiscoveryOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionC
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveOilCaseVolumetricTotals_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(discoveryOilCaseVolumetricTotalsFormValidator.isValid(any(OilCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(true);
 
     mockMvc.perform(
@@ -145,7 +146,7 @@ class DiscoveryOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionC
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
 
     verify(discoveryOilCaseVolumetricTotalsService, times(1)).saveDiscoveryOilCaseVolumetricTotals(any(OilCaseOutputsForm.class), eq(submissionDetail));
   }
@@ -153,6 +154,7 @@ class DiscoveryOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionC
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveOilCaseVolumetricTotals_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(discoveryOilCaseVolumetricTotalsFormValidator.isValid(any(OilCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(false);
@@ -171,6 +173,7 @@ class DiscoveryOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionC
 
   @Test
   void getOilCaseVolumetricTotalsModelAndView_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(discoveryOilCaseVolumetricTotalsService.submissionDetailToForm(submissionDetail)).thenReturn(form);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -185,7 +188,7 @@ class DiscoveryOilCaseVolumetricTotalsControllerTest extends AbstractSubmissionC
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
         );
 
     var contingentUncertaintyCategoryPromptOverrides =

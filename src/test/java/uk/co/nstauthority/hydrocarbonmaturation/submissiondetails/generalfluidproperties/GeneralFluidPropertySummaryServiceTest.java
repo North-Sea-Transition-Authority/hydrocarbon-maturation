@@ -12,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
@@ -22,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryKeyValue;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralFluidPropertySummaryServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private GeneralFluidPropertyPersistenceService generalFluidPropertyPersistenceService;
@@ -107,7 +110,7 @@ class GeneralFluidPropertySummaryServiceTest {
     when(generalFluidPropertyPersistenceService.getGeneralFluidProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
 
-    var summarySection = generalFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = generalFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), GeneralFluidPropertySummaryService.GENERAL_PROPERTIES_DISPLAY_ORDER);
@@ -133,7 +136,7 @@ class GeneralFluidPropertySummaryServiceTest {
     when(generalFluidPropertyPersistenceService.getGeneralFluidProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(generalProperty));
 
-    var summarySection = generalFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = generalFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), GeneralFluidPropertySummaryService.GENERAL_PROPERTIES_DISPLAY_ORDER);
@@ -160,7 +163,7 @@ class GeneralFluidPropertySummaryServiceTest {
     when(generalFluidPropertyPersistenceService.getGeneralFluidProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(generalProperty));
 
-    var summarySection = generalFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = generalFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     var summaryCards = summarySection.get().summaryItems().get(0).summaryCards();
     var summaryData = ((SummaryDataView) summaryCards.get(0).summaryData()).keyValues();
@@ -184,7 +187,7 @@ class GeneralFluidPropertySummaryServiceTest {
     when(generalFluidPropertyPersistenceService.getGeneralFluidProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(generalProperty));
 
-    var summarySection = generalFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = generalFluidPropertySummaryService.getSummarySection(reservoirSubmissionDetail, USER);
 
     var summaryCards = summarySection.get().summaryItems().get(0).summaryCards();
     var summaryData = ((SummaryDataView) summaryCards.get(0).summaryData()).keyValues();

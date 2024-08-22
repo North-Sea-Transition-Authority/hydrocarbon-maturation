@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchItem;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
@@ -19,13 +20,13 @@ public class SearchResourceRecordsQueryService {
     this.resourceRecordQueryServiceFactory = resourceRecordQueryServiceFactory;
   }
 
-  public RestSearchResult searchFields(String searchTerm) {
+  public RestSearchResult searchFields(String searchTerm, User user) {
     var form = new SearchResourceRecordsForm();
     form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
     form.setFieldNameForResourceSubmission(searchTerm);
 
     var results =  searchResourceRecordsService.getResourceRecordSearchResultsDistinctResourceNames(
-        form, resourceRecordQueryServiceFactory.getQueryServiceStrategy());
+        form, resourceRecordQueryServiceFactory.getQueryServiceStrategy(user), user);
 
     List<RestSearchItem> restSearchItems = results.stream()
         .sorted()
@@ -35,13 +36,13 @@ public class SearchResourceRecordsQueryService {
     return new RestSearchResult(restSearchItems);
   }
 
-  public RestSearchResult searchProspectsAndDiscoveries(String searchTerm) {
+  public RestSearchResult searchProspectsAndDiscoveries(String searchTerm, User user) {
     var form = new SearchResourceRecordsForm();
     form.setResourceTypes(List.of(ResourceType.PROSPECT.getEnumName(), ResourceType.DISCOVERY.getEnumName()));
     form.setResourceNameFromResourceDetail(searchTerm);
 
     var results =  searchResourceRecordsService.getResourceRecordSearchResultsDistinctResourceNames(
-        form, resourceRecordQueryServiceFactory.getQueryServiceStrategy());
+        form, resourceRecordQueryServiceFactory.getQueryServiceStrategy(user), user);
 
     List<RestSearchItem> restSearchItems = results.stream()
         .sorted()

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -16,15 +17,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticationUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.energyportal.WebUserAccountId;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamMemberRoleService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamRoleUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.TeamType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.TeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamRole;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -34,22 +28,26 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRole;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.management.TeamManagementService;
 
 @Transactional
 @IntegrationTest
 class TaskListEnforceUniqueValuesTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Autowired
   private List<TaskListSectionService> taskListSectionServices;
 
   @Autowired
-  private UserService userService;
-
-  @Autowired
   private EntityManager entityManager;
 
   @Autowired
-  private TeamMemberRoleService teamMemberRoleService;
+  private TeamManagementService teamManagementService;
 
   @MockBean
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
@@ -67,7 +65,12 @@ class TaskListEnforceUniqueValuesTest {
 
   @BeforeEach
   void setUp() {
-    Set<TeamRole> userRoles = Set.of(RegulatorTeamRole.values());
+    Set<Role> userRoles = Set.of(Role.MANAGE_TEAM,
+        Role.REGULATOR_MANAGE_ALL_ORGANISATIONS,
+        Role.EXPLORATION,
+        Role.VIEW_ANY_RESOURCE,
+        Role.RESERVES_AND_RESOURCES_ADVISOR,
+        Role.PROJECT_ANALYST);
     setUpTest(userRoles);
   }
   @ParameterizedTest
@@ -85,7 +88,7 @@ class TaskListEnforceUniqueValuesTest {
         .thenReturn(reservoirSubmissionDetail);
 
     var taskListSectionItemsList = taskListSectionServices.stream()
-        .map(taskListSectionService -> taskListSectionService.getSection(submissionDetail))
+        .map(taskListSectionService -> taskListSectionService.getSection(submissionDetail, USER))
         .filter(Optional::isPresent)
         .map(Optional::get)
         .toList();
@@ -149,7 +152,7 @@ class TaskListEnforceUniqueValuesTest {
         .thenReturn(reservoirSubmissionDetail);
 
     var sectionItemMap = taskListSectionServices.stream()
-        .map(taskListSectionService -> taskListSectionService.getSection(submissionDetail))
+        .map(taskListSectionService -> taskListSectionService.getSection(submissionDetail, USER))
         .filter(Optional::isPresent)
         .map(Optional::get)
         .collect(
@@ -196,10 +199,10 @@ class TaskListEnforceUniqueValuesTest {
     });
   }
 
-  private void setUpTest(Set<TeamRole> userRoles) {
+  private void setUpTest(Set<Role> userRoles) {
     // Setup user
     var user = UserTestUtil.Builder()
-        .withWuaId(1000L)
+        .withWuaId(USER.wuaId())
         .build();
 
     // Ensure user is treated as currently logged in
@@ -207,17 +210,35 @@ class TaskListEnforceUniqueValuesTest {
         .withUser(user)
         .setSecurityContext();
 
-    // Stub regulator team
-    var team = TeamTestUtil.Builder()
-        .withTeamType(TeamType.REGULATOR)
-        .withId(null)
-        .build();
+    Team team;
 
-    entityManager.persist(team);
-    entityManager.flush();
+    try {
+      team = entityManager.createQuery("SELECT t FROM Team t WHERE t.teamType = :teamType", Team.class)
+          .setParameter("teamType", TeamType.REGULATOR)
+          .getSingleResult();
+    } catch (NoResultException exception) {
+      team = null;
+    }
 
-    // Add user to team with the previously defined roles
-    teamMemberRoleService.updateUserTeamRoles(team, new WebUserAccountId(user.wuaId()),
-        TeamRoleUtil.getRoleNames(userRoles));
+    // Stub team if not already created
+    if (team == null) {
+      team = TeamTestUtil.Builder()
+          .withTeamType(TeamType.REGULATOR)
+          .withId(null)
+          .buildStaticTeam();
+
+      entityManager.persist(team);
+      entityManager.flush();
+    }
+
+    Team finalTeam = team;
+    userRoles.forEach(userRole -> {
+      var teamRole = new TeamRole();
+      teamRole.setRole(userRole);
+      teamRole.setWuaId(user.wuaId());
+      teamRole.setTeam(finalTeam);
+      entityManager.persist(teamRole);
+      entityManager.flush();
+    });
   }
 }

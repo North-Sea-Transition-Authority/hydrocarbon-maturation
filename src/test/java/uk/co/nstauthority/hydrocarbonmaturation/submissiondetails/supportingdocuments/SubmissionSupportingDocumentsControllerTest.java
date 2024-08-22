@@ -25,7 +25,6 @@ import uk.co.fivium.fileuploadlibrary.core.FileService;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.FileDeleteResponse;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.SamlAuthenticationUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUsageType;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileTestUtil;
@@ -44,6 +43,7 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
 
   @Test
   void download() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     var uploadedFile = new UploadedFile();
     when(fileService.find(FILE_ID)).thenReturn(Optional.of(uploadedFile));
@@ -61,6 +61,7 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
 
   @Test
   void download_invalidFileId() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(fileService.find(FILE_ID)).thenReturn(Optional.empty());
     when(supportingDocumentService.getFileNotFoundException(FILE_ID, submissionDetail))
         .thenReturn(new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -73,6 +74,7 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
 
   @Test
   void download_fileNotLinkedToApplication() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     var uploadedFile = new UploadedFile();
     when(fileService.find(FILE_ID)).thenReturn(Optional.of(uploadedFile));
@@ -105,27 +107,21 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
     @SecurityTest
     void whenNotAuthenticated_then403() throws Exception {
       mockMvc.perform(post(
-              ReverseRouter.route(on(CONTROLLER).delete(submissionDetail.getId(), UUID.randomUUID().toString())))
+              ReverseRouter.route(on(CONTROLLER).delete(submissionDetail.getId(), UUID.randomUUID().toString(), null)))
               .with(csrf()))
           .andExpect(status().isUnauthorized());
     }
 
     @Test
     void whenNoFileFound_thenNotFound() throws Exception {
+      setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
       var fileUuid = UUID.randomUUID();
-
-      SamlAuthenticationUtil.Builder()
-          .withUser(USER)
-          .setSecurityContext();
-
-      when(userService.getUser())
-          .thenReturn(USER);
 
       when(fileService.find(fileUuid))
           .thenReturn(Optional.empty());
 
-      mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER).delete(submissionDetail.getId(), fileUuid.toString())))
+      mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER).delete(submissionDetail.getId(), fileUuid.toString(), null)))
               .with(user(USER))
               .with(csrf()))
           .andExpect(status().isNotFound());
@@ -135,17 +131,11 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
 
     @Test
     void whenInvalidUuid_thenNotFound() throws Exception {
+      setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
       var fileId = "invalid uuid";
 
-      SamlAuthenticationUtil.Builder()
-          .withUser(USER)
-          .setSecurityContext();
-
-      when(userService.getUser())
-          .thenReturn(USER);
-
-      mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER).delete(submissionDetail.getId(), fileId)))
+      mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER).delete(submissionDetail.getId(), fileId, null)))
               .with(user(USER))
               .with(csrf()))
           .andExpect(status().isNotFound());
@@ -155,15 +145,9 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
 
     @Test
     void whenUserDidNotUploadFile_thenNotFound() throws Exception {
+      setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
       var fileUuid = UUID.randomUUID();
-
-      SamlAuthenticationUtil.Builder()
-          .withUser(USER)
-          .setSecurityContext();
-
-      when(userService.getUser())
-          .thenReturn(USER);
 
       var uploadedFile = UploadedFileTestUtil.builder()
           .withId(fileUuid)
@@ -176,7 +160,7 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
       when(fileService.find(fileUuid))
           .thenReturn(Optional.of(uploadedFile));
 
-      mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER).delete(submissionDetail.getId(), fileUuid.toString())))
+      mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER).delete(submissionDetail.getId(), fileUuid.toString(), null)))
               .with(user(USER))
               .with(csrf()))
           .andExpect(status().isNotFound());
@@ -186,15 +170,9 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
 
     @Test
     void whenFileHasUsages_andDoesNotBelongsToUser_andDoesNotBelongToSubmissionDetail_thenNotFound() throws Exception {
+      setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
       var fileUuid = UUID.randomUUID();
-
-      SamlAuthenticationUtil.Builder()
-          .withUser(USER)
-          .setSecurityContext();
-
-      when(userService.getUser())
-          .thenReturn(USER);
 
       var uploadedFile = UploadedFileTestUtil.builder()
           .withId(fileUuid)
@@ -207,7 +185,7 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
       when(fileService.find(fileUuid))
           .thenReturn(Optional.of(uploadedFile));
 
-      mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER).delete(submissionDetail.getId(), fileUuid.toString())))
+      mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER).delete(submissionDetail.getId(), fileUuid.toString(), null)))
               .with(user(USER))
               .with(csrf()))
           .andExpect(status().isNotFound());
@@ -217,15 +195,9 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
 
     @Test
     void whenFileHasNoUsages_andBelongsToUser_thenVerifyCalls() throws Exception {
+      setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
       var fileUuid = UUID.randomUUID();
-
-      SamlAuthenticationUtil.Builder()
-          .withUser(USER)
-          .setSecurityContext();
-
-      when(userService.getUser())
-          .thenReturn(USER);
 
       var uploadedFile = UploadedFileTestUtil.builder()
           .withId(fileUuid)
@@ -241,7 +213,7 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
       when(fileService.delete(uploadedFile))
           .thenReturn(FileDeleteResponse.success(fileUuid));
 
-      mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER).delete(submissionDetail.getId(), fileUuid.toString())))
+      mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER).delete(submissionDetail.getId(), fileUuid.toString(), null)))
               .with(user(USER))
               .with(csrf()))
           .andExpect(status().isOk());
@@ -251,15 +223,9 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
 
     @Test
     void whenFileBelongsToSubmissionDetail_thenVerifyCalls() throws Exception {
+      setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
       var fileUuid = UUID.randomUUID();
-
-      SamlAuthenticationUtil.Builder()
-          .withUser(USER)
-          .setSecurityContext();
-
-      when(userService.getUser())
-          .thenReturn(USER);
 
       var uploadedFile = UploadedFileTestUtil.builder()
           .withId(fileUuid)
@@ -274,7 +240,7 @@ class SubmissionSupportingDocumentsControllerTest extends AbstractSubmissionCont
       when(fileService.delete(uploadedFile))
           .thenReturn(FileDeleteResponse.success(fileUuid));
 
-      mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER).delete(submissionDetail.getId(), fileUuid.toString())))
+      mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER).delete(submissionDetail.getId(), fileUuid.toString(), null)))
               .with(user(USER))
               .with(csrf()))
           .andExpect(status().isOk());

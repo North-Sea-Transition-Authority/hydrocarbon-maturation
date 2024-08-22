@@ -18,25 +18,24 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleTestUtil;
 
 @ContextConfiguration(classes = WorkAreaController.class)
 class WorkAreaControllerTest extends AbstractControllerTest {
 
   @MockBean
   private WorkAreaItemService workAreaItemService;
-  @MockBean
-  private PermissionService permissionService;
 
   private static final User USER = UserTestUtil.Builder().build();
 
@@ -58,21 +57,17 @@ class WorkAreaControllerTest extends AbstractControllerTest {
         .andExpect(status().isOk())
         .andExpect(view().name("remi/workarea/workArea"))
         .andExpect(model().attribute("startSubmissionUrl",
-            ReverseRouter.route(on(StartSubmissionController.class).getSubmissionType())))
+            ReverseRouter.route(on(StartSubmissionController.class).getSubmissionType(null))))
         .andExpect(model().attribute("workAreaItems", workAreaItems));
   }
 
-  @Test
-  void getWorkArea_whenHasPermission_assertCanCreateSubmissionsTrue() throws Exception {
+  @ParameterizedTest
+  @EnumSource(value = Role.class, names = {"INDUSTRY_SUBMIT", "EXPLORATION", "MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM"})
+  void getWorkArea_whenHasPermission_assertCanCreateSubmissionsTrue(Role role) throws Exception {
     List<WorkAreaItem> workAreaItems = List.of();
     when(workAreaItemService.getWorkAreaItems(USER)).thenReturn(workAreaItems);
-    when(permissionService.hasPermission(USER, Set.of(
-            RolePermission.EXPLORATION,
-            RolePermission.INDUSTRY_SUBMIT,
-            RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-            RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-            RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(true);
+    var teamRole = TeamRoleTestUtil.Builder().withRole(role).build();
+    when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)))
             .with(user(USER)))
@@ -81,17 +76,14 @@ class WorkAreaControllerTest extends AbstractControllerTest {
         .andExpect(model().attribute("canCreateSubmissions", true));
   }
 
-  @Test
-  void getWorkArea_whenDoesNotHavePermission_assertCanCreateSubmissionsFalse() throws Exception {
+  @ParameterizedTest
+  @EnumSource(value = Role.class, mode = EnumSource.Mode.EXCLUDE, names = {"INDUSTRY_SUBMIT", "EXPLORATION", "MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM"})
+  void getWorkArea_whenDoesNotHavePermission_assertCanCreateSubmissionsFalse(Role role) throws Exception {
     List<WorkAreaItem> workAreaItems = List.of();
     when(workAreaItemService.getWorkAreaItems(USER)).thenReturn(workAreaItems);
-    when(permissionService.hasPermission(USER, Set.of(
-        RolePermission.EXPLORATION,
-        RolePermission.INDUSTRY_SUBMIT,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER)))
-        .thenReturn(false);
+    when(workAreaItemService.getWorkAreaItems(USER)).thenReturn(workAreaItems);
+    var teamRole = TeamRoleTestUtil.Builder().withRole(role).build();
+    when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)))
             .with(user(USER)))
@@ -100,18 +92,18 @@ class WorkAreaControllerTest extends AbstractControllerTest {
         .andExpect(model().attribute("canCreateSubmissions", false));
   }
 
-  @Test
-  void getWorkArea_assertMonitoring() throws Exception {
+  @ParameterizedTest
+  @EnumSource(value = Role.class)
+  void getWorkArea_assertMonitoring(Role role) throws Exception {
     List<WorkAreaItem> workAreaItems = List.of();
     when(workAreaItemService.getWorkAreaItems(USER)).thenReturn(workAreaItems);
-    when(permissionService.hasPermission(eq(USER), any()))
-        .thenReturn(true);
+    var teamRole = TeamRoleTestUtil.Builder().withRole(role).build();
+    when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)))
             .with(user(USER)))
         .andExpect(status().isOk())
-        .andExpect(view().name("remi/workarea/workArea"))
-        .andExpect(model().attribute("canCreateSubmissions", true));
+        .andExpect(view().name("remi/workarea/workArea"));
 
     verify(timer).record(any(Long.class), eq(TimeUnit.MILLISECONDS));
   }

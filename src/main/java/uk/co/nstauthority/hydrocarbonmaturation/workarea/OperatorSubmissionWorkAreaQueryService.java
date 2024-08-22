@@ -8,7 +8,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RES
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSIONS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.SUBMISSION_DETAILS;
 
-import java.util.Collections;
 import java.util.List;
 import org.jooq.Condition;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +18,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.ResourceDe
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Resources;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.SubmissionDetails;
 import uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.tables.Submissions;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamRole;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmitterType;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
 
 @Service
 class OperatorSubmissionWorkAreaQueryService implements SubmissionWorkAreaQueryStrategy {
@@ -46,8 +44,7 @@ class OperatorSubmissionWorkAreaQueryService implements SubmissionWorkAreaQueryS
 
   @Override
   public List<SubmissionWorkAreaQueryResult> getWorkAreaSubmissionItems(User user) {
-    var organisationUnitIds = industryTeamService
-        .getOrganisationUnitIdsForUserWithIndustryTeamRoles(user, Collections.singleton(IndustryTeamRole.SUBMITTER));
+    var organisationUnitIds = industryTeamService.getOrganisationUnitIdsForUser(user);
     return submissionWorkAreaQueryCommonService.getWorkAreaQueryResults(getConditions(organisationUnitIds));
   }
 

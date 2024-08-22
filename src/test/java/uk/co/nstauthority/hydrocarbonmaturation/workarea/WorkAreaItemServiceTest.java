@@ -135,13 +135,13 @@ class WorkAreaItemServiceTest {
                 "resource name (25/5)",
                 "Prospect create",
                 ReverseRouter.route(on(TaskListController.class)
-                    .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId()))),
+                    .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId(), null))),
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "other resource",
                 "Prospect update",
                 ReverseRouter.route(on(TaskListController.class)
-                    .getTaskList(queryResultWithoutLicencesAndBlock.getSubmissionDetailId()))
+                    .getTaskList(queryResultWithoutLicencesAndBlock.getSubmissionDetailId(), null))
             )
         );
 
@@ -190,7 +190,7 @@ class WorkAreaItemServiceTest {
             "resource name (25/5)",
             "Prospect create",
             ReverseRouter.route(on(TaskListController.class)
-                .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId())));
+                .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId(), null)));
 
     assertThat(result.get(0).modelProperties().getProperties())
         .contains(
@@ -240,7 +240,7 @@ class WorkAreaItemServiceTest {
                 expectedHeadingText,
                 "Prospect create",
                 ReverseRouter.route(on(TaskListController.class)
-                    .getTaskList(submissionWorkAreaQueryResult.getSubmissionDetailId())))
+                    .getTaskList(submissionWorkAreaQueryResult.getSubmissionDetailId(), null)))
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
@@ -276,7 +276,7 @@ class WorkAreaItemServiceTest {
                 "resource name (25/5)",
                 "Prospect create",
                 ReverseRouter.route(on(TaskListController.class)
-                    .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId())))
+                    .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId(), null)))
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
@@ -311,7 +311,7 @@ class WorkAreaItemServiceTest {
                 "resource name (25/5)",
                 "Prospect create",
                 ReverseRouter.route(on(TaskListController.class)
-                    .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId())))
+                    .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId(), null)))
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
@@ -403,7 +403,7 @@ class WorkAreaItemServiceTest {
                 "resource name (25/5)",
                 "Prospect create",
                 ReverseRouter.route(on(ReviewSubmissionController.class)
-                    .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
+                    .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null)))
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
@@ -437,11 +437,11 @@ class WorkAreaItemServiceTest {
     if (status == SubmissionDetailStatus.DRAFT) {
       assertThat(result.get(0).actionUrl())
           .isEqualTo(ReverseRouter.route(on(TaskListController.class)
-              .getTaskList(queryResult.getSubmissionDetailId())));
+              .getTaskList(queryResult.getSubmissionDetailId(), null)));
     } else {
       assertThat(result.get(0).actionUrl())
           .isEqualTo(ReverseRouter.route(on(ReviewSubmissionController.class)
-              .showReviewPage(submissionDetail.getSubmission().getResource().getId())));
+              .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null)));
     }
   }
 
@@ -482,7 +482,7 @@ class WorkAreaItemServiceTest {
                 expectedHeading,
                 submissionTypeName,
                 ReverseRouter.route(on(ReviewSubmissionController.class)
-                    .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
+                    .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null)))
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
@@ -530,7 +530,7 @@ class WorkAreaItemServiceTest {
                 expectedHeading,
                 submissionTypeName,
                 ReverseRouter.route(on(ReviewSubmissionController.class)
-                    .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
+                    .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null)))
         );
 
     assertThat(result.get(0).modelProperties().getProperties())
@@ -571,7 +571,7 @@ class WorkAreaItemServiceTest {
                 "resource name (25/5)",
                 "Prospect create - correction",
                 ReverseRouter.route(on(TaskListController.class)
-                    .getTaskList(workAreaItem.getSubmissionDetailId()))
+                    .getTaskList(workAreaItem.getSubmissionDetailId(), null))
             )
         );
 

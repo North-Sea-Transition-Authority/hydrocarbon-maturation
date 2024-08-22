@@ -187,7 +187,7 @@ class CorrectionServiceTest {
     );
     assertNotNull(submissionDetailArgumentCaptor.getValue().getCorrectionTimestamp());
     assertEquals(
-        ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId())).getView(),
+        ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId(), null)).getView(),
         modelAndView.getView()
     );
   }
@@ -301,7 +301,7 @@ class CorrectionServiceTest {
     );
     assertNotNull(submissionDetail.getCorrectionTimestamp());
     assertEquals(
-        ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId())).getView(),
+        ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId(), null)).getView(),
         modelAndView.getView()
     );
   }
@@ -357,7 +357,7 @@ class CorrectionServiceTest {
     assertNotNull(submissionDetail.getCorrectionTimestamp());
     assertEquals(
         ReverseRouter.redirect(on(ViewResourceRecordController.class)
-            .showSubmissionSummary(submissionDetail.getSubmission().getResource().getId(), submissionDetail.getId(), null)).getView(),
+            .showSubmissionSummary(submissionDetail.getSubmission().getResource().getId(), submissionDetail.getId(), null, null)).getView(),
         modelAndView.getView()
     );
   }

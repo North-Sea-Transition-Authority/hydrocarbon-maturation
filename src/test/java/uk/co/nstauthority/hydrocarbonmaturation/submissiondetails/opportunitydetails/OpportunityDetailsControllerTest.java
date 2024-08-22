@@ -132,7 +132,7 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
             post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(
-                submissionDetailId, null, null, null)))
+                submissionDetailId, null, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isForbidden());
@@ -141,16 +141,17 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveOpportunityDetailsPage_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
-    when(opportunityDetailsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
+    when(opportunityDetailsFormService.validate(any(), any(), any(), eq(submissionDetail), eq(USER))).thenReturn(bindingResult);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, bindingResult, null)))
+        post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, bindingResult, null, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
 
     verify(opportunityDetailsPersistenceService, times(1)).saveOpportunityDetails(any(OpportunityDetailsForm.class), eq(submissionDetail));
   }
@@ -158,14 +159,15 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveOpportunityDetailsPage_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId())).thenReturn(submissionDetail);
-    when(opportunityDetailsFormService.validate(any(), any(), any(), eq(submissionDetail))).thenReturn(bindingResult);
+    when(opportunityDetailsFormService.validate(any(), any(), any(), eq(submissionDetail), eq(USER))).thenReturn(bindingResult);
     when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(submissionDetail)))
         .thenReturn(fileUploadComponentAttributes);
     mockMvc.perform(
-        post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, bindingResult, null)))
+        post(ReverseRouter.route(on(OpportunityDetailsController.class).saveOpportunityDetails(submissionDetailId, form, bindingResult, null, null)))
             .params(ControllerTestUtils.validationPostParams(validationType))
             .with(user(USER))
             .with(csrf()))
@@ -176,6 +178,7 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
 
   @Test
   void getOpportunityDetailsModelAndViewForProsopect_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail)).thenReturn(new OpportunityDetailsForm());
     when(supportingDocumentService.submissionFileUploadComponentAttributes(anyList(), any(FileDocumentType.class), eq(submissionDetail)))
@@ -197,6 +200,7 @@ class OpportunityDetailsControllerTest extends AbstractSubmissionControllerTest 
 
   @Test
   void getOpportunityDetailsModelAndViewForDiscovery_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(opportunityDetailsFormService.getOpportunityDetailsForm(submissionDetail)).thenReturn(new OpportunityDetailsForm());

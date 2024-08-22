@@ -7,6 +7,8 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -15,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.PostDr
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.ProspectSubmissionSummaryController;
 
 class ReviewAndSubmitTaskListSectionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   private ReviewAndSubmitTaskListSectionService reviewAndSubmitTaskListSectionService;
   private SubmissionDetail submissionDetail;
@@ -28,20 +31,20 @@ class ReviewAndSubmitTaskListSectionServiceTest {
   @Test
   void getSection_prospectSubmission() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
-    var taskListSectionOptional = reviewAndSubmitTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = reviewAndSubmitTaskListSectionService.getSection(submissionDetail, USER);
     var section = taskListSectionOptional.get();
 
     assertThat(section)
         .extracting(TaskListSection::items)
         .isEqualTo(List.of(
             new TaskListItem("Review and submit",
-                ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetail.getId())))
+                ReverseRouter.route(on(ProspectSubmissionSummaryController.class).showSubmissionSummary(submissionDetail.getId(), null)))
         ));
   }
 
   @Test
   void getSection_dryWellSubmission() {
-    var taskListSectionOptional = reviewAndSubmitTaskListSectionService.getSection(submissionDetail);
+    var taskListSectionOptional = reviewAndSubmitTaskListSectionService.getSection(submissionDetail, USER);
     var section = taskListSectionOptional.get();
 
     assertThat(section)
@@ -51,7 +54,7 @@ class ReviewAndSubmitTaskListSectionServiceTest {
             TaskListSection::displayOrder)
         .containsExactly(List.of(
             new TaskListItem("Review and submit",
-                ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class).showSubmissionSummary(submissionDetail.getId())))),
+                ReverseRouter.route(on(PostDrillDryWellSubmissionSummaryController.class).showSubmissionSummary(submissionDetail.getId(), null)))),
             "Review and submit",
             Integer.MAX_VALUE
         );
@@ -59,7 +62,7 @@ class ReviewAndSubmitTaskListSectionServiceTest {
 
   @Test
   void isSectionSubmittable_assertTrue() {
-    var submittable = reviewAndSubmitTaskListSectionService.isSectionSubmittable(submissionDetail);
+    var submittable = reviewAndSubmitTaskListSectionService.isSectionSubmittable(submissionDetail, USER);
     assertTrue(submittable);
   }
 }

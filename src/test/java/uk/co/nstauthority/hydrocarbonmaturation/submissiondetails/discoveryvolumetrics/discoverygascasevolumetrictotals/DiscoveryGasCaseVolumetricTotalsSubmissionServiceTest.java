@@ -12,12 +12,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.Errors;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs.GasCaseOutputsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class DiscoveryGasCaseVolumetricTotalsSubmissionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private DiscoveryGasCaseVolumetricTotalsService discoveryGasCaseVolumetricTotalsService;
@@ -38,7 +41,7 @@ class DiscoveryGasCaseVolumetricTotalsSubmissionServiceTest {
         eq(form), any(Errors.class), eq(submissionDetail), eq(ValidationType.FULL))
     ).thenReturn(true);
 
-    assertTrue(discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
@@ -51,6 +54,6 @@ class DiscoveryGasCaseVolumetricTotalsSubmissionServiceTest {
         eq(form), any(Errors.class), eq(submissionDetail), eq(ValidationType.FULL))
     ).thenReturn(false);
 
-    assertFalse(discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER));
   }
 }

@@ -7,13 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.InternalTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.industry.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 
 @Service
 class SubmissionQueryService {
@@ -49,7 +49,8 @@ class SubmissionQueryService {
   }
 
   public List<ResourceView> getLatestDiscoveriesByNameForSubmissionType(String name,
-                                                                        SubmissionType submissionType) {
+                                                                        SubmissionType submissionType,
+                                                                        User user) {
     //gets every discovery resource with the name specified
     var distinctDiscoveries =
         submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.DISCOVERY, name);
@@ -61,14 +62,14 @@ class SubmissionQueryService {
             .flatMap(Optional::stream)
             .filter(detail -> submissionFilterService.filterDiscoverySubmissionByOtherSubmissions(detail, submissionType));
 
-    return submissionSearchSelectorServiceFactory.getSubmissionSearchSelectorStrategy()
-        .getResourceDetailsForSubmissionsWithTeam(latestSubmissionsWhichCanBeSubmittedUpon, submissionType)
+    return submissionSearchSelectorServiceFactory.getSubmissionSearchSelectorStrategy(user)
+        .getResourceDetailsForSubmissionsWithTeam(latestSubmissionsWhichCanBeSubmittedUpon, submissionType, user)
         .map(this::getResourceViewFromResourceDetail)
         .sorted(Comparator.comparing(ResourceView::getSelectionText))
         .toList();
   }
 
-  public List<ResourceView> getLatestProspectsByNameForSubmissionType(String name, SubmissionType submissionType) {
+  public List<ResourceView> getLatestProspectsByNameForSubmissionType(String name, SubmissionType submissionType, User user) {
     //gets every prospect resource
     var distinctProspectsForSubmissionType =
         submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.PROSPECT, name);
@@ -82,8 +83,8 @@ class SubmissionQueryService {
             .filter(detail -> submissionFilterService.filterProspectSubmissionByOtherSubmissions(detail, submissionType));
 
     return submissionSearchSelectorServiceFactory
-        .getSubmissionSearchSelectorStrategy()
-        .getResourceDetailsForSubmissionsWithTeam(latestSubmissionsWhichCanBeSubmittedUpon, submissionType)
+        .getSubmissionSearchSelectorStrategy(user)
+        .getResourceDetailsForSubmissionsWithTeam(latestSubmissionsWhichCanBeSubmittedUpon, submissionType, user)
         .map(this::getResourceViewFromResourceDetail)
         .sorted(Comparator.comparing(ResourceView::getSelectionText))
         .toList();
@@ -135,7 +136,7 @@ class SubmissionQueryService {
   }
 
   private boolean filterResourceByUser(Resource resource, User user) {
-    if (internalTeamService.isRegulatorOrAreaTeamUser()) {
+    if (internalTeamService.isRegulatorOrAreaTeamUser(user)) {
       return true;
     }
 

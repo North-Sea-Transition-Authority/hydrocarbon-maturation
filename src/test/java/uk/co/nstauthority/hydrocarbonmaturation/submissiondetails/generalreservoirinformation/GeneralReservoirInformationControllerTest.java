@@ -88,6 +88,7 @@ class GeneralReservoirInformationControllerTest extends AbstractSubmissionContro
 
   @SecurityTest
   void getGeneralReservoirInformationPage_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(get(ReverseRouter.route(on(GeneralReservoirInformationController.class)
             .getGeneralReservoirInformationPage(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
@@ -97,6 +98,7 @@ class GeneralReservoirInformationControllerTest extends AbstractSubmissionContro
 
   @SecurityTest
   void getGeneralReservoirInformationPage_andTypeIsNotDiscoveryOrField_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     mockMvc.perform(get(ReverseRouter.route(on(GeneralReservoirInformationController.class)
             .getGeneralReservoirInformationPage(submissionDetail.getId(), reservoirSubmissionDetail.getId())))
@@ -106,6 +108,7 @@ class GeneralReservoirInformationControllerTest extends AbstractSubmissionContro
 
   @Test
   void getGeneralReservoirInformationPage_assertModelProperties_discovery() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(generalReservoirInformationService.getGeneralReservoirInformationForm(reservoirSubmissionDetail))
         .thenReturn(new GeneralReservoirInformationForm());
 
@@ -138,7 +141,7 @@ class GeneralReservoirInformationControllerTest extends AbstractSubmissionContro
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME),
+            .getTaskList(submissionDetail.getId(), null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class)
             .getReservoirTaskList(submissionDetail.getId(), null)), ReservoirTaskListController.PAGE_TITLE)
     );
@@ -146,6 +149,7 @@ class GeneralReservoirInformationControllerTest extends AbstractSubmissionContro
 
   @Test
   void getGeneralReservoirInformationPage_assertModelProperties_field() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     var form = new GeneralReservoirInformationForm();
     when(generalReservoirInformationService.getGeneralReservoirInformationForm(reservoirSubmissionDetail))
         .thenReturn(form);
@@ -190,7 +194,7 @@ class GeneralReservoirInformationControllerTest extends AbstractSubmissionContro
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(USER)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class)
-            .getTaskList(submissionDetail.getId())), TaskListController.PAGE_NAME),
+            .getTaskList(submissionDetail.getId(), null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class)
             .getReservoirTaskList(submissionDetail.getId(), null)), ReservoirTaskListController.PAGE_TITLE)
     );
@@ -199,6 +203,7 @@ class GeneralReservoirInformationControllerTest extends AbstractSubmissionContro
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class)
   void saveGeneralReservoirInformation_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(generalReservoirInformationFormValidator.isValid(any(GeneralReservoirInformationForm.class), any(BindingResult.class),
         eq(reservoirSubmissionDetail), eq(validationType)))
         .thenReturn(false);
@@ -217,6 +222,7 @@ class GeneralReservoirInformationControllerTest extends AbstractSubmissionContro
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class)
   void saveGeneralReservoirInformation_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(generalReservoirInformationFormValidator.isValid(any(GeneralReservoirInformationForm.class), any(BindingResult.class),
         eq(reservoirSubmissionDetail), eq(validationType)))
         .thenReturn(true);

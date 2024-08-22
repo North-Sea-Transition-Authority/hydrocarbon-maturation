@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformax
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionFormService;
@@ -39,7 +40,7 @@ class OutlineForMaximumCaseUploadFormService implements SubmissionFormService {
 
   @Override
   public BindingResult validate(SubmissionForm form, BindingResult bindingResult, ValidationType validationType,
-                                SubmissionDetail submissionDetail) {
+                                SubmissionDetail submissionDetail, User user) {
     outlineForMaximumCaseFormValidator
         .validate(form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
     return bindingResult;

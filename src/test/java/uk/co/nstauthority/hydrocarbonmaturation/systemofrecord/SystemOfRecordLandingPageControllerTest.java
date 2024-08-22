@@ -41,7 +41,7 @@ class SystemOfRecordLandingPageControllerTest extends AbstractControllerTest {
             entry("pageTitle", SystemOfRecordLandingPageController.PAGE_TITLE),
             entry("prospectAndDiscoverySearchUrl",
                 ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class)
-                    .showSearchResourceRecordsScreen(null)))
+                    .showSearchResourceRecordsScreen(null, null)))
         );
   }
 }

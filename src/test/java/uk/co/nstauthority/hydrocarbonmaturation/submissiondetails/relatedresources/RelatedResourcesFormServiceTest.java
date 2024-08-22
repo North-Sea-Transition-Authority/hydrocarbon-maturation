@@ -20,6 +20,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupLinksRepository;
@@ -34,6 +36,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class RelatedResourcesFormServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
   @Mock
   private RelatedResourcesFormValidator relatedResourcesFormValidator;
   @Mock
@@ -62,7 +65,7 @@ class RelatedResourcesFormServiceTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     var captor = ArgumentCaptor.forClass(SubmissionFormValidatorHints.class);
-    relatedResourcesFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail);
+    relatedResourcesFormService.validate(form, bindingResult, ValidationType.FULL, submissionDetail, USER);
     verify(relatedResourcesFormValidator, times(1))
         .validate(eq(form), eq(bindingResult), captor.capture());
     assertThat(captor.getValue())

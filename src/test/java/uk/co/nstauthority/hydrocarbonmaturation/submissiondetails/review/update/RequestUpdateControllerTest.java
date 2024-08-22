@@ -20,7 +20,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,18 +28,21 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = RequestUpdateController.class)
 class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
-
+  private static final User USER = UserTestUtil.Builder().build();
   private static final String RESOURCE_NAME = "Resource name here";
   private static final String TYPE_NAME = "Type name here";
 
@@ -63,42 +65,40 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
         .thenReturn(Optional.of(submissionDetail));
 
     doReturn(new ModelAndView())
-        .when(submissionSummaryModelService).createSummaryForSubmissionTypeToModelAndView(eq(submissionDetail), anyString());
+        .when(submissionSummaryModelService).createSummaryForSubmissionTypeToModelAndView(eq(submissionDetail), anyString(), any());
   }
 
   @SecurityTest
   void showRequestUpdateConfirmationPage_NoUser_assertStatusUnauthorized() throws Exception {
     mockMvc.perform(
             get(ReverseRouter.route(on(RequestUpdateController.class)
-                .showRequestUpdateConfirmationPage(SUBMISSION_DETAIL_ID))))
+                .showRequestUpdateConfirmationPage(SUBMISSION_DETAIL_ID, null))))
         .andExpect(status().isUnauthorized());
   }
 
   @SecurityTest
   void showRequestUpdateConfirmationPage_UserCannotRequest_assertStatusUnauthorized() throws Exception {
-    when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail)).thenReturn(false);
+    when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail, USER)).thenReturn(false);
     setUpWhenUserIsResponsibleTeam_passSecurity();
 
     mockMvc.perform(
             get(ReverseRouter.route(on(RequestUpdateController.class)
-                .showRequestUpdateConfirmationPage(SUBMISSION_DETAIL_ID)))
+                .showRequestUpdateConfirmationPage(SUBMISSION_DETAIL_ID, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
   @SecurityTest
   void showRequestUpdateConfirmationPage_UserCanRequest_assertStatusAuthorized() throws Exception {
-    when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail)).thenReturn(true);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
+    when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail, USER)).thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(RESOURCE_NAME);
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
         .thenReturn(submissionDetail.getSubmissionType().getTypeName());
     mockMvc.perform(
             get(ReverseRouter.route(on(RequestUpdateController.class)
-                .showRequestUpdateConfirmationPage(SUBMISSION_DETAIL_ID)))
+                .showRequestUpdateConfirmationPage(SUBMISSION_DETAIL_ID, null)))
                 .with(user(USER)))
         .andExpect(status().isOk());
   }
@@ -109,11 +109,12 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
       mode = EnumSource.Mode.EXCLUDE,
       names = {"SUBMITTED"})
   void showRequestUpdateConfirmationPage_whenNotSubmittedStatus_assertStatusForbidden(SubmissionDetailStatus status) throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     submissionDetail.setStatus(status);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(RequestUpdateController.class)
-                .showRequestUpdateConfirmationPage(SUBMISSION_DETAIL_ID)))
+                .showRequestUpdateConfirmationPage(SUBMISSION_DETAIL_ID, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -121,10 +122,8 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
   @Test
   @SuppressWarnings("unchecked")
   void showRequestUpdateConfirmationPage_assertModelProperties() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
-    when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail))
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
+    when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail, USER))
         .thenReturn(true);
     when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(RESOURCE_NAME);
@@ -133,7 +132,7 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(RequestUpdateController.class)
-                .showRequestUpdateConfirmationPage(SUBMISSION_DETAIL_ID)))
+                .showRequestUpdateConfirmationPage(SUBMISSION_DETAIL_ID, null)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -144,9 +143,9 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
             entry("pageName", "Are you sure you want to request an update for this %s?".formatted(TYPE_NAME)),
             entry("resourceName", RESOURCE_NAME),
             entry("actionUrl", ReverseRouter.route(on(RequestUpdateController.class)
-                .requestUpdate(SUBMISSION_DETAIL_ID, null, null, null))),
+                .requestUpdate(SUBMISSION_DETAIL_ID, null, null, null, null))),
             entry("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(submissionDetail.getSubmission().getResource().getId())))
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null)))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -155,14 +154,15 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
             WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(ReviewSubmissionController.class)
-                .showReviewPage(submissionDetail.getSubmission().getResource().getId())),
+                .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null)),
             RESOURCE_NAME)
     );
   }
 
   @Test
-  void requestUpdate_canRequest_verifyMethodCall() throws Exception{
-    when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail)).thenReturn(true);
+  void requestUpdate_canRequest_verifyMethodCall() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
+    when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail, USER)).thenReturn(true);
     when(submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(submissionDetail))
         .thenReturn(RESOURCE_NAME);
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
@@ -172,42 +172,41 @@ class RequestUpdateControllerTest extends AbstractSubmissionControllerTest {
 
     mockMvc.perform(
             post(ReverseRouter.route(on(RequestUpdateController.class)
-                .requestUpdate(SUBMISSION_DETAIL_ID, null, null, null)))
+                .requestUpdate(SUBMISSION_DETAIL_ID, null, null, null, null)))
                 .with(user(USER)).with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ReviewSubmissionController.class)
-            .showReviewPage(submissionDetail.getSubmission().getResource().getId()))));
+            .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null))));
 
-    verify(submissionUpdatePersistenceService).requestUpdate(eq(submissionDetail), any());
+    verify(submissionUpdatePersistenceService).requestUpdate(eq(submissionDetail), any(), any());
   }
 
   @SecurityTest
-  void requestUpdate_canNotRequest() throws Exception{
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(true);
+  void requestUpdate_canNotRequest() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     when(submissionUpdateService.validate(any(), any()))
         .thenReturn(ReverseRouter.emptyBindingResult());
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail))
         .thenReturn(submissionDetail.getSubmissionType().getTypeName());
-    when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail))
+    when(submissionUpdateService.canRequestUpdateOnSubmission(submissionDetail, USER))
         .thenReturn(false);
     mockMvc.perform(
             post(ReverseRouter.route(on(RequestUpdateController.class)
-                .requestUpdate(SUBMISSION_DETAIL_ID, null, null, null)))
+                .requestUpdate(SUBMISSION_DETAIL_ID, null, null, null, null)))
                 .with(user(USER)).with(csrf()))
         .andExpect(status().isForbidden());
   }
 
   @SecurityTest
-  void requestUpdate_whenDoesNotHaveRegulatorPermission() throws Exception{
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER))).thenReturn(false);
+  void requestUpdate_whenDoesNotHaveRegulatorPermission() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(RequestUpdateController.class)
-                .requestUpdate(SUBMISSION_DETAIL_ID, null, null, null)))
+                .requestUpdate(SUBMISSION_DETAIL_ID, null, null, null, null)))
                 .with(user(USER)).with(csrf()))
         .andExpect(status().isForbidden());
     verifyNoInteractions(submissionUpdatePersistenceService);

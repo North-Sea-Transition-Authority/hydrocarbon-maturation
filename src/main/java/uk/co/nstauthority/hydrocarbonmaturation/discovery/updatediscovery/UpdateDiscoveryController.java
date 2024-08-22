@@ -10,23 +10,24 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Controller
 @RequestMapping("/prospect/update-discovery")
-@HasPermission(permissions = {
-    RolePermission.EXPLORATION,
-    RolePermission.INDUSTRY_SUBMIT,
-    RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.ONSHORE_AREA_TEAM_MEMBER})
+@HasAnyRole(role = Role.EXPLORATION, teamType = TeamType.REGULATOR)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.NORTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.SOUTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.ONSHORE_AREA)
+@HasAnyRole(role = Role.INDUSTRY_SUBMIT, teamType = TeamType.INDUSTRY)
 public class UpdateDiscoveryController {
 
   private final UpdateDiscoveryService updateDiscoveryService;
@@ -46,13 +47,14 @@ public class UpdateDiscoveryController {
 
   @PostMapping
   public ModelAndView createUpdateDiscovery(@ModelAttribute("form") UpdateDiscoveryForm form,
-                                            BindingResult bindingResult) {
+                                            BindingResult bindingResult,
+                                            User user) {
     bindingResult = updateDiscoveryService.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getDiscoveryPageModelAndView(form),
         () -> {
-          var submissionDetail = updateDiscoveryService.createUpdateDiscovery(form);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId()));
+          var submissionDetail = updateDiscoveryService.createUpdateDiscovery(form, user);
+          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId(), null));
         });
   }
 
@@ -60,11 +62,11 @@ public class UpdateDiscoveryController {
     return new ModelAndView("remi/discovery/updateDiscovery")
         .addObject("form", form)
         .addObject("actionUrl",
-            ReverseRouter.route(on(UpdateDiscoveryController.class).createUpdateDiscovery(form, null)))
+            ReverseRouter.route(on(UpdateDiscoveryController.class).createUpdateDiscovery(form, null, null)))
         .addObject("backLinkUrl",
             ReverseRouter.route(on(StartUpdateDiscoverySubmissionController.class).getStartUpdateDiscoveryPage()))
         .addObject("discoveryApiEndpoint",
             SearchSelectorService.route(on(ResourceRestController.class)
-                .searchDiscoveries(null, SubmissionType.UPDATE_DISCOVERY)));
+                .searchDiscoveries(null, SubmissionType.UPDATE_DISCOVERY, null)));
   }
 }

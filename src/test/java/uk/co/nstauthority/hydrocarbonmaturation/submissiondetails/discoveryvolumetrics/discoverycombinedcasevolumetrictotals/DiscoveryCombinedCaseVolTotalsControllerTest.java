@@ -139,6 +139,7 @@ class DiscoveryCombinedCaseVolTotalsControllerTest extends AbstractSubmissionCon
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveCombinedCaseVolumetricTotals_whenValidForm_assertRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(discoveryCombinedCaseVolTotalsFormValidator.isValid(any(MixedCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(true);
 
     mockMvc.perform(
@@ -148,7 +149,7 @@ class DiscoveryCombinedCaseVolTotalsControllerTest extends AbstractSubmissionCon
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
 
     verify(discoveryCombinedCaseVolTotalsService, times(1)).saveDiscoveryCombinedCaseVolumetricTotals(any(MixedCaseOutputsForm.class), eq(submissionDetail));
   }
@@ -156,6 +157,7 @@ class DiscoveryCombinedCaseVolTotalsControllerTest extends AbstractSubmissionCon
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
   void saveCombinedCaseVolumetricTotals_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
 
     when(discoveryCombinedCaseVolTotalsFormValidator.isValid(any(MixedCaseOutputsForm.class), any(Errors.class), eq(submissionDetail), eq(validationType))).thenReturn(false);
@@ -174,6 +176,7 @@ class DiscoveryCombinedCaseVolTotalsControllerTest extends AbstractSubmissionCon
 
   @Test
   void getCombinedCaseVolumetricTotalsModelAndView_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER, submissionDetail);
     when(discoveryCombinedCaseVolTotalsService.submissionDetailToForm(submissionDetail)).thenReturn(form);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -188,7 +191,7 @@ class DiscoveryCombinedCaseVolTotalsControllerTest extends AbstractSubmissionCon
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
         );
 
     var contingentUncertaintyCategoryPromptOverrides =

@@ -12,15 +12,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}/undeveloped-discovery/tracking-details")
-@HasPermission(permissions = RolePermission.RESERVES_AND_RESOURCES_ANALYST)
+@HasAnyRole(role = Role.RESERVES_AND_RESOURCES_ADVISOR, teamType = TeamType.REGULATOR)
 public class UndevelopedDiscoveryTrackingDetailsController {
 
   static final String PAGE_TITLE = "Include in undeveloped discoveries";
@@ -62,7 +63,7 @@ public class UndevelopedDiscoveryTrackingDetailsController {
       undevelopedDiscoveryService.saveUndevelopedDiscoveryTrackingDetails(resource, form);
 
       return ReverseRouter.redirect(on(
-          UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(resourceId));
+          UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(resourceId, null));
     }
 
     return getTrackingDetailsModelAndView(form, resourceId);
@@ -73,6 +74,6 @@ public class UndevelopedDiscoveryTrackingDetailsController {
         .addObject("pageTitle", PAGE_TITLE)
         .addObject("form", form)
         .addObject("cancelUrl", ReverseRouter.route(on(UndevelopedDiscoverySummaryController.class)
-            .getUndevelopedDiscoverySummary(resourceId)));
+            .getUndevelopedDiscoverySummary(resourceId, null)));
   }
 }

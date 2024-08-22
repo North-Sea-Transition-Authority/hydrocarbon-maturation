@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarbonca
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
@@ -25,7 +26,8 @@ class HydrocarbonCaseFormService implements SubmissionFormService {
 
   @Override
   public BindingResult validate(SubmissionForm form, BindingResult bindingResult,
-                                ValidationType validationType, SubmissionDetail submissionDetail) {
+                                ValidationType validationType, SubmissionDetail submissionDetail,
+                                User user) {
     hydrocarbonCaseFormValidator.validate(
         form, bindingResult, new SubmissionFormValidatorHints(validationType, submissionDetail));
     return bindingResult;

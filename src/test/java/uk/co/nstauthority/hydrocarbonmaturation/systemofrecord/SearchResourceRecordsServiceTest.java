@@ -25,6 +25,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
@@ -44,6 +46,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydet
 
 @ExtendWith(MockitoExtension.class)
 class SearchResourceRecordsServiceTest {
+
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private ResourceRecordQueryServiceStrategy resourceRecordQueryServiceStrategy;
@@ -130,7 +134,7 @@ class SearchResourceRecordsServiceTest {
         List.of(NOT_EXTANT_LICENCE_2.licenceRef(), NOT_EXTANT_LICENCE_3.licenceRef()),
         ResponsibleTeamType.EXPLORATION, null, null, fixedInstant
       );
-      when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form))
+      when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form, USER))
           .thenReturn(List.of(result1, result2));
 
       var submissionDetailProspect = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
@@ -140,7 +144,7 @@ class SearchResourceRecordsServiceTest {
       when(submissionDetailService.getSubmissionDetail(result2.submissionDetailId()))
           .thenReturn(Optional.of(submissionDetailRelinquishment));
 
-      var results = underTest.getResourceRecordSearchResults(form, resourceRecordQueryServiceStrategy);
+      var results = underTest.getResourceRecordSearchResults(form, resourceRecordQueryServiceStrategy, USER);
 
       assertThat(results)
           .extracting(
@@ -195,7 +199,7 @@ class SearchResourceRecordsServiceTest {
           ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA, "Parent field name", FieldStatus.STATUS_400,
           fixedInstant
       );
-      when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form))
+      when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form, USER))
           .thenReturn(List.of(result1, result2));
 
       var submissionDetailCsr = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
@@ -205,7 +209,7 @@ class SearchResourceRecordsServiceTest {
       when(submissionDetailService.getSubmissionDetail(result2.submissionDetailId()))
           .thenReturn(Optional.of(submissionDetailFdp));
 
-      var results = underTest.getResourceRecordSearchResults(form, resourceRecordQueryServiceStrategy);
+      var results = underTest.getResourceRecordSearchResults(form, resourceRecordQueryServiceStrategy, USER);
 
       assertThat(results)
           .extracting(
@@ -253,10 +257,10 @@ class SearchResourceRecordsServiceTest {
           List.of(EXTANT_LICENCE_1.licenceRef(), EXTANT_LICENCE_2.licenceRef()),
           ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, null, FieldStatus.STATUS_200, fixedInstant
       );
-      when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form))
+      when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form, USER))
           .thenReturn(List.of(result));
 
-      var results = underTest.getResourceRecordSearchResults(form, resourceRecordQueryServiceStrategy);
+      var results = underTest.getResourceRecordSearchResults(form, resourceRecordQueryServiceStrategy, USER);
 
       assertThat(results)
           .extracting(
@@ -283,7 +287,7 @@ class SearchResourceRecordsServiceTest {
 
     private String getActionUrl(UUID resourceId) {
       return ReverseRouter.route(on(ViewResourceRecordController.class)
-          .showResourceRecord(resourceId));
+          .showResourceRecord(resourceId, null));
     }
 
     private ResourceRecordQueryResult buildAndMockResourceRecordQueryResult(String resourceName,
@@ -355,13 +359,13 @@ class SearchResourceRecordsServiceTest {
       var form = new SearchResourceRecordsForm();
 
       var queryServiceStrategy = mock(ResourceRecordQueryServiceStrategy.class);
-      when(queryServiceStrategy.getResourceRecordSearchResults(form))
+      when(queryServiceStrategy.getResourceRecordSearchResults(form, USER))
           .thenReturn(searchResults);
 
       var expectedResult = Stream.of(result3, result4, result2)
           .map(ResourceRecordQueryResult::resourceName).toList();
 
-      assertThat(underTest.getResourceRecordSearchResultsDistinctResourceNames(form, queryServiceStrategy))
+      assertThat(underTest.getResourceRecordSearchResultsDistinctResourceNames(form, queryServiceStrategy, USER))
           .usingRecursiveComparison()
           .ignoringCollectionOrder()
           .isEqualTo(expectedResult);

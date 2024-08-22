@@ -83,6 +83,7 @@ class FieldComplexityControllerTest extends AbstractSubmissionControllerTest {
       mode = EnumSource.Mode.EXCLUDE
   )
   void getFieldComplexity_andStatusIsNotDraft_assertForbidden(SubmissionDetailStatus submissionDetailStatus) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setStatus(submissionDetailStatus);
     mockMvc.perform(
             get(ReverseRouter.route(on(FieldComplexityController.class).getFieldComplexity(submissionDetailId)))
@@ -97,6 +98,7 @@ class FieldComplexityControllerTest extends AbstractSubmissionControllerTest {
       mode = EnumSource.Mode.EXCLUDE
   )
   void saveFieldComplexity_andStatusIsNotDraft_assertForbidden(SubmissionDetailStatus submissionDetailStatus) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setStatus(submissionDetailStatus);
     mockMvc.perform(
             get(ReverseRouter.route(on(FieldComplexityController.class).getFieldComplexity(submissionDetailId)))
@@ -107,6 +109,7 @@ class FieldComplexityControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest
   @MethodSource("allNonFieldSubmissionTypes")
   void getFieldComplexity_andSubmissionNotFieldType_assertForbidden(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
     mockMvc.perform(
             get(ReverseRouter.route(on(FieldComplexityController.class).getFieldComplexity(submissionDetailId)))
@@ -117,6 +120,7 @@ class FieldComplexityControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest
   @MethodSource("allNonFieldSubmissionTypes")
   void saveFieldComplexity_andSubmissionNotFieldType_assertForbidden(SubmissionType submissionType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     submissionDetail.setSubmissionType(submissionType);
     mockMvc.perform(
             post(ReverseRouter.route(on(FieldComplexityController.class)
@@ -149,6 +153,7 @@ class FieldComplexityControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest
   @EnumSource(value = ValidationType.class)
   void saveFieldComplexity_validForm (ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     when(fieldComplexityFormValidator.isValid(
         any(FieldComplexityForm.class),
         any(BindingResult.class),
@@ -163,7 +168,7 @@ class FieldComplexityControllerTest extends AbstractSubmissionControllerTest {
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))));
 
     verify(fieldComplexityService, times(1))
         .saveFieldComplexity(any(FieldComplexityForm.class), eq(submissionDetail));
@@ -173,6 +178,7 @@ class FieldComplexityControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest
   @EnumSource(value = ValidationType.class)
   void saveFieldComplexity_invalidForm (ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_field_passSecurity(USER, submissionDetail);
     when(fieldComplexityFormValidator.isValid(
         any(FieldComplexityForm.class),
         any(BindingResult.class),
@@ -209,7 +215,7 @@ class FieldComplexityControllerTest extends AbstractSubmissionControllerTest {
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME)
+            entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME)
         );
 
     assertThat(modelMap)

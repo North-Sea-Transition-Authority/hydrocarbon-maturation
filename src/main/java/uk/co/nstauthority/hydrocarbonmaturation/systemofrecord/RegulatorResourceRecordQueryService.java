@@ -8,10 +8,11 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.jooq.Condition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 
 @Service
-class RegulatorResourceRecordQueryService implements ResourceRecordQueryServiceStrategy {
+public class RegulatorResourceRecordQueryService implements ResourceRecordQueryServiceStrategy {
 
   private final ResourceQueryCommonService resourceQueryCommonService;
 
@@ -21,7 +22,7 @@ class RegulatorResourceRecordQueryService implements ResourceRecordQueryServiceS
   }
 
   @Override
-  public List<ResourceRecordQueryResult> getResourceRecordSearchResults(SearchResourceRecordsForm form) {
+  public List<ResourceRecordQueryResult> getResourceRecordSearchResults(SearchResourceRecordsForm form, User user) {
     var resourceTypes = form.getResourceTypes();
     if (resourceTypes.contains(ResourceType.FIELD.getEnumName())) {
       return resourceQueryCommonService.getFieldRecordQueryResults(

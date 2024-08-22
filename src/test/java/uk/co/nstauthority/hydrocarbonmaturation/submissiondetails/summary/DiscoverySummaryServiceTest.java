@@ -8,6 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.chanceofsuccess.ChanceOfSuccessSummaryService;
@@ -22,6 +24,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties
 
 @ExtendWith(MockitoExtension.class)
 class DiscoverySummaryServiceTest {
+
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private GeneralDetailSummaryService generalDetailSummaryService;
@@ -108,10 +112,10 @@ class DiscoverySummaryServiceTest {
 
   @Test
   void getReservoirSummaryViewFromSubmissionDetail_verifyMethodCall() {
-    discoverySummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail);
+    discoverySummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail, USER);
 
     verify(reservoirSummaryService, times(1))
-        .getReservoirSummaries(submissionDetail);
+        .getReservoirSummaries(submissionDetail, USER);
   }
 
   @Test

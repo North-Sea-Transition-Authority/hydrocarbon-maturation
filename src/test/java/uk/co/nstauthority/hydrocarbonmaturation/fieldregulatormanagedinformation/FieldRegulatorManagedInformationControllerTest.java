@@ -22,7 +22,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +52,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.NewFieldService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.StartFieldController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -65,6 +63,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchFieldRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ExtendWith(MockitoExtension.class)
@@ -167,7 +167,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
 
     mockMvc.perform(
             post(ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
-                .saveRegulatorManagedInformationWithSubmissionDetail(resourceId, submissionDetail.getId(), null, null, null)))
+                .saveRegulatorManagedInformationWithSubmissionDetail(resourceId, submissionDetail.getId(), null, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isNotFound());
@@ -184,7 +184,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
 
     mockMvc.perform(
             post(ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
-                .saveRegulatorManagedInformationWithSubmissionDetail(resourceId, submissionDetail.getId(), null, null, null)))
+                .saveRegulatorManagedInformationWithSubmissionDetail(resourceId, submissionDetail.getId(), null, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isNotFound());
@@ -211,12 +211,8 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
 
   @SecurityTest
   void getFieldRegulatorManagedInformationPage_whenNotResponsibleTeamUser_assertStatusForbidden() throws Exception {
+    setupUserHasPermissions();
     submissionDetail.setSubmissionType(SubmissionType.CREATE_COP);
-    when(permissionService.hasPermission(USER, Set.of(
-        RolePermission.EXPLORATION,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER))
-    ).thenReturn(false);
 
     form.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
     when(fieldRegulatorManagedInformationService.resourceToFieldForm(resource))
@@ -302,7 +298,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
             entry("backLinkUrl", ReverseRouter.route(on(StartFieldController.class).getStartPage())),
             entry("pageTitle", FieldRegulatorManagedInformationController.PAGE_NAME),
             entry("organisationUnitEndpoint",
-                SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null))),
+                SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null, null))),
             entry("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore()),
             entry("geographicalAreas", expectedGeographicalArea),
             entry("responsibleTeamTypes", expectedResponsibleTeamTypes),
@@ -389,7 +385,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
             entry("backLinkUrl", ReverseRouter.route(on(StartFieldController.class).getStartPage())),
             entry("pageTitle", FieldRegulatorManagedInformationController.PAGE_NAME),
             entry("organisationUnitEndpoint",
-                SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null))),
+                SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null, null))),
             entry("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore()),
             entry("geographicalAreas", expectedGeographicalArea),
             entry("responsibleTeamTypes", expectedResponsibleTeamTypes),
@@ -413,7 +409,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
     setupUserHasPermissions();
 
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
-    var reviewSubmissionUrl = ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resource.getId()));
+    var reviewSubmissionUrl = ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resource.getId(), null));
 
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
@@ -432,7 +428,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
 
     mockMvc.perform(
             post(ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
-                .saveRegulatorManagedInformationWithSubmissionDetail(resourceId, submissionDetail.getId(), null, null, null)))
+                .saveRegulatorManagedInformationWithSubmissionDetail(resourceId, submissionDetail.getId(), null, null, null, null)))
                 .flashAttr("form", form)
                 .with(user(USER))
                 .with(csrf()))
@@ -468,7 +464,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
 
     mockMvc.perform(
             post(ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
-                .saveRegulatorManagedInformationWithSubmissionDetail(resourceId, submissionDetail.getId(), null, null, null)))
+                .saveRegulatorManagedInformationWithSubmissionDetail(resourceId, submissionDetail.getId(), null, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
@@ -482,7 +478,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
     setupUserHasPermissions();
 
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
-    var viewResourceRecordUrl = ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId()));
+    var viewResourceRecordUrl = ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null));
 
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
@@ -517,7 +513,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     when(responsibleTeamService.isInResponsibleTeam(user, submissionDetail))
         .thenReturn(false);
-    var searchResourceRecordsUrl = ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId));
+    var searchResourceRecordsUrl = ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null));
 
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.of(resource));
@@ -616,16 +612,16 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
     var cancelUrl = modelMap.get("cancelUrl");
     assertThat(cancelUrl).isEqualTo(
         ReverseRouter.route(on(ViewResourceRecordController.class)
-            .showResourceRecord(resource.getId()))
+            .showResourceRecord(resource.getId(), null))
     );
 
     @SuppressWarnings("unchecked")
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
-            entry(ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null)),
+            entry(ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null, null)),
                 SearchFieldRecordsController.PAGE_TITLE),
-            entry(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)),
+            entry(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)),
                 field.getCorrectedLegalFieldName())
         );
   }
@@ -669,16 +665,16 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
     var cancelUrl = modelMap.get("cancelUrl");
     assertThat(cancelUrl).isEqualTo(
         ReverseRouter.route(on(ViewResourceRecordController.class)
-            .showResourceRecord(resource.getId()))
+            .showResourceRecord(resource.getId(), null))
     );
 
     @SuppressWarnings("unchecked")
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
-            entry(ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null)),
+            entry(ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null, null)),
                 SearchFieldRecordsController.PAGE_TITLE),
-            entry(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)),
+            entry(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)),
                 field.getCorrectedLegalFieldName())
         );
   }
@@ -722,7 +718,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
     var cancelUrl = (String) modelMap.get("cancelUrl");
     assertThat(cancelUrl).isEqualTo(
         ReverseRouter.route(on(ReviewSubmissionController.class)
-            .showReviewPage(resource.getId()))
+            .showReviewPage(resource.getId(), null))
     );
 
     @SuppressWarnings("unchecked")
@@ -795,26 +791,21 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
     var cancelUrl = modelMap.get("cancelUrl");
     assertThat(cancelUrl).isEqualTo(
         ReverseRouter.route(on(ViewResourceRecordController.class)
-            .showResourceRecord(resource.getId()))
+            .showResourceRecord(resource.getId(), null))
     );
 
     @SuppressWarnings("unchecked")
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
     assertThat(breadcrumbsMap.entrySet())
         .containsExactly(
-            entry(ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null)),
+            entry(ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null, null)),
                 SearchFieldRecordsController.PAGE_TITLE),
-            entry(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)),
+            entry(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)),
                 field.getCorrectedLegalFieldName())
         );
   }
 
   private void setupUserHasPermissions() {
-    when(permissionService.hasPermission(USER, Set.of(
-        RolePermission.EXPLORATION,
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.ONSHORE_AREA_TEAM_MEMBER))
-    ).thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(true);
   }
 }

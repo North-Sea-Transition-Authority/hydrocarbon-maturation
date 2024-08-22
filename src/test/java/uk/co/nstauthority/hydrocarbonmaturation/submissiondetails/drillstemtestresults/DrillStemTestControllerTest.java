@@ -94,6 +94,7 @@ class DrillStemTestControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getDrillStemTestPage_andTypeIsNotDiscovery_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(SubmissionType.POST_DRILL_DRY_HOLE);
     mockMvc.perform(
             get(ReverseRouter.route(on(DrillStemTestController.class).getDrillStemTestPage(submissionDetailId, reservoirSubmissionDetailId, null)))
@@ -112,6 +113,7 @@ class DrillStemTestControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getDrillStemTestPage_whenFoundResults_assertRedirect() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(drillStemTestFormService.getDrillStemTestInitialForm(reservoirSubmissionDetail)).thenReturn(form);
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
@@ -128,13 +130,14 @@ class DrillStemTestControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void saveDrillStemTestPage_whenValidForm_assertRedirection() throws Exception {
-    when(drillStemTestFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+    when(drillStemTestFormService.validate(any(), any(), any(), any(), any())).thenReturn(bindingResult);
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(DrillStemTestController.class)
-                .saveDrillStemTestDetails(submissionDetailId, reservoirSubmissionDetailId, null, null)))
+                .saveDrillStemTestDetails(submissionDetailId, reservoirSubmissionDetailId, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
@@ -149,7 +152,7 @@ class DrillStemTestControllerTest extends AbstractSubmissionControllerTest {
     when(reservoirSubmissionDetailPersistenceService
         .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
-    when(drillStemTestFormService.validate(any(), any(), any(), any())).thenReturn(ReverseRouter.emptyBindingResult());
+    when(drillStemTestFormService.validate(any(), any(), any(), any(), any())).thenReturn(ReverseRouter.emptyBindingResult());
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     var form = new DrillStemTestInitialForm();
@@ -157,7 +160,7 @@ class DrillStemTestControllerTest extends AbstractSubmissionControllerTest {
 
     mockMvc.perform(
             post(ReverseRouter.route(on(DrillStemTestController.class)
-                .saveDrillStemTestDetails(submissionDetailId, reservoirSubmissionDetailId, null, null)))
+                .saveDrillStemTestDetails(submissionDetailId, reservoirSubmissionDetailId, null, null, null)))
                 .with(user(USER))
                 .with(csrf())
                 .flashAttr("form", form))
@@ -176,12 +179,12 @@ class DrillStemTestControllerTest extends AbstractSubmissionControllerTest {
     when(reservoirSubmissionDetailPersistenceService
         .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
         .thenReturn(reservoirSubmissionDetail);
-    when(drillStemTestFormService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+    when(drillStemTestFormService.validate(any(), any(), any(), any(), any())).thenReturn(bindingResult);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(DrillStemTestController.class)
-                .saveDrillStemTestDetails(submissionDetailId, reservoirSubmissionDetailId, null, null)))
+                .saveDrillStemTestDetails(submissionDetailId, reservoirSubmissionDetailId, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isOk());
@@ -208,7 +211,7 @@ class DrillStemTestControllerTest extends AbstractSubmissionControllerTest {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
             post(ReverseRouter.route(on(DrillStemTestController.class)
-                .saveDrillStemTestDetails(submissionDetailId, reservoirSubmissionDetailId, null, null)))
+                .saveDrillStemTestDetails(submissionDetailId, reservoirSubmissionDetailId, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isForbidden());
@@ -217,6 +220,7 @@ class DrillStemTestControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getDrillStemTestModelAndView_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     var drillStemTest = mock(DrillStemTest.class);
     when(reservoirSubmissionDetailPersistenceService
         .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId))
@@ -241,7 +245,7 @@ class DrillStemTestControllerTest extends AbstractSubmissionControllerTest {
     assertThat(modelMap)
         .contains(
             entry("actionUrl", ReverseRouter.route(on(DrillStemTestController.class)
-                .saveDrillStemTestDetails(submissionDetailId, reservoirSubmissionDetailId, null, null))),
+                .saveDrillStemTestDetails(submissionDetailId, reservoirSubmissionDetailId, null, null, null))),
             entry("form", form))
         .containsKeys("breadcrumbsMap");
   }

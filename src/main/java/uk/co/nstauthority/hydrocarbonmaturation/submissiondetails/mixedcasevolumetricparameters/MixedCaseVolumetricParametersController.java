@@ -84,7 +84,7 @@ public class MixedCaseVolumetricParametersController {
         .getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetailId);
     if (mixedCaseVolumetricParametersFormValidator.isValid(form, bindingResult, submissionDetail, validationType)) {
       mixedCaseVolumetricParametersPersistenceService.saveMixedCaseVolumetrics(form, reservoirSubmissionDetail);
-      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
     }
     return getMixedVolumetricsModelAndViewWithErrors(bindingResult, form, submissionDetail);
   }

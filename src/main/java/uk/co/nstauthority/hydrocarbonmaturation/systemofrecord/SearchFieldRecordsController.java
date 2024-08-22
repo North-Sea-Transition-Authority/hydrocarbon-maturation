@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
@@ -37,13 +38,14 @@ public class SearchFieldRecordsController {
 
   @GetMapping
   public ModelAndView showSearchFieldRecordsScreen(
-      @ModelAttribute("searchFieldRecordsFilter") SearchFieldRecordsFilter filter) {
+      @ModelAttribute("searchFieldRecordsFilter") SearchFieldRecordsFilter filter,
+      User user) {
     var form = SearchResourceRecordsForm.from(filter);
 
     if (filter.isShowResults()) {
       // get the actual results from the search
       var fieldResultRecords = searchResourceRecordsService.getResourceRecordSearchResults(
-          form, resourceRecordQueryServiceFactory.getQueryServiceStrategy());
+          form, resourceRecordQueryServiceFactory.getQueryServiceStrategy(user), user);
 
       return getModelAndView(form, fieldResultRecords, FiltersAdded.YES);
     }
@@ -57,7 +59,7 @@ public class SearchFieldRecordsController {
       SessionStatus sessionStatus) {
     sessionStatus.setComplete();
     filter.clearFilter();
-    return ReverseRouter.redirect(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null));
+    return ReverseRouter.redirect(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null, null));
   }
 
   private ModelAndView getModelAndViewWithNoFiltersAdded(SearchResourceRecordsForm form) {
@@ -70,7 +72,7 @@ public class SearchFieldRecordsController {
       @ModelAttribute("form") SearchResourceRecordsForm form) {
     filter.update(form);
     return ReverseRouter.redirect(on(SearchFieldRecordsController.class)
-        .showSearchFieldRecordsScreen(null));
+        .showSearchFieldRecordsScreen(null, null));
   }
 
   private ModelAndView getModelAndView(SearchResourceRecordsForm form,
@@ -86,7 +88,7 @@ public class SearchFieldRecordsController {
         .addObject("resourceRecordSearchResultItems", resourceRecordSearchResults)
         .addObject("maxResultsReturned", searchResourceRecordsService.maxResultsReturned(resourceRecordSearchResults))
         .addObject("fieldApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
-            .searchFieldsByFieldName(null)))
+            .searchFieldsByFieldName(null, null)))
         .addObject("fieldStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(FieldStatus.class))
         .addObject("resourceName", searchResourceRecordsService.getPreSelectedFieldName(form))
         .addObject("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class))

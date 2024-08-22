@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -11,13 +10,13 @@ import org.springframework.context.annotation.Import;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.WebMvcConfiguration;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.discoveryinformation.UndevelopedDiscoveryInformationControllerUtil;
 
 @Import(value = {
@@ -29,10 +28,6 @@ public abstract class AbstractUndevelopedDiscoveryControllerTest extends Abstrac
 
   @MockBean
   protected UndevelopedDiscoveryService undevelopedDiscoveryService;
-
-  @MockBean
-  private PermissionService permissionService;
-
   @MockBean
   protected UndevelopedDiscoveryInformationControllerUtil undevelopedDiscoveryInformationControllerUtil;
 
@@ -54,9 +49,7 @@ public abstract class AbstractUndevelopedDiscoveryControllerTest extends Abstrac
   }
 
   protected void setupUserIsReservesAndResourcesAdvisor(User user) {
-    when(regulatorTeamService.isRegulatorUser(user))
-        .thenReturn(true);
-    when(permissionService.hasPermission(user, Set.of(RolePermission.RESERVES_AND_RESOURCES_ANALYST)))
-        .thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.RESERVES_AND_RESOURCES_ADVISOR)).thenReturn(true);
   }
 }

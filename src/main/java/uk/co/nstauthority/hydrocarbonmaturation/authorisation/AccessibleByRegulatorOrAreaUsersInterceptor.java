@@ -13,9 +13,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.server.ResponseStatusException;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.area.AreaTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.AbstractHandlerInterceptor;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 
 @Component
 public class AccessibleByRegulatorOrAreaUsersInterceptor extends AbstractHandlerInterceptor {
@@ -27,15 +26,13 @@ public class AccessibleByRegulatorOrAreaUsersInterceptor extends AbstractHandler
   );
 
   private final UserService userService;
-  private final RegulatorTeamService regulatorTeamService;
-  private final AreaTeamService areaTeamService;
+  private final InternalTeamService internalTeamService;
 
   @Autowired
-  public AccessibleByRegulatorOrAreaUsersInterceptor(UserService userService, RegulatorTeamService regulatorTeamService,
-                                                     AreaTeamService areaTeamService) {
+  public AccessibleByRegulatorOrAreaUsersInterceptor(UserService userService,
+                                                     InternalTeamService internalTeamService) {
     this.userService = userService;
-    this.regulatorTeamService = regulatorTeamService;
-    this.areaTeamService = areaTeamService;
+    this.internalTeamService = internalTeamService;
   }
 
   @Override
@@ -48,9 +45,9 @@ public class AccessibleByRegulatorOrAreaUsersInterceptor extends AbstractHandler
     ) {
 
       var user = userService.getUser();
-      if (!(regulatorTeamService.isRegulatorUser(user) || areaTeamService.isAreaUser(user))) {
+      if (!internalTeamService.isRegulatorOrAreaTeamUser(user)) {
 
-        var errorMessage = "User with ID %s is not a regulator user".formatted(user.wuaId());
+        var errorMessage = "User with ID %s is not a regulator or area team user".formatted(user.wuaId());
 
         LOGGER.warn(errorMessage);
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, errorMessage);

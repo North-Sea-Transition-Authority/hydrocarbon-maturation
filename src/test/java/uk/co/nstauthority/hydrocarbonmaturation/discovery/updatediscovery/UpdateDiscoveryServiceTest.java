@@ -8,14 +8,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryForm;
-import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryFormValidator;
-import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 
 @ExtendWith(MockitoExtension.class)
 class UpdateDiscoveryServiceTest {
+
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private SubmissionCreateService submissionCreateService;
@@ -30,8 +31,8 @@ class UpdateDiscoveryServiceTest {
   void createUpdateDiscovery_verifyMethodCall() {
     var form = new UpdateDiscoveryForm();
 
-    updateDiscoveryService.createUpdateDiscovery(form);
-    verify(submissionCreateService, times(1)).createUpdateDiscovery(form);
+    updateDiscoveryService.createUpdateDiscovery(form, USER);
+    verify(submissionCreateService, times(1)).createUpdateDiscovery(form, USER);
   }
 
   @Test

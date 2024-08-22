@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.DiscoveryWellDetailsController;
@@ -27,14 +28,14 @@ class PostWellDrillTaskListSectionService implements TaskListSectionService {
   }
 
   @Override
-  public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail) {
+  public Optional<TaskListSection> getSection(SubmissionDetail submissionDetail, User user) {
     var items = new ArrayList<TaskListItem>();
 
     if (submissionDetail.isDryWellSubmission()) {
       items.add(
           new TaskListItem("Dry well details",
               TaskListLabel.notStartedOrComplete(
-                  dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail)),
+                  dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail, user)),
               ReverseRouter.route(
                   on(DryWellDetailsController.class).getDryWellDetails(submissionDetail.getId(), null)))
       );
@@ -44,7 +45,7 @@ class PostWellDrillTaskListSectionService implements TaskListSectionService {
       items.add(
           new TaskListItem("Discovery well details",
               TaskListLabel.notStartedOrComplete(
-                  discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail)),
+                  discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail, user)),
               ReverseRouter.route(on(DiscoveryWellDetailsController.class)
                   .getDiscoveryWellDetails(submissionDetail.getId(), null)))
       );
@@ -58,11 +59,11 @@ class PostWellDrillTaskListSectionService implements TaskListSectionService {
   }
 
   @Override
-  public Boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
+  public Boolean isSectionSubmittable(SubmissionDetail submissionDetail, User user) {
     if (submissionDetail.isDryWellSubmission()) {
-      return dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail);
+      return dryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail, user);
     } else if (submissionDetail.isDiscoverySubmission()) {
-      return discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail);
+      return discoveryWellDetailsSubmissionService.isSectionSubmittable(submissionDetail, user);
     } else {
       return true;
     }

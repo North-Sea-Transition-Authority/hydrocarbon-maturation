@@ -17,7 +17,6 @@ import static uk.co.nstauthority.hydrocarbonmaturation.util.NotificationBannerTe
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +25,6 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBanner;
@@ -34,11 +32,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.Notificat
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectDetailsSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = DeleteProjectController.class)
 class DeleteProjectControllerTest extends AbstractControllerTest {
@@ -46,8 +45,6 @@ class DeleteProjectControllerTest extends AbstractControllerTest {
   private ProjectTrackerControllerService projectTrackerControllerService;
   @MockBean
   private ProjectDetailsSummaryService projectDetailsSummaryService;
-  @MockBean
-  private PermissionService permissionService;
 
   private final UUID RESOURCE_ID = UUID.randomUUID();
   private final UUID PROJECT_ID = UUID.randomUUID();
@@ -62,20 +59,18 @@ class DeleteProjectControllerTest extends AbstractControllerTest {
 
   @SecurityTest
   void getDeleteProjectConfirmation_whenNotProjectAnalyst_thenForbidden() throws Exception {
-    when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(false);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(DeleteProjectController.class)
-                .getDeleteProjectConfirmation(RESOURCE_ID, PROJECT_ID)))
+                .getDeleteProjectConfirmation(RESOURCE_ID, PROJECT_ID, null)))
                 .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
   @SecurityTest
   void getDeleteProjectConfirmation_whenProjectNotExtant_thenNotFound() throws Exception {
-    when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 
@@ -83,7 +78,7 @@ class DeleteProjectControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
             get(ReverseRouter.route(on(DeleteProjectController.class)
-                .getDeleteProjectConfirmation(RESOURCE_ID, PROJECT_ID)))
+                .getDeleteProjectConfirmation(RESOURCE_ID, PROJECT_ID, null)))
                 .with(user(user)))
         .andExpect(status().isNotFound());
   }
@@ -95,8 +90,7 @@ class DeleteProjectControllerTest extends AbstractControllerTest {
       mode = EnumSource.Mode.EXCLUDE
   )
   void deleteProject_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
-    when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 
@@ -104,7 +98,7 @@ class DeleteProjectControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
             post(ReverseRouter.route(on(DeleteProjectController.class)
-                .getDeleteProjectConfirmation(RESOURCE_ID, PROJECT_ID)))
+                .getDeleteProjectConfirmation(RESOURCE_ID, PROJECT_ID, null)))
                 .with(csrf())
                 .with(user(user)))
         .andExpect(status().isNotFound());
@@ -112,22 +106,20 @@ class DeleteProjectControllerTest extends AbstractControllerTest {
 
   @Test
   void getDeleteProjectConfirmation_whenProjectNotForResource_thenNotFound() throws Exception {
-    when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenThrow(RemiEntityNotFoundException.class);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(DeleteProjectController.class)
-                .getDeleteProjectConfirmation(RESOURCE_ID, PROJECT_ID)))
+                .getDeleteProjectConfirmation(RESOURCE_ID, PROJECT_ID, null)))
                 .with(user(user)))
         .andExpect(status().isNotFound());
   }
 
   @Test
   void getDeleteProjectConfirmation_assertProperties() throws Exception {
-    when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 
@@ -138,12 +130,12 @@ class DeleteProjectControllerTest extends AbstractControllerTest {
         List.of(),
         List.of());
 
-    when(projectDetailsSummaryService.getProjectSummaryCard(project))
+    when(projectDetailsSummaryService.getProjectSummaryCard(project, user))
         .thenReturn(summaryCard);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
                 get(ReverseRouter.route(on(DeleteProjectController.class)
-                    .getDeleteProjectConfirmation(RESOURCE_ID, PROJECT_ID)))
+                    .getDeleteProjectConfirmation(RESOURCE_ID, PROJECT_ID, null)))
                     .with(user(user)))
             .andExpect(status().isOk())
             .andExpect(view().name("remi/field/projecttracker/deleteProjectConfirmation"))
@@ -162,8 +154,7 @@ class DeleteProjectControllerTest extends AbstractControllerTest {
 
   @Test
   void deleteProject_assertProperties() throws Exception {
-    when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)).thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
 

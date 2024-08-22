@@ -39,7 +39,7 @@ class FieldTrapPropertiesSubmissionServiceTest {
         any(FieldTrapPropertiesForm.class), any(Errors.class), eq(submissionDetail), eq(ValidationType.FULL))
     ).thenReturn(true);
 
-    assertTrue(fieldTrapPropertiesSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(fieldTrapPropertiesSubmissionService.isSectionSubmittable(submissionDetail, null));
   }
 
   @Test
@@ -55,12 +55,12 @@ class FieldTrapPropertiesSubmissionServiceTest {
         any(FieldTrapPropertiesForm.class), any(Errors.class), eq(submissionDetail), eq(ValidationType.FULL))
     ).thenReturn(false);
 
-    assertFalse(fieldTrapPropertiesSubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(fieldTrapPropertiesSubmissionService.isSectionSubmittable(submissionDetail, null));
   }
 
   @Test
   void isSectionSubmittable_whenNotFieldSubmission_thenTrue() {
     var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
-    assertTrue(fieldTrapPropertiesSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(fieldTrapPropertiesSubmissionService.isSectionSubmittable(submissionDetail, null));
   }
 }

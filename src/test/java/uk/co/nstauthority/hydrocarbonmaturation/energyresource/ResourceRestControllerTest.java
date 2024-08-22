@@ -54,7 +54,7 @@ class ResourceRestControllerTest extends AbstractControllerTest {
   @SecurityTest
   void searchProspects() throws Exception {
     mockMvc.perform(get(SearchSelectorService.route(on(ResourceRestController.class)
-            .searchProspects(null, SubmissionType.PROSPECT_UPDATE)))
+            .searchProspects(null, SubmissionType.PROSPECT_UPDATE, null)))
             .param("term", "searchTerm")
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .with(user(USER)))
@@ -64,7 +64,7 @@ class ResourceRestControllerTest extends AbstractControllerTest {
   @SecurityTest
   void searchDiscoveries() throws Exception {
     mockMvc.perform(get(SearchSelectorService.route(on(ResourceRestController.class)
-            .searchDiscoveries(null, SubmissionType.UPDATE_DISCOVERY)))
+            .searchDiscoveries(null, SubmissionType.UPDATE_DISCOVERY, null)))
             .param("term", "searchTerm")
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .with(user(USER)))
@@ -84,7 +84,7 @@ class ResourceRestControllerTest extends AbstractControllerTest {
   @SecurityTest
   void searchResources() throws Exception {
     mockMvc.perform(get(SearchSelectorService.route(on(ResourceRestController.class)
-            .searchProspectsAndDiscoveries(null)))
+            .searchProspectsAndDiscoveries(null, null)))
             .param("term", "searchTerm")
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .with(user(USER)))
@@ -94,7 +94,7 @@ class ResourceRestControllerTest extends AbstractControllerTest {
   @SecurityTest
   void searchFieldsByFieldName() throws Exception {
     mockMvc.perform(get(SearchSelectorService.route(on(ResourceRestController.class)
-            .searchFieldsByFieldName( null)))
+            .searchFieldsByFieldName( null, null)))
             .param("term", "searchTerm")
             .accept(MediaType.APPLICATION_JSON_VALUE)
             .with(user(USER)))

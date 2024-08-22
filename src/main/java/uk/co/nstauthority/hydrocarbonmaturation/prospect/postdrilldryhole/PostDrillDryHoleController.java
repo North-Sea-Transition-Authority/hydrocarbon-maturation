@@ -11,18 +11,21 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Controller
 @RequestMapping("prospect/post-drill-dry-hole")
-@HasPermission(permissions = {RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT})
+@HasAnyRole(role = Role.INDUSTRY_SUBMIT, teamType = TeamType.INDUSTRY)
+@HasAnyRole(role = Role.EXPLORATION, teamType = TeamType.REGULATOR)
 public class PostDrillDryHoleController {
 
   private final PostDrillDryHoleService postDrillDryHoleService;
@@ -42,13 +45,14 @@ public class PostDrillDryHoleController {
 
   @PostMapping
   public ModelAndView createPostDrillDryHole(@Valid @ModelAttribute("form") PostDrillDryHoleForm form,
-                                             BindingResult bindingResult) {
+                                             BindingResult bindingResult,
+                                             User user) {
     bindingResult = postDrillDryHoleService.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getPostDrillDryHolePageModelAndView(form),
         () -> {
-          var submissionDetail = postDrillDryHoleService.createPostDrillDryHoleSubmission(form);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId()));
+          var submissionDetail = postDrillDryHoleService.createPostDrillDryHoleSubmission(form, user);
+          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId(), null));
         }
     );
   }
@@ -57,10 +61,12 @@ public class PostDrillDryHoleController {
     return new ModelAndView("remi/prospect/postDrillDryHole")
         .addObject("backLinkUrl",
             ReverseRouter.route(on(StartPostDrillDryHoleSubmissionController.class).getStartPostDrillDryHolePage()))
-        .addObject("actionUrl", ReverseRouter.route(on(PostDrillDryHoleController.class).createPostDrillDryHole(null, null)))
+        .addObject("actionUrl",
+            ReverseRouter.route(on(PostDrillDryHoleController.class)
+                .createPostDrillDryHole(null, null, null)))
         .addObject("form", form)
         .addObject("prospectApiEndpoint",
             SearchSelectorService.route(on(ResourceRestController.class)
-                .searchProspects(null, SubmissionType.POST_DRILL_DRY_HOLE)));
+                .searchProspects(null, SubmissionType.POST_DRILL_DRY_HOLE, null)));
   }
 }

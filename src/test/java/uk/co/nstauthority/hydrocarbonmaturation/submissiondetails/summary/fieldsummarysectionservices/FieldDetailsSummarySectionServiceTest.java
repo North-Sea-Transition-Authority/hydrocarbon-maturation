@@ -10,6 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldtrapproperties.FieldTrapPropertiesSummaryService;
@@ -21,6 +23,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 
 @ExtendWith(MockitoExtension.class)
 class FieldDetailsSummarySectionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
   @Mock
   private FieldTrapPropertiesSummaryService fieldTrapPropertiesSummaryService;
   @Mock
@@ -32,7 +35,7 @@ class FieldDetailsSummarySectionServiceTest {
   void getSummarySection_notFieldSubmission_assertEmpty() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
 
-    assertThat(fieldDetailsSummarySectionService.getSummarySection(submissionDetail))
+    assertThat(fieldDetailsSummarySectionService.getSummarySection(submissionDetail, USER))
         .isEmpty();
   }
 
@@ -67,7 +70,7 @@ class FieldDetailsSummarySectionServiceTest {
         List.of(expectedSummaryItem),
         FieldDetailsSummarySectionService.FIELD_DETAILS_SUMMARY_TEXT));
 
-    assertThat(fieldDetailsSummarySectionService.getSummarySection(submissionDetail))
+    assertThat(fieldDetailsSummarySectionService.getSummarySection(submissionDetail, USER))
         .isPresent()
         .usingRecursiveComparison()
         .isEqualTo(expectedSummarySection);

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsLatestExtantSubmissionDetailVersion;
@@ -63,14 +64,14 @@ public class StartUpdateController {
   }
 
   @PostMapping
-  public ModelAndView startUpdate(@PathVariable("submissionDetailId") UUID submissionDetailId) {
+  public ModelAndView startUpdate(@PathVariable("submissionDetailId") UUID submissionDetailId, User user) {
     var submissionDetail = submissionDetailService
         .getSubmissionDetailForIdOrError(submissionDetailId);
 
     if (submissionUpdateService.canStartUpdateSubmissionDetailOnSubmission(submissionDetail.getSubmission())) {
-      var updateSubmissionDetail = submissionUpdatePersistenceService.startUpdate(submissionDetail);
+      var updateSubmissionDetail = submissionUpdatePersistenceService.startUpdate(submissionDetail, user);
 
-      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(updateSubmissionDetail.getId()));
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(updateSubmissionDetail.getId(), null));
     } else {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN,
           "Could not start an update due to missing update request for submission %s or a draft update exists"
@@ -92,7 +93,7 @@ public class StartUpdateController {
         modelAndView, PAGE_NAME, resourceName, submissionDetail);
     return modelAndView
         .addObject("startUpdateUrl", ReverseRouter.route(on(StartUpdateController.class)
-            .startUpdate(submissionDetail.getId())))
+            .startUpdate(submissionDetail.getId(), null)))
         .addObject("pageTitle", PAGE_NAME)
         .addObject("updateRequestReason", submissionUpdate.getReason());
   }

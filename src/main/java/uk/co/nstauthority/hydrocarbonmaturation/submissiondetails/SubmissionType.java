@@ -1,19 +1,21 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 
 public enum SubmissionType implements Displayable {
   CREATE_PROSPECT(
       "Prospect create",
       "Create a new prospect",
       Set.of(ResourceType.PROSPECT),
-      Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT),
+      Set.of(Role.EXPLORATION, Role.INDUSTRY_SUBMIT),
       null,
       10
   ),
@@ -21,7 +23,7 @@ public enum SubmissionType implements Displayable {
       "Prospect update",
       "Update an existing prospect",
       Set.of(ResourceType.PROSPECT),
-      Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT),
+      Set.of(Role.EXPLORATION, Role.INDUSTRY_SUBMIT),
       null,
       20
   ),
@@ -29,7 +31,7 @@ public enum SubmissionType implements Displayable {
       "Post-drill dry hole submission",
       "Advise of a post-drill dry hole",
       Set.of(ResourceType.PROSPECT),
-      Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT),
+      Set.of(Role.EXPLORATION, Role.INDUSTRY_SUBMIT),
       null,
       30
   ),
@@ -37,7 +39,7 @@ public enum SubmissionType implements Displayable {
       "Post-drill discovery",
       "Advise of a post-drill discovery",
       Set.of(ResourceType.PROSPECT, ResourceType.DISCOVERY),
-      Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT),
+      Set.of(Role.EXPLORATION, Role.INDUSTRY_SUBMIT),
       null,
       40
   ),
@@ -45,7 +47,7 @@ public enum SubmissionType implements Displayable {
       "Post-drill discovery",
       "Create a discovery not related to a drill on a prospect",
       Set.of(ResourceType.DISCOVERY),
-      Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT),
+      Set.of(Role.EXPLORATION, Role.INDUSTRY_SUBMIT),
       null,
       50
   ),
@@ -53,8 +55,7 @@ public enum SubmissionType implements Displayable {
       "Post-drill discovery update",
       "Update an existing discovery",
       Set.of(ResourceType.DISCOVERY),
-      Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT, RolePermission.ONSHORE_AREA_TEAM_MEMBER,
-          RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
+      Set.of(Role.EXPLORATION, Role.INDUSTRY_SUBMIT, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM),
       null,
       60
   ),
@@ -62,7 +63,7 @@ public enum SubmissionType implements Displayable {
       "Relinquishment",
       "Advise of a relinquishment",
       Set.of(ResourceType.PROSPECT),
-      Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT),
+      Set.of(Role.EXPLORATION, Role.INDUSTRY_SUBMIT),
       null,
       70
   ),
@@ -70,8 +71,7 @@ public enum SubmissionType implements Displayable {
       "Relinquishment",
       "Advise of a relinquishment",
       Set.of(ResourceType.DISCOVERY),
-      Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT, RolePermission.ONSHORE_AREA_TEAM_MEMBER,
-          RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
+      Set.of(Role.EXPLORATION, Role.INDUSTRY_SUBMIT, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM),
       null,
       80
   ),
@@ -79,8 +79,7 @@ public enum SubmissionType implements Displayable {
       "Field",
       "Create a new field",
       Set.of(ResourceType.FIELD),
-      Set.of(RolePermission.ONSHORE_AREA_TEAM_MEMBER,
-          RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
+      Set.of(Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM),
       null,
       90
   ),
@@ -89,8 +88,7 @@ public enum SubmissionType implements Displayable {
       "Provide a concept select report (CSR)",
       "CSR",
       Set.of(ResourceType.FIELD),
-      Set.of(RolePermission.INDUSTRY_SUBMIT, RolePermission.ONSHORE_AREA_TEAM_MEMBER,
-          RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
+      Set.of(Role.INDUSTRY_SUBMIT, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM),
       "Only the final report agreed with NSTA should be provided",
       100
   ),
@@ -99,8 +97,7 @@ public enum SubmissionType implements Displayable {
       "Provide a field development plan (FDP)",
       "FDP",
       Set.of(ResourceType.FIELD),
-      Set.of(RolePermission.INDUSTRY_SUBMIT, RolePermission.ONSHORE_AREA_TEAM_MEMBER,
-          RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
+      Set.of(Role.INDUSTRY_SUBMIT, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM),
       "Only the final plan agreed with NSTA should be provided",
       110
   ),
@@ -109,8 +106,7 @@ public enum SubmissionType implements Displayable {
       "Provide a field development plan addendum (FDPA)",
       "FDPA",
       Set.of(ResourceType.FIELD),
-      Set.of(RolePermission.INDUSTRY_SUBMIT, RolePermission.ONSHORE_AREA_TEAM_MEMBER,
-          RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
+      Set.of(Role.INDUSTRY_SUBMIT, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM),
       "Only the final plan agreed with NSTA should be provided",
       120
   ),
@@ -119,8 +115,7 @@ public enum SubmissionType implements Displayable {
       "Advise of cessation of production (CoP)",
       "CoP",
       Set.of(ResourceType.FIELD),
-      Set.of(RolePermission.INDUSTRY_SUBMIT, RolePermission.ONSHORE_AREA_TEAM_MEMBER,
-          RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER, RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER),
+      Set.of(Role.INDUSTRY_SUBMIT, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM),
       "Only provide once production has ceased permanently and all the wells have been shut in",
       130
   );
@@ -129,7 +124,7 @@ public enum SubmissionType implements Displayable {
   private final String displayName;
   private final String acronym;
   private final Set<ResourceType> resourceTypes;
-  private final Set<RolePermission> permissions;
+  private final Set<Role> roles;
   private final String hintText;
   private final int displayOrder;
 
@@ -137,14 +132,14 @@ public enum SubmissionType implements Displayable {
                  String displayName,
                  String acronym,
                  Set<ResourceType> resourceTypes,
-                 Set<RolePermission> permissions,
+                 Set<Role> roles,
                  String hintText,
                  int displayOrder) {
     this.typeName = typeName;
     this.displayName = displayName;
     this.acronym = acronym;
     this.resourceTypes = resourceTypes;
-    this.permissions = permissions;
+    this.roles = roles;
     this.hintText = hintText;
     this.displayOrder = displayOrder;
   }
@@ -152,14 +147,14 @@ public enum SubmissionType implements Displayable {
   SubmissionType(String typeName,
                  String displayName,
                  Set<ResourceType> resourceTypes,
-                 Set<RolePermission> permissions,
+                 Set<Role> roles,
                  String hintText,
                  int displayOrder) {
     this.typeName = typeName;
     this.displayName = displayName;
     this.acronym = null;
     this.resourceTypes = resourceTypes;
-    this.permissions = permissions;
+    this.roles = roles;
     this.hintText = hintText;
     this.displayOrder = displayOrder;
   }
@@ -198,8 +193,8 @@ public enum SubmissionType implements Displayable {
     return resourceTypes;
   }
 
-  public Set<RolePermission> getPermissions() {
-    return permissions;
+  public Set<Role> getRoles() {
+    return roles;
   }
 
   public String getHintText() {
@@ -211,6 +206,20 @@ public enum SubmissionType implements Displayable {
       case  PROSPECT_UPDATE, UPDATE_DISCOVERY -> true;
       default -> false;
     };
+  }
+
+  public static Set<Role> getRolesThatCanSubmit() {
+    return Arrays.stream(SubmissionType.values())
+        .map(SubmissionType::getRoles)
+        .flatMap(Collection::stream).collect(Collectors.toSet());
+  }
+
+  public static Set<ResourceType> getResourceTypesForRoles(Set<Role> roles) {
+    return Arrays.stream(SubmissionType.values())
+        .filter(submissionType -> submissionType.getRoles().stream().anyMatch(roles::contains))
+        .map(SubmissionType::getResourceTypes)
+        .flatMap(Collection::stream)
+        .collect(Collectors.toSet());
   }
 
 }

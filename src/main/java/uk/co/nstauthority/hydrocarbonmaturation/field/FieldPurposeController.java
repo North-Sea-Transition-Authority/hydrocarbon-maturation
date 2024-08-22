@@ -12,27 +12,27 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.cessationofproduction.StartCessationOfProductionController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.conceptselectreport.StartConceptSelectReportController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fielddevelopmentplan.StartFieldDevelopmentPlanController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fielddevelopmentplanaddendum.StartFieldDevelopmentPlanAddendumController;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.StartSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTypeSelectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTypeSelectService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Controller
 @RequestMapping("/field/purpose")
-@HasPermission(permissions = {
-    RolePermission.INDUSTRY_SUBMIT,
-    RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.ONSHORE_AREA_TEAM_MEMBER
-})
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.NORTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.SOUTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.ONSHORE_AREA)
+@HasAnyRole(role = Role.INDUSTRY_SUBMIT, teamType = TeamType.INDUSTRY)
 public class FieldPurposeController {
   private final ControllerHelperService controllerHelperService;
   private final SubmissionTypeSelectService submissionTypeSelectService;
@@ -45,17 +45,18 @@ public class FieldPurposeController {
   }
 
   @GetMapping
-  public ModelAndView getFieldPurposeForm() {
-    return getFieldPurposeTypeModelAndView(new SubmissionTypeSelectForm());
+  public ModelAndView getFieldPurposeForm(User user) {
+    return getFieldPurposeTypeModelAndView(new SubmissionTypeSelectForm(), user);
   }
 
   @PostMapping
   public ModelAndView startFieldSubmission(@ModelAttribute("form") SubmissionTypeSelectForm form,
-                                               BindingResult bindingResult) {
+                                           BindingResult bindingResult,
+                                           User user) {
     bindingResult = submissionTypeSelectService.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getFieldPurposeTypeModelAndView(form),
+        getFieldPurposeTypeModelAndView(form, user),
         () -> switch (form.getSubmissionType()) {
           case CREATE_FIELD -> ReverseRouter.redirect(on(StartFieldController.class).getStartPage());
           case CREATE_CSR -> ReverseRouter.redirect(on(StartConceptSelectReportController.class).getStartPage());
@@ -68,13 +69,13 @@ public class FieldPurposeController {
         });
   }
 
-  ModelAndView getFieldPurposeTypeModelAndView(SubmissionTypeSelectForm submissionTypeSelectForm) {
+  ModelAndView getFieldPurposeTypeModelAndView(SubmissionTypeSelectForm submissionTypeSelectForm, User user) {
     return new ModelAndView("remi/submissiondetails/submissionPurpose")
-        .addObject("submissionTypes", submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.FIELD))
+        .addObject("submissionTypes", submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.FIELD, user))
         .addObject("form", submissionTypeSelectForm)
         .addObject("actionUrl", ReverseRouter.route(on(FieldPurposeController.class)
-            .startFieldSubmission(null, null)))
+            .startFieldSubmission(null, null, null)))
         .addObject("backLinkUrl", ReverseRouter.route(on(StartSubmissionController.class)
-            .getSubmissionType()));
+            .getSubmissionType(null)));
   }
 }

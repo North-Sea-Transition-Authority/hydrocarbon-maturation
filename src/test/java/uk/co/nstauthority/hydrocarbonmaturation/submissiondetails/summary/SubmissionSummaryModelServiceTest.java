@@ -18,6 +18,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.SummaryBehaviour;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -54,6 +56,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 class SubmissionSummaryModelServiceTest {
 
   private static final String SUBMISSION_UPDATE_REASON = "reason for update here";
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private ProspectSummaryService prospectSummaryService;
@@ -168,7 +171,7 @@ class SubmissionSummaryModelServiceTest {
           .thenReturn(resourceDetailSummaryView);
     }
 
-    submissionSummaryModelServiceSpy.createSummaryForSubmissionTypeToModelAndView(submissionDetail, viewName);
+    submissionSummaryModelServiceSpy.createSummaryForSubmissionTypeToModelAndView(submissionDetail, viewName, USER);
 
     switch (submissionDetail.getSubmissionType()) {
       case CREATE_PROSPECT, PROSPECT_UPDATE, RELINQUISHMENT_PROSPECT ->
@@ -179,9 +182,9 @@ class SubmissionSummaryModelServiceTest {
               viewName);
       case CREATE_DISCOVERY, UPDATE_DISCOVERY, CREATE_DISCOVERY_FROM_PROSPECT, RELINQUISHMENT_DISCOVERY ->
           verify(submissionSummaryModelServiceSpy).createDiscoverySubmissionSummaryModelAndView(submissionDetail,
-              viewName);
+              viewName, USER);
       case CREATE_CSR, CREATE_FDP, CREATE_FDPA, CREATE_COP ->
-          verify(submissionSummaryModelServiceSpy).createFieldSubmissionSummaryModelAndView(submissionDetail, viewName);
+          verify(submissionSummaryModelServiceSpy).createFieldSubmissionSummaryModelAndView(submissionDetail, viewName, USER);
       default -> {
         // do nothing
       }
@@ -322,7 +325,7 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(opportunityDetailsSummaryView);
     when(prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(resourceDetailSummaryView);
-    when(discoverySummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail))
+    when(discoverySummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail, USER))
         .thenReturn(reservoirSummaries);
     when(discoverySummaryService.getOutlineForMaximumCaseSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(outlineForMaximumCaseSummaryView);
@@ -334,9 +337,9 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(chanceOfSuccessSummaryView);
 
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn("test");
-    when(totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail)).thenReturn(false);
+    when(totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail, USER)).thenReturn(false);
     var modelAndView =
-        submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(submissionDetail, "view-name");
+        submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(submissionDetail, "view-name", USER);
 
     assertThat(modelAndView.getModelMap())
         .containsExactly(
@@ -368,7 +371,7 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(opportunityDetailsSummaryView);
     when(prospectSummaryService.getResourceDetailSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(resourceDetailSummaryView);
-    when(discoverySummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail))
+    when(discoverySummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail, USER))
         .thenReturn(reservoirSummaries);
     when(discoverySummaryService.getOutlineForMaximumCaseSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(outlineForMaximumCaseSummaryView);
@@ -381,7 +384,7 @@ class SubmissionSummaryModelServiceTest {
 
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn("test");
 
-    when(totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail)).thenReturn(true);
+    when(totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail, USER)).thenReturn(true);
     var reservoirSubmissionDetails = List.of(
         ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail));
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
@@ -395,7 +398,7 @@ class SubmissionSummaryModelServiceTest {
     when(discoverySummaryService.getGasCaseVolumetricTotalsFromSubmissionDetail(submissionDetail)).thenReturn(
         discoveryGasCaseVolumetricTotalsSummaryView);
     var modelAndView =
-        submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(submissionDetail, "view-name");
+        submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(submissionDetail, "view-name", USER);
 
     assertThat(modelAndView.getModelMap())
         .containsExactly(
@@ -425,12 +428,12 @@ class SubmissionSummaryModelServiceTest {
   void createFieldSubmissionSummaryModelAndView() {
     var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn("test");
-    when(submissionSummaryService.getSummarySections(submissionDetail)).thenReturn(summarySections);
-    when(fieldSummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail)).thenReturn(
+    when(submissionSummaryService.getSummarySections(submissionDetail, USER)).thenReturn(summarySections);
+    when(fieldSummaryService.getReservoirSummariesFromSubmissionDetail(submissionDetail, USER)).thenReturn(
         reservoirSummaries);
 
     var modelAndView =
-        submissionSummaryModelService.createFieldSubmissionSummaryModelAndView(submissionDetail, "view-name");
+        submissionSummaryModelService.createFieldSubmissionSummaryModelAndView(submissionDetail, "view-name", USER);
 
     assertThat(modelAndView.getModelMap())
         .containsExactly(
@@ -455,7 +458,7 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(resourceDetailSummaryView);
 
     var modelAndView =
-        submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(submissionDetail, "view-name");
+        submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(submissionDetail, "view-name", USER);
     assertThat(modelAndView.getModelMap())
         .contains(
             entry("accordionId", submissionDetail.getId()),
@@ -481,7 +484,7 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(onshoreResourceDetailSummaryView);
 
     var modelAndView =
-        submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(submissionDetail, "view-name");
+        submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(submissionDetail, "view-name", USER);
     assertThat(modelAndView.getModelMap())
         .contains(
             entry("accordionId", submissionDetail.getId()),
@@ -502,7 +505,7 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(resourceDetailSummaryView);
 
     var modelAndView =
-        submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(submissionDetail, "view-name");
+        submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(submissionDetail, "view-name", USER);
     assertThat(modelAndView.getModelMap())
         .contains(
             entry("accordionId", submissionDetail.getId()),

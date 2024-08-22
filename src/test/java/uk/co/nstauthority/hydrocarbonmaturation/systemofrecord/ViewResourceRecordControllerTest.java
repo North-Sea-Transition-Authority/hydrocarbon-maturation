@@ -59,6 +59,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionSelectionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoverySummaryController;
 
 @ContextConfiguration(classes = ViewResourceRecordController.class)
@@ -111,7 +113,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   @SecurityTest
   void showResourceRecord_NoUser_assertStatusUnauthorized() throws Exception {
     mockMvc.perform(
-            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId))))
+            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null))))
         .andExpect(status().isUnauthorized());
   }
 
@@ -120,7 +122,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, USER)).thenReturn(false);
 
     mockMvc.perform(
-            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)))
+            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -134,7 +136,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .thenReturn(true);
     mockModelAndViewCreation(submissionDetail, List.of());
     mockMvc.perform(
-            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)))
+            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
                 .with(user(USER)))
         .andExpect(status().isOk());
   }
@@ -156,7 +158,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     mockModelAndViewCreation(otherSubmissionOnResource, queryResult);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class)
-                .showSubmissionSummary(resourceId, otherSubmissionOnResource.getId(), null)))
+                .showSubmissionSummary(resourceId, otherSubmissionOnResource.getId(), null, null)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -176,7 +178,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null)),
+        entry(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null, null)),
             SearchProspectAndDiscoveryRecordsController.PAGE_TITLE)
     );
   }
@@ -198,7 +200,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     mockModelAndViewCreation(otherSubmissionOnResource, queryResult);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class)
-                .showSubmissionSummary(resourceId, otherSubmissionOnResource.getId(), null)))
+                .showSubmissionSummary(resourceId, otherSubmissionOnResource.getId(), null, null)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -218,7 +220,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null)),
+        entry(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null, null)),
             SearchProspectAndDiscoveryRecordsController.PAGE_TITLE)
     );
   }
@@ -247,7 +249,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class)
-                .showSubmissionSummary(resourceId, otherSubmissionOnResource.getId(), null)))
+                .showSubmissionSummary(resourceId, otherSubmissionOnResource.getId(), null, null)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -266,7 +268,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null)),
+        entry(ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null, null)),
             SearchFieldRecordsController.PAGE_TITLE)
     );
   }
@@ -290,7 +292,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     mockModelAndViewCreation(submissionDetail, List.of());
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)))
+            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -307,7 +309,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null)),
+        entry(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null, null)),
             SearchProspectAndDiscoveryRecordsController.PAGE_TITLE)
     );
   }
@@ -320,8 +322,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, USER)).thenReturn(true);
     when(viewResourceRecordService.isRegulatorOrAreaTeamUser(USER))
         .thenReturn(true);
-    when(regulatorTeamService.isRegulatorUser(USER))
-        .thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     when(responsibleTeamService.isInResponsibleTeam(USER, resourceRecordSummaryView.responsibleTeam()))
         .thenReturn(true);
     resource.setId(resourceId);
@@ -350,7 +351,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)))
+            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -382,7 +383,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null)),
+        entry(ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null, null)),
             SearchFieldRecordsController.PAGE_TITLE)
     );
   }
@@ -396,8 +397,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .thenReturn(true);
     when(viewResourceRecordService.isRegulatorOrAreaTeamUser(USER))
         .thenReturn(true);
-    when(regulatorTeamService.isRegulatorUser(USER))
-        .thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     when(responsibleTeamService.isInResponsibleTeam(USER, resourceRecordSummaryView.responsibleTeam()))
         .thenReturn(true);
 
@@ -420,7 +420,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .thenReturn(regulatorSummary);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)))
+            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -441,7 +441,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null)),
+        entry(ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null, null)),
             SearchFieldRecordsController.PAGE_TITLE)
     );
   }
@@ -454,7 +454,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .thenReturn(true);
     when(viewResourceRecordService.isRegulatorOrAreaTeamUser(USER))
         .thenReturn(true);
-    when(regulatorTeamService.isRegulatorUser(USER))
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER))
         .thenReturn(true);
     when(responsibleTeamService.isInResponsibleTeam(USER, resourceRecordSummaryView.responsibleTeam()))
         .thenReturn(true);
@@ -477,7 +477,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .thenReturn(regulatorSummary);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)))
+            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -493,8 +493,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, USER)).thenReturn(true);
     when(viewResourceRecordService.isRegulatorOrAreaTeamUser(USER))
         .thenReturn(true);
-    when(regulatorTeamService.isRegulatorUser(USER))
-        .thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     when(responsibleTeamService.isInResponsibleTeam(USER, resourceRecordSummaryView.responsibleTeam()))
         .thenReturn(true);
     var regulatorSummary = RegulatorManagedInformationSummaryView.empty(false);
@@ -513,7 +512,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     mockModelAndViewCreation(submissionDetail, queryResult);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)))
+            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -545,7 +544,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null)),
+        entry(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null, null)),
             SearchProspectAndDiscoveryRecordsController.PAGE_TITLE)
     );
   }
@@ -558,8 +557,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, USER)).thenReturn(true);
     when(viewResourceRecordService.isRegulatorOrAreaTeamUser(USER))
         .thenReturn(true);
-    when(regulatorTeamService.isRegulatorUser(USER))
-        .thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     when(responsibleTeamService.isInResponsibleTeam(USER, resourceRecordSummaryView.responsibleTeam()))
         .thenReturn(true);
     var regulatorSummary = RegulatorManagedInformationSummaryView.empty(false);
@@ -578,7 +576,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     mockModelAndViewCreation(submissionDetail, queryResult);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)))
+            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -610,7 +608,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
-        entry(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null)),
+        entry(ReverseRouter.route(on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null, null)),
             SearchProspectAndDiscoveryRecordsController.PAGE_TITLE)
     );
   }
@@ -625,7 +623,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .thenReturn(false);
     mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class)
-                .showSubmissionSummary(resourceId, otherSubmissionId, null)))
+                .showSubmissionSummary(resourceId, otherSubmissionId, null, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -636,7 +634,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
 
     when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, USER)).thenReturn(true);
-    when(regulatorTeamService.isReservesAndResourcesAdvisor(USER)).thenReturn(true);
+    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.RESERVES_AND_RESOURCES_ADVISOR)).thenReturn(true);
 
     resource.setId(resourceId);
     resource.setType(ResourceType.DISCOVERY);
@@ -647,7 +645,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     mockModelAndViewCreation(submissionDetail, queryResult);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId)))
+            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -665,14 +663,14 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("submissionType", submissionDetail.getSubmissionType()),
             entry("canViewRegulatorManagementInfo", false),
             entry("undevelopedDiscoveryUrl", ReverseRouter.route(on(UndevelopedDiscoverySummaryController.class)
-                .getUndevelopedDiscoverySummary(resourceId)))
+                .getUndevelopedDiscoverySummary(resourceId, null)))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(
-                on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null)),
+                on(SearchProspectAndDiscoveryRecordsController.class).showSearchResourceRecordsScreen(null, null)),
             SearchProspectAndDiscoveryRecordsController.PAGE_TITLE)
     );
   }
@@ -691,7 +689,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .thenReturn(false);
     mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class)
-                .showSubmissionSummary(resourceId, otherSubmissionId, null)))
+                .showSubmissionSummary(resourceId, otherSubmissionId, null, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -706,15 +704,14 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
         .thenReturn(true);
     when(resourceService.getResourceById(resourceId))
         .thenReturn(Optional.empty());
-    when(regulatorTeamService.isRegulatorUser(USER))
-        .thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     when(responsibleTeamService.isInResponsibleTeam(USER, resourceRecordSummaryView.responsibleTeam()))
         .thenReturn(true);
-    when(submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(any(), any()))
+    when(submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(any(), any(), any()))
         .thenReturn(new ModelAndView());
     mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class)
-                .showSubmissionSummary(resourceId, otherSubmissionId, null)))
+                .showSubmissionSummary(resourceId, otherSubmissionId, null, null)))
                 .with(user(USER)))
         .andExpect(status().isNotFound());
   }
@@ -730,12 +727,12 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
                 .flashAttr("form", form))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ViewResourceRecordController.class)
-            .showSubmissionSummary(resourceId, UUID.fromString(form.getSelectedSubmissionId()), null))));
+            .showSubmissionSummary(resourceId, UUID.fromString(form.getSelectedSubmissionId()), null, null))));
   }
 
   void mockModelAndViewCreation(SubmissionDetail submissionDetail, List<SubmissionQuerySearchRecord> querySearchRecords) {
     var modelAndView = new ModelAndView();
-    when(submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(eq(submissionDetail), anyString()))
+    when(submissionSummaryModelService.createSummaryForSubmissionTypeToModelAndView(eq(submissionDetail), anyString(), any()))
         .thenReturn(modelAndView);
     when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resourceId)).thenReturn(querySearchRecords);
   }

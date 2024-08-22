@@ -17,7 +17,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,12 +31,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 
 @ContextConfiguration(classes = NewProspectController.class)
@@ -60,15 +60,14 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
     var form = new ResourceDetailsForm();
     form.setResponsibleOrganisationId("191002");
 
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(true);
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     var alreadySelectedOrgMap = mock(Map.class);
     when(organisationUnitQueryService.getPreSelectedOrganisationUnit(191002))
         .thenReturn(alreadySelectedOrgMap);
 
     var modelAndView = mockMvc.perform(
-            get(ReverseRouter.route(on(NewProspectController.class).getNewProspectPage(null)))
+            get(ReverseRouter.route(on(NewProspectController.class).getNewProspectPage(null, null)))
                 .flashAttr("form", form)
                 .with(user(USER)))
         .andReturn()
@@ -87,8 +86,8 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
             "alreadySelectedOrganisation")
         .containsExactly(
             ReverseRouter.route(on(StartProspectController.class).getStartPage()),
-            ReverseRouter.route(on(NewProspectController.class).createProspect(null, null)),
-            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null)),
+            ReverseRouter.route(on(NewProspectController.class).createProspect(null, null, null)),
+            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null, null)),
             form,
             ResourceType.PROSPECT.getDisplayName().toLowerCase(),
             true,
@@ -101,15 +100,14 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
     var form = new ResourceDetailsForm();
     form.setResponsibleOrganisationId(null);
 
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(true);
-    when(regulatorTeamService.isRegulatorUser(USER)).thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     var alreadySelectedOrgMap = mock(Map.class);
     when(organisationUnitQueryService.getPreSelectedOrganisationUnit(null))
         .thenReturn(alreadySelectedOrgMap);
 
     var modelAndView = mockMvc.perform(
-            get(ReverseRouter.route(on(NewProspectController.class).getNewProspectPage(null)))
+            get(ReverseRouter.route(on(NewProspectController.class).getNewProspectPage(null, null)))
                 .flashAttr("form", form)
                 .with(user(USER)))
         .andReturn()
@@ -128,8 +126,8 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
             "alreadySelectedOrganisation")
         .containsExactly(
             ReverseRouter.route(on(StartProspectController.class).getStartPage()),
-            ReverseRouter.route(on(NewProspectController.class).createProspect(null, null)),
-            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null)),
+            ReverseRouter.route(on(NewProspectController.class).createProspect(null, null, null)),
+            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null, null)),
             form,
             ResourceType.PROSPECT.getDisplayName().toLowerCase(),
             true,
@@ -142,18 +140,17 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
     var form = new ResourceDetailsForm();
 
     var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
-    when(startProspectService.validate(any(), any())).thenReturn(bindingResult);
-    when(startProspectService.createInitialProspect(form)).thenReturn(submissionDetail);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(true);
+    when(startProspectService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(startProspectService.createInitialProspect(form, USER)).thenReturn(submissionDetail);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     mockMvc.perform(
-            post(ReverseRouter.route(on(NewProspectController.class).createProspect(null, null)))
+            post(ReverseRouter.route(on(NewProspectController.class).createProspect(null, null, null)))
                 .flashAttr("form", form)
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(
-            TaskListController.class).getTaskList(submissionDetailId))));
+            TaskListController.class).getTaskList(submissionDetailId, null))));
   }
 
   @SecurityTest
@@ -162,17 +159,16 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
 
     var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
     bindingResult.addError(new ObjectError("form", "invalid form"));
-    when(startProspectService.validate(any(), any())).thenReturn(bindingResult);
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(true);
-    when(regulatorTeamService.isRegulatorUser(any())).thenReturn(true);
+    when(startProspectService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
     var alreadySelectedOrgMap = mock(Map.class);
     when(organisationUnitQueryService.getPreSelectedOrganisationUnit(any()))
         .thenReturn(alreadySelectedOrgMap);
 
     var modelAndView = mockMvc.perform(
-            post(ReverseRouter.route(on(NewProspectController.class).createProspect(null, null)))
+            post(ReverseRouter.route(on(NewProspectController.class).createProspect(null, null, null)))
                 .flashAttr("form", form)
                 .with(user(USER))
                 .with(csrf()))
@@ -193,38 +189,38 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
             "alreadySelectedOrganisation")
         .containsExactly(
             ReverseRouter.route(on(StartProspectController.class).getStartPage()),
-            ReverseRouter.route(on(NewProspectController.class).createProspect(null, null)),
-            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null)),
+            ReverseRouter.route(on(NewProspectController.class).createProspect(null, null, null)),
+            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null, null)),
             form,
             ResourceType.PROSPECT.getDisplayName().toLowerCase(),
             true,
             OnshoreOffshore.getOnshoreOffshore(),
             alreadySelectedOrgMap);
 
-    verify(startProspectService, times(1)).validate(eq(form), any());
-    verify(startProspectService, never()).createInitialProspect(any());
+    verify(startProspectService, times(1)).validate(eq(form), any(), any());
+    verify(startProspectService, never()).createInitialProspect(any(), any());
   }
 
   @SecurityTest
   void createProspect_hasNoPermission_assertIsForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(false);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(NewProspectController.class)
-                .createProspect(null, null)))
+                .createProspect(null, null, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
   @SecurityTest
   void getNewProspectPage_hasNoPermission_assertIsForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, Set.of(RolePermission.EXPLORATION, RolePermission.INDUSTRY_SUBMIT)))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(false);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(NewProspectController.class)
-                .getNewProspectPage(null)))
+                .getNewProspectPage(null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().isForbidden());

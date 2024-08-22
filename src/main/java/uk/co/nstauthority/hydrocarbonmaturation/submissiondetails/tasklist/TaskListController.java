@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
@@ -44,9 +45,9 @@ public class TaskListController {
   }
 
   @GetMapping
-  public ModelAndView getTaskList(@PathVariable("submissionDetailId") UUID submissionId) {
+  public ModelAndView getTaskList(@PathVariable("submissionDetailId") UUID submissionId, User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionId);
-    var sections = taskListService.getAllSections(submissionDetail);
+    var sections = taskListService.getAllSections(submissionDetail, user);
     String deleteLinkText;
     if (BooleanUtils.isTrue(submissionDetail.isCorrection())) {
       deleteLinkText = "Delete correction";
@@ -61,7 +62,7 @@ public class TaskListController {
         .addObject("resourceName", submissionResourceService.getResourceNameOrDefault(submissionDetail))
         .addObject("deleteLinkText", deleteLinkText)
         .addObject("deleteSubmissionUrl",
-            ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(submissionId)));
+            ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(submissionId, null)));
 
     var submissionUpdateOpt = submissionUpdateService
         .getLatestUnresolvedUpdateForUpdateSubmissionDetail(submissionDetail);

@@ -6,15 +6,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserProvider.user;
 
-import java.util.Set;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ContextConfiguration(classes = DeterminedFieldRestController.class)
 class DeterminedFieldRestControllerTest extends AbstractSubmissionControllerTest {
@@ -23,16 +23,12 @@ class DeterminedFieldRestControllerTest extends AbstractSubmissionControllerTest
   @MockBean
   private NewFieldService newFieldService;
   private final String TERM = "term";
-  private final Set<RolePermission> REQUIRED_PERMISSIONS = Set.of(
-      RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-      RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-      RolePermission.ONSHORE_AREA_TEAM_MEMBER
-  );
 
   @SecurityTest
   void searchDeterminedFields_whenNoPermission_assertForbidden() throws Exception {
-    when(permissionService.hasPermission(USER, REQUIRED_PERMISSIONS))
-        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(false);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(DeterminedFieldRestController.class).searchDeterminedFields(TERM)))
@@ -42,8 +38,7 @@ class DeterminedFieldRestControllerTest extends AbstractSubmissionControllerTest
   }
   @SecurityTest
   void searchDeterminedFields_assertOk() throws Exception {
-    when(permissionService.hasPermission(USER, REQUIRED_PERMISSIONS))
-        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(true);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(DeterminedFieldRestController.class).searchDeterminedFields(TERM)))

@@ -97,6 +97,7 @@ class GasFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
 
   @SecurityTest
   void getGasFluidProperties_andTypeIsNotDiscovery_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
     mockMvc.perform(
             get(ReverseRouter.route(on(GasFluidPropertyController.class).getGasFluidProperties(submissionDetailId, reservoirSubmissionDetailId)))
@@ -117,6 +118,7 @@ class GasFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void saveGasFluidProperties_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(gasFluidPropertyFormValidator.isValid(any(GasFluidPropertyForm.class), any(Errors.class), eq(reservoirSubmissionDetail), eq(validationType)))
         .thenReturn(true);
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
@@ -141,6 +143,7 @@ class GasFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void saveGasFluidProperties_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
     when(gasFluidPropertyFormValidator.isValid(any(GasFluidPropertyForm.class), any(Errors.class), eq(reservoirSubmissionDetail), eq(validationType)))
         .thenReturn(false);
@@ -163,6 +166,7 @@ class GasFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
 
   @Test
   void getGasFluidPropertiesModelAndView_noExistingProperties_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     var form = new GasFluidPropertyForm();
     when(gasFluidPropertyPersistenceService.getGasFluidProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
@@ -185,13 +189,14 @@ class GasFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
   }
 
   @Test
   void getGasFluidPropertiesModelAndView_existingProperties_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     var form = new GasFluidPropertyForm();
     when(gasFluidPropertyPersistenceService.getGasFluidProperty(reservoirSubmissionDetail))
         .thenReturn(Optional.of(new GasFluidProperty()));
@@ -214,7 +219,7 @@ class GasFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
 

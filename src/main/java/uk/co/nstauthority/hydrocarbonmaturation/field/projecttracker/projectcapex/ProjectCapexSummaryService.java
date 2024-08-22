@@ -9,11 +9,8 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -23,6 +20,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryTimelineView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.TimelineEvent;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.util.StringUtil;
 
@@ -35,35 +35,31 @@ class ProjectCapexSummaryService implements SummarySectionService<Project> {
       ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM);
 
   private final ProjectCapexService projectCapexService;
-  private final UserService userService;
-  private final PermissionService permissionService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   ProjectCapexSummaryService(ProjectCapexService projectCapexService,
-                             UserService userService,
-                             PermissionService permissionService) {
+                             TeamQueryService teamQueryService) {
     this.projectCapexService = projectCapexService;
-    this.userService = userService;
-    this.permissionService = permissionService;
+    this.teamQueryService = teamQueryService;
   }
 
   @Override
-  public Optional<SummarySection> getSummarySection(Project project) {
+  public Optional<SummarySection> getSummarySection(Project project, User user) {
     if (!TYPES_FOR_SECTION.contains(project.getProjectType())) {
       return Optional.empty();
     }
 
-    var summaryItems = List.of(SummaryItem.withCard(PROJECT_CAPEX, getProjectCapexSummaryCard(project)));
+    var summaryItems = List.of(SummaryItem.withCard(PROJECT_CAPEX, getProjectCapexSummaryCard(project, user)));
 
     return Optional.of(new SummarySection(DISPLAY_ORDER, summaryItems, ""));
   }
 
-  private SummaryCard getProjectCapexSummaryCard(Project project) {
+  private SummaryCard getProjectCapexSummaryCard(Project project, User user) {
     var timelineEvents = projectCapexService.getOrderedCreatedProjectCapexs(project).stream()
-        .map(this::toTimelineEvent)
+        .map(t -> toTimelineEvent(t, user))
         .toList();
 
-    var user = userService.getUser();
     var actions = getActionsForUser(project, user);
 
     if (timelineEvents.isEmpty()) {
@@ -80,7 +76,7 @@ class ProjectCapexSummaryService implements SummarySectionService<Project> {
   }
 
   private List<SummaryAction> getActionsForUser(Project project, User user) {
-    if (!permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))) {
+    if (!teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)) {
       return List.of();
     }
     return List.of(
@@ -93,7 +89,7 @@ class ProjectCapexSummaryService implements SummarySectionService<Project> {
     );
   }
 
-  private TimelineEvent toTimelineEvent(ProjectCapex projectCapex) {
+  private TimelineEvent toTimelineEvent(ProjectCapex projectCapex, User user) {
     var totalCapex = StringUtil.formatMoneyInMillions(projectCapex.getTotalCapex());
 
     var date = DateUtil.formatLongDate(projectCapex.getDateProvided());
@@ -105,9 +101,7 @@ class ProjectCapexSummaryService implements SummarySectionService<Project> {
         .removeProjectCapex(resourceId, projectId, projectCapex.getId(), null));
 
     var timelineActionsMap = new HashMap<String, String>();
-
-    var user = userService.getUser();
-    if (permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST))) {
+    if (teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)) {
       timelineActionsMap.put("Remove", removeUrl);
     }
 

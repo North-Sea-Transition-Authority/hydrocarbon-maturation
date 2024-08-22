@@ -82,7 +82,7 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
         entry("pageTitle", UndevelopedDiscoveryInformationController.PAGE_TITLE),
         entry("pageCaption", "resource name (coi) (Round RT9)"),
         entry("cancelUrl", ReverseRouter.route(on(UndevelopedDiscoverySummaryController.class)
-            .getUndevelopedDiscoverySummary(RESOURCE_ID))),
+            .getUndevelopedDiscoverySummary(RESOURCE_ID, null))),
         entry("viscosityRangeMap", DisplayableEnumOptionUtil.getDisplayableOptions(ViscosityRange.class)),
         entry("verticalHeterogeneityRangeMap", DisplayableEnumOptionUtil.getDisplayableOptions(
             VerticalHeterogeneityRange.class)),
@@ -171,7 +171,7 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
         .thenReturn(undevelopedDiscovery);
 
     var summaryUrl = ReverseRouter.route(on(UndevelopedDiscoverySummaryController.class)
-        .getUndevelopedDiscoverySummary(RESOURCE_ID));
+        .getUndevelopedDiscoverySummary(RESOURCE_ID, null));
     mockMvc.perform(post(ReverseRouter.route(on(UndevelopedDiscoveryInformationController.class)
             .saveDiscoveryInformation(RESOURCE_ID, null, null)))
             .flashAttr("form", form)
@@ -259,7 +259,7 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
         entry("pageTitle", UndevelopedDiscoveryInformationController.PAGE_TITLE),
         entry("pageCaption", resourceName),
         entry("cancelUrl", ReverseRouter.route(on(UndevelopedDiscoverySummaryController.class)
-            .getUndevelopedDiscoverySummary(RESOURCE_ID))),
+            .getUndevelopedDiscoverySummary(RESOURCE_ID, null))),
         entry("viscosityRangeMap", DisplayableEnumOptionUtil.getDisplayableOptions(ViscosityRange.class)),
         entry("verticalHeterogeneityRangeMap", DisplayableEnumOptionUtil.getDisplayableOptions(
             VerticalHeterogeneityRange.class)),
@@ -412,7 +412,7 @@ class UndevelopedDiscoveryInformationControllerTest extends AbstractUndevelopedD
         .thenReturn(undevelopedDiscoveryInformation);
 
     var summaryUrl = ReverseRouter.route(on(UndevelopedDiscoverySummaryController.class)
-        .getUndevelopedDiscoverySummary(RESOURCE_ID));
+        .getUndevelopedDiscoverySummary(RESOURCE_ID, null));
     mockMvc.perform(post(ReverseRouter.route(on(UndevelopedDiscoveryInformationController.class)
             .updateDiscoveryInformation(RESOURCE_ID, informationId, null, null)))
             .flashAttr("form", form)

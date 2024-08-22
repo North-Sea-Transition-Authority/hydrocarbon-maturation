@@ -89,7 +89,7 @@ class ResourceGroupSummaryServiceTest {
             ResourceItemSummaryView::preferredView)
         .containsExactly(expectedNameOnResource,
             true,
-            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null)),
             PREFERRED_VIEW
         );
   }
@@ -154,13 +154,13 @@ class ResourceGroupSummaryServiceTest {
             tuple(
                 RESOURCE_NAME,
                 true,
-                ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId())),
+                ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null)),
                 ""
             ),
             tuple(
                 OTHER_RESOURCE_NAME,
                 false,
-                ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource2.getId())),
+                ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resource2.getId(), null)),
                 PREFERRED_VIEW
             )
         );

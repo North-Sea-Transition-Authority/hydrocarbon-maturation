@@ -10,6 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleService;
@@ -17,6 +19,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCrea
 
 @ExtendWith(MockitoExtension.class)
 class PostDrillDryHoleServiceTest {
+
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private SubmissionCreateService submissionCreateService;
@@ -30,8 +34,8 @@ class PostDrillDryHoleServiceTest {
   @Test
   void createPostDrillDryHoleSubmission() {
     var form = new PostDrillDryHoleForm();
-    postDrillDryHoleService.createPostDrillDryHoleSubmission(form);
-    verify(submissionCreateService, times(1)).createPostDrillDryHoleSubmission(form);
+    postDrillDryHoleService.createPostDrillDryHoleSubmission(form, USER);
+    verify(submissionCreateService, times(1)).createPostDrillDryHoleSubmission(form, USER);
   }
 
   @Test

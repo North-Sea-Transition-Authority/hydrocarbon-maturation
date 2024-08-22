@@ -12,11 +12,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class SourceAndSealSubmissionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private SourceAndSealFormService sourceAndSealFormService;
@@ -37,7 +40,7 @@ class SourceAndSealSubmissionServiceTest {
     when(sourceAndSealFormValidator.isValid(eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
         .thenReturn(true);
 
-    assertTrue(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail));
+    assertTrue(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail, USER));
 
   }
 
@@ -51,6 +54,6 @@ class SourceAndSealSubmissionServiceTest {
     when(sourceAndSealFormValidator.isValid(eq(form), any(BindingResult.class), eq(submissionDetail), eq(ValidationType.FULL)))
         .thenReturn(false);
 
-    assertFalse(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail));
+    assertFalse(sourceAndSealSubmissionService.isSectionSubmittable(submissionDetail, USER));
   }
 }

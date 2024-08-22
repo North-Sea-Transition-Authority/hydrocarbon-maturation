@@ -85,7 +85,7 @@ public class GeneralDetailsController {
       return getGeneralDetailsModelAndView(form, submissionDetail, onshoreOffshore);
     } else {
       generalDetailsPersistenceService.saveGeneralDetails(form, submissionDetail, onshoreOffshore);
-      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
     }
   }
 

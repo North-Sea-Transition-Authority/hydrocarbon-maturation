@@ -63,7 +63,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscovery;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoveryService;
 import uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries.UndevelopedDiscoveryTrackingDetailsForm;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 
 @ContextConfiguration(classes = DiscoverySubmissionSummaryController.class)
@@ -142,7 +141,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
     mockCreateDiscoverySubmissionSummaryModelAndView();
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(
-            get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
+            get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId, null)))
                 .with(user(USER)))
         .andExpect(status().isOk())
         .andExpect(view().name(VIEW_NAME));
@@ -150,19 +149,21 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
 
   @SecurityTest
   void showSubmissionSummary_whenNotDiscovery_assertStatusForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     mockMvc.perform(
-            get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
+            get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId, null)))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
 
   @SecurityTest
   void showSubmissionSummary_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
-            get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
+            get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId, null)))
                 .with(user(USER)))
         .andExpect(status().is4xxClientError());
   }
@@ -171,7 +172,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
   void showSubmissionSummary_andUserNotInResponsibleOrganisation_assertForbidden() throws Exception {
     setUpWhenUserIsNotResponsibleTeamOrOrganisationSubmitter_failSecurity(USER);
     mockMvc.perform(
-            get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
+            get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId, null)))
                 .with(user(USER)))
         .andExpect(status().is4xxClientError());
   }
@@ -183,21 +184,20 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
         .thenReturn(Optional.empty());
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(submissionSummaryFormValidator.isValid(
-        any(SubmissionSummaryForm.class),
         any(Errors.class),
         eq(submissionDetail),
-        eq(ValidationType.FULL))
+        eq(USER))
     ).thenReturn(true);
     mockCreateDiscoverySubmissionSummaryModelAndView();
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(
-            post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
+            post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId))));
 
-    verify(submissionApprovalService, times(1)).submitSubmission(submissionDetail);
+    verify(submissionApprovalService, times(1)).submitSubmission(submissionDetail, USER);
     verify(undevelopedDiscoveryService, times(1))
         .saveUndevelopedDiscoveryTrackingDetails(eq(resource), formArgumentCaptor.capture());
     assertThat(formArgumentCaptor.getValue().getIsUndevelopedDiscovery()).isNull();
@@ -210,53 +210,53 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
         .thenReturn(Optional.of(new UndevelopedDiscovery()));
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     when(submissionSummaryFormValidator.isValid(
-        any(SubmissionSummaryForm.class),
         any(Errors.class),
         eq(submissionDetail),
-        eq(ValidationType.FULL))
+        eq(USER))
     ).thenReturn(true);
     mockCreateDiscoverySubmissionSummaryModelAndView();
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     mockMvc.perform(
-            post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
+            post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(SubmissionConfirmationController.class).showSubmissionConfirmation(submissionDetailId))));
 
-    verify(submissionApprovalService, times(1)).submitSubmission(submissionDetail);
+    verify(submissionApprovalService, times(1)).submitSubmission(submissionDetail, USER);
     verify(undevelopedDiscoveryService, never()).saveUndevelopedDiscoveryTrackingDetails(any(), any());
   }
 
   @Test
   void processSubmission_whenInvalidForm_assertOk() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var bindingResult = new BeanPropertyBindingResult(SubmissionSummaryForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
     when(submissionSummaryFormValidator.isValid(
-        any(SubmissionSummaryForm.class),
         any(Errors.class),
         eq(submissionDetail),
-        eq(ValidationType.FULL))
+        eq(USER))
     ).thenReturn(false);
 
     mockCreateDiscoverySubmissionSummaryModelAndView();
 
     mockMvc.perform(
-        post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
+        post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId, null, null, null)))
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(submissionApprovalService, never()).submitSubmission(any());
+    verify(submissionApprovalService, never()).submitSubmission(any(), any());
   }
 
   @SecurityTest
   void processSubmission_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
 
     mockMvc.perform(
-            post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId, null, null)))
+            post(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).processSubmission(submissionDetailId, null, null, null)))
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is4xxClientError());
@@ -264,12 +264,13 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
 
   @Test
   void getSubmissionSummaryModelAndView_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
-    when(submissionReadyService.isSubmissionSubmittable(submissionDetail)).thenReturn(true);
+    when(submissionReadyService.isSubmissionSubmittable(submissionDetail, USER)).thenReturn(true);
     mockCreateDiscoverySubmissionSummaryModelAndView();
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
-            get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId)))
+            get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId, null)))
                 .with(user(USER)))
         .andReturn()
         .getModelAndView()).getModelMap();
@@ -277,7 +278,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
     assertThat(modelMap)
         .contains(
             entry("pageName", PAGE_NAME),
-            entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId))),
+            entry("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null))),
             entry("submittable", true),
             entry("isRegulatorOrAreaTeamUser", false),
             entry("gasFluidPropertiesSummaryView", gasFluidPropertySummaryView),
@@ -308,7 +309,7 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME));
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME));
   }
 
   private void mockCreateDiscoverySubmissionSummaryModelAndView() {
@@ -340,9 +341,9 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
         .addObject("chanceOfSuccessSummaryView", chanceOfSuccessSummaryView)
         .addObject("isOffshore", true);
     when(submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(
-        submissionDetail, VIEW_NAME)
+        submissionDetail, VIEW_NAME, USER)
     ).thenReturn(modelAndView);
-    when(internalTeamService.isRegulatorOrAreaTeamUser()).thenReturn(false);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
 
   }
 }

@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedunsanc
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SectionSubmissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -22,7 +23,7 @@ public class PlannedUnsanctionedWellsSubmissionService implements SectionSubmiss
   }
 
   @Override
-  public boolean isSectionSubmittable(SubmissionDetail submissionDetail) {
+  public boolean isSectionSubmittable(SubmissionDetail submissionDetail, User user) {
     var isNotFdpOrFdpa = !(SubmissionType.CREATE_FDP.equals(submissionDetail.getSubmissionType())
         || SubmissionType.CREATE_FDPA.equals(submissionDetail.getSubmissionType()));
     if (isNotFdpOrFdpa) {

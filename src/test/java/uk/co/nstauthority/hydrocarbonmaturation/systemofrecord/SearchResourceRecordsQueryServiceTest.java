@@ -12,11 +12,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchItem;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.RestSearchResult;
 
 @ExtendWith(MockitoExtension.class)
 class SearchResourceRecordsQueryServiceTest {
+
+  private static final User USER = UserTestUtil.Builder().build();
+
   @Mock
   private SearchResourceRecordsService searchResourceRecordsService;
   @Mock
@@ -27,11 +32,11 @@ class SearchResourceRecordsQueryServiceTest {
   @Test
   void searchFields_assertResults() {
     var queryServiceStrategy = mock(ResourceRecordQueryServiceStrategy.class);
-    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
+    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy(USER))
         .thenReturn(queryServiceStrategy);
     var searchResults = List.of("Field 2", "Field 1", "Field");
     when(searchResourceRecordsService
-        .getResourceRecordSearchResultsDistinctResourceNames(any(SearchResourceRecordsForm.class), eq(queryServiceStrategy)))
+        .getResourceRecordSearchResultsDistinctResourceNames(any(SearchResourceRecordsForm.class), eq(queryServiceStrategy), eq(USER)))
         .thenReturn(searchResults);
 
     var expectedSearchResult = new RestSearchResult(List.of(
@@ -40,7 +45,7 @@ class SearchResourceRecordsQueryServiceTest {
         new RestSearchItem("Field 2", "Field 2")
     ));
 
-    assertThat(searchResourceRecordsQueryService.searchFields("Field"))
+    assertThat(searchResourceRecordsQueryService.searchFields("Field", USER))
         .usingRecursiveComparison()
         .isEqualTo(expectedSearchResult);
   }
@@ -48,11 +53,11 @@ class SearchResourceRecordsQueryServiceTest {
   @Test
   void searchProspectsAndDiscoveries_assertResults() {
     var queryServiceStrategy = mock(ResourceRecordQueryServiceStrategy.class);
-    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy())
+    when(resourceRecordQueryServiceFactory.getQueryServiceStrategy(USER))
         .thenReturn(queryServiceStrategy);
     var searchResults = List.of("Prospect 1", "Other prospect", "Prospect");
     when(searchResourceRecordsService
-        .getResourceRecordSearchResultsDistinctResourceNames(any(SearchResourceRecordsForm.class), eq(queryServiceStrategy)))
+        .getResourceRecordSearchResultsDistinctResourceNames(any(SearchResourceRecordsForm.class), eq(queryServiceStrategy), eq(USER)))
         .thenReturn(searchResults);
 
     var expectedSearchResult = new RestSearchResult(List.of(
@@ -61,7 +66,7 @@ class SearchResourceRecordsQueryServiceTest {
         new RestSearchItem("Prospect 1", "Prospect 1")
     ));
 
-    assertThat(searchResourceRecordsQueryService.searchProspectsAndDiscoveries("Prospect"))
+    assertThat(searchResourceRecordsQueryService.searchProspectsAndDiscoveries("Prospect", USER))
         .usingRecursiveComparison()
         .isEqualTo(expectedSearchResult);
   }

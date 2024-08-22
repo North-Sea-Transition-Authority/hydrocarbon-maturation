@@ -45,7 +45,7 @@ class RemiFeedbackServiceTest {
   private static final String CONTEXT_PATH = "/remi";
   private static final String SERVICE_URL = "http://localhost" + CONTEXT_PATH;
   private static final String EXPECTED_SUBMISSION_URL = SERVICE_URL + ReverseRouter.route(on(
-      TaskListController.class).getTaskList(SUBMISSION_DETAIL.getId()));
+      TaskListController.class).getTaskList(SUBMISSION_DETAIL.getId(), null));
   private static final String EXPECTED_RESOURCE_NAME_REF = "resource name";
 
   @Mock

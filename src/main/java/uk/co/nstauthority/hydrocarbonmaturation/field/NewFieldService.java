@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +16,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceView;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
@@ -72,19 +70,8 @@ public class NewFieldService {
   public Map<String, String> getResponsibleTeamTypeDisplayableOptions() {
     var options = DisplayableEnumOptionUtil.getDisplayableOptions(ResponsibleTeamType.class);
 
-    var offshoreTeams = Set.of(
-        RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-        RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER
-    );
-
-    for (var responsibleTeamType : ResponsibleTeamType.values()) {
-      var doesNotHaveRolePermission = responsibleTeamType.getRolePermissions().stream()
-          .noneMatch(offshoreTeams::contains);
-
-      if (doesNotHaveRolePermission) {
-        options.remove(responsibleTeamType.getEnumName());
-      }
-    }
+    options.remove(ResponsibleTeamType.ONSHORE.getEnumName());
+    options.remove(ResponsibleTeamType.EXPLORATION.getEnumName());
 
     return options;
   }

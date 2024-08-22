@@ -82,6 +82,7 @@ class GeneralFluidPropertyControllerTest extends AbstractSubmissionControllerTes
 
   @SecurityTest
   void getGeneralFluidProperties_andStatusIsNotDraft_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
     mockMvc.perform(
             get(ReverseRouter.route(on(GeneralFluidPropertyController.class).getGeneralFluidProperties(submissionDetailId, reservoirSubmissionDetail.getId())))
@@ -91,6 +92,7 @@ class GeneralFluidPropertyControllerTest extends AbstractSubmissionControllerTes
 
   @SecurityTest
   void getGeneralFluidProperties_andTypeIsNotDiscovery_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_PROSPECT);
     mockMvc.perform(
             get(ReverseRouter.route(on(GeneralFluidPropertyController.class).getGeneralFluidProperties(submissionDetailId, reservoirSubmissionDetail.getId())))
@@ -111,6 +113,7 @@ class GeneralFluidPropertyControllerTest extends AbstractSubmissionControllerTes
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void saveGeneralFluidProperties_whenValidForm_assertSaveAndRedirection(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(generalFluidPropertyFormValidator.isValid(any(GeneralFluidPropertyForm.class), any(BindingResult.class), eq(reservoirSubmissionDetail), eq(validationType)))
         .thenReturn(true);
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
@@ -135,6 +138,7 @@ class GeneralFluidPropertyControllerTest extends AbstractSubmissionControllerTes
   @ParameterizedTest
   @EnumSource(ValidationType.class)
   void saveGeneralFluidProperties_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
     when(generalFluidPropertyFormValidator.isValid(any(GeneralFluidPropertyForm.class), any(BindingResult.class), eq(reservoirSubmissionDetail), eq(validationType)))
         .thenReturn(false);
@@ -157,6 +161,7 @@ class GeneralFluidPropertyControllerTest extends AbstractSubmissionControllerTes
 
   @Test
   void getGeneralFluidPropertiesModelAndView_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     var form = new GeneralFluidPropertyForm();
     when(reservoirSubmissionDetailPersistenceService.getExtantReservoirSubmissionDetailOrThrow(reservoirSubmissionDetail.getId()))
         .thenReturn(reservoirSubmissionDetail);
@@ -179,7 +184,7 @@ class GeneralFluidPropertyControllerTest extends AbstractSubmissionControllerTes
 
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
-        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId)), TaskListController.PAGE_NAME),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
     );
   }

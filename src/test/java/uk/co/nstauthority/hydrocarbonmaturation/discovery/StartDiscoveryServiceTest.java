@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.discovery;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,16 +14,21 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.regulator.RegulatorTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsFormValidatorHints;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
 class StartDiscoveryServiceTest {
+
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private SubmissionCreateService submissionCreateService;
@@ -36,10 +40,7 @@ class StartDiscoveryServiceTest {
   private ResourceDetailsFormValidator resourceDetailsFormValidator;
 
   @Mock
-  private RegulatorTeamService regulatorTeamService;
-
-  @Mock
-  private UserService userService;
+  private TeamQueryService teamQueryService;
 
   @InjectMocks
   private StartDiscoveryService startDiscoveryService;
@@ -55,16 +56,16 @@ class StartDiscoveryServiceTest {
 
   @Test
   void createNewDiscoveryFromProspect_verifyCreatedDiscovery() {
-    startDiscoveryService.createNewDiscoveryFromProspect(startDiscoveryForm);
+    startDiscoveryService.createNewDiscoveryFromProspect(startDiscoveryForm, USER);
 
-    verify(submissionCreateService, times(1)).createNewDiscoveryFromProspect(startDiscoveryForm);
+    verify(submissionCreateService, times(1)).createNewDiscoveryFromProspect(startDiscoveryForm, USER);
   }
 
   @Test
   void createNewDiscovery_verifyCreatedDiscovery() {
-    startDiscoveryService.createNewDiscovery(resourceDetailsForm);
+    startDiscoveryService.createNewDiscovery(resourceDetailsForm, USER);
 
-    verify(submissionCreateService, times(1)).createDiscovery(resourceDetailsForm);
+    verify(submissionCreateService, times(1)).createDiscovery(resourceDetailsForm, USER);
   }
 
   @Test
@@ -78,9 +79,10 @@ class StartDiscoveryServiceTest {
   @Test
   void validateNewDiscovery() {
     var captor = ArgumentCaptor.forClass(ResourceDetailsFormValidatorHints.class);
-    when(regulatorTeamService.isRegulatorUser(any())).thenReturn(false);
+    var user = UserTestUtil.Builder().build();
+    when(teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     var bindingResult = startDiscoveryService
-        .validateNewDiscovery(resourceDetailsForm, emptyBindingResult());
+        .validateNewDiscovery(resourceDetailsForm, emptyBindingResult(), user);
     assertThat(bindingResult).isEqualTo(emptyBindingResult());
     verify(resourceDetailsFormValidator, times(1))
         .validate(eq(resourceDetailsForm), eq(bindingResult), captor.capture());
@@ -89,6 +91,6 @@ class StartDiscoveryServiceTest {
         .extracting(
             ResourceDetailsFormValidatorHints::resourceType,
             ResourceDetailsFormValidatorHints::isRegulator)
-        .containsExactly(ResourceType.DISCOVERY, false);
+        .containsExactly(ResourceType.DISCOVERY, true);
   }
 }

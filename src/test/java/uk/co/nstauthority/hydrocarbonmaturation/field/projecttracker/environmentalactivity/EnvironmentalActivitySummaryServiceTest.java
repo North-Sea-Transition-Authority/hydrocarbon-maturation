@@ -7,7 +7,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -19,14 +18,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.PermissionService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -35,20 +31,23 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryKeyValue;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
 class EnvironmentalActivitySummaryServiceTest {
+
+  private static final User USER = UserTestUtil.Builder().build();
+
   @Mock
   private EnvironmentalActivityService environmentalActivityService;
   @Mock
-  private UserService userService;
-  @Mock
-  private PermissionService permissionService;
+  private TeamQueryService teamQueryService;
   @InjectMocks
   private EnvironmentalActivitySummaryService environmentalActivitySummaryService;
 
   private Project project;
-  private User user;
 
   @BeforeEach
   void setUp() {
@@ -66,7 +65,7 @@ class EnvironmentalActivitySummaryServiceTest {
     void getSummarySection_typeNotForSection_thenEmpty(ProjectType projectType) {
       project.setProjectType(projectType);
 
-      var summarySectionOptional = environmentalActivitySummaryService.getSummarySection(project);
+      var summarySectionOptional = environmentalActivitySummaryService.getSummarySection(project, USER);
       assertThat(summarySectionOptional).isEmpty();
     }
   }
@@ -76,9 +75,6 @@ class EnvironmentalActivitySummaryServiceTest {
     @BeforeEach
     void setUp() {
       project.setProjectType(ProjectType.FIELD_DEVELOPMENT_PLAN);
-
-      user = UserTestUtil.Builder().build();
-      when(userService.getUser()).thenReturn(user);
     }
 
     @ParameterizedTest
@@ -93,7 +89,7 @@ class EnvironmentalActivitySummaryServiceTest {
       when(environmentalActivityService.getEnvironmentalActivity(project))
           .thenReturn(Optional.empty());
 
-      var summarySectionOptional = environmentalActivitySummaryService.getSummarySection(project);
+      var summarySectionOptional = environmentalActivitySummaryService.getSummarySection(project, USER);
 
       assertThat(summarySectionOptional)
           .isPresent()
@@ -135,7 +131,7 @@ class EnvironmentalActivitySummaryServiceTest {
       when(environmentalActivityService.getEnvironmentalActivity(project))
           .thenReturn(Optional.empty());
 
-      var summarySectionOptional = environmentalActivitySummaryService.getSummarySection(project);
+      var summarySectionOptional = environmentalActivitySummaryService.getSummarySection(project, USER);
       var summaryItems = summarySectionOptional.get().summaryItems();
       var summaryItem = summaryItems.get(0);
       var summaryCard = summaryItem.summaryCards().get(0);
@@ -163,7 +159,7 @@ class EnvironmentalActivitySummaryServiceTest {
       when(environmentalActivityService.getEnvironmentalActivity(project))
           .thenReturn(Optional.of(activity));
 
-      var summarySectionOptional = environmentalActivitySummaryService.getSummarySection(project);
+      var summarySectionOptional = environmentalActivitySummaryService.getSummarySection(project, USER);
       var summaryItems = summarySectionOptional.get().summaryItems();
       var summaryItem = summaryItems.get(0);
       var summaryCard = summaryItem.summaryCards().get(0);
@@ -187,10 +183,10 @@ class EnvironmentalActivitySummaryServiceTest {
     void getSummarySection_isProjectAnalyst_thenHasActions() {
       when(environmentalActivityService.getEnvironmentalActivity(project))
           .thenReturn(Optional.empty());
-      when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
+      when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
           .thenReturn(true);
 
-      var summarySectionOptional = environmentalActivitySummaryService.getSummarySection(project);
+      var summarySectionOptional = environmentalActivitySummaryService.getSummarySection(project, USER);
       var summaryItems = summarySectionOptional.get().summaryItems();
       var summaryItem = summaryItems.get(0);
       var summaryCard = summaryItem.summaryCards().get(0);
@@ -213,10 +209,10 @@ class EnvironmentalActivitySummaryServiceTest {
     void getSummarySection_isNotProjectAnalyst_thenHasNoActions() {
       when(environmentalActivityService.getEnvironmentalActivity(project))
           .thenReturn(Optional.empty());
-      when(permissionService.hasPermission(user, Set.of(RolePermission.PROJECT_ANALYST)))
+      when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
           .thenReturn(false);
 
-      var summarySectionOptional = environmentalActivitySummaryService.getSummarySection(project);
+      var summarySectionOptional = environmentalActivitySummaryService.getSummarySection(project, USER);
       var summaryItems = summarySectionOptional.get().summaryItems();
       var summaryItem = summaryItems.get(0);
       var summaryCard = summaryItem.summaryCards().get(0);

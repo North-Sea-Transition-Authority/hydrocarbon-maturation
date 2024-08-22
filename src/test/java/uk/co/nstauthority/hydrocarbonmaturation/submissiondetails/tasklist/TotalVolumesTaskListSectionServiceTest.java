@@ -20,6 +20,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -48,6 +50,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 
 @ExtendWith(MockitoExtension.class)
 class TotalVolumesTaskListSectionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
@@ -93,14 +96,14 @@ class TotalVolumesTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
 
-    assertTrue(totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail));
+    assertTrue(totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail, USER));
   }
 
   @Test
   void sectionIsPresent_canNotGetSection_thenFalse() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.PROSPECT_UPDATE);
 
-    assertFalse(totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail));
+    assertFalse(totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -108,7 +111,7 @@ class TotalVolumesTaskListSectionServiceTest {
   void getSection_isProspect_thenReturnEmpty(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
 
-    assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail))
+    assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail, USER))
         .isEmpty();
   }
 
@@ -116,7 +119,7 @@ class TotalVolumesTaskListSectionServiceTest {
   void getSection_isProspect_thenReturnEmpty() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.POST_DRILL_DRY_HOLE);
 
-    assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail))
+    assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail, USER))
         .isEmpty();
   }
 
@@ -130,7 +133,7 @@ class TotalVolumesTaskListSectionServiceTest {
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
 
-    assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail))
+    assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail, USER))
         .isEmpty();
   }
 
@@ -144,7 +147,7 @@ class TotalVolumesTaskListSectionServiceTest {
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
 
-    assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail))
+    assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail, USER))
         .isEmpty();
   }
 
@@ -158,7 +161,7 @@ class TotalVolumesTaskListSectionServiceTest {
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
 
-    assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail))
+    assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail, USER))
         .isEmpty();
   }
 
@@ -173,10 +176,10 @@ class TotalVolumesTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(true);
 
-    assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail)).isPresent();
+    assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail, USER)).isPresent();
   }
 
   @Test
@@ -191,7 +194,7 @@ class TotalVolumesTaskListSectionServiceTest {
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
 
-    assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail))
+    assertThat(totalVolumesTaskListSectionService.getSection(submissionDetail, USER))
         .isEmpty();
   }
 
@@ -209,7 +212,7 @@ class TotalVolumesTaskListSectionServiceTest {
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
 
-    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail);
+    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(sectionOptional).isPresent();
     assertThat(sectionOptional.get())
@@ -235,10 +238,10 @@ class TotalVolumesTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(true);
 
-    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail);
+    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(sectionOptional).isPresent();
     assertThat(sectionOptional.get())
@@ -264,10 +267,10 @@ class TotalVolumesTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(true);
 
-    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail);
+    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(sectionOptional).isPresent();
     assertThat(sectionOptional.get())
@@ -292,10 +295,10 @@ class TotalVolumesTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(true);
 
-    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail);
+    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(sectionOptional).isPresent();
     assertThat(sectionOptional.get())
@@ -321,10 +324,10 @@ class TotalVolumesTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(true);
 
-    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail);
+    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(sectionOptional).isPresent();
     assertThat(sectionOptional.get())
@@ -350,10 +353,10 @@ class TotalVolumesTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(fieldCombinedCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fieldCombinedCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(true);
 
-    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail);
+    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail, USER);
 
     assertThat(sectionOptional).isPresent();
     assertThat(sectionOptional.get())
@@ -379,10 +382,10 @@ class TotalVolumesTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(discoveryOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(discoveryOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(true);
 
-    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail);
+    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail, USER);
     assertThat(sectionOptional).isPresent();
 
     var taskListItems = sectionOptional.get().items();
@@ -414,10 +417,10 @@ class TotalVolumesTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(true);
 
-    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail);
+    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail, USER);
     assertThat(sectionOptional).isPresent();
 
     var taskListItems = sectionOptional.get().items();
@@ -449,10 +452,10 @@ class TotalVolumesTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(true);
 
-    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail);
+    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail, USER);
     assertThat(sectionOptional).isPresent();
 
     var taskListItems = sectionOptional.get().items();
@@ -484,10 +487,10 @@ class TotalVolumesTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(true);
 
-    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail);
+    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail, USER);
     assertThat(sectionOptional).isPresent();
 
     var taskListItems = sectionOptional.get().items();
@@ -519,10 +522,10 @@ class TotalVolumesTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(true);
 
-    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail);
+    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail, USER);
     assertThat(sectionOptional).isPresent();
 
     var taskListItems = sectionOptional.get().items();
@@ -553,14 +556,14 @@ class TotalVolumesTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(true);
-    when(fdpaPromotedVolumesSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fdpaPromotedVolumesSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(true);
-    when(fdpaIncreasedVolumesSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fdpaIncreasedVolumesSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(true);
 
-    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail);
+    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail, USER);
     assertThat(sectionOptional).isPresent();
 
     var taskListItems = sectionOptional.get().items();
@@ -604,10 +607,10 @@ class TotalVolumesTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(fieldCombinedCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fieldCombinedCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(true);
 
-    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail);
+    var sectionOptional = totalVolumesTaskListSectionService.getSection(submissionDetail, USER);
     assertThat(sectionOptional).isPresent();
 
     var taskListItems = sectionOptional.get().items();
@@ -630,20 +633,20 @@ class TotalVolumesTaskListSectionServiceTest {
   @MethodSource("allProspectSubmissionTypes")
   void isSectionSubmittable_prospect_thenTrue(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
-    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
   void isSectionSubmittable_postDrillDryHole_thenTrue() {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.POST_DRILL_DRY_HOLE);
-    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
   @MethodSource("allDiscoverySubmissionTypes")
   void isSectionSubmittable_discovery_noReservoirs_thenFalse(SubmissionType submissionType) {
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
-    assertFalse(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -657,7 +660,7 @@ class TotalVolumesTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -673,9 +676,9 @@ class TotalVolumesTaskListSectionServiceTest {
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
-    when(discoveryOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(discoveryOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(isOilCaseSectionSubmittable);
-    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -691,9 +694,9 @@ class TotalVolumesTaskListSectionServiceTest {
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
     when(reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails)).thenReturn(true);
-    when(discoveryOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(discoveryOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(isOilCaseSectionSubmittable);
-    assertFalse(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -710,9 +713,9 @@ class TotalVolumesTaskListSectionServiceTest {
         .thenReturn(reservoirSubmissionDetails);
     when(reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails))
         .thenReturn(true);
-    when(discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(isGasSectionSubmittable);
-    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -729,9 +732,9 @@ class TotalVolumesTaskListSectionServiceTest {
         .thenReturn(reservoirSubmissionDetails);
     when(reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails))
         .thenReturn(true);
-    when(discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(discoveryGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(isGasSectionSubmittable);
-    assertFalse(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -748,9 +751,9 @@ class TotalVolumesTaskListSectionServiceTest {
         .thenReturn(reservoirSubmissionDetails);
     when(reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails))
         .thenReturn(true);
-    when(discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(discoveryCombinedVolTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(isCombinedCaseSectionSubmittable);
-    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -767,7 +770,7 @@ class TotalVolumesTaskListSectionServiceTest {
         .thenReturn(reservoirSubmissionDetails);
     when(reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails))
         .thenReturn(isCombinedCaseSectionSubmittable);
-    assertFalse(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -783,9 +786,9 @@ class TotalVolumesTaskListSectionServiceTest {
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
     when(reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails)).thenReturn(true);
-    when(fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(isOilCaseSectionSubmittable);
-    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -801,9 +804,9 @@ class TotalVolumesTaskListSectionServiceTest {
         submissionDetail))
         .thenReturn(reservoirSubmissionDetails);
     when(reservoirHydrocarbonCaseService.isOilCaseOnly(reservoirSubmissionDetails)).thenReturn(true);
-    when(fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fieldOilCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(isOilCaseSectionSubmittable);
-    assertFalse(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -820,9 +823,9 @@ class TotalVolumesTaskListSectionServiceTest {
         .thenReturn(reservoirSubmissionDetails);
     when(reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails))
         .thenReturn(true);
-    when(fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(isGasCaseSectionSubmittable);
-    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @Test
@@ -838,13 +841,13 @@ class TotalVolumesTaskListSectionServiceTest {
         .thenReturn(reservoirSubmissionDetails);
     when(reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails))
         .thenReturn(true);
-    when(fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(isSectionSubmittable);
-    when(fdpaPromotedVolumesSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fdpaPromotedVolumesSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(true);
-    when(fdpaIncreasedVolumesSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fdpaIncreasedVolumesSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(true);
-    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -861,9 +864,9 @@ class TotalVolumesTaskListSectionServiceTest {
         .thenReturn(reservoirSubmissionDetails);
     when(reservoirHydrocarbonCaseService.isGasCaseOnly(reservoirSubmissionDetails))
         .thenReturn(true);
-    when(fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fieldGasCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(isGasCaseSectionSubmittable);
-    assertFalse(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -880,9 +883,9 @@ class TotalVolumesTaskListSectionServiceTest {
         .thenReturn(reservoirSubmissionDetails);
     when(reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails))
         .thenReturn(true);
-    when(fieldCombinedCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fieldCombinedCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(isCombinedCaseSectionSubmittable);
-    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertTrue(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   @ParameterizedTest
@@ -899,9 +902,9 @@ class TotalVolumesTaskListSectionServiceTest {
         .thenReturn(reservoirSubmissionDetails);
     when(reservoirHydrocarbonCaseService.isCombinedCase(reservoirSubmissionDetails))
         .thenReturn(true);
-    when(fieldCombinedCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail))
+    when(fieldCombinedCaseVolumetricTotalsSubmissionService.isSectionSubmittable(submissionDetail, USER))
         .thenReturn(isCombinedCaseSectionSubmittable);
-    assertFalse(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail));
+    assertFalse(totalVolumesTaskListSectionService.isSectionSubmittable(submissionDetail, USER));
   }
 
   private static Stream<Arguments> allProspectSubmissionTypes() {

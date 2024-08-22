@@ -13,6 +13,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.reservoirs.ReservoirView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails.HydrocarbonsDiscovered;
@@ -23,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryItem;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralReservoirInformationSummarySectionServiceTest {
+  private static final User USER = UserTestUtil.Builder().build();
 
   @Mock
   private GeneralReservoirInformationService generalReservoirInformationService;
@@ -38,7 +41,7 @@ class GeneralReservoirInformationSummarySectionServiceTest {
     reservoirHydrocarbon.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.GAS_ONLY);
     when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirHydrocarbon));
 
-    var summarySection = generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), GeneralReservoirInformationSummarySectionService.GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER);
@@ -56,7 +59,7 @@ class GeneralReservoirInformationSummarySectionServiceTest {
     var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail();
     when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)).thenReturn(Optional.empty());
 
-    var summarySection = generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), GeneralReservoirInformationSummarySectionService.GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER);
@@ -75,7 +78,7 @@ class GeneralReservoirInformationSummarySectionServiceTest {
 
     when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)).thenReturn(Optional.of(reservoirHydrocarbons));
 
-    var summarySection = generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), GeneralReservoirInformationSummarySectionService.GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER);
@@ -99,7 +102,7 @@ class GeneralReservoirInformationSummarySectionServiceTest {
     when(generalReservoirInformationService.getLinkedDiscoveryReservoirViewsForField(reservoirSubmissionDetail))
         .thenReturn(List.of(reservoirView1, reservoirView2));
 
-    var summarySection = generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), GeneralReservoirInformationSummarySectionService.GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER);
@@ -123,7 +126,7 @@ class GeneralReservoirInformationSummarySectionServiceTest {
     when(generalReservoirInformationService.getLinkedDiscoveryReservoirViewsForField(reservoirSubmissionDetail))
         .thenReturn(Collections.emptyList());
 
-    var summarySection = generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail);
+    var summarySection = generalReservoirInformationSummarySectionService.getSummarySection(reservoirSubmissionDetail, USER);
 
     assertThat(summarySection).isPresent();
     assertSummarySection(summarySection.get(), GeneralReservoirInformationSummarySectionService.GENERAL_RESERVOIR_INFORMATION_DISPLAY_ORDER);

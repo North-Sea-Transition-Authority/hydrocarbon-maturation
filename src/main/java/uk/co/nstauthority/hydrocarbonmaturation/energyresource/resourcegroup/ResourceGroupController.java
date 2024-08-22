@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasPermission;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
@@ -21,7 +21,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
-import uk.co.nstauthority.hydrocarbonmaturation.legacyteams.permissionmanagement.RolePermission;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
@@ -29,14 +28,15 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresourc
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.relatedresources.RelatedResourcesFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchProspectAndDiscoveryRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Controller
 @RequestMapping("/{resourceId}/resource-group")
-@HasPermission(permissions = {
-    RolePermission.EXPLORATION,
-    RolePermission.NORTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.SOUTHERN_OFFSHORE_AREA_TEAM_MEMBER,
-    RolePermission.ONSHORE_AREA_TEAM_MEMBER})
+@HasAnyRole(role = Role.EXPLORATION, teamType = TeamType.REGULATOR)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.NORTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.SOUTHERN_OFFSHORE_AREA)
+@HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.ONSHORE_AREA)
 public class ResourceGroupController {
   private final ControllerHelperService controllerHelperService;
   private final ResourceService resourceService;
@@ -86,7 +86,7 @@ public class ResourceGroupController {
         getResourceGroupsModelAndView(form, resource),
         () -> {
           manageResourceGroupsService.updateResourceGroupLinkFromResource(resource, form);
-          return ReverseRouter.redirect(on(ViewResourceRecordController.class).showResourceRecord(resourceId));
+          return ReverseRouter.redirect(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null));
         });
   }
 
@@ -105,7 +105,7 @@ public class ResourceGroupController {
         .addObject("resourcesInGroup",
             resourceGroupSummaryService.getResourceGroupMembersSummaryWithoutCurrentResource(resource))
         .addObject("cancelUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
-            .showResourceRecord(resource.getId())))
+            .showResourceRecord(resource.getId(), null)))
         .addObject("pageTitle", pageName);
 
     if (resource.getType() == ResourceType.PROSPECT) {
@@ -119,7 +119,7 @@ public class ResourceGroupController {
     }
 
     var cancelUrl = ReverseRouter.route(on(ViewResourceRecordController.class)
-        .showResourceRecord(resource.getId()));
+        .showResourceRecord(resource.getId(), null));
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(pageName)
         .addBreadcrumb(
             SearchProspectAndDiscoveryRecordsController.PAGE_TITLE,

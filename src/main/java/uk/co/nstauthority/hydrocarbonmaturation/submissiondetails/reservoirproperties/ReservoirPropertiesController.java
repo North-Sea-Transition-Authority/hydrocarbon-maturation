@@ -115,7 +115,7 @@ public class ReservoirPropertiesController {
     } else {
       reservoirPropertiesPersistenceService.saveReservoirProperty(form, reservoirSubmissionDetail);
       if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
-        return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId));
+        return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
       } else {
         return ReverseRouter.redirect(on(ReservoirTaskListController.class)
             .getReservoirTaskList(submissionDetailId, null));
