@@ -1,9 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
 import jakarta.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
@@ -45,12 +42,5 @@ public enum ResponsibleTeamType implements Displayable {
     }
 
     return valueOf(name);
-  }
-
-  public static List<ResponsibleTeamType> getResponsibleTeamTypesForTeamsAndRoles(Map<TeamType, Role> teamTypeRoleMap) {
-    return Arrays.stream(ResponsibleTeamType.values())
-        .filter(r -> teamTypeRoleMap.containsKey(r.teamType))
-        .filter(r -> teamTypeRoleMap.containsValue(r.role))
-        .toList();
   }
 }

@@ -23,8 +23,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRoleTestUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
@@ -56,25 +54,8 @@ class ResponsibleTeamServiceTest {
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(resource))
         .thenReturn(regulatorManagedInformation);
 
-    switch (responsibleTeamType) {
-      case EXPLORATION -> when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), responsibleTeamType.getTeamType(), responsibleTeamType.getRole()))
           .thenReturn(true);
-      case NORTHERN_NORTH_SEA_WEST_OF_SHETLAND -> when(teamQueryService.userHasRoleInTeamType(
-          user.wuaId(),
-          TeamType.NORTHERN_OFFSHORE_AREA,
-          Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
-          .thenReturn(true);
-      case CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA -> when(teamQueryService.userHasRoleInTeamType(
-          user.wuaId(),
-          TeamType.SOUTHERN_OFFSHORE_AREA,
-          Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
-          .thenReturn(true);
-      case ONSHORE -> when(teamQueryService.userHasRoleInTeamType(
-          user.wuaId(),
-          TeamType.ONSHORE_AREA,
-          Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
-          .thenReturn(true);
-    }
 
     assertThat(responsibleTeamService.isInResponsibleTeam(user, submissionDetail)).isTrue();
   }
@@ -82,28 +63,19 @@ class ResponsibleTeamServiceTest {
   @ParameterizedTest
   @EnumSource(ResponsibleTeamType.class)
   void isInResponsibleTeam(ResponsibleTeamType responsibleTeamType) {
-
-    switch (responsibleTeamType) {
-      case EXPLORATION -> when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), responsibleTeamType.getTeamType(), responsibleTeamType.getRole()))
           .thenReturn(true);
-      case NORTHERN_NORTH_SEA_WEST_OF_SHETLAND -> when(teamQueryService.userHasRoleInTeamType(
-          user.wuaId(),
-          TeamType.NORTHERN_OFFSHORE_AREA,
-          Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
-          .thenReturn(true);
-      case CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA -> when(teamQueryService.userHasRoleInTeamType(
-          user.wuaId(),
-          TeamType.SOUTHERN_OFFSHORE_AREA,
-          Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
-          .thenReturn(true);
-      case ONSHORE -> when(teamQueryService.userHasRoleInTeamType(
-          user.wuaId(),
-          TeamType.ONSHORE_AREA,
-          Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
-          .thenReturn(true);
-    }
 
     assertThat(responsibleTeamService.isInResponsibleTeam(user, responsibleTeamType)).isTrue();
+  }
+
+  @ParameterizedTest
+  @EnumSource(ResponsibleTeamType.class)
+  void isNotInResponsibleTeam(ResponsibleTeamType responsibleTeamType) {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), responsibleTeamType.getTeamType(), responsibleTeamType.getRole()))
+        .thenReturn(false);
+
+    assertThat(responsibleTeamService.isInResponsibleTeam(user, responsibleTeamType)).isFalse();
   }
 
   @ParameterizedTest
@@ -114,17 +86,10 @@ class ResponsibleTeamServiceTest {
     team.setTeamType(responsibleTeamType.getTeamType());
     when(teamQueryService.getStaticTeam(responsibleTeamType.getTeamType())).thenReturn(team);
 
-    switch (responsibleTeamType) {
-      case EXPLORATION -> when(teamQueryService.getUsersInTeamsWithRoles(
+    when(teamQueryService.getUsersInTeamsWithRoles(
           Set.of(team),
-          Set.of(Role.EXPLORATION)))
+          Set.of(responsibleTeamType.getRole())))
           .thenReturn(List.of(energyPortalUserDto));
-      case NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, ONSHORE, CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA ->
-          when(teamQueryService.getUsersInTeamsWithRoles(
-              Set.of(team),
-              Set.of(Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)))
-              .thenReturn(List.of(energyPortalUserDto));
-    }
 
     assertThat(responsibleTeamService.getResponsibleTeamUsers(responsibleTeamType))
         .isEqualTo(List.of(energyPortalUserDto));
@@ -132,12 +97,14 @@ class ResponsibleTeamServiceTest {
 
   @Test
   void getResponsibleTeamTypesForExploration() {
-    var team = TeamTestUtil.Builder().withTeamType(TeamType.REGULATOR).buildStaticTeam();
-    var teamRole = TeamRoleTestUtil.Builder()
-        .withRole(Role.EXPLORATION)
-        .withTeam(team)
-        .build();
-    when(teamQueryService.getTeamRolesForUser(user.wuaId())).thenReturn(Set.of(teamRole));
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
+        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
+        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
+        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
+        .thenReturn(false);
 
     assertThat(responsibleTeamService.getResponsibleTeamTypesForUser(user)).containsExactly(
         ResponsibleTeamType.EXPLORATION);
@@ -145,12 +112,14 @@ class ResponsibleTeamServiceTest {
 
   @Test
   void getResponsibleTeamTypesForNorthernAreaTeam() {
-    var team = TeamTestUtil.Builder().withTeamType(TeamType.NORTHERN_OFFSHORE_AREA).buildStaticTeam();
-    var teamRole = TeamRoleTestUtil.Builder()
-        .withRole(Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
-        .withTeam(team)
-        .build();
-    when(teamQueryService.getTeamRolesForUser(user.wuaId())).thenReturn(Set.of(teamRole));
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
+        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
+        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
+        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
+        .thenReturn(false);
 
     assertThat(responsibleTeamService.getResponsibleTeamTypesForUser(user)).containsExactly(
         ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
@@ -158,12 +127,14 @@ class ResponsibleTeamServiceTest {
 
   @Test
   void getResponsibleTeamTypesForSouthernAreaTeam() {
-    var team = TeamTestUtil.Builder().withTeamType(TeamType.SOUTHERN_OFFSHORE_AREA).buildStaticTeam();
-    var teamRole = TeamRoleTestUtil.Builder()
-        .withRole(Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
-        .withTeam(team)
-        .build();
-    when(teamQueryService.getTeamRolesForUser(user.wuaId())).thenReturn(Set.of(teamRole));
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
+        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
+        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
+        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
+        .thenReturn(false);
 
     assertThat(responsibleTeamService.getResponsibleTeamTypesForUser(user)).containsExactly(
         ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
@@ -171,12 +142,14 @@ class ResponsibleTeamServiceTest {
 
   @Test
   void getResponsibleTeamTypesForOnshoreAreaTeam() {
-    var team = TeamTestUtil.Builder().withTeamType(TeamType.ONSHORE_AREA).buildStaticTeam();
-    var teamRole = TeamRoleTestUtil.Builder()
-        .withRole(Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
-        .withTeam(team)
-        .build();
-    when(teamQueryService.getTeamRolesForUser(user.wuaId())).thenReturn(Set.of(teamRole));
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
+        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
+        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
+        .thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
+        .thenReturn(true);
 
     assertThat(responsibleTeamService.getResponsibleTeamTypesForUser(user)).containsExactly(
         ResponsibleTeamType.ONSHORE);
@@ -184,61 +157,19 @@ class ResponsibleTeamServiceTest {
 
   @Test
   void getResponsibleTeamTypesForMultipleRoles() {
-    var team1 = TeamTestUtil.Builder().withTeamType(TeamType.ONSHORE_AREA).buildStaticTeam();
-    var teamRole1 = TeamRoleTestUtil.Builder()
-        .withRole(Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
-        .withTeam(team1)
-        .build();
-    var team2 = TeamTestUtil.Builder().withTeamType(TeamType.NORTHERN_OFFSHORE_AREA).buildStaticTeam();
-    var teamRole2 = TeamRoleTestUtil.Builder()
-        .withRole(Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
-        .withTeam(team2)
-        .build();
-    var team3 = TeamTestUtil.Builder().withTeamType(TeamType.SOUTHERN_OFFSHORE_AREA).buildStaticTeam();
-    var teamRole3 = TeamRoleTestUtil.Builder()
-        .withRole(Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
-        .withTeam(team3)
-        .build();
-    var team4 = TeamTestUtil.Builder().withTeamType(TeamType.REGULATOR).buildStaticTeam();
-    var teamRole4 = TeamRoleTestUtil.Builder()
-        .withRole(Role.EXPLORATION)
-        .withTeam(team4)
-        .build();
-    when(teamQueryService.getTeamRolesForUser(user.wuaId())).thenReturn(Set.of(teamRole1, teamRole2, teamRole3, teamRole4));
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
+        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
+        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
+        .thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
+        .thenReturn(true);
 
     assertThat(responsibleTeamService.getResponsibleTeamTypesForUser(user)).containsExactly(
         ResponsibleTeamType.EXPLORATION,
         ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND,
         ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
         ResponsibleTeamType.ONSHORE);
-  }
-
-  @ParameterizedTest
-  @EnumSource(value = Role.class, mode = EnumSource.Mode.EXCLUDE, names = {"EXPLORATION", "MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM"})
-  void getResponsibleTeamTypesForUser_withOtherRoles(Role role) {
-    var team = TeamTestUtil.Builder().withTeamType(TeamType.REGULATOR).buildStaticTeam();
-    var teamRole = TeamRoleTestUtil.Builder()
-        .withRole(role)
-        .withTeam(team)
-        .build();
-    when(teamQueryService.getTeamRolesForUser(user.wuaId())).thenReturn(Set.of(teamRole));
-
-    assertThat(responsibleTeamService.getResponsibleTeamTypesForUser(user)).isEmpty();
-  }
-
-  @ParameterizedTest
-  @EnumSource(
-      value = TeamType.class,
-      mode = EnumSource.Mode.EXCLUDE,
-      names = {"REGULATOR", "NORTHERN_OFFSHORE_AREA", "SOUTHERN_OFFSHORE_AREA", "ONSHORE_AREA"})
-  void getResponsibleTeamTypesForUser_withOtherTeams(TeamType teamType) {
-    var team = TeamTestUtil.Builder().withTeamType(teamType).buildStaticTeam();
-    var teamRole = TeamRoleTestUtil.Builder()
-        .withRole(Role.MANAGE_TEAM)
-        .withTeam(team)
-        .build();
-    when(teamQueryService.getTeamRolesForUser(user.wuaId())).thenReturn(Set.of(teamRole));
-
-    assertThat(responsibleTeamService.getResponsibleTeamTypesForUser(user)).isEmpty();
   }
 }
