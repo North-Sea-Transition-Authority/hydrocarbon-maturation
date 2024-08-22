@@ -49,10 +49,11 @@ public class TeamQueryService {
   public boolean userHasRoleInTeamType(Long wuaId, TeamType teamType, Role role) {
     assertRolesValidForTeamType(Set.of(role), teamType);
 
-    return teamRepository.findByTeamType(teamType).stream()
-        .findFirst()
-        .filter(team -> userHasAtLeastOneRole(wuaId, team, Set.of(role)))
-        .isPresent();
+    return !getTeamRolesForUser(wuaId).stream()
+        .filter(teamRole -> teamRole.getTeam().getTeamType().equals(teamType))
+        .filter(teamRole -> teamRole.getRole().equals(role))
+        .toList()
+        .isEmpty();
   }
 
   public Set<EnergyPortalUserDto> getUserWithStaticRole(TeamType teamType, Role role) {
