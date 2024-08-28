@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 public class QueryCounter {
 
   private final ThreadLocal<Integer> epa = ThreadLocal.withInitial(() -> 0);
+  private final ThreadLocal<Integer> jooq = ThreadLocal.withInitial(() -> 0);
+  private final ThreadLocal<Integer> hibernate = ThreadLocal.withInitial(() -> 0);
 
   public int getAndResetEpa() {
     return getAndReset(epa);
@@ -18,6 +20,22 @@ public class QueryCounter {
 
   public void incrementEpa() {
     increment(epa);
+  }
+
+  public int getAndResetJooq() {
+    return getAndReset(jooq);
+  }
+
+  public void incrementJooq() {
+    increment(jooq);
+  }
+
+  public int getAndResetHibernate() {
+    return getAndReset(hibernate);
+  }
+
+  public void incrementHibernate() {
+    increment(hibernate);
   }
 
   private int getAndReset(ThreadLocal<Integer> threadLocalInteger) {

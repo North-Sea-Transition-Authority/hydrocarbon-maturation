@@ -26,6 +26,16 @@ class QueryCounterTest {
     testMultiThreaded(QueryCounter::incrementEpa, QueryCounter::getAndResetEpa);
   }
 
+  @Test
+  void getAndResetJooq() throws ExecutionException, InterruptedException {
+    testMultiThreaded(QueryCounter::incrementJooq, QueryCounter::getAndResetJooq);
+  }
+
+  @Test
+  void getAndResetHibernate() throws ExecutionException, InterruptedException {
+    testMultiThreaded(QueryCounter::incrementHibernate, QueryCounter::getAndResetHibernate);
+  }
+
   /*
   This simulates multiple requests happening concurrently.
   You can verify this test works by changing the implementation of QueryCounter to use an int
