@@ -231,6 +231,7 @@ class OutlineForMaximumCasePersistenceServiceTest {
       underTest.saveOutlineForMaximumCaseUploads(submissionDetail, uploadedFileForms);
 
       verify(supportingDocumentService).saveDocuments(submissionDetail, uploadedFileForms, TYPE);
+      verify(submissionGeoJsonService).deleteGeojson(submissionDetail);
       verify(submissionGeoJsonService).storeGeoJson(geoJson, submissionDetail);
     }
   }

@@ -102,6 +102,7 @@ public class OutlineForMaximumCasePersistenceService {
   }
 
   private void storeShapefilesAsGeojson(SubmissionDetail submissionDetail, FileDocumentType documentType) {
+    submissionGeoJsonService.deleteGeojson(submissionDetail);
     supportingDocumentService.getUploadedFiles(submissionDetail, documentType)
         .forEach(uploadedFile -> {
           var geoJson = shapefileConversionService.convertShapefileToGeoJson(uploadedFile);
