@@ -569,7 +569,7 @@ class WorkAreaItemServiceTest {
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
-                "Prospect create - correction",
+                "New prospect - correction",
                 ReverseRouter.route(on(TaskListController.class)
                     .getTaskList(workAreaItem.getSubmissionDetailId(), null))
             )

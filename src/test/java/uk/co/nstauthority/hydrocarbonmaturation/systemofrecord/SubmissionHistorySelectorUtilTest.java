@@ -35,7 +35,7 @@ class SubmissionHistorySelectorUtilTest {
         selectedSubmissionDetail.getId().toString(),
         "Submission 2: Prospect update (Pending acceptance)",
         approvedSubmissionDetail.getId().toString(),
-        "Submission 1: Prospect create (Accepted: 11 November 2012)"
+        "Submission 1: New prospect (Accepted: 11 November 2012)"
     );
     assertEquals(expectedMap, SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult));
   }
