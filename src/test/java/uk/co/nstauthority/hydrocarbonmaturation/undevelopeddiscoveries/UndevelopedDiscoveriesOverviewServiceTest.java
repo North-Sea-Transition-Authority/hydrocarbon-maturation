@@ -96,17 +96,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
     EXPECTED_SUMMARY_TABLE = SummaryTableView.sortableTableBuilder()
         .withDefaultSortDirection(SummaryTableSortDirection.ASCENDING)
         .withDefaultSortIndex(0)
-        .newWithHeadings(
-            UndevelopedDiscoveriesOverviewService.DISCOVERY_HEADING,
-            UndevelopedDiscoveriesOverviewService.YEAR_ADDED_HEADING,
-            UndevelopedDiscoveriesOverviewService.LICENSED_HEADING,
-            UndevelopedDiscoveriesOverviewService.AREA_HEADING,
-            UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_1C_HEADING,
-            UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_2C_HEADING,
-            UndevelopedDiscoveriesOverviewService.OIL_EQUIVALENT_3C_HEADING,
-            UndevelopedDiscoveriesOverviewService.PERCENTAGE_GAS_HEADING,
-            UndevelopedDiscoveriesOverviewService.COMPLEXITY_HEADING
-        )
+        .newWithHeadings(UndevelopedDiscoveryOverviewHeadings.getDisplayNames())
         .build();
   }
 
@@ -159,10 +149,13 @@ class UndevelopedDiscoveriesOverviewServiceTest {
         )
     );
 
-    // AND the expected values for name, year, licenced, mmboe (1/2/3 C), % gas,
+    var expectedPercentageValue1 = new SummaryTableValue("1.00%", 0, null, List.of());
+    var expectedPercentageValue2 = new SummaryTableValue("1.00%", 1, null, List.of());
+
+    // AND the expected values for name, year, licenced, mmboe (1/2/3 C), % gas
     EXPECTED_SUMMARY_TABLE
-        .addRow(expectedDiscoveryValue, "2002", "Yes", area, "1", "2", "3", "1.00%", "1")
-        .addRow(duplicateValue, null, "No", area, "1", "2", "3", "1.00%", "1");
+        .addRow(expectedDiscoveryValue, "2002", "Yes", area, "1", "2", "3", expectedPercentageValue1, "1")
+        .addRow(duplicateValue, null, "No", area, "1", "2", "3", expectedPercentageValue2, "1");
 
     var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(2, 1, "2.00", "4.00", "6.00");
     var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
@@ -226,7 +219,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
             "1",
             "2",
             "3",
-            "1.00%",
+            new SummaryTableValue("1.00%", 0, null, List.of()),
             "1"
         );
 
@@ -284,7 +277,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
             "1",
             "2",
             "3",
-            "1.00%",
+            new SummaryTableValue("1.00%", 0, null, List.of()),
             "1"
         );
 
@@ -342,7 +335,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
             "1",
             "2",
             "3",
-            "1.00%",
+            new SummaryTableValue("1.00%", 0, null, List.of()),
             "1"
         );
 
@@ -401,7 +394,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
             "1",
             "2",
             "3",
-            "1.00%",
+            new SummaryTableValue("1.00%", 0, null, List.of()),
             "1"
         );
 
@@ -451,7 +444,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
             null,
             null,
             null,
-            "",
+            new SummaryTableValue("", 0, null, List.of()),
             null
         );
 
@@ -481,10 +474,13 @@ class UndevelopedDiscoveriesOverviewServiceTest {
       // AND the null date is first
       mockGetAllTrackedUndevelopedDiscoveries(List.of(nullDateUndevelopedDiscovery, nonNullDateUndevelopedDiscovery));
 
+      var expectedPercentageValue1 = new SummaryTableValue("1.00%", 0, null, List.of());
+      var expectedPercentageValue2 = new SummaryTableValue("1.00%", 1, null, List.of());
+
       // THEN the non-null information is first in the table
       EXPECTED_SUMMARY_TABLE
-          .addRow(tableValueWithNonNullDate, "2002", "No", area, "1", "2", "3", "1.00%", "1")
-          .addRow(tableValueWithNullDate, null, "No", area, "1", "2", "3", "1.00%", "1");
+          .addRow(tableValueWithNonNullDate, "2002", "No", area, "1", "2", "3", expectedPercentageValue2, "1")
+          .addRow(tableValueWithNullDate, null, "No", area, "1", "2", "3", expectedPercentageValue1, "1");
 
       var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(2, 0, "2.00", "4.00", "6.00");
       var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
@@ -510,10 +506,13 @@ class UndevelopedDiscoveriesOverviewServiceTest {
       // AND the null date is second
       mockGetAllTrackedUndevelopedDiscoveries(List.of(nonNullDateUndevelopedDiscovery, nullDateUndevelopedDiscovery));
 
+      var expectedPercentageValue1 = new SummaryTableValue("1.00%", 1, null, List.of());
+      var expectedPercentageValue2 = new SummaryTableValue("1.00%", 0, null, List.of());
+
       // THEN the non-null information is first in the table
       EXPECTED_SUMMARY_TABLE
-          .addRow(tableValueWithNonNullDate, "2002", "No", area, "1", "2", "3", "1.00%", "1")
-          .addRow(tableValueWithNullDate, null, "No", area, "1", "2", "3", "1.00%", "1");
+          .addRow(tableValueWithNonNullDate, "2002", "No", area, "1", "2", "3", expectedPercentageValue2, "1")
+          .addRow(tableValueWithNullDate, null, "No", area, "1", "2", "3", expectedPercentageValue1, "1");
 
       var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(2, 0, "2.00", "4.00", "6.00");
       var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
@@ -540,10 +539,13 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
       mockGetAllTrackedUndevelopedDiscoveries(List.of(secondDiscovery, firstDiscovery));
 
+      var expectedPercentageValue1 = new SummaryTableValue("1.00%", 0, null, List.of());
+      var expectedPercentageValue2 = new SummaryTableValue("1.00%", 1, null, List.of());
+
       // THEN the entry beginning with A is first
       EXPECTED_SUMMARY_TABLE
-          .addRow(expectedFirstValue, "2002", "No", area, "1", "2", "3", "1.00%", "1")
-          .addRow(expectedSecondValue, "2002", "No", area, "1", "2", "3", "1.00%", "1");
+          .addRow(expectedFirstValue, "2002", "No", area, "1", "2", "3", expectedPercentageValue2, "1")
+          .addRow(expectedSecondValue, "2002", "No", area, "1", "2", "3", expectedPercentageValue1, "1");
 
       var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(2, 0, "2.00", "4.00", "6.00");
       var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
@@ -568,10 +570,53 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
       mockGetAllTrackedUndevelopedDiscoveries(List.of(oldestDiscovery, newestDiscovery));
 
+      var expectedPercentageValue1 = new SummaryTableValue("1.00%", 0, null, List.of());
+      var expectedPercentageValue2 = new SummaryTableValue("1.00%", 1, null, List.of());
+
       // THEN the newest entry (2024) is first
       EXPECTED_SUMMARY_TABLE
-          .addRow(newestValue, "2024", "No", area, "1", "2", "3", "1.00%", "1")
-          .addRow(oldestValue, "2002", "No", area, "1", "2", "3", "1.00%", "1");
+          .addRow(newestValue, "2024", "No", area, "1", "2", "3", expectedPercentageValue2, "1")
+          .addRow(oldestValue, "2002", "No", area, "1", "2", "3", expectedPercentageValue1, "1");
+
+      var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(2, 0, "2.00", "4.00", "6.00");
+      var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
+
+      var overviewData = undevelopedDiscoveriesOverviewService.getOverviewData();
+      assertThat(overviewData)
+          .usingRecursiveComparison()
+          .isEqualTo(expectedOverviewData);
+    }
+
+    @Test
+    void whenPercentageIsDifferent_percentageSortValuesAreCorrect() {
+      // WHEN a lower percentage would be ranked higher in a string comparison ( "2" > "1" )
+      var lowerPercentageDiscovery = setupAndGetUndevelopedDiscovery();
+      var lowerPercentGas = BigDecimal.valueOf(2.1);
+      var lowPercentValue = mockEntryWithPercentageGasAndGetExpectedValue(
+          "hahahaha",
+          LocalDate.of(2002, 1, 11),
+          lowerPercentageDiscovery,
+          lowerPercentGas
+      );
+
+      var higherPercentageDiscovery = setupAndGetUndevelopedDiscovery();
+      var higherPercentGas = BigDecimal.valueOf(12.1);
+      var highPercentValue = mockEntryWithPercentageGasAndGetExpectedValue(
+          "hahahaha",
+          LocalDate.of(2002, 1, 11),
+          higherPercentageDiscovery,
+          higherPercentGas
+      );
+
+      mockGetAllTrackedUndevelopedDiscoveries(List.of(lowerPercentageDiscovery, higherPercentageDiscovery));
+
+      // THEN the sort value represents the numerical comparison of the percentages
+      var generatedLowPercentValue = new SummaryTableValue("2.10%", 0, null, List.of());
+      var generatedHighPercentValue = new SummaryTableValue("12.10%", 1, null, List.of());
+
+      EXPECTED_SUMMARY_TABLE
+          .addRow(lowPercentValue, "2002", "No", area, "1", "2", "3", generatedLowPercentValue, "1")
+          .addRow(highPercentValue, "2002", "No", area, "1", "2", "3", generatedHighPercentValue, "1");
 
       var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(2, 0, "2.00", "4.00", "6.00");
       var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
@@ -612,40 +657,56 @@ class UndevelopedDiscoveriesOverviewServiceTest {
 
     private SummaryTableValue mockNormalEntryAndGetExpectedValue(String resourceName, LocalDate date,
                                                                  UndevelopedDiscovery undevelopedDiscovery) {
-      mockGetLatestInformation(
-          undevelopedDiscovery,
-          date,
-          BigDecimal.ONE,
-          BigDecimal.valueOf(2),
-          BigDecimal.valueOf(3)
-      );
-
-      var resource = undevelopedDiscovery.getResource();
-
-      // WHEN there are no associated licences
-      List<Integer> licenceIds = List.of();
-      mockGetResourceRecord(resource.getId(), resourceName, licenceIds);
-
-      mockGetRegulatorView(resource);
-
-      // AND the resource has not been relinquished
-      mockLatestApprovedSubmissionDetail(SubmissionType.UPDATE_DISCOVERY, resource);
-
-      mockGetAllTrackedUndevelopedDiscoveries(List.of(undevelopedDiscovery));
-
-      return new SummaryTableValue(
-          resourceName,
-          RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
-          List.of()
-      );
+      return mockEntryWithPercentageGasAndGetExpectedValue(resourceName, date, undevelopedDiscovery, BigDecimal.ONE);
     }
+  }
+
+  private SummaryTableValue mockEntryWithPercentageGasAndGetExpectedValue(String resourceName, LocalDate date,
+                                                                          UndevelopedDiscovery undevelopedDiscovery,
+                                                                          BigDecimal percentageGas) {
+    mockGetLatestInformationWithPercentageGas(
+        undevelopedDiscovery,
+        date,
+        BigDecimal.ONE,
+        BigDecimal.valueOf(2),
+        BigDecimal.valueOf(3),
+        percentageGas
+    );
+
+    var resource = undevelopedDiscovery.getResource();
+
+    // WHEN there are no associated licences
+    List<Integer> licenceIds = List.of();
+    mockGetResourceRecord(resource.getId(), resourceName, licenceIds);
+
+    mockGetRegulatorView(resource);
+
+    // AND the resource has not been relinquished
+    mockLatestApprovedSubmissionDetail(SubmissionType.UPDATE_DISCOVERY, resource);
+
+    mockGetAllTrackedUndevelopedDiscoveries(List.of(undevelopedDiscovery));
+
+    return new SummaryTableValue(
+        resourceName,
+        RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
+        List.of()
+    );
   }
 
   private void mockGetLatestInformation(UndevelopedDiscovery undevelopedDiscovery, LocalDate date, BigDecimal mmboeOneC,
                                         BigDecimal mmboeTwoC, BigDecimal mmboeThreeC) {
+    mockGetLatestInformationWithPercentageGas(undevelopedDiscovery, date, mmboeOneC, mmboeTwoC, mmboeThreeC,
+        BigDecimal.ONE);
+  }
+
+  private void mockGetLatestInformationWithPercentageGas(UndevelopedDiscovery undevelopedDiscovery, LocalDate date,
+                                                         BigDecimal mmboeOneC,
+                                                         BigDecimal mmboeTwoC, BigDecimal mmboeThreeC,
+                                                         BigDecimal percentageGas) {
     var information = UndevelopedDiscoveryTestUtils.getUndevelopedDiscoveryInformation(
         date, undevelopedDiscovery, mmboeOneC, mmboeTwoC, mmboeThreeC
     );
+    information.setPercentageGas(percentageGas);
 
     when(informationService.getLatestInformation(undevelopedDiscovery))
         .thenReturn(Optional.of(information));

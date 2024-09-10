@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.undevelopeddiscoveries;
 
+import com.google.common.collect.Streams;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
@@ -45,15 +46,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.DecimalFormatUtil;
 @Service
 public class UndevelopedDiscoveriesOverviewService {
 
-  static final String DISCOVERY_HEADING = "Discovery";
-  static final String YEAR_ADDED_HEADING = "Year added";
-  static final String LICENSED_HEADING = "Licensed";
-  static final String AREA_HEADING = "Geographical area";
-  static final String OIL_EQUIVALENT_1C_HEADING = "mmboe (1C)";
-  static final String OIL_EQUIVALENT_2C_HEADING = "mmboe (2C)";
-  static final String OIL_EQUIVALENT_3C_HEADING = "mmboe (3C)";
-  static final String PERCENTAGE_GAS_HEADING = "Percentage gas";
-  static final String COMPLEXITY_HEADING = "Complexity";
   private final UndevelopedDiscoveryService undevelopedDiscoveryService;
   private final UndevelopedDiscoveryInformationService informationService;
   private final ViewResourceRecordService resourceRecordService;
@@ -111,10 +103,12 @@ public class UndevelopedDiscoveriesOverviewService {
   private SummaryTableView getOverviewSummaryTableView(List<UndevelopedDiscoveryRowValues> rows) {
     var tableView = getBaseTableView();
 
-    rows.stream()
+    var sortedRowsStream = rows.stream()
+        .sorted(this::comparePercentages);
+
+    Streams.mapWithIndex(sortedRowsStream, this::toRow)
         .sorted(this::compareRows)
-        .map(this::toRow)
-        .forEach(tableView::addRow);
+        .forEach(row -> tableView.tableRows().add(row));
 
     return tableView;
   }
@@ -152,17 +146,7 @@ public class UndevelopedDiscoveriesOverviewService {
 
   private SummaryTableView getBaseTableView() {
     return SummaryTableView.sortableTableBuilder()
-        .newWithHeadings(
-            DISCOVERY_HEADING,
-            YEAR_ADDED_HEADING,
-            LICENSED_HEADING,
-            AREA_HEADING,
-            OIL_EQUIVALENT_1C_HEADING,
-            OIL_EQUIVALENT_2C_HEADING,
-            OIL_EQUIVALENT_3C_HEADING,
-            PERCENTAGE_GAS_HEADING,
-            COMPLEXITY_HEADING
-        )
+        .newWithHeadings(UndevelopedDiscoveryOverviewHeadings.getDisplayNames())
         .withHeadingStyle(TableHeadingStyle.COLUMN)
         .withDefaultSortDirection(SummaryTableSortDirection.ASCENDING)
         .withDefaultSortIndex(0)
@@ -204,7 +188,7 @@ public class UndevelopedDiscoveriesOverviewService {
     );
   }
 
-  private SummaryTableRow toRow(UndevelopedDiscoveryRowValues rowValues) {
+  private SummaryTableRow toRow(UndevelopedDiscoveryRowValues rowValues, long percentSortValue) {
     return SummaryTableRow.builder()
         .withValues(
             rowValues.discovery(),
@@ -214,7 +198,7 @@ public class UndevelopedDiscoveriesOverviewService {
             rowValues.mmboeOneC(),
             rowValues.mmboeTwoC(),
             rowValues.mmboeThreeC(),
-            rowValues.percentageGas(),
+            new SummaryTableValue(rowValues.percentageGas(), (int) percentSortValue, null, List.of()),
             rowValues.complexity())
         .build();
   }
@@ -316,22 +300,35 @@ public class UndevelopedDiscoveriesOverviewService {
     return undevelopedDiscoveryInformation;
   }
 
-  private int compareRows(UndevelopedDiscoveryRowValues rowOne,
-                          UndevelopedDiscoveryRowValues rowTwo) {
-    if (rowOne.yearAdded() == null) {
+  private int compareRows(SummaryTableRow rowOne,
+                          SummaryTableRow rowTwo) {
+    var yearAddedColumnIndex = UndevelopedDiscoveryOverviewHeadings.YEAR_ADDED.getColumnIndex();
+    var rowOneYearAdded = rowOne.rowValues().get(yearAddedColumnIndex).value();
+    var rowTwoYearAdded = rowTwo.rowValues().get(yearAddedColumnIndex).value();
+
+    var discoveryNameColumnIndex = UndevelopedDiscoveryOverviewHeadings.DISCOVERY.getColumnIndex();
+    var rowOneDiscoveryName = rowOne.rowValues().get(discoveryNameColumnIndex).value();
+    var rowTwoDiscoveryName = rowTwo.rowValues().get(discoveryNameColumnIndex).value();
+
+    if (rowOneYearAdded == null) {
       return 1;
-    } else if (rowTwo.yearAdded() == null) {
+    } else if (rowTwoYearAdded == null) {
       return -1;
     }
 
-    var yearsCompared = rowTwo.yearAdded().compareTo(rowOne.yearAdded());
+    var yearsCompared = rowTwoYearAdded.compareTo(rowOneYearAdded);
     if (yearsCompared == 0) {
       // if years are equal, sort by name
-      return rowOne.discovery().value().toLowerCase()
-          .compareTo(rowTwo.discovery().value().toLowerCase());
+      return rowOneDiscoveryName.toLowerCase().compareTo(rowTwoDiscoveryName.toLowerCase());
     } else {
       return yearsCompared;
     }
+  }
+
+  private int comparePercentages(UndevelopedDiscoveryRowValues rowOne,
+                                 UndevelopedDiscoveryRowValues rowTwo) {
+    return new BigDecimal(rowOne.percentageGas().replace("%", ""))
+        .compareTo(new BigDecimal(rowTwo.percentageGas().replace("%", "")));
   }
 
   private BigDecimal sumMmboe(List<UndevelopedDiscoveryRowValues> rows,

@@ -68,8 +68,18 @@ public record SummaryTableView(
       return this;
     }
 
+    public SummaryTableViewBuilder newWithHeadings(List<?> headingValues) {
+      addRow(headingValues);
+      return this;
+    }
+
     public SummaryTableViewBuilder addRow(Object... rowValues) {
       SummaryTableView.addRow(this.tableRows, Arrays.asList(rowValues));
+      return this;
+    }
+
+    public SummaryTableViewBuilder addRow(List<?> rowValues) {
+      SummaryTableView.addRow(this.tableRows, rowValues);
       return this;
     }
 
