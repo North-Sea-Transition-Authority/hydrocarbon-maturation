@@ -13,7 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicence;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -154,6 +156,8 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
         .createFieldWithParent(resource, resourceName, organisationId, entityManager);
     var fieldStatusHistory =
         SubmissionIntegrationTestUtils.createFieldStatusHistory(field, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
+    var fieldLicence1 = createFieldLicence(field, 100, "P100");
+    var fieldLicence2 = createFieldLicence(field, 101, "P101");
 
     var result = resourceRecordSummaryQueryService.getResourceRecord(resource.getId());
 
@@ -164,13 +168,15 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
             ResourceRecordSummaryQueryResult::resourceName,
             ResourceRecordSummaryQueryResult::organisationResponsibleId,
             ResourceRecordSummaryQueryResult::parentFieldId,
-            ResourceRecordSummaryQueryResult::fieldStatus
+            ResourceRecordSummaryQueryResult::fieldStatus,
+            ResourceRecordSummaryQueryResult::licencesTheResourceIsOn
         )
         .containsExactly(
             field.getCorrectedLegalFieldName(),
             field.getResponsibleOrganisationId(),
             field.getParentDeterminedField().getFieldIdentifier(),
-            fieldStatusHistory.getFieldStatus()
+            fieldStatusHistory.getFieldStatus(),
+            List.of(fieldLicence1.getLicenceId(), fieldLicence2.getLicenceId())
         );
   }
 
@@ -229,8 +235,11 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
   }
 
   private Licence createLicence(int id, String ref, GeneralDetail generalDetails) {
-
     return SubmissionIntegrationTestUtils.createLicence(id, ref, generalDetails, entityManager);
+  }
+
+  private FieldLicence createFieldLicence(Field field, int licenceId, String licenceRef) {
+    return SubmissionIntegrationTestUtils.createFieldLicence(field, licenceId, licenceRef, entityManager);
   }
 
   private TrapProperty createTrapProperty(SubmissionDetail submissionDetail, String centreOfInterestQuadrantBlock) {

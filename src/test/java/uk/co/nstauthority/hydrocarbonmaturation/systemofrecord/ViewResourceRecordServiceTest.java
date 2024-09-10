@@ -153,7 +153,7 @@ class ViewResourceRecordServiceTest {
     }
 
     @Nested
-    class AndUserIsNotRegulatorOrAreaLegacyTeamUser {
+    class AndUserIsNotRegulatorOrAreaTeamUser {
       private static final LicenceView LICENCE_VIEW = new LicenceView("licenceRef", 2, LicenceStatus.EXTANT);
       @BeforeEach
       void setup() {

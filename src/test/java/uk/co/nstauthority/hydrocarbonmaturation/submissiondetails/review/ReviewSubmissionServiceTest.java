@@ -268,7 +268,7 @@ class ReviewSubmissionServiceTest {
     }
 
     @Nested
-    class AndUserIsNotInResponsibleLegacyTeam {
+    class AndUserIsNotInResponsibleTeam {
 
       @BeforeEach
       void setup() {
@@ -307,10 +307,6 @@ class ReviewSubmissionServiceTest {
         void AndLatestApprovedSubmissionHasUserIsInResponsibleTeam_assertTrue() {
           var userOrgUnit = 1;
           latestApprovedResourceDetail.setOrganisationId(userOrgUnit);
-          when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
-              .thenReturn(Optional.of(latestApprovedSubmission));
-          when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmission))
-              .thenReturn(Optional.of(latestApprovedResourceDetail));
           var userOrgs = List.of(userOrgUnit);
           when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(userOrgs);
 
@@ -322,10 +318,6 @@ class ReviewSubmissionServiceTest {
         void AndLatestApprovedSubmissionAndUserIsNotInResponsibleTeam_assertFalse() {
           var userOrgUnit = 1;
           latestApprovedResourceDetail.setOrganisationId(userOrgUnit);
-          when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
-              .thenReturn(Optional.of(latestApprovedSubmission));
-          when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmission))
-              .thenReturn(Optional.of(latestApprovedResourceDetail));
           var userOrgs = List.of(2);
           when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(userOrgs);
 
@@ -337,8 +329,6 @@ class ReviewSubmissionServiceTest {
         void AndLatestApprovedSubmissionHasNoLatestApprovedSubmission_assertFalse() {
           var userOrgUnit = 1;
           latestApprovedResourceDetail.setOrganisationId(userOrgUnit);
-          when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
-              .thenReturn(Optional.empty());
 
           assertThat(reviewSubmissionService.canViewSubmission(UPDATE_SUBMISSION_RECORD, USER_DETAIL, submissionDetail))
               .isFalse();

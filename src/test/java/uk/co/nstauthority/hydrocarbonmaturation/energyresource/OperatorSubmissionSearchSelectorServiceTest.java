@@ -46,7 +46,7 @@ class OperatorSubmissionSearchSelectorServiceTest {
   @BeforeEach
   void setUp() {
     when(industryTeamService
-        .getOrganisationGroupIdsForUserWithRoles(USER, Set.of(Role.INDUSTRY_SUBMIT)))
+        .getOrganisationUnitIdsForUserWithRoles(USER, Set.of(Role.INDUSTRY_SUBMIT)))
         .thenReturn(List.of(USER_ORG_UNIT));
   }
 

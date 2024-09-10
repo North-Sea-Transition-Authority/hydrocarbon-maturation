@@ -5,6 +5,7 @@ import static org.jooq.impl.DSL.coalesce;
 import static org.jooq.impl.DSL.max;
 import static org.jooq.impl.DSL.select;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELDS;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELD_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
@@ -54,9 +55,14 @@ class ResourceRecordSummaryQueryService {
                 RESOURCE_DETAILS.ORGANISATION_ID,
                 FIELDS.RESPONSIBLE_ORGANISATION_ID),
             REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM,
-            DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
+            coalesce(
+                DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
+                DSL.arrayAggDistinct(FIELD_LICENCES.LICENCE_ID)
+                    .orderBy(FIELD_LICENCES.LICENCE_ID)
+                    .filterWhere(FIELD_LICENCES.LICENCE_ID.isNotNull())
+            ),
             FIELDS.PARENT_DETERMINED_FIELD_ID,
             max(FIELD_STATUS_HISTORY.FIELD_STATUS)
         )
@@ -83,6 +89,8 @@ class ResourceRecordSummaryQueryService {
             .on(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID.eq(RESOURCES.ID))
             .leftJoin(FIELDS)
             .on(FIELDS.RESOURCE_ID.eq(RESOURCES.ID))
+            .leftJoin(FIELD_LICENCES)
+            .on(FIELD_LICENCES.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
             .leftJoin(FIELD_STATUS_HISTORY)
             .on(and(
                 FIELD_STATUS_HISTORY.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER),

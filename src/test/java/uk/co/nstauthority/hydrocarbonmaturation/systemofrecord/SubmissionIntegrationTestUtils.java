@@ -11,6 +11,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLink;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicence;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.FieldStatusHistory;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
@@ -69,6 +70,18 @@ public class SubmissionIntegrationTestUtils {
     licence.setLicenceId(id);
     licence.setLicenceReference(ref);
     licence.setGeneralDetail(generalDetails);
+
+    entityManager.persist(licence);
+    entityManager.flush();
+
+    return licence;
+  }
+
+  public static FieldLicence createFieldLicence(Field field, int licenceId, String ref, EntityManager entityManager) {
+    var licence = new FieldLicence();
+    licence.setField(field);
+    licence.setLicenceId(licenceId);
+    licence.setLicenceReference(ref);
 
     entityManager.persist(licence);
     entityManager.flush();
@@ -177,6 +190,7 @@ public class SubmissionIntegrationTestUtils {
     field.setCorrectedLegalFieldName(correctedLegalFieldName);
     field.setResponsibleOrganisationId(responsibleOrganisationId);
     field.setParentDeterminedField(parentField);
+    field.setIsOnLicence(true);
 
     entityManager.persist(field);
     entityManager.flush();

@@ -99,8 +99,9 @@ public class ReviewSubmissionService {
       return true;
     }
 
-    if (submissionRecord.submissionType() == SubmissionType.CREATE_PROSPECT
-        || submissionRecord.submissionType() == SubmissionType.CREATE_DISCOVERY) {
+    if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_PROSPECT
+        || submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY
+        || submissionDetail.isFieldSubmission()) {
       //when there is no latest approved submission on resource, checks the current submission
       var organisationUnitId = submissionRecord.responsibleOrganisationId();
       return industryTeamService.getOrganisationUnitIdsForUser(user).contains(organisationUnitId);

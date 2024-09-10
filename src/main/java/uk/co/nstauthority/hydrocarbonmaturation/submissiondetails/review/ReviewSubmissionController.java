@@ -17,7 +17,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
@@ -172,8 +174,17 @@ public class ReviewSubmissionController {
         .isInResponsibleTeam(user, submissionRecord.responsibleTeamType());
     var optionalSubmissionDetailUpdate = reviewSubmissionService.getUpdateSubmissionDetailBySubmission(
         submissionDetail.getSubmission());
+
+    var resource = resourceService.getResourceById(resourceId)
+        .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
+            .formatted(resourceId)));
+
+    var isFieldResource = ResourceType.FIELD.equals(resource.getType());
+    if (isFieldResource) {
+      addFieldSummary(modelAndView, resource);
+    }
     if (isInResponsibleTeam) {
-      addResponsibleTeamProperties(modelAndView, resourceId, submissionDetail, user);
+      addResponsibleTeamProperties(modelAndView, resource, submissionDetail, user);
     }
 
     var isIndustrySubmitter = reviewSubmissionService
@@ -211,12 +222,15 @@ public class ReviewSubmissionController {
         .addObject("isIndustrySubmitter", isIndustrySubmitter);
   }
 
-  private ModelAndView addResponsibleTeamProperties(ModelAndView modelAndView, UUID resourceId,
-                                                    SubmissionDetail selectedSubmissionDetail,
-                                                    User user) {
-    var resource = resourceService.getResourceById(resourceId)
-        .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
-            .formatted(resourceId)));
+  private void addFieldSummary(ModelAndView modelAndView, Resource resource) {
+    modelAndView
+        .addObject("fieldRegulatorManagedInformationSummaryCard",
+            fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource));
+  }
+
+  private void addResponsibleTeamProperties(ModelAndView modelAndView, Resource resource,
+                                            SubmissionDetail selectedSubmissionDetail,
+                                            User user) {
 
     modelAndView
         .addObject("resourceGroupsSummaryView",
@@ -238,11 +252,9 @@ public class ReviewSubmissionController {
           .ifPresent(fieldMapView -> modelAndView.addObject("fieldMapView", fieldMapView));
 
       modelAndView
-          .addObject("fieldRegulatorManagedInformationSummaryCard",
-              fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
           .addObject("regulatorManagedInformationUrl",
               ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
-                  .getRegulatorManagedInformationPageWithSubmissionDetail(resourceId, selectedSubmissionDetail.getId(),
+                  .getRegulatorManagedInformationPageWithSubmissionDetail(resource.getId(), selectedSubmissionDetail.getId(),
                       null)))
           .addObject("manageResourceInformationText", "Manage field information")
           .addObject("fieldStatusUrl", ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
@@ -254,11 +266,8 @@ public class ReviewSubmissionController {
               regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
           .addObject("regulatorManagedInformationUrl",
               ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                  .getRegulatorManagedInformationPage(
-                      resourceId)))
+                  .getRegulatorManagedInformationPage(resource.getId())))
           .addObject("manageResourceInformationText", "Manage resource information");
     }
-
-    return modelAndView;
   }
 }

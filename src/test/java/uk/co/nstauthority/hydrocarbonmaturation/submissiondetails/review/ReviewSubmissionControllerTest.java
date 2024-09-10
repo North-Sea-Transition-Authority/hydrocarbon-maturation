@@ -110,6 +110,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionRecordSummaryView = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
         UUID.randomUUID(), 1, SubmissionType.CREATE_PROSPECT);
+    when(resourceService.getResourceById(resourceId)).thenReturn(Optional.of(resource));
     when(reviewSubmissionService.getSubmissionRecordOrThrow(resourceId)).thenReturn(submissionRecordSummaryView);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionRecordSummaryView.submissionDetailId()))
         .thenReturn(submissionDetail);

@@ -35,7 +35,7 @@ class OperatorSubmissionSearchSelectorService implements SubmissionSearchSelecto
                                                                          SubmissionType submissionType,
                                                                          User user) {
     var orgUnitsWhereUserSubmitter = industryTeamService
-        .getOrganisationGroupIdsForUserWithRoles(user, Set.of(Role.INDUSTRY_SUBMIT));
+        .getOrganisationUnitIdsForUserWithRoles(user, Set.of(Role.INDUSTRY_SUBMIT));
     //Gets the list of resource views for prospects to be displayed in a search selector
     return submissionDetailStream
         .map(resourceDetailsPersistenceService::getResourceDetailOrThrow)

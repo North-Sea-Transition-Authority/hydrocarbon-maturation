@@ -154,6 +154,10 @@ public class ViewResourceRecordController {
               .getResourceGroupPage(resourceId, null)));
     }
 
+    if (isFieldResource) {
+      addFieldSummary(modelAndView, resource);
+    }
+
     if (isRegulatorOrAreaUser) {
       addRegulatorOnlyProperties(resourceId, isFieldResource, modelAndView, resource);
     }
@@ -199,8 +203,6 @@ public class ViewResourceRecordController {
           .addObject("regulatorManagedInformationUrl",
               ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
                   .getRegulatorManagedInformationPage(resourceId, null)))
-          .addObject("fieldRegulatorManagedInformationSummaryCard",
-              fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
           .addObject("fieldStatusUrl",
               ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
                   .getViewFieldStatusHistory(field.getFieldIdentifier(), null)))
@@ -219,6 +221,11 @@ public class ViewResourceRecordController {
               regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
           .addObject("manageResourceInformationText", "Manage resource information");
     }
+  }
+
+  private void addFieldSummary(ModelAndView modelAndView, Resource resource) {
+    modelAndView.addObject("fieldRegulatorManagedInformationSummaryCard",
+        fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource));
   }
 
   private void addBreadCrumbsForResourceType(ResourceRecordSummaryView resourceRecord,

@@ -44,7 +44,7 @@ class SubmissionDetailAccessServiceTest {
   }
 
   @Nested
-  class WhenCheckingIfCanViewSubmissionDetailAndNotRegulatorOrAreaLegacyTeamUser {
+  class WhenCheckingIfCanViewSubmissionDetailAndNotRegulatorOrAreaTeamUser {
     @Mock
     private ResourceDetail resourceDetail;
     @Mock
