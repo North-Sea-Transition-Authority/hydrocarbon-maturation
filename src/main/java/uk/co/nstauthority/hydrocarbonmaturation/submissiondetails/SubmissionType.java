@@ -12,7 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 
 public enum SubmissionType implements Displayable {
   CREATE_PROSPECT(
-      "Prospect create",
+      "New prospect",
       "Create a new prospect",
       Set.of(ResourceType.PROSPECT),
       Set.of(Role.EXPLORATION, Role.INDUSTRY_SUBMIT),

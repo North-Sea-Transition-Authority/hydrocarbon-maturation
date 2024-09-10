@@ -118,7 +118,7 @@ class WorkAreaItemServiceTest {
         .thenReturn(List.of());
 
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.CREATE_PROSPECT))
-        .thenReturn("Prospect create");
+        .thenReturn("New prospect");
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.PROSPECT_UPDATE))
         .thenReturn("Prospect update");
 
@@ -133,7 +133,7 @@ class WorkAreaItemServiceTest {
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
-                "Prospect create",
+                "New prospect",
                 ReverseRouter.route(on(TaskListController.class)
                     .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId(), null))),
             tuple(
@@ -164,7 +164,7 @@ class WorkAreaItemServiceTest {
   void getWorkAreaItems_oneItemReturned_whenOrganisationAndLicencesFound() {
 
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.CREATE_PROSPECT))
-        .thenReturn("Prospect create");
+        .thenReturn("New prospect");
     when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(operatorSubmissionWorkAreaQueryService);
     when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
@@ -188,7 +188,7 @@ class WorkAreaItemServiceTest {
         .contains(
             WorkAreaItemType.SUBMISSION,
             "resource name (25/5)",
-            "Prospect create",
+            "New prospect",
             ReverseRouter.route(on(TaskListController.class)
                 .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId(), null)));
 
@@ -216,7 +216,7 @@ class WorkAreaItemServiceTest {
     var expectedHeadingText = "resource name (1/1) (Round RT9)";
 
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.CREATE_PROSPECT))
-        .thenReturn("Prospect create");
+        .thenReturn("New prospect");
     when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(operatorSubmissionWorkAreaQueryService);
     when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
@@ -238,7 +238,7 @@ class WorkAreaItemServiceTest {
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 expectedHeadingText,
-                "Prospect create",
+                "New prospect",
                 ReverseRouter.route(on(TaskListController.class)
                     .getTaskList(submissionWorkAreaQueryResult.getSubmissionDetailId(), null)))
         );
@@ -255,7 +255,7 @@ class WorkAreaItemServiceTest {
   @Test
   void getWorkAreaItems_oneItemReturned_whenOrganisationWithoutNameFound() {
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.CREATE_PROSPECT))
-        .thenReturn("Prospect create");
+        .thenReturn("New prospect");
     when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(operatorSubmissionWorkAreaQueryService);
     when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
@@ -274,7 +274,7 @@ class WorkAreaItemServiceTest {
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
-                "Prospect create",
+                "New prospect",
                 ReverseRouter.route(on(TaskListController.class)
                     .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId(), null)))
         );
@@ -290,7 +290,7 @@ class WorkAreaItemServiceTest {
   @Test
   void getWorkAreaItems_oneItemReturned_whenOrganisationWithoutNameAndNumberFound() {
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.CREATE_PROSPECT))
-        .thenReturn("Prospect create");
+        .thenReturn("New prospect");
     when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(responsibleTeamSubmissionWorkAreaQueryService);
     when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER)).thenReturn(List.of(
@@ -309,7 +309,7 @@ class WorkAreaItemServiceTest {
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
-                "Prospect create",
+                "New prospect",
                 ReverseRouter.route(on(TaskListController.class)
                     .getTaskList(queryResultWithEverythingFilledIn.getSubmissionDetailId(), null)))
         );
@@ -380,7 +380,7 @@ class WorkAreaItemServiceTest {
         .withStatus(SubmissionDetailStatus.SUBMITTED.name())
         .build();
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.CREATE_PROSPECT))
-        .thenReturn("Prospect create");
+        .thenReturn("New prospect");
     when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(responsibleTeamSubmissionWorkAreaQueryService);
     when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
@@ -401,7 +401,7 @@ class WorkAreaItemServiceTest {
             tuple(
                 WorkAreaItemType.SUBMISSION,
                 "resource name (25/5)",
-                "Prospect create",
+                "New prospect",
                 ReverseRouter.route(on(ReviewSubmissionController.class)
                     .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null)))
         );
@@ -548,7 +548,7 @@ class WorkAreaItemServiceTest {
         .build();
     var queryResults = List.of(workAreaItem);
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(SubmissionType.CREATE_PROSPECT))
-        .thenReturn("Prospect create");
+        .thenReturn("New prospect");
     when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
         .thenReturn(operatorSubmissionWorkAreaQueryService);
     when(operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
