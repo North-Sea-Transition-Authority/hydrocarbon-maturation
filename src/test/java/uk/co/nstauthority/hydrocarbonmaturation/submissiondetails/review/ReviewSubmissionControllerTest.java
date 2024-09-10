@@ -377,6 +377,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
       mode = EnumSource.Mode.INCLUDE)
   @SuppressWarnings("unchecked")
   void showSubmissionModelAndView_whenIsRegulator_fieldSubmission_assertModelPropertiesAndVerifyAddRegulatorAttributes(SubmissionType submissionType) throws Exception {
+    resource.setType(ResourceType.FIELD);
     submissionDetail.setSubmissionType(submissionType);
 
     when(reviewSubmissionService.canViewSubmission(submissionRecordSummaryView, USER, submissionDetail))
