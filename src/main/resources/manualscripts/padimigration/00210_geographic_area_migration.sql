@@ -42,3 +42,32 @@ BEGIN
 END;
 
 $$;
+
+DO $$
+DECLARE
+
+    onshore_area_rec RECORD;
+
+BEGIN
+
+    FOR onshore_area_rec IN (
+        SELECT rmi.resource_id
+        FROM remi.resource_details rd
+        JOIN remi.submission_details sd ON sd.id = rd.submission_detail_id
+        JOIN remi.submissions s ON s.id = sd.submission_id
+        JOIN remi.resources r ON r.id = s.resource_id
+        JOIN remi.regulator_managed_information rmi ON rmi.resource_id = r.id
+        WHERE rd.onshore_offshore = 'ONSHORE'
+        AND rmi.geographical_area IS NULL
+    )
+    LOOP
+
+        UPDATE remi.regulator_managed_information
+        SET geographical_area = 'ONSHORE'
+        WHERE resource_id = onshore_area_rec.resource_id;
+
+    END LOOP;
+
+END;
+
+$$;
