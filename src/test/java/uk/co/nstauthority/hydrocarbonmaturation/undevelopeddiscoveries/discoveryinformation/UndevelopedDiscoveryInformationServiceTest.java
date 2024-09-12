@@ -227,9 +227,9 @@ class UndevelopedDiscoveryInformationServiceTest {
             null,
             "reason",
             null,
-            new BigDecimal("0.00"),
-            new BigDecimal("0.00"),
-            new BigDecimal("0.00"),
+            null,
+            null,
+            null,
             null
         );
   }
@@ -296,10 +296,10 @@ class UndevelopedDiscoveryInformationServiceTest {
             null,
             null,
             "reason",
-            new BigDecimal("100"),
-            new BigDecimal("0.17"),
-            new BigDecimal("0.17"),
-            new BigDecimal("0.17"),
+            null,
+            null,
+            null,
+            null,
             null
         );
   }

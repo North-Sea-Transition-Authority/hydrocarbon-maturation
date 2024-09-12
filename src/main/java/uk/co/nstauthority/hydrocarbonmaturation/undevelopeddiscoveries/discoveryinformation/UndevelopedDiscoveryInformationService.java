@@ -6,6 +6,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
@@ -186,11 +187,12 @@ public class UndevelopedDiscoveryInformationService {
   /*
    * calculates mmboe subject to the formula mmboe(?C) = (?C oil recoverable) + ((?C gas recoverable)/5.8)
    * @params BigDecimal oilRecoverable, BigDecimal gasRecoverable
-   * @return calculated mmboe, or zero (i.e. there is no oil/gas recoverable)
+   * @return calculated mmboe
    */
   private BigDecimal calculateOilEquivalentRecoverableResources(BigDecimal oilRecoverable, BigDecimal gasRecoverable) {
-    oilRecoverable = BigDecimalUtil.getValueOrZero(oilRecoverable);
-    gasRecoverable = BigDecimalUtil.getValueOrZero(gasRecoverable);
+    if (Objects.isNull(oilRecoverable) || Objects.isNull(gasRecoverable)) {
+      return null;
+    }
 
     var gasDividedByConstant = BigDecimalUtil.isValueZero(gasRecoverable)
         ? gasRecoverable
@@ -206,8 +208,11 @@ public class UndevelopedDiscoveryInformationService {
    * @return BigDecimal percentage gas
    */
   private BigDecimal calculatePercentageGas(UndevelopedDiscoveryInformation information) {
-    var oilRecoverable = BigDecimalUtil.getValueOrZero(information.getOilRecoverableTwoC());
-    var oilEquivalentRecoverable = BigDecimalUtil.getValueOrZero(information.getOilEquivalentRecoverableTwoC());
+    if (Objects.isNull(information.getOilRecoverableTwoC()) || Objects.isNull(information.getOilEquivalentRecoverableTwoC())) {
+      return null;
+    }
+    var oilRecoverable = information.getOilRecoverableTwoC();
+    var oilEquivalentRecoverable = information.getOilEquivalentRecoverableTwoC();
 
     if (BigDecimalUtil.isValueZero(oilEquivalentRecoverable)) {
       // there is no oil or gas

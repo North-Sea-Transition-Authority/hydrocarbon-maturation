@@ -627,6 +627,45 @@ class UndevelopedDiscoveriesOverviewServiceTest {
           .isEqualTo(expectedOverviewData);
     }
 
+    @Test
+    void whenPercentageIsNull_percentageSortValuesAreCorrect() {
+      // WHEN a lower percentage would be ranked higher in a string comparison ( "2" > "1" )
+      var lowerPercentageDiscovery = setupAndGetUndevelopedDiscovery();
+      var lowPercentValue = mockEntryWithPercentageGasAndGetExpectedValue(
+          "hahahaha",
+          LocalDate.of(2002, 1, 11),
+          lowerPercentageDiscovery,
+          null
+      );
+
+      var higherPercentageDiscovery = setupAndGetUndevelopedDiscovery();
+      var higherPercentGas = BigDecimal.valueOf(12.1);
+      var highPercentValue = mockEntryWithPercentageGasAndGetExpectedValue(
+          "hahahaha",
+          LocalDate.of(2002, 1, 11),
+          higherPercentageDiscovery,
+          higherPercentGas
+      );
+
+      mockGetAllTrackedUndevelopedDiscoveries(List.of(lowerPercentageDiscovery, higherPercentageDiscovery));
+
+      // THEN the sort value represents the numerical comparison of the percentages
+      var generatedLowPercentValue = new SummaryTableValue("", 0, null, List.of());
+      var generatedHighPercentValue = new SummaryTableValue("12.10%", 1, null, List.of());
+
+      EXPECTED_SUMMARY_TABLE
+          .addRow(lowPercentValue, "2002", "No", area, "1", "2", "3", generatedLowPercentValue, "1")
+          .addRow(highPercentValue, "2002", "No", area, "1", "2", "3", generatedHighPercentValue, "1");
+
+      var expectedOverviewStats = new UndevelopedDiscoveryOverviewStats(2, 0, "2.00", "4.00", "6.00");
+      var expectedOverviewData = new UndevelopedDiscoveryOverviewData(EXPECTED_SUMMARY_TABLE, expectedOverviewStats);
+
+      var overviewData = undevelopedDiscoveriesOverviewService.getOverviewData();
+      assertThat(overviewData)
+          .usingRecursiveComparison()
+          .isEqualTo(expectedOverviewData);
+    }
+
     private SummaryTableValue mockEntryWithNullDateAndGetExpectedValue(String resourceName,
                                                                        UndevelopedDiscovery undevelopedDiscovery) {
       mockGetLatestInformation(

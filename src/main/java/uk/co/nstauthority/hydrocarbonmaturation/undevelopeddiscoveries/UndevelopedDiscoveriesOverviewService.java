@@ -327,8 +327,10 @@ public class UndevelopedDiscoveriesOverviewService {
 
   private int comparePercentages(UndevelopedDiscoveryRowValues rowOne,
                                  UndevelopedDiscoveryRowValues rowTwo) {
-    return new BigDecimal(rowOne.percentageGas().replace("%", ""))
-        .compareTo(new BigDecimal(rowTwo.percentageGas().replace("%", "")));
+    var rowOnePercentage = !rowOne.percentageGas().isBlank() ? rowOne.percentageGas() : String.valueOf(0);
+    var rowTwoPercentage = !rowTwo.percentageGas().isBlank() ? rowTwo.percentageGas() : String.valueOf(0);
+    return new BigDecimal(rowOnePercentage.replace("%", ""))
+        .compareTo(new BigDecimal(rowTwoPercentage.replace("%", "")));
   }
 
   private BigDecimal sumMmboe(List<UndevelopedDiscoveryRowValues> rows,
