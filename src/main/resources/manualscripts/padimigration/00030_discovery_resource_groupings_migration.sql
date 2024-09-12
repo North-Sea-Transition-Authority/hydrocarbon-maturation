@@ -80,6 +80,9 @@ BEGIN
         AND prg.relinquishment IS FALSE
         AND prg.multi_reservoir = resource_rec.multi_reservoir;
 
+        INSERT INTO remi.undeveloped_discoveries(id, is_undeveloped_discovery, resource_id)
+        VALUES (gen_random_uuid(), false, remi_res_id);
+
     END LOOP;
 
 END;

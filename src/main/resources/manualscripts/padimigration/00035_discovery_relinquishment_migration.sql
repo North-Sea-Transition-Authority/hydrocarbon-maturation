@@ -66,6 +66,9 @@ DO $$
             SET remi_resource_id = remi_res_id
             WHERE prg.legacy_res_data_id = relinquishment_rec.resdat_id;
 
+            INSERT INTO remi.undeveloped_discoveries(id, is_undeveloped_discovery, resource_id)
+            VALUES (gen_random_uuid(), false, remi_res_id);
+
             INSERT INTO remi.submissions (id, resource_id)
             VALUES(gen_random_uuid(), remi_res_id)
             RETURNING id INTO remi_submission_id;
