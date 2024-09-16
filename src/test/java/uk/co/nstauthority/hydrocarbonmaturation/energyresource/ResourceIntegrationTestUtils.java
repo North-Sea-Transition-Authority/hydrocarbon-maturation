@@ -14,6 +14,7 @@ public class ResourceIntegrationTestUtils {
   public static Resource buildResource(ResourceType resourceType, EntityManager entityManager) {
     var resource = new Resource();
     resource.setType(resourceType);
+    resource.setArchived(false);
     resource.setCreatedTimestamp(Instant.now());
     entityManager.persist(resource);
     entityManager.flush();
@@ -31,6 +32,7 @@ public class ResourceIntegrationTestUtils {
   public static Resource buildFieldResource(EntityManager entityManager) {
     var resource = new Resource();
     resource.setType(ResourceType.FIELD);
+    resource.setArchived(false);
     resource.setCreatedTimestamp(Instant.now());
 
     entityManager.persist(resource);

@@ -353,6 +353,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     var resource = new Resource();
     resource.setType(ResourceType.PROSPECT);
     resource.setCreatedTimestamp(createdTimestamp);
+    resource.setArchived(false);
     entityManager.persist(resource);
     entityManager.flush();
     return resource;
@@ -363,6 +364,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     var resource = new Resource();
     resource.setType(resourceType);
     resource.setCreatedTimestamp(createdTimestamp);
+    resource.setArchived(false);
     entityManager.persist(resource);
     entityManager.flush();
     return resource;
@@ -383,6 +385,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     submissionWithWrongResponsibleOrg.setCreatedTimestamp(createdTimestamp);
     resource.setType(ResourceType.PROSPECT);
     resource.setCreatedTimestamp(createdTimestamp);
+    resource.setArchived(false);
     entityManager.persist(resource);
     entityManager.flush();
     submissionWithWrongResponsibleOrg.setSubmission(SubmissionIntegrationTestUtils.createSubmission(resource, entityManager));
@@ -430,6 +433,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     var resource = new Resource();
     submissionDetailWithResolvedUpdate.setCreatedTimestamp(createdTimestamp);
     resource.setType(ResourceType.PROSPECT);
+    resource.setArchived(false);
     resource.setCreatedTimestamp(createdTimestamp);
     entityManager.persist(resource);
     entityManager.flush();
@@ -443,8 +447,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     submissionDetailWithResolvedUpdate.getSubmission().setResource(resource);
     entityManager.persist(submissionDetailWithResolvedUpdate);
     entityManager.flush();
-    var submissionUpdateResolved = SubmissionUpdateIntegrationTestUtil.createSubmissionUpdate(
-        submission, true, entityManager);
+    SubmissionUpdateIntegrationTestUtil.createSubmissionUpdate(submission, true, entityManager);
     var resourceDetail = new ResourceDetail();
     resourceDetail.setOrganisationId(responsibleOrganisationId);
     resourceDetail.setSubmissionDetail(submissionDetailWithResolvedUpdate);
@@ -471,8 +474,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     submissionDetailWithUnresolvedUpdate.getSubmission().setResource(resource2);
     entityManager.persist(submissionDetailWithUnresolvedUpdate);
     entityManager.flush();
-    var submissionUpdateUnresolved = SubmissionUpdateIntegrationTestUtil.createSubmissionUpdate(
-        submissionWithUnresolvedUpdate, false, entityManager);
+    SubmissionUpdateIntegrationTestUtil.createSubmissionUpdate(submissionWithUnresolvedUpdate, false, entityManager);
     var resourceDetail2 = new ResourceDetail();
     resourceDetail2.setOrganisationId(responsibleOrganisationId);
     resourceDetail2.setSubmissionDetail(submissionDetailWithUnresolvedUpdate);
@@ -542,9 +544,8 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
 
     var resource = createResource(Instant.now(), entityManager);
     var submissionWithTwoSubmitted = SubmissionIntegrationTestUtils.createSubmission(resource, entityManager);
-    var initialSubmissionDetail = setUpSubmissionDetailWithResponsibleOrgForSubmission(
-        submissionWithTwoSubmitted, Instant.parse("2006-12-03T10:15:15.00Z"),
-        responsibleOrganisationId, 1, SubmissionDetailStatus.SUBMITTED);
+    setUpSubmissionDetailWithResponsibleOrgForSubmission(submissionWithTwoSubmitted,
+        Instant.parse("2006-12-03T10:15:15.00Z"), responsibleOrganisationId, 1, SubmissionDetailStatus.SUBMITTED);
     var updateSubmissionDetailSubmitted = setUpSubmissionDetailWithResponsibleOrgForSubmission(
         submissionWithTwoSubmitted, Instant.parse("2007-12-03T10:15:15.00Z"),
         responsibleOrganisationId, 2, SubmissionDetailStatus.SUBMITTED);
@@ -554,7 +555,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     var initialSubmissionDetail2 = setUpSubmissionDetailWithResponsibleOrgForSubmission(
         submissionWithDraftUpdate, Instant.parse("2006-12-03T10:15:30.00Z"),
         responsibleOrganisationId, 1, SubmissionDetailStatus.SUBMITTED);
-    var updateSubmissionDetailDraft = setUpSubmissionDetailWithResponsibleOrgForSubmission(
+    setUpSubmissionDetailWithResponsibleOrgForSubmission(
         submissionWithDraftUpdate, Instant.parse("2007-12-03T10:15:30.00Z"),
         responsibleOrganisationId, 2, SubmissionDetailStatus.DRAFT);
 
@@ -582,7 +583,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     var resource = createResource(Instant.now(), entityManager);
     var submissionWithTwoSubmitted =
         SubmissionIntegrationTestUtils.createSubmission(resource, withdrawn, entityManager);
-    var initialSubmissionDetail = setUpSubmissionDetailWithResponsibleOrgForSubmission(
+    setUpSubmissionDetailWithResponsibleOrgForSubmission(
         submissionWithTwoSubmitted, Instant.parse("2006-12-03T10:15:15.00Z"),
         responsibleOrganisationId, 1, SubmissionDetailStatus.SUBMITTED);
     var updateSubmissionDetailSubmitted = setUpSubmissionDetailWithResponsibleOrgForSubmission(
@@ -618,6 +619,7 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
     var resource = new Resource();
     submissionDetail.setCreatedTimestamp(createdTimestamp);
     resource.setType(ResourceType.PROSPECT);
+    resource.setArchived(false);
     resource.setCreatedTimestamp(createdTimestamp);
     entityManager.persist(resource);
     entityManager.flush();

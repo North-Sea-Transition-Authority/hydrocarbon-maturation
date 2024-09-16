@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.Optional;
 import java.util.UUID;
+import org.apache.commons.lang3.BooleanUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -95,16 +96,21 @@ public class ViewResourceRecordController {
   @GetMapping
   public ModelAndView showResourceRecord(@PathVariable("resourceId") UUID resourceId, User user) {
     var resourceRecord = viewResourceRecordService.getResourceRecordOrThrow(resourceId);
+    var resource = resourceService.getResourceById(resourceId)
+            .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
+                    .formatted(resourceId)));
 
-    if (!viewResourceRecordService.canViewResource(resourceRecord, user)) {
+
+    if (!viewResourceRecordService.canViewResource(resourceRecord, resource, user)) {
       throw new ResponseStatusException(
           HttpStatus.FORBIDDEN, "Resource cannot be viewed by user with ID %s ".formatted(user.wuaId()));
     }
 
     var submissionDetailOptional = submissionDetailService.getSubmissionDetail(resourceRecord.submissionDetailId());
     var form = new SubmissionSearchSelectorForm();
-    submissionDetailOptional.ifPresent(submissionDetail -> form.setSelectedSubmissionId(submissionDetail.getId().toString()));
-    return getModelAndView(resourceRecord, submissionDetailOptional, user, form, resourceId);
+    submissionDetailOptional.ifPresent(
+        submissionDetail -> form.setSelectedSubmissionId(submissionDetail.getId().toString()));
+    return getModelAndView(resourceRecord, submissionDetailOptional, user, form, resource);
   }
 
   @PostMapping
@@ -121,25 +127,24 @@ public class ViewResourceRecordController {
                                             User user) {
     var selectedSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var resourceRecord = viewResourceRecordService.getResourceRecordOrThrow(resourceId);
+    var resource = resourceService.getResourceById(resourceId)
+            .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
+                    .formatted(resourceId)));
 
-    if (!viewResourceRecordService.canViewResource(resourceRecord, user)) {
+    if (!viewResourceRecordService.canViewResource(resourceRecord, resource, user)) {
       throw new ResponseStatusException(
           HttpStatus.FORBIDDEN, "Resource cannot be viewed by user with ID %s ".formatted(user.wuaId()));
     }
 
     form.setSelectedSubmissionId(submissionDetailId.toString());
-    return getModelAndView(resourceRecord, Optional.of(selectedSubmissionDetail), user, form, resourceId);
+    return getModelAndView(resourceRecord, Optional.of(selectedSubmissionDetail), user, form, resource);
   }
 
   private ModelAndView getModelAndView(ResourceRecordSummaryView resourceRecord,
                                        Optional<SubmissionDetail> submissionDetailSelectedOptional,
                                        User user,
                                        SubmissionSearchSelectorForm form,
-                                       UUID resourceId) {
-    var resource = resourceService.getResourceById(resourceId)
-        .orElseThrow(() -> new RemiEntityNotFoundException("Could not find resource for id %s"
-            .formatted(resourceId)));
-
+                                       Resource resource) {
     var isInResponsibleTeam = responsibleTeamService
         .isInResponsibleTeam(user, resourceRecord.responsibleTeam());
     var isFieldResource = ResourceType.FIELD.equals(resource.getType());
@@ -151,7 +156,7 @@ public class ViewResourceRecordController {
     if (isInResponsibleTeam && !isFieldResource) {
       modelAndView.addObject("resourceGroupUrl",
           ReverseRouter.route(on(ResourceGroupController.class)
-              .getResourceGroupPage(resourceId, null)));
+              .getResourceGroupPage(resource.getId(), null)));
     }
 
     if (isFieldResource) {
@@ -159,18 +164,21 @@ public class ViewResourceRecordController {
     }
 
     if (isRegulatorOrAreaUser) {
-      addRegulatorOnlyProperties(resourceId, isFieldResource, modelAndView, resource);
+      addRegulatorOnlyProperties(isFieldResource, modelAndView, resource);
+    } else {
+      modelAndView.addObject("archived", false);
     }
 
     if (!isFieldResource && correctionService.canStartCorrection(resource, user)) {
       modelAndView.addObject("correctionUrl",
-          ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resourceId, null)));
+          ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resource.getId(), null)));
     }
 
     if (isDiscovery
         && teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.RESERVES_AND_RESOURCES_ADVISOR)) {
       modelAndView.addObject("undevelopedDiscoveryUrl",
-          ReverseRouter.route(on(UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(resourceId, null)));
+          ReverseRouter.route(
+              on(UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(resource.getId(), null)));
     }
 
     addBreadCrumbsForResourceType(resourceRecord, isFieldResource, modelAndView);
@@ -190,8 +198,7 @@ public class ViewResourceRecordController {
         .addObject("canViewRegulatorManagementInfo", isRegulatorOrAreaUser);
   }
 
-  private void addRegulatorOnlyProperties(UUID resourceId,
-                                          boolean isFieldResource,
+  private void addRegulatorOnlyProperties(boolean isFieldResource,
                                           ModelAndView modelAndView,
                                           Resource resource) {
     if (isFieldResource) {
@@ -202,7 +209,7 @@ public class ViewResourceRecordController {
       modelAndView
           .addObject("regulatorManagedInformationUrl",
               ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
-                  .getRegulatorManagedInformationPage(resourceId, null)))
+                  .getRegulatorManagedInformationPage(resource.getId(), null)))
           .addObject("fieldStatusUrl",
               ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
                   .getViewFieldStatusHistory(field.getFieldIdentifier(), null)))
@@ -214,13 +221,32 @@ public class ViewResourceRecordController {
       modelAndView
           .addObject("regulatorManagedInformationUrl",
               ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                  .getRegulatorManagedInformationPage(resourceId)))
+                  .getRegulatorManagedInformationPage(resource.getId())))
           .addObject("resourceGroupsSummaryView",
               resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
           .addObject("regulatorManagedInformationSummaryView",
               regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
           .addObject("manageResourceInformationText", "Manage resource information");
     }
+
+    addArchiveProperties(modelAndView, resource);
+  }
+
+  private void addArchiveProperties(ModelAndView modelAndView, Resource resource) {
+    var resourceId = resource.getId();
+    var isArchived = BooleanUtils.isTrue(resource.getArchived());
+
+    var urlObjectKey = isArchived
+        ? "unarchiveUrl"
+        : "archiveUrl";
+
+    var urlValue = isArchived
+        ? ReverseRouter.route(on(ResourceArchiveController.class).unarchiveResourceConfirmation(resourceId, null))
+        : ReverseRouter.route(on(ResourceArchiveController.class).archiveResourceConfirmation(resourceId, null));
+
+    modelAndView
+        .addObject(urlObjectKey, urlValue)
+        .addObject("archived", isArchived);
   }
 
   private void addFieldSummary(ModelAndView modelAndView, Resource resource) {
@@ -229,8 +255,8 @@ public class ViewResourceRecordController {
   }
 
   private void addBreadCrumbsForResourceType(ResourceRecordSummaryView resourceRecord,
-                                                    boolean isFieldResource,
-                                                    ModelAndView modelAndView) {
+                                             boolean isFieldResource,
+                                             ModelAndView modelAndView) {
     var pageName = SubmissionDetailDisplayUtil.getDisplayName(
         resourceRecord.resourceName(),
         resourceRecord.centreOfInterest(),
@@ -240,7 +266,8 @@ public class ViewResourceRecordController {
     if (isFieldResource) {
       SystemOfRecordBreadcrumbUtil.addSearchFieldRecordsBreadcrumbsToModelAndView(modelAndView, pageName);
     } else {
-      SystemOfRecordBreadcrumbUtil.addSearchProspectAndDiscoveryRecordsBreadcrumbsToModelAndView(modelAndView, pageName);
+      SystemOfRecordBreadcrumbUtil.addSearchProspectAndDiscoveryRecordsBreadcrumbsToModelAndView(modelAndView,
+          pageName);
     }
   }
 
@@ -266,10 +293,12 @@ public class ViewResourceRecordController {
               resource.getId()
           );
 
+          var resourceTypeDisplayName = resource.getType().getDisplayName();
+
           modelAndViewForSubmissionType
               .addObject("submissionType", submissionDetailSelected.getSubmissionType())
-              .addObject("resourceType", submissionDetailSelected
-                  .getSubmission().getResource().getType().getDisplayName())
+              .addObject("resourceTypeDisplayName", resourceTypeDisplayName)
+              .addObject("resourceTypeDisplayNameLower", resourceTypeDisplayName.toLowerCase())
               .addObject("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(
                   querySearchResults))
               .addObject("submissionSelectedUrl",
@@ -278,6 +307,8 @@ public class ViewResourceRecordController {
 
           return modelAndViewForSubmissionType;
         }
-    ).orElse(new ModelAndView("remi/systemofrecord/viewResourceRecord"));
+    ).orElse(new ModelAndView("remi/systemofrecord/viewResourceRecord")
+            .addObject("resourceTypeDisplayNameLower", resource.getType().getDisplayName().toLowerCase())
+    );
   }
 }

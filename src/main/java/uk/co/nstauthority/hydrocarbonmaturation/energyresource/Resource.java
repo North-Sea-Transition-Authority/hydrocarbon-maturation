@@ -3,26 +3,28 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.UUID;
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.envers.Audited;
 
 @Entity
 @Table(name = "resources")
+@Audited
 public class Resource {
 
   @Id
-  @GeneratedValue(generator = "uuid")
-  @GenericGenerator(name = "uuid", strategy = "uuid2")
+  @UuidGenerator
   private UUID id;
 
   @Enumerated(EnumType.STRING)
   private ResourceType type;
 
   private Instant createdTimestamp;
+
+  private Boolean archived;
 
   public UUID getId() {
     return id;
@@ -46,5 +48,13 @@ public class Resource {
 
   public void setCreatedTimestamp(Instant createdTimestamp) {
     this.createdTimestamp = createdTimestamp;
+  }
+
+  public Boolean getArchived() {
+    return archived;
+  }
+
+  public void setArchived(Boolean archived) {
+    this.archived = archived;
   }
 }

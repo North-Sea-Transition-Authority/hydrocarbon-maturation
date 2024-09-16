@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
@@ -78,6 +79,7 @@ public class FieldQueryService {
     // Filters out fields with an incorrect status or with other preventing submissions
     return fields
         .stream()
+        .filter(field -> BooleanUtils.isFalse(field.getResource().getArchived()))
         .filter(
             field -> {
               var mostRecentStatus = fieldStatusService.getMostRecentFieldStatus(field);

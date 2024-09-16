@@ -1,0 +1,69 @@
+package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
+
+import java.util.Optional;
+import java.util.Set;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRepository;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
+
+@Service
+public class ResourceArchiveService {
+
+  static final String DISCOVERY_LINKED_TO_FIELD_WARNING = "Discoveries cannot be archived if they are linked to a field.";
+  static final String OPEN_CORRECTION_WARNING = "%s cannot be archived with an open correction.";
+  static final String ACTIVE_SUBMISSIONS_WARNING = "%s cannot be archived with draft or submitted submissions.";
+
+  private final ResourceLinkService resourceLinkService;
+  private final SubmissionDetailService submissionDetailService;
+  private final ResourceRepository resourceRepository;
+
+  @Autowired
+  public ResourceArchiveService(ResourceLinkService resourceLinkService,
+                                SubmissionDetailService submissionDetailService, ResourceRepository resourceRepository) {
+    this.resourceLinkService = resourceLinkService;
+    this.submissionDetailService = submissionDetailService;
+    this.resourceRepository = resourceRepository;
+  }
+
+  public Optional<String> resourceCannotBeArchivedWarning(Resource resource) {
+    if (resourceIsDiscoveryAndLinkedToField(resource)) {
+      return Optional.of(DISCOVERY_LINKED_TO_FIELD_WARNING);
+    }
+
+    var resourceTypeDisplayText = resource.getType().getDisplayName();
+
+    var openCorrectionExists = submissionDetailService.openCorrectionExists(
+        Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.DRAFT, SubmissionDetailStatus.SUBMITTED),
+        resource
+    );
+
+    if (openCorrectionExists) {
+      return Optional.of(OPEN_CORRECTION_WARNING.formatted(resourceTypeDisplayText));
+    }
+
+    if (submissionDetailService.hasDraftOrSubmittedSubmission(resource)) {
+      return Optional.of(ACTIVE_SUBMISSIONS_WARNING.formatted(resourceTypeDisplayText));
+    }
+
+    return Optional.empty();
+  }
+
+  public void archiveResource(Resource resource) {
+    resource.setArchived(true);
+    resourceRepository.save(resource);
+  }
+
+  public void unarchiveResource(Resource resource) {
+    resource.setArchived(false);
+    resourceRepository.save(resource);
+  }
+
+  private boolean resourceIsDiscoveryAndLinkedToField(Resource resource) {
+    return ResourceType.DISCOVERY.equals(resource.getType()) && resourceLinkService.discoveryIsLinkedToField(resource);
+  }
+}

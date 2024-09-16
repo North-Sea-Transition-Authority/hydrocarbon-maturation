@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 
 import java.util.List;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,10 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class ResourceLinkService {
 
   private final ResourceLinksRepository resourceLinksRepository;
+  private final ResourceService resourceService;
 
   @Autowired
-  public ResourceLinkService(ResourceLinksRepository resourceLinksRepository) {
+  public ResourceLinkService(ResourceLinksRepository resourceLinksRepository, ResourceService resourceService) {
     this.resourceLinksRepository = resourceLinksRepository;
+    this.resourceService = resourceService;
   }
 
   @Transactional
@@ -74,11 +77,32 @@ public class ResourceLinkService {
                 || resourceLink.getFieldResource().getId().equals(otherResource.getId()));
   }
 
+  public boolean discoveryIsLinkedToField(Resource resource) {
+    if (!ResourceType.DISCOVERY.equals(resource.getType())) {
+      return false;
+    }
+
+    return getResourceLinksByResource(resource)
+        .stream()
+        .anyMatch(this::resourceLinkHasActiveField);
+  }
+
   private List<ResourceLink> getResourceLinksByResource(Resource resource) {
     return switch (resource.getType()) {
       case PROSPECT -> getResourceLinksByProspect(resource);
       case DISCOVERY -> getResourceLinksByDiscovery(resource);
       case FIELD -> getResourceLinksByField(resource);
     };
+  }
+
+  private boolean resourceLinkHasActiveField(ResourceLink resourceLink) {
+    var fieldResource = resourceLink.getFieldResource();
+    if (fieldResource == null) {
+      return false;
+    }
+
+    return resourceService.getResourceById(fieldResource.getId())
+        .filter(resource -> BooleanUtils.isFalse(resource.getArchived()))
+        .isPresent();
   }
 }

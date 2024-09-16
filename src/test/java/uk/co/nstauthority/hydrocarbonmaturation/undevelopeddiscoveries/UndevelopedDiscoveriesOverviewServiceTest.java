@@ -114,6 +114,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
     );
 
     var resource = undevelopedDiscovery.getResource();
+    resource.setArchived(true);
 
     // AND is tied to a field
     var fieldStatusHistory = new FieldStatusHistory();
@@ -144,6 +145,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
         resourceName,
         RemiAbsoluteUrlUtil.getSystemOfRecordResourceUrl(resource),
         List.of(
+            new Tag("Archived", TagColour.GREY),
             new Tag("Duplicate", TagColour.RED),
             new Tag("%1$s, %1$s".formatted(FieldStatus.STATUS_200.getDisplayName()), TagColour.YELLOW)
         )

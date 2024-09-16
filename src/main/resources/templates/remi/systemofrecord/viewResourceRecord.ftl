@@ -14,7 +14,8 @@
 <#-- @ftlvariable name="regulatorManagedInformationUrl" type="String"-->
 <#-- @ftlvariable name="submissionSelectedUrl" type="String"-->
 <#-- @ftlvariable name="submissionsOnResource" type="java.util.Map<String, String>"-->
-<#-- @ftlvariable name="resourceType" type="String"-->
+<#-- @ftlvariable name="resourceTypeDisplayName" type="String"-->
+<#-- @ftlvariable name="resourceTypeDisplayNameLower" type="String"-->
 <#-- @ftlvariable name="resourceGroupUrl" type="String"-->
 <#-- @ftlvariable name="regulatorManagedInformationSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView" -->
 <#-- @ftlvariable name="resourceGroupsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView" -->
@@ -26,6 +27,14 @@ pageHeading=pageTitle
 pageSize=PageSize.FULL_WIDTH
 breadcrumbsMap=breadcrumbsMap
 wrapperWidth=true>
+
+  <#if archived>
+    <@fdsNotificationBanner.notificationBannerInfo fullWidth=true bannerTitleText="Archived ${resourceTypeDisplayNameLower}">
+        <@fdsNotificationBanner.notificationBannerContent headingText="This ${resourceTypeDisplayNameLower} is archived">
+            To make changes or provide submissions for this ${resourceTypeDisplayNameLower} it must be unarchived.
+        </@fdsNotificationBanner.notificationBannerContent>
+    </@fdsNotificationBanner.notificationBannerInfo>
+  </#if>
 
   <@fdsDataItems.dataItem>
     <#assign responsibleTeam = resourceRecord.responsibleTeam()
@@ -50,31 +59,41 @@ wrapperWidth=true>
   </@fdsDataItems.dataItem>
   <@fdsAction.buttonGroup>
     <#if canManageRegulatorManagementInfo>
-      <@fdsAction.link
+      <#if archived>
+        <@fdsAction.link
+        linkText="Unarchive ${resourceTypeDisplayNameLower}"
+        linkClass="govuk-button govuk-button--secondary"
+        linkUrl=springUrl(unarchiveUrl)/>
+      <#else>
+        <@fdsAction.link
+        linkText="Archive ${resourceTypeDisplayNameLower}"
+        linkClass="govuk-button govuk-button--secondary"
+        linkUrl=springUrl(archiveUrl)/>
+        <@fdsAction.link
         linkText=manageResourceInformationText
         linkClass="govuk-button govuk-button--secondary"
         linkUrl=springUrl(regulatorManagedInformationUrl)/>
-      <#if !isFieldResource>
-        <@fdsAction.link
-        linkText="Manage resource group"
-        linkClass="govuk-button govuk-button--secondary"
-        linkUrl=springUrl(resourceGroupUrl)/>
-      </#if>
-      <#if correctionUrl?has_content>
-        <@fdsAction.link
-        linkText="Correct submission"
-        linkClass="govuk-button govuk-button--secondary"
-        linkUrl=springUrl(correctionUrl)/>
+        <#if !isFieldResource>
+            <@fdsAction.link
+            linkText="Manage resource group"
+            linkClass="govuk-button govuk-button--secondary"
+            linkUrl=springUrl(resourceGroupUrl)/>
+        </#if>
+        <#if correctionUrl?has_content>
+            <@fdsAction.link
+            linkText="Correct submission"
+            linkClass="govuk-button govuk-button--secondary"
+            linkUrl=springUrl(correctionUrl)/>
+        </#if>
       </#if>
     </#if>
-    <#if canViewRegulatorManagementInfo
-    && fieldStatusUrl?has_content>
+    <#if canViewRegulatorManagementInfo && fieldStatusUrl?has_content && !archived>
       <@fdsAction.link
       linkText="Field status"
       linkClass="govuk-button govuk-button--secondary"
       linkUrl=springUrl(fieldStatusUrl)/>
     </#if>
-    <#if projectTrackerUrl?has_content>
+    <#if projectTrackerUrl?has_content && !archived>
       <@fdsAction.link
       linkText="Project tracker"
       linkClass="govuk-button govuk-button--secondary"
@@ -90,7 +109,7 @@ wrapperWidth=true>
   <#if submissionsOnResource?has_content>
     <@fdsForm.htmlForm actionUrl=springUrl(submissionSelectedUrl)>
       <@submissionSelector.submissionHistorySearchSelector
-        resourceType=resourceType
+        resourceType=resourceTypeDisplayName
         submissionsOnResource=submissionsOnResource />
     </@fdsForm.htmlForm>
   </#if>

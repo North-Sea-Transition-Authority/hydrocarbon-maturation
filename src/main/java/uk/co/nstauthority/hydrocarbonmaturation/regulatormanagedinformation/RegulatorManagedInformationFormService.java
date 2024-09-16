@@ -10,7 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportin
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 
 @Service
-class RegulatorManagedInformationFormService {
+public class RegulatorManagedInformationFormService {
 
   private final RegulatorManagedInformationFormValidator regulatorManagedInformationFormValidator;
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;

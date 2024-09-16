@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
@@ -244,6 +245,10 @@ public class UndevelopedDiscoveriesOverviewService {
 
   private List<Tag> getTags(Resource resource, List<UUID> duplicateResourceIds) {
     var tags = new ArrayList<Tag>();
+
+    if (BooleanUtils.isTrue(resource.getArchived())) {
+      tags.add(new Tag("Archived", TagColour.GREY));
+    }
 
     var isDuplicate = duplicateResourceIds.contains(resource.getId());
     if (Boolean.TRUE.equals(isDuplicate)) {

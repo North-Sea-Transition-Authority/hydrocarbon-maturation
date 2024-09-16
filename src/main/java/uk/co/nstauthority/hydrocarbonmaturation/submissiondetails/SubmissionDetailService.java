@@ -209,6 +209,13 @@ public class SubmissionDetailService {
     return !allSubmissionDetails.isEmpty();
   }
 
+  public boolean hasDraftOrSubmittedSubmission(Resource resource) {
+    var extantSubmissionDetails = getExtantSubmissionDetailsForResource(resource);
+
+    return extantSubmissionDetails.stream()
+        .anyMatch(SubmissionDetail::isDraftOrSubmittedSubmission);
+  }
+
   /*
    * Find the submissionDetail that was submitted most recently for a given resource
    * The most recently submitted submission may either be SUBMITTED or ACCEPTED

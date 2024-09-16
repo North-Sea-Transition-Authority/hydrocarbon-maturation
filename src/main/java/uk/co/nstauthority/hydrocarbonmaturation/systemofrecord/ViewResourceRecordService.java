@@ -96,7 +96,7 @@ public class ViewResourceRecordService {
             selectedSubmissionDetail, Set.of(SubmissionDetailStatus.ACCEPTED));
   }
 
-  public boolean canViewResource(ResourceRecordSummaryView resourceRecord, User user) {
+  public boolean canViewResource(ResourceRecordSummaryView resourceRecord, Resource resource, User user) {
     if (isRegulatorOrAreaTeamUser(user)) {
       return true;
     }
@@ -106,7 +106,7 @@ public class ViewResourceRecordService {
 
     var resourceIsAssociatedWithAnExtantLicence = isResourceAssociatedWithAnExtantLicence(resourceRecord);
 
-    return memberOfOrganisationUnit && resourceIsAssociatedWithAnExtantLicence;
+    return memberOfOrganisationUnit && resourceIsAssociatedWithAnExtantLicence && !resource.getArchived();
   }
 
   public boolean isRegulatorOrAreaTeamUser(User user) {

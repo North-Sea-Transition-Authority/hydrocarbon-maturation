@@ -100,18 +100,18 @@ class SubmissionDetailServiceTest {
   @Test
   void getLatestApprovedProspectSubmissionForResource_assertSubmissionDetailFound() {
     var resource = new Resource();
-    var submissionDetail = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
+    var latestApprovedSubmissionDetail = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
     when(submissionPersistenceService.getSubmissionsByResource(resource))
         .thenReturn(submissionList);
     when(submissionDetailRepository
         .findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(submissionList,
             List.of(SubmissionType.PROSPECT_UPDATE, SubmissionType.CREATE_PROSPECT),
             SubmissionDetailStatus.ACCEPTED))
-        .thenReturn(Optional.of(submissionDetail));
+        .thenReturn(Optional.of(latestApprovedSubmissionDetail));
 
     var result = submissionDetailService.getLatestApprovedProspectSubmissionForResource(resource);
 
-    assertThat(result).isEqualTo(Optional.of(submissionDetail));
+    assertThat(result).isEqualTo(Optional.of(latestApprovedSubmissionDetail));
   }
 
   @Test
@@ -467,5 +467,56 @@ class SubmissionDetailServiceTest {
 
     assertThat(submissionDetailService.hasFieldSubmissionDataBeenCarriedForward(submissionDetail))
         .isTrue();
+  }
+
+  @Test
+  void hasDraftOrSubmittedSubmission_true() {
+    submissionDetail.setStatus(SubmissionDetailStatus.DRAFT);
+
+    var submission = submissionDetail.getSubmission();
+    var resource = submission.getResource();
+
+    when(submissionPersistenceService.getSubmissionsByResource(resource))
+        .thenReturn(List.of(submission));
+    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(submission,
+        Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
+        .thenReturn(Optional.of(submissionDetail));
+
+    assertThat(submissionDetailService.hasDraftOrSubmittedSubmission(resource))
+        .isTrue();
+  }
+
+  @Test
+  void hasDraftOrSubmittedSubmission_false() {
+    submissionDetail.setStatus(SubmissionDetailStatus.DELETED);
+
+    var submission = submissionDetail.getSubmission();
+    var resource = submission.getResource();
+
+    when(submissionPersistenceService.getSubmissionsByResource(resource))
+        .thenReturn(List.of(submission));
+    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(submission,
+        Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
+        .thenReturn(Optional.of(submissionDetail));
+
+    assertThat(submissionDetailService.hasDraftOrSubmittedSubmission(resource))
+        .isFalse();
+  }
+
+  @Test
+  void hasDraftOrSubmittedSubmission_noExtantSubmissionDetails() {
+    submissionDetail.setStatus(SubmissionDetailStatus.DELETED);
+
+    var submission = submissionDetail.getSubmission();
+    var resource = submission.getResource();
+
+    when(submissionPersistenceService.getSubmissionsByResource(resource))
+        .thenReturn(List.of(submission));
+    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(submission,
+        Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)))
+        .thenReturn(Optional.empty());
+
+    assertThat(submissionDetailService.hasDraftOrSubmittedSubmission(resource))
+        .isFalse();
   }
 }

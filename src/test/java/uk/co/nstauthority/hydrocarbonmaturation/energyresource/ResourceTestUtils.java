@@ -17,4 +17,13 @@ public class ResourceTestUtils {
     resource.setCreatedTimestamp(Instant.now());
     return resource;
   }
+
+  public static Resource buildResource(ResourceType resourceType, boolean isArchived) {
+    var resource = new Resource();
+    resource.setId(UUID.randomUUID());
+    resource.setType(resourceType);
+    resource.setCreatedTimestamp(Instant.now());
+    resource.setArchived(isArchived);
+    return resource;
+  }
 }

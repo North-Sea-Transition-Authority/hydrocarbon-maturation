@@ -78,6 +78,8 @@ class FieldQueryServiceTest {
       var searchTerm = "field";
 
       var resource1 = new Resource();
+      resource1.setArchived(false);
+
       var field1 = new Field();
       field1.setFieldIdentifier(24);
       when(fieldStatusService.getMostRecentFieldStatus(field1))
@@ -89,6 +91,8 @@ class FieldQueryServiceTest {
       submissionDetail1.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var resource2 = new Resource();
+      resource2.setArchived(false);
+
       var field2 = new Field();
       field2.setFieldIdentifier(42);
       when(fieldStatusService.getMostRecentFieldStatus(field2))
@@ -99,7 +103,13 @@ class FieldQueryServiceTest {
       var submissionDetail2 = new SubmissionDetail();
       submissionDetail2.setStatus(SubmissionDetailStatus.DELETED);
 
-      when(fieldPersistenceService.getFieldsByCorrectedLegalName(searchTerm)).thenReturn(List.of(field1, field2));
+      var archivedResource = new Resource();
+      archivedResource.setArchived(true);
+      var archivedField = new Field();
+      archivedField.setResource(archivedResource);
+
+      when(fieldPersistenceService.getFieldsByCorrectedLegalName(searchTerm))
+          .thenReturn(List.of(field1, field2, archivedField));
       when(submissionDetailService.getExtantSubmissionDetailsForResource(resource1))
           .thenReturn(List.of(submissionDetail1));
       when(submissionDetailService.getExtantSubmissionDetailsForResource(resource2))
@@ -123,6 +133,8 @@ class FieldQueryServiceTest {
       var searchTerm = "field";
 
       var resource1 = new Resource();
+      resource1.setArchived(false);
+
       var field1 = new Field();
       field1.setFieldIdentifier(24);
       when(fieldStatusService.getMostRecentFieldStatus(field1))
@@ -134,6 +146,8 @@ class FieldQueryServiceTest {
       submissionDetail1.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var resource2 = new Resource();
+      resource2.setArchived(false);
+
       var field2 = new Field();
       field2.setFieldIdentifier(42);
       when(fieldStatusService.getMostRecentFieldStatus(field2))
@@ -145,6 +159,8 @@ class FieldQueryServiceTest {
       submissionDetail2.setStatus(SubmissionDetailStatus.DELETED);
 
       var resource3 = new Resource();
+      resource3.setArchived(false);
+
       var field3 = new Field();
       field3.setFieldIdentifier(48);
       when(fieldStatusService.getMostRecentFieldStatus(field3))
@@ -156,6 +172,8 @@ class FieldQueryServiceTest {
       submissionDetail3.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var resource4 = new Resource();
+      resource4.setArchived(false);
+
       var field4 = new Field();
       field4.setFieldIdentifier(84);
       when(fieldStatusService.getMostRecentFieldStatus(field4))
@@ -190,6 +208,8 @@ class FieldQueryServiceTest {
       var searchTerm = "field";
 
       var resource1 = new Resource();
+      resource1.setArchived(false);
+
       var field1 = new Field();
       field1.setFieldIdentifier(24);
       when(fieldStatusService.getMostRecentFieldStatus(field1))
@@ -201,6 +221,8 @@ class FieldQueryServiceTest {
       submissionDetail1.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var resource2 = new Resource();
+      resource2.setArchived(false);
+
       var field2 = new Field();
       field2.setFieldIdentifier(42);
       when(fieldStatusService.getMostRecentFieldStatus(field2))
@@ -212,6 +234,8 @@ class FieldQueryServiceTest {
       submissionDetail2.setStatus(SubmissionDetailStatus.DELETED);
 
       var resource3 = new Resource();
+      resource3.setArchived(false);
+
       var field3 = new Field();
       field3.setFieldIdentifier(48);
       when(fieldStatusService.getMostRecentFieldStatus(field3))
@@ -223,6 +247,8 @@ class FieldQueryServiceTest {
       submissionDetail3.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var resource4 = new Resource();
+      resource4.setArchived(false);
+
       var field4 = new Field();
       field4.setFieldIdentifier(84);
       when(fieldStatusService.getMostRecentFieldStatus(field4))
@@ -234,6 +260,8 @@ class FieldQueryServiceTest {
       submissionDetail4.setStatus(SubmissionDetailStatus.DELETED);
 
       var resource5 = new Resource();
+      resource5.setArchived(false);
+
       var field5 = new Field();
       field5.setFieldIdentifier(96);
       when(fieldStatusService.getMostRecentFieldStatus(field5))
@@ -245,6 +273,8 @@ class FieldQueryServiceTest {
       submissionDetail5.setStatus(SubmissionDetailStatus.DELETED);
 
       var resource6 = new Resource();
+      resource6.setArchived(false);
+
       var field6 = new Field();
       field6.setFieldIdentifier(168);
       when(fieldStatusService.getMostRecentFieldStatus(field6))
@@ -281,6 +311,8 @@ class FieldQueryServiceTest {
       var searchTerm = "field";
 
       var resource1 = new Resource();
+      resource1.setArchived(false);
+
       var field1 = new Field();
       field1.setFieldIdentifier(24);
       when(fieldStatusService.getMostRecentFieldStatus(field1))
@@ -292,6 +324,8 @@ class FieldQueryServiceTest {
       submissionDetail1.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var resource2 = new Resource();
+      resource2.setArchived(false);
+
       var field2 = new Field();
       field2.setFieldIdentifier(42);
       when(fieldStatusService.getMostRecentFieldStatus(field2))
@@ -303,6 +337,8 @@ class FieldQueryServiceTest {
       submissionDetail2.setStatus(SubmissionDetailStatus.DELETED);
 
       var resource3 = new Resource();
+      resource3.setArchived(false);
+
       var field3 = new Field();
       field3.setFieldIdentifier(48);
       when(fieldStatusService.getMostRecentFieldStatus(field3))
@@ -314,6 +350,8 @@ class FieldQueryServiceTest {
       submissionDetail3.setStatus(SubmissionDetailStatus.ACCEPTED);
 
       var resource4 = new Resource();
+      resource4.setArchived(false);
+
       var field4 = new Field();
       field4.setFieldIdentifier(84);
       when(fieldStatusService.getMostRecentFieldStatus(field4))
@@ -325,6 +363,8 @@ class FieldQueryServiceTest {
       submissionDetail4.setStatus(SubmissionDetailStatus.DELETED);
 
       var resource5 = new Resource();
+      resource5.setArchived(false);
+
       var field5 = new Field();
       field5.setFieldIdentifier(96);
       when(fieldStatusService.getMostRecentFieldStatus(field5))
@@ -360,6 +400,8 @@ class FieldQueryServiceTest {
       var searchTerm = "field";
 
       var resource1 = new Resource();
+      resource1.setArchived(false);
+
       var field1 = new Field();
       field1.setFieldIdentifier(24);
       field1.setResource(resource1);
@@ -381,6 +423,8 @@ class FieldQueryServiceTest {
       var searchTerm = "field";
 
       var resource = new Resource();
+      resource.setArchived(false);
+
       var field = new Field();
       field.setFieldIdentifier(24);
       when(fieldStatusService.getMostRecentFieldStatus(field))
@@ -410,6 +454,8 @@ class FieldQueryServiceTest {
       var searchTerm = "field";
 
       var resource = new Resource();
+      resource.setArchived(false);
+
       var field = new Field();
       field.setFieldIdentifier(24);
       when(fieldStatusService.getMostRecentFieldStatus(field))
@@ -439,6 +485,8 @@ class FieldQueryServiceTest {
       var searchTerm = "field";
 
       var resource1 = new Resource();
+      resource1.setArchived(false);
+
       var field1 = new Field();
       field1.setFieldIdentifier(24);
       when(fieldStatusService.getMostRecentFieldStatus(field1))
@@ -453,6 +501,8 @@ class FieldQueryServiceTest {
           .thenReturn(false);
 
       var resource2 = new Resource();
+      resource2.setArchived(false);
+
       var field2 = new Field();
       field2.setFieldIdentifier(42);
       when(fieldStatusService.getMostRecentFieldStatus(field2))
@@ -490,6 +540,8 @@ class FieldQueryServiceTest {
       var searchTerm = "field";
 
       var resource1 = new Resource();
+      resource1.setArchived(false);
+
       var field1 = new Field();
       field1.setFieldIdentifier(1);
       when(fieldStatusService.getMostRecentFieldStatus(field1))
@@ -499,6 +551,8 @@ class FieldQueryServiceTest {
       field1.setResponsibleOrganisationId(otherOrgUnit);
 
       var resource2 = new Resource();
+      resource2.setArchived(false);
+
       var field2 = new Field();
       field2.setFieldIdentifier(2);
       when(fieldStatusService.getMostRecentFieldStatus(field2))

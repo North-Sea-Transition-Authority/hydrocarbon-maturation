@@ -20,7 +20,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
@@ -139,6 +141,8 @@ class ViewResourceRecordServiceTest {
 
     private static final Integer ORGANISATION_UNIT_ID = 1;
     private static final Integer OTHER_ORG_UNIT_ID = 2;
+    private static final Resource ARCHIVED_RESOURCE = ResourceTestUtils.buildResource(ResourceType.PROSPECT, true);
+    private static final Resource UNARCHIVED_RESOURCE = ResourceTestUtils.buildResource(ResourceType.PROSPECT, false);
     private final ResourceRecordSummaryView RESOURCE_RECORD = SubmissionIntegrationTestUtils.emptyResourceRecordSummaryView(
         UUID.randomUUID(), ORGANISATION_UNIT_ID);
     private final User USER_DETAIL = UserTestUtil.Builder().build();
@@ -147,7 +151,7 @@ class ViewResourceRecordServiceTest {
     void AndUserIsRegulatorOrAreaTeamUser_ThenTrue() {
       when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
-      var result = underTest.canViewResource(RESOURCE_RECORD, USER_DETAIL);
+      var result = underTest.canViewResource(RESOURCE_RECORD, UNARCHIVED_RESOURCE, USER_DETAIL);
 
       assertThat(result).isTrue();
     }
@@ -167,7 +171,7 @@ class ViewResourceRecordServiceTest {
 
         when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(ORGANISATION_UNIT_ID));
 
-        var result = underTest.canViewResource(RESOURCE_RECORD, USER_DETAIL);
+        var result = underTest.canViewResource(RESOURCE_RECORD, UNARCHIVED_RESOURCE, USER_DETAIL);
 
         assertThat(result).isTrue();
       }
@@ -179,7 +183,7 @@ class ViewResourceRecordServiceTest {
 
         when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(OTHER_ORG_UNIT_ID));
 
-        var result = underTest.canViewResource(RESOURCE_RECORD, USER_DETAIL);
+        var result = underTest.canViewResource(RESOURCE_RECORD, UNARCHIVED_RESOURCE, USER_DETAIL);
 
         assertThat(result).isFalse();
       }
@@ -202,7 +206,7 @@ class ViewResourceRecordServiceTest {
 
         when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(ORGANISATION_UNIT_ID));
 
-        var result = underTest.canViewResource(resourceRecordWithNullExtantLicence, USER_DETAIL);
+        var result = underTest.canViewResource(resourceRecordWithNullExtantLicence, UNARCHIVED_RESOURCE, USER_DETAIL);
 
         assertThat(result).isFalse();
       }
@@ -214,7 +218,7 @@ class ViewResourceRecordServiceTest {
 
         when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(ORGANISATION_UNIT_ID));
 
-        var result = underTest.canViewResource(RESOURCE_RECORD, USER_DETAIL);
+        var result = underTest.canViewResource(RESOURCE_RECORD, UNARCHIVED_RESOURCE, USER_DETAIL);
 
         assertThat(result).isFalse();
       }
@@ -223,7 +227,19 @@ class ViewResourceRecordServiceTest {
       void AndResourceHasNullExtantLicence_ThenFalse() {
         when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(OTHER_ORG_UNIT_ID));
 
-        var result = underTest.canViewResource(RESOURCE_RECORD, USER_DETAIL);
+        var result = underTest.canViewResource(RESOURCE_RECORD, UNARCHIVED_RESOURCE, USER_DETAIL);
+
+        assertThat(result).isFalse();
+      }
+
+      @Test
+      void AndResourceIsArchived_ThenFalse() {
+        when(licenceQueryService.getExtantLicencesByIds(toListOfStrings(RESOURCE_RECORD.licenceIds())))
+                .thenReturn(List.of(LICENCE_VIEW));
+
+        when(industryTeamService.getOrganisationUnitIdsForUser(USER_DETAIL)).thenReturn(List.of(OTHER_ORG_UNIT_ID));
+
+        var result = underTest.canViewResource(RESOURCE_RECORD, ARCHIVED_RESOURCE, USER_DETAIL);
 
         assertThat(result).isFalse();
       }

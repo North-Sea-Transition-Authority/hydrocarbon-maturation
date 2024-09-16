@@ -6,7 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-interface ResourceLinksRepository extends CrudRepository<ResourceLink, UUID> {
+public interface ResourceLinksRepository extends CrudRepository<ResourceLink, UUID> {
 
   List<ResourceLink> findAllByProspectResource(Resource prospect);
 

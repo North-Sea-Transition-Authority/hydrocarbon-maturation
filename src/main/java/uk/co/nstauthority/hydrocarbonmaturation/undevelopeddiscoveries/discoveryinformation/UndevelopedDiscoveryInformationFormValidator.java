@@ -15,7 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DateValidationUti
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
 
 @Service
-class UndevelopedDiscoveryInformationFormValidator {
+public class UndevelopedDiscoveryInformationFormValidator {
 
   static final String RECOVERABLE_DEFAULT_ERROR_MESSAGE = "1C to 3C values must all be numbers " +
       "with up to 2 decimal places in the order of 0 ≤ 1C ≤ 2C ≤ 3C";

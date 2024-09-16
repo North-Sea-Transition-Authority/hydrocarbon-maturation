@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyresource;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
@@ -58,6 +59,7 @@ class SubmissionQueryService {
     //gets the latest submission for each discovery
     var latestSubmissionsWhichCanBeSubmittedUpon =
         distinctDiscoveries.stream()
+            .filter(resource -> BooleanUtils.isFalse(resource.getArchived()))
             .map(submissionDetailService::getLatestApprovedDiscoverySubmissionDetailForResource)
             .flatMap(Optional::stream)
             .filter(detail -> submissionFilterService.filterDiscoverySubmissionByOtherSubmissions(detail, submissionType));
@@ -78,6 +80,7 @@ class SubmissionQueryService {
     //can't start a submission
     var latestSubmissionsWhichCanBeSubmittedUpon =
         distinctProspectsForSubmissionType.stream()
+            .filter(resource -> BooleanUtils.isFalse(resource.getArchived()))
             .map(submissionDetailService::getLatestApprovedProspectSubmissionForResource)
             .flatMap(Optional::stream)
             .filter(detail -> submissionFilterService.filterProspectSubmissionByOtherSubmissions(detail, submissionType));
@@ -118,6 +121,7 @@ class SubmissionQueryService {
     //filtering out ones in a group but not the preferred view
     var latestSubmissionsWhichCanBeSubmittedUpon =
         distinctDiscoveries.stream()
+            .filter(resource -> BooleanUtils.isFalse(resource.getArchived()))
             .filter(resource -> !resourceGroupService.isInGroupAndIsNotPreferredView(resource))
             .map(submissionDetailService::getLatestApprovedDiscoverySubmissionDetailForResource)
             .flatMap(Optional::stream)

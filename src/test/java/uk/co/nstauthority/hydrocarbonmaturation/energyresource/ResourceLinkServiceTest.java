@@ -8,8 +8,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -20,6 +23,9 @@ class ResourceLinkServiceTest {
 
   @Mock
   private ResourceLinksRepository resourceLinksRepository;
+
+  @Mock
+  private ResourceService resourceService;
 
   @InjectMocks
   private ResourceLinkService resourceLinkService;
@@ -187,5 +193,79 @@ class ResourceLinkServiceTest {
     var resource = new Resource();
     resourceLinkService.deleteDiscoveryToProspectLink(resource);
     verify(resourceLinksRepository).deleteByDiscoveryResourceAndProspectResourceIsNotNull(resource);
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = ResourceType.class, names = "DISCOVERY", mode = EnumSource.Mode.EXCLUDE)
+  void discoveryIsLinkedToField_notADiscovery(ResourceType resourceType) {
+    var resource = new Resource();
+    resource.setType(resourceType);
+
+    assertThat(resourceLinkService.discoveryIsLinkedToField(resource))
+        .isFalse();
+  }
+
+  @Test
+  void discoveryIsLinkedToField_noResourceLinks() {
+    var resource = new Resource();
+    resource.setType(ResourceType.DISCOVERY);
+
+    when(resourceLinksRepository.findAllByDiscoveryResource(resource))
+        .thenReturn(List.of());
+
+    assertThat(resourceLinkService.discoveryIsLinkedToField(resource))
+        .isFalse();
+  }
+
+  @Test
+  void discoveryIsLinkedToField_noFieldLink() {
+    var resource = new Resource();
+    resource.setType(ResourceType.DISCOVERY);
+
+    when(resourceLinksRepository.findAllByDiscoveryResource(resource))
+        .thenReturn(List.of(new ResourceLink()));
+
+    assertThat(resourceLinkService.discoveryIsLinkedToField(resource))
+        .isFalse();
+  }
+
+  @Test
+  void discoveryIsLinkedToField_onlyArchivedFieldLink() {
+    var resource = new Resource();
+    resource.setType(ResourceType.DISCOVERY);
+
+    var archivedField = new Resource();
+    archivedField.setArchived(true);
+
+    var resourceLink = new ResourceLink();
+    resourceLink.setFieldResource(archivedField);
+
+    when(resourceLinksRepository.findAllByDiscoveryResource(resource))
+        .thenReturn(List.of(resourceLink));
+    when(resourceService.getResourceById(archivedField.getId()))
+        .thenReturn(Optional.of(archivedField));
+
+    assertThat(resourceLinkService.discoveryIsLinkedToField(resource))
+        .isFalse();
+  }
+
+  @Test
+  void discoveryIsLinkedToField_hasFieldLink() {
+    var resource = new Resource();
+    resource.setType(ResourceType.DISCOVERY);
+
+    var activeField = new Resource();
+    activeField.setArchived(false);
+
+    var resourceLink = new ResourceLink();
+    resourceLink.setFieldResource(activeField);
+
+    when(resourceLinksRepository.findAllByDiscoveryResource(resource))
+        .thenReturn(List.of(resourceLink));
+    when(resourceService.getResourceById(activeField.getId()))
+        .thenReturn(Optional.of(activeField));
+
+    assertThat(resourceLinkService.discoveryIsLinkedToField(resource))
+        .isTrue();
   }
 }

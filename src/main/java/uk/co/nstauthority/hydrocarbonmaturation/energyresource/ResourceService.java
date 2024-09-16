@@ -47,6 +47,7 @@ public class ResourceService {
     var resource = new Resource();
     resource.setType(resourceType);
     resource.setCreatedTimestamp(clock.instant());
+    resource.setArchived(false);
     resourceRepository.save(resource);
     return resource;
   }

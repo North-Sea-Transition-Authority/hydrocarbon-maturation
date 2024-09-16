@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -75,6 +76,11 @@ class SubmissionQueryServiceTest {
 
   private final Resource resourceWithoutLatestApproved = new Resource();
 
+  @BeforeEach
+  void setUp() {
+    resourceWithoutLatestApproved.setArchived(false);
+  }
+
   @Nested
   class GetLatestDiscoveriesByNameForSubmissionType {
 
@@ -83,12 +89,16 @@ class SubmissionQueryServiceTest {
     void whenDiscoverySubmission_assertOneFound(SubmissionType submissionType) {
       var searchTerm = "discovery";
 
+      var archivedResource = new Resource();
+      archivedResource.setArchived(true);
+
       var latestApprovedResourceDetail = createResourceDetail(
           searchTerm, ResourceType.DISCOVERY, SubmissionDetailStatus.ACCEPTED, SubmissionType.UPDATE_DISCOVERY);
       when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.DISCOVERY, searchTerm))
           .thenReturn(List.of(
               latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource(),
-              resourceWithoutLatestApproved));
+              resourceWithoutLatestApproved,
+              archivedResource));
       when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(
           latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource()))
           .thenReturn(Optional.of(latestApprovedResourceDetail.getSubmissionDetail()));
@@ -166,10 +176,16 @@ class SubmissionQueryServiceTest {
     void whenProspectSubmission_passesFilter_assertOneFound(SubmissionType submissionType) {
       var searchTerm = "prospect";
 
+      var archivedResource = new Resource();
+      archivedResource.setArchived(true);
+
       var latestApprovedResourceDetail = createResourceDetail(
           searchTerm, ResourceType.PROSPECT, SubmissionDetailStatus.ACCEPTED, submissionType);
       when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.PROSPECT, searchTerm))
-          .thenReturn(List.of(latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource()));
+          .thenReturn(List.of(
+              latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource(),
+              archivedResource
+          ));
       when(submissionDetailService.getLatestApprovedProspectSubmissionForResource(
           latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource()))
           .thenReturn(Optional.of(latestApprovedResourceDetail.getSubmissionDetail()));
@@ -452,12 +468,15 @@ class SubmissionQueryServiceTest {
     void whenDiscoverySubmission_andNotInGroup_assertOneFound() {
       var searchTerm = "discovery";
 
+      var archivedResource = new Resource();
+      archivedResource.setArchived(true);
+
       var latestApprovedResourceDetail = createResourceDetail(
           searchTerm, ResourceType.DISCOVERY, SubmissionDetailStatus.ACCEPTED, SubmissionType.UPDATE_DISCOVERY);
       var resource = latestApprovedResourceDetail.getSubmissionDetail().getSubmission().getResource();
 
       when(submissionResourceService.getResourcesBySubmissionTypeAndResourceName(ResourceType.DISCOVERY, searchTerm))
-          .thenReturn(List.of(resource, resourceWithoutLatestApproved));
+          .thenReturn(List.of(resource, resourceWithoutLatestApproved, archivedResource));
       when(resourceGroupService.isInGroupAndIsNotPreferredView(resource)).thenReturn(false);
       when(resourceGroupService.isInGroupAndIsNotPreferredView(resourceWithoutLatestApproved)).thenReturn(false);
       when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(resource))
@@ -535,6 +554,7 @@ class SubmissionQueryServiceTest {
     detail.setStatus(submissionDetailStatus);
     var resource = new Resource();
     resource.setType(resourceType);
+    resource.setArchived(false);
     detail.getSubmission().setResource(resource);
 
     var resourceDetail = new ResourceDetail();
