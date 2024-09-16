@@ -158,7 +158,7 @@ class FieldReservoirCombinedVolumetricsControllerTest extends AbstractSubmission
             .params(ControllerTestUtils.validationPostParams(validationType)))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class)
-            .getReservoirTaskList(submissionDetail.getId(), null))));
+            .getReservoirTaskList(submissionDetail.getId()))));
   }
 
   @ParameterizedTest
@@ -235,7 +235,7 @@ class FieldReservoirCombinedVolumetricsControllerTest extends AbstractSubmission
         entry(ReverseRouter.route(on(TaskListController.class)
             .getTaskList(submissionDetail.getId(), null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class)
-            .getReservoirTaskList(submissionDetail.getId(), null)), ReservoirTaskListController.PAGE_TITLE)
+            .getReservoirTaskList(submissionDetail.getId())), ReservoirTaskListController.PAGE_TITLE)
     );
   }
 
@@ -282,7 +282,7 @@ class FieldReservoirCombinedVolumetricsControllerTest extends AbstractSubmission
         entry(ReverseRouter.route(on(TaskListController.class)
             .getTaskList(submissionDetail.getId(), null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class)
-            .getReservoirTaskList(submissionDetail.getId(), null)), ReservoirTaskListController.PAGE_TITLE)
+            .getReservoirTaskList(submissionDetail.getId())), ReservoirTaskListController.PAGE_TITLE)
     );
   }
 
@@ -365,7 +365,7 @@ class FieldReservoirCombinedVolumetricsControllerTest extends AbstractSubmission
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class)
-            .getReservoirTaskList(submissionDetail.getId(), null))));
+            .getReservoirTaskList(submissionDetail.getId()))));
 
     verify(fieldReservoirVolumetricsFormService, times(1))
         .saveFieldReservoirVolumetrics(form, reservoirSubmissionDetail);

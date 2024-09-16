@@ -157,7 +157,7 @@ class FieldOilVolumetricParametersControllerTest extends AbstractSubmissionContr
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId))));
 
     verify(fieldOilVolumetricParametersService, times(1)).saveOilVolumetrics(any(OilCaseVolumetricParametersForm.class), eq(reservoirSubmissionDetail));
   }
@@ -202,7 +202,7 @@ class FieldOilVolumetricParametersControllerTest extends AbstractSubmissionContr
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
             entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
-            entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+            entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
         );
 
     assertThat(modelMap)

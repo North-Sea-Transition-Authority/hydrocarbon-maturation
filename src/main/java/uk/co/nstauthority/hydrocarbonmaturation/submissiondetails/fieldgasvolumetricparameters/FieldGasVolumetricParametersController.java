@@ -82,7 +82,7 @@ public class FieldGasVolumetricParametersController {
       return getGasVolumetricsModelAndViewWithErrors(bindingResult, form, reservoirSubmissionDetail);
     } else {
       fieldGasVolumetricParametersService.saveGasVolumetrics(form, reservoirSubmissionDetail);
-      return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, user));
+      return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId));
     }
   }
 

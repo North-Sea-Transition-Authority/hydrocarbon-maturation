@@ -74,7 +74,7 @@ public class GeneralFluidPropertyController {
     } else {
       generalFluidPropertyPersistenceService.saveGeneralFluidProperty(form, reservoirSubmissionDetail);
       return ReverseRouter.redirect(on(ReservoirTaskListController.class)
-          .getReservoirTaskList(submissionDetailId, null));
+          .getReservoirTaskList(submissionDetailId));
     }
   }
 

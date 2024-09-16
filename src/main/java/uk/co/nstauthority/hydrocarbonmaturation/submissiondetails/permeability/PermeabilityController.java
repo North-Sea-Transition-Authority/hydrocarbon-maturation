@@ -91,8 +91,7 @@ public class PermeabilityController {
         return ReverseRouter.redirect(on(TaskListController.class)
             .getTaskList(submissionDetailId, null));
       }
-      return ReverseRouter.redirect(on(ReservoirTaskListController.class)
-          .getReservoirTaskList(submissionDetailId, null));
+      return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId));
     }
   }
 

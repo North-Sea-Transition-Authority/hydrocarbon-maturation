@@ -50,7 +50,7 @@ public class ReservoirPropertiesController {
   private static final String GAS_CASE = "gasCase";
   private static final String OIL_CASE = "oilCase";
   public static final String PAGE_NAME = "Reservoir properties";
-  
+
   private static final String DEPTH_TO_OIL_WATER_CONTACT_ERROR = "depthToOilWaterContactError";
   private static final String DEPTH_TO_GAS_WATER_CONTACT_ERROR = "depthToGasWaterContactError";
   private static final String DEPTH_TO_GAS_OIL_CONTACT_ERROR = "depthToGasOilContactError";
@@ -117,8 +117,7 @@ public class ReservoirPropertiesController {
       if (submissionDetail.isProspectSubmission() || submissionDetail.isDryWellSubmission()) {
         return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
       } else {
-        return ReverseRouter.redirect(on(ReservoirTaskListController.class)
-            .getReservoirTaskList(submissionDetailId, null));
+        return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId));
       }
     }
   }

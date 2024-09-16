@@ -132,7 +132,7 @@ class GasFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class)
-            .getReservoirTaskList(submissionDetailId, user))));
+            .getReservoirTaskList(submissionDetailId))));
 
     verify(gasFluidPropertyFormValidator, times(1))
         .isValid(any(GasFluidPropertyForm.class), any(Errors.class), eq(reservoirSubmissionDetail), eq(validationType));
@@ -190,7 +190,7 @@ class GasFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
   }
 
@@ -220,7 +220,7 @@ class GasFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
 
     assertThat(modelMap)

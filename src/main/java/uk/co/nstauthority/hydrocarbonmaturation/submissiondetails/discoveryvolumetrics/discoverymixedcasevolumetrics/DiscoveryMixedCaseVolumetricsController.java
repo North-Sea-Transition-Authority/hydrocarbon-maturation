@@ -82,7 +82,7 @@ public class DiscoveryMixedCaseVolumetricsController {
       return getMixedOutputsModelAndViewWithErrors(bindingResult, form, reservoirSubmissionDetail);
     } else {
       discoveryMixedCaseVolumetricsPersistenceService.saveMixedCaseOutputs(form, reservoirSubmissionDetail);
-      return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, user));
+      return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId));
     }
   }
 

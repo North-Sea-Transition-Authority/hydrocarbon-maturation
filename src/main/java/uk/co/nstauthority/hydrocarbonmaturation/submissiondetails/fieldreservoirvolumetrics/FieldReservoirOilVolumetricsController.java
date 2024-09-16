@@ -89,8 +89,7 @@ public class FieldReservoirOilVolumetricsController {
       return getFieldReservoirVolumetricsModelAndViewWithErrors(bindingResult, form, reservoirSubmissionDetail);
     } else {
       fieldReservoirVolumetricsFormService.saveFieldReservoirVolumetrics(form, reservoirSubmissionDetail);
-      return ReverseRouter.redirect(on(ReservoirTaskListController.class)
-          .getReservoirTaskList(submissionDetailId, null));
+      return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId));
     }
   }
 

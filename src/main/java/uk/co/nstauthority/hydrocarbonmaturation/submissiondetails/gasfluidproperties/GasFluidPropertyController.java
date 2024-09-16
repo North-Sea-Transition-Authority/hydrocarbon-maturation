@@ -75,7 +75,7 @@ public class GasFluidPropertyController {
       return getGasFluidPropertiesModelAndView(form, reservoirSubmissionDetail);
     } else {
       gasFluidPropertyPersistenceService.saveGasFluidProperty(form, reservoirSubmissionDetail);
-      return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null));
+      return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId));
     }
   }
 

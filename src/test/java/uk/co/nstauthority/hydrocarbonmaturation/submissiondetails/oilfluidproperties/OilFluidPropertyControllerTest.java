@@ -146,7 +146,7 @@ class OilFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class)
-            .getReservoirTaskList(submissionDetailId, null))));
+            .getReservoirTaskList(submissionDetailId))));
 
     verify(oilFluidPropertyPersistenceService, times(1))
         .saveOilFluidProperty(any(OilFluidPropertyForm.class), eq(reservoirSubmissionDetail));
@@ -202,7 +202,7 @@ class OilFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
   }
 
@@ -229,7 +229,7 @@ class OilFluidPropertyControllerTest extends AbstractSubmissionControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
   }
 }

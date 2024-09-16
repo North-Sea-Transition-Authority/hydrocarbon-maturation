@@ -127,7 +127,7 @@ class GeneralFluidPropertyControllerTest extends AbstractSubmissionControllerTes
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class)
-            .getReservoirTaskList(submissionDetailId, null))));
+            .getReservoirTaskList(submissionDetailId))));
 
     verify(generalFluidPropertyPersistenceService, times(1))
         .saveGeneralFluidProperty(any(GeneralFluidPropertyForm.class), eq(reservoirSubmissionDetail));
@@ -185,7 +185,7 @@ class GeneralFluidPropertyControllerTest extends AbstractSubmissionControllerTes
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
   }
 }

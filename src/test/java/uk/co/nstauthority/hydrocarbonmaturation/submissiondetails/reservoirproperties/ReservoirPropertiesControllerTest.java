@@ -219,7 +219,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class)
-            .getReservoirTaskList(submissionDetailId, null))));
+            .getReservoirTaskList(submissionDetailId))));
 
     verify(reservoirPropertiesPersistenceService, times(1))
         .saveReservoirProperty(any(ReservoirPropertiesForm.class), eq(discoveryReservoirSubmissionDetail));
@@ -388,7 +388,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId, null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
 
     assertThat(modelMap)
@@ -471,7 +471,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId, null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
 
     assertThat(modelMap)
@@ -708,7 +708,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId, null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
 
     assertThat(modelMap)
@@ -808,7 +808,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId, null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
 
     assertThat(modelMap)
@@ -900,7 +900,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(discoverySubmissionDetailId, null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(discoverySubmissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
 
     assertThat(modelMap)
@@ -989,7 +989,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId, null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
 
     assertThat(modelMap)
@@ -1080,7 +1080,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId, null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
 
     assertThat(modelMap)
@@ -1176,7 +1176,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId, null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
 
     assertThat(modelMap)
@@ -1273,7 +1273,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId, null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
 
     assertThat(modelMap)
@@ -1382,7 +1382,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId, null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
 
     assertThat(modelMap)
@@ -1473,7 +1473,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId, null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
 
     assertThat(modelMap)
@@ -1708,7 +1708,7 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(fieldSubmissionDetailId, null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(fieldSubmissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
 
     assertThat(modelMap)

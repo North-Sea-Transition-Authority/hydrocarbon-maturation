@@ -103,7 +103,7 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
             get(ReverseRouter.route(on(ReservoirListController.class).getReservoirs(submissionDetailId, null)))
                 .with(user(USER)))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId(), null))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId()))));
   }
 
   @SecurityTest
@@ -182,7 +182,7 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId(), null))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId()))));
 
     verify(reservoirSubmissionDetailPersistenceService, times(1))
         .saveReservoirSubmissionDetails(any(ReservoirListForm.class), eq(submissionDetail));

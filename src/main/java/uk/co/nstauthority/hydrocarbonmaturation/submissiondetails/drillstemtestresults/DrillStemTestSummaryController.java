@@ -102,7 +102,7 @@ public class DrillStemTestSummaryController {
             return ReverseRouter.redirect(on(DrillStemTestResultController.class)
                 .getCreateNewDrillStemTestResultPage(submissionDetailId, reservoirSubmissionDetailId));
           }
-          return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null));
+          return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId));
         }
     );
   }

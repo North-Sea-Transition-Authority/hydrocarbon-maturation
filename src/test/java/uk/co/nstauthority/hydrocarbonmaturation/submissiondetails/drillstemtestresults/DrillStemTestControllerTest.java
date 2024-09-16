@@ -141,7 +141,7 @@ class DrillStemTestControllerTest extends AbstractSubmissionControllerTest {
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId))));
 
     verify(drillStemTestPersistenceService, times(1))
         .saveInitialDrillStemTest(any(DrillStemTestInitialForm.class), eq(reservoirSubmissionDetail));

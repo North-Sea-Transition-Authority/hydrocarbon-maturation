@@ -136,7 +136,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class)
-            .getReservoirTaskList(submissionDetailId, null))));
+            .getReservoirTaskList(submissionDetailId))));
 
     verify(permeabilityPersistenceService, times(1))
         .savePermeabilityDetail(any(PermeabilityForm.class), eq(reservoirSubmissionDetail));
@@ -245,7 +245,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
         entry(ReverseRouter.route(on(TaskListController.class)
             .getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class)
-            .getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+            .getReservoirTaskList(submissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
   }
 
@@ -295,7 +295,7 @@ class PermeabilityControllerTest extends AbstractSubmissionControllerTest {
         entry(ReverseRouter.route(on(TaskListController.class)
             .getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
         entry(ReverseRouter.route(on(ReservoirTaskListController.class)
-            .getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+            .getReservoirTaskList(submissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
     );
   }
 }

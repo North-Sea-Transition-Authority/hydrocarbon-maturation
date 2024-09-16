@@ -70,7 +70,7 @@ public class DeleteReservoirController {
     NotificationBannerUtil.applyNotificationBanner(redirectAttributes, getNotificationBanner(reservoirSubmissionDetail));
 
     return ReverseRouter.redirect(on(ReservoirTaskListController.class)
-        .getReservoirTaskList(reservoirSubmissionDetail.getSubmissionDetail().getId(), null));
+        .getReservoirTaskList(reservoirSubmissionDetail.getSubmissionDetail().getId()));
   }
 
   private ModelAndView getDeleteReservoirModelAndView(ReservoirSubmissionDetail reservoirSubmissionDetail, User user) {
@@ -86,7 +86,7 @@ public class DeleteReservoirController {
                 .deleteReservoir(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null)))
         .addObject("cancelUrl",
             ReverseRouter.route(on(ReservoirTaskListController.class)
-                .getReservoirTaskList(submissionDetail.getId(), null)));
+                .getReservoirTaskList(submissionDetail.getId())));
 
     var canDeleteReservoir = deleteReservoirService.canDeleteReservoir(reservoirSubmissionDetail);
     modelAndView.addObject("canDeleteReservoir", canDeleteReservoir);

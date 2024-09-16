@@ -76,7 +76,7 @@ public class GeneralReservoirInformationController {
     } else {
       generalReservoirInformationService.saveGeneralReservoirInformation(form, reservoirSubmissionDetail);
       return ReverseRouter.redirect(on(ReservoirTaskListController.class)
-          .getReservoirTaskList(submissionDetailId, null));
+          .getReservoirTaskList(submissionDetailId));
     }
   }
 

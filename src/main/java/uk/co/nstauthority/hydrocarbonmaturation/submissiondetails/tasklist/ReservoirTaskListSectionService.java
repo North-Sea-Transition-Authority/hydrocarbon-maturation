@@ -57,8 +57,7 @@ public class ReservoirTaskListSectionService implements TaskListSectionService {
                   ? TaskListLabel.COMPLETE
                   : TaskListLabel.NOT_COMPLETE,
               reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail)
-                  ? ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(
-                      submissionDetail.getId(), null))
+                  ? ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId()))
                   : ReverseRouter.route(on(ReservoirListController.class).getReservoirs(submissionDetail.getId(), null)))
       );
     }

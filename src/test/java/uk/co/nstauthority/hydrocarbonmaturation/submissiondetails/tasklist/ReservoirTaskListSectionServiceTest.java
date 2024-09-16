@@ -144,8 +144,7 @@ class ReservoirTaskListSectionServiceTest {
             List.of(
                 new TaskListItem("Discovery reservoirs",
                     TaskListLabel.NOT_COMPLETE,
-                    ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(
-                        submissionDetail.getId(), null)))
+                    ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId())))
             ),
             "Reservoirs",
             40
@@ -214,8 +213,7 @@ class ReservoirTaskListSectionServiceTest {
             List.of(
                 new TaskListItem("Field reservoirs",
                     TaskListLabel.NOT_COMPLETE,
-                    ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(
-                        submissionDetail.getId(), null)))
+                    ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId())))
             ),
             "Reservoirs",
             40
@@ -284,7 +282,7 @@ class ReservoirTaskListSectionServiceTest {
             List.of(
                 new TaskListItem("Field reservoirs",
                     TaskListLabel.NOT_COMPLETE,
-                    ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId(), null)))
+                    ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId())))
             ),
             "Reservoirs",
             40

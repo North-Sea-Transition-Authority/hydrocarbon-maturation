@@ -159,7 +159,7 @@ class FieldGasVolumetricParametersControllerTest extends AbstractSubmissionContr
             .with(user(USER))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null))));
+        .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId))));
 
     verify(fieldGasVolumetricParametersService, times(1)).saveGasVolumetrics(any(GasCaseVolumetricParametersForm.class), eq(reservoirSubmissionDetail));
   }
@@ -204,7 +204,7 @@ class FieldGasVolumetricParametersControllerTest extends AbstractSubmissionContr
         .containsExactly(
             entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
             entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetailId, null)), TaskListController.PAGE_NAME),
-            entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, null)), ReservoirTaskListController.PAGE_TITLE)
+            entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId)), ReservoirTaskListController.PAGE_TITLE)
         );
 
     assertThat(modelMap)

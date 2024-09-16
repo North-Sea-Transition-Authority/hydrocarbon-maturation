@@ -90,7 +90,7 @@ public class OilCaseVolumetricParametersController {
       if (submissionDetail.isProspectSubmission()) {
         return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
       } else {
-        return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId, user));
+        return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId));
       }
     }
   }

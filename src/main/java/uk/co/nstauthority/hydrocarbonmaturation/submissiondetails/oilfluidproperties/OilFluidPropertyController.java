@@ -74,8 +74,7 @@ public class OilFluidPropertyController {
       return getOilFluidPropertiesModelAndView(form, reservoirSubmissionDetail);
     } else {
       oilFluidPropertyPersistenceService.saveOilFluidProperty(form, reservoirSubmissionDetail);
-      return ReverseRouter.redirect(on(ReservoirTaskListController.class)
-          .getReservoirTaskList(submissionDetailId, null));
+      return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId));
     }
   }
 

@@ -29,6 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Controller
@@ -48,23 +49,25 @@ public class ReservoirTaskListController {
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
   private final ReservoirAdditionsFormService reservoirAdditionsFormService;
   private final ReservoirAdditionsFormValidator reservoirAdditionsFormValidator;
+  private final InternalTeamService internalTeamService;
 
   @Autowired
   public ReservoirTaskListController(SubmissionDetailService submissionDetailService,
                                      ReservoirTaskListService reservoirTaskListService,
                                      ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
                                      ReservoirAdditionsFormService reservoirAdditionsFormService,
-                                     ReservoirAdditionsFormValidator reservoirAdditionsFormValidator) {
+                                     ReservoirAdditionsFormValidator reservoirAdditionsFormValidator,
+                                     InternalTeamService internalTeamService) {
     this.submissionDetailService = submissionDetailService;
     this.reservoirTaskListService = reservoirTaskListService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.reservoirAdditionsFormService = reservoirAdditionsFormService;
     this.reservoirAdditionsFormValidator = reservoirAdditionsFormValidator;
+    this.internalTeamService = internalTeamService;
   }
 
   @GetMapping
-  public ModelAndView getReservoirTaskList(@PathVariable("submissionDetailId") UUID submissionDetailId,
-                                           User user) {
+  public ModelAndView getReservoirTaskList(@PathVariable("submissionDetailId") UUID submissionDetailId) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     return getReservoirTaskListModelAndView(
         reservoirAdditionsFormService.getReservoirAdditionsToForm(submissionDetail),
@@ -75,7 +78,8 @@ public class ReservoirTaskListController {
   @PostMapping
   public ModelAndView saveReservoirAdditions(@PathVariable UUID submissionDetailId,
                                              @ModelAttribute("form") ReservoirAdditionForm form,
-                                             BindingResult bindingResult) {
+                                             BindingResult bindingResult,
+                                             User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var additionStatus = form.getReservoirAdditionStatus();
 
@@ -100,7 +104,11 @@ public class ReservoirTaskListController {
             .getTaskList(submissionDetailId, null));
       }
       case NO -> {
-        if (reservoirAdditionsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL)) {
+        var isValidForAreaTeamMember = internalTeamService.isRegulatorOrAreaTeamUser(user)
+            && reservoirAdditionsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.PARTIAL);
+
+        if (isValidForAreaTeamMember
+            || reservoirAdditionsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL)) {
           // update status to no and return
           reservoirAdditionsFormService.updateReservoirAdditionStatus(submissionDetail, ReservoirAdditionStatus.NO);
           return ReverseRouter.redirect(on(TaskListController.class)
@@ -112,7 +120,7 @@ public class ReservoirTaskListController {
       }
       default -> {
         return ReverseRouter.redirect(on(ReservoirTaskListController.class)
-            .getReservoirTaskList(submissionDetailId, null));
+            .getReservoirTaskList(submissionDetailId));
       }
     }
   }
@@ -123,7 +131,7 @@ public class ReservoirTaskListController {
         .addObject("pageTitle", PAGE_TITLE)
         .addObject("form", form)
         .addObject("actionUrl", ReverseRouter.route(on(ReservoirTaskListController.class)
-            .saveReservoirAdditions(submissionDetail.getId(), form, null)))
+            .saveReservoirAdditions(submissionDetail.getId(), form, null, null)))
         .addObject("reservoirTaskListItems", reservoirTaskListItems)
         .addObject("reservoirAdditionStatusOptions",
             DisplayableEnumOptionUtil.getDisplayableOptions(ReservoirAdditionStatus.class));

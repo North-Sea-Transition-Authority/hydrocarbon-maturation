@@ -135,7 +135,7 @@ class DeleteReservoirControllerTest extends AbstractSubmissionControllerTest {
             entry("deleteUrl", ReverseRouter.route(on(DeleteReservoirController.class)
                 .deleteReservoir(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))),
             entry("cancelUrl", ReverseRouter.route(on(ReservoirTaskListController.class)
-                .getReservoirTaskList(submissionDetail.getId(), null))),
+                .getReservoirTaskList(submissionDetail.getId()))),
             entry("canDeleteReservoir", true)
         )
         .doesNotContainKey("associatedFields");
@@ -146,7 +146,7 @@ class DeleteReservoirControllerTest extends AbstractSubmissionControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId(), null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId(), null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId())), ReservoirTaskListController.PAGE_TITLE)
     );
   }
 
@@ -173,7 +173,7 @@ class DeleteReservoirControllerTest extends AbstractSubmissionControllerTest {
             entry("deleteUrl", ReverseRouter.route(on(DeleteReservoirController.class)
                 .deleteReservoir(submissionDetail.getId(), reservoirSubmissionDetail.getId(), null))),
             entry("cancelUrl", ReverseRouter.route(on(ReservoirTaskListController.class)
-                .getReservoirTaskList(submissionDetail.getId(), null))),
+                .getReservoirTaskList(submissionDetail.getId()))),
             entry("canDeleteReservoir", false),
             entry("associatedFields", fieldNames)
         );
@@ -184,7 +184,7 @@ class DeleteReservoirControllerTest extends AbstractSubmissionControllerTest {
     assertThat(breadcrumbsMap.entrySet()).containsExactly(
         entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)), WorkAreaController.WORK_AREA_TITLE),
         entry(ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId(), null)), TaskListController.PAGE_NAME),
-        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId(), null)), ReservoirTaskListController.PAGE_TITLE)
+        entry(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId())), ReservoirTaskListController.PAGE_TITLE)
     );
   }
 
@@ -197,7 +197,7 @@ class DeleteReservoirControllerTest extends AbstractSubmissionControllerTest {
                 .with(user(USER))
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId(), null))))
+        .andExpect(redirectedUrl(ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId()))))
         .andReturn().getFlashMap();
 
     verify(deleteReservoirService, times(1)).deleteReservoirSubmissionDetail(reservoirSubmissionDetail);

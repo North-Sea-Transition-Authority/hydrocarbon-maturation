@@ -191,7 +191,7 @@ class FdpaReservoirIncrementalVolumesControllerTest extends AbstractSubmissionCo
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(
-            on(ReservoirTaskListController.class).getReservoirTaskList(SUBMISSION_DETAIL_ID, null))));
+            on(ReservoirTaskListController.class).getReservoirTaskList(SUBMISSION_DETAIL_ID))));
 
     verify(incrementalVolumesService, times(1))
         .saveFdpaReservoirIncrementalVolume(form, reservoirSubmissionDetail);

@@ -80,8 +80,7 @@ public class FdpaReservoirIncrementalVolumesController {
 
     if (incrementalVolumesFormValidator.isValid(form, bindingResult, reservoirSubmissionDetail, validationType)) {
       fdpaReservoirIncrementalVolumesService.saveFdpaReservoirIncrementalVolume(form, reservoirSubmissionDetail);
-      return ReverseRouter.redirect(on(ReservoirTaskListController.class)
-          .getReservoirTaskList(submissionDetailId, null));
+      return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetailId));
     } else {
       return getModelAndViewWithErrors(form, reservoirSubmissionDetail, bindingResult);
     }

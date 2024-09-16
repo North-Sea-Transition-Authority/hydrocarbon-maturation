@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -78,7 +79,7 @@ class ReservoirTaskListControllerTest extends AbstractSubmissionControllerTest {
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
                     get(ReverseRouter.route(on(ReservoirTaskListController.class)
-                        .getReservoirTaskList(submissionDetail.getId(), null)))
+                        .getReservoirTaskList(submissionDetail.getId())))
                         .with(user(USER)))
                 .andExpect(status().isOk())
                 .andExpect(view().name("remi/submissiondetails/tasklist/reservoirTaskList"))
@@ -91,7 +92,7 @@ class ReservoirTaskListControllerTest extends AbstractSubmissionControllerTest {
             entry("pageTitle", ReservoirTaskListController.PAGE_TITLE),
             entry("form", reservoirAdditionForm),
             entry("actionUrl", ReverseRouter.route(on(ReservoirTaskListController.class)
-                .saveReservoirAdditions(submissionDetail.getId(), reservoirAdditionForm, null))),
+                .saveReservoirAdditions(submissionDetail.getId(), reservoirAdditionForm, null, null))),
             entry("reservoirAdditionStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(ReservoirAdditionStatus.class))
         );
 
@@ -112,7 +113,7 @@ class ReservoirTaskListControllerTest extends AbstractSubmissionControllerTest {
 
     mockMvc.perform(
             get(ReverseRouter.route(on(ReservoirTaskListController.class)
-                .getReservoirTaskList(submissionDetail.getId(), null)))
+                .getReservoirTaskList(submissionDetail.getId())))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -123,7 +124,7 @@ class ReservoirTaskListControllerTest extends AbstractSubmissionControllerTest {
 
     mockMvc.perform(
             get(ReverseRouter.route(on(ReservoirTaskListController.class)
-                .getReservoirTaskList(submissionDetail.getId(), null)))
+                .getReservoirTaskList(submissionDetail.getId())))
                 .with(user(USER)))
         .andExpect(status().isForbidden());
   }
@@ -148,7 +149,7 @@ class ReservoirTaskListControllerTest extends AbstractSubmissionControllerTest {
 
     var modelAndView = mockMvc.perform (
         post(ReverseRouter.route(on(ReservoirTaskListController.class)
-            .saveReservoirAdditions(submissionDetail.getId(), null, null)))
+            .saveReservoirAdditions(submissionDetail.getId(), null, null, null)))
             .with(user(USER))
             .with(csrf())
             .flashAttr("form", form)
@@ -169,6 +170,8 @@ class ReservoirTaskListControllerTest extends AbstractSubmissionControllerTest {
 
     var form = new ReservoirAdditionForm(ReservoirAdditionStatus.NO);
 
+    when(internalTeamService.isRegulatorOrAreaTeamUser(user))
+        .thenReturn(false);
     when(reservoirAdditionsFormValidator.isValid(
         any(ReservoirAdditionForm.class),
         any(BindingResult.class),
@@ -178,7 +181,7 @@ class ReservoirTaskListControllerTest extends AbstractSubmissionControllerTest {
 
     mockMvc.perform (
             post(ReverseRouter.route(on(ReservoirTaskListController.class)
-                .saveReservoirAdditions(submissionDetail.getId(), null, null)))
+                .saveReservoirAdditions(submissionDetail.getId(), null, null, null)))
                 .with(user(USER))
                 .with(csrf())
                 .flashAttr("form", form))
@@ -206,7 +209,7 @@ class ReservoirTaskListControllerTest extends AbstractSubmissionControllerTest {
 
     mockMvc.perform(
             post(ReverseRouter.route(on(ReservoirTaskListController.class)
-                .saveReservoirAdditions(submissionDetail.getId(), null, null)))
+                .saveReservoirAdditions(submissionDetail.getId(), null, null, null)))
                 .with(user(USER))
                 .with(csrf())
                 .flashAttr("form", form))
@@ -232,7 +235,7 @@ class ReservoirTaskListControllerTest extends AbstractSubmissionControllerTest {
 
     mockMvc.perform(
             post(ReverseRouter.route(on(ReservoirTaskListController.class)
-                .saveReservoirAdditions(submissionDetail.getId(), null, null)))
+                .saveReservoirAdditions(submissionDetail.getId(), null, null, null)))
                 .with(user(USER))
                 .with(csrf())
                 .flashAttr("form", form))
@@ -242,6 +245,75 @@ class ReservoirTaskListControllerTest extends AbstractSubmissionControllerTest {
 
     verify(reservoirAdditionsFormService, times(1))
         .updateReservoirAdditionStatus(submissionDetail, ReservoirAdditionStatus.YES_NOW);
+  }
+
+  @Test
+  void saveReservoirAdditions_regulator_noAddedAllReservoirs_withMissingInformation_validForm() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    setUpWhenUserIsResponsibleTeam_passSecurity();
+
+    var newReservoirSubmissionDetail = new ReservoirSubmissionDetail();
+    newReservoirSubmissionDetail.setId(UUID.randomUUID());
+    when(reservoirSubmissionDetailPersistenceService.createReservoirAndReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(newReservoirSubmissionDetail);
+
+    when(internalTeamService.isRegulatorOrAreaTeamUser(user))
+        .thenReturn(true);
+    when(reservoirAdditionsFormValidator.isValid(
+        any(ReservoirAdditionForm.class),
+        any(BindingResult.class),
+        eq(submissionDetail),
+        eq(ValidationType.PARTIAL)))
+        .thenReturn(true);
+
+    var form = new ReservoirAdditionForm(ReservoirAdditionStatus.NO);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(ReservoirTaskListController.class)
+                .saveReservoirAdditions(submissionDetail.getId(), null, null, null)))
+                .with(user(USER))
+                .with(csrf())
+                .flashAttr("form", form))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class)
+            .getTaskList(submissionDetail.getId(), null))));
+
+    verify(reservoirAdditionsFormService, times(1))
+        .updateReservoirAdditionStatus(submissionDetail, ReservoirAdditionStatus.NO);
+  }
+
+  @Test
+  void saveReservoirAdditions_regulator_noAddedAllReservoirs_invalidPartialForm() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    setUpWhenUserIsResponsibleTeam_passSecurity();
+
+    var newReservoirSubmissionDetail = new ReservoirSubmissionDetail();
+    newReservoirSubmissionDetail.setId(UUID.randomUUID());
+    when(reservoirSubmissionDetailPersistenceService.createReservoirAndReservoirSubmissionDetail(submissionDetail))
+        .thenReturn(newReservoirSubmissionDetail);
+
+    when(internalTeamService.isRegulatorOrAreaTeamUser(user))
+        .thenReturn(true);
+    when(reservoirAdditionsFormValidator.isValid(
+        any(ReservoirAdditionForm.class),
+        any(BindingResult.class),
+        eq(submissionDetail),
+        eq(ValidationType.PARTIAL)))
+        .thenReturn(false);
+
+    var form = new ReservoirAdditionForm(ReservoirAdditionStatus.NO);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(ReservoirTaskListController.class)
+                .saveReservoirAdditions(submissionDetail.getId(), null, null, null)))
+                .with(user(USER))
+                .with(csrf())
+                .flashAttr("form", form))
+        .andExpect(status().isOk())
+        .andExpect(view().name("remi/submissiondetails/tasklist/reservoirTaskList"));
+
+    verify(reservoirAdditionsFormService, never())
+        .updateReservoirAdditionStatus(submissionDetail, ReservoirAdditionStatus.NO);
   }
 
   @Test
@@ -268,7 +340,7 @@ class ReservoirTaskListControllerTest extends AbstractSubmissionControllerTest {
 
     var modelAndView = mockMvc.perform (
             post(ReverseRouter.route(on(ReservoirTaskListController.class)
-                .saveReservoirAdditions(submissionDetail.getId(), null, null)))
+                .saveReservoirAdditions(submissionDetail.getId(), null, null, null)))
                 .with(user(USER))
                 .with(csrf())
                 .flashAttr("form", form)

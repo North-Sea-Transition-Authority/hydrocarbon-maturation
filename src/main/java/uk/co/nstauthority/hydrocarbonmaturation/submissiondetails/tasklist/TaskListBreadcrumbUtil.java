@@ -55,7 +55,7 @@ public class TaskListBreadcrumbUtil {
     return new BreadcrumbItem(
         ReservoirTaskListController.PAGE_TITLE,
         ReverseRouter.route(on(ReservoirTaskListController.class)
-            .getReservoirTaskList(reservoirSubmissionDetail.getSubmissionDetail().getId(), null))
+            .getReservoirTaskList(reservoirSubmissionDetail.getSubmissionDetail().getId()))
     );
   }
 }

@@ -64,7 +64,7 @@ public class Breadcrumbs {
       breadcrumbs.add(
           new BreadcrumbItem(
               ReservoirTaskListController.PAGE_TITLE,
-              ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId(), null))
+              ReverseRouter.route(on(ReservoirTaskListController.class).getReservoirTaskList(submissionDetail.getId()))
           )
       );
       return this;

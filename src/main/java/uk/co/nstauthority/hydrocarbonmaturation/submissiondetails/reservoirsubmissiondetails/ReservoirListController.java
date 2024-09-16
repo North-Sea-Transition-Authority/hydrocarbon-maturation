@@ -59,7 +59,7 @@ public class ReservoirListController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     if (reservoirSubmissionDetailPersistenceService.submissionHasReservoirs(submissionDetail)) {
       return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(
-          submissionDetail.getId(), null));
+          submissionDetail.getId()));
     }
     var form = reservoirListFormService.getReservoirForm(submissionDetail);
     return getReservoirsModelAndView(submissionDetail, form);
@@ -78,7 +78,7 @@ public class ReservoirListController {
     }
     reservoirSubmissionDetailPersistenceService.saveReservoirSubmissionDetails(form, submissionDetail);
     return ReverseRouter.redirect(on(ReservoirTaskListController.class).getReservoirTaskList(
-        submissionDetail.getId(), null)
+        submissionDetail.getId())
     );
   }
 
