@@ -9,8 +9,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,11 +24,17 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.digital.energyportalteamaccesslibrary.team.EnergyPortalAccessService;
+import uk.co.fivium.digital.energyportalteamaccesslibrary.team.InstigatingWebUserAccountId;
+import uk.co.fivium.digital.energyportalteamaccesslibrary.team.ResourceType;
+import uk.co.fivium.digital.energyportalteamaccesslibrary.team.TargetWebUserAccountId;
 import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.user.UserApi;
 import uk.co.fivium.energyportalapi.generated.client.UserProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.client.UsersProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.User;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
@@ -52,6 +60,15 @@ public class TeamManagementServiceTest {
   @Mock
   private UserApi userApi;
 
+  @Mock
+  private EnergyPortalAccessService energyPortalAccessService;
+
+  @Mock
+  private EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration;
+
+  @Mock
+  private UserService userService;
+
   @InjectMocks
   private TeamManagementService teamManagementService;
 
@@ -59,6 +76,12 @@ public class TeamManagementServiceTest {
   private ArgumentCaptor<Team> teamArgumentCaptor;
   @Captor
   private ArgumentCaptor<List<TeamRole>> teamRoleListCaptor;
+  @Captor
+  private ArgumentCaptor<ResourceType> resourceTypeArgumentCaptor;
+  @Captor
+  private ArgumentCaptor<TargetWebUserAccountId> targetWebUserAccountIdArgumentCaptor;
+  @Captor
+  private ArgumentCaptor<InstigatingWebUserAccountId> instigatingWebUserAccountIdArgumentCaptor;
 
   private static Team regTeam;
   private static Team orgTeam1;
@@ -75,6 +98,8 @@ public class TeamManagementServiceTest {
   private static User user1;
   private static final Long user2WuaId = 2L;
   private static User user2;
+  private static uk.co.nstauthority.hydrocarbonmaturation.authentication.User instigatingUser;
+  private static final Long instigatingUserWuaId = 3L;
 
   @BeforeAll
   public static void setUp() {
@@ -128,6 +153,16 @@ public class TeamManagementServiceTest {
     user2.setTelephoneNumber("2");
     user2.setCanLogin(true);
     user2.setIsAccountShared(false);
+
+    instigatingUser = new uk.co.nstauthority.hydrocarbonmaturation.authentication.User(
+        instigatingUserWuaId,
+        3L,
+        "Instigating",
+        "User",
+        "InstigatingUser@example.com",
+        null,
+        null
+    );
 
   }
 
@@ -339,7 +374,7 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-  void setUserTeamRoles() {
+  void setUserTeamRoles_newUser() {
     var expectedProjection = new UserProjectionRoot()
         .isAccountShared()
         .canLogin();
@@ -347,11 +382,49 @@ public class TeamManagementServiceTest {
         .thenReturn(Optional.of(user1));
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(regTeamUser1RoleManage)); // Make doesTeamHaveTeamManager() check return true
+    when(teamRoleRepository.findAllByWuaId(1)).thenReturn(Collections.emptyList());
+    when(userService.getUser()).thenReturn(instigatingUser);
+    var resourceTypeName = "REMI_ACCESS_TEAM";
+    when(energyPortalAccessApiConfiguration.resourceType()).thenReturn(resourceTypeName);
 
     teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.MANAGE_TEAM, Role.REGULATOR_MANAGE_ALL_ORGANISATIONS));
 
     verify(teamRoleRepository).deleteByWuaIdAndTeam(user1WuaId, regTeam);
     verify(teamRoleRepository).saveAll(teamRoleListCaptor.capture());
+    verify(energyPortalAccessService).addUserToAccessTeam(
+        resourceTypeArgumentCaptor.capture(),
+        targetWebUserAccountIdArgumentCaptor.capture(),
+        instigatingWebUserAccountIdArgumentCaptor.capture()
+        );
+
+    assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getTeam)
+        .contains(regTeam, regTeam);
+    assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getWuaId)
+        .contains(user1WuaId, user1WuaId);
+    assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getRole)
+        .contains(Role.MANAGE_TEAM, Role.REGULATOR_MANAGE_ALL_ORGANISATIONS);
+    assertThat(resourceTypeArgumentCaptor.getValue().name()).isEqualTo(resourceTypeName);
+    assertThat(targetWebUserAccountIdArgumentCaptor.getValue()).extracting(TargetWebUserAccountId::getId).isEqualTo(user1WuaId);
+    assertThat(instigatingWebUserAccountIdArgumentCaptor.getValue()).extracting(InstigatingWebUserAccountId::getId).isEqualTo(instigatingUser.wuaId());
+  }
+
+  @Test
+  void setUserTeamRoles_existingUser() {
+    var expectedProjection = new UserProjectionRoot()
+        .isAccountShared()
+        .canLogin();
+    when(userApi.findUserById(eq(1), refEq(expectedProjection), any(RequestPurpose.class)))
+        .thenReturn(Optional.of(user1));
+    when(teamRoleRepository.findByTeam(regTeam))
+        .thenReturn(List.of(regTeamUser1RoleManage)); // Make doesTeamHaveTeamManager() check return true
+    var teamRole = new TeamRole();
+    when(teamRoleRepository.findAllByWuaId(1)).thenReturn(List.of(teamRole));
+
+    teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.MANAGE_TEAM, Role.REGULATOR_MANAGE_ALL_ORGANISATIONS));
+
+    verify(teamRoleRepository).deleteByWuaIdAndTeam(user1WuaId, regTeam);
+    verify(teamRoleRepository).saveAll(teamRoleListCaptor.capture());
+    verifyNoInteractions(energyPortalAccessService);
 
     assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getTeam)
         .contains(regTeam, regTeam);
@@ -425,12 +498,37 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-  void removeUserFromTeam() {
+  void removeUserFromTeam_inNoMoreTeams() {
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(regTeamUser1RoleManage));
+    when(teamRoleRepository.findAllByWuaId(user2WuaId)).thenReturn(Collections.emptyList());
+    when(userService.getUser()).thenReturn(instigatingUser);
+    var resourceTypeName = "REMI_ACCESS_TEAM";
+    when(energyPortalAccessApiConfiguration.resourceType()).thenReturn(resourceTypeName);
 
     teamManagementService.removeUserFromTeam(user2WuaId, regTeam);
     verify(teamRoleRepository).deleteByWuaIdAndTeam(user2WuaId, regTeam);
+    verify(energyPortalAccessService).removeUserFromAccessTeam(
+        resourceTypeArgumentCaptor.capture(),
+        targetWebUserAccountIdArgumentCaptor.capture(),
+        instigatingWebUserAccountIdArgumentCaptor.capture()
+    );
+
+    assertThat(resourceTypeArgumentCaptor.getValue().name()).isEqualTo(resourceTypeName);
+    assertThat(targetWebUserAccountIdArgumentCaptor.getValue()).extracting(TargetWebUserAccountId::getId).isEqualTo(user2WuaId);
+    assertThat(instigatingWebUserAccountIdArgumentCaptor.getValue()).extracting(InstigatingWebUserAccountId::getId).isEqualTo(instigatingUser.wuaId());
+  }
+
+  @Test
+  void removeUserFromTeam_stillInTeams() {
+    when(teamRoleRepository.findByTeam(regTeam))
+        .thenReturn(List.of(regTeamUser1RoleManage));
+    var teamRole = new TeamRole();
+    when(teamRoleRepository.findAllByWuaId(user2WuaId)).thenReturn(List.of(teamRole));
+
+    teamManagementService.removeUserFromTeam(user2WuaId, regTeam);
+    verify(teamRoleRepository).deleteByWuaIdAndTeam(user2WuaId, regTeam);
+    verifyNoInteractions(energyPortalAccessService);
   }
 
   @Test
