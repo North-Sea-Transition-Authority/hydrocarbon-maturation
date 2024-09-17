@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.groups.Tuple;
@@ -75,19 +74,27 @@ class PlannedSanctionedWellsSummaryServiceTest {
             PlannedSanctionedWellsSummaryService.NUMBER_OF_INJECTORS,
             PlannedSanctionedWellsSummaryService.NUMBER_OF_PRODUCERS,
             PlannedSanctionedWellsSummaryService.NUMBER_OF_MONITORS,
-            PlannedSanctionedWellsSummaryService.ANY_HORIZONTAL_WELLS,
-            PlannedSanctionedWellsSummaryService.ANY_HIGH_PRESSURE_TEMPERATURE_WELLS,
-            PlannedSanctionedWellsSummaryService.ANY_WELLS_WITHIN_NARROW_OR_TIGHT_PPFG_WINDOW,
-            PlannedSanctionedWellsSummaryService.ANY_WELLBORE_STABILITY_CHALLENGES,
+            PlannedSanctionedWellsSummaryService.NUMBER_OF_HORIZONTAL_WELLS,
+            PlannedSanctionedWellsSummaryService.NUMBER_OF_HORIZONTAL_WELLS_WITH_ERD,
+            PlannedSanctionedWellsSummaryService.NUMBER_OF_HIGH_PRESSURE_TEMPERATURE_WELLS,
+            PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS_WITHIN_NARROW_OR_TIGHT_PPFG_WINDOW,
+            PlannedSanctionedWellsSummaryService.IS_MANAGED_PRESSURE_DRILLING_UTILIZED,
+            PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLBORE_STABILITY_CHALLENGES,
+            PlannedSanctionedWellsSummaryService.STABILITY_CHALLENGES_INFORMATION,
+            PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS_EXPECTED_TO_CROSS_FAULTS,
             PlannedSanctionedWellsSummaryService.EXPECTED_FAULTS,
-            PlannedSanctionedWellsSummaryService.ANY_WELLS_EXPECTED_TO_CROSS_FAULTS,
             PlannedSanctionedWellsSummaryService.ANY_EXPECTED_LOSSES_FROM_DRILLING,
+            PlannedSanctionedWellsSummaryService.WHY_LOSSES_EXPECTED,
             PlannedSanctionedWellsSummaryService.ANY_EXPECTED_DRILLING_CHALLENGES,
+            PlannedSanctionedWellsSummaryService.DRILLING_CHALLENGES_MITIGATIONS,
             PlannedSanctionedWellsSummaryService.STIMULATION_TYPE_REQUIRED,
+            PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS_REQUIRING_STIMULATION,
             PlannedSanctionedWellsSummaryService.IS_EXPECTING_FORMATION_DAMAGE,
+            PlannedSanctionedWellsSummaryService.EXPECTED_FORMATION_DAMAGE,
             PlannedSanctionedWellsSummaryService.ANY_HEAVY_OIL,
             PlannedSanctionedWellsSummaryService.ANY_SPECIALISED_DRILLING_EQUIPMENT_REQUIRED,
-            PlannedSanctionedWellsSummaryService.ANY_MULTILATERAL_WELLS
+            PlannedSanctionedWellsSummaryService.SPECIALISED_DRILLING_EQUIPMENT_REQUIRED,
+            PlannedSanctionedWellsSummaryService.NUMBER_OF_MULTILATERAL_WELLS
         );
 
     assertThat(summaryDataView)
@@ -96,55 +103,7 @@ class PlannedSanctionedWellsSummaryServiceTest {
   }
 
   @Test
-  void getWellTypesSummaryCard_noExisting() {
-    when(plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.empty());
-
-    var summaryCard = plannedSanctionedWellsSummaryService.getWellTypesSummaryCard(submissionDetail);
-    assertThat(summaryCard)
-        .extracting(
-            SummaryCard::summaryCardType,
-            SummaryCard::displayName
-        ).containsExactly(
-            SummaryCardType.TABLE_FIXED_WIDTH_SUMMARY,
-            PlannedSanctionedWellsSummaryService.PLANNED_SANCTIONED_WELLS_WELL_TYPES
-        );
-
-    var expectedTableHeaderRow = new SummaryTableRow(List.of(
-        new SummaryTableValue(""),
-        new SummaryTableValue(PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS)
-    ));
-    var summaryTableView = ((SummaryTableView) summaryCard.summaryData());
-    assertThat(summaryTableView.tableRows())
-        .containsExactly(expectedTableHeaderRow);
-  }
-
-  @Test
-  void getWellTypesSummaryCard_existing_assertCardProperties() {
-    when(plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.of(plannedSanctionedWells));
-
-    var summaryCard = plannedSanctionedWellsSummaryService.getWellTypesSummaryCard(submissionDetail);
-    assertThat(summaryCard)
-        .extracting(
-            SummaryCard::summaryCardType,
-            SummaryCard::displayName
-        ).containsExactly(
-            SummaryCardType.TABLE_FIXED_WIDTH_SUMMARY,
-            PlannedSanctionedWellsSummaryService.PLANNED_SANCTIONED_WELLS_WELL_TYPES
-        );
-
-    var expectedTableHeaderRow = new SummaryTableRow(List.of(
-        new SummaryTableValue(""),
-        new SummaryTableValue(PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS)
-    ));
-    var summaryTableView = ((SummaryTableView) summaryCard.summaryData());
-    assertThat(summaryTableView.tableRows())
-        .contains(expectedTableHeaderRow);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsCard_existingData_allTextFieldsSetNo() {
+  void getPlannedSanctionedWellsCard_existingData_allSetNo() {
     var plannedSanctionedWell = getPlannedSanctionedWells_withNoWellNumbers();
 
     when(plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail))
@@ -165,7 +124,8 @@ class PlannedSanctionedWellsSummaryServiceTest {
         .extracting(
             SummaryKeyValue::key,
             SummaryKeyValue::value)
-        .containsExactly(Tuple.tuple(PlannedSanctionedWellsSummaryService.TOTAL_CAPEX,
+        .containsExactly(
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.TOTAL_CAPEX,
                 "£%s million".formatted(plannedSanctionedWell.getTotalCapex())),
             Tuple.tuple(PlannedSanctionedWellsSummaryService.TOTAL_NUMBER_OF_PLANNED_SANCTIONED_WELLS,
                 plannedSanctionedWell.getNumberOfPlannedSanctionedWells().toString()),
@@ -175,20 +135,16 @@ class PlannedSanctionedWellsSummaryServiceTest {
                 plannedSanctionedWell.getNumberOfProducers().toString()),
             Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_MONITORS,
                 plannedSanctionedWell.getNumberOfMonitors().toString()),
-            Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_HORIZONTAL_WELLS,
-                BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getAnyHorizontalWells())),
-            Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_HIGH_PRESSURE_TEMPERATURE_WELLS,
-                BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getAnyHighPressureTemperatureWells())),
-            Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_WELLS_WITHIN_NARROW_OR_TIGHT_PPFG_WINDOW,
-                BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getAnyWellsWithinNarrowOrTightPpfgWindow())),
-            Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_WELLBORE_STABILITY_CHALLENGES,
-                BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getAnyWellboreStabilityChallenges())),
-            Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_WELLS_EXPECTED_TO_CROSS_FAULTS,
-                BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getAnyWellsExpectedToCrossFaults())),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_HORIZONTAL_WELLS, "0"),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_HORIZONTAL_WELLS_WITH_ERD, "0"),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_HIGH_PRESSURE_TEMPERATURE_WELLS, "0"),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS_WITHIN_NARROW_OR_TIGHT_PPFG_WINDOW, "0"),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLBORE_STABILITY_CHALLENGES, "0"),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS_EXPECTED_TO_CROSS_FAULTS, "0"),
             Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_EXPECTED_LOSSES_FROM_DRILLING,
-                BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getAnyExpectedLossesFromDrilling())),
+                BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getIsExpectingFormationDamage())),
             Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_EXPECTED_DRILLING_CHALLENGES,
-                BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getAnyExpectedDrillingChallenges())),
+                BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getIsExpectingFormationDamage())),
             Tuple.tuple(PlannedSanctionedWellsSummaryService.STIMULATION_TYPE_REQUIRED,
                 plannedSanctionedWell.getStimulationTypeRequired().getDisplayName()),
             Tuple.tuple(PlannedSanctionedWellsSummaryService.IS_EXPECTING_FORMATION_DAMAGE,
@@ -197,432 +153,93 @@ class PlannedSanctionedWellsSummaryServiceTest {
                 BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getAnyHeavyOil())),
             Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_SPECIALISED_DRILLING_EQUIPMENT_REQUIRED,
                 BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getAnySpecialisedDrillingEquipmentRequired())),
-            Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_MULTILATERAL_WELLS,
-                BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getAnyMultilateralWells()))
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_MULTILATERAL_WELLS, "0")
         );
   }
 
   @Test
-  void getPlannedSanctionedWellsCard_existingData_noStimulationTypeSet() {
-    var plannedSanctionedWell = getPlannedSanctionedWells_withNoWellNumbers();
-    plannedSanctionedWell.setStimulationTypeRequired(null);
+  void getPlannedSanctionedWellsCard_existingData_allSetYes() {
+    var plannedSanctionedWell = getPlannedSanctionedWells_withWellNumbers();
+
+    var faultOne = new PswFaults();
+    faultOne.setExpectedFault(Fault.OVERBURDEN);
+
+    var faultTwo = new PswFaults();
+    faultTwo.setExpectedFault(Fault.RESERVOIR);
+
+    var expectedFaultsAsString = "%s, %s".formatted(Fault.OVERBURDEN.getDisplayName(), Fault.RESERVOIR.getDisplayName());
 
     when(plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(plannedSanctionedWell));
+    when(pswFaultRepository.findAllByPlannedSanctionedWells(plannedSanctionedWell))
+        .thenReturn(List.of(faultOne, faultTwo));
 
     var summaryCard = plannedSanctionedWellsSummaryService.getPlannedSanctionedWellsCard(submissionDetail);
+    assertThat(summaryCard)
+        .extracting(
+            SummaryCard::summaryCardType,
+            SummaryCard::displayName
+        ).containsExactly(
+            SummaryCardType.SIMPLE_SUMMARY,
+            PlannedSanctionedWellsSummaryService.PLANNED_SANCTIONED_WELLS
+        );
+
     var summaryDataView = ((SummaryDataView) summaryCard.summaryData()).keyValues();
     assertThat(summaryDataView)
         .extracting(
             SummaryKeyValue::key,
             SummaryKeyValue::value)
-        .contains(Tuple.tuple(
-            PlannedSanctionedWellsSummaryService.STIMULATION_TYPE_REQUIRED,
-            ""
-        ));
-  }
-
-  private void testSummary_hasTextFields_andHasWellTypes_andDoesNotHaveKeys(
-      List<Tuple> expectedTextFields, List<Tuple> expectedWellTypes, List<String> keysNotInSummaries) {
-
-    when(plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.of(plannedSanctionedWells));
-
-    // check text summary card
-    var textFieldsSummaryCard = plannedSanctionedWellsSummaryService.getPlannedSanctionedWellsCard(submissionDetail);
-
-    var textFieldsSummaryDataView = ((SummaryDataView) textFieldsSummaryCard.summaryData()).keyValues();
-    assertThat(textFieldsSummaryDataView)
-        .extracting(
-            SummaryKeyValue::key,
-            SummaryKeyValue::value)
-        .containsAll(expectedTextFields);
-
-    if (!keysNotInSummaries.isEmpty()) {
-      assertThat(textFieldsSummaryDataView)
-          .extracting(SummaryKeyValue::key)
-          .doesNotContainAnyElementsOf(keysNotInSummaries);
-    }
-
-    var expectedRows = expectedWellTypes.stream()
-        .map(Tuple::toList)
-        .map(objects -> objects.stream()
-            .map(SummaryTableValue::new)
-            .toList())
-        .map(SummaryTableRow::new)
-        .toList();
-
-    // check well types summary card
-    var wellTypesSummaryCard = plannedSanctionedWellsSummaryService.getWellTypesSummaryCard(submissionDetail);
-    var wellTypesSummaryTableView = ((SummaryTableView) wellTypesSummaryCard.summaryData());
-
-    if (!expectedRows.isEmpty()) {
-      assertThat(wellTypesSummaryTableView.tableRows())
-          .containsAnyElementsOf(expectedRows);
-    }
-
-    if (!keysNotInSummaries.isEmpty()) {
-      var allValues = wellTypesSummaryTableView.tableRows()
-          .stream()
-          .map(SummaryTableRow::rowValues)
-          .flatMap(List::stream)
-          .map(SummaryTableValue::value)
-          .toList();
-
-      assertThat(allValues).isNotEmpty();
-      assertThat(allValues).doesNotContainAnyElementsOf(keysNotInSummaries);
-    }
-
-  }
-
-  private void testSummary_hasTextFields_andHasWellTypes(List<Tuple> expectedTextFields,
-                                                         List<Tuple> expectedWellTypes) {
-    testSummary_hasTextFields_andHasWellTypes_andDoesNotHaveKeys(
-        expectedTextFields, expectedWellTypes, Collections.emptyList());
-  }
-
-  private void testSummary_hasTextFields_andDoesNotHaveKeys(
-      List<Tuple> expectedTextFields, List<String> notPresentInSummaries) {
-    testSummary_hasTextFields_andHasWellTypes_andDoesNotHaveKeys(
-        expectedTextFields, Collections.emptyList(), notPresentInSummaries);
-  }
-
-  private void testSummary_hasTextFields(List<Tuple> expectedTextFields) {
-    testSummary_hasTextFields_andHasWellTypes_andDoesNotHaveKeys(
-        expectedTextFields, Collections.emptyList(), Collections.emptyList());
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_horizontalWellsNo() {
-    plannedSanctionedWells.setAnyHorizontalWells(false);
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_HORIZONTAL_WELLS,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyHorizontalWells()))
-    );
-
-    var notPresentKeys = List.of(
-        PlannedSanctionedWellsSummaryService.NUMBER_OF_HORIZONTAL_WELLS,
-        PlannedSanctionedWellsSummaryService.NUMBER_OF_HORIZONTAL_WELLS_WITH_ERD
-    );
-
-    testSummary_hasTextFields_andDoesNotHaveKeys(expectedTextFields, notPresentKeys);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_horizontalWellsYes() {
-    plannedSanctionedWells.setAnyHorizontalWells(true);
-    plannedSanctionedWells.setNumberOfHorizontalWells(BigDecimal.valueOf(10));
-    plannedSanctionedWells.setNumberOfHorizontalWellsWithErd(BigDecimal.valueOf(0));
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_HORIZONTAL_WELLS,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyHorizontalWells()))
-    );
-
-    var expectedWellTypes = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_HORIZONTAL_WELLS,
-            plannedSanctionedWells.getNumberOfHorizontalWells().toString()),
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_HORIZONTAL_WELLS_WITH_ERD,
-            plannedSanctionedWells.getNumberOfHorizontalWellsWithErd().toString())
-    );
-
-    testSummary_hasTextFields_andHasWellTypes(expectedTextFields, expectedWellTypes);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_highPressureWellsYes() {
-    plannedSanctionedWells.setAnyHighPressureTemperatureWells(true);
-    plannedSanctionedWells.setNumberOfHighPressureTemperatureWells(BigDecimal.valueOf(10));
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_HIGH_PRESSURE_TEMPERATURE_WELLS,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyHighPressureTemperatureWells()))
-    );
-
-    var expectedWellTypes = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_HIGH_PRESSURE_TEMPERATURE_WELLS,
-            plannedSanctionedWells.getNumberOfHighPressureTemperatureWells().toString())
-    );
-
-    testSummary_hasTextFields_andHasWellTypes(expectedTextFields, expectedWellTypes);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_highPressureWellsNo() {
-    plannedSanctionedWells.setAnyHighPressureTemperatureWells(false);
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_HIGH_PRESSURE_TEMPERATURE_WELLS,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyHighPressureTemperatureWells()))
-    );
-
-    var notPresentKeys = List.of(
-        PlannedSanctionedWellsSummaryService.NUMBER_OF_HIGH_PRESSURE_TEMPERATURE_WELLS
-    );
-
-    testSummary_hasTextFields_andDoesNotHaveKeys(expectedTextFields, notPresentKeys);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_WellsNarrowOrTightPpfgYes() {
-    plannedSanctionedWells.setAnyWellsWithinNarrowOrTightPpfgWindow(true);
-    plannedSanctionedWells.setNumberOfWellsWithinNarrowOrTightPpfgWindow(BigDecimal.valueOf(10));
-    plannedSanctionedWells.setIsManagedPressureDrillingUtilized(true);
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_WELLS_WITHIN_NARROW_OR_TIGHT_PPFG_WINDOW,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyWellsWithinNarrowOrTightPpfgWindow())),
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.IS_MANAGED_PRESSURE_DRILLING_UTILIZED,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getIsManagedPressureDrillingUtilized()))
-    );
-
-    var expectedWellTypes = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS_WITHIN_NARROW_OR_TIGHT_PPFG_WINDOW,
-            plannedSanctionedWells.getNumberOfWellsWithinNarrowOrTightPpfgWindow().toString())
-    );
-
-    testSummary_hasTextFields_andHasWellTypes(expectedTextFields, expectedWellTypes);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_WellsNarrowOrTightPpfgNo() {
-    plannedSanctionedWells.setAnyHorizontalWells(false);
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_HORIZONTAL_WELLS,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyHorizontalWells()))
-    );
-
-    var notPresentKeys = List.of(
-        PlannedSanctionedWellsSummaryService.NUMBER_OF_HORIZONTAL_WELLS,
-        PlannedSanctionedWellsSummaryService.NUMBER_OF_HORIZONTAL_WELLS_WITH_ERD
-    );
-
-    testSummary_hasTextFields_andDoesNotHaveKeys(expectedTextFields, notPresentKeys);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_WellboreStabilityChallengesYes() {
-    plannedSanctionedWells.setAnyWellboreStabilityChallenges(true);
-    plannedSanctionedWells.setNumberOfWellboreStabilityChallenges(BigDecimal.valueOf(10));
-    plannedSanctionedWells.setStabilityChallengesInformation("Information");
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_WELLBORE_STABILITY_CHALLENGES,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyWellboreStabilityChallenges())),
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.STABILITY_CHALLENGES_INFORMATION,
-            plannedSanctionedWells.getStabilityChallengesInformation())
-    );
-
-    var expectedWellTypes = List.of(
-        Tuple.tuple(
-            PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLBORE_STABILITY_CHALLENGES,
-            plannedSanctionedWells.getNumberOfWellboreStabilityChallenges()
-        )
-    );
-
-    testSummary_hasTextFields_andHasWellTypes(expectedTextFields, expectedWellTypes);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_WellboreStabilityChallengesNo() {
-    plannedSanctionedWells.setAnyWellboreStabilityChallenges(false);
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_WELLBORE_STABILITY_CHALLENGES,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyWellboreStabilityChallenges()))
-    );
-
-    var notPresentKeys = List.of(
-        PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLBORE_STABILITY_CHALLENGES,
-        PlannedSanctionedWellsSummaryService.STABILITY_CHALLENGES_INFORMATION
-    );
-
-    testSummary_hasTextFields_andDoesNotHaveKeys(expectedTextFields, notPresentKeys);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_WellsExpectedToCrossFaultsYes() {
-    plannedSanctionedWells.setAnyWellsExpectedToCrossFaults(true);
-    plannedSanctionedWells.setNumberOfWellsExpectedToCrossFaults(BigDecimal.valueOf(10));
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_WELLS_EXPECTED_TO_CROSS_FAULTS,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyWellsExpectedToCrossFaults()))
-    );
-
-    var expectedWellTypes = List.of(
-        Tuple.tuple(
-            PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS_EXPECTED_TO_CROSS_FAULTS,
-            plannedSanctionedWells.getNumberOfWellsExpectedToCrossFaults()
-        )
-    );
-
-    testSummary_hasTextFields_andHasWellTypes(expectedTextFields, expectedWellTypes);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_WellsExpectedToCrossFaultsNo() {
-    plannedSanctionedWells.setAnyWellsExpectedToCrossFaults(false);
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_WELLS_EXPECTED_TO_CROSS_FAULTS,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyWellsExpectedToCrossFaults()))
-    );
-
-    var notPresentKeys = List.of(
-        PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS_EXPECTED_TO_CROSS_FAULTS
-    );
-
-    testSummary_hasTextFields_andDoesNotHaveKeys(expectedTextFields, notPresentKeys);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_expectedLossesFromDrillingYes() {
-    plannedSanctionedWells.setAnyExpectedLossesFromDrilling(true);
-    plannedSanctionedWells.setWhyLossesExpected("The reasons to expect losses");
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_EXPECTED_LOSSES_FROM_DRILLING,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyExpectedLossesFromDrilling())),
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.WHY_LOSSES_EXPECTED,
-            plannedSanctionedWells.getWhyLossesExpected())
-    );
-
-    testSummary_hasTextFields(expectedTextFields);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_expectedLossesFromDrillingNo() {
-    plannedSanctionedWells.setAnyExpectedLossesFromDrilling(false);
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_EXPECTED_LOSSES_FROM_DRILLING,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyExpectedLossesFromDrilling()))
-    );
-
-    var notPresentKeys = List.of(
-        PlannedSanctionedWellsSummaryService.WHY_LOSSES_EXPECTED
-    );
-
-    testSummary_hasTextFields_andDoesNotHaveKeys(expectedTextFields, notPresentKeys);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_drillingChallengesYes() {
-    plannedSanctionedWells.setAnyExpectedDrillingChallenges(true);
-    plannedSanctionedWells.setDrillingChallengesMitigations("The mitigations");
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_EXPECTED_DRILLING_CHALLENGES,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyExpectedDrillingChallenges())),
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.DRILLING_CHALLENGES_MITIGATIONS,
-            plannedSanctionedWells.getDrillingChallengesMitigations())
-    );
-
-    testSummary_hasTextFields(expectedTextFields);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_drillingChallengesNo() {
-    plannedSanctionedWells.setAnyExpectedDrillingChallenges(false);
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_EXPECTED_DRILLING_CHALLENGES,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyExpectedDrillingChallenges()))
-    );
-
-    var notPresentKeys = List.of(
-        PlannedSanctionedWellsSummaryService.DRILLING_CHALLENGES_MITIGATIONS
-    );
-
-    testSummary_hasTextFields_andDoesNotHaveKeys(expectedTextFields, notPresentKeys);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_stimulationTypeRequiredYes() {
-    plannedSanctionedWells.setStimulationTypeRequired(StimulationType.HYDRAULIC_FRACTURING);
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.STIMULATION_TYPE_REQUIRED,
-            plannedSanctionedWells.getStimulationTypeRequired().getDisplayName())
-    );
-
-    testSummary_hasTextFields(expectedTextFields);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_expectingFormationDamageYes() {
-    plannedSanctionedWells.setExpectingFormationDamage(true);
-    plannedSanctionedWells.setExpectedFormationDamage("The damage expected");
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.IS_EXPECTING_FORMATION_DAMAGE,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getIsExpectingFormationDamage())),
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.EXPECTED_FORMATION_DAMAGE,
-            plannedSanctionedWells.getExpectedFormationDamage())
-    );
-
-    testSummary_hasTextFields(expectedTextFields);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_expectingFormationDamageNo() {
-    plannedSanctionedWells.setExpectingFormationDamage(false);
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.IS_EXPECTING_FORMATION_DAMAGE,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getIsExpectingFormationDamage()))
-    );
-
-    var notPresentKeys = List.of(PlannedSanctionedWellsSummaryService.EXPECTED_FORMATION_DAMAGE);
-
-    testSummary_hasTextFields_andDoesNotHaveKeys(expectedTextFields, notPresentKeys);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_heavyOil() {
-    plannedSanctionedWells.setAnyHeavyOil(false);
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_HEAVY_OIL,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyHeavyOil()))
-    );
-
-    testSummary_hasTextFields(expectedTextFields);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_multilateralWellsYes() {
-    plannedSanctionedWells.setAnyMultilateralWells(true);
-    plannedSanctionedWells.setNumberOfMultilateralWells(BigDecimal.valueOf(5));
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_MULTILATERAL_WELLS,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyMultilateralWells()))
-    );
-
-    var expectedWellTypes = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_MULTILATERAL_WELLS,
-            plannedSanctionedWells.getNumberOfMultilateralWells())
-    );
-
-    testSummary_hasTextFields_andHasWellTypes(expectedTextFields, expectedWellTypes);
-  }
-
-  @Test
-  void getPlannedSanctionedWellsSummaryCards_existingData_multilateralWellsNo() {
-    plannedSanctionedWells.setAnyMultilateralWells(false);
-
-    var expectedTextFields = List.of(
-        Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_MULTILATERAL_WELLS,
-            BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyMultilateralWells()))
-    );
-
-    var notPresentKeys = List.of(PlannedSanctionedWellsSummaryService.NUMBER_OF_MULTILATERAL_WELLS);
-
-    testSummary_hasTextFields_andDoesNotHaveKeys(expectedTextFields, notPresentKeys);
+        .containsExactly(
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.TOTAL_CAPEX,
+                "£%s million".formatted(plannedSanctionedWell.getTotalCapex())),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.TOTAL_NUMBER_OF_PLANNED_SANCTIONED_WELLS,
+                plannedSanctionedWell.getNumberOfPlannedSanctionedWells().toString()),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_INJECTORS,
+                plannedSanctionedWell.getNumberOfInjectors().toString()),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_PRODUCERS,
+                plannedSanctionedWell.getNumberOfProducers().toString()),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_MONITORS,
+                plannedSanctionedWell.getNumberOfMonitors().toString()),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_HORIZONTAL_WELLS,
+                plannedSanctionedWell.getNumberOfHorizontalWells().toString()),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_HORIZONTAL_WELLS_WITH_ERD,
+                plannedSanctionedWell.getNumberOfHorizontalWellsWithErd().toString()),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_HIGH_PRESSURE_TEMPERATURE_WELLS,
+                plannedSanctionedWell.getNumberOfHighPressureTemperatureWells().toString()),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS_WITHIN_NARROW_OR_TIGHT_PPFG_WINDOW,
+                plannedSanctionedWell.getNumberOfWellsWithinNarrowOrTightPpfgWindow().toString()),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.IS_MANAGED_PRESSURE_DRILLING_UTILIZED,
+                BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getIsManagedPressureDrillingUtilized())),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLBORE_STABILITY_CHALLENGES,
+                plannedSanctionedWell.getNumberOfWellboreStabilityChallenges().toString()),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.STABILITY_CHALLENGES_INFORMATION,
+                plannedSanctionedWell.getStabilityChallengesInformation()),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_WELLS_EXPECTED_TO_CROSS_FAULTS,
+                plannedSanctionedWell.getNumberOfWellsExpectedToCrossFaults().toString()),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.EXPECTED_FAULTS, expectedFaultsAsString),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_EXPECTED_LOSSES_FROM_DRILLING,
+                BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getIsExpectingFormationDamage())),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.WHY_LOSSES_EXPECTED,
+                plannedSanctionedWell.getWhyLossesExpected()),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_EXPECTED_DRILLING_CHALLENGES,
+                BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getIsExpectingFormationDamage())),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.DRILLING_CHALLENGES_MITIGATIONS,
+                plannedSanctionedWell.getDrillingChallengesMitigations()),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.STIMULATION_TYPE_REQUIRED,
+                plannedSanctionedWell.getStimulationTypeRequired().getDisplayName()),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.IS_EXPECTING_FORMATION_DAMAGE,
+                BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getIsExpectingFormationDamage())),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.EXPECTED_FORMATION_DAMAGE,
+                plannedSanctionedWell.getExpectedFormationDamage()),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_HEAVY_OIL,
+                BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getAnyHeavyOil())),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.ANY_SPECIALISED_DRILLING_EQUIPMENT_REQUIRED,
+                BooleanUtil.yesNoFromBoolean(plannedSanctionedWell.getAnySpecialisedDrillingEquipmentRequired())),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.SPECIALISED_DRILLING_EQUIPMENT_REQUIRED,
+                plannedSanctionedWell.getSpecialisedDrillingEquipmentRequired()),
+            Tuple.tuple(PlannedSanctionedWellsSummaryService.NUMBER_OF_MULTILATERAL_WELLS,
+                plannedSanctionedWell.getNumberOfMultilateralWells().toString())
+        );
   }
 
   @Test
@@ -860,6 +477,55 @@ class PlannedSanctionedWellsSummaryServiceTest {
     plannedSanctionedWell.setAnyHeavyOil(false);
     plannedSanctionedWell.setAnySpecialisedDrillingEquipmentRequired(false);
     plannedSanctionedWell.setAnyMultilateralWells(false);
+    return plannedSanctionedWell;
+  }
+
+  private static PlannedSanctionedWells getPlannedSanctionedWells_withWellNumbers() {
+    var plannedSanctionedWell = new PlannedSanctionedWells();
+    plannedSanctionedWell.setTotalCapex(BigDecimal.valueOf(10));
+    plannedSanctionedWell.setNumberOfPlannedSanctionedWells(BigDecimal.valueOf(10));
+    plannedSanctionedWell.setNumberOfInjectors(BigDecimal.valueOf(5));
+    plannedSanctionedWell.setNumberOfProducers(BigDecimal.valueOf(3));
+    plannedSanctionedWell.setNumberOfMonitors(BigDecimal.valueOf(2));
+
+    plannedSanctionedWell.setAnyHorizontalWells(true);
+    plannedSanctionedWell.setNumberOfHorizontalWells(BigDecimal.valueOf(1));
+    plannedSanctionedWell.setNumberOfHorizontalWellsWithErd(BigDecimal.valueOf(1));
+
+    plannedSanctionedWell.setAnyHighPressureTemperatureWells(true);
+    plannedSanctionedWell.setNumberOfHighPressureTemperatureWells(BigDecimal.valueOf(2));
+
+    plannedSanctionedWell.setAnyWellsWithinNarrowOrTightPpfgWindow(true);
+    plannedSanctionedWell.setNumberOfWellsWithinNarrowOrTightPpfgWindow(BigDecimal.valueOf(1));
+    plannedSanctionedWell.setIsManagedPressureDrillingUtilized(true);
+
+    plannedSanctionedWell.setAnyWellboreStabilityChallenges(true);
+    plannedSanctionedWell.setNumberOfWellboreStabilityChallenges(BigDecimal.valueOf(5));
+    plannedSanctionedWell.setStabilityChallengesInformation("stability challenges information");
+
+    plannedSanctionedWell.setAnyWellsExpectedToCrossFaults(true);
+    plannedSanctionedWell.setNumberOfWellsExpectedToCrossFaults(BigDecimal.valueOf(6));
+
+    plannedSanctionedWell.setAnyExpectedLossesFromDrilling(true);
+    plannedSanctionedWell.setWhyLossesExpected("just because");
+
+    plannedSanctionedWell.setAnyExpectedDrillingChallenges(true);
+    plannedSanctionedWell.setDrillingChallengesMitigations("mitigate them");
+
+    plannedSanctionedWell.setStimulationTypeRequired(StimulationType.NO_WELL_STIMULATION);
+    plannedSanctionedWell.setNumberOfWellsRequiringStimulation(BigDecimal.valueOf(4));
+
+    plannedSanctionedWell.setExpectingFormationDamage(true);
+    plannedSanctionedWell.setExpectedFormationDamage("so much damage!");
+
+    plannedSanctionedWell.setAnyHeavyOil(true);
+
+    plannedSanctionedWell.setAnySpecialisedDrillingEquipmentRequired(true);
+    plannedSanctionedWell.setSpecialisedDrillingEquipmentRequired("special 💫");
+
+    plannedSanctionedWell.setAnyMultilateralWells(true);
+    plannedSanctionedWell.setNumberOfMultilateralWells(BigDecimal.ONE);
+
     return plannedSanctionedWell;
   }
 }

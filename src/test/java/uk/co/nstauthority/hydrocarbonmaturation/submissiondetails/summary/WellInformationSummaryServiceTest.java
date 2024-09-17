@@ -55,7 +55,6 @@ class WellInformationSummaryServiceTest {
     submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
 
     var plannedSanctionedWellsCard = SummaryCard.emptySummaryCard();
-    var wellTypesCard = SummaryCard.emptySummaryCard();
     var holeCompletionTypesCard = SummaryCard.emptySummaryCard();
     var plannedCompletionTypesCard = SummaryCard.emptySummaryCard();
     var artificialLiftMechanismCard = SummaryCard.emptySummaryCard();
@@ -63,7 +62,6 @@ class WellInformationSummaryServiceTest {
 
     var expectedCards = List.of(
         plannedSanctionedWellsCard,
-        wellTypesCard,
         holeCompletionTypesCard,
         plannedCompletionTypesCard,
         artificialLiftMechanismCard,
@@ -74,8 +72,6 @@ class WellInformationSummaryServiceTest {
 
     when(plannedSanctionedWellsSummaryService.getPlannedSanctionedWellsCard(submissionDetail))
         .thenReturn(plannedSanctionedWellsCard);
-    when(plannedSanctionedWellsSummaryService.getWellTypesSummaryCard(submissionDetail))
-        .thenReturn(wellTypesCard);
     when(plannedSanctionedWellsSummaryService.getHoleCompletionTypesSummaryCard(submissionDetail))
         .thenReturn(holeCompletionTypesCard);
     when(plannedSanctionedWellsSummaryService.getPlannedCompletionTypesSummaryCard(submissionDetail))

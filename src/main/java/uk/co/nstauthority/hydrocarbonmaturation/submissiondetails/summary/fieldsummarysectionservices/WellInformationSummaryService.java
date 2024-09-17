@@ -47,7 +47,6 @@ public class WellInformationSummaryService implements SummarySectionService<Subm
 
     // add sanctioned
     summaryCards.add(plannedSanctionedWellsSummaryService.getPlannedSanctionedWellsCard(submissionDetail));
-    summaryCards.add(plannedSanctionedWellsSummaryService.getWellTypesSummaryCard(submissionDetail));
     summaryCards.add(plannedSanctionedWellsSummaryService.getHoleCompletionTypesSummaryCard(submissionDetail));
     summaryCards.add(plannedSanctionedWellsSummaryService.getPlannedCompletionTypesSummaryCard(submissionDetail));
     summaryCards.add(plannedSanctionedWellsSummaryService.getArtificialLiftMechanismsSummaryCard(submissionDetail));

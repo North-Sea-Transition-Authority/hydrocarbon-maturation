@@ -1,8 +1,10 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedsanctionedwells;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +18,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.util.StringUtil;
 @Service
 public class PlannedSanctionedWellsSummaryService {
   public static final String PLANNED_SANCTIONED_WELLS = "Planned sanctioned wells";
-  public static final String PLANNED_SANCTIONED_WELLS_WELL_TYPES = "Planned sanctioned wells - number of wells";
   public static final String HOLE_COMPLETION_TYPES = "Planned sanctioned wells - hole completion types";
   public static final String PLANNED_COMPLETION_TYPE = "Planned sanctioned wells - planned completion types";
   public static final String ARTIFICIAL_LIFT_MECHANISMS = "Planned sanctioned wells - artificial lift mechanisms";
@@ -27,29 +28,22 @@ public class PlannedSanctionedWellsSummaryService {
   public static final String NUMBER_OF_INJECTORS = "Number of injectors";
   public static final String NUMBER_OF_PRODUCERS = "Number of producers";
   public static final String NUMBER_OF_MONITORS = "Number of monitors";
-  public static final String ANY_HORIZONTAL_WELLS = "Are there any horizontal wells?";
-  public static final String NUMBER_OF_HORIZONTAL_WELLS = "Horizontal wells";
-  public static final String NUMBER_OF_HORIZONTAL_WELLS_WITH_ERD = "Horizontal wells with extended reach drilling";
-  public static final String ANY_HIGH_PRESSURE_TEMPERATURE_WELLS = "Are there any high pressure or high temperature wells?";
-  public static final String NUMBER_OF_HIGH_PRESSURE_TEMPERATURE_WELLS = "High pressure or high temperature wells";
-  public static final String ANY_WELLS_WITHIN_NARROW_OR_TIGHT_PPFG_WINDOW = "Are any wells within a narrow or tight pore " +
-      "pressure fracture gradient (PPFG) window?";
-  public static final String NUMBER_OF_WELLS_WITHIN_NARROW_OR_TIGHT_PPFG_WINDOW = "Wells within a narrow or tight pore " +
-      "pressure fracture gradient (PPFG) window";
+  public static final String NUMBER_OF_HORIZONTAL_WELLS = "Number of horizontal wells";
+  public static final String NUMBER_OF_HORIZONTAL_WELLS_WITH_ERD = "Number of horizontal wells with extended reach drilling";
+  public static final String NUMBER_OF_HIGH_PRESSURE_TEMPERATURE_WELLS = "Number of high pressure or high temperature wells";
+  public static final String NUMBER_OF_WELLS_WITHIN_NARROW_OR_TIGHT_PPFG_WINDOW = "Number of wells within a narrow or" +
+      " tight pore pressure fracture gradient (PPFG) window";
   public static final String IS_MANAGED_PRESSURE_DRILLING_UTILIZED = "Is managed pressure drilling (MPD) utilised?";
-  public static final String ANY_WELLBORE_STABILITY_CHALLENGES = "Are there wellbore stability challenges with any of the " +
-      "wells?";
-  public static final String NUMBER_OF_WELLBORE_STABILITY_CHALLENGES = "Wells with wellbore stability challenges";
+  public static final String NUMBER_OF_WELLBORE_STABILITY_CHALLENGES = "Number of wells with wellbore stability challenges";
   public static final String STABILITY_CHALLENGES_INFORMATION = "Provide information on stability challenges";
-  public static final String ANY_WELLS_EXPECTED_TO_CROSS_FAULTS = "Are any of the wells expected to cross any faults?";
-  public static final String NUMBER_OF_WELLS_EXPECTED_TO_CROSS_FAULTS = "Wells expected to cross a fault";
+  public static final String NUMBER_OF_WELLS_EXPECTED_TO_CROSS_FAULTS = "Number of wells expected to cross a fault";
   public static final String EXPECTED_FAULTS = "Where are faults expected?";
   public static final String ANY_EXPECTED_LOSSES_FROM_DRILLING = "Do you expect to incur losses in drilling these wells?";
   public static final String WHY_LOSSES_EXPECTED = "Why are losses expected?";
   public static final String ANY_EXPECTED_DRILLING_CHALLENGES = "Do you expect to encounter drilling challenges?";
   public static final String DRILLING_CHALLENGES_MITIGATIONS = "What mitigations do you have in place?";
   public static final String STIMULATION_TYPE_REQUIRED = "What type of well stimulation is required?";
-  public static final String NUMBER_OF_WELLS_REQUIRING_STIMULATION = "Wells requiring stimulation";
+  public static final String NUMBER_OF_WELLS_REQUIRING_STIMULATION = "Number of wells requiring stimulation";
   public static final String IS_EXPECTING_FORMATION_DAMAGE = "Do you envisage any formation damage?";
   public static final String EXPECTED_FORMATION_DAMAGE = "Describe the type of formation damage expected";
   public static final String ANY_HEAVY_OIL = "Is there heavy oil with an API below 20 degrees?";
@@ -57,7 +51,6 @@ public class PlannedSanctionedWellsSummaryService {
       " required?";
   public static final String SPECIALISED_DRILLING_EQUIPMENT_REQUIRED = "What specialised drilling equipment or services" +
       " are required?";
-  public static final String ANY_MULTILATERAL_WELLS = "Are there any multilateral wells?";
   public static final String NUMBER_OF_MULTILATERAL_WELLS = "Number of multilateral wells";
 
   private final PlannedSanctionedWellsRepository plannedSanctionedWellsRepository;
@@ -90,29 +83,51 @@ public class PlannedSanctionedWellsSummaryService {
           summaryDataView.addKeyValue(NUMBER_OF_PRODUCERS, plannedSanctionedWells.getNumberOfProducers());
           summaryDataView.addKeyValue(NUMBER_OF_MONITORS, plannedSanctionedWells.getNumberOfMonitors());
 
+          var numberOfHorizontalWells = getNumberOfWells(
+              plannedSanctionedWells.getAnyHorizontalWells(),
+              plannedSanctionedWells.getNumberOfHorizontalWells()
+          );
+          summaryDataView.addKeyValue(NUMBER_OF_HORIZONTAL_WELLS, numberOfHorizontalWells);
 
-          summaryDataView.addKeyValue(ANY_HORIZONTAL_WELLS,
-              BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyHorizontalWells()));
+          var numberOfHorizontalWellsWithErd = getNumberOfWells(
+              plannedSanctionedWells.getAnyHorizontalWells(),
+              plannedSanctionedWells.getNumberOfHorizontalWellsWithErd()
+          );
+          summaryDataView.addKeyValue(NUMBER_OF_HORIZONTAL_WELLS_WITH_ERD, numberOfHorizontalWellsWithErd);
 
-          summaryDataView.addKeyValue(ANY_HIGH_PRESSURE_TEMPERATURE_WELLS,
-              BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyHighPressureTemperatureWells()));
+          var numberOfHighPressureTemperatureWells = getNumberOfWells(
+              plannedSanctionedWells.getAnyHighPressureTemperatureWells(),
+              plannedSanctionedWells.getNumberOfHighPressureTemperatureWells()
+          );
+          summaryDataView.addKeyValue(NUMBER_OF_HIGH_PRESSURE_TEMPERATURE_WELLS, numberOfHighPressureTemperatureWells);
 
-          summaryDataView.addKeyValue(ANY_WELLS_WITHIN_NARROW_OR_TIGHT_PPFG_WINDOW,
-              BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyWellsWithinNarrowOrTightPpfgWindow()));
+          var numberOfWellsWithinNarrowOrTightPpfgWindow = getNumberOfWells(
+              plannedSanctionedWells.getAnyWellsWithinNarrowOrTightPpfgWindow(),
+              plannedSanctionedWells.getNumberOfWellsWithinNarrowOrTightPpfgWindow()
+          );
+          summaryDataView.addKeyValue(NUMBER_OF_WELLS_WITHIN_NARROW_OR_TIGHT_PPFG_WINDOW,
+              numberOfWellsWithinNarrowOrTightPpfgWindow);
           if (BooleanUtils.isTrue(plannedSanctionedWells.getAnyWellsWithinNarrowOrTightPpfgWindow())) {
             summaryDataView.addKeyValue(IS_MANAGED_PRESSURE_DRILLING_UTILIZED,
                 plannedSanctionedWells.getIsManagedPressureDrillingUtilized());
           }
 
-          summaryDataView.addKeyValue(ANY_WELLBORE_STABILITY_CHALLENGES,
-              BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyWellboreStabilityChallenges()));
+          var numberOfWellsWithWellboreStabilityChallenges = getNumberOfWells(
+              plannedSanctionedWells.getAnyWellboreStabilityChallenges(),
+              plannedSanctionedWells.getNumberOfWellboreStabilityChallenges()
+          );
+          summaryDataView.addKeyValue(NUMBER_OF_WELLBORE_STABILITY_CHALLENGES,
+              numberOfWellsWithWellboreStabilityChallenges);
           if (BooleanUtils.isTrue(plannedSanctionedWells.getAnyWellboreStabilityChallenges())) {
             summaryDataView.addKeyValue(STABILITY_CHALLENGES_INFORMATION,
                 plannedSanctionedWells.getStabilityChallengesInformation());
           }
 
-          summaryDataView.addKeyValue(ANY_WELLS_EXPECTED_TO_CROSS_FAULTS,
-              BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyWellsExpectedToCrossFaults()));
+          var numberOfWellsExpectedToCrossFaults = getNumberOfWells(
+              plannedSanctionedWells.getAnyWellsExpectedToCrossFaults(),
+              plannedSanctionedWells.getNumberOfWellsExpectedToCrossFaults()
+          );
+          summaryDataView.addKeyValue(NUMBER_OF_WELLS_EXPECTED_TO_CROSS_FAULTS, numberOfWellsExpectedToCrossFaults);
           if (BooleanUtils.isTrue(plannedSanctionedWells.getAnyWellsExpectedToCrossFaults())) {
             summaryDataView.addKeyValue(EXPECTED_FAULTS, getExpectedFaultsAsString(plannedSanctionedWells));
           }
@@ -135,6 +150,11 @@ public class PlannedSanctionedWellsSummaryService {
               ? plannedSanctionedWells.getStimulationTypeRequired().getDisplayName()
               : "";
           summaryDataView.addKeyValue(STIMULATION_TYPE_REQUIRED, stimulatedTypeRequired);
+          if (StimulationType.MATRIX_ACIDISING.equals(plannedSanctionedWells.getStimulationTypeRequired())
+              || StimulationType.HYDRAULIC_FRACTURING.equals(plannedSanctionedWells.getStimulationTypeRequired())) {
+            summaryDataView.addKeyValue(NUMBER_OF_WELLS_REQUIRING_STIMULATION,
+                plannedSanctionedWells.getNumberOfWellsRequiringStimulation());
+          }
 
           summaryDataView.addKeyValue(IS_EXPECTING_FORMATION_DAMAGE,
               BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getIsExpectingFormationDamage()));
@@ -151,8 +171,11 @@ public class PlannedSanctionedWellsSummaryService {
                 plannedSanctionedWells.getSpecialisedDrillingEquipmentRequired());
           }
 
-          summaryDataView.addKeyValue(ANY_MULTILATERAL_WELLS,
-              BooleanUtil.yesNoFromBoolean(plannedSanctionedWells.getAnyMultilateralWells()));
+          var numberOfMultilateralWells = getNumberOfWells(
+              plannedSanctionedWells.getAnyMultilateralWells(),
+              plannedSanctionedWells.getNumberOfMultilateralWells()
+          );
+          summaryDataView.addKeyValue(NUMBER_OF_MULTILATERAL_WELLS, numberOfMultilateralWells);
         },
         () -> {
           summaryDataView.addKeyValue(TOTAL_CAPEX, "");
@@ -160,83 +183,46 @@ public class PlannedSanctionedWellsSummaryService {
           summaryDataView.addKeyValue(NUMBER_OF_INJECTORS, "");
           summaryDataView.addKeyValue(NUMBER_OF_PRODUCERS, "");
           summaryDataView.addKeyValue(NUMBER_OF_MONITORS, "");
-          summaryDataView.addKeyValue(ANY_HORIZONTAL_WELLS, "");
-          summaryDataView.addKeyValue(ANY_HIGH_PRESSURE_TEMPERATURE_WELLS, "");
-          summaryDataView.addKeyValue(ANY_WELLS_WITHIN_NARROW_OR_TIGHT_PPFG_WINDOW, "");
-          summaryDataView.addKeyValue(ANY_WELLBORE_STABILITY_CHALLENGES, "");
+          summaryDataView.addKeyValue(NUMBER_OF_HORIZONTAL_WELLS, "");
+          summaryDataView.addKeyValue(NUMBER_OF_HORIZONTAL_WELLS_WITH_ERD, "");
+          summaryDataView.addKeyValue(NUMBER_OF_HIGH_PRESSURE_TEMPERATURE_WELLS, "");
+          summaryDataView.addKeyValue(NUMBER_OF_WELLS_WITHIN_NARROW_OR_TIGHT_PPFG_WINDOW, "");
+          summaryDataView.addKeyValue(IS_MANAGED_PRESSURE_DRILLING_UTILIZED, "");
+          summaryDataView.addKeyValue(NUMBER_OF_WELLBORE_STABILITY_CHALLENGES, "");
+          summaryDataView.addKeyValue(STABILITY_CHALLENGES_INFORMATION, "");
+          summaryDataView.addKeyValue(NUMBER_OF_WELLS_EXPECTED_TO_CROSS_FAULTS, "");
           summaryDataView.addKeyValue(EXPECTED_FAULTS, "");
-          summaryDataView.addKeyValue(ANY_WELLS_EXPECTED_TO_CROSS_FAULTS, "");
           summaryDataView.addKeyValue(ANY_EXPECTED_LOSSES_FROM_DRILLING, "");
+          summaryDataView.addKeyValue(WHY_LOSSES_EXPECTED, "");
           summaryDataView.addKeyValue(ANY_EXPECTED_DRILLING_CHALLENGES, "");
+          summaryDataView.addKeyValue(DRILLING_CHALLENGES_MITIGATIONS, "");
           summaryDataView.addKeyValue(STIMULATION_TYPE_REQUIRED, "");
+          summaryDataView.addKeyValue(NUMBER_OF_WELLS_REQUIRING_STIMULATION, "");
           summaryDataView.addKeyValue(IS_EXPECTING_FORMATION_DAMAGE, "");
+          summaryDataView.addKeyValue(EXPECTED_FORMATION_DAMAGE, "");
           summaryDataView.addKeyValue(ANY_HEAVY_OIL, "");
           summaryDataView.addKeyValue(ANY_SPECIALISED_DRILLING_EQUIPMENT_REQUIRED, "");
-          summaryDataView.addKeyValue(ANY_MULTILATERAL_WELLS, "");
+          summaryDataView.addKeyValue(SPECIALISED_DRILLING_EQUIPMENT_REQUIRED, "");
+          summaryDataView.addKeyValue(NUMBER_OF_MULTILATERAL_WELLS, "");
         });
 
     return SummaryCard.simpleSummaryCardWithHeading(PLANNED_SANCTIONED_WELLS, summaryDataView);
-  }
-
-  public SummaryCard getWellTypesSummaryCard(SubmissionDetail submissionDetail) {
-    var summaryTableView = SummaryTableView.newWithHeading("", NUMBER_OF_WELLS);
-    plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail).ifPresent(
-        plannedSanctionedWells -> {
-          if (BooleanUtils.isTrue(plannedSanctionedWells.getAnyHorizontalWells())) {
-            summaryTableView.addRow(NUMBER_OF_HORIZONTAL_WELLS,
-                plannedSanctionedWells.getNumberOfHorizontalWells());
-            summaryTableView.addRow(NUMBER_OF_HORIZONTAL_WELLS_WITH_ERD,
-                plannedSanctionedWells.getNumberOfHorizontalWellsWithErd());
-          }
-
-          if (BooleanUtils.isTrue(plannedSanctionedWells.getAnyHighPressureTemperatureWells())) {
-            summaryTableView.addRow(NUMBER_OF_HIGH_PRESSURE_TEMPERATURE_WELLS,
-                plannedSanctionedWells.getNumberOfHighPressureTemperatureWells());
-          }
-
-          if (BooleanUtils.isTrue(plannedSanctionedWells.getAnyWellsWithinNarrowOrTightPpfgWindow())) {
-            summaryTableView.addRow(NUMBER_OF_WELLS_WITHIN_NARROW_OR_TIGHT_PPFG_WINDOW,
-                plannedSanctionedWells.getNumberOfWellsWithinNarrowOrTightPpfgWindow());
-          }
-
-          if (BooleanUtils.isTrue(plannedSanctionedWells.getAnyWellboreStabilityChallenges())) {
-            summaryTableView.addRow(NUMBER_OF_WELLBORE_STABILITY_CHALLENGES,
-                plannedSanctionedWells.getNumberOfWellboreStabilityChallenges());
-          }
-
-          if (plannedSanctionedWells.getStimulationTypeRequired() != null) {
-            summaryTableView.addRow(NUMBER_OF_WELLS_REQUIRING_STIMULATION,
-                plannedSanctionedWells.getNumberOfWellsRequiringStimulation());
-          }
-
-          if (BooleanUtils.isTrue(plannedSanctionedWells.getAnyWellsExpectedToCrossFaults())) {
-            summaryTableView.addRow(NUMBER_OF_WELLS_EXPECTED_TO_CROSS_FAULTS,
-                plannedSanctionedWells.getNumberOfWellsExpectedToCrossFaults());
-          }
-
-          if (BooleanUtils.isTrue(plannedSanctionedWells.getAnyMultilateralWells())) {
-            summaryTableView.addRow(NUMBER_OF_MULTILATERAL_WELLS,
-                plannedSanctionedWells.getNumberOfMultilateralWells());
-          }
-        });
-
-    return SummaryCard.tableFixedWidthSummaryCardWithHeading(PLANNED_SANCTIONED_WELLS_WELL_TYPES, summaryTableView);
   }
 
   public SummaryCard getHoleCompletionTypesSummaryCard(SubmissionDetail submissionDetail) {
     var summaryTableView = SummaryTableView.newWithHeading("", NUMBER_OF_WELLS);
     plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail).ifPresent(
         plannedSanctionedWells ->
-          holeCompletionTypesRepository.findAllByPlannedSanctionedWells(plannedSanctionedWells)
-              .stream()
-              .sorted(Comparator.comparingInt(holeCompletionTypes ->
-                  holeCompletionTypes.getHoleCompletionType().getDisplayOrder()))
-              .forEach(
-                  holeCompletionTypes ->
-                    summaryTableView.addRow(
-                        holeCompletionTypes.getHoleCompletionType().getDisplayName(),
-                        holeCompletionTypes.getNumberOfWellsWithHoleCompletionType())
-              ));
+            holeCompletionTypesRepository.findAllByPlannedSanctionedWells(plannedSanctionedWells)
+                .stream()
+                .sorted(Comparator.comparingInt(holeCompletionTypes ->
+                    holeCompletionTypes.getHoleCompletionType().getDisplayOrder()))
+                .forEach(
+                    holeCompletionTypes ->
+                        summaryTableView.addRow(
+                            holeCompletionTypes.getHoleCompletionType().getDisplayName(),
+                            holeCompletionTypes.getNumberOfWellsWithHoleCompletionType())
+                ));
 
     return SummaryCard.tableFixedWidthSummaryCardWithHeading(HOLE_COMPLETION_TYPES, summaryTableView);
   }
@@ -245,20 +231,20 @@ public class PlannedSanctionedWellsSummaryService {
     var summaryTableView = SummaryTableView.newWithHeading("", NUMBER_OF_WELLS);
     plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail).ifPresent(
         plannedSanctionedWells ->
-          plannedCompletionTypesRepository.findAllByPlannedSanctionedWells(plannedSanctionedWells)
-              .stream()
-              .sorted(Comparator.comparingInt(plannedCompletionTypes ->
-                  plannedCompletionTypes.getPlannedCompletionType().getDisplayOrder()))
-              .forEach(
-                  plannedCompletionTypes -> {
-                    var typeOrOther = plannedCompletionTypes.getPlannedCompletionType() == PlannedCompletionType.OTHER
-                        ? plannedCompletionTypes.getOtherPlannedCompletionType()
-                        : plannedCompletionTypes.getPlannedCompletionType().getDisplayName();
-                    summaryTableView.addRow(
-                        typeOrOther,
-                        plannedCompletionTypes.getNumberOfWellsWithPlannedCompletionType());
-                  }
-              ));
+            plannedCompletionTypesRepository.findAllByPlannedSanctionedWells(plannedSanctionedWells)
+                .stream()
+                .sorted(Comparator.comparingInt(plannedCompletionTypes ->
+                    plannedCompletionTypes.getPlannedCompletionType().getDisplayOrder()))
+                .forEach(
+                    plannedCompletionTypes -> {
+                      var typeOrOther = plannedCompletionTypes.getPlannedCompletionType() == PlannedCompletionType.OTHER
+                          ? plannedCompletionTypes.getOtherPlannedCompletionType()
+                          : plannedCompletionTypes.getPlannedCompletionType().getDisplayName();
+                      summaryTableView.addRow(
+                          typeOrOther,
+                          plannedCompletionTypes.getNumberOfWellsWithPlannedCompletionType());
+                    }
+                ));
 
     return SummaryCard.tableFixedWidthSummaryCardWithHeading(PLANNED_COMPLETION_TYPE, summaryTableView);
   }
@@ -267,31 +253,29 @@ public class PlannedSanctionedWellsSummaryService {
     var summaryTableView = SummaryTableView.newWithHeading("", NUMBER_OF_WELLS);
     plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail).ifPresent(
         plannedSanctionedWells ->
-          artificialLiftMechanismsRepository.findAllByPlannedSanctionedWells(plannedSanctionedWells)
-              .stream()
-              .sorted(Comparator.comparingInt(artificialLiftMechanisms ->
-                  artificialLiftMechanisms.getArtificialLiftMechanism().getDisplayOrder()))
-              .forEach(
-                  artificialLiftMechanisms -> {
-                    var typeOrOther = artificialLiftMechanisms.getArtificialLiftMechanism() == ArtificialLiftMechanism.OTHER
-                        ? artificialLiftMechanisms.getOtherArtificialLiftMechanism()
-                        : artificialLiftMechanisms.getArtificialLiftMechanism().getDisplayName();
-                    summaryTableView.addRow(
-                        typeOrOther,
-                        artificialLiftMechanisms.getNumberOfWellsWithArtificialLiftMechanism());
-                  }
-              ));
+            artificialLiftMechanismsRepository.findAllByPlannedSanctionedWells(plannedSanctionedWells)
+                .stream()
+                .sorted(Comparator.comparingInt(artificialLiftMechanisms ->
+                    artificialLiftMechanisms.getArtificialLiftMechanism().getDisplayOrder()))
+                .forEach(
+                    artificialLiftMechanisms -> {
+                      var typeOrOther = artificialLiftMechanisms.getArtificialLiftMechanism() == ArtificialLiftMechanism.OTHER
+                          ? artificialLiftMechanisms.getOtherArtificialLiftMechanism()
+                          : artificialLiftMechanisms.getArtificialLiftMechanism().getDisplayName();
+                      summaryTableView.addRow(
+                          typeOrOther,
+                          artificialLiftMechanisms.getNumberOfWellsWithArtificialLiftMechanism());
+                    }
+                ));
 
     return SummaryCard.tableFixedWidthSummaryCardWithHeading(ARTIFICIAL_LIFT_MECHANISMS, summaryTableView);
   }
 
   private String getExpectedFaultsAsString(PlannedSanctionedWells plannedSanctionedWells) {
-    return String.join(
-        ", ",
-        pswFaultRepository.findAllByPlannedSanctionedWells(plannedSanctionedWells)
-            .stream().map(pswFaults -> pswFaults.getExpectedFault().getDisplayName())
-            .toList()
-    );
+    return pswFaultRepository.findAllByPlannedSanctionedWells(plannedSanctionedWells)
+            .stream()
+            .map(pswFaults -> pswFaults.getExpectedFault().getDisplayName())
+            .collect(Collectors.joining(", "));
   }
 
   private String getFormattedTotalCapex(PlannedSanctionedWells plannedSanctionedWells) {
@@ -300,5 +284,11 @@ public class PlannedSanctionedWellsSummaryService {
       totalCapex = StringUtil.formatMoneyInMillions(plannedSanctionedWells.getTotalCapex());
     }
     return totalCapex;
+  }
+
+  private Integer getNumberOfWells(Boolean hasWells, BigDecimal numberOfWells) {
+    return BooleanUtils.isTrue(hasWells)
+        ? numberOfWells.intValue()
+        : 0;
   }
 }
