@@ -108,7 +108,7 @@ INSERT INTO remi.team_roles(id, team_id, role, wua_id) VALUES (
        FROM remi.teams t
        WHERE t.type = 'REGULATOR'
     )
-    , 'ACCESS_MANAGER'
+    , 'MANAGE_TEAM'
     , 53192 -- This is the ReMI NSTA Team Admin user account on the Energy Portal Dev environment
 );
 ```
@@ -127,7 +127,7 @@ INSERT INTO remi.team_roles(id, team_id, role, wua_id) VALUES (
 
 ### 10. Checkstyle
 1. In Intellij install the Checkstyle-IDEA plugin (from third-party repositories)
-2. Go to File > Settings > Checkstyle
+2. Go to File > Settings > Tools > Checkstyle
 3. Click the plus icon under "Configuration File"
 4. Select "Use a local Checkstyle file"
 5. Select `devtools/checkstyle.xml`
