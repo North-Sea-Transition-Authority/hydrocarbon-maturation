@@ -37,7 +37,8 @@ public class WebSecurityConfiguration {
       "/accessibility-statement",
       "/contact-information",
       "/error/**",
-      "/cookies"
+      "/cookies",
+      "/actuator/health/**"
   };
 
   private final SamlProperties samlProperties;
