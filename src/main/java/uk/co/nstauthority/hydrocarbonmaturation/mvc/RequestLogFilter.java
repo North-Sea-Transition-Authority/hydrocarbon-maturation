@@ -6,12 +6,16 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.lang.NonNull;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerMapping;
@@ -21,6 +25,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 
 @Component
 public class RequestLogFilter extends OncePerRequestFilter {
+
+  private final List<RequestMatcher> ignorePathList = List.of(
+      new AntPathRequestMatcher("/actuator/health/**"),
+      new AntPathRequestMatcher("/assets/**")
+  );
+  private final OrRequestMatcher ignorePaths = new OrRequestMatcher(ignorePathList);
 
   static final String MDC_WUA_ID = RequestLogFilter.class.getName() + ".%s".formatted(
       EnergyPortalSamlAttribute.WEB_USER_ACCOUNT_ID.getAttributeName()
@@ -48,29 +58,31 @@ public class RequestLogFilter extends OncePerRequestFilter {
     try {
       filterChain.doFilter(request, response);
     } finally {
-      var elapsedMs = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-      var queryString = Optional.ofNullable(request.getQueryString()).map("?"::concat).orElse("");
-      var pattern = Optional.ofNullable(request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE)).orElse(
-          "unknown");
-      var wuaId = MDC.get(MDC_WUA_ID);
-      var proxyWuaId = MDC.get(MDC_PROXY_WUA_ID);
+      if (!this.ignorePaths.matches(request)) {
+        var elapsedMs = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+        var queryString = Optional.ofNullable(request.getQueryString()).map("?"::concat).orElse("");
+        var pattern = Optional.ofNullable(request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE)).orElse(
+            "unknown");
+        var wuaId = MDC.get(MDC_WUA_ID);
+        var proxyWuaId = MDC.get(MDC_PROXY_WUA_ID);
 
-      LOGGER.info(
-          "[{}] {}ms {} {}{} ({}) wuaId:{} proxyWuaId:{} {}",
-          response.getStatus(),
-          elapsedMs,
-          request.getMethod(),
-          request.getRequestURI(),
-          queryString,
-          pattern,
-          wuaId,
-          proxyWuaId,
-          getQueryCounts()
-      );
+        LOGGER.info(
+            "[{}] {}ms {} {}{} ({}) wuaId:{} proxyWuaId:{} {}",
+            response.getStatus(),
+            elapsedMs,
+            request.getMethod(),
+            request.getRequestURI(),
+            queryString,
+            pattern,
+            wuaId,
+            proxyWuaId,
+            getQueryCounts()
+        );
 
-      CorrelationIdUtil.removeCorrelationIdFromMdc();
-      MDC.remove(RequestLogFilter.MDC_WUA_ID);
-      MDC.remove(RequestLogFilter.MDC_PROXY_WUA_ID);
+        CorrelationIdUtil.removeCorrelationIdFromMdc();
+        MDC.remove(RequestLogFilter.MDC_WUA_ID);
+        MDC.remove(RequestLogFilter.MDC_PROXY_WUA_ID);
+      }
     }
   }
 
