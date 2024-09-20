@@ -5,6 +5,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIE
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELD_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_DETAILS;
 
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ public class OperatorResourceRecordQueryService implements ResourceRecordQuerySe
                                                                     List<Integer> userOrgUnitIds) {
     var conditionList = new ArrayList<>(resourceQueryCommonService.getFormFilterConditions(form));
     conditionList.add(RESOURCE_DETAILS.ORGANISATION_ID.in(userOrgUnitIds));
+    conditionList.add(RESOURCES.ARCHIVED.eq(false));
 
     return conditionList;
   }
@@ -72,6 +74,7 @@ public class OperatorResourceRecordQueryService implements ResourceRecordQuerySe
   private List<Condition> getFieldOperatorConditions(SearchResourceRecordsForm form, List<Integer> userOrgUnitIds) {
     var conditionList = new ArrayList<>(resourceQueryCommonService.getFormFilterConditions(form));
     conditionList.add(FIELDS.RESPONSIBLE_ORGANISATION_ID.in(userOrgUnitIds));
+    conditionList.add(RESOURCES.ARCHIVED.eq(false));
 
     return conditionList;
   }

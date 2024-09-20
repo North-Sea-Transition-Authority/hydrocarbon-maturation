@@ -81,6 +81,11 @@
               <@fdsCheckbox.checkbox path="form.showOnlyPreferredViews" labelText="Show only preferred views"/>
             </@fdsCheckbox.checkboxGroup>
           </@fdsSearch.searchFilterItem>
+          <@fdsSearch.searchFilterItem itemName="Archived">
+            <@fdsCheckbox.checkboxGroup smallCheckboxes=true path="form.showArchivedResources">
+              <@fdsCheckbox.checkbox path="form.showArchivedResources" labelText="Show archived resources"/>
+            </@fdsCheckbox.checkboxGroup>
+          </@fdsSearch.searchFilterItem>
         </#if>
       </@fdsSearch.searchFilterList>
     </@fdsSearch.searchFilter>

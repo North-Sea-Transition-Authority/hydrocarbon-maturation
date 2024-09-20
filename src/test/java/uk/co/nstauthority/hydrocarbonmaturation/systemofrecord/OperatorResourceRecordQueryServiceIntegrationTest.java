@@ -478,6 +478,39 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
+  void getProspectAndDiscoveryRecordSearchResults_whenUserIndustry_assertArchivedNotDisplayed() {
+    var organisationUnitIdUserIsInGroupFor = 46;
+    setUpIndustryTest(Set.of(Role.INDUSTRY_SUBMIT, Role.INDUSTRY_VIEWER), List.of(organisationUnitIdUserIsInGroupFor));
+
+    var archivedResource = buildArchivedProspectResource();
+    var archivedSubmission = buildSubmissionDetail(archivedResource, SubmissionType.CREATE_PROSPECT, null);
+    var archivedGeneralDetail = createGeneralDetail(archivedSubmission, null);
+    createResourceDetail(archivedSubmission, "Not relevant name", organisationUnitIdUserIsInGroupFor);
+    var archivedExtantLicence = createProspectAndDiscoveryLicence(1, "licenceRef", archivedGeneralDetail);
+    when(licenceQueryService.getExtantLicencesByIds(List.of(archivedExtantLicence.getLicenceId().toString())))
+            .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+
+
+    var nonArchivedResource = buildProspectResource();
+    var nonArchivedSubmission = buildSubmissionDetail(nonArchivedResource, SubmissionType.CREATE_PROSPECT, null);
+    var nonArchivedGeneralDetail = createGeneralDetail(nonArchivedSubmission, null);
+    createResourceDetail(nonArchivedSubmission, "Not relevant name", organisationUnitIdUserIsInGroupFor);
+    var nonArchivedextantLicence = createProspectAndDiscoveryLicence(1, "licenceRef", nonArchivedGeneralDetail);
+    when(licenceQueryService.getExtantLicencesByIds(List.of(nonArchivedextantLicence.getLicenceId().toString())))
+            .thenReturn(List.of(new LicenceView("licenceRef", 1, LicenceStatus.EXTANT)));
+
+    var form = new SearchResourceRecordsForm();
+    form.setShowArchivedResources(true);
+
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    assertThat(results).extracting(
+                    ResourceRecordQueryResult::submissionDetailId)
+            .containsExactly(
+                    nonArchivedSubmission.getId()
+            );
+  }
+
+  @Test
   void getFieldRecordsSearchResults_whenIncompleteFieldName_assertResultsAllContainText() {
     var organisationUnitIdUserIsInGroupFor = 46;
     setUpIndustryTest(Set.of(Role.INDUSTRY_SUBMIT), List.of(organisationUnitIdUserIsInGroupFor));
@@ -502,7 +535,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
   }
 
   private void buildFieldResultWithFieldName(String fieldName, int organisationUnitIdUserIsInGroupFor) {
-    var resource = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
+    var resource = buildFieldResource();
     buildSubmissionDetail(resource, SubmissionType.CREATE_CSR, null);
     SubmissionIntegrationTestUtils.createRegulatorManagedInformation(resource,
         ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
@@ -583,7 +616,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     var organisationUnitIdUserIsInGroupFor = 46;
     setUpIndustryTest(Set.of(Role.INDUSTRY_SUBMIT), List.of(organisationUnitIdUserIsInGroupFor));
 
-    var resource1 = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
+    var resource1 = buildFieldResource();
     buildSubmissionDetail(resource1, SubmissionType.CREATE_CSR, null);
     var resourceName1 = "Field A";
     var regulatorManagedInformation1 = SubmissionIntegrationTestUtils
@@ -594,7 +627,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
         .createFieldStatusHistory(field1, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
     createFieldLicence(1, "relevant", field1);
 
-    var resource2 =  SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
+    var resource2 =  buildFieldResource();
     buildSubmissionDetail(resource2, SubmissionType.CREATE_CSR, null);
     var resourceName2 = "The resource name B";
     SubmissionIntegrationTestUtils.createRegulatorManagedInformation(resource2,
@@ -622,7 +655,8 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
             ResourceRecordQueryResult::organisationResponsibleId,
             ResourceRecordQueryResult::responsibleTeam,
             ResourceRecordQueryResult::parentFieldName,
-            ResourceRecordQueryResult::fieldStatus
+            ResourceRecordQueryResult::fieldStatus,
+            ResourceRecordQueryResult::archived
         )
         .containsExactly(
             tuple(
@@ -632,9 +666,70 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
                 organisationUnitIdUserIsInGroupFor,
                 regulatorManagedInformation1.getResponsibleTeamType(),
                 field1.getParentDeterminedField().getCorrectedLegalFieldName(),
-                fieldStatusHistoryForField1.getFieldStatus()
+                fieldStatusHistoryForField1.getFieldStatus(),
+                false
             )
         );
+  }
+
+  @Test
+  void getFieldRecordSearchResults_whenUserIndustry_assertArchivedNotDisplayed() {
+    var organisationUnitIdUserIsInGroupFor = 46;
+    setUpIndustryTest(Set.of(Role.INDUSTRY_SUBMIT, Role.INDUSTRY_VIEWER), List.of(organisationUnitIdUserIsInGroupFor));
+
+    var archivedResource = buildArchivedFieldResource();
+    buildSubmissionDetail(archivedResource, SubmissionType.CREATE_FIELD, null);
+    var archivedResourceName = "Field A";
+    SubmissionIntegrationTestUtils
+            .createRegulatorManagedInformation(archivedResource, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
+    var archivedField = SubmissionIntegrationTestUtils
+            .createFieldWithParent(archivedResource, archivedResourceName, organisationUnitIdUserIsInGroupFor, entityManager);
+    SubmissionIntegrationTestUtils
+            .createFieldStatusHistory(archivedField, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
+    createFieldLicence(1, "relevant", archivedField);
+
+    var nonArchivedResource = buildFieldResource();
+    buildSubmissionDetail(nonArchivedResource, SubmissionType.CREATE_FIELD, null);
+    var nonArchivedResourceName = "Field A";
+    var nonArchivedRegulatorManagedInformation = SubmissionIntegrationTestUtils
+            .createRegulatorManagedInformation(nonArchivedResource, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
+    var nonArchivedField = SubmissionIntegrationTestUtils
+            .createFieldWithParent(nonArchivedResource, nonArchivedResourceName, organisationUnitIdUserIsInGroupFor, entityManager);
+    var fieldStatusHistoryForNonArchivedField = SubmissionIntegrationTestUtils
+            .createFieldStatusHistory(nonArchivedField, FieldStatus.STATUS_300, LocalDate.now(), entityManager);
+    createFieldLicence(1, "relevant", nonArchivedField);
+
+    when(licenceQueryService.getExtantLicencesByIds(any()))
+            .thenReturn(List.of(LicenceViewTestUtil.Builder().build()));
+
+    var form = new SearchResourceRecordsForm();
+    form.setResourceTypes(List.of(ResourceType.FIELD.getEnumName()));
+    form.setShowArchivedResources(true);
+
+    var results = operatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+    assertThat(results)
+            .extracting(
+                    ResourceRecordQueryResult::resourceId,
+                    ResourceRecordQueryResult::resourceType,
+                    ResourceRecordQueryResult::resourceName,
+                    ResourceRecordQueryResult::organisationResponsibleId,
+                    ResourceRecordQueryResult::responsibleTeam,
+                    ResourceRecordQueryResult::parentFieldName,
+                    ResourceRecordQueryResult::fieldStatus,
+                    ResourceRecordQueryResult::archived
+            )
+            .containsExactly(
+                    tuple(
+                            nonArchivedResource.getId(),
+                            ResourceType.FIELD,
+                            nonArchivedResourceName,
+                            organisationUnitIdUserIsInGroupFor,
+                            nonArchivedRegulatorManagedInformation.getResponsibleTeamType(),
+                            nonArchivedField.getParentDeterminedField().getCorrectedLegalFieldName(),
+                            fieldStatusHistoryForNonArchivedField.getFieldStatus(),
+                            nonArchivedResource.getArchived()
+                    )
+            );
   }
 
   private void setUpIndustryTest(Set<Role> userRoles, List<Integer> userOrgUnitIds) {
@@ -724,8 +819,20 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     return SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.PROSPECT);
   }
 
+  private Resource buildArchivedProspectResource() {
+    return SubmissionIntegrationTestUtils.createArchivedResource(entityManager, ResourceType.PROSPECT);
+  }
+
   private Resource buildDiscoveryResource() {
     return SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.DISCOVERY);
+  }
+
+  private Resource buildFieldResource() {
+    return SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
+  }
+
+  private Resource buildArchivedFieldResource() {
+    return SubmissionIntegrationTestUtils.createArchivedResource(entityManager, ResourceType.FIELD);
   }
 
   private void buildResourceGroupLink(boolean preferredView, Resource resource) {

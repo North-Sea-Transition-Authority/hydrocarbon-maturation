@@ -29,6 +29,7 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
   private List<String> geographicalArea = new ArrayList<>();
   private boolean showOnlyPreferredViews;
   private boolean showResults;
+  private boolean showArchivedResources;
 
   public static SearchProspectAndDiscoveryRecordsFilter createInstance() {
     var filter = new SearchProspectAndDiscoveryRecordsFilter();
@@ -48,6 +49,7 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
     setResponsibleOrganisationId(form.getResponsibleOrganisationId());
     setGeographicalArea(form.getGeographicalArea());
     setShowResults(true);
+    setShowArchivedResources(form.isShowArchivedResources());
   }
 
   @Override
@@ -138,6 +140,14 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
     this.showResults = showResults;
   }
 
+  public boolean isShowArchivedResources() {
+    return showArchivedResources;
+  }
+
+  public void setShowArchivedResources(boolean showArchivedResources) {
+    this.showArchivedResources = showArchivedResources;
+  }
+
   private void initialise() {
     setGeographicalArea(new ArrayList<>());
     setLicenceRound(null);
@@ -151,5 +161,6 @@ public class SearchProspectAndDiscoveryRecordsFilter implements SearchResourceRe
     oppTypes.add("NOT_SET");
     setOpportunityTypes(oppTypes);
     setShowResults(false);
+    setShowArchivedResources(false);
   }
 }

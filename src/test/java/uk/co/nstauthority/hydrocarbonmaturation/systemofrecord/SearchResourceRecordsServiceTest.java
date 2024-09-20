@@ -125,14 +125,14 @@ class SearchResourceRecordsServiceTest {
         ORGANISATION_ID_1, "Org A",
         List.of(EXTANT_LICENCE_1.licenceId(), EXTANT_LICENCE_2.licenceId()),
         List.of(EXTANT_LICENCE_1.licenceRef(), EXTANT_LICENCE_2.licenceRef()),
-        ResponsibleTeamType.EXPLORATION, null, null, null
+        ResponsibleTeamType.EXPLORATION, null, null, null, false
       );
       var result2 = buildAndMockResourceRecordQueryResult(
           "resource-name2", ResourceType.DISCOVERY, null,
         ORGANISATION_ID_2, "Org B",
         List.of(NOT_EXTANT_LICENCE_2.licenceId(), NOT_EXTANT_LICENCE_3.licenceId()),
         List.of(NOT_EXTANT_LICENCE_2.licenceRef(), NOT_EXTANT_LICENCE_3.licenceRef()),
-        ResponsibleTeamType.EXPLORATION, null, null, fixedInstant
+        ResponsibleTeamType.EXPLORATION, null, null, fixedInstant, true
       );
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form, USER))
           .thenReturn(List.of(result1, result2));
@@ -170,6 +170,7 @@ class SearchResourceRecordsServiceTest {
           .containsExactly(
               entry("teamResponsible", ResponsibleTeamType.EXPLORATION.getDisplayName()),
               entry("organisationResponsible", "Org A"),
+              entry("isArchived", false),
               entry("licences", List.of("L1", "L2"))
           );
 
@@ -177,6 +178,7 @@ class SearchResourceRecordsServiceTest {
           .containsExactly(
               entry("teamResponsible", ResponsibleTeamType.EXPLORATION.getDisplayName()),
               entry("organisationResponsible", "Org B"),
+              entry("isArchived", true),
               entry("licences", List.of("F1", "F2"))
           );
     }
@@ -189,15 +191,18 @@ class SearchResourceRecordsServiceTest {
           ORGANISATION_ID_1, "Org A",
           List.of(EXTANT_LICENCE_1.licenceId(), EXTANT_LICENCE_2.licenceId()),
           List.of(EXTANT_LICENCE_1.licenceRef(), EXTANT_LICENCE_2.licenceRef()),
-          ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, null, FieldStatus.STATUS_200, fixedInstant
+          ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, null, FieldStatus.STATUS_200, fixedInstant, false
       );
       var result2 = buildAndMockResourceRecordQueryResult(
           "field-name2", ResourceType.FIELD, null,
           ORGANISATION_ID_2, "Org B",
           List.of(NOT_EXTANT_LICENCE_2.licenceId(), NOT_EXTANT_LICENCE_3.licenceId()),
           List.of(NOT_EXTANT_LICENCE_2.licenceRef(), NOT_EXTANT_LICENCE_3.licenceRef()),
-          ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA, "Parent field name", FieldStatus.STATUS_400,
-          fixedInstant
+          ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
+          "Parent field name",
+          FieldStatus.STATUS_400,
+          fixedInstant,
+          true
       );
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form, USER))
           .thenReturn(List.of(result1, result2));
@@ -234,6 +239,7 @@ class SearchResourceRecordsServiceTest {
           .containsExactly(
               entry("teamResponsible", ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName()),
               entry("organisationResponsible", "Org A"),
+              entry("isArchived", false),
               entry("fieldStatus", result1.fieldStatus().getDisplayName()),
               entry("parentField", "No parent field")
           );
@@ -242,6 +248,7 @@ class SearchResourceRecordsServiceTest {
           .containsExactly(
               entry("teamResponsible", ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getDisplayName()),
               entry("organisationResponsible", "Org B"),
+              entry("isArchived", true),
               entry("fieldStatus", result2.fieldStatus().getDisplayName()),
               entry("parentField", "Parent field name")
           );
@@ -255,7 +262,11 @@ class SearchResourceRecordsServiceTest {
           ORGANISATION_ID_1, "Org A",
           List.of(EXTANT_LICENCE_1.licenceId(), EXTANT_LICENCE_2.licenceId()),
           List.of(EXTANT_LICENCE_1.licenceRef(), EXTANT_LICENCE_2.licenceRef()),
-          ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, null, FieldStatus.STATUS_200, fixedInstant
+          ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND,
+          null,
+          FieldStatus.STATUS_200,
+          fixedInstant,
+          false
       );
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form, USER))
           .thenReturn(List.of(result));
@@ -280,6 +291,7 @@ class SearchResourceRecordsServiceTest {
           .containsExactly(
               entry("teamResponsible", ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName()),
               entry("organisationResponsible", "Org A"),
+              entry("isArchived", false),
               entry("fieldStatus", result.fieldStatus().getDisplayName()),
               entry("parentField", "No parent field")
           );
@@ -299,7 +311,8 @@ class SearchResourceRecordsServiceTest {
                                                                             ResponsibleTeamType responsibleTeam,
                                                                             String parentFieldName,
                                                                             FieldStatus fieldStatus,
-                                                                            Instant acceptedSubmissionInstant) {
+                                                                            Instant acceptedSubmissionInstant,
+                                                                            boolean archived) {
       when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, organisationResponsibleId)).thenReturn(orgName);
       if (!ResourceType.FIELD.equals(resourceType)) {
         when(submissionDetailDisplayService.getLicencesForDisplayFromMap(LICENCE_MAP, licencesTheResourceIsOn)).thenReturn(licencesDisplayed);
@@ -318,7 +331,8 @@ class SearchResourceRecordsServiceTest {
           responsibleTeam,
           parentFieldName == null ? "No parent field" : parentFieldName,
           fieldStatus,
-          null);
+          null,
+          archived);
     }
 
   }
@@ -373,7 +387,7 @@ class SearchResourceRecordsServiceTest {
 
     private ResourceRecordQueryResult newSearchResultWithResourceName(String resourceName) {
       return new ResourceRecordQueryResult(null, null, null, null,
-          resourceName, null, null, null, null, null, null, null);
+          resourceName, null, null, null, null, null, null, null, false);
     }
   }
 

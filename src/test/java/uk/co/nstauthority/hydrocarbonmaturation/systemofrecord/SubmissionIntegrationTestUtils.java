@@ -210,6 +210,18 @@ public class SubmissionIntegrationTestUtils {
     return resource;
   }
 
+  public static Resource createArchivedResource(EntityManager entityManager, ResourceType resourceType) {
+    var resource = new Resource();
+    resource.setType(resourceType);
+    resource.setArchived(true);
+    resource.setCreatedTimestamp(Instant.now());
+
+    entityManager.persist(resource);
+    entityManager.flush();
+
+    return resource;
+  }
+
   public static RegulatorManagedInformation createRegulatorManagedInformation(Resource resource,
                                                                               ResponsibleTeamType responsibleTeamType,
                                                                               GeographicalArea geographicalArea,

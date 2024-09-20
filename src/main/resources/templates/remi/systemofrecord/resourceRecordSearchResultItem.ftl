@@ -2,10 +2,14 @@
 
 <#macro prospectAndDiscoveryRecordSearchResultItem resultItem>
   <#assign modelProperties = resultItem.modelProperties().properties />
+
+    <#assign archivedTag><@fdsResultList.resultListTag tagText="Archived" tagClass="" /></#assign>
+
     <@fdsResultList.resultListItem
       captionHeadingText=resultItem.captionText()!""
       linkHeadingUrl=springUrl(resultItem.actionUrl())
-      linkHeadingText=resultItem.headingText()>
+      linkHeadingText=resultItem.headingText()
+      itemTag=(modelProperties["isArchived"])?then(archivedTag, "")>
 
         <@fdsResultList.resultListDataItem>
           <@fdsResultList.resultListDataValue

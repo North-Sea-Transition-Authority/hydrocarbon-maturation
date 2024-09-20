@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord;
 
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCE_GROUP_LINKS;
 
 import java.util.ArrayList;
@@ -43,6 +44,9 @@ public class RegulatorResourceRecordQueryService implements ResourceRecordQueryS
       //ensures only preferred views are displayed
       //resources with no resource group link are considered preferred views
       conditionList.add(RESOURCE_GROUP_LINKS.PREFERRED_VIEW.eq(true).or(RESOURCE_GROUP_LINKS.ID.isNull()));
+    }
+    if (BooleanUtils.isFalse(form.isShowArchivedResources())) {
+      conditionList.add(RESOURCES.ARCHIVED.eq(false));
     }
 
     return conditionList;

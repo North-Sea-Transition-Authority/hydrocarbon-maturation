@@ -1250,6 +1250,69 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   }
 
   @Test
+  void getProspectAndDiscoveryRecordSearchResults_andNotFilterByArchived_assertArchivedNotDisplayed() {
+    setUpRegulatorTest();
+
+    var archivedResource = buildArchivedProspectResource();
+    var archivedSubmissionDetail =
+            buildSubmissionDetail(archivedResource, SubmissionType.CREATE_PROSPECT, null);
+    createGeneralDetail(archivedSubmissionDetail, null);
+    buildResourceGroupLink(true, archivedResource);
+
+    createResourceDetail(archivedSubmissionDetail, "Not relevant name", 1);
+
+    var nonArchivedResource = buildProspectResource();
+    var nonArchivedSubmissionDetail =
+            buildSubmissionDetail(nonArchivedResource, SubmissionType.CREATE_PROSPECT, null);
+    buildResourceGroupLink(true, nonArchivedResource);
+    createGeneralDetail(nonArchivedSubmissionDetail, null);
+    createResourceDetail(nonArchivedSubmissionDetail, "Not relevant name", 2);
+
+    var form = new SearchResourceRecordsForm();
+    form.setShowArchivedResources(false);
+
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+      assertThat(results)
+          .extracting(
+              ResourceRecordQueryResult::submissionDetailId)
+          .containsExactly(
+              nonArchivedSubmissionDetail.getId()
+          );
+  }
+
+  @Test
+  void getProspectAndDiscoveryRecordSearchResults_andFilterByArchived_assertArchivedDisplayed() {
+    setUpRegulatorTest();
+
+    var archivedResource = buildArchivedProspectResource();
+    var archivedSubmissionDetail =
+            buildSubmissionDetail(archivedResource, SubmissionType.CREATE_PROSPECT, null);
+    createGeneralDetail(archivedSubmissionDetail, null);
+    buildResourceGroupLink(true, archivedResource);
+
+    createResourceDetail(archivedSubmissionDetail, "Not relevant name", 1);
+
+    var nonArchivedResource = buildProspectResource();
+    var nonArchivedSubmissionDetail =
+            buildSubmissionDetail(nonArchivedResource, SubmissionType.CREATE_PROSPECT, null);
+    buildResourceGroupLink(true, nonArchivedResource);
+    createGeneralDetail(nonArchivedSubmissionDetail, null);
+    createResourceDetail(nonArchivedSubmissionDetail, "Not relevant name", 2);
+
+    var form = new SearchResourceRecordsForm();
+    form.setShowArchivedResources(true);
+
+    var results = regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER);
+      assertThat(results)
+          .extracting(
+              ResourceRecordQueryResult::submissionDetailId)
+          .containsExactlyInAnyOrder(
+              archivedSubmissionDetail.getId(),
+              nonArchivedSubmissionDetail.getId()
+          );
+  }
+
+  @Test
   void getFieldRecordsSearchResults_asRegulator_assertCanSeeAllTeamsResourcesDisplayedAndAssertValues() {
     setUpRegulatorTest();
 
@@ -1451,6 +1514,11 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   private Resource buildProspectResource() {
 
     return SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.PROSPECT);
+  }
+
+  private Resource buildArchivedProspectResource() {
+
+    return SubmissionIntegrationTestUtils.createArchivedResource(entityManager, ResourceType.PROSPECT);
   }
 
   private RegulatorManagedInformation buildRegulatorManagedInformation(
