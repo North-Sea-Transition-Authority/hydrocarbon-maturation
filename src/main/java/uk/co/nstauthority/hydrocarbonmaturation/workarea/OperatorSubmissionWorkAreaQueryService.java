@@ -89,12 +89,11 @@ class OperatorSubmissionWorkAreaQueryService implements SubmissionWorkAreaQueryS
             .join(SUBMISSIONS_2).on(SUBMISSIONS_2.ID.eq(SD_2.SUBMISSION_ID))
             .join(RESOURCES_2).on(RESOURCES_2.ID.eq(SUBMISSIONS_2.RESOURCE_ID))
             .leftJoin(FIELDS_2).on(FIELDS_2.RESOURCE_ID.eq(RESOURCES_2.ID))
-            .where(RESOURCES_2.ID.eq(SUBMISSIONS_2.RESOURCE_ID)
-                .and(
-                    (RD_2.ORGANISATION_ID.in(userOrgUnits))
+            .where(
+                (RD_2.ORGANISATION_ID.in(userOrgUnits))
                     .or(FIELDS_2.RESPONSIBLE_ORGANISATION_ID.in(userOrgUnits))
-                )
             )
+            .and(SUBMISSION_DETAILS.ID.eq(SD_2.ID))
             .and(SD_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))
             .orderBy(SD_2.ACCEPTED_TIMESTAMP.desc())
             .limit(1));

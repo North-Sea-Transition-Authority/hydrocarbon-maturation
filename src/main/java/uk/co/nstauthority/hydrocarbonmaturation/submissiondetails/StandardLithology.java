@@ -16,7 +16,7 @@ public enum StandardLithology implements Displayable {
   COAL("Coal", 90),
   FRACTURED_BASEMENT("Fractured Basement", 100),
   VOLCANICS("Volcanics", 110),
-  OTHER("Other lithology not listed above (Free text option)", 120);
+  OTHER("Other lithology not listed above", 120);
 
   private final String displayName;
   private final int displayOrder;

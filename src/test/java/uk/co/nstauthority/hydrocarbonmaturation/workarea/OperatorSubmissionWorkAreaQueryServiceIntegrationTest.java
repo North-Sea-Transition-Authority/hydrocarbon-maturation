@@ -251,6 +251,127 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
             licenceId1, licenceId2);
   }
 
+  @Test
+  void getSubmissions_asIndustryInResponsibleOrganisation_onlyGetItemsForResponsibleOrganisation_assertAllValues() {
+    // Create expected submission
+    var responsibleOrganisationIdForSubmission = 46;
+    var userOrgUnits = List.of(responsibleOrganisationIdForSubmission);
+    setUpIndustrySubmitterTest(userOrgUnits, USER);
+    var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetail.setId(null);
+    submissionDetail.setStatus(SubmissionDetailStatus.SUBMITTED);
+    submissionDetail.setSubmitterType(SubmitterType.INDUSTRY);
+    var createdTimestamp = Instant.now();
+    var resource = createResource(createdTimestamp, entityManager);
+    var responsibleTeam = new RegulatorManagedInformation();
+    responsibleTeam.setResource(resource);
+    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+    submissionDetail.setCreatedTimestamp(createdTimestamp);
+    entityManager.persist(responsibleTeam);
+    entityManager.flush();
+    submissionDetail.getSubmission().setResource(resource);
+    submissionDetail.setSubmission(SubmissionIntegrationTestUtils.createSubmission(resource, entityManager));
+
+    entityManager.persist(submissionDetail);
+    entityManager.flush();
+
+    var licenceApplicationReference = "RT9";
+
+    var generalDetails = new GeneralDetail();
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setSubmissionDetail(submissionDetail);
+    resourceDetail.setResourceName("The resource name");
+    generalDetails.setSubmissionDetail(submissionDetail);
+    generalDetails.setLicenceApplicationReference(licenceApplicationReference);
+    resourceDetail.setOrganisationId(responsibleOrganisationIdForSubmission);
+    entityManager.persist(generalDetails);
+    entityManager.flush();
+    entityManager.persist(resourceDetail);
+    entityManager.flush();
+
+    var quadBlocks = new QuadrantAndBlock();
+    quadBlocks.setGeneralDetail(generalDetails);
+    quadBlocks.setQuadrantBlockReference("25/12");
+    entityManager.persist(quadBlocks);
+    entityManager.flush();
+
+    var trapProperty = new TrapProperty();
+    trapProperty.setSubmissionDetail(submissionDetail);
+    trapProperty.setCentreOfInterestQuadrantBlock("25/12");
+    entityManager.persist(trapProperty);
+    entityManager.flush();
+
+    var licence = new Licence();
+    var licenceId1 = 953;
+    licence.setLicenceId(licenceId1);
+    licence.setLicenceReference("AL10");
+    licence.setGeneralDetail(generalDetails);
+    var licence2 = new Licence();
+    var licenceId2 = 951;
+    licence2.setLicenceId(licenceId2);
+    licence2.setLicenceReference("AL6");
+    licence2.setGeneralDetail(generalDetails);
+    entityManager.persist(licence);
+    entityManager.flush();
+    entityManager.persist(licence2);
+    entityManager.flush();
+
+    // Create not-expected submission
+    var otherOrganisationId = 48;
+    var submissionDetail2 = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
+    submissionDetail2.setId(null);
+    submissionDetail2.setStatus(SubmissionDetailStatus.DRAFT);
+    submissionDetail2.setSubmitterType(SubmitterType.INDUSTRY);
+    var createdTimestamp2 = Instant.now();
+    var resource2 = createResource(createdTimestamp2, entityManager);
+    var responsibleTeam2 = new RegulatorManagedInformation();
+    responsibleTeam2.setResource(resource2);
+    responsibleTeam2.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
+    submissionDetail2.setCreatedTimestamp(createdTimestamp2);
+    entityManager.persist(responsibleTeam2);
+    entityManager.flush();
+    submissionDetail2.getSubmission().setResource(resource2);
+    submissionDetail2.setSubmission(SubmissionIntegrationTestUtils.createSubmission(resource2, entityManager));
+
+    entityManager.persist(submissionDetail2);
+    entityManager.flush();
+
+    var resourceDetail2 = new ResourceDetail();
+    resourceDetail2.setSubmissionDetail(submissionDetail2);
+    resourceDetail2.setResourceName("Other resource name");
+    resourceDetail2.setOrganisationId(otherOrganisationId);
+    entityManager.persist(resourceDetail2);
+    entityManager.flush();
+
+    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER);
+
+    assertThat(results.get(0))
+        .extracting(
+            SubmissionWorkAreaQueryResult::getSubmissionDetailId,
+            SubmissionWorkAreaQueryResult::getCentreOfInterestQuadBlock,
+            SubmissionWorkAreaQueryResult::getOrganisationResponsibleId,
+            SubmissionWorkAreaQueryResult::getResourceName,
+            SubmissionWorkAreaQueryResult::getSubmissionType,
+            SubmissionWorkAreaQueryResult::getStatus,
+            SubmissionWorkAreaQueryResult::isUpdateRequested,
+            SubmissionWorkAreaQueryResult::getLicenceApplicationReference)
+        .containsExactly(
+            submissionDetail.getId(),
+            "25/12",
+            46,
+            "The resource name",
+            SubmissionType.CREATE_PROSPECT,
+            SubmissionDetailStatus.SUBMITTED,
+            false,
+            licenceApplicationReference
+        );
+
+    assertThat(results.get(0)
+        .getLicencesTheResourceIsOn())
+        .containsExactlyInAnyOrder(
+            licenceId1, licenceId2);
+  }
+
   @ParameterizedTest
   @EnumSource(
       value = SubmissionType.class,
