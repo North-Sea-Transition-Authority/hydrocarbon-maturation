@@ -224,7 +224,8 @@ public class SearchResourceRecordsService {
     var resourceType = resourceRecordQueryResult.resourceType();
     var modelProperties = new ResourceRecordSearchResultItemModelProperties()
         .addProperty("teamResponsible", teamResponsibleDisplay)
-        .addProperty("organisationResponsible", organisationResponsibleDisplay);
+        .addProperty("organisationResponsible", organisationResponsibleDisplay)
+        .addProperty("isArchived", resourceRecordQueryResult.archived());
 
     if (ResourceType.DISCOVERY.equals(resourceType)
         || ResourceType.PROSPECT.equals(resourceType)) {

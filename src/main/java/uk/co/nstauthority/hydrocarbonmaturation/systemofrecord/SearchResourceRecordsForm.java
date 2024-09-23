@@ -17,6 +17,7 @@ public class SearchResourceRecordsForm {
   private boolean showOnlyPreferredViews;
   private List<String> fieldStatuses = new ArrayList<>();
   private String parentFieldName;
+  private boolean showArchivedResources;
 
   public String getResourceNameFromResourceDetail() {
     return resourceNameFromResourceDetail;
@@ -115,6 +116,14 @@ public class SearchResourceRecordsForm {
     this.parentFieldName = parentFieldName;
   }
 
+  public boolean isShowArchivedResources() {
+    return showArchivedResources;
+  }
+
+  public void setShowArchivedResources(boolean showArchivedResources) {
+    this.showArchivedResources = showArchivedResources;
+  }
+
   public static SearchResourceRecordsForm from(SearchProspectAndDiscoveryRecordsFilter filter) {
     var form = new SearchResourceRecordsForm();
     form.setShowOnlyPreferredViews(filter.isShowOnlyPreferredViews());
@@ -126,6 +135,7 @@ public class SearchResourceRecordsForm {
     form.setCentreOfInterestBlock(filter.getCentreOfInterestBlock());
     form.setResponsibleOrganisationId(filter.getResponsibleOrganisationId());
     form.setGeographicalArea(filter.getGeographicalArea());
+    form.setShowArchivedResources(filter.isShowArchivedResources());
     return form;
   }
 
@@ -136,6 +146,7 @@ public class SearchResourceRecordsForm {
     form.setFieldStatuses(filter.getFieldStatuses());
     form.setGeographicalArea(filter.getGeographicalAreas());
     form.setParentFieldName(filter.getParentFieldName());
+    form.setShowArchivedResources(filter.isShowArchivedResources());
     return form;
   }
 }

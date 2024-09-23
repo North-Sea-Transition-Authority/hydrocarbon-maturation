@@ -124,13 +124,15 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
             "resourceTypes",
             "showResults",
             "showOnlyPreferredViews",
-            "geographicalArea")
+            "geographicalArea",
+            "showArchivedResources")
         .extracting(
             SearchProspectAndDiscoveryRecordsFilter::getOpportunityTypes,
             SearchProspectAndDiscoveryRecordsFilter::getResourceTypes,
             SearchProspectAndDiscoveryRecordsFilter::isShowResults,
             SearchProspectAndDiscoveryRecordsFilter::isShowOnlyPreferredViews,
-            SearchProspectAndDiscoveryRecordsFilter::getGeographicalArea)
+            SearchProspectAndDiscoveryRecordsFilter::getGeographicalArea,
+            SearchProspectAndDiscoveryRecordsFilter::isShowArchivedResources)
         .containsExactly(
             List.of("LEAD",
                 "PROSPECT",
@@ -142,7 +144,8 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
             List.of("PROSPECT", "DISCOVERY"),
             false,
             true,
-            List.of());
+            List.of(),
+            false);
   }
 
   @Test
@@ -190,6 +193,7 @@ class SearchProspectAndDiscoveryRecordsControllerTest extends AbstractController
     filter.setLicenceRound("2");
     filter.setResourceNameFromResourceDetail("random id");
     filter.setResponsibleOrganisationId(1);
+    filter.setShowArchivedResources(false);
     return filter;
   }
 }

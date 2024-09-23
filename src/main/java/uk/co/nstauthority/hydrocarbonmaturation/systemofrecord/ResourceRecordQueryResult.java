@@ -19,7 +19,8 @@ public record ResourceRecordQueryResult(
     ResponsibleTeamType responsibleTeam,
     String parentFieldName,
     FieldStatus fieldStatus,
-    String licenceApplicationReference) {
+    String licenceApplicationReference,
+    boolean archived) {
   public ResourceRecordQueryResult {
     if (parentFieldName == null) {
       parentFieldName = "No parent field";
