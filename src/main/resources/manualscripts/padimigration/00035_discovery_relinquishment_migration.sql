@@ -55,11 +55,12 @@ DO $$
                 false
             );
 
-            INSERT INTO remi.resources (id, type, created_timestamp)
+            INSERT INTO remi.resources (id, type, created_timestamp, archived)
             VALUES (
                 gen_random_uuid(),
                 'DISCOVERY',
-                now()
+                now(),
+                false
             ) RETURNING id INTO remi_res_id;
 
             UPDATE remi.padi_resource_groupings prg
