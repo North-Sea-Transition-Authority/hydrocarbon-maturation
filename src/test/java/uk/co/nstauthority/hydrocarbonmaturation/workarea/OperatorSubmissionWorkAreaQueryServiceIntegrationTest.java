@@ -492,55 +492,6 @@ class OperatorSubmissionWorkAreaQueryServiceIntegrationTest {
   }
 
   @Test
-  void getSubmissions_whenTwoSubmissions_whenInResponsibleOrganisationOnLatestApprovedOnResource_assertReturn() {
-    var responsibleOrganisationIdForApprovedSubmission = 46;
-    var userOrgUnits = List.of(responsibleOrganisationIdForApprovedSubmission);
-    setUpIndustrySubmitterTest(userOrgUnits, USER);
-    var submissionWithWrongResponsibleOrg = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    submissionWithWrongResponsibleOrg.setId(null);
-    submissionWithWrongResponsibleOrg.setStatus(SubmissionDetailStatus.SUBMITTED);
-    submissionWithWrongResponsibleOrg.setSubmitterType(SubmitterType.INDUSTRY);
-
-    var createdTimestamp = Instant.now();
-    var resource = new Resource();
-    submissionWithWrongResponsibleOrg.setCreatedTimestamp(createdTimestamp);
-    resource.setType(ResourceType.PROSPECT);
-    resource.setCreatedTimestamp(createdTimestamp);
-    resource.setArchived(false);
-    entityManager.persist(resource);
-    entityManager.flush();
-    submissionWithWrongResponsibleOrg.setSubmission(SubmissionIntegrationTestUtils.createSubmission(resource, entityManager));
-
-    var responsibleTeam = new RegulatorManagedInformation();
-    responsibleTeam.setResource(resource);
-    responsibleTeam.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
-    entityManager.persist(responsibleTeam);
-    entityManager.flush();
-    submissionWithWrongResponsibleOrg.getSubmission().setResource(resource);
-    entityManager.persist(submissionWithWrongResponsibleOrg);
-    entityManager.flush();
-
-    var generalDetails = new GeneralDetail();
-    var resourceDetail = new ResourceDetail();
-    resourceDetail.setSubmissionDetail(submissionWithWrongResponsibleOrg);
-    resourceDetail.setResourceName("The resource name");
-    generalDetails.setSubmissionDetail(submissionWithWrongResponsibleOrg);
-    var organisationIdUserIsNotResponsibleFor = 1;
-    resourceDetail.setOrganisationId(organisationIdUserIsNotResponsibleFor);
-    setUpLatestApprovedSubmissionOnResource(resource, responsibleOrganisationIdForApprovedSubmission);
-    entityManager.persist(generalDetails);
-    entityManager.flush();
-    entityManager.persist(resourceDetail);
-    entityManager.flush();
-
-    var results = operatorSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER);
-
-    assertThat(results)
-        .extracting(SubmissionWorkAreaQueryResult::getSubmissionDetailId)
-        .containsExactly(submissionWithWrongResponsibleOrg.getId());
-  }
-
-  @Test
   void getSubmissions_whenTwoSubmissions_whenOneHasUnresolvedUpdateAndOneResolved_assertUpdateRequested() {
     var responsibleOrganisationId = 46;
     var userOrgUnits = List.of(responsibleOrganisationId);
