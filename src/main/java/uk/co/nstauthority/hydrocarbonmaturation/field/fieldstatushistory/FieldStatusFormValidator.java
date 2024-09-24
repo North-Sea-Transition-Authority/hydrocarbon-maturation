@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DateValidationUtil;
 
 @Service
@@ -23,11 +24,15 @@ public class FieldStatusFormValidator {
   public static final String FIELD_STATUS_DATE_INVALID_ORDER = "fieldStatusDate.invalidOrder";
 
   private final FieldStatusHistoryService fieldStatusHistoryService;
+  private final SubmissionDetailService submissionDetailService;
   private final Clock clock;
 
   @Autowired
-  public FieldStatusFormValidator(FieldStatusHistoryService fieldStatusHistoryService, Clock clock) {
+  public FieldStatusFormValidator(FieldStatusHistoryService fieldStatusHistoryService,
+                                  SubmissionDetailService submissionDetailService,
+                                  Clock clock) {
     this.fieldStatusHistoryService = fieldStatusHistoryService;
+    this.submissionDetailService = submissionDetailService;
     this.clock = clock;
   }
 
@@ -36,6 +41,7 @@ public class FieldStatusFormValidator {
                          Field field) {
     if (isValidForm(errors, form)) {
       validateFieldStatusHistoryRules(errors, form, field);
+      validateFieldShelvedStatus(errors, form, field);
     }
     return !errors.hasErrors();
   }
@@ -95,7 +101,8 @@ public class FieldStatusFormValidator {
               .formatted(FieldStatus.STATUS_900.getDisplayName())
       );
     } else if (newFieldStatusHistory.getFieldStatus().getStatusValue() <= 600
-        && !isValidOrderingForStatuses600OrLess(newFieldStatusHistory, fullFieldStatusHistory)) {
+        && !isValidOrderingForStatuses600OrLess(newFieldStatusHistory, fullFieldStatusHistory)
+        && form.getFieldStatus() != FieldStatus.STATUS_000) {
       errors.rejectValue(
           FIELD_STATUS_DATE_ERROR_LOCATION,
           FIELD_STATUS_DATE_INVALID_ORDER,
@@ -185,9 +192,9 @@ public class FieldStatusFormValidator {
   private boolean violatesUniqueConstraint(FieldStatusHistory newFieldStatusHistory,
                                            List<FieldStatusHistory> existingHistories) {
     return switch (newFieldStatusHistory.getFieldStatus()) {
-      case STATUS_200, STATUS_300, STATUS_400, STATUS_450, STATUS_500, STATUS_600, STATUS_900 ->
+      case STATUS_200, STATUS_300, STATUS_400, STATUS_500, STATUS_600, STATUS_900 ->
           statusAlreadyExists(newFieldStatusHistory.getFieldStatus(), existingHistories);
-      case STATUS_700, STATUS_799, STATUS_800, STATUS_899 -> false;
+      case STATUS_000, STATUS_700, STATUS_799, STATUS_800, STATUS_899 -> false;
     };
   }
 
@@ -196,6 +203,17 @@ public class FieldStatusFormValidator {
         .map(FieldStatusHistory::getFieldStatus)
         .collect(Collectors.toSet())
         .contains(fieldStatus);
+  }
+
+  private void validateFieldShelvedStatus(Errors errors, FieldStatusForm form, Field field) {
+    if (form.getFieldStatus() == FieldStatus.STATUS_000
+            && submissionDetailService.hasDraftOrSubmittedSubmission(field.getResource())) {
+      errors.rejectValue(
+          FIELD_STATUS_ERROR_LOCATION,
+          "fieldStatus.openSubmissions",
+          "The field cannot be shelved as there are open submissions for it"
+      );
+    }
   }
 }
 

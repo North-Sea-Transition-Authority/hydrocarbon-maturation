@@ -3,11 +3,10 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 
 public enum FieldStatus implements Displayable {
-
+  STATUS_000("000: Shelved", 0, 0),
   STATUS_200("200: no CSR or FDP", 10, 200),
   STATUS_300("300: CSR submitted", 20, 300),
   STATUS_400("400: CSR approved, FDP under discussion", 30, 400),
-  STATUS_450("450: Under discovery - CoPP", 40, 450),
   STATUS_500("500: FDP submitted", 50, 500),
   STATUS_600("600: FDP approved", 60, 600),
   STATUS_700("700: Producing", 60, 700),

@@ -29,7 +29,7 @@ class FieldInternalDtoRepositoryTest {
   @BeforeEach
   void setUp() {
     field1 = createAndSaveField("field name", FieldStatus.STATUS_300);
-    field2 = createAndSaveField( "name of field", FieldStatus.STATUS_450);
+    field2 = createAndSaveField( "name of field", FieldStatus.STATUS_400);
   }
 
   private Field createAndSaveField(String fieldName, FieldStatus fieldStatus) {
@@ -89,7 +89,7 @@ class FieldInternalDtoRepositoryTest {
 
   @Test
   void searchFields_searchByFieldStatus() {
-    var resultingFieldInternalDtos = fieldInternalDtoRepository.searchFields(null, List.of(FieldStatus.STATUS_450), null);
+    var resultingFieldInternalDtos = fieldInternalDtoRepository.searchFields(null, List.of(FieldStatus.STATUS_400), null);
 
     assertThat(resultingFieldInternalDtos)
         .extracting(FieldInternalDto::fieldIdentifier)

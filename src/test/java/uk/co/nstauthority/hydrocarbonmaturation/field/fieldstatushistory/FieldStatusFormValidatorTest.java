@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
@@ -22,8 +23,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,6 +40,8 @@ class FieldStatusFormValidatorTest {
   private Clock clock;
   @Mock
   private FieldStatusHistoryService fieldStatusHistoryService;
+  @Mock
+  private SubmissionDetailService submissionDetailService;
   @InjectMocks
   private FieldStatusFormValidator fieldStatusFormValidator;
 
@@ -50,6 +55,8 @@ class FieldStatusFormValidatorTest {
   void setUp() {
     form = new FieldStatusForm();
     bindingResult = new BeanPropertyBindingResult(form, "form");
+    var resource = new Resource();
+    FIELD.setResource(resource);
   }
 
   @Test
@@ -216,7 +223,7 @@ class FieldStatusFormValidatorTest {
   @ParameterizedTest
   @EnumSource(
       value = FieldStatus.class,
-      names = {"STATUS_700", "STATUS_799", "STATUS_800"}
+      names = {"STATUS_000", "STATUS_700", "STATUS_799", "STATUS_800"}
   )
   void validateForm_statusDoesNotNeedToBeUnique_thenNoError(FieldStatus fieldStatus) {
     form = getValidForm();
@@ -474,6 +481,148 @@ class FieldStatusFormValidatorTest {
     );
   }
 
+  @Test
+  void validateForm_statusIs600OrLess_newStatusIs000_fieldHasNoOpenSubmissions_thenNoError() {
+    form = getValidForm();
+    form.setFieldStatus(FieldStatus.STATUS_000);
+
+    var validLocalDate = FIXED_PAST.plusDays(3);
+    form.setFieldStatusDateDay(String.valueOf(validLocalDate.getDayOfMonth()));
+    form.setFieldStatusDateMonth(String.valueOf(validLocalDate.getMonthValue()));
+    form.setFieldStatusDateYear(String.valueOf(validLocalDate.getYear()));
+
+    var esh1 = new FieldStatusHistory();
+    esh1.setFieldStatus(FieldStatus.STATUS_200);
+    esh1.setStatusDate(FIXED_PAST);
+
+    var esh2 = new FieldStatusHistory();
+    esh2.setFieldStatus(FieldStatus.STATUS_400);
+    esh2.setStatusDate(FIXED_PAST.plusDays(2));
+
+    var esh3 = new FieldStatusHistory();
+    esh3.setFieldStatus(FieldStatus.STATUS_600);
+    esh3.setStatusDate(FIXED_PAST.plusDays(4));
+
+    when(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(FIELD))
+            .thenReturn(List.of(esh1, esh2, esh3));
+
+    when(submissionDetailService.hasDraftOrSubmittedSubmission(any(Resource.class))).thenReturn(false);
+
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
+
+    fieldStatusFormValidator.isValid(form, bindingResult, FIELD);
+
+    var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  void validateForm_statusIs700OrMore_newStatusIs000_fieldHasNoOpenSubmissions_thenNoError() {
+    form = getValidForm();
+    form.setFieldStatus(FieldStatus.STATUS_000);
+
+    var validLocalDate = FIXED_PAST.plusDays(3);
+    form.setFieldStatusDateDay(String.valueOf(validLocalDate.getDayOfMonth()));
+    form.setFieldStatusDateMonth(String.valueOf(validLocalDate.getMonthValue()));
+    form.setFieldStatusDateYear(String.valueOf(validLocalDate.getYear()));
+
+    var esh1 = new FieldStatusHistory();
+    esh1.setFieldStatus(FieldStatus.STATUS_700);
+    esh1.setStatusDate(FIXED_PAST);
+
+    var esh2 = new FieldStatusHistory();
+    esh2.setFieldStatus(FieldStatus.STATUS_799);
+    esh2.setStatusDate(FIXED_PAST.plusDays(2));
+
+    var esh3 = new FieldStatusHistory();
+    esh3.setFieldStatus(FieldStatus.STATUS_900);
+    esh3.setStatusDate(FIXED_PAST.plusDays(4));
+
+    when(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(FIELD))
+            .thenReturn(List.of(esh1, esh2, esh3));
+
+    when(submissionDetailService.hasDraftOrSubmittedSubmission(any(Resource.class))).thenReturn(false);
+
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
+
+    fieldStatusFormValidator.isValid(form, bindingResult, FIELD);
+
+    var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(errors).isEmpty();
+  }
+
+
+  @Test
+  void validateForm_newStatusIs000AndFieldHasOpenSubmissions() {
+    form = getValidForm();
+    form.setFieldStatus(FieldStatus.STATUS_000);
+
+    when(submissionDetailService.hasDraftOrSubmittedSubmission(any(Resource.class))).thenReturn(true);
+
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
+
+    fieldStatusFormValidator.isValid(form, bindingResult, FIELD);
+
+    var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(errors).containsExactly(
+            entry("fieldStatus", Set.of("fieldStatus.openSubmissions"))
+    );
+  }
+
+  @Test
+  void validateForm_statusIs000_newStatusIs700OrMore_fieldHasNoOpenSubmissions_thenNoError() {
+    form = getValidForm();
+    form.setFieldStatus(FieldStatus.STATUS_800);
+
+    var validLocalDate = FIXED_PAST.plusDays(3);
+    form.setFieldStatusDateDay(String.valueOf(validLocalDate.getDayOfMonth()));
+    form.setFieldStatusDateMonth(String.valueOf(validLocalDate.getMonthValue()));
+    form.setFieldStatusDateYear(String.valueOf(validLocalDate.getYear()));
+
+    var esh1 = new FieldStatusHistory();
+    esh1.setFieldStatus(FieldStatus.STATUS_000);
+    esh1.setStatusDate(FIXED_PAST);
+
+    when(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(FIELD))
+            .thenReturn(List.of(esh1));
+
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
+
+    fieldStatusFormValidator.isValid(form, bindingResult, FIELD);
+
+    var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  void validateForm_statusIs000rMore_newStatusIs600OrLess_fieldHasNoOpenSubmissions_thenNoError() {
+    form = getValidForm();
+    form.setFieldStatus(FieldStatus.STATUS_500);
+
+    var validLocalDate = FIXED_PAST.plusDays(3);
+    form.setFieldStatusDateDay(String.valueOf(validLocalDate.getDayOfMonth()));
+    form.setFieldStatusDateMonth(String.valueOf(validLocalDate.getMonthValue()));
+    form.setFieldStatusDateYear(String.valueOf(validLocalDate.getYear()));
+
+    var esh1 = new FieldStatusHistory();
+    esh1.setFieldStatus(FieldStatus.STATUS_000);
+    esh1.setStatusDate(FIXED_PAST);
+
+    when(fieldStatusHistoryService.getAllFieldStatusHistoriesOrderedByDateAndStatus(FIELD))
+            .thenReturn(List.of(esh1));
+
+    when(clock.instant()).thenReturn(FIXED_TODAY_AS_INSTANT);
+    when(clock.getZone()).thenReturn(ZoneId.systemDefault());
+
+    fieldStatusFormValidator.isValid(form, bindingResult, FIELD);
+
+    var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(errors).isEmpty();
+  }
 
   private FieldStatusForm getValidForm() {
     var form = new FieldStatusForm();

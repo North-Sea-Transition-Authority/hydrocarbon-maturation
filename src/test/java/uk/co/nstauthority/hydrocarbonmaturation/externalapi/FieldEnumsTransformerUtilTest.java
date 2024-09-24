@@ -104,11 +104,10 @@ class FieldEnumsTransformerUtilTest {
 
   @Test
   void getInternalFieldStatusesFromExternalAsStrings_TransformsList() {
-    var fieldStatuses = List.of("STATUS200", "STATUS450", "INVALID_STATUS");
+    var fieldStatuses = List.of("STATUS200", "INVALID_STATUS");
     var result = FieldEnumsTransformerUtil.getInternalFieldStatusesFromExternalNames(fieldStatuses);
     assertThat(result).containsExactly(
-        uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus.STATUS_200,
-        uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus.STATUS_450
+        uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus.STATUS_200
     );
   }
 

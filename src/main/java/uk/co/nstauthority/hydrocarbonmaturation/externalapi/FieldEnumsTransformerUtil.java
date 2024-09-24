@@ -22,10 +22,10 @@ class FieldEnumsTransformerUtil {
     }
 
     return switch (fieldStatus) {
+      case STATUS_000 -> FieldStatus.STATUS000;
       case STATUS_200 -> FieldStatus.STATUS200;
       case STATUS_300 -> FieldStatus.STATUS300;
       case STATUS_400 -> FieldStatus.STATUS400;
-      case STATUS_450 -> FieldStatus.STATUS450;
       case STATUS_500 -> FieldStatus.STATUS500;
       case STATUS_600 -> FieldStatus.STATUS600;
       case STATUS_700 -> FieldStatus.STATUS700;
@@ -38,10 +38,10 @@ class FieldEnumsTransformerUtil {
 
   static uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus getFieldStatusFromExternal(FieldStatus fieldStatus) {
     return switch (fieldStatus) {
+      case STATUS000 -> uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus.STATUS_000;
       case STATUS200 -> uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus.STATUS_200;
       case STATUS300 -> uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus.STATUS_300;
       case STATUS400 -> uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus.STATUS_400;
-      case STATUS450 -> uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus.STATUS_450;
       case STATUS500 -> uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus.STATUS_500;
       case STATUS600 -> uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus.STATUS_600;
       case STATUS700 -> uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus.STATUS_700;
