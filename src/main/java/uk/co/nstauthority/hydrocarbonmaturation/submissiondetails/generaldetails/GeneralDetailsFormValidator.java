@@ -224,12 +224,12 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
 
   private void fullValidationPercentageLocated(GeneralDetailsForm form, Errors errors) {
     if (onshoreOffshore == OnshoreOffshore.OFFSHORE) {
-      if (BooleanUtils.isFalse(form.getResourceLocatedInUkcs())) {
+      if (BooleanUtils.isFalse(form.getProspectDiscoveryLocatedInUkcs())) {
         configurePercentageLocated(form.getPercentageLocatedInUkcs(), "percentageLocatedInUkcs", errors)
             .validate();
       }
     } else {
-      if (BooleanUtils.isFalse(form.getResourceLocatedInEngland())) {
+      if (BooleanUtils.isFalse(form.getProspectDiscoveryLocatedInEngland())) {
         configurePercentageLocated(form.getPercentageLocatedInEngland(), "percentageLocatedInEngland", errors)
             .validate();
       }
@@ -238,12 +238,12 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
 
   private void partialValidationPercentageLocated(GeneralDetailsForm form, Errors errors) {
     if (onshoreOffshore == OnshoreOffshore.OFFSHORE) {
-      if (BooleanUtils.isFalse(form.getResourceLocatedInUkcs())) {
+      if (BooleanUtils.isFalse(form.getProspectDiscoveryLocatedInUkcs())) {
         configurePercentageLocated(form.getPercentageLocatedInUkcs(), "percentageLocatedInUkcs", errors)
             .isOptional().validate();
       }
     } else {
-      if (BooleanUtils.isFalse(form.getResourceLocatedInEngland())) {
+      if (BooleanUtils.isFalse(form.getProspectDiscoveryLocatedInEngland())) {
         configurePercentageLocated(form.getPercentageLocatedInEngland(), "percentageLocatedInEngland", errors)
             .isOptional().validate();
       }
@@ -252,10 +252,10 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
 
   private void validateResourceLocated(Errors errors) {
     if (onshoreOffshore == OnshoreOffshore.OFFSHORE) {
-      ValidationUtils.rejectIfEmpty(errors, "resourceLocatedInUkcs", "resourceLocatedInUkcs.required",
+      ValidationUtils.rejectIfEmpty(errors, "prospectDiscoveryLocatedInUkcs", "prospectDiscoveryLocatedInUkcs.required",
           "Select whether the resource is wholly located within the UKCS");
     } else {
-      ValidationUtils.rejectIfEmpty(errors, "resourceLocatedInEngland", "resourceLocatedInEngland.required",
+      ValidationUtils.rejectIfEmpty(errors, "prospectDiscoveryLocatedInEngland", "prospectDiscoveryLocatedInEngland.required",
           "Select whether the resource is wholly located within England");
     }
   }

@@ -8,8 +8,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm
 
 public class GeneralDetailsForm implements SubmissionForm {
 
-  private Boolean resourceLocatedInUkcs;
-  private Boolean resourceLocatedInEngland;
+  private Boolean prospectDiscoveryLocatedInUkcs;
+  private Boolean prospectDiscoveryLocatedInEngland;
   private DecimalInput percentageLocatedInUkcs;
   private DecimalInput percentageLocatedInEngland;
 
@@ -36,20 +36,20 @@ public class GeneralDetailsForm implements SubmissionForm {
 
   private List<UploadedFileForm> fieldReport = new ArrayList<>();
 
-  public Boolean getResourceLocatedInUkcs() {
-    return resourceLocatedInUkcs;
+  public Boolean getProspectDiscoveryLocatedInUkcs() {
+    return prospectDiscoveryLocatedInUkcs;
   }
 
-  public void setResourceLocatedInUkcs(Boolean resourceLocatedInUkcs) {
-    this.resourceLocatedInUkcs = resourceLocatedInUkcs;
+  public void setProspectDiscoveryLocatedInUkcs(Boolean prospectDiscoveryLocatedInUkcs) {
+    this.prospectDiscoveryLocatedInUkcs = prospectDiscoveryLocatedInUkcs;
   }
 
-  public Boolean getResourceLocatedInEngland() {
-    return resourceLocatedInEngland;
+  public Boolean getProspectDiscoveryLocatedInEngland() {
+    return prospectDiscoveryLocatedInEngland;
   }
 
-  public void setResourceLocatedInEngland(Boolean resourceLocatedInEngland) {
-    this.resourceLocatedInEngland = resourceLocatedInEngland;
+  public void setProspectDiscoveryLocatedInEngland(Boolean prospectDiscoveryLocatedInEngland) {
+    this.prospectDiscoveryLocatedInEngland = prospectDiscoveryLocatedInEngland;
   }
 
   public DecimalInput getPercentageLocatedInUkcs() {

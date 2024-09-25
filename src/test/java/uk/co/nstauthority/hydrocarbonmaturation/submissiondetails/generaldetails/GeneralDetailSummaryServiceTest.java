@@ -129,9 +129,9 @@ class GeneralDetailSummaryServiceTest {
     generalDetail.setInformationSource(InformationSource.LICENCE_APPLICATION);
     generalDetail.setLicenceApplicationReference("licence application ref");
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.valueOf(2.5));
-    generalDetail.setResourceLocatedInUkcs(false);
+    generalDetail.setProspectDiscoveryLocatedInUkcs(false);
     generalDetail.setPercentageLocatedInEngland(BigDecimal.valueOf(4.2));
-    generalDetail.setResourceLocatedInEngland(false);
+    generalDetail.setProspectDiscoveryLocatedInEngland(false);
 
     var view = generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
 
@@ -202,9 +202,9 @@ class GeneralDetailSummaryServiceTest {
     generalDetail.setInformationSource(InformationSource.LICENCE_APPLICATION);
     generalDetail.setLicenceApplicationReference("licence application ref");
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.valueOf(2.5));
-    generalDetail.setResourceLocatedInUkcs(false);
+    generalDetail.setProspectDiscoveryLocatedInUkcs(false);
     generalDetail.setPercentageLocatedInEngland(BigDecimal.valueOf(4.2));
-    generalDetail.setResourceLocatedInEngland(false);
+    generalDetail.setProspectDiscoveryLocatedInEngland(false);
     generalDetail.setRelinquishmentDate(LocalDate.of(2012, 6, 12));
 
     var view = generalDetailSummaryService.getGeneralDetailSummaryFromSubmissionDetail(submissionDetail);
@@ -263,7 +263,7 @@ class GeneralDetailSummaryServiceTest {
   @Test
   void getGeneralDetailsSummary_generalDetailsSummary_forField_offshore_notFullyInUkcs() {
     submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
-    generalDetail.setResourceLocatedInUkcs(false);
+    generalDetail.setProspectDiscoveryLocatedInUkcs(false);
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.valueOf(99));
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
@@ -287,7 +287,7 @@ class GeneralDetailSummaryServiceTest {
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
     summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_UKCS,
-        generalDetail.getResourceLocatedInUkcs());
+        generalDetail.getProspectDiscoveryLocatedInUkcs());
     summaryDataView.addKeyValue(GeneralDetailSummaryService.PERCENT_WITHIN_UKCS,
         generalDetail.getPercentageLocatedInUkcs());
     summaryDataView.addKeyValue(
@@ -312,7 +312,7 @@ class GeneralDetailSummaryServiceTest {
   @Test
   void getGeneralDetailsSummary_generalDetailsSummary_forField_offshore_fullyInUkcs() {
     submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
-    generalDetail.setResourceLocatedInUkcs(true);
+    generalDetail.setProspectDiscoveryLocatedInUkcs(true);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
     var licenceRef1 = "Licence 1";
@@ -335,7 +335,7 @@ class GeneralDetailSummaryServiceTest {
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
     summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_UKCS,
-        generalDetail.getResourceLocatedInUkcs());
+        generalDetail.getProspectDiscoveryLocatedInUkcs());
     summaryDataView.addKeyValue(
         GeneralDetailSummaryService.QUADRANT_AND_BLOCKS,
         String.join(", ", List.of(quadBlockRef1, quadBlockRef2))
@@ -367,7 +367,7 @@ class GeneralDetailSummaryServiceTest {
   @Test
   void getGeneralDetailsSummary_generalDetailsSummary_forField_onshore_notFullyInEngland() {
     submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
-    generalDetail.setResourceLocatedInEngland(false);
+    generalDetail.setProspectDiscoveryLocatedInEngland(false);
     generalDetail.setPercentageLocatedInEngland(BigDecimal.valueOf(99));
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
@@ -391,7 +391,7 @@ class GeneralDetailSummaryServiceTest {
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
     summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_ENGLAND,
-        generalDetail.getResourceLocatedInEngland());
+        generalDetail.getProspectDiscoveryLocatedInEngland());
     summaryDataView.addKeyValue(GeneralDetailSummaryService.PERCENT_WITHIN_ENGLAND,
         generalDetail.getPercentageLocatedInEngland());
     summaryDataView.addKeyValue(
@@ -415,7 +415,7 @@ class GeneralDetailSummaryServiceTest {
   @Test
   void getGeneralDetailsSummary_generalDetailsSummary_forField_onshore_fullyInEngland() {
     submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
-    generalDetail.setResourceLocatedInEngland(true);
+    generalDetail.setProspectDiscoveryLocatedInEngland(true);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
     var licenceRef1 = "Licence 1";
@@ -438,7 +438,7 @@ class GeneralDetailSummaryServiceTest {
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
     summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_ENGLAND,
-        generalDetail.getResourceLocatedInEngland());
+        generalDetail.getProspectDiscoveryLocatedInEngland());
     summaryDataView.addKeyValue(
         GeneralDetailSummaryService.QUADRANT_AND_BLOCKS,
         String.join(", ", List.of(quadBlockRef1, quadBlockRef2))
@@ -461,7 +461,7 @@ class GeneralDetailSummaryServiceTest {
   @Test
   void getGeneralDetailsSummary_generalDetailsSummary_Cop() {
     submissionDetail = SubmissionDetailTestUtils.createNewCopFieldSubmissionDetail();
-    generalDetail.setResourceLocatedInEngland(true);
+    generalDetail.setProspectDiscoveryLocatedInEngland(true);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
     var licenceRef1 = "Licence 1";
@@ -487,7 +487,7 @@ class GeneralDetailSummaryServiceTest {
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
     summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_ENGLAND,
-        generalDetail.getResourceLocatedInEngland());
+        generalDetail.getProspectDiscoveryLocatedInEngland());
     summaryDataView.addKeyValue(
         GeneralDetailSummaryService.QUADRANT_AND_BLOCKS,
         String.join(", ", List.of(quadBlockRef1, quadBlockRef2))
@@ -515,7 +515,7 @@ class GeneralDetailSummaryServiceTest {
   )
   void getGeneralDetailsSummary_generalDetailsSummary_FdpOrFdpa(SubmissionType submissionType) {
     submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
-    generalDetail.setResourceLocatedInEngland(true);
+    generalDetail.setProspectDiscoveryLocatedInEngland(true);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
     var licenceRef1 = "Licence 1";
@@ -541,7 +541,7 @@ class GeneralDetailSummaryServiceTest {
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
     summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_ENGLAND,
-        generalDetail.getResourceLocatedInEngland());
+        generalDetail.getProspectDiscoveryLocatedInEngland());
     summaryDataView.addKeyValue(
         GeneralDetailSummaryService.QUADRANT_AND_BLOCKS,
         String.join(", ", List.of(quadBlockRef1, quadBlockRef2))

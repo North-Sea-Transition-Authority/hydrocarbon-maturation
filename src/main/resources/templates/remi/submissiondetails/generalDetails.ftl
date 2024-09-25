@@ -57,12 +57,19 @@ breadcrumbsMap=breadcrumbsMap>
         </@fdsFieldset.fieldset>
       </#if>
 
-      <#if isOffshore>
-        <@resourceLocatedInRegion formId="resourceLocatedInUkcs" percentageFormId="percentageLocatedInUkcs" regionName="the UKCS"/>
+      <#if fieldSubmission  && !fieldWhollyLocatedInArea>
+        <#if isOffshore>
+          <@percentageResourceLocatedInRegion formId="percentageLocatedInUkcs" regionName="the UKCS"/>
+        <#else>
+          <@percentageResourceLocatedInRegion formId="percentageLocatedInEngland" regionName="England"/>
+        </#if>
       <#else>
-        <@resourceLocatedInRegion formId="resourceLocatedInEngland" percentageFormId="percentageLocatedInEngland" regionName="England"/>
+        <#if isOffshore>
+          <@resourceLocatedInRegion formId="prospectDiscoveryLocatedInUkcs" percentageFormId="percentageLocatedInUkcs" regionName="the UKCS"/>
+        <#else>
+          <@resourceLocatedInRegion formId="prospectDiscoveryLocatedInEngland" percentageFormId="percentageLocatedInEngland" regionName="England"/>
+        </#if>
       </#if>
-
       <#if (discoverySubmission || prospectSubmission) && !relinquishmentSubmission>
         <@fdsRadio.radioGroup path="form.informationSource" labelText="Source of information" hiddenContent=true>
           <#assign firstItem=true/>
@@ -193,4 +200,13 @@ breadcrumbsMap=breadcrumbsMap>
             nestingPath="form.${formId}"/>
         </@fdsRadio.radioNo>
     </@fdsRadio.radioGroup>
+</#macro>
+
+<#macro percentageResourceLocatedInRegion formId regionName>
+  <@fdsTextInput.textInput path="form.${formId}.decimalInputValue"
+  labelText="What percentage of the hydrocarbon volume is located within ${regionName}?"
+  suffix="%"
+  suffixScreenReaderPrompt="percent"
+  hintText="Must be between 0.1 and 100"
+  inputClass="govuk-!-width-one-third"/>
 </#macro>

@@ -28,8 +28,8 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
   @JoinColumn(name = "submission_detail_id")
   private SubmissionDetail submissionDetail;
 
-  private Boolean resourceLocatedInUkcs;
-  private Boolean resourceLocatedInEngland;
+  private Boolean prospectDiscoveryLocatedInUkcs;
+  private Boolean prospectDiscoveryLocatedInEngland;
 
   private BigDecimal percentageLocatedInUkcs;
   private BigDecimal percentageLocatedInEngland;
@@ -72,20 +72,20 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
     this.submissionDetail = submissionDetail;
   }
 
-  public Boolean getResourceLocatedInUkcs() {
-    return resourceLocatedInUkcs;
+  public Boolean getProspectDiscoveryLocatedInUkcs() {
+    return prospectDiscoveryLocatedInUkcs;
   }
 
-  public void setResourceLocatedInUkcs(Boolean resourceLocatedInUkcs) {
-    this.resourceLocatedInUkcs = resourceLocatedInUkcs;
+  public void setProspectDiscoveryLocatedInUkcs(Boolean prospectDiscoveryLocatedInUkcs) {
+    this.prospectDiscoveryLocatedInUkcs = prospectDiscoveryLocatedInUkcs;
   }
 
-  public Boolean getResourceLocatedInEngland() {
-    return resourceLocatedInEngland;
+  public Boolean getProspectDiscoveryLocatedInEngland() {
+    return prospectDiscoveryLocatedInEngland;
   }
 
-  public void setResourceLocatedInEngland(Boolean resourceLocatedInEngland) {
-    this.resourceLocatedInEngland = resourceLocatedInEngland;
+  public void setProspectDiscoveryLocatedInEngland(Boolean prospectDiscoveryLocatedInEngland) {
+    this.prospectDiscoveryLocatedInEngland = prospectDiscoveryLocatedInEngland;
   }
 
   public BigDecimal getPercentageLocatedInUkcs() {

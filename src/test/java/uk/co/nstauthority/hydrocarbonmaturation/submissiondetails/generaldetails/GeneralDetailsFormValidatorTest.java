@@ -91,7 +91,7 @@ class GeneralDetailsFormValidatorTest {
     assertThat(extractedErrors)
         .containsExactly(
             entry("licenceSelect", Set.of("licenceSelect.required")),
-            entry("resourceLocatedInUkcs", Set.of("resourceLocatedInUkcs.required")),
+            entry("prospectDiscoveryLocatedInUkcs", Set.of("prospectDiscoveryLocatedInUkcs.required")),
             entry("informationSource", Set.of("informationSource.required")),
             entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty"))
         );
@@ -106,7 +106,7 @@ class GeneralDetailsFormValidatorTest {
     assertThat(extractedErrors)
         .containsExactly(
             entry("licenceSelect", Set.of("licenceSelect.required")),
-            entry("resourceLocatedInEngland", Set.of("resourceLocatedInEngland.required")),
+            entry("prospectDiscoveryLocatedInEngland", Set.of("prospectDiscoveryLocatedInEngland.required")),
             entry("informationSource", Set.of("informationSource.required")),
             entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty"))
         );
@@ -120,7 +120,7 @@ class GeneralDetailsFormValidatorTest {
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors)
         .containsExactly(
-            entry("resourceLocatedInUkcs", Set.of("resourceLocatedInUkcs.required")),
+            entry("prospectDiscoveryLocatedInUkcs", Set.of("prospectDiscoveryLocatedInUkcs.required")),
             entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty")),
             entry("relinquishmentDay", Set.of("relinquishmentDay.required")),
             entry("relinquishmentMonth", Set.of("relinquishmentMonth.required")),
@@ -216,7 +216,7 @@ class GeneralDetailsFormValidatorTest {
   @Test
   void partialValidation_withValidForm() {
     var form = new GeneralDetailsForm();
-    form.setResourceLocatedInUkcs(false);
+    form.setProspectDiscoveryLocatedInUkcs(false);
     form.setPercentageLocatedInUkcs(new DecimalInput("50.0"));
 
     var bindingResult = validateOffshoreGeneralDetailsForm(form, ValidationType.PARTIAL);
@@ -227,7 +227,7 @@ class GeneralDetailsFormValidatorTest {
   @Test
   void partialValidation_resourceLocatedInUkcs_invalidPercentage() {
     var form = new GeneralDetailsForm();
-    form.setResourceLocatedInUkcs(false);
+    form.setProspectDiscoveryLocatedInUkcs(false);
     form.setPercentageLocatedInUkcs(new DecimalInput("abc"));
     var bindingResult = validateOffshoreGeneralDetailsForm(form, ValidationType.PARTIAL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -242,7 +242,7 @@ class GeneralDetailsFormValidatorTest {
   void partialValidation_resourceLocatedInEngland_invalidPercentage() {
     when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.ONSHORE);
     var form = new GeneralDetailsForm();
-    form.setResourceLocatedInEngland(false);
+    form.setProspectDiscoveryLocatedInEngland(false);
     form.setPercentageLocatedInEngland(new DecimalInput("abc"));
     var bindingResult = validateOnshoreGeneralDetailsForm(form, ValidationType.PARTIAL);
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -514,7 +514,6 @@ class GeneralDetailsFormValidatorTest {
         .contains(
             entry("currentDriveMechanism", Set.of("currentDriveMechanism.required")),
             entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty")),
-            entry("resourceLocatedInUkcs", Set.of("resourceLocatedInUkcs.required")),
             entry("capitalProjectScopeDelivered", Set.of("capitalProjectScopeDelivered.required"))
         );
   }
@@ -548,7 +547,6 @@ class GeneralDetailsFormValidatorTest {
         .contains(
             entry("currentDriveMechanism", Set.of("currentDriveMechanism.required")),
             entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty")),
-            entry("resourceLocatedInUkcs", Set.of("resourceLocatedInUkcs.required")),
             entry("fieldStoppedProducingDay", Set.of("fieldStoppedProducingDay.invalid")),
             entry("fieldStoppedProducingMonth", Set.of("fieldStoppedProducingMonth.invalid")),
             entry("fieldStoppedProducingYear", Set.of("fieldStoppedProducingYear.invalid"))
@@ -690,7 +688,7 @@ class GeneralDetailsFormValidatorTest {
 
     private GeneralDetailsForm getValidFormNoFileUploaded() {
       var form = new GeneralDetailsForm();
-      form.setResourceLocatedInUkcs(false);
+      form.setProspectDiscoveryLocatedInUkcs(false);
       form.setPercentageLocatedInUkcs(new DecimalInput("50.0"));
       form.setInformationSource(InformationSource.WELL_INVESTMENT_DECISION);
       form.setQuadrantBlocks(List.of("27/10"));
@@ -730,7 +728,7 @@ class GeneralDetailsFormValidatorTest {
   private GeneralDetailsForm getInvalidForm() {
     var invalidDecimalInput = new DecimalInput("a");
     var form = new GeneralDetailsForm();
-    form.setResourceLocatedInUkcs(null);
+    form.setProspectDiscoveryLocatedInUkcs(null);
     form.setPercentageLocatedInUkcs(invalidDecimalInput);
     form.setInformationSource(null);
     form.setQuadrantBlocks(List.of());
@@ -748,7 +746,7 @@ class GeneralDetailsFormValidatorTest {
 
   private GeneralDetailsForm getValidForm() {
     var form = new GeneralDetailsForm();
-    form.setResourceLocatedInUkcs(false);
+    form.setProspectDiscoveryLocatedInUkcs(false);
     form.setPercentageLocatedInUkcs(new DecimalInput("50.0"));
     form.setInformationSource(InformationSource.WELL_INVESTMENT_DECISION);
     form.setQuadrantBlocks(List.of("27/10"));

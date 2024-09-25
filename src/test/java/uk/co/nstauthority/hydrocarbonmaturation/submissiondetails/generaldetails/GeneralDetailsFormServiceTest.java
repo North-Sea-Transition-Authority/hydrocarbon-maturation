@@ -96,7 +96,7 @@ class GeneralDetailsFormServiceTest {
   @Test
   void generalDetailEntityToForm_existingEntityOffshore_thenPopulatedForm() {
     var generalDetail = getGeneralDetail(submissionDetail);
-    generalDetail.setResourceLocatedInUkcs(false);
+    generalDetail.setProspectDiscoveryLocatedInUkcs(false);
     generalDetail.setPercentageLocatedInUkcs(new BigDecimal(50));
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(generalDetail));
 
@@ -108,15 +108,15 @@ class GeneralDetailsFormServiceTest {
     var generalDetailForm = generalDetailsFormService.getGeneralDetailsForm(submissionDetail);
     assertThat(generalDetailForm)
         .extracting(
-            GeneralDetailsForm::getResourceLocatedInUkcs,
-            GeneralDetailsForm::getResourceLocatedInEngland,
+            GeneralDetailsForm::getProspectDiscoveryLocatedInUkcs,
+            GeneralDetailsForm::getProspectDiscoveryLocatedInEngland,
             GeneralDetailsForm::getInformationSource,
             GeneralDetailsForm::getOtherSourceOfInformation,
             GeneralDetailsForm::getQuadrantBlocks
         )
         .containsExactly(
-            generalDetail.getResourceLocatedInUkcs(),
-            generalDetail.getResourceLocatedInEngland(),
+            generalDetail.getProspectDiscoveryLocatedInUkcs(),
+            generalDetail.getProspectDiscoveryLocatedInEngland(),
             generalDetail.getInformationSource(),
             generalDetail.getOtherInformationSource(),
             List.of(quadrantBlockRef)
@@ -130,8 +130,8 @@ class GeneralDetailsFormServiceTest {
   @Test
   void generalDetailEntityToForm_existingEntityOnshore_thenPopulatedForm() {
     var generalDetail = getGeneralDetail(submissionDetail);
-    generalDetail.setResourceLocatedInUkcs(null);
-    generalDetail.setResourceLocatedInEngland(false);
+    generalDetail.setProspectDiscoveryLocatedInUkcs(null);
+    generalDetail.setProspectDiscoveryLocatedInEngland(false);
     generalDetail.setPercentageLocatedInEngland(new BigDecimal(50));
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(generalDetail));
 
@@ -143,15 +143,15 @@ class GeneralDetailsFormServiceTest {
     var generalDetailForm = generalDetailsFormService.getGeneralDetailsForm(submissionDetail);
     assertThat(generalDetailForm)
         .extracting(
-            GeneralDetailsForm::getResourceLocatedInUkcs,
-            GeneralDetailsForm::getResourceLocatedInEngland,
+            GeneralDetailsForm::getProspectDiscoveryLocatedInUkcs,
+            GeneralDetailsForm::getProspectDiscoveryLocatedInEngland,
             GeneralDetailsForm::getInformationSource,
             GeneralDetailsForm::getOtherSourceOfInformation,
             GeneralDetailsForm::getQuadrantBlocks
         )
         .containsExactly(
-            generalDetail.getResourceLocatedInUkcs(),
-            generalDetail.getResourceLocatedInEngland(),
+            generalDetail.getProspectDiscoveryLocatedInUkcs(),
+            generalDetail.getProspectDiscoveryLocatedInEngland(),
             generalDetail.getInformationSource(),
             generalDetail.getOtherInformationSource(),
             List.of(quadrantBlockRef)
@@ -452,7 +452,7 @@ class GeneralDetailsFormServiceTest {
   private GeneralDetail getGeneralDetail(SubmissionDetail submissionDetail) {
     var generalDetail = new GeneralDetail();
     generalDetail.setSubmissionDetail(submissionDetail);
-    generalDetail.setResourceLocatedInUkcs(true);
+    generalDetail.setProspectDiscoveryLocatedInUkcs(true);
     generalDetail.setInformationSource(InformationSource.WELL_INVESTMENT_DECISION);
     generalDetail.setFieldStoppedProducingDate(LocalDate.of(1999, 5, 1));
     generalDetail.setCapitalProjectScopeDelivered("test");

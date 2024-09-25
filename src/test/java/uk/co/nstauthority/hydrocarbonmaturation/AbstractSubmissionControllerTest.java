@@ -204,6 +204,8 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
     var field = mock(Field.class);
     when(field.getResponsibleOrganisationId())
             .thenReturn(resourceDetail.getOrganisationId());
+    when(field.getFieldLocatedInEngland())
+            .thenReturn(true);
     when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
             .thenReturn(field);
     var orgGroupId = 100;

@@ -58,6 +58,10 @@ public class Field {
 
   private Boolean isOnLicence;
 
+  private Boolean fieldLocatedInUkcs;
+
+  private Boolean fieldLocatedInEngland;
+
   public Integer getFieldIdentifier() {
     return fieldIdentifier;
   }
@@ -169,5 +173,22 @@ public class Field {
 
   public void setIsOnLicence(Boolean onLicence) {
     isOnLicence = onLicence;
+  }
+
+
+  public Boolean getFieldLocatedInUkcs() {
+    return fieldLocatedInUkcs;
+  }
+
+  public void setFieldLocatedInUkcs(Boolean fieldLocatedInUkcs) {
+    this.fieldLocatedInUkcs = fieldLocatedInUkcs;
+  }
+
+  public Boolean getFieldLocatedInEngland() {
+    return fieldLocatedInEngland;
+  }
+
+  public void setFieldLocatedInEngland(Boolean fieldLocatedInEngland) {
+    this.fieldLocatedInEngland = fieldLocatedInEngland;
   }
 }

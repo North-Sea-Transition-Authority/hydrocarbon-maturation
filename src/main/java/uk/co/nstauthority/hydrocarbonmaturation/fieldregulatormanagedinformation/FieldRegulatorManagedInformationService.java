@@ -59,6 +59,8 @@ public class FieldRegulatorManagedInformationService {
                   ? responsibleOrganisationId.toString()
                   : "");
               form.setOnshoreOffshore(field.getOnshoreOffshore());
+              form.setFieldLocatedInUkcs(field.getFieldLocatedInUkcs());
+              form.setFieldLocatedInEngland(field.getFieldLocatedInEngland());
 
               regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResource(resource)
                   .ifPresent(

@@ -65,8 +65,8 @@ public class GeneralDetailsFormService {
 
   private GeneralDetailsForm generalDetailEntityToForm(GeneralDetail generalDetail) {
     var form = new GeneralDetailsForm();
-    form.setResourceLocatedInUkcs(generalDetail.getResourceLocatedInUkcs());
-    form.setResourceLocatedInEngland(generalDetail.getResourceLocatedInEngland());
+    form.setProspectDiscoveryLocatedInUkcs(generalDetail.getProspectDiscoveryLocatedInUkcs());
+    form.setProspectDiscoveryLocatedInEngland(generalDetail.getProspectDiscoveryLocatedInEngland());
 
     var licenceApplicationId = generalDetail.getLicenceApplicationId();
     var licenceApplicationRef = generalDetail.getLicenceApplicationReference();
@@ -85,12 +85,12 @@ public class GeneralDetailsFormService {
       form.setOtherSourceOfInformation(generalDetail.getOtherInformationSource());
     }
 
-    if (BooleanUtils.isFalse(generalDetail.getResourceLocatedInUkcs())) {
+    if (BooleanUtils.isFalse(generalDetail.getProspectDiscoveryLocatedInUkcs())) {
 
       var decimalPercentage = generalDetail.getPercentageLocatedInUkcs() == null
           ? new DecimalInput() : new DecimalInput(generalDetail.getPercentageLocatedInUkcs().toString());
       form.setPercentageLocatedInUkcs(decimalPercentage);
-    } else if (BooleanUtils.isFalse(generalDetail.getResourceLocatedInEngland())) {
+    } else if (BooleanUtils.isFalse(generalDetail.getProspectDiscoveryLocatedInEngland())) {
 
       var decimalPercentage = generalDetail.getPercentageLocatedInEngland() == null
           ? new DecimalInput() : new DecimalInput(generalDetail.getPercentageLocatedInEngland().toString());

@@ -50,6 +50,12 @@ public class FieldFormValidator implements Validator {
       ValidationUtils.rejectIfEmpty(errors, "geographicalArea", "geographicalArea.required", "Select a geographical area");
 
       ValidationUtils.rejectIfEmpty(errors, "responsibleTeamType", "responsibleTeamType.required", "Select a responsible team");
+
+      ValidationUtils.rejectIfEmpty(errors,
+              "fieldLocatedInUkcs", "fieldLocatedInUkcs.required", "Select if this field is wholly located in the UKCS");
+    } else {
+      ValidationUtils.rejectIfEmpty(errors,
+              "fieldLocatedInEngland", "fieldLocatedInEngland.required", "Select if this field is wholly located in England");
     }
 
     ValidationUtils.rejectIfEmpty(errors,

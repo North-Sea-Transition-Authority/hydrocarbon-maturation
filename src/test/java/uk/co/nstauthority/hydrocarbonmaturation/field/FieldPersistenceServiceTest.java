@@ -77,6 +77,7 @@ class FieldPersistenceServiceTest {
     private final String RESPONSIBLE_ORGANISATION_NAME = "responsible organisation";
     private final String REGISTERED_NUMBER = "123";
     private final UUID ASSOCIATED_DISCOVERY_ID = UUID.randomUUID();
+    private final Boolean FIELD_LOCATED_IN_UKCS = true;
 
     @BeforeEach
     void setup() {
@@ -92,6 +93,8 @@ class FieldPersistenceServiceTest {
       form.setFieldNumber(FIELD_NUMBER);
       form.setInfrastructureHost(INFRASTRUCTURE_HOST);
       form.setAssociatedDiscoveries(List.of());
+      form.setFieldLocatedInUkcs(FIELD_LOCATED_IN_UKCS);
+      form.setFieldLocatedInEngland(null);
     }
 
     @Test
@@ -191,7 +194,9 @@ class FieldPersistenceServiceTest {
               Field::getOnshoreOffshore,
               Field::getDeterminationStatus,
               Field::getFieldNumber,
-              Field::getInfrastructureHost
+              Field::getInfrastructureHost,
+              Field::getFieldLocatedInUkcs,
+              Field::getFieldLocatedInEngland
           )
           .containsExactly(
               resource,
@@ -202,7 +207,9 @@ class FieldPersistenceServiceTest {
               ONSHORE_OFFSHORE,
               DETERMINATION_STATUS,
               FIELD_NUMBER.createIntegerOrNull(),
-              INFRASTRUCTURE_HOST
+              INFRASTRUCTURE_HOST,
+              FIELD_LOCATED_IN_UKCS,
+              null
           );
 
       verify(fieldRepository).save(result);

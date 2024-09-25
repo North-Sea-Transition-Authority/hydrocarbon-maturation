@@ -74,7 +74,7 @@ class GeneralDetailsPersistenceServiceTest {
   @Test
   void saveGeneralDetails_whenGivenAnOffshoreForm_andLocatedInUkcs_verifyCreatedEntity() {
     var form = new GeneralDetailsForm();
-    form.setResourceLocatedInUkcs(true);
+    form.setProspectDiscoveryLocatedInUkcs(true);
     form.setInformationSource(InformationSource.PRE_DRILL_SUBMISSION);
 
     var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
@@ -86,17 +86,17 @@ class GeneralDetailsPersistenceServiceTest {
 
     assertThat(savedGeneralDetail)
         .extracting(
-            GeneralDetail::getResourceLocatedInUkcs,
+            GeneralDetail::getProspectDiscoveryLocatedInUkcs,
             GeneralDetail::getPercentageLocatedInUkcs,
-            GeneralDetail::getResourceLocatedInEngland,
+            GeneralDetail::getProspectDiscoveryLocatedInEngland,
             GeneralDetail::getPercentageLocatedInEngland,
             GeneralDetail::getInformationSource,
             GeneralDetail::getOtherInformationSource
         )
         .containsExactly(
-            form.getResourceLocatedInUkcs(),
+            form.getProspectDiscoveryLocatedInUkcs(),
             form.getPercentageLocatedInUkcs(),
-            form.getResourceLocatedInEngland(),
+            form.getProspectDiscoveryLocatedInEngland(),
             form.getPercentageLocatedInEngland(),
             form.getInformationSource(),
             form.getOtherSourceOfInformation()
@@ -106,7 +106,7 @@ class GeneralDetailsPersistenceServiceTest {
   @Test
   void saveGeneralDetails_whenGivenAnOffshoreForm_andNotLocatedInUkcs_verifyCreatedEntity() {
     var form = new GeneralDetailsForm();
-    form.setResourceLocatedInUkcs(false);
+    form.setProspectDiscoveryLocatedInUkcs(false);
     form.setPercentageLocatedInUkcs(new DecimalInput("42"));
     form.setInformationSource(InformationSource.PRE_DRILL_SUBMISSION);
 
@@ -119,17 +119,17 @@ class GeneralDetailsPersistenceServiceTest {
 
     assertThat(savedGeneralDetail)
         .extracting(
-            GeneralDetail::getResourceLocatedInUkcs,
+            GeneralDetail::getProspectDiscoveryLocatedInUkcs,
             GeneralDetail::getPercentageLocatedInUkcs,
-            GeneralDetail::getResourceLocatedInEngland,
+            GeneralDetail::getProspectDiscoveryLocatedInEngland,
             GeneralDetail::getPercentageLocatedInEngland,
             GeneralDetail::getInformationSource,
             GeneralDetail::getOtherInformationSource
         )
         .containsExactly(
-            form.getResourceLocatedInUkcs(),
+            form.getProspectDiscoveryLocatedInUkcs(),
             form.getPercentageLocatedInUkcs().asBigDecimal().get(),
-            form.getResourceLocatedInEngland(),
+            form.getProspectDiscoveryLocatedInEngland(),
             form.getPercentageLocatedInEngland(),
             form.getInformationSource(),
             form.getOtherSourceOfInformation()
@@ -139,7 +139,7 @@ class GeneralDetailsPersistenceServiceTest {
   @Test
   void saveGeneralDetails_whenGivenAnOnshoreForm_andLocatedInEngland_verifyCreatedEntity() {
     var form = new GeneralDetailsForm();
-    form.setResourceLocatedInEngland(true);
+    form.setProspectDiscoveryLocatedInEngland(true);
     form.setInformationSource(InformationSource.PRE_DRILL_SUBMISSION);
 
     var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
@@ -151,17 +151,17 @@ class GeneralDetailsPersistenceServiceTest {
 
     assertThat(savedGeneralDetail)
         .extracting(
-            GeneralDetail::getResourceLocatedInUkcs,
+            GeneralDetail::getProspectDiscoveryLocatedInUkcs,
             GeneralDetail::getPercentageLocatedInUkcs,
-            GeneralDetail::getResourceLocatedInEngland,
+            GeneralDetail::getProspectDiscoveryLocatedInEngland,
             GeneralDetail::getPercentageLocatedInEngland,
             GeneralDetail::getInformationSource,
             GeneralDetail::getOtherInformationSource
         )
         .containsExactly(
-            form.getResourceLocatedInUkcs(),
+            form.getProspectDiscoveryLocatedInUkcs(),
             form.getPercentageLocatedInUkcs(),
-            form.getResourceLocatedInEngland(),
+            form.getProspectDiscoveryLocatedInEngland(),
             form.getPercentageLocatedInEngland(),
             form.getInformationSource(),
             form.getOtherSourceOfInformation()
@@ -171,7 +171,7 @@ class GeneralDetailsPersistenceServiceTest {
   @Test
   void saveGeneralDetails_whenGivenAnOnshoreForm_andNotLocatedInEngland_verifyCreatedEntity() {
     var form = new GeneralDetailsForm();
-    form.setResourceLocatedInEngland(false);
+    form.setProspectDiscoveryLocatedInEngland(false);
     form.setPercentageLocatedInEngland(new DecimalInput("42"));
     form.setInformationSource(InformationSource.PRE_DRILL_SUBMISSION);
 
@@ -184,17 +184,17 @@ class GeneralDetailsPersistenceServiceTest {
 
     assertThat(savedGeneralDetail)
         .extracting(
-            GeneralDetail::getResourceLocatedInUkcs,
+            GeneralDetail::getProspectDiscoveryLocatedInUkcs,
             GeneralDetail::getPercentageLocatedInUkcs,
-            GeneralDetail::getResourceLocatedInEngland,
+            GeneralDetail::getProspectDiscoveryLocatedInEngland,
             GeneralDetail::getPercentageLocatedInEngland,
             GeneralDetail::getInformationSource,
             GeneralDetail::getOtherInformationSource
         )
         .containsExactly(
-            form.getResourceLocatedInUkcs(),
+            form.getProspectDiscoveryLocatedInUkcs(),
             form.getPercentageLocatedInUkcs(),
-            form.getResourceLocatedInEngland(),
+            form.getProspectDiscoveryLocatedInEngland(),
             form.getPercentageLocatedInEngland().asBigDecimal().get(),
             form.getInformationSource(),
             form.getOtherSourceOfInformation()
@@ -460,7 +460,7 @@ class GeneralDetailsPersistenceServiceTest {
 
     assertThat(savedGeneralDetail)
         .extracting(
-            GeneralDetail::getResourceLocatedInUkcs,
+            GeneralDetail::getProspectDiscoveryLocatedInUkcs,
             GeneralDetail::getPercentageLocatedInUkcs,
             GeneralDetail::getInformationSource,
             GeneralDetail::getOtherInformationSource

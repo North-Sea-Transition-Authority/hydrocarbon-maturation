@@ -19,6 +19,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.referenceblock.ReferenceBlockRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -49,6 +50,7 @@ public class GeneralDetailsController {
   private final GeneralDetailsFormValidator generalDetailsFormValidator;
   private final OnshoreOffshoreService onshoreOffshoreService;
   private final SubmissionSupportingDocumentService supportingDocumentService;
+  private final FieldPersistenceService fieldPersistenceService;
 
   @Autowired
   public GeneralDetailsController(GeneralDetailsFormService generalDetailsFormService,
@@ -56,13 +58,15 @@ public class GeneralDetailsController {
                                   GeneralDetailsPersistenceService generalDetailsPersistenceService,
                                   GeneralDetailsFormValidator generalDetailsFormValidator,
                                   OnshoreOffshoreService onshoreOffshoreService,
-                                  SubmissionSupportingDocumentService supportingDocumentService) {
+                                  SubmissionSupportingDocumentService supportingDocumentService,
+                                  FieldPersistenceService fieldPersistenceService) {
     this.generalDetailsFormService = generalDetailsFormService;
     this.submissionDetailService = submissionDetailService;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.generalDetailsFormValidator = generalDetailsFormValidator;
     this.onshoreOffshoreService = onshoreOffshoreService;
     this.supportingDocumentService = supportingDocumentService;
+    this.fieldPersistenceService = fieldPersistenceService;
   }
 
   @GetMapping
@@ -131,13 +135,23 @@ public class GeneralDetailsController {
     }
 
     if (submissionDetail.isFieldSubmission()) {
+      var field = fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource());
+
+      boolean fieldWhollyLocatedInArea;
+      if (onshoreOffshore == OnshoreOffshore.OFFSHORE) {
+        fieldWhollyLocatedInArea = field.getFieldLocatedInUkcs();
+      } else {
+        fieldWhollyLocatedInArea = field.getFieldLocatedInEngland();
+      }
+
       modelAndView
           .addObject("fieldReportTemplate",
               supportingDocumentService.submissionFileUploadComponentAttributes(
                   form.getFieldReport(),
                   FileDocumentType.FIELD_REPORT, submissionDetail))
           .addObject("fieldReportType",
-              getFieldReportTypeForSubmissionType(submissionDetail));
+              getFieldReportTypeForSubmissionType(submissionDetail))
+          .addObject("fieldWhollyLocatedInArea", fieldWhollyLocatedInArea);
     }
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);

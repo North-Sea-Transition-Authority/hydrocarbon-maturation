@@ -170,22 +170,22 @@ public class GeneralDetailsPersistenceService {
   }
 
   private void setResourceLocated(GeneralDetail generalDetail, GeneralDetailsForm form, OnshoreOffshore onshoreOffshore) {
-    generalDetail.setResourceLocatedInUkcs(null);
+    generalDetail.setProspectDiscoveryLocatedInUkcs(null);
     generalDetail.setPercentageLocatedInUkcs(null);
-    generalDetail.setResourceLocatedInEngland(null);
+    generalDetail.setProspectDiscoveryLocatedInEngland(null);
     generalDetail.setPercentageLocatedInEngland(null);
 
     if (onshoreOffshore == OnshoreOffshore.OFFSHORE) {
-      generalDetail.setResourceLocatedInUkcs(form.getResourceLocatedInUkcs());
+      generalDetail.setProspectDiscoveryLocatedInUkcs(form.getProspectDiscoveryLocatedInUkcs());
 
-      if (BooleanUtils.isFalse(form.getResourceLocatedInUkcs())) {
+      if (BooleanUtils.isFalse(form.getProspectDiscoveryLocatedInUkcs())) {
         var decimalPercentage = form.getPercentageLocatedInUkcs().createBigDecimalOrNull();
         generalDetail.setPercentageLocatedInUkcs(decimalPercentage);
       }
     } else if (onshoreOffshore == OnshoreOffshore.ONSHORE) {
-      generalDetail.setResourceLocatedInEngland(form.getResourceLocatedInEngland());
+      generalDetail.setProspectDiscoveryLocatedInEngland(form.getProspectDiscoveryLocatedInEngland());
 
-      if (BooleanUtils.isFalse(form.getResourceLocatedInEngland())) {
+      if (BooleanUtils.isFalse(form.getProspectDiscoveryLocatedInEngland())) {
         var decimalPercentage = form.getPercentageLocatedInEngland().createBigDecimalOrNull();
         generalDetail.setPercentageLocatedInEngland(decimalPercentage);
       }

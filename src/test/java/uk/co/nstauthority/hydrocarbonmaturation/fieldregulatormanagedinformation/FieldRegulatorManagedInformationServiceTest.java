@@ -92,6 +92,8 @@ class FieldRegulatorManagedInformationServiceTest {
     field.setCommonNameForField("common name");
     field.setResponsibleOrganisationId(1);
     field.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    field.setFieldLocatedInUkcs(true);
+    field.setFieldLocatedInEngland(null);
     field.setFieldNumber(1);
     field.setInfrastructureHost(false);
     field.setDeterminationStatus(DeterminationStatus.DETERMINED);
@@ -121,6 +123,8 @@ class FieldRegulatorManagedInformationServiceTest {
             FieldForm::getCommonNameForField,
             FieldForm::getResponsibleOrganisationId,
             FieldForm::getOnshoreOffshore,
+            FieldForm::getFieldLocatedInUkcs,
+            FieldForm::getFieldLocatedInEngland,
             FieldForm::getGeographicalArea,
             FieldForm::getResponsibleTeamType,
             fieldForm -> fieldForm.getFieldNumber().createIntegerOrNull(),
@@ -135,6 +139,8 @@ class FieldRegulatorManagedInformationServiceTest {
             field.getCommonNameForField(),
             field.getResponsibleOrganisationId().toString(),
             field.getOnshoreOffshore(),
+            field.getFieldLocatedInUkcs(),
+            field.getFieldLocatedInEngland(),
             regulatorManagedInformation.getGeographicalArea(),
             regulatorManagedInformation.getResponsibleTeamType(),
             field.getFieldNumber(),
@@ -154,6 +160,8 @@ class FieldRegulatorManagedInformationServiceTest {
     field.setCommonNameForField("common name");
     field.setResponsibleOrganisationId(1);
     field.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    field.setFieldLocatedInUkcs(true);
+    field.setFieldLocatedInEngland(null);
     field.setFieldNumber(1);
     field.setInfrastructureHost(false);
     field.setDeterminationStatus(DeterminationStatus.DETERMINED);
@@ -186,6 +194,8 @@ class FieldRegulatorManagedInformationServiceTest {
             FieldForm::getCommonNameForField,
             FieldForm::getResponsibleOrganisationId,
             FieldForm::getOnshoreOffshore,
+            FieldForm::getFieldLocatedInUkcs,
+            FieldForm::getFieldLocatedInEngland,
             FieldForm::getGeographicalArea,
             FieldForm::getResponsibleTeamType,
             fieldForm -> fieldForm.getFieldNumber().createIntegerOrNull(),
@@ -200,6 +210,8 @@ class FieldRegulatorManagedInformationServiceTest {
             field.getCommonNameForField(),
             field.getResponsibleOrganisationId().toString(),
             field.getOnshoreOffshore(),
+            field.getFieldLocatedInUkcs(),
+            field.getFieldLocatedInEngland(),
             regulatorManagedInformation.getGeographicalArea(),
             regulatorManagedInformation.getResponsibleTeamType(),
             field.getFieldNumber(),
@@ -219,6 +231,8 @@ class FieldRegulatorManagedInformationServiceTest {
     field.setCommonNameForField("common name");
     field.setResponsibleOrganisationId(1);
     field.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    field.setFieldLocatedInUkcs(true);
+    field.setFieldLocatedInEngland(null);
     field.setFieldNumber(1);
     field.setInfrastructureHost(false);
     field.setDeterminationStatus(DeterminationStatus.DETERMINED);
@@ -252,6 +266,8 @@ class FieldRegulatorManagedInformationServiceTest {
             FieldForm::getCommonNameForField,
             FieldForm::getResponsibleOrganisationId,
             FieldForm::getOnshoreOffshore,
+            FieldForm::getFieldLocatedInUkcs,
+            FieldForm::getFieldLocatedInEngland,
             FieldForm::getGeographicalArea,
             FieldForm::getResponsibleTeamType,
             fieldForm -> fieldForm.getFieldNumber().createIntegerOrNull(),
@@ -266,6 +282,8 @@ class FieldRegulatorManagedInformationServiceTest {
             field.getCommonNameForField(),
             field.getResponsibleOrganisationId().toString(),
             field.getOnshoreOffshore(),
+            field.getFieldLocatedInUkcs(),
+            field.getFieldLocatedInEngland(),
             regulatorManagedInformation.getGeographicalArea(),
             regulatorManagedInformation.getResponsibleTeamType(),
             field.getFieldNumber(),

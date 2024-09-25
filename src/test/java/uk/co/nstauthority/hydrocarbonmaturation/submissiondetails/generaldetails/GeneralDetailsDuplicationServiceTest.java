@@ -21,12 +21,16 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate.SubmissionDuplicationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.supportingdocuments.SubmissionSupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 
 @ExtendWith(MockitoExtension.class)
 class GeneralDetailsDuplicationServiceTest {
@@ -47,6 +51,9 @@ class GeneralDetailsDuplicationServiceTest {
 
   @Mock
   private SubmissionSupportingDocumentService supportingDocumentService;
+
+  @Mock
+  private FieldPersistenceService fieldPersistenceService;
 
   @InjectMocks
   private GeneralDetailsDuplicationService generalDetailsDuplicationService;
@@ -175,6 +182,11 @@ class GeneralDetailsDuplicationServiceTest {
     var oldGeneralDetail = new GeneralDetail();
     var newGeneralDetail = mock(GeneralDetail.class);
 
+    var newResource = new Resource();
+    var newSubmission = new Submission();
+    newSubmission.setResource(newResource);
+    newSubmissionDetail.setSubmission(newSubmission);
+
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(oldSubmissionDetail))
         .thenReturn(Optional.of(oldGeneralDetail));
     when(quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(oldGeneralDetail))
@@ -186,8 +198,6 @@ class GeneralDetailsDuplicationServiceTest {
 
     verify(submissionDuplicationPersistenceService, never())
         .duplicateChildAndReplaceParent(eq(oldGeneralDetail), any(QuadrantAndBlock.class), eq(QuadrantAndBlock.class));
-
-    verifyNoInteractions(newGeneralDetail);
   }
 
   @Test
@@ -200,10 +210,18 @@ class GeneralDetailsDuplicationServiceTest {
     newSubmissionDetail.setSubmissionType(submissionType);
     newSubmissionDetail.setCorrection(true);
 
+    var newResource = new Resource();
+    var newSubmission = new Submission();
+    newSubmission.setResource(newResource);
+    newSubmissionDetail.setSubmission(newSubmission);
+
     var oldGeneralDetail = new GeneralDetail();
 
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(oldSubmissionDetail))
         .thenReturn(Optional.of(oldGeneralDetail));
+
+    when(submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(any(SubmissionDetail.class), any(), any()))
+            .thenReturn(new GeneralDetail());
 
     generalDetailsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
@@ -221,14 +239,40 @@ class GeneralDetailsDuplicationServiceTest {
     newSubmissionDetail.setCorrection(false);
     newSubmissionDetail.setVersionNumber(2);
 
+    var newResource = new Resource();
+    var newSubmission = new Submission();
+    newSubmission.setResource(newResource);
+    newSubmissionDetail.setSubmission(newSubmission);
+
     var oldGeneralDetail = new GeneralDetail();
+    var newGeneralDetail = new GeneralDetail();
+    newGeneralDetail.setProspectDiscoveryLocatedInUkcs(true);
 
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(oldSubmissionDetail))
         .thenReturn(Optional.of(oldGeneralDetail));
 
+    when(submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(any(SubmissionDetail.class), any(), any()))
+            .thenReturn(newGeneralDetail);
+
+    var field = new Field();
+
+    when(fieldPersistenceService.getFieldByResource(newResource)).thenReturn(Optional.of(field));
+
     generalDetailsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
     verify(supportingDocumentService).copyUploadedFiles(oldSubmissionDetail, newSubmissionDetail, FileDocumentType.FIELD_REPORT);
+    verify(entityManager, times(1)).persist(newGeneralDetail);
+
+    assertThat(newGeneralDetail)
+            .extracting(
+                    GeneralDetail::getProspectDiscoveryLocatedInUkcs,
+                    GeneralDetail::getProspectDiscoveryLocatedInEngland
+            )
+            .containsOnlyNulls();
+
+    verify(entityManager, times(1)).persist(field);
+
+    assertThat(field).extracting(Field::getFieldLocatedInUkcs).isEqualTo(true);
   }
 
   @Test
@@ -242,10 +286,18 @@ class GeneralDetailsDuplicationServiceTest {
     newSubmissionDetail.setCorrection(false);
     newSubmissionDetail.setVersionNumber(1);
 
+    var newResource = new Resource();
+    var newSubmission = new Submission();
+    newSubmission.setResource(newResource);
+    newSubmissionDetail.setSubmission(newSubmission);
+
     var oldGeneralDetail = new GeneralDetail();
 
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(oldSubmissionDetail))
         .thenReturn(Optional.of(oldGeneralDetail));
+
+    when(submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(any(SubmissionDetail.class), any(), any()))
+            .thenReturn(new GeneralDetail());
 
     generalDetailsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 

@@ -2,9 +2,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.duplicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.math.BigDecimal;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.nstauthority.hydrocarbonmaturation.IntegrationTest;
@@ -43,12 +43,12 @@ class SubmissionDuplicationPersistenceServiceTest {
     assertThat(newGeneralDetail.getSubmissionDetail().getId()).isEqualTo(newSubmissionDetail.getId());
     assertThat(newGeneralDetail)
         .extracting(
-            GeneralDetail::getResourceLocatedInUkcs,
+            GeneralDetail::getProspectDiscoveryLocatedInUkcs,
             GeneralDetail::getPercentageLocatedInUkcs,
             GeneralDetail::getLicenceApplicationId
         )
         .containsExactly(
-            oldGeneralDetail.getResourceLocatedInUkcs(),
+            oldGeneralDetail.getProspectDiscoveryLocatedInUkcs(),
             oldGeneralDetail.getPercentageLocatedInUkcs(),
             oldGeneralDetail.getLicenceApplicationId()
         );
@@ -78,7 +78,7 @@ class SubmissionDuplicationPersistenceServiceTest {
   private GeneralDetail createGeneralDetail(SubmissionDetail oldSubmissionDetail) {
     var generalDetail = new GeneralDetail();
     generalDetail.setSubmissionDetail(oldSubmissionDetail);
-    generalDetail.setResourceLocatedInUkcs(true);
+    generalDetail.setProspectDiscoveryLocatedInUkcs(true);
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.TEN);
     generalDetail.setLicenceApplicationId(1);
     entityManager.persist(generalDetail);

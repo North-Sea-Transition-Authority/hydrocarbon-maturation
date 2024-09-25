@@ -89,8 +89,8 @@ public class GeneralDetailSummaryService {
     }
     return new GeneralDetailSummaryView(
         detail.getSubmissionDetail().getSubmissionType(),
-        BooleanUtil.yesNoFromBoolean(detail.getResourceLocatedInUkcs(), ""),
-        BooleanUtil.yesNoFromBoolean(detail.getResourceLocatedInEngland(), ""),
+        BooleanUtil.yesNoFromBoolean(detail.getProspectDiscoveryLocatedInUkcs(), ""),
+        BooleanUtil.yesNoFromBoolean(detail.getProspectDiscoveryLocatedInEngland(), ""),
         getPercentageLocatedInUkcs(detail),
         getPercentageLocatedInEngland(detail),
         getInformationSourceDisplay(detail),
@@ -143,13 +143,13 @@ public class GeneralDetailSummaryService {
   }
 
   private String getPercentageLocatedInUkcs(GeneralDetail detail) {
-    return detail.getPercentageLocatedInUkcs() != null && !detail.getResourceLocatedInUkcs()
+    return detail.getPercentageLocatedInUkcs() != null && !detail.getProspectDiscoveryLocatedInUkcs()
         ? detail.getPercentageLocatedInUkcs().toString() + "%"
         : "";
   }
 
   private String getPercentageLocatedInEngland(GeneralDetail detail) {
-    return detail.getPercentageLocatedInEngland() != null && !detail.getResourceLocatedInEngland()
+    return detail.getPercentageLocatedInEngland() != null && !detail.getProspectDiscoveryLocatedInEngland()
         ? detail.getPercentageLocatedInEngland().toString() + "%"
         : "";
   }
@@ -172,13 +172,13 @@ public class GeneralDetailSummaryService {
 
     var isOffshore = onshoreOffshoreService.getOnshoreOffshore(submissionDetail) == OnshoreOffshore.OFFSHORE;
     if (isOffshore) {
-      summaryDataView.addKeyValue(WHOLLY_WITHIN_UKCS, generalDetail.getResourceLocatedInUkcs());
-      if (BooleanUtils.isFalse(generalDetail.getResourceLocatedInUkcs())) {
+      summaryDataView.addKeyValue(WHOLLY_WITHIN_UKCS, generalDetail.getProspectDiscoveryLocatedInUkcs());
+      if (BooleanUtils.isFalse(generalDetail.getProspectDiscoveryLocatedInUkcs())) {
         summaryDataView.addKeyValue(PERCENT_WITHIN_UKCS, generalDetail.getPercentageLocatedInUkcs());
       }
     } else {
-      summaryDataView.addKeyValue(WHOLLY_WITHIN_ENGLAND, generalDetail.getResourceLocatedInEngland());
-      if (BooleanUtils.isFalse(generalDetail.getResourceLocatedInEngland())) {
+      summaryDataView.addKeyValue(WHOLLY_WITHIN_ENGLAND, generalDetail.getProspectDiscoveryLocatedInEngland());
+      if (BooleanUtils.isFalse(generalDetail.getProspectDiscoveryLocatedInEngland())) {
         summaryDataView.addKeyValue(PERCENT_WITHIN_ENGLAND, generalDetail.getPercentageLocatedInEngland());
       }
     }

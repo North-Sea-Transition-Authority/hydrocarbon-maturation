@@ -90,6 +90,7 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
             FieldRegulatorManagedInformationSummaryService.RESPONSIBLE_ORGANISATION,
             FieldRegulatorManagedInformationSummaryService.IS_ON_LICENCE,
             FieldRegulatorManagedInformationSummaryService.ONSHORE_OFFSHORE,
+            FieldRegulatorManagedInformationSummaryService.LOCATED_IN_ENGLAND,
             FieldRegulatorManagedInformationSummaryService.DETERMINATION_STATUS,
             FieldRegulatorManagedInformationSummaryService.FIELD_NUMBER,
             FieldRegulatorManagedInformationSummaryService.INFRASTRUCTURE_HOST
@@ -139,6 +140,8 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
                 BooleanUtil.yesNoFromBoolean(form.getIsOnLicence())),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.ONSHORE_OFFSHORE,
               form.getOnshoreOffshore().getDisplayName()),
+            Tuple.tuple(FieldRegulatorManagedInformationSummaryService.LOCATED_IN_ENGLAND,
+                BooleanUtil.yesNoFromBoolean(form.getFieldLocatedInEngland())),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.DETERMINATION_STATUS,
                 form.getDeterminationStatus().getDisplayName()),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.FIELD_NUMBER,
@@ -152,6 +155,7 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
   void getFieldRegulatorManagedInformationSummaryCard_offshore_assertAreaAndTeam() {
     var form = getFieldFormWithMockedAssociatedDiscoveries();
     form.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    form.setFieldLocatedInUkcs(false);
     form.setGeographicalArea(GeographicalArea.NORTHERN_NORTH_SEA);
     form.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
 
@@ -169,6 +173,8 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
         .contains(
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.ONSHORE_OFFSHORE,
                 OnshoreOffshore.OFFSHORE.getDisplayName()),
+            Tuple.tuple(FieldRegulatorManagedInformationSummaryService.LOCATED_IN_UKCS,
+                BooleanUtil.yesNoFromBoolean(form.getFieldLocatedInUkcs())),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.GEOGRAPHICAL_AREA,
                 form.getGeographicalArea().getDisplayName()),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.RESPONSIBLE_TEAM_TYPE,
@@ -374,6 +380,7 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
     form.setAssociatedDiscoveries(associatedDiscoveriesIds);
     form.setResponsibleOrganisationId("24");
     form.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
+    form.setFieldLocatedInEngland(true);
     form.setDeterminationStatus(DeterminationStatus.DETERMINED);
     form.setFieldNumber(DecimalInput.createDecimalInput(1));
     form.setInfrastructureHost(true);

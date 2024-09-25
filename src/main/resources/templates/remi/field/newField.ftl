@@ -126,6 +126,21 @@
                       </@fdsRadio.radioItem>
                   </#list>
               </@fdsRadio.radioGroup>
+              <@fdsRadio.radioGroup
+              path="form.fieldLocatedInUkcs"
+              labelText="Is the field wholly located within the UKCS?"
+              nestingPath="form.onshoreOffshore">
+                <@fdsRadio.radioYes path="form.fieldLocatedInUkcs"/>
+                <@fdsRadio.radioNo path="form.fieldLocatedInUkcs"/>
+              </@fdsRadio.radioGroup>
+            <#else>
+              <@fdsRadio.radioGroup
+              path="form.fieldLocatedInEngland"
+              labelText="Is the field wholly located within England?"
+              nestingPath="form.onshoreOffshore">
+                <@fdsRadio.radioYes path="form.fieldLocatedInEngland"/>
+                <@fdsRadio.radioNo path="form.fieldLocatedInEngland"/>
+              </@fdsRadio.radioGroup>
             </#if>
             <#assign firstItem=false/>
           </@fdsRadio.radioItem>

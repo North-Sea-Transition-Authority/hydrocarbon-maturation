@@ -24,6 +24,8 @@ public class FieldForm {
   private Boolean isOnLicence;
   private List<String> licences = new ArrayList<>();
   private String licenceSelect;
+  private Boolean fieldLocatedInUkcs;
+  private Boolean fieldLocatedInEngland;
 
   public String getLegalFieldName() {
     return legalFieldName;
@@ -153,5 +155,21 @@ public class FieldForm {
 
   public void setLicenceSelect(String licenceSelect) {
     this.licenceSelect = licenceSelect;
+  }
+
+  public Boolean getFieldLocatedInUkcs() {
+    return fieldLocatedInUkcs;
+  }
+
+  public void setFieldLocatedInUkcs(Boolean fieldLocatedInUkcs) {
+    this.fieldLocatedInUkcs = fieldLocatedInUkcs;
+  }
+
+  public Boolean getFieldLocatedInEngland() {
+    return fieldLocatedInEngland;
+  }
+
+  public void setFieldLocatedInEngland(Boolean fieldLocatedInEngland) {
+    this.fieldLocatedInEngland = fieldLocatedInEngland;
   }
 }

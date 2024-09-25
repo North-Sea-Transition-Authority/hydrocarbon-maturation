@@ -349,7 +349,8 @@ class GeneralDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("fieldSubmission", true),
             entry("submissionType", submissionDetail.getSubmissionType()),
             entry("driveMechanismOptions", DriveMechanism.getDriveMechanismOptionsWithHintText()),
-            entry("fieldReportTemplate", fileReportTemplate)
+            entry("fieldReportTemplate", fileReportTemplate),
+            entry("fieldWhollyLocatedInArea", true)
         ).containsKey("fieldReportType");
     assertEquals(GeneralDetailsForm.class, modelMap.get("form").getClass());
   }

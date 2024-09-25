@@ -70,9 +70,11 @@ public class FieldPersistenceService {
     if (form.getOnshoreOffshore() == OnshoreOffshore.ONSHORE) {
       geographicalArea = GeographicalArea.ONSHORE;
       responsibleTeamType = ResponsibleTeamType.ONSHORE;
+      field.setFieldLocatedInEngland(form.getFieldLocatedInEngland());
     } else {
       geographicalArea = form.getGeographicalArea();
       responsibleTeamType = form.getResponsibleTeamType();
+      field.setFieldLocatedInUkcs(form.getFieldLocatedInUkcs());
     }
 
     field.setDeterminationStatus(form.getDeterminationStatus());

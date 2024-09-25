@@ -76,7 +76,8 @@ class FieldFormValidatorTest {
     assertThat(extractedErrors)
         .contains(
             entry("geographicalArea", Set.of("geographicalArea.required")),
-            entry("responsibleTeamType", Set.of("responsibleTeamType.required"))
+            entry("responsibleTeamType", Set.of("responsibleTeamType.required")),
+            entry("fieldLocatedInUkcs", Set.of("fieldLocatedInUkcs.required"))
         );
   }
 
@@ -175,6 +176,7 @@ class FieldFormValidatorTest {
     form.setCorrectedLegalFieldName("corrected legal field name");
     form.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
     form.setDeterminationStatus(DeterminationStatus.UNDETERMINED);
+    form.setFieldLocatedInEngland(true);
     form.setFieldNumber(DecimalInput.createDecimalInput(1));
     form.setInfrastructureHost(false);
     form.setAssociatedDiscoveries(List.of("associated discovery"));
