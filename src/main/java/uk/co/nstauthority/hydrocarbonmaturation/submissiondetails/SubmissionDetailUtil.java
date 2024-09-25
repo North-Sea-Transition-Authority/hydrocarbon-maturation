@@ -41,9 +41,9 @@ public class SubmissionDetailUtil {
 
   public static boolean isFirstSubmission(SubmissionType submissionType) {
     return switch (submissionType) {
-      case CREATE_PROSPECT, CREATE_DISCOVERY,
-          CREATE_FDP, CREATE_CSR, CREATE_COP, CREATE_FDPA -> true;
-      case PROSPECT_UPDATE, POST_DRILL_DRY_HOLE, CREATE_DISCOVERY_FROM_PROSPECT,
+      case CREATE_PROSPECT, CREATE_DISCOVERY, CREATE_FDP,
+           CREATE_CSR, CREATE_COP, CREATE_FDPA, CREATE_DISCOVERY_FROM_PROSPECT -> true;
+      case PROSPECT_UPDATE, POST_DRILL_DRY_HOLE,
           UPDATE_DISCOVERY, RELINQUISHMENT_PROSPECT, RELINQUISHMENT_DISCOVERY, CREATE_FIELD -> false;
     };
   }

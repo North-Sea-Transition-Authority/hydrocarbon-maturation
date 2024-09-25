@@ -165,7 +165,7 @@ class SubmissionDetailTest {
 
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class,
-      names = {"CREATE_PROSPECT", "CREATE_DISCOVERY", "CREATE_FDP", "CREATE_CSR", "CREATE_COP", "CREATE_FDPA"},
+      names = {"CREATE_PROSPECT", "CREATE_DISCOVERY", "CREATE_FDP", "CREATE_CSR", "CREATE_COP", "CREATE_FDPA", "CREATE_DISCOVERY_FROM_PROSPECT"},
       mode = EnumSource.Mode.INCLUDE)
   void isFirstSubmission_true(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
@@ -174,7 +174,7 @@ class SubmissionDetailTest {
 
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class,
-      names = {"CREATE_PROSPECT", "CREATE_DISCOVERY", "CREATE_FDP", "CREATE_CSR", "CREATE_COP", "CREATE_FDPA"},
+      names = {"CREATE_PROSPECT", "CREATE_DISCOVERY", "CREATE_FDP", "CREATE_CSR", "CREATE_COP", "CREATE_FDPA", "CREATE_DISCOVERY_FROM_PROSPECT"},
       mode = EnumSource.Mode.EXCLUDE)
   void isFirstSubmission_false(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);

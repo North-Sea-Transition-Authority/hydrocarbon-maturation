@@ -152,7 +152,7 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void getCorrectPage_assertModelAndView() throws Exception {
+  void getCorrectPage_assertModelAndView_oneApprovedSubmission() throws Exception {
     List<SubmissionQuerySearchRecord> approvedSubmissions = List.of(
         SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(
             SubmissionDetailTestUtils.createNewProspectSubmissionDetail()
@@ -179,5 +179,56 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
             entry("removableSubmissions", removableSubmissionMap),
             entry("cancelUrl", ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
         );
+  }
+
+  @Test
+  void getCorrectPage_assertModelAndView_multipleApprovedSubmissions() throws Exception {
+    var initialSubmission = SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(
+            SubmissionDetailTestUtils.createNewProspectSubmissionDetail()
+    );
+
+    var additionalSubmission1 = SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(
+            SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail()
+    );
+
+    var additionalSubmission2 = SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(
+            SubmissionDetailTestUtils.createNewPostDrillDryWellSubmissionDetail()
+    );
+
+    List<SubmissionQuerySearchRecord> approvedSubmissions = List.of(
+          initialSubmission,
+          additionalSubmission1,
+          additionalSubmission2
+    );
+
+    List<SubmissionQuerySearchRecord> filteredSubmissions = List.of(
+            additionalSubmission1,
+            additionalSubmission2
+    );
+
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResource(resourceId)).thenReturn(approvedSubmissions);
+    var correctionTypes = CorrectionType.getCorrectionTypes();
+    when(correctionService.getCorrectionTypes(resource)).thenReturn(correctionTypes);
+    var submissionsOnResource = SubmissionHistorySelectorUtil.getSubmissionSelectorItems(approvedSubmissions);
+
+    var filteredSubmissionsOnResource = SubmissionHistorySelectorUtil.getSubmissionSelectorItems(filteredSubmissions);
+    var removableSubmissionMap = filteredSubmissionsOnResource.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+                    get(ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resourceId, null)))
+                            .with(user(user)))
+            .andExpect(view().name("remi/systemofrecord/corrections/corrections"))
+            .andReturn()
+            .getModelAndView()).getModelMap();
+
+    assertEquals(CorrectionForm.class, modelMap.get("form").getClass());
+    assertThat(modelMap)
+            .contains(
+                    entry("correctionTypes", correctionTypes),
+                    entry("submissionsOnResource", submissionsOnResource),
+                    entry("removableSubmissions", removableSubmissionMap),
+                    entry("cancelUrl", ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
+            );
   }
 }

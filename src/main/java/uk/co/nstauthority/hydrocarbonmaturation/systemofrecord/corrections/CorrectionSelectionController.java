@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistoryQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistorySelectorUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
@@ -90,9 +91,25 @@ public class CorrectionSelectionController {
     var submissionsOnResource = SubmissionHistorySelectorUtil.getSubmissionSelectorItems(
         approvedSubmissions
     );
-    // Only the latest submission on a resource can be removed. Create a map to select from on the correction screen.
-    var removableSubmissionMap = submissionsOnResource.entrySet().stream().findFirst().stream()
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+    Map<String, String> removableSubmissionMap;
+
+    if (approvedSubmissions.size() > 1) {
+      var filteredSubmissions = approvedSubmissions.stream()
+              .filter(s -> !SubmissionDetailUtil.isFirstSubmission(s.submissionType()))
+              .toList();
+
+      var filteredSubmissionsOnResource = SubmissionHistorySelectorUtil.getSubmissionSelectorItems(
+              filteredSubmissions
+      );
+
+      removableSubmissionMap = filteredSubmissionsOnResource.entrySet().stream()
+              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    } else {
+      removableSubmissionMap = submissionsOnResource.entrySet().stream().findFirst().stream()
+              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
     var correctionTypes = correctionService.getCorrectionTypes(resource);
 
     modelAndView
