@@ -16,7 +16,8 @@ public class ResourceArchiveService {
 
   static final String DISCOVERY_LINKED_TO_FIELD_WARNING = "Discoveries cannot be archived if they are linked to a field.";
   static final String OPEN_CORRECTION_WARNING = "%s cannot be archived with an open correction.";
-  static final String ACTIVE_SUBMISSIONS_WARNING = "%s cannot be archived with draft or submitted submissions.";
+  static final String ACTIVE_SUBMISSIONS_WARNING =
+      "%s cannot be archived with open draft submissions or submissions awaiting QA.";
 
   private final ResourceLinkService resourceLinkService;
   private final SubmissionDetailService submissionDetailService;

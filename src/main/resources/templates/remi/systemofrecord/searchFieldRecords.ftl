@@ -46,6 +46,11 @@
               selectorMinInputLength=3
               preselectedItems=parentFieldName!{}/>
           </@fdsSearch.searchFilterItem>
+          <@fdsSearch.searchFilterItem itemName="Archived">
+              <@fdsCheckbox.checkboxGroup smallCheckboxes=true path="form.showArchivedResources">
+                  <@fdsCheckbox.checkbox path="form.showArchivedResources" labelText="Show archived fields"/>
+              </@fdsCheckbox.checkboxGroup>
+          </@fdsSearch.searchFilterItem>
       </@fdsSearch.searchFilterList>
     </@fdsSearch.searchFilter>
     <@fdsSearch.searchPageContent twoThirdsWidth=true>
