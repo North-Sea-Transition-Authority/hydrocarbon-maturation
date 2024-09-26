@@ -3,6 +3,7 @@ DECLARE
 
     pars_rec RECORD;
     resource_id_exists NUMERIC;
+    resource_name_matches NUMERIC;
     undeveloped_discovery_id UUID;
     oil_equiv_recoverable_two_c DECIMAL;
     percentage_gas DECIMAL;
@@ -14,7 +15,9 @@ BEGIN
         FROM remi.pars_undeveloped_discoveries pud
     )
     LOOP
+
         resource_id_exists := NULL;
+        resource_name_matches := NULL;
         undeveloped_discovery_id := NULL;
         oil_equiv_recoverable_two_c := NULL;
         percentage_gas := NULL;
@@ -39,7 +42,37 @@ BEGIN
                 'Resource does not exist in ReMI or is not a discovery resource'
             );
 
-            EXIT;
+            CONTINUE;
+
+        END IF;
+
+        SELECT 1
+        INTO resource_name_matches
+        WHERE EXISTS (
+            SELECT 1
+            FROM remi.resources r
+            JOIN remi.submissions s ON r.id = s.resource_id
+            JOIN remi.submission_details sd ON sd.submission_id = s.id
+            JOIN remi.resource_details rd ON rd.submission_detail_id = sd.id
+            WHERE r.id = pars_rec.resource_id
+            AND LOWER(rd.resource_name) = LOWER(pars_rec.resource_name)
+        );
+
+        IF resource_name_matches IS NULL THEN
+
+            INSERT INTO remi.pars_migration_log (
+                resource_id,
+                migration_timestamp,
+                status,
+                failure_reason
+            ) VALUES (
+                 pars_rec.resource_id,
+                 now(),
+                 'FAILED',
+                 'Resource name does not match the resource name in ReMI'
+             );
+
+            CONTINUE;
 
         END IF;
         
@@ -61,7 +94,7 @@ BEGIN
                      'Oil recoverable values are not in the correct order'
                  );
 
-                EXIT;
+                CONTINUE;
                 
             END IF;
             
@@ -85,7 +118,7 @@ BEGIN
                      'Gas recoverable values are not in the correct order'
                  );
 
-                EXIT;
+                CONTINUE;
 
             END IF;
 
@@ -146,7 +179,7 @@ BEGIN
             ROUND(pars_rec.gas_recoverable_two_c, 2),
             ROUND(pars_rec.gas_recoverable_three_c, 2),
             NULL, -- TODO check this can be provided
-            false, -- TODO check this can provided
+            false,
             'EXTANT',
             CASE WHEN pars_rec.oil_recoverable_one_c IS NOT NULL AND pars_rec.gas_recoverable_one_c IS NOT NULL THEN
                 ROUND(pars_rec.oil_recoverable_one_c + (pars_rec.gas_recoverable_one_c/5.8), 2)
@@ -172,5 +205,5 @@ BEGIN
 
     END LOOP;
 
-END;
+END
 $$;
