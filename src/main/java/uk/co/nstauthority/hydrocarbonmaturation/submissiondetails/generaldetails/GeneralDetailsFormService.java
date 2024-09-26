@@ -149,7 +149,7 @@ public class GeneralDetailsFormService {
       return false;
     }
     return submissionDetailService
-        .getLatestApprovedSubmissionForSubmission(submissionDetail)
+        .getLatestApprovedSubmissionDetailForSubmission(submissionDetail)
         .map(generalDetailsPersistenceService::getGeneralDetailBySubmissionDetail)
         .filter(Optional::isPresent)
         .map(Optional::get)

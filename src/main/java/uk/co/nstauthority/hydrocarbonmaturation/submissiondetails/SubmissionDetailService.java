@@ -148,7 +148,7 @@ public class SubmissionDetailService {
         .isPresent();
   }
 
-  public Optional<SubmissionDetail> getLatestApprovedSubmissionForSubmission(SubmissionDetail submissionDetail) {
+  public Optional<SubmissionDetail> getLatestApprovedSubmissionDetailForSubmission(SubmissionDetail submissionDetail) {
     return switch (submissionDetail.getSubmissionType()) {
       case UPDATE_DISCOVERY, RELINQUISHMENT_DISCOVERY ->
           getLatestApprovedDiscoverySubmissionDetailForResource(submissionDetail.getSubmission().getResource());

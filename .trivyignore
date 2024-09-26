@@ -4,11 +4,11 @@ CVE-2024-40094
 # spring-security-core
 CVE-2024-38810
 
-#spring-webmvc
+# spring-webmvc
 CVE-2024-38816
 
-#protobuf
+# protobuf
 CVE-2024-7254
 
-#spring-web
+# spring-web
 CVE-2024-38809

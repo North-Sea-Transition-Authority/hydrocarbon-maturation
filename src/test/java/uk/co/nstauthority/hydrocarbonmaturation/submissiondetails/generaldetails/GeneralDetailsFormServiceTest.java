@@ -399,7 +399,7 @@ class GeneralDetailsFormServiceTest {
   void hasLicencesOnEarlierSubmission_whenNotFirstSubmissionAndNoLicence_assertFalse() {
     submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
     var approvedProspect = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
-    when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForSubmission(submissionDetail))
         .thenReturn(Optional.of(approvedProspect));
     var generalDetail = new GeneralDetail();
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(approvedProspect))
@@ -415,7 +415,7 @@ class GeneralDetailsFormServiceTest {
   void hasLicencesOnEarlierSubmission_whenLicenceFound_assertTrue() {
     submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
     var approvedProspect = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
-    when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForSubmission(submissionDetail))
         .thenReturn(Optional.of(approvedProspect));
     var generalDetail = new GeneralDetail();
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(approvedProspect))
@@ -431,7 +431,7 @@ class GeneralDetailsFormServiceTest {
   void hasLicencesOnEarlierSubmission_whenEarlierSubmissionWithoutGeneralDetail_assertFalse() {
     submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
     var approvedProspect = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
-    when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForSubmission(submissionDetail))
         .thenReturn(Optional.of(approvedProspect));
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(approvedProspect))
         .thenReturn(Optional.empty());
@@ -443,7 +443,7 @@ class GeneralDetailsFormServiceTest {
   @Test
   void hasLicencesOnEarlierSubmission_whenEarlierSubmissionNotPresent_assertFalse() {
     submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
-    when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForSubmission(submissionDetail))
         .thenReturn(Optional.empty());
     assertThat(generalDetailsFormService.hasLicencesOnEarlierSubmission(submissionDetail))
         .isFalse();

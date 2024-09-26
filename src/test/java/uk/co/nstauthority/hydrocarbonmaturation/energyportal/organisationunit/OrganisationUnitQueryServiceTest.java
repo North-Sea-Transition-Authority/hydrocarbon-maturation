@@ -10,6 +10,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService.ORGANISATION_UNIT_PROJECTION_ROOT;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.client.organisation.OrganisationApi;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
+import uk.co.fivium.energyportalapi.generated.types.OrganisationNameHistory;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
@@ -57,6 +64,8 @@ class OrganisationUnitQueryServiceTest {
   @Mock
   private InternalTeamService internalTeamService;
 
+  private Clock clock;
+
   private OrganisationUnitQueryService organisationUnitQueryService;
 
   @BeforeEach
@@ -70,6 +79,7 @@ class OrganisationUnitQueryServiceTest {
         internalTeamService,
         industryTeamService
     );
+    clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
   }
 
   @Test
@@ -117,6 +127,7 @@ class OrganisationUnitQueryServiceTest {
             OrganisationUnitDto::organisationUnitId,
             OrganisationUnitDto::organisationUnitName,
             OrganisationUnitDto::companyHouseNumber,
+            OrganisationUnitDto::organisationNameHistoryDtoList,
             OrganisationUnitDto::getSelectionText,
             OrganisationUnitDto::getSelectionId
         ).containsExactly(
@@ -124,6 +135,56 @@ class OrganisationUnitQueryServiceTest {
                 organisationUnit.getOrganisationUnitId(),
                 organisationUnit.getName(),
                 organisationUnit.getRegisteredNumber(),
+                Collections.emptyList(),
+                "%s (%s)".formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber()),
+                organisationUnit.getOrganisationUnitId().toString()
+            )
+        );
+  }
+
+  @Test
+  void getOrganisationUnits_whenRegulator_andOrganisationHasNameHistory_assertOrganisationFound() {
+    var organisationName = "name";
+    var orgNameHistory = new OrganisationNameHistory();
+    orgNameHistory.setName("old name");
+    var startDate = LocalDate.ofInstant(clock.instant(), clock.getZone());
+    var endDate = LocalDate.ofInstant(clock.instant().plus(30, ChronoUnit.DAYS), clock.getZone());
+    orgNameHistory.setStartDate(startDate);
+    orgNameHistory.setEndDate(endDate);
+    var orgNameHistoryList = List.of(orgNameHistory);
+    var orgNameHistoryDto = new OrganisationNameHistoryDto(
+        orgNameHistory.getName(),
+        orgNameHistory.getStartDate(),
+        orgNameHistory.getEndDate()
+    );
+    var organisationUnit = OrganisationUnitTestUtil.Builder()
+        .withOrganisationName("name")
+        .withOrganisationNameHistory(orgNameHistoryList)
+        .build();
+    var filter = OrganisationUnitQueryService.ORGANISATION_UNITS_PROJECTION_ROOT;
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER))
+        .thenReturn(true);
+    when(organisationApi.searchOrganisationUnits(
+        eq(organisationName),
+        eq(filter),
+        any(),
+        any()
+    )).thenReturn(List.of(organisationUnit));
+
+    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName, USER))
+        .extracting(
+            OrganisationUnitDto::organisationUnitId,
+            OrganisationUnitDto::organisationUnitName,
+            OrganisationUnitDto::companyHouseNumber,
+            OrganisationUnitDto::organisationNameHistoryDtoList,
+            OrganisationUnitDto::getSelectionText,
+            OrganisationUnitDto::getSelectionId
+        ).containsExactly(
+            tuple(
+                organisationUnit.getOrganisationUnitId(),
+                organisationUnit.getName(),
+                organisationUnit.getRegisteredNumber(),
+                List.of(orgNameHistoryDto),
                 "%s (%s)".formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber()),
                 organisationUnit.getOrganisationUnitId().toString()
             )
@@ -160,6 +221,7 @@ class OrganisationUnitQueryServiceTest {
             OrganisationUnitDto::organisationUnitId,
             OrganisationUnitDto::organisationUnitName,
             OrganisationUnitDto::companyHouseNumber,
+            OrganisationUnitDto::organisationNameHistoryDtoList,
             OrganisationUnitDto::getSelectionText,
             OrganisationUnitDto::getSelectionId
         ).containsExactly(
@@ -167,6 +229,7 @@ class OrganisationUnitQueryServiceTest {
                 organisationUnit.getOrganisationUnitId(),
                 organisationUnit.getName(),
                 organisationUnit.getRegisteredNumber(),
+                Collections.emptyList(),
                 "%s (%s)".formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber()),
                 organisationUnit.getOrganisationUnitId().toString()
             )
@@ -199,6 +262,7 @@ class OrganisationUnitQueryServiceTest {
             OrganisationUnitDto::organisationUnitId,
             OrganisationUnitDto::organisationUnitName,
             OrganisationUnitDto::companyHouseNumber,
+            OrganisationUnitDto::organisationNameHistoryDtoList,
             OrganisationUnitDto::getSelectionText,
             OrganisationUnitDto::getSelectionId
         ).containsExactly(
@@ -206,6 +270,7 @@ class OrganisationUnitQueryServiceTest {
                 organisationUnit.getOrganisationUnitId(),
                 organisationUnit.getName(),
                 organisationUnit.getRegisteredNumber(),
+                Collections.emptyList(),
                 "%s (%s)".formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber()),
                 organisationUnit.getOrganisationUnitId().toString()
             )
@@ -233,6 +298,7 @@ class OrganisationUnitQueryServiceTest {
             OrganisationUnitDto::organisationUnitId,
             OrganisationUnitDto::organisationUnitName,
             OrganisationUnitDto::companyHouseNumber,
+            OrganisationUnitDto::organisationNameHistoryDtoList,
             OrganisationUnitDto::getSelectionText,
             OrganisationUnitDto::getSelectionId
         ).containsExactly(
@@ -240,6 +306,7 @@ class OrganisationUnitQueryServiceTest {
                 organisationUnit.getOrganisationUnitId(),
                 organisationUnit.getName(),
                 organisationUnit.getRegisteredNumber(),
+                Collections.emptyList(),
                 "%s (%s)".formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber()),
                 organisationUnit.getOrganisationUnitId().toString()
             )
@@ -247,7 +314,56 @@ class OrganisationUnitQueryServiceTest {
   }
 
   @Test
-  void getOrganisationSearchableResults_whenWrongNameAndwhenIndustryOrganisationMember_assertNoOrganisationFound() {
+  void getOrganisationSearchableResults_whenIndustryOrganisationMember_andOrganisationNameHistoryExists_assertOrganisationFound() {
+    var organisationName = "name";
+    var organisationGroup = new OrganisationGroup();
+    organisationGroup.setOrganisationGroupId(1);
+    var orgNameHistory = new OrganisationNameHistory();
+    orgNameHistory.setName("old name");
+    var startDate = LocalDate.ofInstant(clock.instant(), clock.getZone());
+    var endDate = LocalDate.ofInstant(clock.instant().plus(30, ChronoUnit.DAYS), clock.getZone());
+    orgNameHistory.setStartDate(startDate);
+    orgNameHistory.setEndDate(endDate);
+    var orgNameHistoryList = List.of(orgNameHistory);
+    var orgNameHistoryDto = new OrganisationNameHistoryDto(
+        orgNameHistory.getName(),
+        orgNameHistory.getStartDate(),
+        orgNameHistory.getEndDate()
+    );
+    var organisationUnit = OrganisationUnitTestUtil.Builder()
+        .withOrganisationName("name")
+        .withOrganisationNameHistory(orgNameHistoryList)
+        .build();
+    organisationGroup.setOrganisationUnits(List.of(organisationUnit));
+    when(industryTeamService.getOrganisationGroupIdsForUser(USER))
+        .thenReturn(List.of(1));
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER))
+        .thenReturn(false);
+    when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(1)))
+        .thenReturn(List.of(organisationGroup));
+
+    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName, USER))
+        .extracting(
+            OrganisationUnitDto::organisationUnitId,
+            OrganisationUnitDto::organisationUnitName,
+            OrganisationUnitDto::companyHouseNumber,
+            OrganisationUnitDto::organisationNameHistoryDtoList,
+            OrganisationUnitDto::getSelectionText,
+            OrganisationUnitDto::getSelectionId
+        ).containsExactly(
+            tuple(
+                organisationUnit.getOrganisationUnitId(),
+                organisationUnit.getName(),
+                organisationUnit.getRegisteredNumber(),
+                List.of(orgNameHistoryDto),
+                "%s (%s)".formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber()),
+                organisationUnit.getOrganisationUnitId().toString()
+            )
+        );
+  }
+
+  @Test
+  void getOrganisationSearchableResults_whenWrongNameAndIndustryOrganisationMember_assertNoOrganisationFound() {
     var organisationName = "name";
     var organisationGroup = new OrganisationGroup();
     organisationGroup.setOrganisationGroupId(1);

@@ -2,10 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.discovery;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -21,18 +18,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.ObjectError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
-import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.NewResourceDetailsFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
@@ -45,7 +41,10 @@ class NewDiscoveryControllerTest extends AbstractSubmissionControllerTest {
   private static final User USER = UserTestUtil.Builder().build();
 
   @MockBean
-  private StartDiscoveryService startDiscoveryService;
+  private NewResourceDetailsFormValidator newResourceDetailsFormValidator;
+
+  @MockBean
+  private SubmissionCreateService submissionCreateService;
 
   private UUID submissionDetailId;
 
@@ -96,12 +95,9 @@ class NewDiscoveryControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void createDiscovery_asValidForm_assertRedirect() throws Exception {
     var form = new ResourceDetailsForm();
-
-    var bindingResult = new BeanPropertyBindingResult(UpdateDiscoveryForm.class, "form");
-    when(startDiscoveryService.validateNewDiscovery(any(), any(), any())).thenReturn(bindingResult);
-    when(startDiscoveryService.createNewDiscovery(form, USER)).thenReturn(submissionDetail);
+    when(newResourceDetailsFormValidator.isValid(any(), any(), any())).thenReturn(true);
+    when(submissionCreateService.createDiscovery(form, USER)).thenReturn(submissionDetail);
     when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
-
     mockMvc.perform(
             post(ReverseRouter.route(on(NewDiscoveryController.class).createDiscovery(null, null, null)))
                 .flashAttr("form", form)
@@ -116,9 +112,7 @@ class NewDiscoveryControllerTest extends AbstractSubmissionControllerTest {
   void createDiscovery_asInvalidForm_assertIsOk() throws Exception {
     var form = new ResourceDetailsForm();
 
-    var bindingResult = new BeanPropertyBindingResult(UpdateDiscoveryForm.class, "form");
-    bindingResult.addError(new ObjectError("form", "invalid form"));
-    when(startDiscoveryService.validateNewDiscovery(any(), any(), any())).thenReturn(bindingResult);
+    when(newResourceDetailsFormValidator.isValid(any(), any(), any())).thenReturn(false);
     when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
@@ -150,8 +144,7 @@ class NewDiscoveryControllerTest extends AbstractSubmissionControllerTest {
             true,
             OnshoreOffshore.getOnshoreOffshore());
 
-    verify(startDiscoveryService, times(1)).validateNewDiscovery(eq(form), any(), any());
-    verify(startDiscoveryService, never()).createNewDiscovery(any(), any());
+    verifyNoInteractions(submissionCreateService);
   }
 
   @SecurityTest

@@ -31,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmi
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRole;
 
@@ -236,10 +237,13 @@ public class SubmissionCreateService {
   }
 
   @Transactional
-  public SubmissionDetail createCorrectionSubmissionDetail(SubmissionDetail previousSubmissionDetail, User user) {
+  public SubmissionDetail createCorrectionSubmissionDetail(SubmissionDetail previousSubmissionDetail,
+                                                           User user,
+                                                           CorrectionType correctionType) {
     var correctionSubmissionDetail = submissionDetailPersistenceService.createCorrectionSubmissionDetail(
         previousSubmissionDetail,
-        user
+        user,
+        correctionType
     );
 
     createReservoirSubmissionDetails(correctionSubmissionDetail, previousSubmissionDetail);

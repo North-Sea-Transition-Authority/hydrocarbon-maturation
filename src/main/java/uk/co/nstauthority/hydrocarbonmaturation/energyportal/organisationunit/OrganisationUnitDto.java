@@ -1,11 +1,14 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit;
 
+import java.util.Collections;
+import java.util.List;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectable;
 
 public record OrganisationUnitDto(Integer organisationUnitId,
                                   String organisationUnitName,
-                                  String companyHouseNumber) implements SearchSelectable {
+                                  String companyHouseNumber,
+                                  List<OrganisationNameHistoryDto> organisationNameHistoryDtoList) implements SearchSelectable {
 
   public String getDisplayText() {
     if (companyHouseNumber != null) {
@@ -28,7 +31,13 @@ public record OrganisationUnitDto(Integer organisationUnitId,
     return new OrganisationUnitDto(
         organisationUnit.getOrganisationUnitId(),
         organisationUnit.getName(),
-        organisationUnit.getRegisteredNumber()
+        organisationUnit.getRegisteredNumber(),
+        organisationUnit.getOrganisationNameHistory() != null
+            ? organisationUnit.getOrganisationNameHistory()
+                .stream()
+                .map(OrganisationNameHistoryDto::fromOrganisationNameHistory)
+                .toList()
+            : Collections.emptyList()
     );
   }
 }

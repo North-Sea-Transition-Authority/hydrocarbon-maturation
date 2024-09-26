@@ -17,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsFormService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
@@ -28,7 +29,7 @@ class StartProspectControllerTest extends AbstractSubmissionControllerTest {
   GeneralDetailsFormService generalDetailsFormService;
 
   @MockBean
-  StartProspectService startProspectService;
+  SubmissionCreateService submissionCreateService;
 
   @SecurityTest
   void getStartPage_assertStatusOk() throws Exception {

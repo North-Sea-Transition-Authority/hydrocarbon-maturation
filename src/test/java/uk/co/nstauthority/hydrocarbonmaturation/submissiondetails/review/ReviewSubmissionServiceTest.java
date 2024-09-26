@@ -540,7 +540,7 @@ class ReviewSubmissionServiceTest {
           UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
       var resourceDetail = new ResourceDetail();
       resourceDetail.setOrganisationId(LATEST_ACCEPTED_ORG_UNIT_ID);
-      when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+      when(submissionDetailService.getLatestApprovedSubmissionDetailForSubmission(submissionDetail))
           .thenReturn(Optional.of(latestApprovedSubmissionDetail));
       when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmissionDetail))
           .thenReturn(Optional.of(resourceDetail));
@@ -558,7 +558,7 @@ class ReviewSubmissionServiceTest {
           UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
       var resourceDetail = new ResourceDetail();
       resourceDetail.setOrganisationId(LATEST_ACCEPTED_ORG_UNIT_ID);
-      when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+      when(submissionDetailService.getLatestApprovedSubmissionDetailForSubmission(submissionDetail))
           .thenReturn(Optional.of(latestApprovedSubmissionDetail));
       when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmissionDetail))
           .thenReturn(Optional.of(resourceDetail));
@@ -574,7 +574,7 @@ class ReviewSubmissionServiceTest {
     void WhenNotInitialSubmission_whenDidNotFindLatestApproved() {
       var submissionRecord = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
           UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
-      when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+      when(submissionDetailService.getLatestApprovedSubmissionDetailForSubmission(submissionDetail))
           .thenReturn(Optional.empty());
 
       var result = reviewSubmissionService.canUpdateSubmission(submissionRecord, USER_DETAIL, submissionDetail);
@@ -587,7 +587,7 @@ class ReviewSubmissionServiceTest {
       var submissionRecord = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
           UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
 
-      when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+      when(submissionDetailService.getLatestApprovedSubmissionDetailForSubmission(submissionDetail))
           .thenReturn(Optional.of(latestApprovedSubmissionDetail));
       when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmissionDetail))
           .thenReturn(Optional.empty());

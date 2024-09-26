@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.discovery;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -28,6 +27,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestContr
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
@@ -39,7 +39,10 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
   private static final User USER = UserTestUtil.Builder().build();
 
   @MockBean
-  private StartDiscoveryService startDiscoveryService;
+  private StartDiscoveryFormValidator startDiscoveryFormValidator;
+
+  @MockBean
+  private SubmissionCreateService submissionCreateService;
 
   private UUID submissionDetailId;
 
@@ -80,10 +83,8 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
   @SecurityTest
   void startDiscovery_asValidForm_assertRedirect() throws Exception {
     var form = new StartDiscoveryForm();
-
-    var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
-    when(startDiscoveryService.validateDiscoveryFromProspect(any(), any())).thenReturn(bindingResult);
-    when(startDiscoveryService.createNewDiscoveryFromProspect(form, USER)).thenReturn(submissionDetail);
+    when(startDiscoveryFormValidator.isValid(any())).thenReturn(true);
+    when(submissionCreateService.createNewDiscoveryFromProspect(form, USER)).thenReturn(submissionDetail);
     when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
 
     mockMvc.perform(
@@ -102,7 +103,7 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
 
     var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
     bindingResult.addError(new ObjectError("form", "invalid form"));
-    when(startDiscoveryService.validateDiscoveryFromProspect(any(), any())).thenReturn(bindingResult);
+    when(startDiscoveryFormValidator.isValid(any())).thenReturn(false);
     when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     var modelAndView = mockMvc.perform(
             post(ReverseRouter.route(on(PostDrillDiscoveryController.class).startDiscovery(null, null, null)))
@@ -126,9 +127,7 @@ class PostDrillDiscoveryControllerTest extends AbstractSubmissionControllerTest 
             form,
             SearchSelectorService.route(on(ResourceRestController.class).searchProspects(null, SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT, null))
         );
-
-    verify(startDiscoveryService, times(1)).validateDiscoveryFromProspect(any(), any());
-    verify(startDiscoveryService, never()).createNewDiscoveryFromProspect(any(), any());
+    verify(submissionCreateService, never()).createNewDiscoveryFromProspect(any(), any());
   }
 
   @SecurityTest

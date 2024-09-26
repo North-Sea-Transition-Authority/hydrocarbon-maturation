@@ -14,13 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
-import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.NewResourceDetailsFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
@@ -36,19 +37,19 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 @HasAnyRole(role = Role.INDUSTRY_SUBMIT, teamType = TeamType.INDUSTRY)
 public class NewDiscoveryController {
 
-  private final ControllerHelperService controllerHelperService;
-  private final StartDiscoveryService startDiscoveryService;
-  private final OrganisationUnitQueryService organisationUnitQueryService;
+  private final NewResourceDetailsFormValidator newResourceDetailsFormValidator;
   private final InternalTeamService internalTeamService;
+  private final SubmissionCreateService submissionCreateService;
+  private final OrganisationUnitQueryService organisationUnitQueryService;
 
   @Autowired
-  public NewDiscoveryController(ControllerHelperService controllerHelperService,
-                                StartDiscoveryService startDiscoveryService,
-                                OrganisationUnitQueryService organisationUnitQueryService,
-                                InternalTeamService internalTeamService) {
-    this.controllerHelperService = controllerHelperService;
-    this.startDiscoveryService = startDiscoveryService;
+  public NewDiscoveryController(NewResourceDetailsFormValidator newResourceDetailsFormValidator,
+                                InternalTeamService internalTeamService,
+                                SubmissionCreateService submissionCreateService,
+                                OrganisationUnitQueryService organisationUnitQueryService) {
+    this.newResourceDetailsFormValidator = newResourceDetailsFormValidator;
     this.internalTeamService = internalTeamService;
+    this.submissionCreateService = submissionCreateService;
     this.organisationUnitQueryService = organisationUnitQueryService;
   }
 
@@ -60,15 +61,14 @@ public class NewDiscoveryController {
   @PostMapping
   public ModelAndView createDiscovery(@Valid @ModelAttribute("form") ResourceDetailsForm form,
                                       BindingResult bindingResult,
-                                      User user) {
-    bindingResult = startDiscoveryService.validateNewDiscovery(form, bindingResult, user);
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getNewDiscoveryPageModelAndView(form, user),
-        () -> {
-          var submissionDetail = startDiscoveryService.createNewDiscovery(form, user);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId(), null));
-        }
-    );
+                                      User user
+  ) {
+    if (newResourceDetailsFormValidator.isValid(bindingResult, ResourceType.DISCOVERY, user)) {
+      var submissionDetail = submissionCreateService.createDiscovery(form, user);
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId(), null));
+    } else {
+      return getNewDiscoveryPageModelAndView(form, user);
+    }
   }
 
   private ModelAndView getNewDiscoveryPageModelAndView(ResourceDetailsForm form, User user) {
@@ -80,17 +80,13 @@ public class NewDiscoveryController {
             SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null, null)))
         .addObject("resourceType",
             ResourceType.DISCOVERY.getDisplayName().toLowerCase())
-        .addObject("isRegulatorOrAreaTeamUser", isRegulatorOrAreaTeamUser(user))
+        .addObject("isRegulatorOrAreaTeamUser", internalTeamService.isRegulatorOrAreaTeamUser(user))
         .addObject("form", form)
         .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())
         .addObject("alreadySelectedOrganisation",
             organisationUnitQueryService.getPreSelectedOrganisationUnit(
                 NumberUtils.createInteger(form.getResponsibleOrganisationId()))
         );
-  }
-
-  private boolean isRegulatorOrAreaTeamUser(User user) {
-    return internalTeamService.isRegulatorOrAreaTeamUser(user);
   }
 }
 

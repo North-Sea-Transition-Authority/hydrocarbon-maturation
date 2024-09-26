@@ -80,6 +80,9 @@ class CorrectionServiceTest {
   @Mock
   private ResourceLinkService resourceLinkService;
 
+  @Mock
+  private OrganisationCorrectionService organisationCorrectionService;
+
   private Clock clock;
 
   private CorrectionService correctionService;
@@ -98,7 +101,7 @@ class CorrectionServiceTest {
         submissionDetailPersistenceService,
         resourceGroupService,
         resourceLinkService,
-        clock = Clock.fixed(Instant.now(), ZoneId.systemDefault()));
+        organisationCorrectionService, clock = Clock.fixed(Instant.now(), ZoneId.systemDefault()));
 
     resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
     user = UserTestUtil.Builder().build();
@@ -161,14 +164,16 @@ class CorrectionServiceTest {
   void startCorrectionForType_submissionCorrection() {
     var previousSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
     var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.SUBMISSION_CORRECTION);
+    var correctionType = CorrectionType.SUBMISSION_CORRECTION;
+    form.setCorrectionType(correctionType);
     form.setSubmissionDetailIdForCorrectingInformation(previousSubmissionDetail.getId().toString());
     when(submissionDetailService.getSubmissionDetailForIdOrError(previousSubmissionDetail.getId())).thenReturn(previousSubmissionDetail);
     var correctionSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
     correctionSubmissionDetail.setCorrection(true);
     correctionSubmissionDetail.setCorrectionByWuaId(user.wuaId().intValue());
     correctionSubmissionDetail.setCorrectionTimestamp(clock.instant());
-    when(submissionCreateService.createCorrectionSubmissionDetail(previousSubmissionDetail, user))
+    correctionSubmissionDetail.setCorrectionType(correctionType);
+    when(submissionCreateService.createCorrectionSubmissionDetail(previousSubmissionDetail, user, correctionType))
         .thenReturn(correctionSubmissionDetail);
     var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
 
@@ -179,10 +184,12 @@ class CorrectionServiceTest {
     assertThat(submissionDetail).extracting(
         SubmissionDetail::isCorrection,
         SubmissionDetail::getCorrectionByWuaId,
+        SubmissionDetail::getCorrectionType,
         SubmissionDetail::getSubmitterType
     ).containsExactly(
         true,
         user.wuaId().intValue(),
+        correctionType,
         SubmitterType.REGULATOR
     );
     assertNotNull(submissionDetailArgumentCaptor.getValue().getCorrectionTimestamp());
@@ -197,7 +204,8 @@ class CorrectionServiceTest {
     var previousSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
 
     var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.HISTORIC_UPDATE);
+    var correctionType = CorrectionType.HISTORIC_UPDATE;
+    form.setCorrectionType(correctionType);
     form.setMissingUpdateDay("1");
     form.setMissingUpdateMonth("1");
     form.setMissingUpdateYear("2023");
@@ -213,13 +221,14 @@ class CorrectionServiceTest {
     newSubmissionDetail.setCorrection(true);
     newSubmissionDetail.setCorrectionByWuaId(user.wuaId().intValue());
     newSubmissionDetail.setCorrectionTimestamp(Instant.now());
-    when(submissionCreateService.createCorrectionSubmissionDetail(previousSubmissionDetail, user)).thenReturn(newSubmissionDetail);
+    newSubmissionDetail.setCorrectionType(correctionType);
+    when(submissionCreateService.createCorrectionSubmissionDetail(previousSubmissionDetail, user, correctionType)).thenReturn(newSubmissionDetail);
 
     var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
 
     var modelAndView = correctionService.startCorrectionForTypeAndRedirect(form, user);
 
-    historicUpdateAssertions(submissionDetailArgumentCaptor, form, modelAndView);
+    historicUpdateAssertions(submissionDetailArgumentCaptor, form, modelAndView, correctionType);
   }
 
   @Test
@@ -227,7 +236,8 @@ class CorrectionServiceTest {
     var previousSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
 
     var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.HISTORIC_UPDATE);
+    var correctionType = CorrectionType.HISTORIC_UPDATE;
+    form.setCorrectionType(correctionType);
     form.setMissingUpdateDay("1");
     form.setMissingUpdateMonth("1");
     form.setMissingUpdateYear("2023");
@@ -243,14 +253,15 @@ class CorrectionServiceTest {
     newSubmissionDetail.setCorrection(true);
     newSubmissionDetail.setCorrectionByWuaId(user.wuaId().intValue());
     newSubmissionDetail.setCorrectionTimestamp(Instant.now());
-    when(submissionCreateService.createCorrectionSubmissionDetail(previousSubmissionDetail, user))
+    newSubmissionDetail.setCorrectionType(correctionType);
+    when(submissionCreateService.createCorrectionSubmissionDetail(previousSubmissionDetail, user, correctionType))
         .thenReturn(newSubmissionDetail);
 
     var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
 
     var modelAndView = correctionService.startCorrectionForTypeAndRedirect(form, user);
 
-    historicUpdateAssertions(submissionDetailArgumentCaptor, form, modelAndView);
+    historicUpdateAssertions(submissionDetailArgumentCaptor, form, modelAndView, correctionType);
   }
 
   @Test
@@ -268,7 +279,8 @@ class CorrectionServiceTest {
 
   private void historicUpdateAssertions(ArgumentCaptor<SubmissionDetail> submissionDetailArgumentCaptor,
                                         CorrectionForm form,
-                                        ModelAndView modelAndView) {
+                                        ModelAndView modelAndView,
+                                        CorrectionType correctionType) {
     verify(submissionDetailPersistenceService, times(1)).saveSubmissionDetail(submissionDetailArgumentCaptor.capture());
     var submissionDetail = submissionDetailArgumentCaptor.getValue();
     var approvedDate = LocalDate.of(
@@ -287,6 +299,7 @@ class CorrectionServiceTest {
         SubmissionDetail::getAcceptedTimestamp,
         SubmissionDetail::isCorrection,
         SubmissionDetail::getCorrectionByWuaId,
+        SubmissionDetail::getCorrectionType,
         SubmissionDetail::getSubmitterType
     ).containsExactly(
         SubmissionDetailStatus.DRAFT,
@@ -297,6 +310,7 @@ class CorrectionServiceTest {
         approvedDate,
         true,
         wuaId,
+        correctionType,
         SubmitterType.REGULATOR
     );
     assertNotNull(submissionDetail.getCorrectionTimestamp());
@@ -310,7 +324,8 @@ class CorrectionServiceTest {
   void startCorrectionForType_approvalDateChange() {
     var selectedSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
     var form = new CorrectionForm();
-    form.setCorrectionType(CorrectionType.ACCEPTED_DATE_CHANGE);
+    var correctionType = CorrectionType.ACCEPTED_DATE_CHANGE;
+    form.setCorrectionType(correctionType);
     form.setSubmissionDetailIdForChangingApprovedDate(selectedSubmissionDetail.getId().toString());
     form.setApprovalDateChangeDay("1");
     form.setApprovalDateChangeMonth("1");
@@ -320,7 +335,8 @@ class CorrectionServiceTest {
     correctionSubmissionDetail.setCorrection(true);
     correctionSubmissionDetail.setCorrectionByWuaId(user.wuaId().intValue());
     correctionSubmissionDetail.setCorrectionTimestamp(Instant.now());
-    when(submissionCreateService.createCorrectionSubmissionDetail(selectedSubmissionDetail, user)).thenReturn(correctionSubmissionDetail);
+    correctionSubmissionDetail.setCorrectionType(correctionType);
+    when(submissionCreateService.createCorrectionSubmissionDetail(selectedSubmissionDetail, user, correctionType)).thenReturn(correctionSubmissionDetail);
     var submissionDetailArgumentCaptor = ArgumentCaptor.forClass(SubmissionDetail.class);
 
     var modelAndView = correctionService.startCorrectionForTypeAndRedirect(form, user);
@@ -343,6 +359,7 @@ class CorrectionServiceTest {
         SubmissionDetail::getAcceptedTimestamp,
         SubmissionDetail::isCorrection,
         SubmissionDetail::getCorrectionByWuaId,
+        SubmissionDetail::getCorrectionType,
         SubmissionDetail::getSubmitterType
     ).containsExactly(
         SubmissionDetailStatus.ACCEPTED,
@@ -352,6 +369,7 @@ class CorrectionServiceTest {
         approvedDate,
         true,
         wuaId,
+        correctionType,
         SubmitterType.REGULATOR
     );
     assertNotNull(submissionDetail.getCorrectionTimestamp());
@@ -453,12 +471,14 @@ class CorrectionServiceTest {
         SubmissionDetail::isCorrection,
         SubmissionDetail::getCorrectionByWuaId,
         SubmissionDetail::getCorrectionTimestamp,
+        SubmissionDetail::getCorrectionType,
         SubmissionDetail::getSubmitterType,
         SubmissionDetail::getStatus
     ).containsExactly(
         true,
         user.wuaId().intValue(),
         clock.instant(),
+        CorrectionType.REMOVE_SUBMISSION,
         SubmitterType.REGULATOR,
         SubmissionDetailStatus.DELETED
     );

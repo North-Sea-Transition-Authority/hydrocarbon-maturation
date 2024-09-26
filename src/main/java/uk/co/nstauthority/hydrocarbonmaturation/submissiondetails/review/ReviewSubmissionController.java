@@ -217,7 +217,6 @@ public class ReviewSubmissionController {
         .addObject("canReview",
             submissionDetail.getStatus() == SubmissionDetailStatus.SUBMITTED && isInResponsibleTeam)
         .addObject("isFieldSubmission", submissionDetail.isFieldSubmission())
-        .addObject("resourceType", submissionDetail.getSubmission().getResource().getType().getDisplayName())
         .addObject("isInResponsibleTeam", isInResponsibleTeam)
         .addObject("isIndustrySubmitter", isIndustrySubmitter);
   }

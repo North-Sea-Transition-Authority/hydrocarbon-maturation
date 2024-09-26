@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import jakarta.persistence.EntityNotFoundException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -114,7 +115,8 @@ class FieldPersistenceServiceTest {
       var organisationUnitDto = new OrganisationUnitDto(
           Integer.valueOf(RESPONSIBLE_ORGANISATION_ID),
           RESPONSIBLE_ORGANISATION_NAME,
-          REGISTERED_NUMBER
+          REGISTERED_NUMBER,
+          Collections.emptyList()
       );
 
       when(organisationUnitQueryService.findOrganisationUnit(Integer.valueOf(RESPONSIBLE_ORGANISATION_ID))).thenReturn(Optional.of(organisationUnitDto));

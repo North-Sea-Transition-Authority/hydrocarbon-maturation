@@ -60,7 +60,7 @@ dependencies {
 	implementation 'org.apache.commons:commons-lang3:3.12.0'
 	implementation 'commons-io:commons-io:2.15.1'
 	implementation 'fi.solita.clamav:clamav-client:1.0.1'
-	implementation ('uk.co.fivium.energyportalapi:client:v10.3.0') {
+	implementation ('uk.co.fivium.energyportalapi:client:v12.4.0') {
 		// Transitive dependency contains embedded vulnerable snakeyaml which cannot be overridden, so exclude the entire thing
 		// Can be removed once EPA is updated to v12
 		exclude group: 'net.datafaker', module: 'datafaker'

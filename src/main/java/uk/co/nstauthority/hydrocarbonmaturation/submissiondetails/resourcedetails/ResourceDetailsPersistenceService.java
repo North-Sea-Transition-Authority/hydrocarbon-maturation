@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,18 +40,23 @@ public class ResourceDetailsPersistenceService {
     resourceDetails.setResourceName(form.getResourceName());
     resourceDetails.setOnshoreOffshore(form.getOnshoreOffshore());
     resourceDetails.setSubmissionDetail(submissionDetail);
-    var organisationId = form.getResponsibleOrganisationId();
-    if (Objects.isNull(organisationId)) {
-      resourceDetails.setOrganisationId(null);
-      resourceDetails.setOrganisationName(null);
-      resourceDetails.setOrganisationRegisteredNumber(null);
-    } else {
-      var organisationUnit = organisationUnitQueryService.findOrganisationUnit(Integer.valueOf(organisationId));
-      organisationUnit.ifPresent(unit -> {
-        resourceDetails.setOrganisationName(unit.organisationUnitName());
-        resourceDetails.setOrganisationId(unit.organisationUnitId());
-        resourceDetails.setOrganisationRegisteredNumber(unit.companyHouseNumber());
-      });
+
+    // Save the organisation unit
+    // Corrections don't allow the organisation to be changed and is set at the time of starting the correction
+    if (BooleanUtils.isNotTrue(submissionDetail.isCorrection())) {
+      var organisationId = form.getResponsibleOrganisationId();
+      if (Objects.isNull(organisationId)) {
+        resourceDetails.setOrganisationId(null);
+        resourceDetails.setOrganisationName(null);
+        resourceDetails.setOrganisationRegisteredNumber(null);
+      } else {
+        var organisationUnit = organisationUnitQueryService.findOrganisationUnit(Integer.valueOf(organisationId));
+        organisationUnit.ifPresent(unit -> {
+          resourceDetails.setOrganisationName(unit.organisationUnitName());
+          resourceDetails.setOrganisationId(unit.organisationUnitId());
+          resourceDetails.setOrganisationRegisteredNumber(unit.companyHouseNumber());
+        });
+      }
     }
     resourceDetailsRepository.save(resourceDetails);
 
@@ -79,6 +85,11 @@ public class ResourceDetailsPersistenceService {
       });
     }
 
+    resourceDetailsRepository.save(resourceDetail);
+  }
+
+  @Transactional
+  public void saveResourceDetail(ResourceDetail resourceDetail) {
     resourceDetailsRepository.save(resourceDetail);
   }
 
@@ -115,5 +126,24 @@ public class ResourceDetailsPersistenceService {
                 });
           }
         });
+  }
+
+  public String getOrganisationDisplayFromResourceDetails(ResourceDetail detail) {
+    var organisationName = detail.getOrganisationName();
+    var organisationRegisteredNumber = detail.getOrganisationRegisteredNumber();
+    var organisationDisplay = "";
+    if (organisationName != null) {
+      if (organisationRegisteredNumber != null) {
+        organisationDisplay = "%s (%s)".formatted(organisationName,
+            organisationRegisteredNumber);
+      } else {
+        organisationDisplay = organisationName;
+      }
+    }
+    return organisationDisplay;
+  }
+
+  public String getOrganisationNameFromPortal(ResourceDetail detail) {
+    return organisationUnitQueryService.getOrganisationUnitNameAndNumberByIdOrEmpty(detail.getOrganisationId());
   }
 }

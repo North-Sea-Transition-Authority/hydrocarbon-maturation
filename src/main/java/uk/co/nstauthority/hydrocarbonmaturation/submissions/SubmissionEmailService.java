@@ -230,7 +230,7 @@ public class SubmissionEmailService {
           .getResourceDetailBySubmissionDetail(submissionDetail)
           .map(ResourceDetail::getOrganisationId);
     } else {
-      return submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail)
+      return submissionDetailService.getLatestApprovedSubmissionDetailForSubmission(submissionDetail)
           .flatMap(latestApprovedSubmissionDetail -> resourceDetailsPersistenceService
               .getResourceDetailBySubmissionDetail(latestApprovedSubmissionDetail)
               .map(ResourceDetail::getOrganisationId)

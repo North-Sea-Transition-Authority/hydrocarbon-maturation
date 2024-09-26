@@ -1,89 +1,103 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails;
 
-import java.util.Arrays;
+import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.PartialFullFormValidator;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @Service
-public class ResourceDetailsFormValidator extends PartialFullFormValidator {
+public class ResourceDetailsFormValidator {
 
-  private boolean isRegulator;
-  private ResourceType resourceType;
-  private ResourceDetail latestApprovedResourceDetail;
-  private boolean missingOrganisationErrorPresent;
+  private final InternalTeamService internalTeamService;
+  private final SubmissionDetailService submissionDetailService;
+  private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
 
-  @Override
-  public void validate(Object target, Errors errors, Object... validationHints) {
-    var hints = extractNewResourceFormValidatorHints(validationHints);
-    isRegulator = hints.isRegulator();
-    resourceType = hints.resourceType();
-    latestApprovedResourceDetail = hints.latestApprovedResourceDetail();
-    missingOrganisationErrorPresent = false;
-    var validationType = hints.validationType();
-    var form = (SubmissionForm) target;
+  @Autowired
+  public ResourceDetailsFormValidator(InternalTeamService internalTeamService,
+                                      SubmissionDetailService submissionDetailService,
+                                      ResourceDetailsPersistenceService resourceDetailsPersistenceService) {
+    this.internalTeamService = internalTeamService;
+    this.submissionDetailService = submissionDetailService;
+    this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
+  }
 
-    validateAlways(errors);
+  public boolean isValid(Errors errors, SubmissionDetail submissionDetail, ValidationType validationType, User user) {
     switch (validationType) {
-      case FULL -> validateFull(form, errors);
-      case PARTIAL -> validatePartial(form, errors);
+      case FULL -> validateFull(errors, submissionDetail, user);
+      case PARTIAL -> validatePartial(errors, submissionDetail);
       default -> throw new ActionNotAllowedException("Validation type must be either full or partial");
     }
+
+    return !errors.hasErrors();
   }
 
-  @Override
-  public boolean supports(Class<?> clazz) {
-    return ResourceDetailsForm.class.equals(clazz);
+  public void validatePartial(Errors errors, SubmissionDetail submissionDetail) {
+    validateResourceName(errors, submissionDetail);
+
+    validateOrganisationCantBeRemoved(errors, submissionDetail);
+
+    validateOnshoreOffshore(errors);
+
   }
 
-  @Override
-  public void validatePartial(SubmissionForm form, Errors errors) {
-    ValidationUtils.rejectIfEmpty(
-        errors, "onshoreOffshore", "onshoreOffshore.required", "Select onshore or offshore");
-  }
+  public void validateFull(Errors errors, SubmissionDetail submissionDetail, User user) {
+    validateResourceName(errors, submissionDetail);
 
-  @Override
-  public void validateFull(SubmissionForm form, Errors errors) {
-    if (!isRegulator && !missingOrganisationErrorPresent) {
+    var organisationErrorCountBefore = errors.getErrorCount();
+    validateOrganisationCantBeRemoved(errors, submissionDetail);
+    var organisationErrorCountAfter = errors.getErrorCount();
+
+    if (!internalTeamService.isRegulatorOrAreaTeamUser(user) && organisationErrorCountBefore == organisationErrorCountAfter) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors,
           "responsibleOrganisationId",
           "responsibleOrganisationId.required",
           "Enter the responsible organisation");
     }
-    ValidationUtils.rejectIfEmpty(
-        errors, "onshoreOffshore", "onshoreOffshore.required", "Select onshore or offshore");
+
+    validateOnshoreOffshore(errors);
   }
 
-  @Override
-  public void validate(Object target, Errors errors) {
-    throw new ActionNotAllowedException("You must provide ResourceDetailsFormValidatorHints");
-  }
-
-  private void validateAlways(Errors errors) {
+  private void validateResourceName(Errors errors, SubmissionDetail submissionDetail) {
     ValidationUtils.rejectIfEmptyOrWhitespace(
         errors,
         "resourceName",
         "resourceName.required",
-        "Enter the %s name".formatted(resourceType.getDisplayName().toLowerCase()));
+        "Enter the %s name".formatted(submissionDetail.getSubmission().getResource().getType().getDisplayName().toLowerCase()));
+  }
+
+  /** Prevents removal of an organisation if there was one originally.
+   * Corrections bypass this as the organisation is set automatically.
+   * @param errors the current error result
+   * @param submissionDetail the current submission detail
+   */
+  private void validateOrganisationCantBeRemoved(Errors errors, SubmissionDetail submissionDetail) {
+    var latestApprovedResourceDetail = getLatestApprovedResourceDetail(submissionDetail);
     if (latestApprovedResourceDetail != null
-        && latestApprovedResourceDetail.getOrganisationId() != null) {
+        && latestApprovedResourceDetail.getOrganisationId() != null
+        && BooleanUtils.isNotTrue(submissionDetail.isCorrection())) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "responsibleOrganisationId",
           "responsibleOrganisationId.required",
           "You cannot remove the responsible organisation from a resource that has " +
               "a responsible organisation on an earlier accepted submission");
-      missingOrganisationErrorPresent = true;
     }
   }
 
-  private ResourceDetailsFormValidatorHints extractNewResourceFormValidatorHints(Object[] validationHints) {
-    return Arrays.stream(validationHints)
-        .filter(ResourceDetailsFormValidatorHints.class::isInstance)
-        .map(ResourceDetailsFormValidatorHints.class::cast)
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException("Cannot get NewResourceFormValidatorHints"));
+  private void validateOnshoreOffshore(Errors errors) {
+    ValidationUtils.rejectIfEmpty(
+        errors, "onshoreOffshore", "onshoreOffshore.required", "Select onshore or offshore");
+  }
+
+  private ResourceDetail getLatestApprovedResourceDetail(SubmissionDetail submissionDetail) {
+    return submissionDetailService
+        .getLatestApprovedSubmissionDetailForSubmission(submissionDetail)
+        .flatMap(resourceDetailsPersistenceService::getResourceDetailBySubmissionDetail)
+        .orElse(null);
   }
 }

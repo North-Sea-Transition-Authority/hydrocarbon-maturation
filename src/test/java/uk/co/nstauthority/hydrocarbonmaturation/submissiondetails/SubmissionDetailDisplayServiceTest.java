@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,7 +51,7 @@ class SubmissionDetailDisplayServiceTest {
     @Test
     void organsiationUnitNameAndRegisteredNumberAreNull_DisplaysNotProvided() {
       var organisationResponsibleId = 1;
-      var organisationUnitDto = new OrganisationUnitDto(null, null, null);
+      var organisationUnitDto = new OrganisationUnitDto(null, null, null, Collections.emptyList());
       when(organisationUnitQueryService.findOrganisationUnit(organisationResponsibleId)).thenReturn(Optional.of(organisationUnitDto));
 
       var result = underTest.getOrganisationResponsibleDisplayById(organisationResponsibleId);
@@ -64,7 +65,8 @@ class SubmissionDetailDisplayServiceTest {
       var organisationUnitDto = new OrganisationUnitDto(
           1,
           "name",
-          "123"
+          "123",
+          Collections.emptyList()
       );
       when(organisationUnitQueryService.findOrganisationUnit(organisationResponsibleId)).thenReturn(Optional.of(organisationUnitDto));
 
@@ -79,7 +81,8 @@ class SubmissionDetailDisplayServiceTest {
       var organisationUnitDto = new OrganisationUnitDto(
           organisationResponsibleId,
           "name",
-          null
+          null,
+          Collections.emptyList()
       );
       when(organisationUnitQueryService.findOrganisationUnit(organisationResponsibleId)).thenReturn(Optional.of(organisationUnitDto));
 
@@ -93,8 +96,8 @@ class SubmissionDetailDisplayServiceTest {
   class WhenGettingOrganisationResponsibleDisplayFromMap {
 
     private final Map<Integer, OrganisationUnitDto> organisationUnitMap = Map.of(
-      1, new OrganisationUnitDto(1, "name1", "123"),
-      2, new OrganisationUnitDto(2, "name2", "456")
+      1, new OrganisationUnitDto(1, "name1", "123", Collections.emptyList()),
+      2, new OrganisationUnitDto(2, "name2", "456", Collections.emptyList())
     );
 
     @Test

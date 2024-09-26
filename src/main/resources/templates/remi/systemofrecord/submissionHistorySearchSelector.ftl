@@ -2,11 +2,11 @@
 
 <#import '../layout/inlineInputAction.ftl' as inlineInputAction>
 
-<#macro submissionHistorySearchSelector resourceType submissionsOnResource>
+<#macro submissionHistorySearchSelector submissionsOnResource>
   <@inlineInputAction.inlineInputAction>
     <@fdsSelect.select
       path = "form.selectedSubmissionId"
-      labelText = "${resourceType} submissions"
+      labelText = "Submission history"
       options = submissionsOnResource/>
     <@fdsAction.button
       buttonText="View"

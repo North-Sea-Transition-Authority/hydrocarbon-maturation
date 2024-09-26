@@ -520,7 +520,7 @@ class SubmissionEmailServiceTest {
     void whenLatestApprovedSubmission_andNoOrganisationUnitId_thenNoEmailsSent(SubmissionType submissionType) {
       submissionDetail.setSubmissionType(submissionType);
       var latestApprovedSubmissionDetail = new SubmissionDetail();
-      when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+      when(submissionDetailService.getLatestApprovedSubmissionDetailForSubmission(submissionDetail))
           .thenReturn(Optional.of(latestApprovedSubmissionDetail));
       when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestApprovedSubmissionDetail))
           .thenReturn(Optional.empty());
@@ -539,7 +539,7 @@ class SubmissionEmailServiceTest {
     )
     void whenLatestApprovedSubmission_noLatestApprovedSubmissionDetail_thenNoEmailsSent(SubmissionType submissionType) {
       submissionDetail.setSubmissionType(submissionType);
-      when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+      when(submissionDetailService.getLatestApprovedSubmissionDetailForSubmission(submissionDetail))
           .thenReturn(Optional.empty());
 
       submissionEmailService.sendReturnedForUpdateEmails(submissionDetail);

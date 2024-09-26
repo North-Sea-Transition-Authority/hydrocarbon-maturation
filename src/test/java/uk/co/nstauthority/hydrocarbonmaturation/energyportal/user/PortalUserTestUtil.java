@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.user;
 
+import uk.co.fivium.energyportalapi.generated.types.AccountStatus;
 import uk.co.fivium.energyportalapi.generated.types.User;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
 
@@ -26,6 +27,7 @@ class PortalUserTestUtil {
     private String telephoneNumber = "telephone number";
     private boolean canLogin = true;
     private boolean isAccountShared = false;
+    private AccountStatus status = AccountStatus.ACTIVE;
     private Builder() {}
 
     Builder withWebUserAccountId(int webUserAccountId) {
@@ -83,6 +85,11 @@ class PortalUserTestUtil {
       return this;
     }
 
+    Builder withStatus(AccountStatus status) {
+      this.status = status;
+      return this;
+    }
+
     User build() {
       return new User(
           webUserAccountId,
@@ -95,7 +102,8 @@ class PortalUserTestUtil {
           primaryEmailAddress,
           telephoneNumber,
           canLogin,
-          isAccountShared
+          isAccountShared,
+          status
       );
     }
 

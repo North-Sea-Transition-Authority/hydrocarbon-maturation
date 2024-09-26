@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,7 +61,7 @@ class ResourceDetailsPersistenceServiceTest {
     var submissionDetail = new SubmissionDetail();
     var resourceForm = new ResourceDetailsForm();
     var captor = ArgumentCaptor.forClass(ResourceDetail.class);
-    var organisationUnit = new OrganisationUnitDto(null, null, null);
+    var organisationUnit = new OrganisationUnitDto(null, null, null, Collections.emptyList());
     when(organisationUnitQueryService.findOrganisationUnit(1))
         .thenReturn(Optional.of(organisationUnit));
     resourceForm.setResourceName("name");
@@ -92,7 +93,7 @@ class ResourceDetailsPersistenceServiceTest {
     var submissionDetail = new SubmissionDetail();
     var resourceForm = new ResourceDetailsForm();
     var captor = ArgumentCaptor.forClass(ResourceDetail.class);
-    var organisationUnit = new OrganisationUnitDto(null, null, null);
+    var organisationUnit = new OrganisationUnitDto(null, null, null, Collections.emptyList());
     when(organisationUnitQueryService.findOrganisationUnit(1))
         .thenReturn(Optional.of(organisationUnit));
     resourceForm.setResourceName("name");
@@ -319,7 +320,8 @@ class ResourceDetailsPersistenceServiceTest {
     var organisationUnitDto = new OrganisationUnitDto(
         1,
         "New name",
-        "25"
+        "25",
+        Collections.emptyList()
     );
 
     when(organisationUnitQueryService.findOrganisationUnit(resourceDetails.getOrganisationId()))
@@ -358,5 +360,39 @@ class ResourceDetailsPersistenceServiceTest {
 
     resourceDetailsPersistenceService.updateOrganisationName(submissionDetail);
     verifyNoMoreInteractions(resourceDetailsRepository);
+  }
+
+  @Test
+  void getOrganisationNameFromPortal() {
+    var resourceDetails = new ResourceDetail();
+    resourceDetailsPersistenceService.getOrganisationNameFromPortal(resourceDetails);
+    verify(organisationUnitQueryService).getOrganisationUnitNameAndNumberByIdOrEmpty(resourceDetails.getOrganisationId());
+  }
+
+  @Test
+  void getOrganisationDisplay_noOrganisationFoundFromResourceDetails() {
+    var resourceDetails = new ResourceDetail();
+    var displayName = resourceDetailsPersistenceService.getOrganisationDisplayFromResourceDetails(resourceDetails);
+    assertThat(displayName).isBlank();
+  }
+
+  @Test
+  void getOrganisationDisplay_organisationFound_withoutRegisteredNumberFromResourceDetails() {
+    var resourceDetails = new ResourceDetail();
+    var name = "name";
+    resourceDetails.setOrganisationName(name);
+    var displayName = resourceDetailsPersistenceService.getOrganisationDisplayFromResourceDetails(resourceDetails);
+    assertThat(displayName).isEqualTo(name);
+  }
+
+  @Test
+  void getOrganisationDisplay_organisationFound_withRegisteredNumberFromResourceDetails() {
+    var resourceDetails = new ResourceDetail();
+    var name = "name";
+    var registeredNumber = "00001";
+    resourceDetails.setOrganisationName(name);
+    resourceDetails.setOrganisationRegisteredNumber(registeredNumber);
+    var displayName = resourceDetailsPersistenceService.getOrganisationDisplayFromResourceDetails(resourceDetails);
+    assertThat(displayName).isEqualTo("%s (%s)".formatted(name, registeredNumber));
   }
 }

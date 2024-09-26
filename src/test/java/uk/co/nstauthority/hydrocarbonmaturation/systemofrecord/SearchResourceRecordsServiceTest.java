@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -105,8 +106,8 @@ class SearchResourceRecordsServiceTest {
     private final int ORGANISATION_ID_1 = 1;
     private final int ORGANISATION_ID_2 = 2;
     private final Map<Integer, OrganisationUnitDto> ORGANISATION_UNIT_MAP = Map.of(
-        ORGANISATION_ID_1, new OrganisationUnitDto(ORGANISATION_ID_1, "Org A", null),
-        ORGANISATION_ID_2, new OrganisationUnitDto(ORGANISATION_ID_2, "Org B", null)
+        ORGANISATION_ID_1, new OrganisationUnitDto(ORGANISATION_ID_1, "Org A", null, Collections.emptyList()),
+        ORGANISATION_ID_2, new OrganisationUnitDto(ORGANISATION_ID_2, "Org B", null, Collections.emptyList())
     );
     @Mock
     private SearchResourceRecordsForm form;

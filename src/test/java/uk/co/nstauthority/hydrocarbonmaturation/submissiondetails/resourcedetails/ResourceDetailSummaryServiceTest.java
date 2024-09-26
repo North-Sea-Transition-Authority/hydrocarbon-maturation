@@ -52,13 +52,11 @@ class ResourceDetailSummaryServiceTest {
   @Test
   void getResourceDetailSummaryFromSubmissionDetail_whenNotPresent_emptySummary() {
     when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.of(resourceDetail));
+        .thenReturn(Optional.empty());
     var resource = new Resource();
     resource.setType(ResourceType.PROSPECT);
     submissionDetail.getSubmission().setResource(resource);
     resourceDetail.setSubmissionDetail(submissionDetail);
-    when(organisationUnitQueryService.getOrganisationUnitNameAndNumberByIdOrEmpty(null))
-        .thenReturn("");
     var view = resourceDetailSummaryService.getResourceDetailSummaryFromSubmissionDetail(submissionDetail);
     assertThat(view)
         .extracting(
@@ -92,7 +90,9 @@ class ResourceDetailSummaryServiceTest {
     resourceDetail.setOrganisationRegisteredNumber(ORGANISATION_REGISTERED_NUMBER);
     resourceDetail.setOrganisationId(ORGANISATION_ID);
     resourceDetail.setOrganisationName(ORGANISATION_NAME);
-    when(organisationUnitQueryService.getOrganisationUnitNameAndNumberByIdOrEmpty(ORGANISATION_ID))
+    when(resourceDetailsPersistenceService.getOrganisationDisplayFromResourceDetails(resourceDetail))
+        .thenReturn("%s (%s)".formatted(ORGANISATION_NAME, ORGANISATION_REGISTERED_NUMBER));
+    when(resourceDetailsPersistenceService.getOrganisationNameFromPortal(resourceDetail))
         .thenReturn("%s (%s)".formatted(ORGANISATION_NAME, ORGANISATION_REGISTERED_NUMBER));
 
     var view = resourceDetailSummaryService.getResourceDetailSummaryFromSubmissionDetail(submissionDetail);
@@ -116,44 +116,6 @@ class ResourceDetailSummaryServiceTest {
         );
   }
 
-  @Test
-  void getResourceDetailSummaryFromSubmissionDetail_whenPresent_whenOrganisationWithNoNumber_fullSummary() {
-    when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
-        .thenReturn(Optional.of(resourceDetail));
-    var resource = new Resource();
-    resource.setType(ResourceType.DISCOVERY);
-    submissionDetail.getSubmission().setResource(resource);
-    resourceDetail.setSubmissionDetail(submissionDetail);
-    resourceDetail.setResourceName(RESOURCE_NAME);
-    resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    resourceDetail.setOrganisationRegisteredNumber(null);
-    resourceDetail.setOrganisationId(ORGANISATION_ID);
-    resourceDetail.setOrganisationName(ORGANISATION_NAME);
-
-    when(organisationUnitQueryService.getOrganisationUnitNameAndNumberByIdOrEmpty(ORGANISATION_ID))
-        .thenReturn(ORGANISATION_NAME);
-
-    var view = resourceDetailSummaryService.getResourceDetailSummaryFromSubmissionDetail(submissionDetail);
-
-    assertThat(view)
-        .extracting(
-            ResourceDetailSummaryView::resourceName,
-            ResourceDetailSummaryView::organisationNameAndNumber,
-            ResourceDetailSummaryView::showOrganisationNameAtTimeOfApproval,
-            ResourceDetailSummaryView::organisationNameAndNumberAtTimeOfApproval,
-            ResourceDetailSummaryView::onshoreOffshore,
-            ResourceDetailSummaryView::resourceType
-        )
-        .containsExactly(
-            RESOURCE_NAME,
-            ORGANISATION_NAME,
-            false,
-            ORGANISATION_NAME,
-            OnshoreOffshore.OFFSHORE.getDisplayName(),
-            "discovery"
-        );
-  }
-
   @ParameterizedTest
   @EnumSource(SubmissionDetailStatus.class)
   void getResourceDetailSummaryFromSubmissionDetail_whenStatus_AndWhenOrgNameDifferentAtTimeOfApproval(
@@ -170,8 +132,10 @@ class ResourceDetailSummaryServiceTest {
     resourceDetail.setOrganisationRegisteredNumber(ORGANISATION_REGISTERED_NUMBER_2);
     resourceDetail.setOrganisationId(ORGANISATION_ID);
     resourceDetail.setOrganisationName(ORGANISATION_LEGACY_NAME);
-    when(organisationUnitQueryService.getOrganisationUnitNameAndNumberByIdOrEmpty(ORGANISATION_ID))
+    when(resourceDetailsPersistenceService.getOrganisationDisplayFromResourceDetails(resourceDetail))
         .thenReturn("%s (%s)".formatted(ORGANISATION_NAME_2, ORGANISATION_REGISTERED_NUMBER_2));
+    when(resourceDetailsPersistenceService.getOrganisationNameFromPortal(resourceDetail))
+        .thenReturn("%s (%s)".formatted(ORGANISATION_LEGACY_NAME, ORGANISATION_REGISTERED_NUMBER_2));
 
     var view = resourceDetailSummaryService.getResourceDetailSummaryFromSubmissionDetail(submissionDetail);
     var showLegacyName = !(status == SubmissionDetailStatus.SUBMITTED
@@ -187,9 +151,9 @@ class ResourceDetailSummaryServiceTest {
         )
         .containsExactly(
             RESOURCE_NAME,
-            "%s (%s)".formatted(ORGANISATION_NAME_2, ORGANISATION_REGISTERED_NUMBER_2),
-            showLegacyName,
             "%s (%s)".formatted(ORGANISATION_LEGACY_NAME, ORGANISATION_REGISTERED_NUMBER_2),
+            showLegacyName,
+            "%s (%s)".formatted(ORGANISATION_NAME_2, ORGANISATION_REGISTERED_NUMBER_2),
             OnshoreOffshore.OFFSHORE.getDisplayName(),
             "prospect"
         );

@@ -18,14 +18,14 @@ public class SubmissionHistorySelectorUtil {
     var searchSelectorItems = new LinkedHashMap<String, String>();
     for (int i = 1; i <= submissionRecords.size(); i++) {
       searchSelectorItems.put(submissionRecords.get(i - 1).submissionDetailId().toString(),
-          getRecordDisplay(submissionRecords.get(i - 1), (submissionRecords.size() + 1) - i));
+          getRecordDisplay(submissionRecords.get(i - 1)));
     }
     return searchSelectorItems;
   }
 
-  private static String getRecordDisplay(SubmissionQuerySearchRecord submissionQuerySearchRecord, Integer number) {
-    return "Submission %s: %s (%s)"
-        .formatted(number.toString(),
+  private static String getRecordDisplay(SubmissionQuerySearchRecord submissionQuerySearchRecord) {
+    return "%s (%s)"
+        .formatted(
             submissionQuerySearchRecord.submissionType().getTypeName(),
             getApprovedDateDisplay(submissionQuerySearchRecord));
   }

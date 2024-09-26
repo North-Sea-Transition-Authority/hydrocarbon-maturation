@@ -33,9 +33,12 @@ public class OrganisationUnitQueryService {
   public static final OrganisationUnitsProjectionRoot ORGANISATION_UNITS_PROJECTION_ROOT
       = new OrganisationUnitsProjectionRoot()
       .organisationUnitId().name().registeredNumber().isDuplicate()
-      .organisationGroups().organisationGroupId().root();
+      .organisationGroups().organisationGroupId().root()
+      .organisationNameHistory().name().startDate().endDate().root();
   public static final OrganisationUnitProjectionRoot ORGANISATION_UNIT_PROJECTION_ROOT
-      = new OrganisationUnitProjectionRoot().organisationUnitId().name().registeredNumber();
+      = new OrganisationUnitProjectionRoot()
+      .organisationUnitId().name().registeredNumber()
+      .organisationNameHistory().name().startDate().endDate().root();
   public static final OrganisationUnitProjectionRoot ORGANISATION_UNIT_GROUPS_PROJECTION_ROOT
       = new OrganisationUnitProjectionRoot().isDuplicate().organisationUnitId()
       .organisationGroups().organisationGroupId().root();

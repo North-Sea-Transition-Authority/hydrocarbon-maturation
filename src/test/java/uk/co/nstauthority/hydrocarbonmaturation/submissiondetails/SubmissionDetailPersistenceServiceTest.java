@@ -24,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 
 @ExtendWith(MockitoExtension.class)
@@ -227,9 +228,13 @@ class SubmissionDetailPersistenceServiceTest {
     parentSubmissionDetail.setSubmittedTimestamp(INSTANT);
     parentSubmissionDetail.setSubmission(submission);
 
+    var correctionType = CorrectionType.SUBMISSION_CORRECTION;
+
     var correctionSubmissionDetail = submissionDetailPersistenceService.createCorrectionSubmissionDetail(
         parentSubmissionDetail,
-        USER);
+        USER,
+        correctionType
+        );
 
     assertThat(correctionSubmissionDetail)
         .extracting(
@@ -241,7 +246,8 @@ class SubmissionDetailPersistenceServiceTest {
             SubmissionDetail::getCreatedByWuaId,
             SubmissionDetail::getSubmitterType,
             SubmissionDetail::isCorrection,
-            SubmissionDetail::getCorrectionByWuaId)
+            SubmissionDetail::getCorrectionByWuaId,
+            SubmissionDetail::getCorrectionType)
         .containsExactly(
             submission,
             parentSubmissionDetail.getSubmissionType(),
@@ -251,8 +257,10 @@ class SubmissionDetailPersistenceServiceTest {
             USER.wuaId().intValue(),
             SubmitterType.REGULATOR,
             true,
-            USER.wuaId().intValue()
+            USER.wuaId().intValue(),
+            correctionType
         );
+    assertThat(correctionSubmissionDetail.getCorrectionTimestamp()).isNotNull();
     verify(submissionDetailRepository, times(1)).save(correctionSubmissionDetail);
   }
 }

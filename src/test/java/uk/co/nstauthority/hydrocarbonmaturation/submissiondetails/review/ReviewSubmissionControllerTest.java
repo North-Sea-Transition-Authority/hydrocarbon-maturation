@@ -189,7 +189,6 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
                 .viewSubmission(otherSubmissionOnResource.getSubmission().getResource().getId(), null))),
-            entry("resourceType", otherSubmissionOnResource.getSubmission().getResource().getType().getDisplayName()),
             entry("submissionType", otherSubmissionOnResource.getSubmissionType()),
             entry("isFieldSubmission", submissionDetail.isFieldSubmission()),
             entry("updateSubmissionUrl", ReverseRouter.route(on(StartUpdateController.class)
@@ -295,7 +294,6 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
             entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
             entry("submissionSelectedUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
                 .viewSubmission(submissionDetail.getSubmission().getResource().getId(), null))),
-            entry("resourceType", submissionDetail.getSubmission().getResource().getType().getDisplayName()),
             entry("approveUrl", ReverseRouter.route(on(ApproveSubmissionController.class)
                 .showApproveConfirmationPage(submissionDetail.getId(), null))),
             entry("regulatorManagedInformationUrl",

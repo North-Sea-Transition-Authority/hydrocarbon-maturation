@@ -9,6 +9,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 
 @Service
@@ -57,9 +58,12 @@ public class SubmissionDetailPersistenceService {
     return submissionDetail;
   }
 
-  SubmissionDetail createCorrectionSubmissionDetail(SubmissionDetail previousSubmissionDetail, User user) {
+  SubmissionDetail createCorrectionSubmissionDetail(SubmissionDetail previousSubmissionDetail,
+                                                    User user,
+                                                    CorrectionType correctionType) {
     var submissionDetail = createBaseSubmissionDetailFromPrevious(previousSubmissionDetail, user);
     submissionDetail.setCorrection(true);
+    submissionDetail.setCorrectionType(correctionType);
     submissionDetail.setCorrectionByWuaId(user.wuaId().intValue());
     submissionDetail.setCorrectionTimestamp(Instant.now());
     submissionDetail.setSubmitterType(SubmitterType.REGULATOR);

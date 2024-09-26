@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Map;
@@ -43,6 +44,7 @@ public class CorrectionService {
   private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
   private final ResourceGroupService resourceGroupService;
   private final ResourceLinkService resourceLinkService;
+  private final OrganisationCorrectionService organisationCorrectionService;
   private final Clock clock;
 
   @Autowired
@@ -54,6 +56,7 @@ public class CorrectionService {
                            SubmissionDetailPersistenceService submissionDetailPersistenceService,
                            ResourceGroupService resourceGroupService,
                            ResourceLinkService resourceLinkService,
+                           OrganisationCorrectionService organisationCorrectionService,
                            Clock clock) {
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.responsibleTeamService = responsibleTeamService;
@@ -63,6 +66,7 @@ public class CorrectionService {
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
     this.resourceGroupService = resourceGroupService;
     this.resourceLinkService = resourceLinkService;
+    this.organisationCorrectionService = organisationCorrectionService;
     this.clock = clock;
   }
 
@@ -137,13 +141,12 @@ public class CorrectionService {
   public ModelAndView createSubmissionCorrectionAndRedirect(UUID submissionDetailId, User user) {
     var previousSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var correctionSubmissionDetail = submissionCreateService.createCorrectionSubmissionDetail(
-        previousSubmissionDetail, user
+        previousSubmissionDetail, user, CorrectionType.SUBMISSION_CORRECTION
     );
     correctionSubmissionDetail.setSubmittedByWuaId(user.wuaId().intValue());
     correctionSubmissionDetail.setSubmittedTimestamp(previousSubmissionDetail.getSubmittedTimestamp());
     correctionSubmissionDetail.setAcceptedByWuaId(user.wuaId().intValue());
     correctionSubmissionDetail.setAcceptedTimestamp(previousSubmissionDetail.getAcceptedTimestamp());
-    setCorrectionDetails(correctionSubmissionDetail, user);
     submissionDetailPersistenceService.saveSubmissionDetail(correctionSubmissionDetail);
     return getCorrectionRedirectForType(CorrectionType.SUBMISSION_CORRECTION, correctionSubmissionDetail);
   }
@@ -157,12 +160,19 @@ public class CorrectionService {
     var previousSubmissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
     var correctionSubmissionDetail = submissionCreateService.createCorrectionSubmissionDetail(
         previousSubmissionDetail,
-        user
+        user,
+        CorrectionType.ACCEPTED_DATE_CHANGE
     );
 
     correctionSubmissionDetail.setStatus(SubmissionDetailStatus.ACCEPTED);
 
-    setApprovalDateAndUser(correctionSubmissionDetail, day, month, year, user);
+    var acceptedDate = getLocalDateFromForm(day, month, year);
+
+    organisationCorrectionService.updateOrganisationNameForDate(correctionSubmissionDetail, acceptedDate);
+
+    var acceptedInstant = acceptedDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+    setAcceptedDateAndUser(correctionSubmissionDetail, acceptedInstant, user);
 
     submissionDetailPersistenceService.saveSubmissionDetail(correctionSubmissionDetail);
 
@@ -189,13 +199,20 @@ public class CorrectionService {
 
     var newSubmissionDetail = submissionCreateService.createCorrectionSubmissionDetail(
         previousSubmissionDetail,
-        user
+        user,
+        CorrectionType.HISTORIC_UPDATE
     );
     newSubmissionDetail.setSubmission(submission);
     newSubmissionDetail.setSubmissionType(submissionType);
     newSubmissionDetail.setVersionNumber(SubmissionDetailService.FIRST_VERSION);
 
-    setApprovalDateAndUser(newSubmissionDetail, day, month, year, user);
+    var acceptedDate = getLocalDateFromForm(day, month, year);
+
+    organisationCorrectionService.updateOrganisationNameForDate(newSubmissionDetail, acceptedDate);
+
+    var acceptedInstant = acceptedDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+    setAcceptedDateAndUser(newSubmissionDetail, acceptedInstant, user);
 
     submissionDetailPersistenceService.saveSubmissionDetail(newSubmissionDetail);
 
@@ -220,7 +237,7 @@ public class CorrectionService {
     var submission = submissionDetail.getSubmission();
     var resource = submission.getResource();
     submissionDetailService.getSubmissionDetailsBySubmission(submission).forEach(submissionDetailForDelete -> {
-      setCorrectionDetails(submissionDetailForDelete, user);
+      setCorrectionDetails(submissionDetailForDelete, user, CorrectionType.REMOVE_SUBMISSION);
       submissionDetailForDelete.setStatus(SubmissionDetailStatus.DELETED);
     });
     if (submissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT) {
@@ -236,23 +253,24 @@ public class CorrectionService {
     return getCorrectionRedirectForType(CorrectionType.REMOVE_SUBMISSION, removedSubmissionDetail);
   }
 
-  private void setApprovalDateAndUser(SubmissionDetail submissionDetail,
-                                      String day,
-                                      String month,
-                                      String year,
+  private void setAcceptedDateAndUser(SubmissionDetail submissionDetail,
+                                      Instant approvedDate,
                                       User user) {
-    var approvedDate = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(day))
-        .atStartOfDay(ZoneId.systemDefault()).toInstant();
     submissionDetail.setSubmittedTimestamp(approvedDate);
     submissionDetail.setSubmittedByWuaId(user.wuaId().intValue());
     submissionDetail.setAcceptedTimestamp(approvedDate);
     submissionDetail.setAcceptedByWuaId(user.wuaId().intValue());
   }
 
-  private void setCorrectionDetails(SubmissionDetail submissionDetail, User user) {
+  private void setCorrectionDetails(SubmissionDetail submissionDetail, User user, CorrectionType correctionType) {
     submissionDetail.setCorrection(true);
+    submissionDetail.setCorrectionType(correctionType);
     submissionDetail.setCorrectionByWuaId(user.wuaId().intValue());
     submissionDetail.setCorrectionTimestamp(clock.instant());
     submissionDetail.setSubmitterType(SubmitterType.REGULATOR);
+  }
+
+  private LocalDate getLocalDateFromForm(String day, String month, String year) {
+    return LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(day));
   }
 }

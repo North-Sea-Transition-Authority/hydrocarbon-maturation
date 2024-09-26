@@ -161,7 +161,7 @@ public class ReviewSubmissionService {
 
   private boolean isSubmitterForResponsibleOrgOnLatestApprovedSubmissionOnResource(
       User user, SubmissionDetail submissionDetail) {
-    return submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail)
+    return submissionDetailService.getLatestApprovedSubmissionDetailForSubmission(submissionDetail)
         .flatMap(resourceDetailsPersistenceService::getResourceDetailBySubmissionDetail)
         .map(resourceDetail -> industryTeamService.getOrganisationUnitIdsForUserWithRoles(user, Set.of(Role.INDUSTRY_SUBMIT))
             .contains(resourceDetail.getOrganisationId()))
@@ -170,7 +170,7 @@ public class ReviewSubmissionService {
 
   private boolean isResponsibleOrganisationMemberOnLatestApprovedSubmissionOnResource(
       User user, SubmissionDetail submissionDetail) {
-    return submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail)
+    return submissionDetailService.getLatestApprovedSubmissionDetailForSubmission(submissionDetail)
         .map(latestSubmissionDetail ->
           resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(latestSubmissionDetail)
                   .map(resourceDetail -> industryTeamService.getOrganisationUnitIdsForUser(user)

@@ -109,7 +109,6 @@ wrapperWidth=true>
   <#if submissionsOnResource?has_content>
     <@fdsForm.htmlForm actionUrl=springUrl(submissionSelectedUrl)>
       <@submissionSelector.submissionHistorySearchSelector
-        resourceType=resourceTypeDisplayName
         submissionsOnResource=submissionsOnResource />
     </@fdsForm.htmlForm>
   </#if>

@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit;
 
 import java.util.List;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
+import uk.co.fivium.energyportalapi.generated.types.OrganisationNameHistory;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
 
@@ -21,6 +22,7 @@ public class OrganisationUnitTestUtil {
     private String organisationNumber = "25";
     private List<OrganisationGroup> organisationGroups = null;
     private boolean isDuplicate = false;
+    private List<OrganisationNameHistory> organisationNameHistory = null;
 
     private Builder(){}
 
@@ -49,6 +51,11 @@ public class OrganisationUnitTestUtil {
       return this;
     }
 
+    public Builder withOrganisationNameHistory(List<OrganisationNameHistory> organisationNameHistory) {
+      this.organisationNameHistory = organisationNameHistory;
+      return this;
+    }
+
     public OrganisationUnit build() {
       var organisationUnit = new OrganisationUnit();
       organisationUnit.setOrganisationUnitId(organisationUnitId);
@@ -56,6 +63,7 @@ public class OrganisationUnitTestUtil {
       organisationUnit.setName(organisationName);
       organisationUnit.setOrganisationGroups(organisationGroups);
       organisationUnit.setIsDuplicate(isDuplicate);
+      organisationUnit.setOrganisationNameHistory(organisationNameHistory);
       return organisationUnit;
     }
   }

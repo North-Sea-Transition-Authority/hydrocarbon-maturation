@@ -4,7 +4,7 @@ import java.util.Map;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 
-enum CorrectionType implements Displayable {
+public enum CorrectionType implements Displayable {
   HISTORIC_UPDATE("Add a missing historical update to the resource", 10),
   SUBMISSION_CORRECTION("Correct the information provided on a submission", 20),
   ACCEPTED_DATE_CHANGE("Change the accepted date for a submission", 30),

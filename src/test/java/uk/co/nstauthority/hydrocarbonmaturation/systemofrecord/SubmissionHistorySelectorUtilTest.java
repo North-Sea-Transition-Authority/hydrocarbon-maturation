@@ -33,9 +33,9 @@ class SubmissionHistorySelectorUtilTest {
 
     var expectedMap = Map.of(
         selectedSubmissionDetail.getId().toString(),
-        "Submission 2: Prospect update (Pending acceptance)",
+        "Prospect update (Pending acceptance)",
         approvedSubmissionDetail.getId().toString(),
-        "Submission 1: New prospect (Accepted: 11 November 2012)"
+        "New prospect (Accepted: 11 November 2012)"
     );
     assertEquals(expectedMap, SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult));
   }

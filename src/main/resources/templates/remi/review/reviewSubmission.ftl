@@ -19,7 +19,6 @@
 <#-- @ftlvariable name="canRequestUpdate" type="boolean" -->
 <#-- @ftlvariable name="submissionSelectedUrl" type="String"-->
 <#-- @ftlvariable name="submissionsOnResource" type="java.util.Map<String, String>"-->
-<#-- @ftlvariable name="resourceType" type="String"-->
 <#-- @ftlvariable name="updateSubmissionUrl" type="String"-->
 <#-- @ftlvariable name="submissionUpdateReason" type="String"-->
 <#-- @ftlvariable name="updateRequested" type="boolean"-->
@@ -101,7 +100,6 @@
 
  <@fdsForm.htmlForm actionUrl=springUrl(submissionSelectedUrl)>
    <@submissionSelector.submissionHistorySearchSelector
-      resourceType=resourceType
       submissionsOnResource=submissionsOnResource/>
  </@fdsForm.htmlForm>
 

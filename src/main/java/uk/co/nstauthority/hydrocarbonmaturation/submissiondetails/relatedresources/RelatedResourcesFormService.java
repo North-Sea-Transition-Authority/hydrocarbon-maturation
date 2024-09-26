@@ -89,7 +89,7 @@ public class RelatedResourcesFormService implements SubmissionFormService {
     }
 
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(UUID.fromString(submissionDetailId));
-    var key = submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail)
+    var key = submissionDetailService.getLatestApprovedSubmissionDetailForSubmission(submissionDetail)
         .flatMap(currentSubmissionDetail ->
             resourceGroupQueryService.getResourceGroupViewForSubmissionDetail(
                 currentSubmissionDetail, null))

@@ -20,6 +20,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.authentication.TestUserPr
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -44,6 +45,9 @@ class ResourceDetailsControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private ResourceDetailsFormService resourceDetailsFormService;
+
+  @MockBean
+  private ResourceDetailsFormValidator resourceDetailsFormValidator;
 
   @SecurityTest
   void getResourceDetails_whenResponsibleOrganisation_assertStatusOk() throws Exception {
@@ -97,10 +101,9 @@ class ResourceDetailsControllerTest extends AbstractSubmissionControllerTest {
   @EnumSource(ValidationType.class)
   void saveResourceDetails_whenValidForm_assertSaveAndRedirect(ValidationType validationType) throws Exception {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
-    var bindingResult = new BeanPropertyBindingResult(ResourceDetailsForm.class, "form");
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
         .thenReturn(submissionDetail);
-    when(resourceDetailsFormService.validate(any(), any(), any(), any(), any())).thenReturn(bindingResult);
+    when(resourceDetailsFormValidator.isValid(any(), any(), any(), any())).thenReturn(true);
 
     mockMvc.perform(
             post(ReverseRouter.route(on(ResourceDetailsController.class)
@@ -110,19 +113,17 @@ class ResourceDetailsControllerTest extends AbstractSubmissionControllerTest {
                 .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TaskListController.class).getTaskList(SUBMISSION_DETAIL_ID, null))));
-
-    verify(resourceDetailsFormService, times(1)).validate(any(), any(), eq(validationType), any(), any());
     verify(resourceDetailsPersistenceService, times(1))
         .saveResourceDetails(any(ResourceDetailsForm.class), eq(submissionDetail));
   }
 
   @ParameterizedTest(name = "controller validation - {0}")
   @EnumSource(value = ValidationType.class, names = {"FULL", "PARTIAL"})
-  void saveResourceDetailsPage_whenInValidForm_assertStatusOk(ValidationType validationType) throws Exception {
+  void saveResourceDetailsPage_whenInvalidForm_assertStatusOk(ValidationType validationType) throws Exception {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     var bindingResult = new BeanPropertyBindingResult(ResourceDetailsForm.class, "form");
     bindingResult.addError(new FieldError("Error", "ErrorMessage", "default message"));
-    when(resourceDetailsFormService.validate(any(), any(), any(), any(), any())).thenReturn(bindingResult);
+    when(resourceDetailsFormValidator.isValid(any(), any(), any(), any())).thenReturn(false);
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
         .thenReturn(submissionDetail);
     mockMvc.perform(
@@ -133,12 +134,11 @@ class ResourceDetailsControllerTest extends AbstractSubmissionControllerTest {
                 .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(resourceDetailsFormService, times(1)).validate(any(), any(), eq(validationType), any(), any());
     verify(resourceDetailsPersistenceService, never()).saveResourceDetails(any(), any());
   }
 
   @Test
-  void getResourceDetailsModelAndView_prospectSubmission_assertModelProperties() throws Exception {
+  void getResourceDetailsModelAndView_nonCorrection_assertModelProperties() throws Exception {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
         .thenReturn(submissionDetail);
@@ -148,8 +148,6 @@ class ResourceDetailsControllerTest extends AbstractSubmissionControllerTest {
     when(resourceDetailsFormService.getResourceDetailsForm(submissionDetail)).thenReturn(form);
     when(resourceDetailsFormService.getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
         .thenReturn(preselectedOrganisation);
-    when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
-        .thenReturn(submissionDetail);
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
             get(ReverseRouter.route(on(ResourceDetailsController.class)
@@ -167,7 +165,173 @@ class ResourceDetailsControllerTest extends AbstractSubmissionControllerTest {
             entry("responsibleOrganisation", preselectedOrganisation),
             entry("resourceType", submissionDetail.getSubmission().getResource().getType().name().toLowerCase()),
             entry("isRegulatorOrAreaTeamUser", false),
-            entry("relinquishmentSubmission", false)
+            entry("relinquishmentSubmission", false),
+            entry("showHistoricNameInfo", false),
+            entry("noOrganisationAdded", false),
+            entry("lockedOrganisationName", "")
+        );
+    assertEquals(ResourceDetailsForm.class, modelMap.get("form").getClass());
+
+    @SuppressWarnings(value="unchecked")
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
+            WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(SUBMISSION_DETAIL_ID, null)),
+            TaskListController.PAGE_NAME)
+    );
+  }
+
+  @Test
+  void getResourceDetailsModelAndView_asACorrection_andHistoricOrgNameIsNotCurrentOrgName_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+    submissionDetail.setCorrection(true);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
+        .thenReturn(submissionDetail);
+    var form = new ResourceDetailsForm();
+    var preselectedOrganisation = Map.of("25", "Shell Gas");
+
+    when(resourceDetailsFormService.getResourceDetailsForm(submissionDetail)).thenReturn(form);
+    when(resourceDetailsFormService.getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
+        .thenReturn(preselectedOrganisation);
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOrganisationId(1);
+    when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(resourceDetail));
+    var currentName = "currentName";
+    when(resourceDetailsPersistenceService.getOrganisationNameFromPortal(resourceDetail)).thenReturn(currentName);
+    var historicName = "historicName";
+    when(resourceDetailsPersistenceService.getOrganisationDisplayFromResourceDetails(resourceDetail)).thenReturn(historicName);
+    var modelMap = Objects.requireNonNull(
+            mockMvc.perform(
+                    get(ReverseRouter.route(on(ResourceDetailsController.class)
+                        .getResourceDetails(SUBMISSION_DETAIL_ID, null)))
+                        .with(user(USER)))
+                .andReturn()
+                .getModelAndView())
+        .getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore()),
+            entry("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class)
+                .searchOrganisationUnits(null, null))),
+            entry("responsibleOrganisation", preselectedOrganisation),
+            entry("resourceType", submissionDetail.getSubmission().getResource().getType().name().toLowerCase()),
+            entry("isRegulatorOrAreaTeamUser", false),
+            entry("relinquishmentSubmission", false),
+            entry("showHistoricNameInfo", true),
+            entry("noOrganisationAdded", false),
+            entry("lockedOrganisationName", historicName)
+        );
+    assertEquals(ResourceDetailsForm.class, modelMap.get("form").getClass());
+
+    @SuppressWarnings(value="unchecked")
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
+            WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(SUBMISSION_DETAIL_ID, null)),
+            TaskListController.PAGE_NAME)
+    );
+  }
+
+  @Test
+  void getResourceDetailsModelAndView_asACorrection_andHistoricOrgNameIsCurrentOrgName_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+    submissionDetail.setCorrection(true);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
+        .thenReturn(submissionDetail);
+    var form = new ResourceDetailsForm();
+    var preselectedOrganisation = Map.of("25", "Shell Gas");
+
+    when(resourceDetailsFormService.getResourceDetailsForm(submissionDetail)).thenReturn(form);
+    when(resourceDetailsFormService.getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
+        .thenReturn(preselectedOrganisation);
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOrganisationId(1);
+    when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(resourceDetail));
+    var currentName = "currentName";
+    when(resourceDetailsPersistenceService.getOrganisationNameFromPortal(resourceDetail)).thenReturn(currentName);
+    var historicName = "currentName";
+    when(resourceDetailsPersistenceService.getOrganisationDisplayFromResourceDetails(resourceDetail)).thenReturn(historicName);
+    var modelMap = Objects.requireNonNull(
+            mockMvc.perform(
+                    get(ReverseRouter.route(on(ResourceDetailsController.class)
+                        .getResourceDetails(SUBMISSION_DETAIL_ID, null)))
+                        .with(user(USER)))
+                .andReturn()
+                .getModelAndView())
+        .getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore()),
+            entry("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class)
+                .searchOrganisationUnits(null, null))),
+            entry("responsibleOrganisation", preselectedOrganisation),
+            entry("resourceType", submissionDetail.getSubmission().getResource().getType().name().toLowerCase()),
+            entry("isRegulatorOrAreaTeamUser", false),
+            entry("relinquishmentSubmission", false),
+            entry("showHistoricNameInfo", true),
+            entry("noOrganisationAdded", false),
+            entry("lockedOrganisationName", currentName)
+        );
+    assertEquals(ResourceDetailsForm.class, modelMap.get("form").getClass());
+
+    @SuppressWarnings(value="unchecked")
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(WorkAreaController.class).getWorkArea(null)),
+            WorkAreaController.WORK_AREA_TITLE),
+        entry(ReverseRouter.route(on(TaskListController.class).getTaskList(SUBMISSION_DETAIL_ID, null)),
+            TaskListController.PAGE_NAME)
+    );
+  }
+
+  @Test
+  void getResourceDetailsModelAndView_asACorrection_andNoCurrentOrganisation_assertModelProperties() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+    submissionDetail.setCorrection(true);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
+        .thenReturn(submissionDetail);
+    var form = new ResourceDetailsForm();
+    var preselectedOrganisation = Map.of("25", "Shell Gas");
+
+    when(resourceDetailsFormService.getResourceDetailsForm(submissionDetail)).thenReturn(form);
+    when(resourceDetailsFormService.getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
+        .thenReturn(preselectedOrganisation);
+    var resourceDetail = new ResourceDetail();
+    resourceDetail.setOrganisationId(1);
+    when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(resourceDetail));
+    var currentName = "";
+    when(resourceDetailsPersistenceService.getOrganisationNameFromPortal(resourceDetail)).thenReturn(currentName);
+    var modelMap = Objects.requireNonNull(
+            mockMvc.perform(
+                    get(ReverseRouter.route(on(ResourceDetailsController.class)
+                        .getResourceDetails(SUBMISSION_DETAIL_ID, null)))
+                        .with(user(USER)))
+                .andReturn()
+                .getModelAndView())
+        .getModelMap();
+
+    assertThat(modelMap)
+        .contains(
+            entry("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore()),
+            entry("organisationUnitEndpoint", SearchSelectorService.route(on(OrganisationUnitRestController.class)
+                .searchOrganisationUnits(null, null))),
+            entry("responsibleOrganisation", preselectedOrganisation),
+            entry("resourceType", submissionDetail.getSubmission().getResource().getType().name().toLowerCase()),
+            entry("isRegulatorOrAreaTeamUser", false),
+            entry("relinquishmentSubmission", false),
+            entry("showHistoricNameInfo", true),
+            entry("noOrganisationAdded", true),
+            entry("lockedOrganisationName", "")
         );
     assertEquals(ResourceDetailsForm.class, modelMap.get("form").getClass());
 

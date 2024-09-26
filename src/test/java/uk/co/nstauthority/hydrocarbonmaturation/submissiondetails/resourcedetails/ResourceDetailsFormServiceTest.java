@@ -1,9 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
@@ -11,43 +8,22 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
-import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamQueryService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
 
 @ExtendWith(MockitoExtension.class)
 class ResourceDetailsFormServiceTest {
 
-  private static final User USER = UserTestUtil.Builder().build();
-
-  @Mock
-  private ResourceDetailsFormValidator resourceDetailsFormValidator;
-
   @Mock
   private ResourceDetailsPersistenceService resourceDetailsPersistenceService;
-
   @Mock
   private OrganisationUnitQueryService organisationUnitQueryService;
-
-  @Mock
-  private SubmissionDetailService submissionDetailService;
-
-  @Mock
-  private TeamQueryService teamQueryService;
 
   @InjectMocks
   private ResourceDetailsFormService resourceDetailsFormService;
@@ -85,70 +61,6 @@ class ResourceDetailsFormServiceTest {
 
     var form = resourceDetailsFormService.getResourceDetailsForm(submissionDetail);
     assertThat(form).hasAllNullFieldsOrProperties();
-  }
-
-  @Test
-  void validate_whenCreateProspect_whenRegulator_verifyMethodCall() {
-    var form = new ResourceDetailsForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var validationType = ValidationType.FULL;
-    submissionDetail.setSubmissionType(SubmissionType.CREATE_PROSPECT);
-    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
-        .thenReturn(true);
-    var captor = ArgumentCaptor.forClass(
-        ResourceDetailsFormValidatorHints.class);
-    resourceDetailsFormService.validate(form, bindingResult, validationType, submissionDetail, USER);
-
-    verify(resourceDetailsFormValidator, times(1))
-        .validate(eq(form), eq(bindingResult), captor.capture());
-
-    assertThat(captor.getValue())
-        .extracting(
-            ResourceDetailsFormValidatorHints::validationType,
-            ResourceDetailsFormValidatorHints::resourceType,
-            ResourceDetailsFormValidatorHints::isRegulator,
-            ResourceDetailsFormValidatorHints::latestApprovedResourceDetail)
-        .containsExactly(
-            validationType,
-            submissionDetail.getSubmission().getResource().getType(),
-            true,
-            null
-        );
-  }
-
-  @Test
-  void validate_whenHasApprovedSubmission_whenNotRegulator_verifyMethodCall() {
-    var form = new ResourceDetailsForm();
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    var validationType = ValidationType.FULL;
-    var approvedResourceDetail = new ResourceDetail();
-    var approvedSubmissionDetail = new SubmissionDetail();
-    submissionDetail.setSubmissionType(SubmissionType.PROSPECT_UPDATE);
-    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.EXPLORATION))
-        .thenReturn(false);
-    when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
-        .thenReturn(Optional.of(approvedSubmissionDetail));
-    when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(approvedSubmissionDetail))
-        .thenReturn(Optional.of(approvedResourceDetail));
-    var captor = ArgumentCaptor.forClass(
-        ResourceDetailsFormValidatorHints.class);
-    resourceDetailsFormService.validate(form, bindingResult, validationType, submissionDetail, USER);
-
-    verify(resourceDetailsFormValidator, times(1))
-        .validate(eq(form), eq(bindingResult), captor.capture());
-
-    assertThat(captor.getValue())
-        .extracting(
-            ResourceDetailsFormValidatorHints::validationType,
-            ResourceDetailsFormValidatorHints::resourceType,
-            ResourceDetailsFormValidatorHints::isRegulator,
-            ResourceDetailsFormValidatorHints::latestApprovedResourceDetail)
-        .containsExactly(
-            validationType,
-            submissionDetail.getSubmission().getResource().getType(),
-            false,
-            approvedResourceDetail
-        );
   }
 
   @Test

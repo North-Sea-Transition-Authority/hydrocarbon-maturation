@@ -120,11 +120,11 @@ class ProjectServiceTest {
           .isEqualTo(
               Map.of(
                   searchRecord2.submissionDetailId().toString(),
-                  "Submission 1: %s (Accepted: 27 February 2024)"
+                  "%s (Accepted: 27 February 2024)"
                       .formatted(searchRecord2.submissionType().getTypeName()),
 
                   searchRecord1.submissionDetailId().toString(),
-                  "Submission 2: %s (Accepted: 15 January 2024)"
+                  "%s (Accepted: 15 January 2024)"
                       .formatted(searchRecord1.submissionType().getTypeName())
               )
           );

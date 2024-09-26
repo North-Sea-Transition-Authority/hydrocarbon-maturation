@@ -5,7 +5,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -271,7 +270,6 @@ public class ViewResourceRecordController {
     }
   }
 
-  @NotNull
   private ModelAndView getModelAndViewForSubmissionDetail(Optional<SubmissionDetail> submissionDetailSelectedOptional,
                                                           Resource resource,
                                                           User user) {

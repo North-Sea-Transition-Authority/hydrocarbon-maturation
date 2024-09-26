@@ -15,13 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
-import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.NewResourceDetailsFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
@@ -34,20 +35,20 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 @HasAnyRole(role = Role.EXPLORATION, teamType = TeamType.REGULATOR)
 public class NewProspectController {
 
-  private final ControllerHelperService controllerHelperService;
-  private final StartProspectService startProspectService;
-  private final OrganisationUnitQueryService organisationUnitQueryService;
   private final InternalTeamService internalTeamService;
+  private final SubmissionCreateService submissionCreateService;
+  private final NewResourceDetailsFormValidator newResourceDetailsFormValidator;
+  private final OrganisationUnitQueryService organisationUnitQueryService;
 
   @Autowired
-  public NewProspectController(ControllerHelperService controllerHelperService,
-                               StartProspectService startProspectService,
-                               OrganisationUnitQueryService organisationUnitQueryService,
-                               InternalTeamService internalTeamService) {
-    this.controllerHelperService = controllerHelperService;
-    this.startProspectService = startProspectService;
-    this.organisationUnitQueryService = organisationUnitQueryService;
+  public NewProspectController(InternalTeamService internalTeamService,
+                               SubmissionCreateService submissionCreateService,
+                               NewResourceDetailsFormValidator newResourceDetailsFormValidator,
+                               OrganisationUnitQueryService organisationUnitQueryService) {
     this.internalTeamService = internalTeamService;
+    this.submissionCreateService = submissionCreateService;
+    this.newResourceDetailsFormValidator = newResourceDetailsFormValidator;
+    this.organisationUnitQueryService = organisationUnitQueryService;
   }
 
   @GetMapping
@@ -59,14 +60,12 @@ public class NewProspectController {
   public ModelAndView createProspect(@Valid @ModelAttribute("form") ResourceDetailsForm form,
                                      BindingResult bindingResult,
                                      User user) {
-    bindingResult = startProspectService.validate(form, bindingResult, user);
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getNewProspectPageModelAndView(form, user),
-        () -> {
-          var submissionDetail = startProspectService.createInitialProspect(form, user);
-          return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId(), null));
-        }
-    );
+    if (newResourceDetailsFormValidator.isValid(bindingResult, ResourceType.PROSPECT, user)) {
+      var submissionDetail = submissionCreateService.createInitialProspect(form, user);
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId(), null));
+    } else {
+      return getNewProspectPageModelAndView(form, user);
+    }
   }
 
   private ModelAndView getNewProspectPageModelAndView(ResourceDetailsForm form, User user) {
@@ -78,16 +77,12 @@ public class NewProspectController {
             SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null, null)))
         .addObject("resourceType",
             ResourceType.PROSPECT.getDisplayName().toLowerCase())
-        .addObject("isRegulatorOrAreaTeamUser", isRegulatorOrAreaTeamUser(user))
+        .addObject("isRegulatorOrAreaTeamUser", internalTeamService.isRegulatorOrAreaTeamUser(user))
         .addObject("form", form)
         .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())
         .addObject("alreadySelectedOrganisation",
           organisationUnitQueryService.getPreSelectedOrganisationUnit(
               NumberUtils.createInteger(form.getResponsibleOrganisationId()))
         );
-  }
-
-  private boolean isRegulatorOrAreaTeamUser(User user) {
-    return internalTeamService.isRegulatorOrAreaTeamUser(user);
   }
 }

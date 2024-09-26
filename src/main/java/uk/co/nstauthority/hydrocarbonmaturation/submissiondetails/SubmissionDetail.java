@@ -13,6 +13,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.hibernate.annotations.UuidGenerator;
 import uk.co.fivium.digitalnotificationlibrary.core.notification.DomainReference;
 import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections.CorrectionType;
 
 @Entity
 @Table(name = "submission_details")
@@ -50,6 +51,9 @@ public class SubmissionDetail implements DomainReference {
   private SubmitterType submitterType;
 
   private Boolean correction;
+
+  @Enumerated(EnumType.STRING)
+  private CorrectionType correctionType;
 
   private Integer correctionByWuaId;
 
@@ -151,6 +155,15 @@ public class SubmissionDetail implements DomainReference {
 
   public void setCorrection(Boolean correction) {
     this.correction = correction;
+  }
+
+  public CorrectionType getCorrectionType() {
+    return correctionType;
+  }
+
+  public void setCorrectionType(
+      CorrectionType correctionType) {
+    this.correctionType = correctionType;
   }
 
   public Integer getCorrectionByWuaId() {

@@ -3,9 +3,13 @@ package uk.co.nstauthority.hydrocarbonmaturation.util;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.Optional;
+import java.util.function.Function;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.IllegalUtilClassInstantiationException;
 
 public class DateUtil {
@@ -111,5 +115,15 @@ public class DateUtil {
     } catch (NumberFormatException | DateTimeException e) {
       return Optional.empty();
     }
+  }
+
+  public static <T> Optional<T> findLatestItemForGivenStartDate(
+      Collection<T> collectionWithDates,
+      LocalDateTime startDateToFind,
+      Function<T, LocalDateTime> startDateExtractor
+  ) {
+    return collectionWithDates.stream()
+        .filter(dateItem -> startDateExtractor.apply(dateItem).compareTo(startDateToFind) <= 0)
+        .max(Comparator.comparing(startDateExtractor));
   }
 }

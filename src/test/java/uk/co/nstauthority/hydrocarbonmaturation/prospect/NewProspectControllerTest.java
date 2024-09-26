@@ -2,11 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.prospect;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -22,8 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.validation.BeanPropertyBindingResult;
-import org.springframework.validation.ObjectError;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
@@ -32,8 +27,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.NewResourceDetailsFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
@@ -46,7 +42,10 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
   private static final User USER = UserTestUtil.Builder().build();
 
   @MockBean
-  private StartProspectService startProspectService;
+  private SubmissionCreateService submissionCreateService;
+
+  @MockBean
+  private NewResourceDetailsFormValidator newResourceDetailsFormValidator;
 
   private UUID submissionDetailId;
 
@@ -138,10 +137,8 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void createProspect_asValidForm_assertRedirect() throws Exception {
     var form = new ResourceDetailsForm();
-
-    var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
-    when(startProspectService.validate(any(), any(), any())).thenReturn(bindingResult);
-    when(startProspectService.createInitialProspect(form, USER)).thenReturn(submissionDetail);
+    when(newResourceDetailsFormValidator.isValid(any(), any(), any())).thenReturn(true);
+    when(submissionCreateService.createInitialProspect(form, USER)).thenReturn(submissionDetail);
     when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     mockMvc.perform(
             post(ReverseRouter.route(on(NewProspectController.class).createProspect(null, null, null)))
@@ -156,10 +153,7 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
   @SecurityTest
   void createProspect_asInvalidForm_assertIsOk() throws Exception {
     var form = new ResourceDetailsForm();
-
-    var bindingResult = new BeanPropertyBindingResult(UpdateProspectForm.class, "form");
-    bindingResult.addError(new ObjectError("form", "invalid form"));
-    when(startProspectService.validate(any(), any(), any())).thenReturn(bindingResult);
+    when(newResourceDetailsFormValidator.isValid(any(), any(), any())).thenReturn(false);
     when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
@@ -197,8 +191,7 @@ class NewProspectControllerTest extends AbstractSubmissionControllerTest {
             OnshoreOffshore.getOnshoreOffshore(),
             alreadySelectedOrgMap);
 
-    verify(startProspectService, times(1)).validate(eq(form), any(), any());
-    verify(startProspectService, never()).createInitialProspect(any(), any());
+    verifyNoInteractions(submissionCreateService);
   }
 
   @SecurityTest

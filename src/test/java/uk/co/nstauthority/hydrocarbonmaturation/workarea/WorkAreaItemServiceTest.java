@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import io.micrometer.core.instrument.Timer;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -76,8 +77,8 @@ class WorkAreaItemServiceTest {
   private final Integer ORGANISATION_ID = 5;
   private final User USER = UserTestUtil.Builder().build();
   private final Map<Integer, OrganisationUnitDto> ORGANISATION_UNIT_MAP = Map.of(
-      1, new OrganisationUnitDto(1, "OneOrg", "123"),
-      ORGANISATION_ID, new OrganisationUnitDto(ORGANISATION_ID, "organisation", "456")
+      1, new OrganisationUnitDto(1, "OneOrg", "123", Collections.emptyList()),
+      ORGANISATION_ID, new OrganisationUnitDto(ORGANISATION_ID, "organisation", "456", Collections.emptyList())
   );
   private final Map<Integer, LicenceView> LICENCE_MAP = Map.of(
       1, new LicenceView("123", LICENCE_ID_1, LicenceStatus.EXTANT),

@@ -180,7 +180,7 @@ class RelatedResourcesFormServiceTest {
     var expectedMap = Map.of(submissionDetail.getId().toString(), resourceGroup.resourceName());
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
         .thenReturn(submissionDetail);
-    when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForSubmission(submissionDetail))
         .thenReturn(Optional.of(submissionDetail));
     when(resourceGroupQueryService.getResourceGroupViewForSubmissionDetail(
         submissionDetail,
@@ -208,7 +208,7 @@ class RelatedResourcesFormServiceTest {
     submissionDetail.getSubmission().setResource(resource);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetail.getId()))
         .thenReturn(submissionDetail);
-    when(submissionDetailService.getLatestApprovedSubmissionForSubmission(submissionDetail))
+    when(submissionDetailService.getLatestApprovedSubmissionDetailForSubmission(submissionDetail))
         .thenReturn(Optional.empty());
     assertThatThrownBy(() -> relatedResourcesFormService.getPreSelectedSubmissionDetail(relatedResourceForm))
         .isExactlyInstanceOf(IllegalStateException.class)

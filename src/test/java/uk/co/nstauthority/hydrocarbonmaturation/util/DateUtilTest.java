@@ -6,6 +6,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class DateUtilTest {
@@ -97,4 +99,31 @@ class DateUtilTest {
     assertThat(DateUtil.createLocalDate(null, null, null))
         .isEmpty();
   }
+
+  @Test
+  void findLatestItemForGivenStartDate() {
+    var startDate1 = LocalDate.of(2012, 12, 1);
+    var endDate1 = LocalDate.of(2012, 12, 10);
+    var startDate2 = LocalDate.of(2012, 12, 11);
+    var endDate2 = LocalDate.of(2012, 12, 20);
+    var startDate3 = LocalDate.of(2012, 12, 21);
+    var endDate3 = LocalDate.of(2012, 12, 30);
+
+    var testDate = LocalDate.of(2012, 12, 15);
+
+    var itemWithDates1 = new ItemWithStartAndEndDate("name", startDate1, endDate1);
+    var itemWithDates2 = new ItemWithStartAndEndDate("name", startDate2, endDate2);
+    var itemWithDates3 = new ItemWithStartAndEndDate("name", startDate3, endDate3);
+    var itemsWithDates = List.of(itemWithDates1, itemWithDates2, itemWithDates3);
+
+    var expectedItem = DateUtil.findLatestItemForGivenStartDate(
+        itemsWithDates,
+        testDate.atStartOfDay(),
+        item -> item.startDate().atStartOfDay()
+    );
+
+    assertThat(expectedItem).isEqualTo(Optional.of(itemWithDates2));
+  }
+
+  private record ItemWithStartAndEndDate(String itemName, LocalDate startDate, LocalDate endDate) { }
 }

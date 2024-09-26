@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
-import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionCreateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
@@ -31,14 +31,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 @HasAnyRole(role = Role.INDUSTRY_SUBMIT, teamType = TeamType.INDUSTRY)
 public class PostDrillDiscoveryController {
 
-  private final StartDiscoveryService startDiscoveryService;
-  private final ControllerHelperService controllerHelperService;
+  private final StartDiscoveryFormValidator startDiscoveryFormValidator;
+  private final SubmissionCreateService submissionCreateService;
 
   @Autowired
-  public PostDrillDiscoveryController(StartDiscoveryService startDiscoveryService,
-                                      ControllerHelperService controllerHelperService) {
-    this.startDiscoveryService = startDiscoveryService;
-    this.controllerHelperService = controllerHelperService;
+  public PostDrillDiscoveryController(StartDiscoveryFormValidator startDiscoveryFormValidator,
+                                      SubmissionCreateService submissionCreateService) {
+    this.startDiscoveryFormValidator = startDiscoveryFormValidator;
+    this.submissionCreateService = submissionCreateService;
   }
 
   @GetMapping
@@ -50,15 +50,12 @@ public class PostDrillDiscoveryController {
   public ModelAndView startDiscovery(@Valid @ModelAttribute("form") StartDiscoveryForm form,
                                      BindingResult bindingResult,
                                      User user) {
-    bindingResult = startDiscoveryService.validateDiscoveryFromProspect(form, bindingResult);
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getStartDiscoveryModelAndView(form),
-        () -> {
-          var submissionDetail = startDiscoveryService.createNewDiscoveryFromProspect(form, user);
-          return ReverseRouter.redirect(on(TaskListController.class)
-              .getTaskList(submissionDetail.getId(), null));
-        }
-    );
+    if (startDiscoveryFormValidator.isValid(bindingResult)) {
+      var submissionDetail = submissionCreateService.createNewDiscoveryFromProspect(form, user);
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetail.getId(), null));
+    } else {
+      return getStartDiscoveryModelAndView(form);
+    }
   }
 
   private ModelAndView getStartDiscoveryModelAndView(StartDiscoveryForm form) {
