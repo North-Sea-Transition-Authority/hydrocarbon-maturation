@@ -14,12 +14,18 @@ breadcrumbsMap=breadcrumbsMap>
         <@fdsAction.link linkText="Create project" linkUrl=springUrl(createProjectUrl) linkClass="govuk-button"/>
     </#if>
 
-    <@fdsLinkList.linkList>
-        <#list projectViews as projectView>
-            <@fdsLinkList.linkListItem
-            linkName=projectView.projectName()
-            hintText=projectView.projectCaption()
-            linkUrl=projectView.linkUrl()!""/>
-        </#list>
-    </@fdsLinkList.linkList>
+    <#if projectViews?hasContent>
+        <@fdsLinkList.linkList>
+            <#list projectViews as projectView>
+                <@fdsLinkList.linkListItem
+                linkName=projectView.projectName()
+                hintText=projectView.projectCaption()
+                linkUrl=projectView.linkUrl()!""/>
+            </#list>
+        </@fdsLinkList.linkList>
+        <#else>
+        <@fdsInsetText.insetText>
+          There are no projects associated with this field.
+        </@fdsInsetText.insetText>
+    </#if>
 </@defaultPage>
