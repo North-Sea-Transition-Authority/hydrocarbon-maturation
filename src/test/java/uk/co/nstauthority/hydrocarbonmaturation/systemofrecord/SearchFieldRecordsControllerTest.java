@@ -213,7 +213,8 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
             entry("fieldStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(FieldStatus.class)),
             entry("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class)),
             entry("resourceName", preselectedFieldName),
-            entry("parentFieldName", preselectedParentFieldName)
+            entry("parentFieldName", preselectedParentFieldName),
+            entry("isRegulatorOrAreaTeamUser", true)
         );
   }
 
@@ -221,7 +222,7 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
   void showSearchResourceRecordsScreen_whenOperator_whenFilterInSessionAndShowResults_assertProperties() throws Exception {
     var operatorQueryService = mock(OperatorResourceRecordQueryService.class);
     when(fieldConfiguration.allowSubmissions()).thenReturn(true);
-    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
     when(resourceRecordQueryServiceFactory.getQueryServiceStrategy(USER))
         .thenReturn(operatorQueryService);
 
@@ -257,7 +258,8 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
                 .searchFieldsByFieldName(null, null))),
             entry("fieldStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(FieldStatus.class)),
             entry("resourceName", preselectedFieldName),
-            entry("parentFieldName", preselectedParentFieldName)
+            entry("parentFieldName", preselectedParentFieldName),
+            entry("isRegulatorOrAreaTeamUser", false)
         );
   }
 

@@ -24,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 
 @Controller
 @RequestMapping("/search-resource-records/fields")
@@ -34,14 +35,17 @@ public class SearchFieldRecordsController {
   private final SearchResourceRecordsService searchResourceRecordsService;
   private final ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory;
   private final FieldConfiguration fieldConfiguration;
+  private final InternalTeamService internalTeamService;
 
   @Autowired
   public SearchFieldRecordsController(SearchResourceRecordsService searchResourceRecordsService,
                                       ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory,
-                                      FieldConfiguration fieldConfiguration) {
+                                      FieldConfiguration fieldConfiguration,
+                                      InternalTeamService internalTeamService) {
     this.searchResourceRecordsService = searchResourceRecordsService;
     this.resourceRecordQueryServiceFactory = resourceRecordQueryServiceFactory;
     this.fieldConfiguration = fieldConfiguration;
+    this.internalTeamService = internalTeamService;
   }
 
   @GetMapping
@@ -58,10 +62,10 @@ public class SearchFieldRecordsController {
       var fieldResultRecords = searchResourceRecordsService.getResourceRecordSearchResults(
           form, resourceRecordQueryServiceFactory.getQueryServiceStrategy(user), user);
 
-      return getModelAndView(form, fieldResultRecords, FiltersAdded.YES);
+      return getModelAndView(form, fieldResultRecords, FiltersAdded.YES, user);
     }
 
-    return getModelAndViewWithNoFiltersAdded(form);
+    return getModelAndViewWithNoFiltersAdded(form, user);
   }
 
   @GetMapping("/clear-filters")
@@ -73,8 +77,8 @@ public class SearchFieldRecordsController {
     return ReverseRouter.redirect(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null, null));
   }
 
-  private ModelAndView getModelAndViewWithNoFiltersAdded(SearchResourceRecordsForm form) {
-    return getModelAndView(form, Collections.emptyList(), FiltersAdded.NO);
+  private ModelAndView getModelAndViewWithNoFiltersAdded(SearchResourceRecordsForm form, User user) {
+    return getModelAndView(form, Collections.emptyList(), FiltersAdded.NO, user);
   }
 
   @PostMapping
@@ -88,7 +92,8 @@ public class SearchFieldRecordsController {
 
   private ModelAndView getModelAndView(SearchResourceRecordsForm form,
                                        List<ResourceRecordSearchResultItem> resourceRecordSearchResults,
-                                       FiltersAdded filtersAdded) {
+                                       FiltersAdded filtersAdded,
+                                       User user) {
     return new ModelAndView("remi/systemofrecord/searchFieldRecords")
         .addObject("form", form)
         .addObject("backLinkUrl", ReverseRouter.route(on(SystemOfRecordLandingPageController.class).getLandingPage()))
@@ -103,7 +108,8 @@ public class SearchFieldRecordsController {
         .addObject("fieldStatusOptions", DisplayableEnumOptionUtil.getDisplayableOptions(FieldStatus.class))
         .addObject("resourceName", searchResourceRecordsService.getPreSelectedFieldName(form))
         .addObject("geographicalArea", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class))
-        .addObject("parentFieldName", searchResourceRecordsService.getPreSelectedParentFieldName(form));
+        .addObject("parentFieldName", searchResourceRecordsService.getPreSelectedParentFieldName(form))
+        .addObject("isRegulatorOrAreaTeamUser", internalTeamService.isRegulatorOrAreaTeamUser(user));
   }
 
   @ModelAttribute("searchFieldRecordsFilter")
