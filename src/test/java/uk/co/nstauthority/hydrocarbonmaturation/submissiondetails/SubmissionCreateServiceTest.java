@@ -27,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.configuration.FieldConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
@@ -101,6 +102,9 @@ class SubmissionCreateServiceTest {
 
   @Mock
   private TeamQueryService teamQueryService;
+
+  @Mock
+  private FieldConfiguration fieldConfiguration;
 
   @InjectMocks
   private SubmissionCreateService submissionCreateService;
@@ -400,11 +404,25 @@ class SubmissionCreateServiceTest {
   void getResourceTypeOptionsForSubmitterUser() {
     var teamRole = TeamRoleTestUtil.Builder().withRole(Role.INDUSTRY_SUBMIT).build();
     when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
+    when(fieldConfiguration.allowSubmissions()).thenReturn(true);
 
     var resourceTypeOptions = new HashMap<>();
     resourceTypeOptions.put(ResourceType.PROSPECT.name(), ResourceType.PROSPECT.getDisplayName());
     resourceTypeOptions.put(ResourceType.DISCOVERY.name(), ResourceType.DISCOVERY.getDisplayName());
     resourceTypeOptions.put(ResourceType.FIELD.name(), ResourceType.FIELD.getDisplayName());
+
+    assertThat(submissionCreateService.getResourceTypeOptionsForUser(USER)).isEqualTo(resourceTypeOptions);
+  }
+
+  @Test
+  void getResourceTypeOptionsForSubmitterUser_whenFieldsAreNotAvailable() {
+    var teamRole = TeamRoleTestUtil.Builder().withRole(Role.INDUSTRY_SUBMIT).build();
+    when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
+    when(fieldConfiguration.allowSubmissions()).thenReturn(false);
+
+    var resourceTypeOptions = new HashMap<>();
+    resourceTypeOptions.put(ResourceType.PROSPECT.name(), ResourceType.PROSPECT.getDisplayName());
+    resourceTypeOptions.put(ResourceType.DISCOVERY.name(), ResourceType.DISCOVERY.getDisplayName());
 
     assertThat(submissionCreateService.getResourceTypeOptionsForUser(USER)).isEqualTo(resourceTypeOptions);
   }
@@ -425,10 +443,23 @@ class SubmissionCreateServiceTest {
   void getResourceTypeOptionsForAreaTeamUser() {
     var teamRole = TeamRoleTestUtil.Builder().withRole(Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM).build();
     when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
+    when(fieldConfiguration.allowSubmissions()).thenReturn(true);
 
     var resourceTypeOptions = new HashMap<>();
     resourceTypeOptions.put(ResourceType.DISCOVERY.name(), ResourceType.DISCOVERY.getDisplayName());
     resourceTypeOptions.put(ResourceType.FIELD.name(), ResourceType.FIELD.getDisplayName());
+
+    assertThat(submissionCreateService.getResourceTypeOptionsForUser(USER)).isEqualTo(resourceTypeOptions);
+  }
+
+  @Test
+  void getResourceTypeOptionsForAreaTeamUser_whenFieldsAreNotAvailable() {
+    var teamRole = TeamRoleTestUtil.Builder().withRole(Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM).build();
+    when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
+    when(fieldConfiguration.allowSubmissions()).thenReturn(false);
+
+    var resourceTypeOptions = new HashMap<>();
+    resourceTypeOptions.put(ResourceType.DISCOVERY.name(), ResourceType.DISCOVERY.getDisplayName());
 
     assertThat(submissionCreateService.getResourceTypeOptionsForUser(USER)).isEqualTo(resourceTypeOptions);
   }

@@ -75,7 +75,6 @@ class ErrorServiceTest {
     final var resultingModelMap =  errorService.addErrorAttributesToModel(
         new ModelAndView(),
         new NullPointerException(),
-        "test",
         SC_INTERNAL_SERVER_ERROR
     ).getModelMap();
 
@@ -103,7 +102,6 @@ class ErrorServiceTest {
     final var resultingModelMap =  errorService.addErrorAttributesToModel(
         new ModelAndView(),
         new NullPointerException(),
-        "test",
         SC_BAD_REQUEST
     ).getModelMap();
 
@@ -131,7 +129,6 @@ class ErrorServiceTest {
     final var resultingModelMap =  errorService.addErrorAttributesToModel(
         new ModelAndView(),
         null,
-        "test",
         SC_INTERNAL_SERVER_ERROR
     ).getModelMap();
 
@@ -153,7 +150,6 @@ class ErrorServiceTest {
     final var resultingModelMap =  errorService.addErrorAttributesToModel(
         new ModelAndView(),
         null,
-        "test",
         SC_FORBIDDEN
     ).getModelMap();
 

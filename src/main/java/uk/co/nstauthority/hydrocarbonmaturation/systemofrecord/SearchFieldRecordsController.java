@@ -4,6 +4,8 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.Collections;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -11,9 +13,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
+import uk.co.nstauthority.hydrocarbonmaturation.configuration.FieldConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -29,17 +33,24 @@ public class SearchFieldRecordsController {
   public static final String PAGE_TITLE = "Search field records";
   private final SearchResourceRecordsService searchResourceRecordsService;
   private final ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory;
+  private final FieldConfiguration fieldConfiguration;
 
+  @Autowired
   public SearchFieldRecordsController(SearchResourceRecordsService searchResourceRecordsService,
-                                      ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory) {
+                                      ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory,
+                                      FieldConfiguration fieldConfiguration) {
     this.searchResourceRecordsService = searchResourceRecordsService;
     this.resourceRecordQueryServiceFactory = resourceRecordQueryServiceFactory;
+    this.fieldConfiguration = fieldConfiguration;
   }
 
   @GetMapping
   public ModelAndView showSearchFieldRecordsScreen(
       @ModelAttribute("searchFieldRecordsFilter") SearchFieldRecordsFilter filter,
       User user) {
+    if (!fieldConfiguration.allowSubmissions()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Field search is not currently available in the service");
+    }
     var form = SearchResourceRecordsForm.from(filter);
 
     if (filter.isShowResults()) {

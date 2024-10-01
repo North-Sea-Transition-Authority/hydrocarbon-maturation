@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.configuration.FieldConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.StartDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.updatediscovery.UpdateDiscoveryForm;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
@@ -51,6 +52,7 @@ public class SubmissionCreateService {
   private final ReservoirPersistenceService reservoirPersistenceService;
   private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
   private final TeamQueryService teamQueryService;
+  private final FieldConfiguration fieldConfiguration;
 
   @Autowired
   public SubmissionCreateService(ResourceService resourceService,
@@ -65,7 +67,7 @@ public class SubmissionCreateService {
                                  SubmissionPersistenceService submissionPersistenceService,
                                  ReservoirPersistenceService reservoirPersistenceService,
                                  ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService,
-                                 TeamQueryService teamQueryService) {
+                                 TeamQueryService teamQueryService, FieldConfiguration fieldConfiguration) {
     this.resourceService = resourceService;
     this.submissionDetailService = submissionDetailService;
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
@@ -79,6 +81,7 @@ public class SubmissionCreateService {
     this.reservoirPersistenceService = reservoirPersistenceService;
     this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
     this.teamQueryService = teamQueryService;
+    this.fieldConfiguration = fieldConfiguration;
   }
 
   @Transactional
@@ -307,6 +310,11 @@ public class SubmissionCreateService {
         .map(TeamRole::getRole)
         .collect(Collectors.toSet());
     var resourceTypesForUser = SubmissionType.getResourceTypesForRoles(userRoles);
+
+    // Only allow field submissions if they are switched on for the service
+    if (!fieldConfiguration.allowSubmissions()) {
+      resourceTypesForUser.remove(ResourceType.FIELD);
+    }
 
     return DisplayableEnumOptionUtil.getDisplayableOptions(resourceTypesForUser);
   }

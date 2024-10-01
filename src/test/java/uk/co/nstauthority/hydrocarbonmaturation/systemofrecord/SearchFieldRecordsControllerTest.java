@@ -26,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.configuration.FieldConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
@@ -42,6 +43,8 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
   private SearchResourceRecordsService searchResourceRecordsService;
   @MockBean
   private ResourceRecordQueryServiceFactory resourceRecordQueryServiceFactory;
+  @MockBean
+  private FieldConfiguration fieldConfiguration;
 
   @SecurityTest
   void showSearchFieldRecordsScreen_NoUser_assertStatusUnauthorized() throws Exception {
@@ -53,6 +56,7 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
   @Test
   void showSearchFieldRecordsScreen_whenOperator_assertStatusOk() throws Exception {
     var form = new SearchResourceRecordsForm();
+    when(fieldConfiguration.allowSubmissions()).thenReturn(true);
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(false);
     mockMvc.perform(
             get(ReverseRouter.route(on(SearchFieldRecordsController.class)
@@ -65,6 +69,7 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
   @Test
   void showSearchFieldRecordsScreen_whenRegulator_assertStatusOk() throws Exception {
     var form = new SearchResourceRecordsForm();
+    when(fieldConfiguration.allowSubmissions()).thenReturn(true);
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     mockMvc.perform(
             get(ReverseRouter.route(on(SearchFieldRecordsController.class)
@@ -74,9 +79,32 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
     assertThat(form.isShowOnlyPreferredViews()).isFalse();
   }
 
+  @SecurityTest
+  void showSearchFieldRecordsScreen_whenFieldsAreNotAvailable_assertForbidden() throws Exception {
+    when(fieldConfiguration.allowSubmissions()).thenReturn(false);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(SearchFieldRecordsController.class)
+                .showSearchFieldRecordsScreen(null, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void showSearchFieldRecordsScreen_whenFieldsAreAvailable_assertOk() throws Exception {
+    when(fieldConfiguration.allowSubmissions()).thenReturn(true);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(SearchFieldRecordsController.class)
+                .showSearchFieldRecordsScreen(null, null)))
+                .with(user(USER)))
+        .andExpect(status().isOk());
+  }
+
   @Test
   void showSearchResourceRecordsScreen_whenFilterInSessionAndShowResults_verifyMethodCalls() throws Exception {
     var regulatorQueryService = mock(RegulatorResourceRecordQueryService.class);
+    when(fieldConfiguration.allowSubmissions()).thenReturn(true);
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     when(resourceRecordQueryServiceFactory.getQueryServiceStrategy(USER))
         .thenReturn(regulatorQueryService);
@@ -98,6 +126,7 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
   @Test
   void showSearchResourceRecordsScreen_whenFilterByFieldName_assertResults() throws Exception {
     var regulatorQueryService = mock(RegulatorResourceRecordQueryService.class);
+    when(fieldConfiguration.allowSubmissions()).thenReturn(true);
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     when(resourceRecordQueryServiceFactory.getQueryServiceStrategy(USER))
         .thenReturn(regulatorQueryService);
@@ -146,6 +175,7 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
   @Test
   void showSearchResourceRecordsScreen_whenRegulator_whenFilterInSessionAndShowResults_assertProperties() throws Exception {
     var regulatorQueryService = mock(RegulatorResourceRecordQueryService.class);
+    when(fieldConfiguration.allowSubmissions()).thenReturn(true);
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     when(resourceRecordQueryServiceFactory.getQueryServiceStrategy(USER))
         .thenReturn(regulatorQueryService);
@@ -190,6 +220,7 @@ class SearchFieldRecordsControllerTest extends AbstractControllerTest {
   @Test
   void showSearchResourceRecordsScreen_whenOperator_whenFilterInSessionAndShowResults_assertProperties() throws Exception {
     var operatorQueryService = mock(OperatorResourceRecordQueryService.class);
+    when(fieldConfiguration.allowSubmissions()).thenReturn(true);
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     when(resourceRecordQueryServiceFactory.getQueryServiceStrategy(USER))
         .thenReturn(operatorQueryService);

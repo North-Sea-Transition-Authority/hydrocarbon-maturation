@@ -19,16 +19,18 @@ pageSize=PageSize.TWO_THIRDS_COLUMN
             </div>
         </li>
 
-        <li class="govuk-list__item">
-            <@_systemOrRecordLandingLink
-            linkText="Search for fields"
-            linkUrl=springUrl(fieldSearchUrl)
-            ariaDescribedByHintId="fields-hint"
-            />
-            <div class="govuk-hint" id="fields-hint">
-                All field submissions that have been added to the system of record
-            </div>
-        </li>
+        <#if fieldSearchUrl?has_content>
+            <li class="govuk-list__item">
+                <@_systemOrRecordLandingLink
+                linkText="Search for fields"
+                linkUrl=springUrl(fieldSearchUrl)
+                ariaDescribedByHintId="fields-hint"
+                />
+                <div class="govuk-hint" id="fields-hint">
+                    All field submissions that have been added to the system of record
+                </div>
+            </li>
+        </#if>
     </ul>
 </@defaultPage>
 

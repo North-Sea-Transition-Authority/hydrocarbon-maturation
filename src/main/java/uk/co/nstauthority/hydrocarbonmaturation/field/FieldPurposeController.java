@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
+import uk.co.nstauthority.hydrocarbonmaturation.configuration.FieldConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.cessationofproduction.StartCessationOfProductionController;
@@ -36,16 +37,22 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 public class FieldPurposeController {
   private final ControllerHelperService controllerHelperService;
   private final SubmissionTypeSelectService submissionTypeSelectService;
+  private final FieldConfiguration fieldConfiguration;
 
   @Autowired
   public FieldPurposeController(ControllerHelperService controllerHelperService,
-                                SubmissionTypeSelectService submissionTypeSelectService) {
+                                SubmissionTypeSelectService submissionTypeSelectService,
+                                FieldConfiguration fieldConfiguration) {
     this.controllerHelperService = controllerHelperService;
     this.submissionTypeSelectService = submissionTypeSelectService;
+    this.fieldConfiguration = fieldConfiguration;
   }
 
   @GetMapping
   public ModelAndView getFieldPurposeForm(User user) {
+    if (!fieldConfiguration.allowSubmissions()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Field submissions are not currently available in the service");
+    }
     return getFieldPurposeTypeModelAndView(new SubmissionTypeSelectForm(), user);
   }
 

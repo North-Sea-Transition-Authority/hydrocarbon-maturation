@@ -20,6 +20,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.configuration.FieldConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.cessationofproduction.StartCessationOfProductionController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.conceptselectreport.StartConceptSelectReportController;
@@ -42,6 +43,9 @@ class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   SubmissionCreateService submissionCreateService;
+
+  @MockBean
+  FieldConfiguration fieldConfiguration;
 
   @SecurityTest
   void startFieldSubmission_whenValidFormCreateField_assertRedirection() throws Exception {
@@ -148,10 +152,35 @@ class FieldPurposeControllerTest extends AbstractSubmissionControllerTest {
         .andExpect(status().isForbidden());
   }
 
+  @SecurityTest
+  void startFieldSubmission_whenFieldsAreNotAvailable_assertForbidden() throws Exception {
+    var form = new SubmissionTypeSelectForm();
+    when(fieldConfiguration.allowSubmissions()).thenReturn(false);
+    when(teamQueryService.userHasRoleInTeamType(eq(USER.wuaId()), any(TeamType.class), any(Role.class))).thenReturn(true);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(form, null, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void startFieldSubmission_whenFieldsAreAvailable_assertOk() throws Exception {
+    var form = new SubmissionTypeSelectForm();
+    when(fieldConfiguration.allowSubmissions()).thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(eq(USER.wuaId()), any(TeamType.class), any(Role.class))).thenReturn(true);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(FieldPurposeController.class).startFieldSubmission(form, null, null)))
+                .with(user(USER)))
+        .andExpect(status().isOk());
+  }
+
   @Test
   void getSubmissionPurpose_assertModelProperties() throws Exception {
     var submissionTypeOptions = List.of(SubmissionType.values());
 
+    when(fieldConfiguration.allowSubmissions()).thenReturn(true);
     when(submissionTypeSelectService.getSubmissionTypeOptions(ResourceType.FIELD, USER)).thenReturn(submissionTypeOptions);
     when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM))
         .thenReturn(true);

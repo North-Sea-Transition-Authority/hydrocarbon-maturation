@@ -49,9 +49,7 @@ public class ErrorService {
   public ModelAndView addErrorAttributesToModel(
       ModelAndView modelAndView,
       Throwable throwable,
-      String url,
       int statusCode) {
-    LOGGER.info("Error found for URL: {}", url);
     if (throwable != null && !expectedErrorStatuses().contains(statusCode)) {
       addStackTraceToModel(modelAndView, throwable);
       addErrorReference(modelAndView, throwable);
