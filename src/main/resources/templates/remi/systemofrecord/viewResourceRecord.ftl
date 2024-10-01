@@ -85,6 +85,12 @@ wrapperWidth=true>
             linkClass="govuk-button govuk-button--secondary"
             linkUrl=springUrl(correctionUrl)/>
         </#if>
+        <#if canCreatePostFieldDiscovery>
+          <@fdsAction.link
+          linkText="Create discovery from field"
+          linkClass="govuk-button govuk-button--secondary"
+          linkUrl=springUrl(postFieldDiscoveryUrl)/>
+        </#if>
       </#if>
     </#if>
     <#if canViewRegulatorManagementInfo && fieldStatusUrl?has_content && !archived>

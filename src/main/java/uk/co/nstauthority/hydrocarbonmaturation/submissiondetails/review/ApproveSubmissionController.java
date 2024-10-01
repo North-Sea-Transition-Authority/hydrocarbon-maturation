@@ -84,8 +84,14 @@ public class ApproveSubmissionController {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
 
     submissionApprovalService.approveSubmissionOrThrow(submissionDetail, user);
-    approvedSubmissionNotificationBanner(submissionDetail, redirectAttributes);
-
+    if (submissionDetail.isCessationOfProductionSubmission()) {
+      approvedSubmissionNotificationBanner(submissionDetail, redirectAttributes, NotificationBannerType.INFO,
+          "%s - %s has been accepted and applied to the system of record. " +
+              "Is a new discovery required to track the remaining volumetrics?");
+    } else {
+      approvedSubmissionNotificationBanner(submissionDetail, redirectAttributes, NotificationBannerType.SUCCESS,
+          "%s - %s has been accepted and applied to the system of record.");
+    }
     return ReverseRouter.redirect(on(ViewResourceRecordController.class)
         .showResourceRecord(submissionDetail.getSubmission().getResource().getId(), null));
   }
@@ -96,12 +102,14 @@ public class ApproveSubmissionController {
   }
 
   private void approvedSubmissionNotificationBanner(SubmissionDetail submissionDetail,
-                                                    RedirectAttributes redirectAttributes) {
+                                                    RedirectAttributes redirectAttributes,
+                                                    NotificationBannerType bannerType,
+                                                    String bannerText) {
     var banner = NotificationBanner.builder()
         .withTitle("%s submission accepted".formatted(
             submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail)))
-        .withBannerType(NotificationBannerType.SUCCESS)
-        .withContent("%s - %s has been accepted and applied to the system of record."
+        .withBannerType(bannerType)
+        .withContent(bannerText
             .formatted(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail),
                 submissionResourceService.getResourceNameWithCentreOfInterestAndLicenceApplicationReferenceOrDefault(
                     submissionDetail)))

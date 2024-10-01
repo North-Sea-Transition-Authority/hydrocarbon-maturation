@@ -68,6 +68,15 @@ class ViewResourceRecordServiceTest {
     assertThat(result).isTrue();
   }
 
+  @Test
+  void isAreaTeamUser_assertTrue() {
+    when(internalTeamService.isAreaTeamUser(USER)).thenReturn(true);
+
+    var result = underTest.isAreaTeamUser(USER);
+
+    assertThat(result).isTrue();
+  }
+
   @Nested
   class WhenGettingResourceRecordOrThrow {
     private final UUID RESOURCE_ID = UUID.randomUUID();

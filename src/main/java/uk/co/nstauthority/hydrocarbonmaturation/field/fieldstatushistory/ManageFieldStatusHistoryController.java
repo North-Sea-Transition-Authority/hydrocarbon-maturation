@@ -103,7 +103,6 @@ public class ManageFieldStatusHistoryController {
     return new ModelAndView("remi/field/fieldstatushistory/removeFieldStatusHistory")
         .addObject("pageTitle", REMOVE_FIELD_STATUS_TITLE)
         .addObject("fieldStatusHistory", fieldStatusHistoryDto)
-
         .addObject("cancelUrl", cancelUrl);
   }
 

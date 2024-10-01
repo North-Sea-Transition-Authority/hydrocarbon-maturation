@@ -31,4 +31,16 @@ public class InternalTeamService {
             TeamType.ONSHORE_AREA);
     return userTeams.stream().map(Team::getTeamType).anyMatch(expectedTeamTypes::contains);
   }
+
+  public boolean isAreaTeamUser(User user) {
+    var userTeams = teamQueryService.getTeamRolesForUser(user.wuaId())
+            .stream()
+            .map(TeamRole::getTeam)
+            .toList();
+    var expectedTeamTypes = Set.of(
+            TeamType.NORTHERN_OFFSHORE_AREA,
+            TeamType.SOUTHERN_OFFSHORE_AREA,
+            TeamType.ONSHORE_AREA);
+    return userTeams.stream().map(Team::getTeamType).anyMatch(expectedTeamTypes::contains);
+  }
 }

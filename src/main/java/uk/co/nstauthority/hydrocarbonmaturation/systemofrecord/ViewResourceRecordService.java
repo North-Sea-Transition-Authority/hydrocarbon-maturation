@@ -113,6 +113,10 @@ public class ViewResourceRecordService {
     return internalTeamService.isRegulatorOrAreaTeamUser(user);
   }
 
+  public boolean isAreaTeamUser(User user) {
+    return internalTeamService.isAreaTeamUser(user);
+  }
+
   private boolean isResourceAssociatedWithAnExtantLicence(ResourceRecordSummaryView resourceRecord) {
     if (resourceRecord.licenceIds() == null) {
       return false;

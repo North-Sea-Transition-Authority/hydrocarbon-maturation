@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.StartPostFieldDiscoveryController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -24,6 +25,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.Res
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.ViewFieldStatusHistoryController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectListController;
 import uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation.FieldRegulatorManagedInformationController;
@@ -61,6 +64,7 @@ public class ViewResourceRecordController {
   private final FieldPersistenceService fieldPersistenceService;
   private final TeamQueryService teamQueryService;
   private final FieldMapViewService fieldMapViewService;
+  private final FieldStatusService fieldStatusService;
 
   @Autowired
   public ViewResourceRecordController(
@@ -76,7 +80,7 @@ public class ViewResourceRecordController {
       FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService,
       FieldPersistenceService fieldPersistenceService,
       FieldMapViewService fieldMapViewService,
-      TeamQueryService teamQueryService) {
+      TeamQueryService teamQueryService, FieldStatusService fieldStatusService) {
     this.viewResourceRecordService = viewResourceRecordService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
@@ -90,6 +94,7 @@ public class ViewResourceRecordController {
     this.fieldPersistenceService = fieldPersistenceService;
     this.teamQueryService = teamQueryService;
     this.fieldMapViewService = fieldMapViewService;
+    this.fieldStatusService = fieldStatusService;
   }
 
   @GetMapping
@@ -163,9 +168,10 @@ public class ViewResourceRecordController {
     }
 
     if (isRegulatorOrAreaUser) {
-      addRegulatorOnlyProperties(isFieldResource, modelAndView, resource);
+      addRegulatorOnlyProperties(isFieldResource, modelAndView, resource, user);
     } else {
       modelAndView.addObject("archived", false);
+      modelAndView.addObject("canCreatePostFieldDiscovery", false);
     }
 
     if (!isFieldResource && correctionService.canStartCorrection(resource, user)) {
@@ -199,11 +205,28 @@ public class ViewResourceRecordController {
 
   private void addRegulatorOnlyProperties(boolean isFieldResource,
                                           ModelAndView modelAndView,
-                                          Resource resource) {
+                                          Resource resource,
+                                          User user) {
     if (isFieldResource) {
       var field = fieldPersistenceService.getFieldOrThrow(resource);
       fieldMapViewService.getFieldGeoJsonUrl(field)
           .ifPresent(fieldMapView -> modelAndView.addObject("fieldMapView", fieldMapView));
+
+      var isAreaTeamUser = viewResourceRecordService.isAreaTeamUser(user);
+      var fieldStatus = fieldStatusService.getMostRecentFieldStatus(field);
+      fieldStatus.ifPresentOrElse(status -> {
+        var shelvedOrCop = status.equals(FieldStatus.STATUS_000) || status.equals(FieldStatus.STATUS_900);
+
+        if (isAreaTeamUser && shelvedOrCop) {
+          modelAndView.addObject("canCreatePostFieldDiscovery", true)
+              .addObject("postFieldDiscoveryUrl", ReverseRouter.route(on(StartPostFieldDiscoveryController.class)
+                  .getStartPostFieldDiscoveryPage(resource.getId(), null)));
+        } else {
+          modelAndView.addObject("canCreatePostFieldDiscovery", false);
+        }
+      },
+          () -> modelAndView.addObject("canCreatePostFieldDiscovery", false)
+      );
 
       modelAndView
           .addObject("regulatorManagedInformationUrl",
@@ -225,7 +248,8 @@ public class ViewResourceRecordController {
               resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
           .addObject("regulatorManagedInformationSummaryView",
               regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
-          .addObject("manageResourceInformationText", "Manage resource information");
+          .addObject("manageResourceInformationText", "Manage resource information")
+          .addObject("canCreatePostFieldDiscovery", false);
     }
 
     addArchiveProperties(modelAndView, resource);

@@ -6,7 +6,7 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 
 @Service
-class UpdateDiscoveryFormValidator implements SmartValidator {
+public class UpdateDiscoveryFormValidator implements SmartValidator {
 
   @Override
   public boolean supports(Class<?> clazz) {

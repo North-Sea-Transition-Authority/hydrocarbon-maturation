@@ -11,14 +11,18 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ReservoirSubmissionValidator;
 
 @Service
 public class FieldReservoirVolumetricsFormValidator implements ReservoirSubmissionValidator {
   private final GeneralReservoirInformationService generalReservoirInformationService;
+  private final ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
 
-  public FieldReservoirVolumetricsFormValidator(GeneralReservoirInformationService generalReservoirInformationService) {
+  public FieldReservoirVolumetricsFormValidator(GeneralReservoirInformationService generalReservoirInformationService,
+                                        ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService) {
     this.generalReservoirInformationService = generalReservoirInformationService;
+    this.reservoirSubmissionDetailPersistenceService = reservoirSubmissionDetailPersistenceService;
   }
 
   @Override
@@ -83,7 +87,12 @@ public class FieldReservoirVolumetricsFormValidator implements ReservoirSubmissi
     }
 
     var submissionType = reservoirSubmissionDetail.getSubmissionDetail().getSubmissionType();
-    if (INITIALLY_IN_PLACE_QUESTION_SUBMISSION_TYPES.contains(submissionType)) {
+
+    var reservoirCarriedForward = reservoirSubmissionDetailPersistenceService.reservoirWasCarriedForward(
+        reservoirSubmissionDetail.getReservoir()
+    );
+    
+    if (INITIALLY_IN_PLACE_QUESTION_SUBMISSION_TYPES.contains(submissionType) && reservoirCarriedForward) {
       ValidationUtils.rejectIfEmpty(
           errors,
           "initiallyInPlaceInformationCorrect",

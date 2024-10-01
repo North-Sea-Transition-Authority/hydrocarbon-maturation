@@ -20,7 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Grou
 
 @Entity
 @Table(name = "source_and_seal_details")
-class SourceAndSeal implements SubmissionDetailChildEntity {
+public class SourceAndSeal implements SubmissionDetailChildEntity {
 
   @Id
   @GeneratedValue(generator = "uuid")

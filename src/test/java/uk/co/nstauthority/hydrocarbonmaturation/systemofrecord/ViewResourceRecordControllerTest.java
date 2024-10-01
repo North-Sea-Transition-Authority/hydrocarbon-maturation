@@ -29,6 +29,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.StartPostFieldDiscoveryController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
@@ -37,6 +38,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.Res
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.ViewFieldStatusHistoryController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectListController;
@@ -90,6 +93,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   private FieldPersistenceService fieldPersistenceService;
   @MockBean
   private FieldMapViewService fieldMapViewService;
+  @MockBean
+  private FieldStatusService fieldStatusService;
 
   private Resource resource;
   private UUID resourceId;
@@ -440,6 +445,93 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
 
   @Test
   @SuppressWarnings("unchecked")
+  void showResourceRecordModelAndView_whenIsRegulator_shelvedFieldSubmission_assertModelPropertiesAndVerifyAddRegulatorAttributes() throws Exception {
+    submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
+    resource.setType(ResourceType.FIELD);
+
+    when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, resource, USER)).thenReturn(true);
+    when(viewResourceRecordService.isRegulatorOrAreaTeamUser(USER))
+        .thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
+    when(responsibleTeamService.isInResponsibleTeam(USER, resourceRecordSummaryView.responsibleTeam()))
+        .thenReturn(true);
+    resource.setId(resourceId);
+    resource.setType(ResourceType.FIELD);
+    when(resourceService.getResourceById(resourceId))
+        .thenReturn(Optional.of(resource));
+    when(viewResourceRecordService.canViewSubmissionDetail(submissionDetail, resource))
+        .thenReturn(true);
+    var regulatorSummary = new SummaryCard("", SummaryCardType.EMPTY_SUMMARY, List.of());
+    when(fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
+        .thenReturn(regulatorSummary);
+    var otherSubmissionOnResource = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR,
+        resource);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(otherSubmissionOnResource.getId()))
+        .thenReturn(otherSubmissionOnResource);
+    var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(otherSubmissionOnResource));
+    mockModelAndViewCreation(submissionDetail, queryResult);
+
+    var field = FieldTestUtils.createField("Alex", OnshoreOffshore.ONSHORE);
+    field.setFieldIdentifier(8000);
+    field.setResource(resource);
+    when(fieldPersistenceService.getFieldOrThrow(resource))
+        .thenReturn(field);
+    var fieldMapView = new FieldMapView("", "");
+    when(fieldMapViewService.getFieldGeoJsonUrl(field))
+        .thenReturn(Optional.of(fieldMapView));
+
+    when(viewResourceRecordService.isAreaTeamUser(USER)).thenReturn(true);
+    when(fieldStatusService.getMostRecentFieldStatus(field)).thenReturn(Optional.of(FieldStatus.STATUS_000));
+
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
+                .with(user(USER)))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    var resourceTypeDisplayName = resource.getType().getDisplayName();
+
+    assertThat(modelMap)
+        .contains(
+            entry("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(queryResult)),
+            entry("submissionSelectedUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
+                .viewSubmission(submissionDetail.getSubmission().getResource().getId(), null))),
+            entry("resourceTypeDisplayName", resourceTypeDisplayName),
+            entry("resourceTypeDisplayNameLower", resourceTypeDisplayName.toLowerCase()),
+            entry("resourceRecord", resourceRecordSummaryView),
+            entry("submissionType", submissionDetail.getSubmissionType()),
+            entry("isFieldResource", true),
+            entry("canManageRegulatorManagementInfo", true),
+            entry("regulatorManagedInformationUrl",
+                ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
+                    .getRegulatorManagedInformationPage(resourceId, null))),
+            entry("fieldRegulatorManagedInformationSummaryCard", regulatorSummary),
+            entry("submissionType", submissionDetail.getSubmissionType()),
+            entry("canViewRegulatorManagementInfo", true),
+            entry("fieldStatusUrl", ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
+                .getViewFieldStatusHistory(field.getFieldIdentifier(), null))),
+            entry("manageResourceInformationText", "Manage field information"),
+            entry("projectTrackerUrl",
+                ReverseRouter.route(on(ProjectListController.class)
+                    .getProjectList(field.getResource().getId(), null))),
+            entry("fieldMapView", fieldMapView),
+            entry("archiveUrl", ReverseRouter.route(on(ResourceArchiveController.class).archiveResourceConfirmation(resourceId, null))),
+            entry("archived", false),
+            entry("canCreatePostFieldDiscovery", true),
+            entry("postFieldDiscoveryUrl", ReverseRouter.route(on(StartPostFieldDiscoveryController.class)
+                .getStartPostFieldDiscoveryPage(resource.getId(), null)))
+        );
+
+    var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
+
+    assertThat(breadcrumbsMap.entrySet()).containsExactly(
+        entry(ReverseRouter.route(on(SearchFieldRecordsController.class).showSearchFieldRecordsScreen(null, null)),
+            SearchFieldRecordsController.PAGE_TITLE)
+    );
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
   void showResourceRecordModelAndView_whenIsRegulator_archivedFieldSubmission_assertModelPropertiesAndVerifyAddRegulatorAttributes() throws Exception {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_CSR);
     resource.setArchived(true);
@@ -510,7 +602,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
                     .getProjectList(field.getResource().getId(), null))),
             entry("fieldMapView", fieldMapView),
             entry("unarchiveUrl", ReverseRouter.route(on(ResourceArchiveController.class).unarchiveResourceConfirmation(resourceId, null))),
-            entry("archived", true)
+            entry("archived", true),
+            entry("canCreatePostFieldDiscovery", false)
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -569,7 +662,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("fieldRegulatorManagedInformationSummaryCard", regulatorSummary),
             entry("canViewRegulatorManagementInfo", true),
             entry("manageResourceInformationText", "Manage field information"),
-            entry("fieldMapView", fieldMapView)
+            entry("fieldMapView", fieldMapView),
+            entry("canCreatePostFieldDiscovery", false)
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

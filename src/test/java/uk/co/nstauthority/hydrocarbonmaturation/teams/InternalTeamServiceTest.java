@@ -44,4 +44,28 @@ class InternalTeamServiceTest {
     when(teamQueryService.getTeamRolesForUser(user.wuaId())).thenReturn(Set.of(teamRole));
     assertThat(internalTeamService.isRegulatorOrAreaTeamUser(user)).isFalse();
   }
+
+  @ParameterizedTest
+  @EnumSource(value = TeamType.class, mode = EnumSource.Mode.EXCLUDE, names = {"INDUSTRY", "REGULATOR"})
+  void isAreaTeamUser(TeamType teamType) {
+    var user = UserTestUtil.Builder().build();
+    var teamRole = new TeamRole();
+    var team = new Team();
+    team.setTeamType(teamType);
+    teamRole.setTeam(team);
+    when(teamQueryService.getTeamRolesForUser(user.wuaId())).thenReturn(Set.of(teamRole));
+    assertThat(internalTeamService.isAreaTeamUser(user)).isTrue();
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = TeamType.class, mode = EnumSource.Mode.INCLUDE, names = {"INDUSTRY", "REGULATOR"})
+  void isNotAreaTeamUser(TeamType teamType) {
+    var user = UserTestUtil.Builder().build();
+    var teamRole = new TeamRole();
+    var team = new Team();
+    team.setTeamType(teamType);
+    teamRole.setTeam(team);
+    when(teamQueryService.getTeamRolesForUser(user.wuaId())).thenReturn(Set.of(teamRole));
+    assertThat(internalTeamService.isAreaTeamUser(user)).isFalse();
+  }
 }

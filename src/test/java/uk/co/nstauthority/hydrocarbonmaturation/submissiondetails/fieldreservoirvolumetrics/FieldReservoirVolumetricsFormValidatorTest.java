@@ -26,6 +26,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.ReservoirHydrocarbons;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailsTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -35,13 +36,17 @@ class FieldReservoirVolumetricsFormValidatorTest {
   @Mock
   private GeneralReservoirInformationService generalReservoirInformationService;
 
+  @Mock
+  private ReservoirSubmissionDetailPersistenceService reservoirSubmissionDetailPersistenceService;
+
   private FieldReservoirVolumetricsFormValidator fieldReservoirVolumetricsFormValidator;
 
   private ReservoirSubmissionDetail reservoirSubmissionDetail;
 
   @BeforeEach
   void setUp() {
-    fieldReservoirVolumetricsFormValidator = new FieldReservoirVolumetricsFormValidator(generalReservoirInformationService);
+    fieldReservoirVolumetricsFormValidator = new FieldReservoirVolumetricsFormValidator(generalReservoirInformationService,
+        reservoirSubmissionDetailPersistenceService);
 
     var submissionDetail = SubmissionDetailTestUtils.createNewFieldSubmissionDetail();
     reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
@@ -234,6 +239,8 @@ class FieldReservoirVolumetricsFormValidatorTest {
     when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail))
         .thenReturn(Optional.of(reservoirHydrocarbons));
     when(generalReservoirInformationService.isCombinedOilAndGas(reservoirHydrocarbons)).thenReturn(true);
+    when(reservoirSubmissionDetailPersistenceService.reservoirWasCarriedForward(reservoirSubmissionDetail.getReservoir()))
+        .thenReturn(true);
 
     var form = getEmptyForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");

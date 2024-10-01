@@ -11,10 +11,23 @@ pageSize=PageSize.TWO_THIRDS_COLUMN
 errorItems=errorList
 breadcrumbsMap=breadcrumbsMap>
     <@fdsForm.htmlForm>
-        <@fdsRadio.radio
+        <@fdsRadio.radioGroup
         path="form.fieldStatus"
         labelText="Field status"
-        radioItems=fieldStatusOptions/>
+        hiddenContent=true>
+            <#assign firstItem=true/>
+                <#list fieldStatusOptions as key, value>
+                    <@fdsRadio.radioItem path="form.fieldStatus" itemMap={key : value} isFirstItem=firstItem>
+                        <#if key == "STATUS_000" || key == "STATUS_900">
+                            <@fdsWarning.warning>
+                                Check with the relevant area team if a new discovery is required to track the remaining field volumetrics.
+                            </@fdsWarning.warning>
+                        </#if>
+                        <#assign firstItem = false/>
+                    </@fdsRadio.radioItem>
+                </#list>
+
+        </@fdsRadio.radioGroup>
 
         <@fdsDateInput.dateInput
         formId="fieldStatusDate-date-input"

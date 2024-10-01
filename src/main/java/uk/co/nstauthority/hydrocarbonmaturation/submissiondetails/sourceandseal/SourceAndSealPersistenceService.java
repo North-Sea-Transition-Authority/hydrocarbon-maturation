@@ -12,7 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 
 @Service
-class SourceAndSealPersistenceService {
+public class SourceAndSealPersistenceService {
 
   private final SourceAndSealRepository sourceAndSealRepository;
 
@@ -53,7 +53,7 @@ class SourceAndSealPersistenceService {
     sourceAndSealRepository.save(sourceAndSeal);
   }
 
-  Optional<SourceAndSeal> getSourceAndSeal(SubmissionDetail submissionDetail) {
+  public Optional<SourceAndSeal> getSourceAndSeal(SubmissionDetail submissionDetail) {
     return sourceAndSealRepository.findBySubmissionDetail(submissionDetail);
   }
 
