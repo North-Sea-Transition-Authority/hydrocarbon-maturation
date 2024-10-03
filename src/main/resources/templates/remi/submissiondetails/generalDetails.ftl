@@ -56,12 +56,13 @@ breadcrumbsMap=breadcrumbsMap>
               selectorOptionaLabel=optionalLicences/>
         </@fdsFieldset.fieldset>
       </#if>
-
-      <#if fieldSubmission  && !fieldWhollyLocatedInArea>
-        <#if isOffshore>
-          <@percentageResourceLocatedInRegion formId="percentageLocatedInUkcs" regionName="the UKCS"/>
-        <#else>
-          <@percentageResourceLocatedInRegion formId="percentageLocatedInEngland" regionName="England"/>
+      <#if fieldSubmission>
+        <#if !fieldWhollyLocatedInArea>
+          <#if isOffshore>
+            <@percentageResourceLocatedInRegion formId="percentageLocatedInUkcs" regionName="the UKCS"/>
+          <#else>
+            <@percentageResourceLocatedInRegion formId="percentageLocatedInEngland" regionName="England"/>
+          </#if>
         </#if>
       <#else>
         <#if isOffshore>
