@@ -174,7 +174,11 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
         .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class)
             .getWorkArea(null))));
 
-    verify(withdrawSubmissionService).withdrawSubmissionOrThrow(eq(submissionDetail), any(), any());
+    verify(withdrawSubmissionService).withdrawSubmissionOrThrow(
+        eq(submissionDetail),
+        any(WithdrawSubmissionForm.class),
+        eq(USER)
+    );
   }
 
   @SecurityTest
@@ -182,7 +186,8 @@ class WithdrawSubmissionControllerTest extends AbstractSubmissionControllerTest 
     doAnswer(invocation -> {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Submission cannot be withdrawn by user with ID %s "
           .formatted(USER.wuaId().toString()));
-    }).when(withdrawSubmissionService).withdrawSubmissionOrThrow(eq(submissionDetail), any(), any());
+    }).when(withdrawSubmissionService).withdrawSubmissionOrThrow(
+        eq(submissionDetail), any(WithdrawSubmissionForm.class), eq(USER));
     when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.REGULATOR, Role.EXPLORATION)).thenReturn(true);
     when(withdrawSubmissionService.validate(any(), any()))
         .thenReturn(ReverseRouter.emptyBindingResult());

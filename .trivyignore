@@ -12,3 +12,6 @@ CVE-2024-7254
 
 # spring-web
 CVE-2024-38809
+
+# commons-io
+CVE-2024-47554
