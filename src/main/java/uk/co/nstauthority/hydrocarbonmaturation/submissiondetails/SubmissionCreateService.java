@@ -15,7 +15,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkServi
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.postdrilldryhole.PostDrillDryHoleForm;
 import uk.co.nstauthority.hydrocarbonmaturation.prospect.updateprospect.UpdateProspectForm;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
@@ -113,7 +112,7 @@ public class SubmissionCreateService {
     var newSubmissionDetail =
         submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.PROSPECT_UPDATE, user);
 
-    createReservoirSubmissionDetailsWithTypeChecks(newSubmissionDetail, oldSubmissionDetail);
+    createReservoirSubmissionDetails(newSubmissionDetail, oldSubmissionDetail);
 
     submissionDetailDuplicationService.duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
 
@@ -135,7 +134,7 @@ public class SubmissionCreateService {
     var newSubmissionDetail =
         submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.POST_DRILL_DRY_HOLE, user);
 
-    createReservoirSubmissionDetailsWithTypeChecks(newSubmissionDetail, oldSubmissionDetail);
+    createReservoirSubmissionDetails(newSubmissionDetail, oldSubmissionDetail);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
@@ -191,7 +190,7 @@ public class SubmissionCreateService {
     var newSubmissionDetail =
         submissionDetailPersistenceService.createInitialSubmissionDetail(submission, SubmissionType.UPDATE_DISCOVERY, user);
 
-    createReservoirSubmissionDetailsWithTypeChecks(newSubmissionDetail, oldSubmissionDetail);
+    createReservoirSubmissionDetails(newSubmissionDetail, oldSubmissionDetail);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
@@ -218,7 +217,7 @@ public class SubmissionCreateService {
     var newSubmissionDetail = submissionDetailPersistenceService
         .createInitialSubmissionDetail(submission, relinquishmentType, user);
 
-    createReservoirSubmissionDetailsWithTypeChecks(newSubmissionDetail, oldSubmissionDetail);
+    createReservoirSubmissionDetails(newSubmissionDetail, oldSubmissionDetail);
 
     submissionDetailDuplicationService
         .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
@@ -232,7 +231,7 @@ public class SubmissionCreateService {
   public SubmissionDetail createUpdateSubmissionDetail(SubmissionDetail previousSubmissionDetail, User user) {
     var updateSubmissionDetail = submissionDetailPersistenceService.createUpdateSubmissionDetail(previousSubmissionDetail, user);
 
-    createReservoirSubmissionDetailsWithTypeChecks(updateSubmissionDetail, previousSubmissionDetail);
+    createReservoirSubmissionDetails(updateSubmissionDetail, previousSubmissionDetail);
 
     submissionDetailDuplicationService.duplicateSubmissionDetailSections(previousSubmissionDetail, updateSubmissionDetail);
 
@@ -319,16 +318,6 @@ public class SubmissionCreateService {
     return DisplayableEnumOptionUtil.getDisplayableOptions(resourceTypesForUser);
   }
 
-  private void createReservoirSubmissionDetailsWithTypeChecks(SubmissionDetail newSubmissionDetail,
-                                                              SubmissionDetail oldSubmissionDetail) {
-    if (newSubmissionDetail.getSubmissionType() == SubmissionType.CREATE_DISCOVERY) {
-      throw new ActionNotAllowedException(
-          "Cannot create a reservoir submission detail for a create discovery or field submission");
-    }
-
-    createReservoirSubmissionDetails(newSubmissionDetail, oldSubmissionDetail);
-  }
-
   private void createReservoirSubmissionDetails(SubmissionDetail newSubmissionDetail,
                                                 SubmissionDetail oldSubmissionDetail) {
     reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(oldSubmissionDetail)
@@ -347,7 +336,7 @@ public class SubmissionCreateService {
     if (optionalOldSubmissionDetail.isPresent()) {
       var oldSubmissionDetail = optionalOldSubmissionDetail.get();
 
-      createReservoirSubmissionDetailsWithTypeChecks(newSubmissionDetail, oldSubmissionDetail);
+      createReservoirSubmissionDetails(newSubmissionDetail, oldSubmissionDetail);
 
       submissionDetailDuplicationService
           .duplicateSubmissionDetailSections(oldSubmissionDetail, newSubmissionDetail);
