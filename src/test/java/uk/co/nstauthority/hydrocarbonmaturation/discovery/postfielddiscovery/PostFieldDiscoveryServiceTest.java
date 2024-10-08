@@ -40,7 +40,7 @@ class PostFieldDiscoveryServiceTest {
   ResourceService resourceService;
 
   @Mock
-  PostFieldDiscoveryLinkRepository postFieldDiscoveryLinkRepository;
+  PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
 
   @Mock
   RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
@@ -106,18 +106,9 @@ class PostFieldDiscoveryServiceTest {
     );
 
     verify(regulatorManagedInformationPersistenceService, times(1))
-        .saveResponsibleTeamAndGeoByResource(discovery, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
+        .saveResponsibleTeamAndGeoByPostFieldResource(discovery, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
     verify(postFieldDuplicationService, times(1)).duplicateSubmissionDetails(fieldSubmissionDetail, submissionDetail);
     verify(resourceDetailsPersistenceService, times(1)).createInitialResourceDetail(form, submissionDetail);
-    verify(postFieldDiscoveryLinkRepository, times(1)).save(linkArgumentCaptor.capture());
-
-    assertThat(linkArgumentCaptor.getValue())
-        .extracting(
-            PostFieldDiscoveryLink::getFieldResource,
-            PostFieldDiscoveryLink::getDiscoveryResource
-        ).containsExactly(
-            field,
-            discovery
-        );
+    verify(postFieldDiscoveryLinkService, times(1)).createPostFieldDiscoveryLink(field, discovery);
   }
 }

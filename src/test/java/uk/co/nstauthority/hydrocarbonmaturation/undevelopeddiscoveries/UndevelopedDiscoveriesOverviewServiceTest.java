@@ -806,7 +806,9 @@ class UndevelopedDiscoveriesOverviewServiceTest {
         null,
         "area",
         false,
-        List.of(SummaryFileViewRow.empty(""))
+        List.of(SummaryFileViewRow.empty("")),
+        "",
+        ""
     );
 
     when(regulatorSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))

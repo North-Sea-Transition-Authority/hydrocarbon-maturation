@@ -34,6 +34,15 @@ class RegulatorManagedInformationFormValidator implements SmartValidator {
           "Select a responsible team");
     }
 
+    if (validatorHints.isAreaTeamUser()) {
+      ValidationUtils.rejectIfEmpty(errors, "linkedToShelvedCopField", "linkedToShelvedCopField.required",
+          "Select if this discovery is linked to a shelved or ceased production field");
+
+      if (validatorHints.isLinkedToShelvedCopField()) {
+        ValidationUtils.rejectIfEmpty(errors, "fieldSelectedOption", "fieldSelectedOption.required", "Provide a field");
+      }
+    }
+
     if (validatorHints.isResourceBeingRelinquished()) {
       var relinquishmentReport = form.getRelinquishmentReport();
       FileValidationUtil.validator()

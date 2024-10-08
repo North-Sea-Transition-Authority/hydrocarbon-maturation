@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,6 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
@@ -83,6 +86,9 @@ class CorrectionServiceTest {
   @Mock
   private OrganisationCorrectionService organisationCorrectionService;
 
+  @Mock
+  private PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
+
   private Clock clock;
 
   private CorrectionService correctionService;
@@ -101,7 +107,9 @@ class CorrectionServiceTest {
         submissionDetailPersistenceService,
         resourceGroupService,
         resourceLinkService,
-        organisationCorrectionService, clock = Clock.fixed(Instant.now(), ZoneId.systemDefault()));
+        organisationCorrectionService,
+        clock = Clock.fixed(Instant.now(), ZoneId.systemDefault()),
+        postFieldDiscoveryLinkService);
 
     resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);
     user = UserTestUtil.Builder().build();
@@ -465,7 +473,7 @@ class CorrectionServiceTest {
     when(submissionDetailService.getSubmissionDetailsBySubmission(secondSubmissionDetail.getSubmission())).thenReturn(
         List.of(firstSubmissionDetail, secondSubmissionDetail)
     );
-    var user = UserTestUtil.Builder().build();
+
     correctionService.deleteSubmission(secondSubmissionDetail, user);
     assertThat(firstSubmissionDetail).extracting(
         SubmissionDetail::isCorrection,
@@ -497,5 +505,48 @@ class CorrectionServiceTest {
     );
     verify(resourceLinkService).deleteDiscoveryToProspectLink(secondSubmissionDetail.getSubmission().getResource());
     verify(resourceGroupService).removeResourceFromGroup(secondSubmissionDetail.getSubmission().getResource());
+    verify(postFieldDiscoveryLinkService).deletePostFieldDiscoveryLinkIfExists(secondSubmissionDetail.getSubmission().getResource());
+  }
+
+  @Test
+  void deleteSubmission_notInitialSubmission() {
+    var firstSubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.UPDATE_DISCOVERY);
+    var secondSubmissionDetail = SubmissionDetailTestUtils.createUpdateToSubmission(firstSubmissionDetail);
+    when(submissionDetailService.getSubmissionDetailsBySubmission(secondSubmissionDetail.getSubmission())).thenReturn(
+        List.of(firstSubmissionDetail, secondSubmissionDetail)
+    );
+
+    correctionService.deleteSubmission(secondSubmissionDetail, user);
+    assertThat(firstSubmissionDetail).extracting(
+        SubmissionDetail::isCorrection,
+        SubmissionDetail::getCorrectionByWuaId,
+        SubmissionDetail::getCorrectionTimestamp,
+        SubmissionDetail::getCorrectionType,
+        SubmissionDetail::getSubmitterType,
+        SubmissionDetail::getStatus
+    ).containsExactly(
+        true,
+        user.wuaId().intValue(),
+        clock.instant(),
+        CorrectionType.REMOVE_SUBMISSION,
+        SubmitterType.REGULATOR,
+        SubmissionDetailStatus.DELETED
+    );
+    assertThat(secondSubmissionDetail).extracting(
+        SubmissionDetail::isCorrection,
+        SubmissionDetail::getCorrectionByWuaId,
+        SubmissionDetail::getCorrectionTimestamp,
+        SubmissionDetail::getSubmitterType,
+        SubmissionDetail::getStatus
+    ).containsExactly(
+        true,
+        user.wuaId().intValue(),
+        clock.instant(),
+        SubmitterType.REGULATOR,
+        SubmissionDetailStatus.DELETED
+    );
+    verify(resourceLinkService, never()).deleteDiscoveryToProspectLink(any(Resource.class));
+    verify(resourceGroupService, never()).removeResourceFromGroup(any(Resource.class));
+    verify(postFieldDiscoveryLinkService, never()).deletePostFieldDiscoveryLinkIfExists(any(Resource.class));
   }
 }

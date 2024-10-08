@@ -212,6 +212,9 @@ public class ViewResourceRecordController {
       fieldMapViewService.getFieldGeoJsonUrl(field)
           .ifPresent(fieldMapView -> modelAndView.addObject("fieldMapView", fieldMapView));
 
+      modelAndView.addObject("linkedPostFieldDiscoveriesMap",
+          fieldRegulatorManagedInformationSummaryService.getLinkedPostFieldDiscoveriesMap(resource));
+
       var isAreaTeamUser = viewResourceRecordService.isAreaTeamUser(user);
       var fieldStatus = fieldStatusService.getMostRecentFieldStatus(field);
       fieldStatus.ifPresentOrElse(status -> {
@@ -220,7 +223,8 @@ public class ViewResourceRecordController {
         if (isAreaTeamUser && shelvedOrCop) {
           modelAndView.addObject("canCreatePostFieldDiscovery", true)
               .addObject("postFieldDiscoveryUrl", ReverseRouter.route(on(StartPostFieldDiscoveryController.class)
-                  .getStartPostFieldDiscoveryPage(resource.getId(), null)));
+                  .getStartPostFieldDiscoveryPage(resource.getId(), null)))
+              .addObject("canSeePostFieldLink", true);
         } else {
           modelAndView.addObject("canCreatePostFieldDiscovery", false);
         }
@@ -243,13 +247,14 @@ public class ViewResourceRecordController {
       modelAndView
           .addObject("regulatorManagedInformationUrl",
               ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                  .getRegulatorManagedInformationPage(resource.getId())))
+                  .getRegulatorManagedInformationPage(resource.getId(), null)))
           .addObject("resourceGroupsSummaryView",
               resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
           .addObject("regulatorManagedInformationSummaryView",
               regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
           .addObject("manageResourceInformationText", "Manage resource information")
-          .addObject("canCreatePostFieldDiscovery", false);
+          .addObject("canCreatePostFieldDiscovery", false)
+          .addObject("canSeePostFieldLink", viewResourceRecordService.isRegulatorOrAreaTeamUser(user));
     }
 
     addArchiveProperties(modelAndView, resource);

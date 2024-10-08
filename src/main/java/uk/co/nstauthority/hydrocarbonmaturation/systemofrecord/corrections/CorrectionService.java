@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
@@ -46,6 +47,7 @@ public class CorrectionService {
   private final ResourceLinkService resourceLinkService;
   private final OrganisationCorrectionService organisationCorrectionService;
   private final Clock clock;
+  private final PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
 
   @Autowired
   public CorrectionService(RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
@@ -57,7 +59,8 @@ public class CorrectionService {
                            ResourceGroupService resourceGroupService,
                            ResourceLinkService resourceLinkService,
                            OrganisationCorrectionService organisationCorrectionService,
-                           Clock clock) {
+                           Clock clock,
+                           PostFieldDiscoveryLinkService postFieldDiscoveryLinkService) {
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.responsibleTeamService = responsibleTeamService;
     this.submissionCreateService = submissionCreateService;
@@ -68,6 +71,7 @@ public class CorrectionService {
     this.resourceLinkService = resourceLinkService;
     this.organisationCorrectionService = organisationCorrectionService;
     this.clock = clock;
+    this.postFieldDiscoveryLinkService = postFieldDiscoveryLinkService;
   }
 
 
@@ -245,6 +249,7 @@ public class CorrectionService {
     }
     if (submissionDetail.isInitialResourceSubmission()) {
       resourceGroupService.removeResourceFromGroup(resource);
+      postFieldDiscoveryLinkService.deletePostFieldDiscoveryLinkIfExists(resource);
     }
   }
 

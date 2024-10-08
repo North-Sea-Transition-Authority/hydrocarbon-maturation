@@ -5,21 +5,30 @@
 <#-- @ftlvariable name="fieldMapView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapView" -->
 <#-- @ftlvariable name="fieldMapView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapView" -->
 
-<#macro regulatorInformationSummary fieldRegulatorInformationCard fieldMapView>
+<#macro regulatorInformationSummary fieldRegulatorInformationCard fieldMapView linkedPostFieldDiscoveriesMap canSeePostFieldLink>
     <@simpleSummary.simpleSummaryCard
       summaryDataView=fieldRegulatorInformationCard.summaryData()
       summaryHeading=fieldRegulatorInformationCard.displayName()!"">
-        <#if fieldMapView?has_content>
-          <@shapeMapSummaryCard.shapeMapSummary
-            geoJsonDataUrl=fieldMapView.fieldGeoJsonUrl()
-            dataMapAttributions=""
-            shapeName=fieldMapView.fieldName()
-            keyText="Field map"
-            showShapeNameKey=false/>
-        <#else>
-          <@fdsSummaryList.summaryListRowNoAction keyText="Field map">
-            Field shape information is not currently available.
-          </@fdsSummaryList.summaryListRowNoAction>
-        </#if>
+      <#if canSeePostFieldLink && linkedPostFieldDiscoveriesMap?has_content>
+        <@fdsSummaryList.summaryListRowNoAction keyText="Linked discoveries">
+          <#list linkedPostFieldDiscoveriesMap as name, link>
+            <div>
+              <@fdsAction.link linkText=name linkUrl=springUrl(link)/>
+            </div>
+          </#list>
+        </@fdsSummaryList.summaryListRowNoAction>
+      </#if>
+      <#if fieldMapView?has_content>
+        <@shapeMapSummaryCard.shapeMapSummary
+          geoJsonDataUrl=fieldMapView.fieldGeoJsonUrl()
+          dataMapAttributions=""
+          shapeName=fieldMapView.fieldName()
+          keyText="Field map"
+          showShapeNameKey=false/>
+      <#else>
+        <@fdsSummaryList.summaryListRowNoAction keyText="Field map">
+          Field shape information is not currently available.
+        </@fdsSummaryList.summaryListRowNoAction>
+      </#if>
     </@simpleSummary.simpleSummaryCard>
 </#macro>

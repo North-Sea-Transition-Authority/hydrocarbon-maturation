@@ -105,4 +105,12 @@ public class ResourceRestController {
         reservoirQueryService.getReservoirByNameForSubmissionDetail(searchTerm, submissionDetailId)
     );
   }
+
+  @GetMapping("field/shelved-or-cop")
+  public RestSearchResult searchShelvedAndCopFields(@RequestParam("term") String searchTerm, User user) {
+    return searchSelectorService.search(
+        searchTerm,
+        fieldQueryService.getShelvedOrCopFieldByName(searchTerm, user)
+    );
+  }
 }

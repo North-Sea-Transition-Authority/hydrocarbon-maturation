@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,8 +18,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 
@@ -34,6 +38,12 @@ class RegulatorManagedInformationFormServiceTest {
   @Mock
   private ResourceSupportingDocumentService resourceSupportingDocumentService;
 
+  @Mock
+  private PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
+
+  @Mock
+  private SearchSelectorService searchSelectorService;
+
   @InjectMocks
   private RegulatorManagedInformationFormService regulatorManagedInformationFormService;
 
@@ -45,6 +55,7 @@ class RegulatorManagedInformationFormServiceTest {
     regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.EXPLORATION);
     regulatorManagedInformation.setGeographicalArea(geographicalArea);
     regulatorManagedInformation.setResource(resource);
+    regulatorManagedInformation.setLinkedToShelvedCopField(false);
     var relinquishmentReportForms = List.of(mock(UploadedFileForm.class));
 
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResource(resource))
@@ -54,10 +65,18 @@ class RegulatorManagedInformationFormServiceTest {
     var result = regulatorManagedInformationFormService.getRegulatorManagedInformationForm(resource);
 
     assertThat(result)
-        .extracting(RegulatorManagedInformationForm::getGeographicalArea,
+        .extracting(
+            RegulatorManagedInformationForm::getGeographicalArea,
             RegulatorManagedInformationForm::getRelinquishmentReport,
-            RegulatorManagedInformationForm::getResponsibleTeamType)
-        .containsExactly(geographicalArea, relinquishmentReportForms, regulatorManagedInformation.getResponsibleTeamType());
+            RegulatorManagedInformationForm::getResponsibleTeamType,
+            RegulatorManagedInformationForm::getLinkedToShelvedCopField
+        )
+        .containsExactly(
+            geographicalArea,
+            relinquishmentReportForms,
+            regulatorManagedInformation.getResponsibleTeamType(),
+            regulatorManagedInformation.getLinkedToShelvedCopField()
+        );
   }
 
   @Test
@@ -83,15 +102,22 @@ class RegulatorManagedInformationFormServiceTest {
     var bindingResult = ReverseRouter.emptyBindingResult();
     var form = new RegulatorManagedInformationForm();
     var hintsCaptor = ArgumentCaptor.forClass(RegulatorManagedInformationFormValidatorHints.class);
-    var result = regulatorManagedInformationFormService.validate(form, bindingResult,true, false);
+    var result = regulatorManagedInformationFormService.validate(form, bindingResult,true, false, false);
 
     verify(regulatorManagedInformationFormValidator).validate(eq(form), eq(bindingResult), hintsCaptor.capture());
     assertThat(result).isEqualTo(bindingResult);
 
     assertThat(hintsCaptor.getValue())
-        .extracting(RegulatorManagedInformationFormValidatorHints::isResourceBeingRelinquished,
-            RegulatorManagedInformationFormValidatorHints::isResponsibleTeamBeingUpdated)
-        .containsExactly(true, false);
+        .extracting(
+            RegulatorManagedInformationFormValidatorHints::isResourceBeingRelinquished,
+            RegulatorManagedInformationFormValidatorHints::isResponsibleTeamBeingUpdated,
+            RegulatorManagedInformationFormValidatorHints::isAreaTeamUser
+        )
+        .containsExactly(
+            true,
+            false,
+            false
+        );
   }
 
   @Test
@@ -99,14 +125,43 @@ class RegulatorManagedInformationFormServiceTest {
     var bindingResult = ReverseRouter.emptyBindingResult();
     var form = new RegulatorManagedInformationForm();
     var hintsCaptor = ArgumentCaptor.forClass(RegulatorManagedInformationFormValidatorHints.class);
-    var result = regulatorManagedInformationFormService.validate(form, bindingResult, false, true);
+    var result = regulatorManagedInformationFormService.validate(form, bindingResult, false, true, true);
 
     verify(regulatorManagedInformationFormValidator).validate(eq(form), eq(bindingResult), hintsCaptor.capture());
     assertThat(result).isEqualTo(bindingResult);
 
     assertThat(hintsCaptor.getValue())
-        .extracting(RegulatorManagedInformationFormValidatorHints::isResourceBeingRelinquished,
-            RegulatorManagedInformationFormValidatorHints::isResponsibleTeamBeingUpdated)
-        .containsExactly(false, true);
+        .extracting(
+            RegulatorManagedInformationFormValidatorHints::isResourceBeingRelinquished,
+            RegulatorManagedInformationFormValidatorHints::isResponsibleTeamBeingUpdated,
+            RegulatorManagedInformationFormValidatorHints::isAreaTeamUser
+        )
+        .containsExactly(
+            false,
+            true,
+            true
+        );
+  }
+
+  @Test
+  void getPreselectedFieldOption_doesExist() {
+    var resource = new Resource();
+    var field = new Field();
+    field.setFieldIdentifier(1);
+    field.setCorrectedLegalFieldName("Name");
+
+    when(postFieldDiscoveryLinkService.getFieldLinkedToDiscoveryIfExists(resource)).thenReturn(Optional.of(field));
+    when(searchSelectorService.buildPrePopulatedSelection("1", "Name")).thenReturn(Map.of("1", "Name"));
+
+    assertThat(regulatorManagedInformationFormService.getPreSelectedFieldOption(resource)).isEqualTo(Map.of("1", "Name"));
+  }
+
+  @Test
+  void getPreselectedFieldOption_doesNotExist() {
+    var resource = new Resource();
+
+    when(postFieldDiscoveryLinkService.getFieldLinkedToDiscoveryIfExists(resource)).thenReturn(Optional.empty());
+
+    assertThat(regulatorManagedInformationFormService.getPreSelectedFieldOption(resource)).isEqualTo(Map.of());
   }
 }

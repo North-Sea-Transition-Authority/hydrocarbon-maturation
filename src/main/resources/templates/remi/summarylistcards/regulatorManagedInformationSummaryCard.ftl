@@ -5,7 +5,7 @@
 <#-- @ftlvariable name="resourceGroupsValues" type="uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupSummaryView" -->
 <#-- @ftlvariable name="customerBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.CustomerConfigurationProperties" -->
 
-<#macro regulatorManagedInformationSummaryCard regulatorManagedInformationValues resourceGroupsValues>
+<#macro regulatorManagedInformationSummaryCard regulatorManagedInformationValues resourceGroupsValues canSeePostFieldLink=false>
   <@fdsSummaryList.summaryListCard headingText="${customerBranding.mnemonic()} managed information" summaryListId="regulatormanagedinformation">
     <@fdsSummaryList.summaryListRowNoAction keyText="Responsible team">
       ${regulatorManagedInformationValues.responsibleTeamType()}
@@ -31,5 +31,11 @@
         </div>
       </#list>
     </@fdsSummaryList.summaryListRowNoAction>
+    <#if regulatorManagedInformationValues.linkedToFieldName()?has_content && canSeePostFieldLink>
+      <@fdsSummaryList.summaryListRowNoAction keyText="Created from field">
+        <@fdsAction.link linkText=regulatorManagedInformationValues.linkedToFieldName()
+        linkUrl=springUrl(regulatorManagedInformationValues.linkedToFieldUrl())/>
+      </@fdsSummaryList.summaryListRowNoAction>
+    </#if>
   </@fdsSummaryList.summaryListCard>
 </#macro>

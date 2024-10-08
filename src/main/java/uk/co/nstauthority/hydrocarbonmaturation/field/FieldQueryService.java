@@ -76,6 +76,19 @@ public class FieldQueryService {
       default -> throw new ActionNotAllowedException("No field statuses for submission type: %s".formatted(submissionType));
     }
 
+    return filterFields(fields, allowedStatuses, user);
+  }
+
+  public List<FieldView> getShelvedOrCopFieldByName(String name, User user) {
+    //gets every field by name
+    var fields = fieldPersistenceService.getFieldsByCorrectedLegalName(name);
+
+    HashSet<FieldStatus> allowedStatuses = new HashSet<>(Set.of(FieldStatus.STATUS_000, FieldStatus.STATUS_900));
+
+    return filterFields(fields, allowedStatuses, user);
+  }
+
+  private List<FieldView> filterFields(List<Field> fields, Set<FieldStatus> allowedStatuses, User user) {
     // Filters out fields with an incorrect status or with other preventing submissions
     return fields
         .stream()
@@ -91,7 +104,6 @@ public class FieldQueryService {
         .map(this::getFieldViewFromField)
         .sorted(Comparator.comparing(FieldView::getSelectionText))
         .toList();
-
   }
 
   /**

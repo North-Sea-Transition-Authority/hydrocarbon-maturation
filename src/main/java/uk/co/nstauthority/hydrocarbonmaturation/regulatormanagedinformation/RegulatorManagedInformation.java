@@ -35,6 +35,8 @@ public class RegulatorManagedInformation {
   @Enumerated(EnumType.STRING)
   private GeographicalArea geographicalArea;
 
+  private Boolean linkedToShelvedCopField;
+
   public UUID getId() {
     return id;
   }
@@ -63,5 +65,13 @@ public class RegulatorManagedInformation {
   public void setGeographicalArea(
       GeographicalArea geographicalArea) {
     this.geographicalArea = geographicalArea;
+  }
+
+  public Boolean getLinkedToShelvedCopField() {
+    return linkedToShelvedCopField;
+  }
+
+  public void setLinkedToShelvedCopField(Boolean linkedToShelvedCopField) {
+    this.linkedToShelvedCopField = linkedToShelvedCopField;
   }
 }

@@ -18,6 +18,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRepository;
@@ -39,6 +40,9 @@ class ResourceArchiveServiceTest {
 
   @Mock
   private ResourceRepository resourceRepository;
+
+  @Mock
+  private PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
 
   @InjectMocks
   private ResourceArchiveService resourceArchiveService;
@@ -85,6 +89,22 @@ class ResourceArchiveServiceTest {
       resource.setType(ResourceType.DISCOVERY);
 
       when(resourceLinkService.discoveryIsLinkedToField(resource))
+          .thenReturn(true);
+
+      assertThat(resourceArchiveService.resourceCannotBeArchivedWarning(resource))
+          .isNotEmpty()
+          .contains(DISCOVERY_LINKED_TO_FIELD_WARNING);
+    }
+
+    @Test
+    void discoveryIsLinkedToShelvedCopField() {
+      var resource = new Resource();
+      resource.setType(ResourceType.DISCOVERY);
+
+      when(resourceLinkService.discoveryIsLinkedToField(resource))
+          .thenReturn(false);
+
+      when(postFieldDiscoveryLinkService.postFieldDiscoveryLinkExists(resource))
           .thenReturn(true);
 
       assertThat(resourceArchiveService.resourceCannotBeArchivedWarning(resource))

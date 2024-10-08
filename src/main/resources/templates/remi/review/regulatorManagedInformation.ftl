@@ -54,6 +54,21 @@
             multiFile=false/>
         </@fdsFieldset.fieldset>
     </#if>
+    <#if shelvedCopFieldApiEndpoint??>
+      <@fdsRadio.radioGroup
+      path="form.linkedToShelvedCopField"
+      labelText="Was this discovery created to track remaining volumes in a shelved field or a field that has ceased production?"
+      hiddenContent=true>
+        <@fdsRadio.radioYes path="form.linkedToShelvedCopField">
+          <@fdsSearchSelector.searchSelectorRest path="form.fieldSelectedOption"
+          restUrl=springUrl(shelvedCopFieldApiEndpoint)
+          labelText="Provide the associated field"
+          selectorMinInputLength=3
+          preselectedItems=preSelectedFieldOption!{}/>
+        </@fdsRadio.radioYes>
+        <@fdsRadio.radioNo path="form.linkedToShelvedCopField" />
+      </@fdsRadio.radioGroup>
+    </#if>
       <@fdsAction.submitButtons primaryButtonText="Save and complete"
       secondaryLinkText="Cancel"
       linkSecondaryAction=true

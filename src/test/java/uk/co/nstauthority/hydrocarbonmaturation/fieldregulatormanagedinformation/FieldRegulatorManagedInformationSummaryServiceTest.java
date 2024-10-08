@@ -1,9 +1,12 @@
 package uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation;
 
+import static org.assertj.core.api.AssertionsForClassTypes.entry;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.when;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.assertj.core.groups.Tuple;
 import org.jetbrains.annotations.NotNull;
@@ -15,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
@@ -25,16 +29,21 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldForm;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryKeyValue;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,6 +58,10 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
   private FieldPersistenceService fieldPersistenceService;
   @Mock
   private FieldLicenceService fieldLicenceService;
+  @Mock
+  private PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
+  @Mock
+  private SubmissionDetailService submissionDetailService;
   @InjectMocks
   private FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
 
@@ -352,6 +365,46 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
             "licenceRef2",
             "licenceRef100"
         );
+  }
+
+  @Test
+  void getLinkedPostFieldDiscoveriesMap() {
+    var discovery1 = new Resource();
+    discovery1.setId(UUID.randomUUID());
+    var discovery2 = new Resource();
+    discovery2.setId(UUID.randomUUID());
+
+    var submission1 = new Submission();
+    submission1.setResource(discovery1);
+    var submission2 = new Submission();
+    submission2.setResource(discovery2);
+
+    var submissionDetail1 = new SubmissionDetail();
+    submissionDetail1.setSubmission(submission1);
+    var submissionDetail2 = new SubmissionDetail();
+    submissionDetail2.setSubmission(submission2);
+
+    var resourceDetail1 = new ResourceDetail();
+    resourceDetail1.setSubmissionDetail(submissionDetail1);
+    resourceDetail1.setResourceName("Name1");
+    var resourceDetail2 = new ResourceDetail();
+    resourceDetail2.setSubmissionDetail(submissionDetail2);
+    resourceDetail2.setResourceName("Name2");
+
+    when(postFieldDiscoveryLinkService.getAllDiscoveriesLinkedToField(resource)).thenReturn(List.of(discovery1, discovery2));
+    when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(discovery1)).thenReturn(Optional.of(submissionDetail1));
+    when(submissionDetailService.getLatestApprovedDiscoverySubmissionDetailForResource(discovery2)).thenReturn(Optional.of(submissionDetail2));
+    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail1)).thenReturn(resourceDetail1);
+    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail2)).thenReturn(resourceDetail2);
+
+    var returnedMap = fieldRegulatorManagedInformationSummaryService.getLinkedPostFieldDiscoveriesMap(resource);
+
+    assertThat(returnedMap.entrySet()).containsExactly(
+        entry(resourceDetail1.getResourceName(), ReverseRouter.route(on(ViewResourceRecordController.class)
+            .showResourceRecord(discovery1.getId(),null))),
+        entry(resourceDetail2.getResourceName(), ReverseRouter.route(on(ViewResourceRecordController.class)
+            .showResourceRecord(discovery2.getId(), null)))
+    );
   }
 
   @NotNull

@@ -9,6 +9,8 @@ public class RegulatorManagedInformationForm {
   private GeographicalArea geographicalArea;
   private List<UploadedFileForm> relinquishmentReport = new ArrayList<>();
   private ResponsibleTeamType responsibleTeamType;
+  private Boolean linkedToShelvedCopField;
+  private String fieldSelectedOption;
 
   public GeographicalArea getGeographicalArea() {
     return geographicalArea;
@@ -35,5 +37,21 @@ public class RegulatorManagedInformationForm {
   public void setResponsibleTeamType(
       ResponsibleTeamType responsibleTeamType) {
     this.responsibleTeamType = responsibleTeamType;
+  }
+
+  public Boolean getLinkedToShelvedCopField() {
+    return linkedToShelvedCopField;
+  }
+
+  public void setLinkedToShelvedCopField(Boolean linkedToShelvedCopField) {
+    this.linkedToShelvedCopField = linkedToShelvedCopField;
+  }
+
+  public String getFieldSelectedOption() {
+    return fieldSelectedOption;
+  }
+
+  public void setFieldSelectedOption(String fieldSelectedOption) {
+    this.fieldSelectedOption = fieldSelectedOption;
   }
 }

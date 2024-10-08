@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRepository;
@@ -22,13 +23,17 @@ public class ResourceArchiveService {
   private final ResourceLinkService resourceLinkService;
   private final SubmissionDetailService submissionDetailService;
   private final ResourceRepository resourceRepository;
+  private final PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
 
   @Autowired
   public ResourceArchiveService(ResourceLinkService resourceLinkService,
-                                SubmissionDetailService submissionDetailService, ResourceRepository resourceRepository) {
+                                SubmissionDetailService submissionDetailService,
+                                ResourceRepository resourceRepository,
+                                PostFieldDiscoveryLinkService postFieldDiscoveryLinkService) {
     this.resourceLinkService = resourceLinkService;
     this.submissionDetailService = submissionDetailService;
     this.resourceRepository = resourceRepository;
+    this.postFieldDiscoveryLinkService = postFieldDiscoveryLinkService;
   }
 
   public Optional<String> resourceCannotBeArchivedWarning(Resource resource) {
@@ -65,6 +70,8 @@ public class ResourceArchiveService {
   }
 
   private boolean resourceIsDiscoveryAndLinkedToField(Resource resource) {
-    return ResourceType.DISCOVERY.equals(resource.getType()) && resourceLinkService.discoveryIsLinkedToField(resource);
+    return ResourceType.DISCOVERY.equals(resource.getType())
+        && (resourceLinkService.discoveryIsLinkedToField(resource)
+        || postFieldDiscoveryLinkService.postFieldDiscoveryLinkExists(resource));
   }
 }

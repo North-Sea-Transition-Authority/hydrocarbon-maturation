@@ -120,4 +120,14 @@ class ResourceRestControllerTest extends AbstractControllerTest {
             .with(user(USER)))
         .andExpect(status().isOk());
   }
+
+  @SecurityTest
+  void searchShelvedAndCopFields() throws Exception {
+    mockMvc.perform(get(SearchSelectorService.route(on(ResourceRestController.class)
+            .searchShelvedAndCopFields(null, null)))
+            .param("term", "searchTerm")
+            .accept(MediaType.APPLICATION_JSON_VALUE)
+            .with(user(USER)))
+        .andExpect(status().isOk());
+  }
 }

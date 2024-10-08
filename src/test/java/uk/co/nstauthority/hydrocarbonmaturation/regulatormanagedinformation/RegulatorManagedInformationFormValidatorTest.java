@@ -15,8 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.util.NonSupportedClass;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
 
@@ -25,7 +25,6 @@ class RegulatorManagedInformationFormValidatorTest {
 
   @InjectMocks
   private RegulatorManagedInformationFormValidator regulatorManagedInformationFormValidator;
-
 
   @Test
   void supports_whenRegulatorManagedInformationFormClass_thenTrue() {
@@ -46,7 +45,7 @@ class RegulatorManagedInformationFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     regulatorManagedInformationFormValidator.validate(form, bindingResult,
-        new RegulatorManagedInformationFormValidatorHints(false, false));
+        new RegulatorManagedInformationFormValidatorHints(false, false, false, false));
 
     assertThat(bindingResult.hasErrors()).isFalse();
   }
@@ -57,7 +56,7 @@ class RegulatorManagedInformationFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     regulatorManagedInformationFormValidator.validate(form, bindingResult,
-        new RegulatorManagedInformationFormValidatorHints(false, true));
+        new RegulatorManagedInformationFormValidatorHints(false, true, false, false));
 
     assertThat(bindingResult.hasErrors()).isFalse();
   }
@@ -68,7 +67,7 @@ class RegulatorManagedInformationFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     regulatorManagedInformationFormValidator.validate(form, bindingResult,
-        new RegulatorManagedInformationFormValidatorHints(false, false));
+        new RegulatorManagedInformationFormValidatorHints(false, false, false, false));
 
     assertThat(bindingResult.hasErrors()).isTrue();
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -90,7 +89,7 @@ class RegulatorManagedInformationFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     regulatorManagedInformationFormValidator.validate(form, bindingResult,
-        new RegulatorManagedInformationFormValidatorHints(true, false));
+        new RegulatorManagedInformationFormValidatorHints(true, false, false, false));
 
     assertThat(bindingResult.hasErrors()).isTrue();
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -112,7 +111,7 @@ class RegulatorManagedInformationFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     form.setRelinquishmentReport(List.of(new UploadedFileForm(), new UploadedFileForm()));
     regulatorManagedInformationFormValidator.validate(form, bindingResult,
-        new RegulatorManagedInformationFormValidatorHints(true, false));
+        new RegulatorManagedInformationFormValidatorHints(true, false, false, false));
 
     assertThat(bindingResult.hasErrors()).isTrue();
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -134,7 +133,7 @@ class RegulatorManagedInformationFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     form.setRelinquishmentReport(List.of(new UploadedFileForm()));
     regulatorManagedInformationFormValidator.validate(form, bindingResult,
-        new RegulatorManagedInformationFormValidatorHints(true, false));
+        new RegulatorManagedInformationFormValidatorHints(true, false, false, false));
 
     assertThat(bindingResult.hasErrors()).isTrue();
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -159,7 +158,7 @@ class RegulatorManagedInformationFormValidatorTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     regulatorManagedInformationFormValidator.validate(form, bindingResult,
-        new RegulatorManagedInformationFormValidatorHints(false, true));
+        new RegulatorManagedInformationFormValidatorHints(false, true, false, false));
 
     assertThat(bindingResult.hasErrors()).isTrue();
     var errors = ValidatorTestingUtil.extractErrors(bindingResult);
@@ -176,7 +175,77 @@ class RegulatorManagedInformationFormValidatorTest {
   }
 
   @Test
-  void validate_whenHintsNotProvided_asserThrows() {
+  void validate_whenValidForm_whenIsAreaTeam_notLinkedToShelvedCopField_assertNoErrors() {
+    var form = getValidForm();
+    form.setLinkedToShelvedCopField(false);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    regulatorManagedInformationFormValidator.validate(form, bindingResult,
+        new RegulatorManagedInformationFormValidatorHints(false, false, false, true));
+
+    assertThat(bindingResult.hasErrors()).isFalse();
+  }
+
+  @Test
+  void validate_whenValidForm_linkedToShelvedCopField_fieldProvided_assertNoErrors() {
+    var form = getValidForm();
+    form.setLinkedToShelvedCopField(true);
+    form.setFieldSelectedOption("fieldSelectedOption");
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    regulatorManagedInformationFormValidator.validate(form, bindingResult,
+        new RegulatorManagedInformationFormValidatorHints(false, false, true, true));
+
+    assertThat(bindingResult.hasErrors()).isFalse();
+  }
+
+  @Test
+  void validate_whenInValidForm_whenIsAreaTeam_linkedToShelvedCopFieldNotSelected_assertErrors() {
+    var form = getValidForm();
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    regulatorManagedInformationFormValidator.validate(form, bindingResult,
+        new RegulatorManagedInformationFormValidatorHints(false, false, false, true));
+
+    assertThat(bindingResult.hasErrors()).isTrue();
+    var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+    var errorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
+
+    assertThat(errors)
+        .containsExactly(
+            entry("linkedToShelvedCopField", Set.of("linkedToShelvedCopField.required"))
+        );
+    assertThat(errorMessages)
+        .containsExactly(
+            entry("linkedToShelvedCopField", Set.of("Select if this discovery is linked to a shelved or ceased production field"))
+        );
+  }
+
+  @Test
+  void validate_whenInValidForm_whenIsAreaTeam_linkedToShelvedCopField_noFieldProvided_assertErrors() {
+    var form = getValidForm();
+    form.setLinkedToShelvedCopField(true);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    regulatorManagedInformationFormValidator.validate(form, bindingResult,
+        new RegulatorManagedInformationFormValidatorHints(false, false, true, true));
+
+    assertThat(bindingResult.hasErrors()).isTrue();
+    var errors = ValidatorTestingUtil.extractErrors(bindingResult);
+    var errorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
+
+    assertThat(errors)
+        .containsExactly(
+            entry("fieldSelectedOption", Set.of("fieldSelectedOption.required"))
+        );
+    assertThat(errorMessages)
+        .containsExactly(
+            entry("fieldSelectedOption", Set.of("Provide a field"))
+        );
+  }
+
+  @Test
+  void validate_whenHintsNotProvided_assertThrows() {
     var form = new RegulatorManagedInformationForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 

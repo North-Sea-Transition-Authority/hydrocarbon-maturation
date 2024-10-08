@@ -21,31 +21,31 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissions.SubmissionPersistenc
 public class PostFieldDiscoveryService {
 
   private final ResourceService resourceService;
-  private final PostFieldDiscoveryLinkRepository postFieldDiscoveryLinkRepository;
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   private final SubmissionPersistenceService submissionPersistenceService;
   private final SubmissionDetailPersistenceService submissionDetailPersistenceService;
   private final SubmissionDetailService submissionDetailService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
   private final PostFieldDuplicationService postFieldDuplicationService;
+  private final PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
 
   @Autowired
   public PostFieldDiscoveryService(ResourceService resourceService,
-                                   PostFieldDiscoveryLinkRepository postFieldDiscoveryLinkRepository,
                                    RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
                                    SubmissionPersistenceService submissionPersistenceService,
                                    SubmissionDetailPersistenceService submissionDetailPersistenceService,
                                    SubmissionDetailService submissionDetailService,
                                    ResourceDetailsPersistenceService resourceDetailsPersistenceService,
-                                   PostFieldDuplicationService postFieldDuplicationService) {
+                                   PostFieldDuplicationService postFieldDuplicationService,
+                                   PostFieldDiscoveryLinkService postFieldDiscoveryLinkService) {
     this.resourceService = resourceService;
-    this.postFieldDiscoveryLinkRepository = postFieldDiscoveryLinkRepository;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.submissionPersistenceService = submissionPersistenceService;
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
     this.submissionDetailService = submissionDetailService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.postFieldDuplicationService = postFieldDuplicationService;
+    this.postFieldDiscoveryLinkService = postFieldDiscoveryLinkService;
   }
 
   @Transactional
@@ -55,7 +55,7 @@ public class PostFieldDiscoveryService {
     var fieldRegulatorManagedInfo = regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResource(field);
 
     fieldRegulatorManagedInfo.ifPresent(regulatorManagedInformation -> regulatorManagedInformationPersistenceService
-        .saveResponsibleTeamAndGeoByResource(discovery, regulatorManagedInformation.getResponsibleTeamType()));
+        .saveResponsibleTeamAndGeoByPostFieldResource(discovery, regulatorManagedInformation.getResponsibleTeamType()));
 
     var submission = submissionPersistenceService.createSubmission(discovery);
 
@@ -69,17 +69,8 @@ public class PostFieldDiscoveryService {
 
     resourceDetailsPersistenceService.createInitialResourceDetail(form, submissionDetail);
 
-    createPostFieldDiscoveryLink(field, discovery);
+    postFieldDiscoveryLinkService.createPostFieldDiscoveryLink(field, discovery);
 
     return submissionDetail;
-  }
-
-  @Transactional
-  public void createPostFieldDiscoveryLink(Resource field, Resource discovery) {
-    var postFieldDiscoveryLink = new PostFieldDiscoveryLink();
-    postFieldDiscoveryLink.setFieldResource(field);
-    postFieldDiscoveryLink.setDiscoveryResource(discovery);
-
-    postFieldDiscoveryLinkRepository.save(postFieldDiscoveryLink);
   }
 }

@@ -21,11 +21,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -34,6 +37,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionReso
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.ReviewSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SearchProspectAndDiscoveryRecordsController;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
@@ -54,6 +58,7 @@ public class RegulatorManagedInformationController {
   private final ResourceService resourceService;
   private final ResourceSupportingDocumentService resourceSupportingDocumentService;
   private final ResponsibleTeamService responsibleTeamService;
+  private final InternalTeamService internalTeamService;
 
   @Autowired
   public RegulatorManagedInformationController(
@@ -64,7 +69,8 @@ public class RegulatorManagedInformationController {
       SubmissionResourceService submissionResourceService,
       ResourceService resourceService,
       ResourceSupportingDocumentService resourceSupportingDocumentService,
-      ResponsibleTeamService responsibleTeamService) {
+      ResponsibleTeamService responsibleTeamService,
+      InternalTeamService internalTeamService) {
     this.regulatorManagedInformationFormService = regulatorManagedInformationFormService;
     this.controllerHelperService = controllerHelperService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
@@ -73,10 +79,11 @@ public class RegulatorManagedInformationController {
     this.resourceService = resourceService;
     this.resourceSupportingDocumentService = resourceSupportingDocumentService;
     this.responsibleTeamService = responsibleTeamService;
+    this.internalTeamService = internalTeamService;
   }
 
   @GetMapping
-  public ModelAndView getRegulatorManagedInformationPage(@PathVariable("resourceId") UUID resourceId) {
+  public ModelAndView getRegulatorManagedInformationPage(@PathVariable("resourceId") UUID resourceId, User user) {
     var resource = resourceService.getResourceById(resourceId)
         .orElseThrow(() ->
             new RemiEntityNotFoundException("Could not find resource with id %s"
@@ -96,7 +103,7 @@ public class RegulatorManagedInformationController {
         .isLatestSubmissionForResourceRelinquishment(resource);
 
     return getRegulatorManagedInformationModelAndView(
-        regulatorManagedInformationForm, resource, isResourceBeingRelinquished);
+        regulatorManagedInformationForm, resource, isResourceBeingRelinquished, user);
   }
 
   @PostMapping
@@ -121,12 +128,14 @@ public class RegulatorManagedInformationController {
 
     var isResponsibleTeamBeingUpdated = regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(
         resource);
+
+    var isAreaTeamUser = internalTeamService.isAreaTeamUser(user);
     bindingResult = regulatorManagedInformationFormService
-        .validate(form, bindingResult, isResourceBeingRelinquished, isResponsibleTeamBeingUpdated);
+        .validate(form, bindingResult, isResourceBeingRelinquished, isResponsibleTeamBeingUpdated, isAreaTeamUser);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         getRegulatorManagedInformationModelAndView(
-            form, resource, isResourceBeingRelinquished),
+            form, resource, isResourceBeingRelinquished, user),
         () -> {
           regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(form, resource);
 
@@ -148,7 +157,7 @@ public class RegulatorManagedInformationController {
             }
           }
 
-          // submission status was accepted so   shoow in system of record
+          // submission status was accepted so show in system of record
           return ReverseRouter.redirect(on(ViewResourceRecordController.class).showResourceRecord(resource.getId(), null));
         }
     );
@@ -156,12 +165,12 @@ public class RegulatorManagedInformationController {
 
   private ModelAndView getRegulatorManagedInformationModelAndView(RegulatorManagedInformationForm form,
                                                                   Resource resource,
-                                                                  boolean isResourceBeingRelinquished) {
+                                                                  boolean isResourceBeingRelinquished,
+                                                                  User user) {
     var modelAndView = new ModelAndView("remi/review/regulatorManagedInformation")
         .addObject("form", form)
         .addObject("geographicalAreas", DisplayableEnumOptionUtil
-            .getDisplayableOptions(GeographicalArea.class));
-    modelAndView
+            .getDisplayableOptions(GeographicalArea.class))
         .addObject("isResourceBeingRelinquished", isResourceBeingRelinquished);
     if (isResourceBeingRelinquished) {
       modelAndView
@@ -179,6 +188,13 @@ public class RegulatorManagedInformationController {
               .getDisplayableOptions(ResponsibleTeamType.class));
     }
     addBreadcrumbsAndCancelUrl(modelAndView, resource);
+
+    if (resource.getType() == ResourceType.DISCOVERY && internalTeamService.isAreaTeamUser(user)) {
+      modelAndView.addObject("shelvedCopFieldApiEndpoint",
+          SearchSelectorService.route(on(ResourceRestController.class)
+              .searchShelvedAndCopFields(null, null)))
+          .addObject("preSelectedFieldOption", regulatorManagedInformationFormService.getPreSelectedFieldOption(resource));
+    }
 
     return modelAndView;
   }

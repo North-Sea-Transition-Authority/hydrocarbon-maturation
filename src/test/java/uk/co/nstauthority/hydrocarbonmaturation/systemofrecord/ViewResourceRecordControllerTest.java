@@ -211,6 +211,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     when(viewResourceRecordService.canViewSubmissionDetail(otherSubmissionOnResource, resource))
         .thenReturn(true);
     when(correctionService.canStartCorrection(resource, USER)).thenReturn(true);
+    when(viewResourceRecordService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(otherSubmissionOnResource));
     mockModelAndViewCreation(otherSubmissionOnResource, queryResult);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
@@ -233,7 +234,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("resourceRecord", resourceRecordSummaryView),
             entry("submissionType", otherSubmissionOnResource.getSubmissionType()),
             entry("correctionUrl",
-                ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resource.getId(), null)))
+                ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resource.getId(), null))),
+            entry("canSeePostFieldLink", true)
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -483,6 +485,9 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     when(viewResourceRecordService.isAreaTeamUser(USER)).thenReturn(true);
     when(fieldStatusService.getMostRecentFieldStatus(field)).thenReturn(Optional.of(FieldStatus.STATUS_000));
 
+    var discoveriesMap = Map.of("Name", "link");
+    when(fieldRegulatorManagedInformationSummaryService.getLinkedPostFieldDiscoveriesMap(resource)).thenReturn(discoveriesMap);
+
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
                 .with(user(USER)))
@@ -519,7 +524,9 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("archived", false),
             entry("canCreatePostFieldDiscovery", true),
             entry("postFieldDiscoveryUrl", ReverseRouter.route(on(StartPostFieldDiscoveryController.class)
-                .getStartPostFieldDiscoveryPage(resource.getId(), null)))
+                .getStartPostFieldDiscoveryPage(resource.getId(), null))),
+            entry("canSeePostFieldLink", true),
+            entry("linkedPostFieldDiscoveriesMap", discoveriesMap)
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -761,7 +768,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("canManageRegulatorManagementInfo", true),
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                    .getRegulatorManagedInformationPage(resourceId))),
+                    .getRegulatorManagedInformationPage(resourceId, null))),
             entry("resourceGroupUrl",
                 ReverseRouter.route(on(ResourceGroupController.class)
                     .getResourceGroupPage(resourceId, null))),
@@ -833,7 +840,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("canManageRegulatorManagementInfo", true),
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                    .getRegulatorManagedInformationPage(resourceId))),
+                    .getRegulatorManagedInformationPage(resourceId, null))),
             entry("resourceGroupUrl",
                 ReverseRouter.route(on(ResourceGroupController.class)
                     .getResourceGroupPage(resourceId, null))),
@@ -905,7 +912,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("canManageRegulatorManagementInfo", true),
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                    .getRegulatorManagedInformationPage(resourceId))),
+                    .getRegulatorManagedInformationPage(resourceId, null))),
             entry("resourceGroupUrl",
                 ReverseRouter.route(on(ResourceGroupController.class)
                     .getResourceGroupPage(resourceId, null))),
@@ -978,7 +985,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("canManageRegulatorManagementInfo", true),
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                    .getRegulatorManagedInformationPage(resourceId))),
+                    .getRegulatorManagedInformationPage(resourceId, null))),
             entry("resourceGroupUrl",
                 ReverseRouter.route(on(ResourceGroupController.class)
                     .getResourceGroupPage(resourceId, null))),

@@ -2,7 +2,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,11 +18,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
-import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,6 +34,9 @@ class RegulatorManagedInformationPersistenceServiceTest {
 
   @Mock
   private ResourceSupportingDocumentService resourceSupportingDocumentService;
+
+  @Mock
+  private PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
 
   @InjectMocks
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
@@ -46,14 +52,16 @@ class RegulatorManagedInformationPersistenceServiceTest {
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
 
     assertThat(argCaptor.getValue())
-        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea")
+        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea", "linkedToShelvedCopField")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
-            RegulatorManagedInformation::getGeographicalArea)
+            RegulatorManagedInformation::getGeographicalArea,
+            RegulatorManagedInformation::getLinkedToShelvedCopField)
         .containsExactly(
             resource,
             ResponsibleTeamType.EXPLORATION,
+            null,
             null);
   }
 
@@ -69,15 +77,42 @@ class RegulatorManagedInformationPersistenceServiceTest {
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
 
     assertThat(argCaptor.getValue())
-        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea")
+        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea", "linkedToShelvedCopField")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
-            RegulatorManagedInformation::getGeographicalArea)
+            RegulatorManagedInformation::getGeographicalArea,
+            RegulatorManagedInformation::getLinkedToShelvedCopField)
         .containsExactly(
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
+            null,
             null);
+  }
+
+  @Test
+  void saveResponsibleTeamAndGeoForPostFieldResource() {
+    var resource = mock(Resource.class);
+
+    var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
+
+    regulatorManagedInformationPersistenceService
+        .saveResponsibleTeamAndGeoByPostFieldResource(resource, ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
+
+    verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
+
+    assertThat(argCaptor.getValue())
+        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea", "linkedToShelvedCopField")
+        .extracting(
+            RegulatorManagedInformation::getResource,
+            RegulatorManagedInformation::getResponsibleTeamType,
+            RegulatorManagedInformation::getGeographicalArea,
+            RegulatorManagedInformation::getLinkedToShelvedCopField)
+        .containsExactly(
+            resource,
+            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
+            null,
+            true);
   }
 
   @Test
@@ -86,6 +121,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
     resource.setType(ResourceType.DISCOVERY);
     var form = new RegulatorManagedInformationForm();
     form.setGeographicalArea(GeographicalArea.ONSHORE);
+    form.setLinkedToShelvedCopField(true);
     var fileUploadForm = new UploadedFileForm();
     var listOfUploads = List.of(fileUploadForm);
     form.setRelinquishmentReport(listOfUploads);
@@ -97,17 +133,56 @@ class RegulatorManagedInformationPersistenceServiceTest {
         form, resource);
 
     verify(resourceSupportingDocumentService, times(1)).saveDocuments(resource, form.getRelinquishmentReport(), FileDocumentType.RELINQUISHMENT_REPORT);
+    verify(postFieldDiscoveryLinkService, times(1)).createOrUpdatePostFieldDiscoveryLinkFromForm(form, resource);
+    verify(postFieldDiscoveryLinkService, never()).deletePostFieldDiscoveryLinkIfExists(any(Resource.class));
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
     assertThat(argCaptor.getValue())
-        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea")
+        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea", "linkedToShelvedCopField")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
-            RegulatorManagedInformation::getGeographicalArea)
+            RegulatorManagedInformation::getGeographicalArea,
+            RegulatorManagedInformation::getLinkedToShelvedCopField)
         .containsExactly(
             resource,
             null,
-            GeographicalArea.ONSHORE);
+            GeographicalArea.ONSHORE,
+            true);
+  }
+
+  @Test
+  void saveRegulatorManagedInformation_discoveryNotLinkedToShelvedCopField_verifyLinkRemoved() {
+    var resource = new Resource();
+    resource.setType(ResourceType.DISCOVERY);
+    var form = new RegulatorManagedInformationForm();
+    form.setGeographicalArea(GeographicalArea.ONSHORE);
+    form.setLinkedToShelvedCopField(false);
+    var fileUploadForm = new UploadedFileForm();
+    var listOfUploads = List.of(fileUploadForm);
+    form.setRelinquishmentReport(listOfUploads);
+    var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
+    when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
+        .thenReturn(Optional.empty());
+
+    regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
+        form, resource);
+
+    verify(resourceSupportingDocumentService, times(1)).saveDocuments(resource, form.getRelinquishmentReport(), FileDocumentType.RELINQUISHMENT_REPORT);
+    verify(postFieldDiscoveryLinkService, never()).createOrUpdatePostFieldDiscoveryLinkFromForm(any(RegulatorManagedInformationForm.class), any(Resource.class));
+    verify(postFieldDiscoveryLinkService, times(1)).deletePostFieldDiscoveryLinkIfExists(resource);
+    verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
+    assertThat(argCaptor.getValue())
+        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea", "linkedToShelvedCopField")
+        .extracting(
+            RegulatorManagedInformation::getResource,
+            RegulatorManagedInformation::getResponsibleTeamType,
+            RegulatorManagedInformation::getGeographicalArea,
+            RegulatorManagedInformation::getLinkedToShelvedCopField)
+        .containsExactly(
+            resource,
+            null,
+            GeographicalArea.ONSHORE,
+            false);
   }
 
   @Test
@@ -119,6 +194,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
     var form = new RegulatorManagedInformationForm();
     form.setGeographicalArea(GeographicalArea.CENTRAL_NORTH_SEA);
     form.setResponsibleTeamType(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
+    form.setLinkedToShelvedCopField(false);
 
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
     when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
@@ -130,15 +206,17 @@ class RegulatorManagedInformationPersistenceServiceTest {
     verify(resourceSupportingDocumentService, times(1)).saveDocuments(resource, form.getRelinquishmentReport(), FileDocumentType.RELINQUISHMENT_REPORT);
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
     assertThat(argCaptor.getValue())
-        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea")
+        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea", "linkedToShelvedCopField")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
-            RegulatorManagedInformation::getGeographicalArea)
+            RegulatorManagedInformation::getGeographicalArea,
+            RegulatorManagedInformation::getLinkedToShelvedCopField)
         .containsExactly(
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
-            GeographicalArea.CENTRAL_NORTH_SEA);
+            GeographicalArea.CENTRAL_NORTH_SEA,
+            false);
   }
 
   @Test
@@ -150,6 +228,7 @@ class RegulatorManagedInformationPersistenceServiceTest {
     var form = new RegulatorManagedInformationForm();
     form.setGeographicalArea(GeographicalArea.CENTRAL_NORTH_SEA);
     form.setResponsibleTeamType(null);
+    form.setLinkedToShelvedCopField(false);
 
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
     when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
@@ -161,15 +240,17 @@ class RegulatorManagedInformationPersistenceServiceTest {
     verify(resourceSupportingDocumentService, times(1)).saveDocuments(resource, form.getRelinquishmentReport(), FileDocumentType.RELINQUISHMENT_REPORT);
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
     assertThat(argCaptor.getValue())
-        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea")
+        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea", "linkedToShelvedCopField")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
-            RegulatorManagedInformation::getGeographicalArea)
+            RegulatorManagedInformation::getGeographicalArea,
+            RegulatorManagedInformation::getLinkedToShelvedCopField)
         .containsExactly(
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
-            GeographicalArea.CENTRAL_NORTH_SEA);
+            GeographicalArea.CENTRAL_NORTH_SEA,
+            false);
   }
 
   @Test
@@ -184,15 +265,17 @@ class RegulatorManagedInformationPersistenceServiceTest {
     verify(regulatorManagedInformationRepository).save(argCaptor.capture());
 
     assertThat(argCaptor.getValue())
-        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea")
+        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea", "linkedToShelvedCopField")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
-            RegulatorManagedInformation::getGeographicalArea)
+            RegulatorManagedInformation::getGeographicalArea,
+            RegulatorManagedInformation::getLinkedToShelvedCopField)
         .containsExactly(
             resource,
             responsibleTeamType,
-            geographicalArea
+            geographicalArea,
+            null
         );
   }
 

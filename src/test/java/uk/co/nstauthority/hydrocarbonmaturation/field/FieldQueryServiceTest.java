@@ -572,5 +572,130 @@ class FieldQueryServiceTest {
               new FieldView(field2.getFieldIdentifier(), field2.getCorrectedLegalFieldName()));
     }
   }
+
+  @Test
+  void getShelvedOrCopFieldByName_isAreaTeamUser_shelvedCopFieldsExist_showFields() {
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, AREA_TEAM_MEMBER))
+        .thenReturn(true);
+
+    var searchTerm = "field";
+
+    var resource1 = new Resource();
+    resource1.setArchived(false);
+
+    var field1 = new Field();
+    field1.setFieldIdentifier(1);
+    when(fieldStatusService.getMostRecentFieldStatus(field1))
+        .thenReturn(Optional.of(FieldStatus.STATUS_000));
+    field1.setResource(resource1);
+    field1.setCorrectedLegalFieldName("Shelved field");
+    var submissionDetail1 = new SubmissionDetail();
+    submissionDetail1.setStatus(SubmissionDetailStatus.ACCEPTED);
+
+    var regulatorManagedInformation1 = new RegulatorManagedInformation();
+    regulatorManagedInformation1.setResponsibleTeamType(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(resource1))
+        .thenReturn(regulatorManagedInformation1);
+    when(responsibleTeamService.isInResponsibleTeam(USER, regulatorManagedInformation1.getResponsibleTeamType()))
+        .thenReturn(true);
+
+    var resource2 = new Resource();
+    resource2.setArchived(false);
+
+    var field2 = new Field();
+    field2.setFieldIdentifier(2);
+    when(fieldStatusService.getMostRecentFieldStatus(field2))
+        .thenReturn(Optional.of(FieldStatus.STATUS_900));
+    field2.setResource(resource2);
+    field2.setCorrectedLegalFieldName("Cop field");
+    var submissionDetail2 = new SubmissionDetail();
+    submissionDetail2.setStatus(SubmissionDetailStatus.ACCEPTED);
+
+    var regulatorManagedInformation2 = new RegulatorManagedInformation();
+    regulatorManagedInformation2.setResponsibleTeamType(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(resource2))
+        .thenReturn(regulatorManagedInformation2);
+    when(responsibleTeamService.isInResponsibleTeam(USER, regulatorManagedInformation2.getResponsibleTeamType()))
+        .thenReturn(true);
+
+    when(fieldPersistenceService.getFieldsByCorrectedLegalName(searchTerm)).thenReturn(List.of(field1, field2));
+    when(submissionDetailService.getExtantSubmissionDetailsForResource(resource1))
+        .thenReturn(List.of(submissionDetail1));
+    when(submissionDetailService.getExtantSubmissionDetailsForResource(resource2))
+        .thenReturn(List.of(submissionDetail2));
+
+    assertThat(fieldQueryService.getShelvedOrCopFieldByName(searchTerm, USER))
+        .containsExactly(
+            new FieldView(field2.getFieldIdentifier(), field2.getCorrectedLegalFieldName()),
+            new FieldView(field1.getFieldIdentifier(), field1.getCorrectedLegalFieldName())
+        );
+  }
+
+  @Test
+  void getShelvedOrCopFieldByName_isNotAreaTeamUser_shelvedCopFieldsExist_doNotShowFields() {
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, AREA_TEAM_MEMBER))
+        .thenReturn(false);
+
+    var searchTerm = "field";
+
+    var resource1 = new Resource();
+    resource1.setArchived(false);
+
+    var field1 = new Field();
+    field1.setFieldIdentifier(1);
+    when(fieldStatusService.getMostRecentFieldStatus(field1))
+        .thenReturn(Optional.of(FieldStatus.STATUS_000));
+    field1.setResource(resource1);
+    field1.setCorrectedLegalFieldName("Shelved field");
+
+    var resource2 = new Resource();
+    resource2.setArchived(false);
+
+    var field2 = new Field();
+    field2.setFieldIdentifier(2);
+    when(fieldStatusService.getMostRecentFieldStatus(field2))
+        .thenReturn(Optional.of(FieldStatus.STATUS_900));
+    field2.setResource(resource2);
+    field2.setCorrectedLegalFieldName("Cop field");
+
+    when(fieldPersistenceService.getFieldsByCorrectedLegalName(searchTerm)).thenReturn(List.of(field1, field2));
+
+    assertThat(fieldQueryService.getShelvedOrCopFieldByName(searchTerm, USER)).isEqualTo(List.of());
+  }
+
+  @Test
+  void getShelvedOrCopFieldByName_isAreaTeamUser_shelvedCopFieldsDoNotExist_doNotShowFields() {
+    var searchTerm = "field";
+
+    var resource1 = new Resource();
+    resource1.setArchived(false);
+
+    var field1 = new Field();
+    field1.setFieldIdentifier(1);
+    when(fieldStatusService.getMostRecentFieldStatus(field1))
+        .thenReturn(Optional.of(FieldStatus.STATUS_200));
+    field1.setResource(resource1);
+    field1.setCorrectedLegalFieldName("CSR field");
+    var submissionDetail1 = new SubmissionDetail();
+    submissionDetail1.setStatus(SubmissionDetailStatus.ACCEPTED);
+
+    var resource2 = new Resource();
+    resource2.setArchived(false);
+
+    var field2 = new Field();
+    field2.setFieldIdentifier(2);
+    when(fieldStatusService.getMostRecentFieldStatus(field2))
+        .thenReturn(Optional.of(FieldStatus.STATUS_700));
+    field2.setResource(resource2);
+    field2.setCorrectedLegalFieldName("Producing field");
+    var submissionDetail2 = new SubmissionDetail();
+    submissionDetail2.setStatus(SubmissionDetailStatus.ACCEPTED);
+
+
+    when(fieldPersistenceService.getFieldsByCorrectedLegalName(searchTerm)).thenReturn(List.of(field1, field2));
+
+    assertThat(fieldQueryService.getShelvedOrCopFieldByName(searchTerm, USER)).isEqualTo(List.of());
+  }
+
 }
 

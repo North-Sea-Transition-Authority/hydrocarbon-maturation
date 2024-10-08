@@ -41,6 +41,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskL
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistoryQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistorySelectorUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionSearchSelectorForm;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 
 @Controller
 @RequestMapping("/review/resource/{resourceId}")
@@ -58,6 +59,7 @@ public class ReviewSubmissionController {
   private final FieldPersistenceService fieldPersistenceService;
   private final FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
   private final FieldMapViewService fieldMapViewService;
+  private final InternalTeamService internalTeamService;
 
   @Autowired
   public ReviewSubmissionController(
@@ -71,7 +73,8 @@ public class ReviewSubmissionController {
       ResponsibleTeamService responsibleTeamService,
       FieldPersistenceService fieldPersistenceService,
       FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService,
-      FieldMapViewService fieldMapViewService) {
+      FieldMapViewService fieldMapViewService,
+      InternalTeamService internalTeamService) {
     this.reviewSubmissionService = reviewSubmissionService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
@@ -83,6 +86,7 @@ public class ReviewSubmissionController {
     this.fieldPersistenceService = fieldPersistenceService;
     this.fieldRegulatorManagedInformationSummaryService = fieldRegulatorManagedInformationSummaryService;
     this.fieldMapViewService = fieldMapViewService;
+    this.internalTeamService = internalTeamService;
   }
 
   @GetMapping
@@ -265,8 +269,9 @@ public class ReviewSubmissionController {
               regulatorManagedInformationSummaryService.getRegulatorManagedInformationSummaryFromResource(resource))
           .addObject("regulatorManagedInformationUrl",
               ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                  .getRegulatorManagedInformationPage(resource.getId())))
-          .addObject("manageResourceInformationText", "Manage resource information");
+                  .getRegulatorManagedInformationPage(resource.getId(), null)))
+          .addObject("manageResourceInformationText", "Manage resource information")
+          .addObject("canSeePostFieldLink", internalTeamService.isRegulatorOrAreaTeamUser(user));
     }
   }
 }

@@ -124,12 +124,15 @@ wrapperWidth=true>
   <#if isFieldResource>
     <@regulatorSummary.regulatorInformationSummary
       fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
-      fieldMapView=fieldMapView!""/>
+      fieldMapView=fieldMapView!""
+      linkedPostFieldDiscoveriesMap=linkedPostFieldDiscoveriesMap
+      canSeePostFieldLink=canSeePostFieldLink!false/>
   <#else>
     <#if canViewRegulatorManagementInfo>
       <@regulatorManagedInformationSummary.regulatorManagedInformationSummaryCard
         regulatorManagedInformationValues=regulatorManagedInformationSummaryView
-        resourceGroupsValues=resourceGroupsSummaryView/>
+        resourceGroupsValues=resourceGroupsSummaryView
+        canSeePostFieldLink=canSeePostFieldLink!false/>
     </#if>
   </#if>
 

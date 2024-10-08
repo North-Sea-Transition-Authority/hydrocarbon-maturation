@@ -45,7 +45,9 @@ caption=resourceName>
     <@fdsForm.htmlForm>
         <@regulatorSummary.regulatorInformationSummary
         fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
-        fieldMapView=fieldMapView!""/>
+        fieldMapView=fieldMapView!""
+        linkedPostFieldDiscoveriesMap=""
+        canSeePostFieldLink=false/>
         <@submissionSummary.submissionSummary accordionId>
             <@reservoirSummary.reservoirSummary reservoirSummaries=reservoirSummaries/>
         </@submissionSummary.submissionSummary>

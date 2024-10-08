@@ -107,12 +107,15 @@
   <#if isFieldSubmission>
     <@regulatorSummary.regulatorInformationSummary
       fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
-      fieldMapView=fieldMapView!""/>
+      fieldMapView=fieldMapView!""
+      linkedPostFieldDiscoveriesMap=""
+      canSeePostFieldLink=false/>
   <#else>
     <#if isInResponsibleTeam>
       <@regulatorManagedInformationSummary.regulatorManagedInformationSummaryCard
         regulatorManagedInformationValues=regulatorManagedInformationSummaryView
-        resourceGroupsValues=resourceGroupsSummaryView/>
+        resourceGroupsValues=resourceGroupsSummaryView
+        canSeePostFieldLink=canSeePostFieldLink!false/>
     </#if>
   </#if>
   <@submissionSummary.submissionSummary

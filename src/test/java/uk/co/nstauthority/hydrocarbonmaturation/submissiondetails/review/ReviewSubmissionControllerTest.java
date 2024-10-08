@@ -281,6 +281,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(submissionDetail));
     mockModelAndViewCreation(submissionDetail, queryResult);
     when(responsibleTeamService.isInResponsibleTeam(USER, submissionRecordSummaryView.responsibleTeamType())).thenReturn(true);
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resourceId, null)))
                 .with(user(USER)))
@@ -298,8 +299,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
                 .showApproveConfirmationPage(submissionDetail.getId(), null))),
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                    .getRegulatorManagedInformationPage(
-                        resourceId))),
+                    .getRegulatorManagedInformationPage(resourceId, null))),
             entry("requestUpdateUrl", ReverseRouter.route(on(RequestUpdateController.class)
                 .showRequestUpdateConfirmationPage(submissionDetail.getId(), null))),
             entry("canRequestUpdate", false),
@@ -311,7 +311,8 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
                 .showWithdrawConfirmationPage(submissionDetail.getId(), null))),
             entry("isInResponsibleTeam", true),
             entry("updateRequested", false),
-            entry("isIndustrySubmitter", false)
+            entry("isIndustrySubmitter", false),
+            entry("canSeePostFieldLink", true)
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
@@ -344,6 +345,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(submissionDetail));
     mockModelAndViewCreation(submissionDetail, queryResult);
     when(responsibleTeamService.isInResponsibleTeam(USER, submissionRecordSummaryView.responsibleTeamType())).thenReturn(true);
+    when(internalTeamService.isAreaTeamUser(USER)).thenReturn(false);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resourceId, null)))
                 .with(user(USER)))
@@ -355,9 +357,9 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
             entry("regulatorManagedInformationSummaryView", regulatorSummary),
             entry("regulatorManagedInformationUrl",
                 ReverseRouter.route(on(RegulatorManagedInformationController.class)
-                    .getRegulatorManagedInformationPage(
-                        resourceId))),
-            entry("manageResourceInformationText", "Manage resource information")
+                    .getRegulatorManagedInformationPage(resourceId, null))),
+            entry("manageResourceInformationText", "Manage resource information"),
+            entry("canSeePostFieldLink", false)
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

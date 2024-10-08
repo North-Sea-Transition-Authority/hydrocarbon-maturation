@@ -1,9 +1,11 @@
 package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
 import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
@@ -15,13 +17,16 @@ public class RegulatorManagedInformationPersistenceService {
 
   private final RegulatorManagedInformationRepository regulatorManagedInformationRepository;
   private final ResourceSupportingDocumentService resourceSupportingDocumentService;
+  private final PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
 
   @Autowired
   public RegulatorManagedInformationPersistenceService(
       RegulatorManagedInformationRepository regulatorManagedInformationRepository,
-      ResourceSupportingDocumentService resourceSupportingDocumentService) {
+      ResourceSupportingDocumentService resourceSupportingDocumentService,
+      PostFieldDiscoveryLinkService postFieldDiscoveryLinkService) {
     this.regulatorManagedInformationRepository = regulatorManagedInformationRepository;
     this.resourceSupportingDocumentService = resourceSupportingDocumentService;
+    this.postFieldDiscoveryLinkService = postFieldDiscoveryLinkService;
   }
 
   @Transactional
@@ -35,15 +40,33 @@ public class RegulatorManagedInformationPersistenceService {
   }
 
   @Transactional
+  public void saveResponsibleTeamAndGeoByPostFieldResource(Resource resource,
+                                                           ResponsibleTeamType responsibleTeamTypeEnum) {
+    var regulatorManagedInformation = getRegulatorManagedInformationByResource(resource)
+        .orElse(new RegulatorManagedInformation());
+    regulatorManagedInformation.setResource(resource);
+    regulatorManagedInformation.setResponsibleTeamType(responsibleTeamTypeEnum);
+    regulatorManagedInformation.setLinkedToShelvedCopField(true);
+    regulatorManagedInformationRepository.save(regulatorManagedInformation);
+  }
+
+  @Transactional
   public void saveRegulatorManagedInformation(RegulatorManagedInformationForm regulatorManagedInformationForm,
                                               Resource resource) {
     var regulatorManagedInformation = getRegulatorManagedInformationByResource(resource)
         .orElse(new RegulatorManagedInformation());
     regulatorManagedInformation.setResource(resource);
     regulatorManagedInformation.setGeographicalArea(regulatorManagedInformationForm.getGeographicalArea());
+    regulatorManagedInformation.setLinkedToShelvedCopField(regulatorManagedInformationForm.getLinkedToShelvedCopField());
 
     if (canUpdateResponsibleTeam(resource)) {
       regulatorManagedInformation.setResponsibleTeamType(regulatorManagedInformationForm.getResponsibleTeamType());
+    }
+
+    if (BooleanUtils.isTrue(regulatorManagedInformationForm.getLinkedToShelvedCopField())) {
+      postFieldDiscoveryLinkService.createOrUpdatePostFieldDiscoveryLinkFromForm(regulatorManagedInformationForm, resource);
+    } else {
+      postFieldDiscoveryLinkService.deletePostFieldDiscoveryLinkIfExists(resource);
     }
 
     resourceSupportingDocumentService.saveDocuments(

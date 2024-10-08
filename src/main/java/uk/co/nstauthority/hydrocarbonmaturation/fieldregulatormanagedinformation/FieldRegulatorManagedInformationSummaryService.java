@@ -1,27 +1,37 @@
 package uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceViewByReferenceComparator;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.field.DeterminationStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryDataView;
+import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.BooleanUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
 
 @Service
 public class FieldRegulatorManagedInformationSummaryService {
@@ -50,6 +60,8 @@ public class FieldRegulatorManagedInformationSummaryService {
   private final SubmissionDetailDisplayService submissionDetailDisplayService;
   private final FieldPersistenceService fieldPersistenceService;
   private final FieldLicenceService fieldLicenceService;
+  private final PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
+  private final SubmissionDetailService submissionDetailService;
 
   @Autowired
   public FieldRegulatorManagedInformationSummaryService(
@@ -57,12 +69,16 @@ public class FieldRegulatorManagedInformationSummaryService {
       ResourceDetailsPersistenceService resourceDetailsPersistenceService,
       SubmissionDetailDisplayService submissionDetailDisplayService,
       FieldPersistenceService fieldPersistenceService,
-      FieldLicenceService fieldLicenceService) {
+      FieldLicenceService fieldLicenceService,
+      PostFieldDiscoveryLinkService postFieldDiscoveryLinkService,
+      SubmissionDetailService submissionDetailService) {
     this.fieldRegulatorManagedInformationService = fieldRegulatorManagedInformationService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.fieldPersistenceService = fieldPersistenceService;
     this.fieldLicenceService = fieldLicenceService;
+    this.postFieldDiscoveryLinkService = postFieldDiscoveryLinkService;
+    this.submissionDetailService = submissionDetailService;
   }
 
   public SummaryCard getFieldRegulatorManagedInformationSummaryCard(Resource resource) {
@@ -160,6 +176,20 @@ public class FieldRegulatorManagedInformationSummaryService {
     );
 
     return SummaryCard.simpleSummaryCardWithHeading(REGULATOR_MANAGED_INFORMATION, summaryDataView);
+  }
+
+  public Map<String, String> getLinkedPostFieldDiscoveriesMap(Resource resource) {
+    return postFieldDiscoveryLinkService.getAllDiscoveriesLinkedToField(resource).stream()
+        .map(submissionDetailService::getLatestApprovedDiscoverySubmissionDetailForResource)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .map(resourceDetailsPersistenceService::getResourceDetailOrThrow)
+        .sorted(Comparator.comparing(ResourceDetail::getResourceName))
+        .collect(StreamUtil.toLinkedHashMap(
+            ResourceDetail::getResourceName,
+            detail -> ReverseRouter.route(on(ViewResourceRecordController.class)
+                .showResourceRecord(detail.getSubmissionDetail().getSubmission().getResource().getId(), null))
+        ));
   }
 
   @VisibleForTesting
