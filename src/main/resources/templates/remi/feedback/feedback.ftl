@@ -6,7 +6,7 @@
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="showBackLink" type="String" -->
 
-<#assign pageTitle = "Give feedback on ${serviceBranding.mnemonic()}"/>
+<#assign pageTitle = "Give feedback on the ${serviceBranding.name()}"/>
 
 <@defaultPage
   htmlTitle=pageTitle
