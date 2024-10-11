@@ -87,7 +87,7 @@ public class ApproveSubmissionController {
     if (submissionDetail.isCessationOfProductionSubmission()) {
       approvedSubmissionNotificationBanner(submissionDetail, redirectAttributes, NotificationBannerType.INFO,
           "%s - %s has been accepted and applied to the system of record. " +
-              "Is a new discovery required to track the remaining volumetrics?");
+              "Create a discovery associated with this field to track remaining hydrocarbons.");
     } else {
       approvedSubmissionNotificationBanner(submissionDetail, redirectAttributes, NotificationBannerType.SUCCESS,
           "%s - %s has been accepted and applied to the system of record.");
