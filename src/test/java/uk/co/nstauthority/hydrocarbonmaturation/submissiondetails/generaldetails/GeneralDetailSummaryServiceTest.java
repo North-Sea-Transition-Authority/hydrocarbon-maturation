@@ -19,6 +19,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -39,9 +41,9 @@ class GeneralDetailSummaryServiceTest {
   @Mock
   private LicencePersistenceService licencePersistenceService;
   @Mock
-  private OnshoreOffshoreService onshoreOffshoreService;
-  @Mock
   private SubmissionSupportingDocumentService supportingDocumentService;
+  @Mock
+  private FieldPersistenceService fieldPersistenceService;
   @InjectMocks
   private GeneralDetailSummaryService generalDetailSummaryService;
 
@@ -263,7 +265,13 @@ class GeneralDetailSummaryServiceTest {
   @Test
   void getGeneralDetailsSummary_generalDetailsSummary_forField_offshore_notFullyInUkcs() {
     submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
-    generalDetail.setProspectDiscoveryLocatedInUkcs(false);
+
+    var field = new Field();
+    field.setFieldLocatedInUkcs(false);
+    field.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+
+    when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource())).thenReturn(field);
+
     generalDetail.setPercentageLocatedInUkcs(BigDecimal.valueOf(99));
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
@@ -273,7 +281,6 @@ class GeneralDetailSummaryServiceTest {
     var licence2 = createLicence(licenceRef2);
     var licenceList = List.of(licence1, licence2);
     when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail)).thenReturn(licenceList);
-    when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.OFFSHORE);
     var quadBlockRef1 = "1/2";
     var quadBlockRef2 = "3/4";
     var quadrantBlock1 = createQuadrantAndBlock(quadBlockRef1, "1", 2, OnshoreOffshore.OFFSHORE);
@@ -286,8 +293,6 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
-    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_UKCS,
-        generalDetail.getProspectDiscoveryLocatedInUkcs());
     summaryDataView.addKeyValue(GeneralDetailSummaryService.PERCENT_WITHIN_UKCS,
         generalDetail.getPercentageLocatedInUkcs());
     summaryDataView.addKeyValue(
@@ -312,7 +317,12 @@ class GeneralDetailSummaryServiceTest {
   @Test
   void getGeneralDetailsSummary_generalDetailsSummary_forField_offshore_fullyInUkcs() {
     submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
-    generalDetail.setProspectDiscoveryLocatedInUkcs(true);
+
+    var field = new Field();
+    field.setFieldLocatedInUkcs(true);
+
+    when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource())).thenReturn(field);
+
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
     var licenceRef1 = "Licence 1";
@@ -321,7 +331,6 @@ class GeneralDetailSummaryServiceTest {
     var licence2 = createLicence(licenceRef2);
     var licenceList = List.of(licence1, licence2);
     when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail)).thenReturn(licenceList);
-    when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.OFFSHORE);
     var quadBlockRef1 = "1/2";
     var quadBlockRef2 = "3/4";
     var quadrantBlock1 = createQuadrantAndBlock(quadBlockRef1, "1", 2, OnshoreOffshore.OFFSHORE);
@@ -334,8 +343,6 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
-    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_UKCS,
-        generalDetail.getProspectDiscoveryLocatedInUkcs());
     summaryDataView.addKeyValue(
         GeneralDetailSummaryService.QUADRANT_AND_BLOCKS,
         String.join(", ", List.of(quadBlockRef1, quadBlockRef2))
@@ -367,7 +374,13 @@ class GeneralDetailSummaryServiceTest {
   @Test
   void getGeneralDetailsSummary_generalDetailsSummary_forField_onshore_notFullyInEngland() {
     submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
-    generalDetail.setProspectDiscoveryLocatedInEngland(false);
+
+    var field = new Field();
+    field.setFieldLocatedInEngland(false);
+    field.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
+
+    when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource())).thenReturn(field);
+
     generalDetail.setPercentageLocatedInEngland(BigDecimal.valueOf(99));
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
@@ -377,7 +390,6 @@ class GeneralDetailSummaryServiceTest {
     var licence2 = createLicence(licenceRef2);
     var licenceList = List.of(licence1, licence2);
     when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail)).thenReturn(licenceList);
-    when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.ONSHORE);
     var quadBlockRef1 = "1/2";
     var quadBlockRef2 = "3/4";
     var quadrantBlock1 = createQuadrantAndBlock(quadBlockRef1, "1", 2, OnshoreOffshore.ONSHORE);
@@ -390,8 +402,6 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
-    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_ENGLAND,
-        generalDetail.getProspectDiscoveryLocatedInEngland());
     summaryDataView.addKeyValue(GeneralDetailSummaryService.PERCENT_WITHIN_ENGLAND,
         generalDetail.getPercentageLocatedInEngland());
     summaryDataView.addKeyValue(
@@ -415,7 +425,11 @@ class GeneralDetailSummaryServiceTest {
   @Test
   void getGeneralDetailsSummary_generalDetailsSummary_forField_onshore_fullyInEngland() {
     submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
-    generalDetail.setProspectDiscoveryLocatedInEngland(true);
+
+    var field = new Field();
+    field.setFieldLocatedInEngland(true);
+
+    when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource())).thenReturn(field);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
     var licenceRef1 = "Licence 1";
@@ -424,7 +438,6 @@ class GeneralDetailSummaryServiceTest {
     var licence2 = createLicence(licenceRef2);
     var licenceList = List.of(licence1, licence2);
     when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail)).thenReturn(licenceList);
-    when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.ONSHORE);
     var quadBlockRef1 = "1/2";
     var quadBlockRef2 = "3/4";
     var quadrantBlock1 = createQuadrantAndBlock(quadBlockRef1, "1", 2, OnshoreOffshore.ONSHORE);
@@ -437,8 +450,6 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
-    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_ENGLAND,
-        generalDetail.getProspectDiscoveryLocatedInEngland());
     summaryDataView.addKeyValue(
         GeneralDetailSummaryService.QUADRANT_AND_BLOCKS,
         String.join(", ", List.of(quadBlockRef1, quadBlockRef2))
@@ -461,7 +472,11 @@ class GeneralDetailSummaryServiceTest {
   @Test
   void getGeneralDetailsSummary_generalDetailsSummary_Cop() {
     submissionDetail = SubmissionDetailTestUtils.createNewCopFieldSubmissionDetail();
-    generalDetail.setProspectDiscoveryLocatedInEngland(true);
+    var field = new Field();
+    field.setFieldLocatedInEngland(true);
+    field.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+
+    when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource())).thenReturn(field);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
     var licenceRef1 = "Licence 1";
@@ -470,7 +485,6 @@ class GeneralDetailSummaryServiceTest {
     var licence2 = createLicence(licenceRef2);
     var licenceList = List.of(licence1, licence2);
     when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail)).thenReturn(licenceList);
-    when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.ONSHORE);
     var quadBlockRef1 = "1/2";
     var quadBlockRef2 = "3/4";
     var quadrantBlock1 = createQuadrantAndBlock(quadBlockRef1, "1", 2, OnshoreOffshore.ONSHORE);
@@ -486,8 +500,6 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
-    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_ENGLAND,
-        generalDetail.getProspectDiscoveryLocatedInEngland());
     summaryDataView.addKeyValue(
         GeneralDetailSummaryService.QUADRANT_AND_BLOCKS,
         String.join(", ", List.of(quadBlockRef1, quadBlockRef2))
@@ -515,7 +527,11 @@ class GeneralDetailSummaryServiceTest {
   )
   void getGeneralDetailsSummary_generalDetailsSummary_FdpOrFdpa(SubmissionType submissionType) {
     submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
-    generalDetail.setProspectDiscoveryLocatedInEngland(true);
+    var field = new Field();
+    field.setFieldLocatedInEngland(true);
+    field.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
+
+    when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource())).thenReturn(field);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
     var licenceRef1 = "Licence 1";
@@ -524,7 +540,6 @@ class GeneralDetailSummaryServiceTest {
     var licence2 = createLicence(licenceRef2);
     var licenceList = List.of(licence1, licence2);
     when(licencePersistenceService.getLicencesByGeneralDetail(generalDetail)).thenReturn(licenceList);
-    when(onshoreOffshoreService.getOnshoreOffshore(submissionDetail)).thenReturn(OnshoreOffshore.ONSHORE);
     var quadBlockRef1 = "1/2";
     var quadBlockRef2 = "3/4";
     var quadrantBlock1 = createQuadrantAndBlock(quadBlockRef1, "1", 2, OnshoreOffshore.ONSHORE);
@@ -540,8 +555,6 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.LICENCES,
         String.join(", ", List.of(licenceRef1, licenceRef2))
     );
-    summaryDataView.addKeyValue(GeneralDetailSummaryService.WHOLLY_WITHIN_ENGLAND,
-        generalDetail.getProspectDiscoveryLocatedInEngland());
     summaryDataView.addKeyValue(
         GeneralDetailSummaryService.QUADRANT_AND_BLOCKS,
         String.join(", ", List.of(quadBlockRef1, quadBlockRef2))

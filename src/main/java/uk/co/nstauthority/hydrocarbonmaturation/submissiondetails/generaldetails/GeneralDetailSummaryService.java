@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -41,21 +42,21 @@ public class GeneralDetailSummaryService {
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
   private final LicencePersistenceService licencePersistenceService;
-  private final OnshoreOffshoreService onshoreOffshoreService;
   private final SubmissionSupportingDocumentService supportingDocumentService;
+  private final FieldPersistenceService fieldPersistenceService;
 
 
   @Autowired
   public GeneralDetailSummaryService(GeneralDetailsPersistenceService generalDetailsPersistenceService,
                                      QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService,
                                      LicencePersistenceService licencePersistenceService,
-                                     OnshoreOffshoreService onshoreOffshoreService,
-                                     SubmissionSupportingDocumentService supportingDocumentService) {
+                                     SubmissionSupportingDocumentService supportingDocumentService,
+                                     FieldPersistenceService fieldPersistenceService) {
     this.generalDetailsPersistenceService = generalDetailsPersistenceService;
     this.quadrantAndBlockPersistenceService = quadrantAndBlockPersistenceService;
     this.licencePersistenceService = licencePersistenceService;
-    this.onshoreOffshoreService = onshoreOffshoreService;
     this.supportingDocumentService = supportingDocumentService;
+    this.fieldPersistenceService = fieldPersistenceService;
   }
 
   public GeneralDetailSummaryView getGeneralDetailSummaryFromSubmissionDetail(SubmissionDetail submissionDetail) {
@@ -170,17 +171,12 @@ public class GeneralDetailSummaryService {
         .toList();
     var summaryDataView = SummaryDataView.newWithKeyValue(LICENCES, String.join(", ", licences));
 
-    var isOffshore = onshoreOffshoreService.getOnshoreOffshore(submissionDetail) == OnshoreOffshore.OFFSHORE;
-    if (isOffshore) {
-      summaryDataView.addKeyValue(WHOLLY_WITHIN_UKCS, generalDetail.getProspectDiscoveryLocatedInUkcs());
-      if (BooleanUtils.isFalse(generalDetail.getProspectDiscoveryLocatedInUkcs())) {
-        summaryDataView.addKeyValue(PERCENT_WITHIN_UKCS, generalDetail.getPercentageLocatedInUkcs());
-      }
-    } else {
-      summaryDataView.addKeyValue(WHOLLY_WITHIN_ENGLAND, generalDetail.getProspectDiscoveryLocatedInEngland());
-      if (BooleanUtils.isFalse(generalDetail.getProspectDiscoveryLocatedInEngland())) {
-        summaryDataView.addKeyValue(PERCENT_WITHIN_ENGLAND, generalDetail.getPercentageLocatedInEngland());
-      }
+    var field = fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource());
+    var isOffshore = field.getOnshoreOffshore() == OnshoreOffshore.OFFSHORE;
+    if (isOffshore && BooleanUtils.isFalse(field.getFieldLocatedInUkcs())) {
+      summaryDataView.addKeyValue(PERCENT_WITHIN_UKCS, generalDetail.getPercentageLocatedInUkcs());
+    } else if (BooleanUtils.isFalse(field.getFieldLocatedInEngland())) {
+      summaryDataView.addKeyValue(PERCENT_WITHIN_ENGLAND, generalDetail.getPercentageLocatedInEngland());
     }
 
     var quadrantAndBlocks = quadrantAndBlockPersistenceService.getQuadrantBlocksByGeneralDetail(generalDetail)
