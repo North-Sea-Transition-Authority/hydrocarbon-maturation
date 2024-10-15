@@ -281,7 +281,7 @@ class CorrectionServiceTest {
     form.setSubmissionDetailIdForMissingUpdate(previousSubmissionDetail.getId().toString());
 
     assertThatThrownBy(() -> correctionService.startCorrectionForTypeAndRedirect(form, user))
-        .hasMessage("Corrections can only be done for prospects and discoveries")
+        .hasMessage("Historic updates can only be done for prospects and discoveries")
         .isExactlyInstanceOf(ActionNotAllowedException.class);;
   }
 
@@ -431,6 +431,7 @@ class CorrectionServiceTest {
   @Test
   void getCorrectionType_canRemoveSubmissions() {
     var resource = new Resource();
+    resource.setType(ResourceType.PROSPECT);
     when(resourceGroupService.isPreferredView(resource)).thenReturn(false);
     when(resourceLinkService.prospectIsLinkedToDiscovery(resource)).thenReturn(false);
     var correctionTypes = correctionService.getCorrectionTypes(resource);
@@ -443,8 +444,21 @@ class CorrectionServiceTest {
   }
 
   @Test
+  void getCorrectionType_forField_canRemoveSubmissions() {
+    var resource = new Resource();
+    resource.setType(ResourceType.FIELD);
+    when(resourceGroupService.isPreferredView(resource)).thenReturn(false);
+    var correctionTypes = correctionService.getCorrectionTypes(resource);
+    assertThat(correctionTypes).containsExactly(
+        entry(CorrectionType.SUBMISSION_CORRECTION.name(), CorrectionType.SUBMISSION_CORRECTION.getDisplayName()),
+        entry(CorrectionType.REMOVE_SUBMISSION.name(), CorrectionType.REMOVE_SUBMISSION.getDisplayName())
+    );
+  }
+
+  @Test
   void getCorrectionType_cantRemoveSubmissions_preferredView() {
     var resource = new Resource();
+    resource.setType(ResourceType.PROSPECT);
     when(resourceGroupService.isPreferredView(resource)).thenReturn(true);
     var correctionTypes = correctionService.getCorrectionTypes(resource);
     assertThat(correctionTypes).containsExactly(
@@ -457,6 +471,7 @@ class CorrectionServiceTest {
   @Test
   void getCorrectionType_cantRemoveSubmissions_prospectLinkedToDiscovery() {
     var resource = new Resource();
+    resource.setType(ResourceType.PROSPECT);
     when(resourceLinkService.prospectIsLinkedToDiscovery(resource)).thenReturn(true);
     var correctionTypes = correctionService.getCorrectionTypes(resource);
     assertThat(correctionTypes).containsExactly(

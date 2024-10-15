@@ -47,4 +47,8 @@ public class SubmissionDetailUtil {
           UPDATE_DISCOVERY, RELINQUISHMENT_PROSPECT, RELINQUISHMENT_DISCOVERY, CREATE_FIELD -> false;
     };
   }
+
+  public static boolean isNotFirstSubmissionOrIsFieldSubmission(SubmissionType submissionType) {
+    return !isFirstSubmission(submissionType) || isFieldSubmission(submissionType);
+  }
 }

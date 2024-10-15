@@ -18,6 +18,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -104,6 +105,12 @@ public class CorrectionService {
     if (!canRemoveSubmissions(resource)) {
       correctionTypes.remove(CorrectionType.REMOVE_SUBMISSION.name());
     }
+
+    if (resource.getType().equals(ResourceType.FIELD)) {
+      correctionTypes.remove(CorrectionType.HISTORIC_UPDATE.name());
+      correctionTypes.remove(CorrectionType.ACCEPTED_DATE_CHANGE.name());
+    }
+
     return correctionTypes;
   }
 
@@ -198,7 +205,7 @@ public class CorrectionService {
     } else if (previousSubmissionDetail.isDiscoverySubmission()) {
       submissionType = SubmissionType.UPDATE_DISCOVERY;
     } else {
-      throw new ActionNotAllowedException("Corrections can only be done for prospects and discoveries");
+      throw new ActionNotAllowedException("Historic updates can only be done for prospects and discoveries");
     }
 
     var newSubmissionDetail = submissionCreateService.createCorrectionSubmissionDetail(

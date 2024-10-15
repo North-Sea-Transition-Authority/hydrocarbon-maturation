@@ -288,8 +288,10 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("resourceTypeDisplayName", resourceTypeDisplayName),
             entry("resourceTypeDisplayNameLower", resourceTypeDisplayName.toLowerCase()),
             entry("resourceRecord", resourceRecordSummaryView),
-            entry("submissionType", otherSubmissionOnResource.getSubmissionType())
-        ).doesNotContainKey("correctionUrl");
+            entry("submissionType", otherSubmissionOnResource.getSubmissionType()),
+            entry("correctionUrl",
+                ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resource.getId(), null)))
+        );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 

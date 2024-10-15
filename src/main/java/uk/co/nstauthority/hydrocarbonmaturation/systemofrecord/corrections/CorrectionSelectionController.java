@@ -96,7 +96,7 @@ public class CorrectionSelectionController {
 
     if (approvedSubmissions.size() > 1) {
       var filteredSubmissions = approvedSubmissions.stream()
-              .filter(s -> !SubmissionDetailUtil.isFirstSubmission(s.submissionType()))
+              .filter(s -> SubmissionDetailUtil.isNotFirstSubmissionOrIsFieldSubmission(s.submissionType()))
               .toList();
 
       var filteredSubmissionsOnResource = SubmissionHistorySelectorUtil.getSubmissionSelectorItems(

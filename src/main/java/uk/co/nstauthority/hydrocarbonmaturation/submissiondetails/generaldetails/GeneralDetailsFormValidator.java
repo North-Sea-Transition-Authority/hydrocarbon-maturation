@@ -84,9 +84,8 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
 
     if (!submissionDetail.isFieldSubmission()) {
       validateLicences(errors, submissionDetail, generalDetailsForm);
+      validateResourceLocated(errors);
     }
-
-    validateResourceLocated(errors);
 
     if (submissionType == SubmissionType.CREATE_PROSPECT
         || submissionType == SubmissionType.PROSPECT_UPDATE

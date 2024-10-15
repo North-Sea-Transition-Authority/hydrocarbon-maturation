@@ -174,7 +174,7 @@ public class ViewResourceRecordController {
       modelAndView.addObject("canCreatePostFieldDiscovery", false);
     }
 
-    if (!isFieldResource && correctionService.canStartCorrection(resource, user)) {
+    if (correctionService.canStartCorrection(resource, user)) {
       modelAndView.addObject("correctionUrl",
           ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resource.getId(), null)));
     }
