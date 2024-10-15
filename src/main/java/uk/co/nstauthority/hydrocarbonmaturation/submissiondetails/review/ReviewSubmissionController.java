@@ -228,7 +228,9 @@ public class ReviewSubmissionController {
   private void addFieldSummary(ModelAndView modelAndView, Resource resource) {
     modelAndView
         .addObject("fieldRegulatorManagedInformationSummaryCard",
-            fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource));
+            fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
+        .addObject("associatedDiscoveriesMap",
+            fieldRegulatorManagedInformationSummaryService.getAssociatedDiscoveriesMap(resource));
   }
 
   private void addResponsibleTeamProperties(ModelAndView modelAndView, Resource resource,

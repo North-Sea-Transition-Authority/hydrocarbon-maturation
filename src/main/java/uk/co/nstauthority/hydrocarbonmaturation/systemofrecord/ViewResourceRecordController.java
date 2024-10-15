@@ -278,8 +278,11 @@ public class ViewResourceRecordController {
   }
 
   private void addFieldSummary(ModelAndView modelAndView, Resource resource) {
-    modelAndView.addObject("fieldRegulatorManagedInformationSummaryCard",
-        fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource));
+    modelAndView
+        .addObject("fieldRegulatorManagedInformationSummaryCard",
+            fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
+        .addObject("associatedDiscoveriesMap",
+            fieldRegulatorManagedInformationSummaryService.getAssociatedDiscoveriesMap(resource));
   }
 
   private void addBreadCrumbsForResourceType(ResourceRecordSummaryView resourceRecord,

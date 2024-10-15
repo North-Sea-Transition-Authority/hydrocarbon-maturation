@@ -17,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
@@ -25,12 +24,12 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.DeterminationStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
-import uk.co.nstauthority.hydrocarbonmaturation.field.FieldForm;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.field.FieldTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
@@ -62,11 +61,12 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
   private PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
   @Mock
   private SubmissionDetailService submissionDetailService;
+  @Mock
+  private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   @InjectMocks
   private FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
 
   private Resource resource;
-  private final String ASSOCIATED_DISCOVERIES = "Discovery 1, Discovery 2";
   private final String RESPONSIBLE_ORGANISATION = "Responsible org";
 
   @BeforeEach
@@ -76,9 +76,9 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
 
   @Test
   void getFieldRegulatorManagedInformationSummaryCard_emptyForm_thenEmptySummary() {
+    var field = new Field();
 
-    when(fieldRegulatorManagedInformationService.resourceToFieldForm(resource))
-        .thenReturn(new FieldForm());
+    when(fieldPersistenceService.getFieldOrThrow(resource)).thenReturn(field);
 
     var card = fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource);
 
@@ -99,7 +99,6 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
             FieldRegulatorManagedInformationSummaryService.LEGAL_FIELD_NAME,
             FieldRegulatorManagedInformationSummaryService.CORRECTED_LEGAL_FIELD_NAME,
             FieldRegulatorManagedInformationSummaryService.COMMON_NAME_FOR_FIELD,
-            FieldRegulatorManagedInformationSummaryService.ASSOCIATED_DISCOVERIES,
             FieldRegulatorManagedInformationSummaryService.RESPONSIBLE_ORGANISATION,
             FieldRegulatorManagedInformationSummaryService.IS_ON_LICENCE,
             FieldRegulatorManagedInformationSummaryService.ONSHORE_OFFSHORE,
@@ -116,10 +115,11 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
 
   @Test
   void getFieldRegulatorManagedInformationSummaryCard_populatedForm_thenAssertSummaryData() {
-    var form = getFieldFormWithMockedAssociatedDiscoveries();
+    var field = getCompleteField();
 
-    when(fieldRegulatorManagedInformationService.resourceToFieldForm(resource))
-        .thenReturn(form);
+    when(fieldPersistenceService.getFieldOrThrow(resource)).thenReturn(field);
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplayById(24))
+        .thenReturn(RESPONSIBLE_ORGANISATION);
 
     var card = fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource);
 
@@ -140,40 +140,42 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
             SummaryKeyValue::value)
         .containsExactly(
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.LEGAL_FIELD_NAME,
-              form.getLegalFieldName()),
+              field.getLegalFieldName()),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.CORRECTED_LEGAL_FIELD_NAME,
-              form.getCorrectedLegalFieldName()),
+              field.getCorrectedLegalFieldName()),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.COMMON_NAME_FOR_FIELD,
-              form.getCommonNameForField()),
-            Tuple.tuple(FieldRegulatorManagedInformationSummaryService.ASSOCIATED_DISCOVERIES,
-                ASSOCIATED_DISCOVERIES),
+              field.getCommonNameForField()),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.RESPONSIBLE_ORGANISATION,
                 RESPONSIBLE_ORGANISATION),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.IS_ON_LICENCE,
-                BooleanUtil.yesNoFromBoolean(form.getIsOnLicence())),
+                BooleanUtil.yesNoFromBoolean(field.getIsOnLicence())),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.ONSHORE_OFFSHORE,
-              form.getOnshoreOffshore().getDisplayName()),
+              field.getOnshoreOffshore().getDisplayName()),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.LOCATED_IN_ENGLAND,
-                BooleanUtil.yesNoFromBoolean(form.getFieldLocatedInEngland())),
+                BooleanUtil.yesNoFromBoolean(field.getFieldLocatedInEngland())),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.DETERMINATION_STATUS,
-                form.getDeterminationStatus().getDisplayName()),
+                field.getDeterminationStatus().getDisplayName()),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.FIELD_NUMBER,
-                form.getFieldNumber().getDecimalInputValue()),
+                String.valueOf(field.getFieldNumber())),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.INFRASTRUCTURE_HOST,
-              BooleanUtil.yesNoFromBoolean(form.getInfrastructureHost()))
+              BooleanUtil.yesNoFromBoolean(field.getInfrastructureHost()))
         );
   }
 
   @Test
   void getFieldRegulatorManagedInformationSummaryCard_offshore_assertAreaAndTeam() {
-    var form = getFieldFormWithMockedAssociatedDiscoveries();
-    form.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    form.setFieldLocatedInUkcs(false);
-    form.setGeographicalArea(GeographicalArea.NORTHERN_NORTH_SEA);
-    form.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
+    var field = getCompleteField();
+    field.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    field.setFieldLocatedInUkcs(false);
 
-    when(fieldRegulatorManagedInformationService.resourceToFieldForm(resource))
-        .thenReturn(form);
+    when(fieldPersistenceService.getFieldOrThrow(resource)).thenReturn(field);
+
+    var managedInfo = new RegulatorManagedInformation();
+    managedInfo.setGeographicalArea(GeographicalArea.NORTHERN_NORTH_SEA);
+    managedInfo.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
+
+    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(resource))
+        .thenReturn(managedInfo);
 
     var card = fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource);
 
@@ -187,29 +189,25 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.ONSHORE_OFFSHORE,
                 OnshoreOffshore.OFFSHORE.getDisplayName()),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.LOCATED_IN_UKCS,
-                BooleanUtil.yesNoFromBoolean(form.getFieldLocatedInUkcs())),
+                BooleanUtil.yesNoFromBoolean(field.getFieldLocatedInUkcs())),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.GEOGRAPHICAL_AREA,
-                form.getGeographicalArea().getDisplayName()),
+                managedInfo.getGeographicalArea().getDisplayName()),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.RESPONSIBLE_TEAM_TYPE,
-                form.getResponsibleTeamType().getDisplayName())
+                managedInfo.getResponsibleTeamType().getDisplayName())
         );
   }
 
   @Test
   void getFieldRegulatorManagedInformationSummaryCard_subAreaOfDeterminedField_thenShowParentField() {
-    var form = getFieldFormWithMockedAssociatedDiscoveries();
-    form.setDeterminationStatus(DeterminationStatus.SUB_AREA_OF_DETERMINED_FIELD);
-    var parentFieldId = 8000;
-    form.setParentDeterminedField(String.valueOf(parentFieldId));
-
     var parentFieldName = "Parent field name";
     var parentField = new Field();
     parentField.setCorrectedLegalFieldName(parentFieldName);
-    when(fieldPersistenceService.getFieldOrThrow(parentFieldId))
-        .thenReturn(parentField);
 
-    when(fieldRegulatorManagedInformationService.resourceToFieldForm(resource))
-        .thenReturn(form);
+    var field = getCompleteField();
+    field.setDeterminationStatus(DeterminationStatus.SUB_AREA_OF_DETERMINED_FIELD);
+    field.setParentDeterminedField(parentField);
+
+    when(fieldPersistenceService.getFieldOrThrow(resource)).thenReturn(field);
 
     var card = fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource);
 
@@ -242,16 +240,10 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
 
   @Test
   void getFieldRegulatorManagedInformationSummaryCard_fieldOnLicence_thenShowLicences() {
-    var form = getFieldFormWithMockedAssociatedDiscoveries();
-    form.setIsOnLicence(true);
+    var field = getCompleteField();
+    field.setIsOnLicence(true);
 
-    var field = FieldTestUtils.createField(8000);
-
-    when(fieldPersistenceService.getFieldOrThrow(resource))
-        .thenReturn(field);
-
-    when(fieldRegulatorManagedInformationService.resourceToFieldForm(resource))
-        .thenReturn(form);
+    when(fieldPersistenceService.getFieldOrThrow(resource)).thenReturn(field);
 
     List<LicenceView> pearsLicenceList = List.of();
     var licenceView1 = new LicenceView("ref1", 1, LicenceStatus.EXTANT);
@@ -288,16 +280,10 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
 
   @Test
   void getFieldRegulatorManagedInformationSummaryCard_fieldHasPearLicences_thenShowPearsLicences() {
-    var form = getFieldFormWithMockedAssociatedDiscoveries();
-    form.setIsOnLicence(true);
+    var field = getCompleteField();
+    field.setIsOnLicence(true);
 
-    var field = FieldTestUtils.createField(8000);
-
-    when(fieldPersistenceService.getFieldOrThrow(resource))
-        .thenReturn(field);
-
-    when(fieldRegulatorManagedInformationService.resourceToFieldForm(resource))
-        .thenReturn(form);
+    when(fieldPersistenceService.getFieldOrThrow(resource)).thenReturn(field);
 
     var pearsLicenceList = List.of(
         new LicenceView("ref1", 1, LicenceStatus.EXTANT),
@@ -407,37 +393,56 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
     );
   }
 
-  @NotNull
-  private FieldForm getFieldFormWithMockedAssociatedDiscoveries() {
-    var discovery1 = UUID.randomUUID();
+  @Test
+  void getAssociatedDiscoveriesMap() {
+    var discovery1 = new Resource();
+    discovery1.setId(UUID.randomUUID());
+    var discovery2 = new Resource();
+    discovery2.setId(UUID.randomUUID());
+
+    var submission1 = new Submission();
+    submission1.setResource(discovery1);
+    var submission2 = new Submission();
+    submission2.setResource(discovery2);
+
+    var submissionDetail1 = new SubmissionDetail();
+    submissionDetail1.setSubmission(submission1);
+    var submissionDetail2 = new SubmissionDetail();
+    submissionDetail2.setSubmission(submission2);
+
     var resourceDetail1 = new ResourceDetail();
-    resourceDetail1.setResourceName("Discovery 1");
-
-    var discovery2 = UUID.randomUUID();
+    resourceDetail1.setSubmissionDetail(submissionDetail1);
+    resourceDetail1.setResourceName("Name1");
     var resourceDetail2 = new ResourceDetail();
-    resourceDetail2.setResourceName("Discovery 2");
+    resourceDetail2.setSubmissionDetail(submissionDetail2);
+    resourceDetail2.setResourceName("Name2");
 
-    var associatedDiscoveriesIds = List.of(discovery1.toString(), discovery2.toString());
-    when(resourceDetailsPersistenceService.getResourceDetailByIdOrThrow(discovery1))
-        .thenReturn(resourceDetail1);
-    when(resourceDetailsPersistenceService.getResourceDetailByIdOrThrow(discovery2))
-        .thenReturn(resourceDetail2);
+    var associatedDiscoveryDetails = List.of(resourceDetail1, resourceDetail2);
 
-    when(submissionDetailDisplayService.getOrganisationResponsibleDisplayById(24))
-        .thenReturn(RESPONSIBLE_ORGANISATION);
+    when(fieldRegulatorManagedInformationService.getAssociatedDiscoveryResourceDetails(resource))
+        .thenReturn(associatedDiscoveryDetails);
 
-    var form = new FieldForm();
-    form.setLegalFieldName("legal name");
-    form.setCorrectedLegalFieldName("corrected name");
-    form.setCommonNameForField("common name");
-    form.setAssociatedDiscoveries(associatedDiscoveriesIds);
-    form.setResponsibleOrganisationId("24");
-    form.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
-    form.setFieldLocatedInEngland(true);
-    form.setDeterminationStatus(DeterminationStatus.DETERMINED);
-    form.setFieldNumber(DecimalInput.createDecimalInput(1));
-    form.setInfrastructureHost(true);
-    form.getIsOnLicence();
-    return form;
+    assertThat(fieldRegulatorManagedInformationSummaryService.getAssociatedDiscoveriesMap(resource)).containsExactly(
+        entry(resourceDetail1.getResourceName(), ReverseRouter.route(on(ViewResourceRecordController.class)
+            .showResourceRecord(discovery1.getId(),null))),
+        entry(resourceDetail2.getResourceName(), ReverseRouter.route(on(ViewResourceRecordController.class)
+            .showResourceRecord(discovery2.getId(), null)))
+    );
+  }
+
+  @NotNull
+  private Field getCompleteField() {
+    var field = new Field();
+    field.setLegalFieldName("legal name");
+    field.setCorrectedLegalFieldName("corrected name");
+    field.setCommonNameForField("common name");
+    field.setResponsibleOrganisationId(24);
+    field.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
+    field.setFieldLocatedInEngland(true);
+    field.setDeterminationStatus(DeterminationStatus.DETERMINED);
+    field.setFieldNumber(1);
+    field.setInfrastructureHost(true);
+    field.setIsOnLicence(false);
+    return field;
   }
 }

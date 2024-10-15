@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.fieldregulatormanagedinformation;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 
 @Service
@@ -81,29 +83,28 @@ public class FieldRegulatorManagedInformationService {
                       : ""
               );
 
-              // create list of associated discovery resourceDetail ids
-              var associatedDiscoveries = new ArrayList<String>();
-              resourceLinkService.getResourceLinksByField(resource)
-                  .forEach(
-                      resourceLink -> submissionDetailService
-                          .getMostRecentlySubmittedSubmissionDetailForResource(
-                              resourceLink.getDiscoveryResource())
-                          .ifPresent(
-                              discoverySubmissionDetail -> resourceDetailsPersistenceService
-                                  .getResourceDetailBySubmissionDetail(discoverySubmissionDetail)
-                                  .ifPresent(
-                                      discoveryResourceDetail ->
-                                          associatedDiscoveries.add(discoveryResourceDetail.getId().toString())
-                                  )
-                          )
-                  );
-              form.setAssociatedDiscoveries(associatedDiscoveries);
+              form.setAssociatedDiscoveries(getAssociatedDiscoveryIdStrings(resource));
 
               addLicences(field, form);
 
               return form;
             }
         ).orElse(new FieldForm());
+  }
+
+  public List<ResourceDetail> getAssociatedDiscoveryResourceDetails(Resource resource) {
+    return resourceLinkService.getResourceLinksByField(resource).stream()
+        .map(resourceLink -> submissionDetailService
+            .getMostRecentlySubmittedSubmissionDetailForResource(resourceLink.getDiscoveryResource()))
+        .flatMap(Optional::stream)
+        .map(resourceDetailsPersistenceService::getResourceDetailOrThrow)
+        .toList();
+  }
+
+  private List<String> getAssociatedDiscoveryIdStrings(Resource resource) {
+    return getAssociatedDiscoveryResourceDetails(resource).stream()
+        .map(discoveryResourceDetail -> discoveryResourceDetail.getId().toString())
+        .toList();
   }
 
   private void addLicences(Field field, FieldForm form) {

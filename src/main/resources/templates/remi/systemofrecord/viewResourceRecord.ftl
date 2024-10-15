@@ -125,6 +125,7 @@ wrapperWidth=true>
     <@regulatorSummary.regulatorInformationSummary
       fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
       fieldMapView=fieldMapView!""
+      associatedDiscoveriesMap=associatedDiscoveriesMap!""
       linkedPostFieldDiscoveriesMap=linkedPostFieldDiscoveriesMap
       canSeePostFieldLink=canSeePostFieldLink!false/>
   <#else>

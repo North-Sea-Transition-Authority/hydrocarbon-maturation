@@ -229,6 +229,8 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
     when(fieldRegulatorManagedInformationSummaryService
         .getFieldRegulatorManagedInformationSummaryCard(submissionDetail.getSubmission().getResource()))
         .thenReturn(managedInformationCard);
+    when(fieldRegulatorManagedInformationSummaryService.getAssociatedDiscoveriesMap(submissionDetail.getSubmission().getResource()))
+        .thenReturn(Map.of("Name", "url"));
 
     var field = FieldTestUtils.createField("Alex", OnshoreOffshore.ONSHORE);
     when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
@@ -256,7 +258,8 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
             entry("accordionId", submissionDetailId),
             entry("isOffshore", true),
             entry("fieldRegulatorManagedInformationSummaryCard", managedInformationCard),
-            entry("fieldMapView", fieldMapView)
+            entry("fieldMapView", fieldMapView),
+            entry("associatedDiscoveriesMap", Map.of("Name", "url"))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

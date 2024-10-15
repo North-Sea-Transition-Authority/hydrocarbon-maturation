@@ -409,6 +409,8 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     when(fieldMapViewService.getFieldGeoJsonUrl(field))
         .thenReturn(Optional.of(fieldMapView));
 
+    when(fieldRegulatorManagedInformationSummaryService.getAssociatedDiscoveriesMap(resource)).thenReturn(Map.of("Name", "url"));
+
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resourceId, null)))
                 .with(user(USER)))
@@ -424,7 +426,8 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
             entry("manageResourceInformationText", "Manage field information"),
             entry("fieldStatusUrl", ReverseRouter.route(on(ViewFieldStatusHistoryController.class)
                 .getViewFieldStatusHistoryWithSubmissionDetail(field.getFieldIdentifier(), submissionDetail.getId(), null))),
-            entry("fieldMapView", fieldMapView)
+            entry("fieldMapView", fieldMapView),
+            entry("associatedDiscoveriesMap", Map.of("Name", "url"))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

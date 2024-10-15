@@ -653,6 +653,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     var regulatorSummary = new SummaryCard("", SummaryCardType.EMPTY_SUMMARY, SummaryDataView.newWithKeyValue("", ""));
     when(fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
         .thenReturn(regulatorSummary);
+    when(fieldRegulatorManagedInformationSummaryService.getAssociatedDiscoveriesMap(resource)).thenReturn(Map.of("Name", "url"));
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
@@ -672,7 +673,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
             entry("canViewRegulatorManagementInfo", true),
             entry("manageResourceInformationText", "Manage field information"),
             entry("fieldMapView", fieldMapView),
-            entry("canCreatePostFieldDiscovery", false)
+            entry("canCreatePostFieldDiscovery", false),
+            entry("associatedDiscoveriesMap", Map.of("Name","url"))
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

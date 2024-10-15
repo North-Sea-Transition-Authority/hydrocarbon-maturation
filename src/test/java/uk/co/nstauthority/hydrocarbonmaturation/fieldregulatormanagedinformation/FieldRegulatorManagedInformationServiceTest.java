@@ -39,12 +39,14 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Geog
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissions.Submission;
 
 @ExtendWith(MockitoExtension.class)
 class FieldRegulatorManagedInformationServiceTest {
@@ -335,6 +337,36 @@ class FieldRegulatorManagedInformationServiceTest {
     assertTrue(fieldRegulatorManagedInformationService.isValidNewFieldForm(form, bindingResult));
   }
 
+  @Test
+  void getAssociatedDiscoveryResourceDetails() {
+    var fieldResource = new Resource();
+
+    var discoveryResource = new Resource();
+
+    var discoverySubmission = new Submission();
+    discoverySubmission.setResource(discoveryResource);
+
+    var discoverySubmissionDetail = new SubmissionDetail();
+    discoverySubmissionDetail.setSubmission(discoverySubmission);
+
+    var discoveryResourceDetail = new ResourceDetail();
+    discoveryResourceDetail.setSubmissionDetail(discoverySubmissionDetail);
+    discoveryResourceDetail.setResourceName("Name1");
+
+    var link = new ResourceLink();
+    link.setFieldResource(fieldResource);
+    link.setDiscoveryResource(discoveryResource);
+
+    when(resourceLinkService.getResourceLinksByField(fieldResource)).thenReturn(List.of(link));
+    when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(discoveryResource))
+        .thenReturn(Optional.of(discoverySubmissionDetail));
+    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(discoverySubmissionDetail))
+        .thenReturn(discoveryResourceDetail);
+
+    assertThat(fieldRegulatorManagedInformationService.getAssociatedDiscoveryResourceDetails(fieldResource))
+        .isEqualTo(List.of(discoveryResourceDetail));
+  }
+
   private ResourceLink createAndMockNewResourceLink(ArrayList<UUID> resourceDetailIds) {
     var link = new ResourceLink();
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_DISCOVERY);
@@ -343,9 +375,8 @@ class FieldRegulatorManagedInformationServiceTest {
     link.setDiscoveryResource(discoverySubmissionDetail.getSubmission().getResource());
     when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(link.getDiscoveryResource()))
         .thenReturn(Optional.of(discoverySubmissionDetail));
-    when(resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(discoverySubmissionDetail))
-        .thenReturn(Optional.of(resourceDetail));
-
+    when(resourceDetailsPersistenceService.getResourceDetailOrThrow(discoverySubmissionDetail))
+        .thenReturn(resourceDetail);
     resourceDetailIds.add(resourceDetail.getId());
 
     return link;

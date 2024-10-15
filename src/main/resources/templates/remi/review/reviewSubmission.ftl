@@ -108,6 +108,7 @@
     <@regulatorSummary.regulatorInformationSummary
       fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
       fieldMapView=fieldMapView!""
+      associatedDiscoveriesMap=associatedDiscoveriesMap!""
       linkedPostFieldDiscoveriesMap=""
       canSeePostFieldLink=false/>
   <#else>

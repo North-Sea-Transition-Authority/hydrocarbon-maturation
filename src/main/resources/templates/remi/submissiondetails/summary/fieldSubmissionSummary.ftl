@@ -46,6 +46,7 @@ caption=resourceName>
         <@regulatorSummary.regulatorInformationSummary
         fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
         fieldMapView=fieldMapView!""
+        associatedDiscoveriesMap=associatedDiscoveriesMap!""
         linkedPostFieldDiscoveriesMap=""
         canSeePostFieldLink=false/>
         <@submissionSummary.submissionSummary accordionId>

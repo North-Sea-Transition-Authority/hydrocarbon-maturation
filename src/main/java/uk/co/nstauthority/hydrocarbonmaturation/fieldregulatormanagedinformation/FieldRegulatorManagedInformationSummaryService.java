@@ -8,10 +8,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
@@ -22,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.DeterminationStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
@@ -50,7 +49,6 @@ public class FieldRegulatorManagedInformationSummaryService {
   public static final String INFRASTRUCTURE_HOST = "Infrastructure host";
   public static final String DETERMINATION_STATUS = "Determination status";
   public static final String PARENT_DETERMINED_FIELD = "Parent determined field";
-  public static final String ASSOCIATED_DISCOVERIES = "Associated discoveries";
   public static final String IS_ON_LICENCE = "Field is on licence";
   public static final String LICENCES = "Licences";
   public static final String LICENCES_TENTATIVE = "Licences (tentative)";
@@ -62,6 +60,7 @@ public class FieldRegulatorManagedInformationSummaryService {
   private final FieldLicenceService fieldLicenceService;
   private final PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
   private final SubmissionDetailService submissionDetailService;
+  private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @Autowired
   public FieldRegulatorManagedInformationSummaryService(
@@ -71,7 +70,8 @@ public class FieldRegulatorManagedInformationSummaryService {
       FieldPersistenceService fieldPersistenceService,
       FieldLicenceService fieldLicenceService,
       PostFieldDiscoveryLinkService postFieldDiscoveryLinkService,
-      SubmissionDetailService submissionDetailService) {
+      SubmissionDetailService submissionDetailService,
+      RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService) {
     this.fieldRegulatorManagedInformationService = fieldRegulatorManagedInformationService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
@@ -79,46 +79,36 @@ public class FieldRegulatorManagedInformationSummaryService {
     this.fieldLicenceService = fieldLicenceService;
     this.postFieldDiscoveryLinkService = postFieldDiscoveryLinkService;
     this.submissionDetailService = submissionDetailService;
+    this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
   }
 
   public SummaryCard getFieldRegulatorManagedInformationSummaryCard(Resource resource) {
     var summaryDataView = new SummaryDataView(new ArrayList<>());
-    var form = fieldRegulatorManagedInformationService.resourceToFieldForm(resource);
+    var field = fieldPersistenceService.getFieldOrThrow(resource);
 
     summaryDataView.addKeyValue(
         LEGAL_FIELD_NAME,
-        form.getLegalFieldName()
+        field.getLegalFieldName()
     );
     summaryDataView.addKeyValue(
         CORRECTED_LEGAL_FIELD_NAME,
-        form.getCorrectedLegalFieldName()
+        field.getCorrectedLegalFieldName()
     );
     summaryDataView.addKeyValue(
         COMMON_NAME_FOR_FIELD,
-        form.getCommonNameForField()
-    );
-
-    summaryDataView.addKeyValue(
-        ASSOCIATED_DISCOVERIES,
-        form.getAssociatedDiscoveries() != null
-            ? resourceDetailIdListToResourceNamesString(form.getAssociatedDiscoveries())
-            : null
+        field.getCommonNameForField()
     );
     summaryDataView.addKeyValue(
         RESPONSIBLE_ORGANISATION,
-        submissionDetailDisplayService.getOrganisationResponsibleDisplayById(
-            StringUtils.isBlank(form.getResponsibleOrganisationId())
-                ? null
-                : Integer.valueOf(form.getResponsibleOrganisationId()))
+        submissionDetailDisplayService.getOrganisationResponsibleDisplayById(field.getResponsibleOrganisationId())
     );
     summaryDataView.addKeyValue(
         IS_ON_LICENCE,
-        BooleanUtil.yesNoFromBoolean(form.getIsOnLicence())
+        BooleanUtil.yesNoFromBoolean(field.getIsOnLicence())
     );
 
-    if (BooleanUtils.isTrue(form.getIsOnLicence())) {
+    if (BooleanUtils.isTrue(field.getIsOnLicence())) {
       // TODO HM-932: remove/refactor this method once we know how to deal with pre-pears licences
-      var field = fieldPersistenceService.getFieldOrThrow(resource);
       var pearsLicenceList = fieldLicenceService.getPearsLicenceList(field);
       var licenceList = fieldLicenceService.getMostCurrentLicencesForField(pearsLicenceList, field);
       var licenceDisplayNames = getLicenceDisplayNames(licenceList);
@@ -131,36 +121,35 @@ public class FieldRegulatorManagedInformationSummaryService {
 
     summaryDataView.addKeyValue(
         ONSHORE_OFFSHORE,
-        form.getOnshoreOffshore()
+        field.getOnshoreOffshore()
     );
-    if (OnshoreOffshore.OFFSHORE.equals(form.getOnshoreOffshore())) {
+    if (OnshoreOffshore.OFFSHORE.equals(field.getOnshoreOffshore())) {
+      var managedInfo = regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(resource);
+
       summaryDataView.addKeyValue(
           GEOGRAPHICAL_AREA,
-          form.getGeographicalArea()
+          managedInfo.getGeographicalArea()
       );
       summaryDataView.addKeyValue(
           RESPONSIBLE_TEAM_TYPE,
-          form.getResponsibleTeamType()
+          managedInfo.getResponsibleTeamType()
       );
       summaryDataView.addKeyValue(
           LOCATED_IN_UKCS,
-          form.getFieldLocatedInUkcs()
+          field.getFieldLocatedInUkcs()
       );
     } else {
       summaryDataView.addKeyValue(
           LOCATED_IN_ENGLAND,
-          form.getFieldLocatedInEngland()
+          field.getFieldLocatedInEngland()
       );
     }
     summaryDataView.addKeyValue(
         DETERMINATION_STATUS,
-        form.getDeterminationStatus()
+        field.getDeterminationStatus()
     );
-    if (DeterminationStatus.SUB_AREA_OF_DETERMINED_FIELD.equals(form.getDeterminationStatus())) {
-      var parentField = form.getParentDeterminedField() != null
-          ? fieldPersistenceService.getFieldOrThrow(Integer.valueOf(form.getParentDeterminedField()))
-              .getCorrectedLegalFieldName()
-          : "";
+    if (DeterminationStatus.SUB_AREA_OF_DETERMINED_FIELD.equals(field.getDeterminationStatus())) {
+      var parentField = field.getParentDeterminedField().getCorrectedLegalFieldName();
       summaryDataView.addKeyValue(
           PARENT_DETERMINED_FIELD,
           parentField
@@ -168,22 +157,31 @@ public class FieldRegulatorManagedInformationSummaryService {
     }
     summaryDataView.addKeyValue(
         FIELD_NUMBER,
-        form.getFieldNumber()
+        field.getFieldNumber()
     );
     summaryDataView.addKeyValue(
         INFRASTRUCTURE_HOST,
-        form.getInfrastructureHost()
+        field.getInfrastructureHost()
     );
 
     return SummaryCard.simpleSummaryCardWithHeading(REGULATOR_MANAGED_INFORMATION, summaryDataView);
   }
 
   public Map<String, String> getLinkedPostFieldDiscoveriesMap(Resource resource) {
-    return postFieldDiscoveryLinkService.getAllDiscoveriesLinkedToField(resource).stream()
+    return sortAndCollect(
+        postFieldDiscoveryLinkService.getAllDiscoveriesLinkedToField(resource).stream()
         .map(submissionDetailService::getLatestApprovedDiscoverySubmissionDetailForResource)
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .map(resourceDetailsPersistenceService::getResourceDetailOrThrow)
+        .flatMap(Optional::stream)
+        .map(resourceDetailsPersistenceService::getResourceDetailOrThrow).toList()
+    );
+  }
+
+  public Map<String, String> getAssociatedDiscoveriesMap(Resource resource) {
+    return sortAndCollect(fieldRegulatorManagedInformationService.getAssociatedDiscoveryResourceDetails(resource));
+  }
+
+  private Map<String, String> sortAndCollect(List<ResourceDetail> resourceDetails) {
+    return resourceDetails.stream()
         .sorted(Comparator.comparing(ResourceDetail::getResourceName))
         .collect(StreamUtil.toLinkedHashMap(
             ResourceDetail::getResourceName,
@@ -199,15 +197,5 @@ public class FieldRegulatorManagedInformationSummaryService {
         .sorted(new LicenceViewByReferenceComparator())
         .map(LicenceView::licenceRef)
         .toList();
-  }
-
-  private String resourceDetailIdListToResourceNamesString(@NotNull List<String> resourceDetailIds) {
-    var associatedDiscoveries = resourceDetailIds
-        .stream()
-        .map(UUID::fromString)
-        .map(resourceDetailsPersistenceService::getResourceDetailByIdOrThrow)
-        .map(ResourceDetail::getResourceName)
-        .toList();
-    return StringUtils.join(associatedDiscoveries, ", ");
   }
 }

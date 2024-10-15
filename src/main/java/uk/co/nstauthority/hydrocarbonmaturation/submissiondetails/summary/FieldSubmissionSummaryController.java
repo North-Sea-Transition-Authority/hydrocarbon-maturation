@@ -108,6 +108,8 @@ public class FieldSubmissionSummaryController {
     fieldMapViewService.getFieldGeoJsonUrl(field)
         .ifPresent(fieldMapView -> modelAndView.addObject("fieldMapView", fieldMapView));
 
+    var resource = submissionDetail.getSubmission().getResource();
+
     modelAndView
         .addObject("form", form)
         .addObject("pageName", PAGE_NAME)
@@ -116,8 +118,9 @@ public class FieldSubmissionSummaryController {
         .addObject("isRegulatorOrAreaTeamUser", internalTeamService.isRegulatorOrAreaTeamUser(user))
         .addObject("isOffshore", onshoreOffshoreService.getOnshoreOffshore(submissionDetail) == OnshoreOffshore.OFFSHORE)
         .addObject("fieldRegulatorManagedInformationSummaryCard",
-            fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(
-                submissionDetail.getSubmission().getResource()));
+            fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource))
+        .addObject("associatedDiscoveriesMap",
+            fieldRegulatorManagedInformationSummaryService.getAssociatedDiscoveriesMap(resource));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(
         modelAndView,
