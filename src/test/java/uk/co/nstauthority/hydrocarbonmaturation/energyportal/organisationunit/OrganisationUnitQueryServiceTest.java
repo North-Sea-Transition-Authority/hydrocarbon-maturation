@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -15,6 +16,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -34,8 +36,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApi
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @ExtendWith(MockitoExtension.class)
 class OrganisationUnitQueryServiceTest {
@@ -187,6 +192,61 @@ class OrganisationUnitQueryServiceTest {
                 List.of(orgNameHistoryDto),
                 "%s (%s)".formatted(organisationUnit.getName(), organisationUnit.getRegisteredNumber()),
                 organisationUnit.getOrganisationUnitId().toString()
+            )
+        );
+  }
+
+  @Test
+  void getOrganisationUnitsWithDate_whenRegulator_assertOrganisationFound() {
+    var submissionDetail = new SubmissionDetail();
+    var acceptedTimestamp = Instant.now();
+    var acceptedLocalDate = DateUtil.createLocalDate(acceptedTimestamp);
+    submissionDetail.setAcceptedTimestamp(acceptedTimestamp);
+    var organisationName = "name";
+    List<OrganisationNameHistory> organisationNameHistoryList = new ArrayList<>();
+    var organisationNameHistory = new OrganisationNameHistory();
+    organisationNameHistory.setName(organisationName);
+    organisationNameHistory.setStartDate(LocalDate.of(2001, 1, 1));
+    organisationNameHistory.setEndDate(null);
+    organisationNameHistoryList.add(organisationNameHistory);
+    var organisationUnit = OrganisationUnitTestUtil.Builder()
+        .withOrganisationName(organisationName)
+        .withOrganisationNameHistory(organisationNameHistoryList)
+        .build();
+    var filter = OrganisationUnitQueryService.ORGANISATION_UNITS_PROJECTION_ROOT;
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER))
+        .thenReturn(true);
+    when(organisationApi.searchOrganisationUnits(
+        eq(organisationName),
+        eq(filter),
+        any(),
+        any()
+    )).thenReturn(List.of(organisationUnit));
+
+    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName, USER, submissionDetail))
+        .extracting(
+            OrganisationUnitWithDateDto::organisationUnitId,
+            OrganisationUnitWithDateDto::organisationUnitName,
+            OrganisationUnitWithDateDto::companyHouseNumber,
+            OrganisationUnitWithDateDto::organisationNameHistoryDtoList,
+            OrganisationUnitWithDateDto::getSelectionText,
+            OrganisationUnitWithDateDto::getSelectionId,
+            OrganisationUnitWithDateDto::organisationNameDate
+        ).containsExactly(
+            tuple(
+                organisationUnit.getOrganisationUnitId(),
+                organisationUnit.getName(),
+                organisationUnit.getRegisteredNumber(),
+                organisationUnit.getOrganisationNameHistory()
+                    .stream()
+                    .map(OrganisationNameHistoryDto::fromOrganisationNameHistory)
+                    .toList(),
+                "%s (%s)".formatted(
+                    organisationUnit.getOrganisationNameHistory().get(0).getName(),
+                    organisationUnit.getRegisteredNumber()
+                ),
+                organisationUnit.getOrganisationUnitId().toString(),
+                acceptedLocalDate
             )
         );
   }
@@ -363,6 +423,61 @@ class OrganisationUnitQueryServiceTest {
   }
 
   @Test
+  void getOrganisationSearchableResultsWithSubmissionDetail_whenIndustryOrganisationMember_andOrganisationNameHistoryExists_assertOrganisationFound() {
+    var organisationName = "name";
+    var organisationGroup = new OrganisationGroup();
+    organisationGroup.setOrganisationGroupId(1);
+    var orgNameHistory = new OrganisationNameHistory();
+    orgNameHistory.setName("old name");
+    var startDate = LocalDate.ofInstant(clock.instant(), clock.getZone());
+    var endDate = LocalDate.ofInstant(clock.instant().plus(30, ChronoUnit.DAYS), clock.getZone());
+    orgNameHistory.setStartDate(startDate);
+    orgNameHistory.setEndDate(endDate);
+    var orgNameHistoryList = List.of(orgNameHistory);
+    var orgNameHistoryDto = new OrganisationNameHistoryDto(
+        orgNameHistory.getName(),
+        orgNameHistory.getStartDate(),
+        orgNameHistory.getEndDate()
+    );
+    var organisationUnit = OrganisationUnitTestUtil.Builder()
+        .withOrganisationName("name")
+        .withOrganisationNameHistory(orgNameHistoryList)
+        .build();
+    organisationGroup.setOrganisationUnits(List.of(organisationUnit));
+    when(industryTeamService.getOrganisationGroupIdsForUser(USER))
+        .thenReturn(List.of(1));
+    when(internalTeamService.isRegulatorOrAreaTeamUser(USER))
+        .thenReturn(false);
+    when(organisationGroupQueryService.getOrganisationGroupsByIds(List.of(1)))
+        .thenReturn(List.of(organisationGroup));
+    var submissionDetail = new SubmissionDetail();
+    var acceptedTimestamp = Instant.now();
+    var acceptedLocalDate = DateUtil.createLocalDate(acceptedTimestamp);
+    submissionDetail.setAcceptedTimestamp(acceptedTimestamp);
+
+    assertThat(organisationUnitQueryService.getOrganisationSearchableResults(organisationName, USER, submissionDetail))
+        .extracting(
+            OrganisationUnitWithDateDto::organisationUnitId,
+            OrganisationUnitWithDateDto::organisationUnitName,
+            OrganisationUnitWithDateDto::companyHouseNumber,
+            OrganisationUnitWithDateDto::organisationNameHistoryDtoList,
+            OrganisationUnitWithDateDto::getSelectionText,
+            OrganisationUnitWithDateDto::getSelectionId,
+            OrganisationUnitWithDateDto::organisationNameDate
+        ).containsExactly(
+            tuple(
+                organisationUnit.getOrganisationUnitId(),
+                organisationUnit.getName(),
+                organisationUnit.getRegisteredNumber(),
+                List.of(orgNameHistoryDto),
+                "%s (%s)".formatted(orgNameHistoryDto.name(), organisationUnit.getRegisteredNumber()),
+                organisationUnit.getOrganisationUnitId().toString(),
+                acceptedLocalDate
+            )
+        );
+  }
+
+  @Test
   void getOrganisationSearchableResults_whenWrongNameAndIndustryOrganisationMember_assertNoOrganisationFound() {
     var organisationName = "name";
     var organisationGroup = new OrganisationGroup();
@@ -532,6 +647,113 @@ class OrganisationUnitQueryServiceTest {
   }
 
   @Test
+  void getPreselectedOrganisationForDate_withNoExistingOrganisation() {
+    var resourceDetail = new ResourceDetail();
+    var acceptedDate = LocalDate.now();
+
+    assertThat(organisationUnitQueryService.getPreSelectedOrganisationUnitForDate(resourceDetail, acceptedDate)).isEmpty();
+  }
+
+  @Test
+  void getPreselectedOrganisationForDate_withOrganisationNotFound() {
+    var resourceDetail = new ResourceDetail();
+    var organisationId = 1;
+    resourceDetail.setOrganisationId(organisationId);
+    var acceptedDate = LocalDate.now();
+
+
+    when(organisationApi.findOrganisationUnit(
+        eq(organisationId),
+        eq(OrganisationUnitQueryService.ORGANISATION_UNIT_PROJECTION_ROOT),
+        any(),
+        any()
+    )).thenReturn(Optional.empty());
+
+    assertThat(organisationUnitQueryService.getPreSelectedOrganisationUnitForDate(resourceDetail, acceptedDate)).isEmpty();
+  }
+
+  @Test
+  void getPreselectedOrganisationForDate_withIdAndRegisteredNumber() {
+    var resourceDetail = new ResourceDetail();
+    var organisationId = 1;
+    var oldOrganisationName = "old name";
+    var currentOrganisationName = "new name";
+    var organisationRegisteredNumber = "0000999";
+    resourceDetail.setOrganisationId(organisationId);
+    resourceDetail.setOrganisationRegisteredNumber(organisationRegisteredNumber);
+    List<OrganisationNameHistory> nameHistory = new ArrayList<>();
+    var organisationNameHistory1 = new OrganisationNameHistory(
+        oldOrganisationName,
+        LocalDate.of(2012, 1, 1),
+        LocalDate.of(2013, 1, 1)
+    );
+    var organisationNameHistory2 = new OrganisationNameHistory(
+        currentOrganisationName,
+        LocalDate.of(2013, 1, 2),
+        LocalDate.of(2014, 1, 1)
+    );
+    nameHistory.add(organisationNameHistory1);
+    nameHistory.add(organisationNameHistory2);
+
+    var organisationUnit = new OrganisationUnit();
+    organisationUnit.setName(currentOrganisationName);
+    organisationUnit.setRegisteredNumber(organisationRegisteredNumber);
+    organisationUnit.setOrganisationNameHistory(nameHistory);
+    when(organisationApi.findOrganisationUnit(
+        eq(organisationId),
+        eq(OrganisationUnitQueryService.ORGANISATION_UNIT_PROJECTION_ROOT),
+        any(),
+        any()
+    )).thenReturn(Optional.of(organisationUnit));
+
+
+    var acceptedDate = LocalDate.of(2012, 6, 1);
+
+    organisationUnitQueryService.getPreSelectedOrganisationUnitForDate(resourceDetail, acceptedDate);
+
+    verify(searchSelectorService).buildPrePopulatedSelection("1", "old name (0000999)");
+  }
+
+  @Test
+  void getPreselectedOrganisationForDate_withoutRegisteredNumber() {
+    var resourceDetail = new ResourceDetail();
+    var organisationId = 1;
+    var oldOrganisationName = "old name";
+    var currentOrganisationName = "new name";
+    resourceDetail.setOrganisationId(organisationId);
+    List<OrganisationNameHistory> nameHistory = new ArrayList<>();
+    var organisationNameHistory1 = new OrganisationNameHistory(
+        oldOrganisationName,
+        LocalDate.of(2012, 1, 1),
+        LocalDate.of(2013, 1, 1)
+    );
+    var organisationNameHistory2 = new OrganisationNameHistory(
+        currentOrganisationName,
+        LocalDate.of(2013, 1, 2),
+        LocalDate.of(2014, 1, 1)
+    );
+    nameHistory.add(organisationNameHistory1);
+    nameHistory.add(organisationNameHistory2);
+
+    var organisationUnit = new OrganisationUnit();
+    organisationUnit.setName(currentOrganisationName);
+    organisationUnit.setOrganisationNameHistory(nameHistory);
+    when(organisationApi.findOrganisationUnit(
+        eq(organisationId),
+        eq(OrganisationUnitQueryService.ORGANISATION_UNIT_PROJECTION_ROOT),
+        any(),
+        any()
+    )).thenReturn(Optional.of(organisationUnit));
+
+
+    var acceptedDate = LocalDate.of(2012, 6, 1);
+
+    organisationUnitQueryService.getPreSelectedOrganisationUnitForDate(resourceDetail, acceptedDate);
+
+    verify(searchSelectorService).buildPrePopulatedSelection("1", "old name");
+  }
+
+  @Test
   void getOrganisationUnitNameAndNumberByIdOrEmpty_whenNullId_assertEmpty() {
     var result = organisationUnitQueryService.getOrganisationUnitNameAndNumberByIdOrEmpty(null);
 
@@ -586,5 +808,45 @@ class OrganisationUnitQueryServiceTest {
 
     assertThat(result).isEqualTo("%s (%s)"
         .formatted(ORGANISATION_UNIT_NAME, ORGANISATION_COMPANY_NUMBER));
+  }
+
+  @Test
+  void getOrganisationUnitNameForDate() {
+    var oldOrganisationName = "old name";
+    var currentOrganisationName = "new name";
+    var organisationUnitId = 1;
+
+    var nameHistory = getOrganisationNameHistoryDtos(oldOrganisationName, currentOrganisationName);
+
+    var organisationUnit = new OrganisationUnitDto(
+        organisationUnitId,
+        currentOrganisationName,
+        "00009999",
+        nameHistory
+    );
+
+    var acceptedDate = LocalDate.of(2012, 6, 1);
+    var orgNameAtDate = organisationUnitQueryService.getOrganisationUnitNameForDate(organisationUnit, acceptedDate);
+
+    assertThat(orgNameAtDate).isPresent();
+    assertEquals(oldOrganisationName, orgNameAtDate.get());
+  }
+
+  private List<OrganisationNameHistoryDto> getOrganisationNameHistoryDtos(String oldOrganisationName,
+                                                                          String currentOrganisationName) {
+    List<OrganisationNameHistoryDto> nameHistory = new ArrayList<>();
+    var organisationNameHistory1 = new OrganisationNameHistoryDto(
+        oldOrganisationName,
+        LocalDate.of(2012, 1, 1),
+        LocalDate.of(2013, 1, 1)
+    );
+    var organisationNameHistory2 = new OrganisationNameHistoryDto(
+        currentOrganisationName,
+        LocalDate.of(2013, 1, 2),
+        null
+    );
+    nameHistory.add(organisationNameHistory1);
+    nameHistory.add(organisationNameHistory2);
+    return nameHistory;
   }
 }

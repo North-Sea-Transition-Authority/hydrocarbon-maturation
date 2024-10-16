@@ -33,29 +33,15 @@
         labelText="${resourceType?capitalize} name"
         inputClass="govuk-input--width-20"/>
 
-        <#if showHistoricNameInfo>
-          <#if lockedOrganisationName?has_content>
-            <@fdsInsetText.insetText>
-              The responsible organisation name at the time of approval was ${lockedOrganisationName}.
-              If a new responsible organisation is to be added to this resource this should be completed via a full update to the resource.
-            </@fdsInsetText.insetText>
-            <#elseif noOrganisationAdded>
-              <@fdsInsetText.insetText>
-                No responsible organisation was added to this resource.
-                If a new responsible organisation is to be added to this resource this should be completed via a full update to the resource.
-              </@fdsInsetText.insetText>
-            </#if>
-        <#else>
-          <@fdsSearchSelector.searchSelectorRest
-          path="form.responsibleOrganisationId"
-          restUrl=springUrl(organisationUnitEndpoint)
-          labelText="What organisation is responsible for this ${resourceType}?"
-          selectorMinInputLength=3
-          nestingPath="form.responsibleOrganisationId"
-          hintText=guidanceTextOrganisation
-          preselectedItems=responsibleOrganisation!{}
-          optionalLabel=isOptional/>
-        </#if>
+      <@fdsSearchSelector.searchSelectorRest
+        path="form.responsibleOrganisationId"
+        restUrl=springUrl(organisationUnitEndpoint)
+        labelText="What organisation is responsible for this ${resourceType}?"
+        selectorMinInputLength=3
+        nestingPath="form.responsibleOrganisationId"
+        hintText=guidanceTextOrganisation
+        preselectedItems=responsibleOrganisation!{}
+        optionalLabel=isOptional/>
 
       <@fdsRadio.radio
         path="form.onshoreOffshore"

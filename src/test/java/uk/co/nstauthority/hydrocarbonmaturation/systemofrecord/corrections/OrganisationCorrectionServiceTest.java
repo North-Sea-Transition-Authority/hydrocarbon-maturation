@@ -69,8 +69,13 @@ class OrganisationCorrectionServiceTest {
         List.of(orgNameHistoryDto)
     );
     when(organisationUnitQueryService.findOrganisationUnit(organisationUnitId)).thenReturn(Optional.of(organisationUnitDto));
-
     var testDate = LocalDate.of(2012, 12, 5);
+    when(organisationUnitQueryService.getOrganisationUnitNameForDate(
+        organisationUnitDto,
+        testDate
+    )).thenReturn(Optional.of(oldName));
+
+
 
     organisationCorrectionService.updateOrganisationNameForDate(submissionDetail, testDate);
 

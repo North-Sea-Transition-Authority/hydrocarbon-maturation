@@ -117,13 +117,17 @@ public class DateUtil {
     }
   }
 
+  public static LocalDate createLocalDate(Instant instant) {
+    return LocalDate.ofInstant(instant, ZoneId.systemDefault());
+  }
+
   public static <T> Optional<T> findLatestItemForGivenStartDate(
       Collection<T> collectionWithDates,
       LocalDateTime startDateToFind,
       Function<T, LocalDateTime> startDateExtractor
   ) {
     return collectionWithDates.stream()
-        .filter(dateItem -> startDateExtractor.apply(dateItem).compareTo(startDateToFind) <= 0)
+        .filter(dateItem -> !startDateExtractor.apply(dateItem).isAfter(startDateToFind))
         .max(Comparator.comparing(startDateExtractor));
   }
 }

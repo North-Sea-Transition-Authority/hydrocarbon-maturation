@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -24,8 +25,11 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationgroup.OrganisationGroupQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @Service
 public class OrganisationUnitQueryService {
@@ -65,13 +69,32 @@ public class OrganisationUnitQueryService {
     this.industryTeamService = industryTeamService;
   }
 
-  public List<OrganisationUnitDto> getOrganisationSearchableResults(String organisationName, User user) {
+  public List<OrganisationUnitDto> getOrganisationSearchableResults(String organisationName,
+                                                                    User user) {
     if (internalTeamService.isRegulatorOrAreaTeamUser(user)) {
       return searchOrganisationUnitsWithName(organisationName);
     } else {
       var userOrganisationGroupIds = industryTeamService.getOrganisationGroupIdsForUser(user);
       return getOrganisationUnitsByOrganisationGroupsAndName(userOrganisationGroupIds, organisationName);
     }
+  }
+
+  public List<OrganisationUnitWithDateDto> getOrganisationSearchableResults(String organisationName,
+                                                                            User user,
+                                                                            SubmissionDetail submissionDetail) {
+    List<OrganisationUnitDto> organisationUnits;
+    if (internalTeamService.isRegulatorOrAreaTeamUser(user)) {
+      organisationUnits = searchOrganisationUnitsWithName(organisationName);
+    } else {
+      var userOrganisationGroupIds = industryTeamService.getOrganisationGroupIdsForUser(user);
+      organisationUnits = getOrganisationUnitsByOrganisationGroupsAndName(userOrganisationGroupIds, organisationName);
+    }
+    var organisationNameDate = submissionDetail.getAcceptedTimestamp() != null
+        ? DateUtil.createLocalDate(submissionDetail.getAcceptedTimestamp())
+        : LocalDate.now();
+    return organisationUnits.stream()
+        .map(ou -> OrganisationUnitWithDateDto.fromOrganisationUnitAndDate(ou, organisationNameDate))
+        .toList();
   }
 
   public Map<String, String> getPreSelectedOrganisationUnit(Integer organisationUnitId) {
@@ -82,6 +105,42 @@ public class OrganisationUnitQueryService {
     var key = getOrganisationUnitNameAndNumberByIdOrEmpty(organisationUnitId);
 
     return searchSelectorService.buildPrePopulatedSelection(String.valueOf(organisationUnitId), key);
+  }
+
+  public Map<String, String> getPreSelectedOrganisationUnitForDate(ResourceDetail resourceDetail, LocalDate acceptedDate) {
+    var organisationUnitId = resourceDetail.getOrganisationId();
+    var organisationRegisteredNumber = resourceDetail.getOrganisationRegisteredNumber();
+
+    if (!Objects.isNull(organisationUnitId)) {
+
+      return findOrganisationUnit(organisationUnitId).map(organisationUnit -> {
+        var organisationNameHistory = OrganisationUnitDateUtil.getOrganisationNameHistoryForDate(organisationUnit, acceptedDate);
+        var orgDisplayName = "";
+        if (organisationNameHistory.isPresent()) {
+          var nameFromHistory = organisationNameHistory.get().name();
+          orgDisplayName = getOrganisationDisplayName(nameFromHistory, organisationRegisteredNumber);
+        }
+        return searchSelectorService.buildPrePopulatedSelection(String.valueOf(organisationUnitId), orgDisplayName);
+      }).orElse(Map.of());
+
+    }
+
+    return Map.of();
+  }
+
+  private String getOrganisationDisplayName(String organisationName, String organisationRegisteredNumber) {
+    if (organisationRegisteredNumber != null) {
+      return "%s (%s)".formatted(
+          organisationName,
+          organisationRegisteredNumber
+      );
+    }
+    return organisationName;
+  }
+
+  public Optional<String> getOrganisationUnitNameForDate(OrganisationUnitDto organisationUnit, LocalDate acceptedDate) {
+    var organisationNameHistory = OrganisationUnitDateUtil.getOrganisationNameHistoryForDate(organisationUnit, acceptedDate);
+    return organisationNameHistory.map(OrganisationNameHistoryDto::name);
   }
 
   public Optional<OrganisationUnitDto> findOrganisationUnit(Integer organisationUnitId) {

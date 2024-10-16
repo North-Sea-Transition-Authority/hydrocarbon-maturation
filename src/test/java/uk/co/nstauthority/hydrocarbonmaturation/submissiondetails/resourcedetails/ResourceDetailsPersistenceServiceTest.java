@@ -9,6 +9,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
@@ -91,6 +93,7 @@ class ResourceDetailsPersistenceServiceTest {
   @Test
   void saveResourceDetails_whenOrganisationUnitPresent_verifyMethodCall() {
     var submissionDetail = new SubmissionDetail();
+    var resourceDetail = new ResourceDetail();
     var resourceForm = new ResourceDetailsForm();
     var captor = ArgumentCaptor.forClass(ResourceDetail.class);
     var organisationUnit = new OrganisationUnitDto(null, null, null, Collections.emptyList());
@@ -99,7 +102,7 @@ class ResourceDetailsPersistenceServiceTest {
     resourceForm.setResourceName("name");
     resourceForm.setResponsibleOrganisationId("1");
     resourceForm.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    resourceDetailsPersistenceService.saveResourceDetails(resourceForm, submissionDetail);
+    resourceDetailsPersistenceService.saveResourceDetails(resourceForm, submissionDetail, resourceDetail);
 
     verify(resourceDetailsRepository).save(captor.capture());
 
@@ -121,8 +124,88 @@ class ResourceDetailsPersistenceServiceTest {
   }
 
   @Test
+  void saveResourceDetails_whenOrganisationUnitPresent_andHasAcceptedDate_verifyMethodCall() {
+    var testSubmissionDetail = new SubmissionDetail();
+    var acceptedLocalDate = LocalDate.of(2023, 6, 1);
+    var acceptedTimestamp = acceptedLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+    testSubmissionDetail.setAcceptedTimestamp(acceptedTimestamp);
+    var resourceDetail = new ResourceDetail();
+    var resourceForm = new ResourceDetailsForm();
+    var captor = ArgumentCaptor.forClass(ResourceDetail.class);
+    var organisationUnit = new OrganisationUnitDto(null, null, null, Collections.emptyList());
+    when(organisationUnitQueryService.findOrganisationUnit(1))
+        .thenReturn(Optional.of(organisationUnit));
+    var oldOrganisationName = "old name";
+    when(organisationUnitQueryService.getOrganisationUnitNameForDate(
+        organisationUnit,
+        acceptedLocalDate
+    )).thenReturn(Optional.of(oldOrganisationName));
+    resourceForm.setResourceName("resource name");
+    resourceForm.setResponsibleOrganisationId("1");
+    resourceForm.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    resourceDetailsPersistenceService.saveResourceDetails(resourceForm, testSubmissionDetail, resourceDetail);
+
+    verify(resourceDetailsRepository).save(captor.capture());
+
+    assertThat(captor.getValue())
+        .extracting(
+            ResourceDetail::getSubmissionDetail,
+            ResourceDetail::getResourceName,
+            ResourceDetail::getOrganisationId,
+            ResourceDetail::getOrganisationName,
+            ResourceDetail::getOrganisationRegisteredNumber,
+            ResourceDetail::getOnshoreOffshore)
+        .containsExactly(
+            testSubmissionDetail,
+            resourceForm.getResourceName(),
+            organisationUnit.organisationUnitId(),
+            oldOrganisationName,
+            organisationUnit.companyHouseNumber(),
+            resourceForm.getOnshoreOffshore());
+  }
+
+  @Test
+  void saveResourceDetails_whenOrganisationUnitPresent_andNoAcceptedDate_verifyMethodCall() {
+    var testSubmissionDetail = new SubmissionDetail();
+    var resourceDetail = new ResourceDetail();
+    var resourceForm = new ResourceDetailsForm();
+    var captor = ArgumentCaptor.forClass(ResourceDetail.class);
+    var organisationUnit = new OrganisationUnitDto(null, null, null, Collections.emptyList());
+    when(organisationUnitQueryService.findOrganisationUnit(1))
+        .thenReturn(Optional.of(organisationUnit));
+    var organisationName = "org name";
+    when(organisationUnitQueryService.getOrganisationUnitNameForDate(
+        organisationUnit,
+        LocalDate.now()
+    )).thenReturn(Optional.of(organisationName));
+    resourceForm.setResourceName("resource name");
+    resourceForm.setResponsibleOrganisationId("1");
+    resourceForm.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
+    resourceDetailsPersistenceService.saveResourceDetails(resourceForm, testSubmissionDetail, resourceDetail);
+
+    verify(resourceDetailsRepository).save(captor.capture());
+
+    assertThat(captor.getValue())
+        .extracting(
+            ResourceDetail::getSubmissionDetail,
+            ResourceDetail::getResourceName,
+            ResourceDetail::getOrganisationId,
+            ResourceDetail::getOrganisationName,
+            ResourceDetail::getOrganisationRegisteredNumber,
+            ResourceDetail::getOnshoreOffshore)
+        .containsExactly(
+            testSubmissionDetail,
+            resourceForm.getResourceName(),
+            organisationUnit.organisationUnitId(),
+            organisationName,
+            organisationUnit.companyHouseNumber(),
+            resourceForm.getOnshoreOffshore());
+  }
+
+  @Test
   void saveResourceDetails_whenOrganisationUnitIdNull_verifyMethodCall() {
     var submissionDetail = new SubmissionDetail();
+    var resourceDetail = new ResourceDetail();
     var resourceForm = new ResourceDetailsForm();
     var captor = ArgumentCaptor.forClass(ResourceDetail.class);
     resourceForm.setResourceName("name3");
@@ -130,7 +213,7 @@ class ResourceDetailsPersistenceServiceTest {
     when(organisationUnitQueryService.findOrganisationUnit(2))
         .thenReturn(Optional.empty());
     resourceForm.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    resourceDetailsPersistenceService.saveResourceDetails(resourceForm, submissionDetail);
+    resourceDetailsPersistenceService.saveResourceDetails(resourceForm, submissionDetail, resourceDetail);
 
     verify(resourceDetailsRepository).save(captor.capture());
 
@@ -154,12 +237,13 @@ class ResourceDetailsPersistenceServiceTest {
   @Test
   void saveResourceDetails_whenOrganisationUnitIdNotInEPA_verifyMethodCall() {
     var submissionDetail = new SubmissionDetail();
+    var resourceDetail = new ResourceDetail();
     var resourceForm = new ResourceDetailsForm();
     var captor = ArgumentCaptor.forClass(ResourceDetail.class);
     resourceForm.setResourceName("name");
     resourceForm.setResponsibleOrganisationId(null);
     resourceForm.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
-    resourceDetailsPersistenceService.saveResourceDetails(resourceForm, submissionDetail);
+    resourceDetailsPersistenceService.saveResourceDetails(resourceForm, submissionDetail, resourceDetail);
 
     verify(resourceDetailsRepository).save(captor.capture());
 
@@ -196,8 +280,7 @@ class ResourceDetailsPersistenceServiceTest {
     var generalDetail = mock(GeneralDetail.class);
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.ofNullable(generalDetail));
-    when(resourceDetailsRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(resourceDetail));
-    resourceDetailsPersistenceService.saveResourceDetails(resourceForm, submissionDetail);
+    resourceDetailsPersistenceService.saveResourceDetails(resourceForm, submissionDetail, resourceDetail);
 
     verify(resourceDetailsRepository).save(captor.capture());
     verify(quadrantAndBlockPersistenceService).removeCurrentQuadsAndBlocks(generalDetail);
@@ -233,8 +316,7 @@ class ResourceDetailsPersistenceServiceTest {
     var resourceDetail = new ResourceDetail();
     resourceDetail.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     var generalDetail = mock(GeneralDetail.class);
-    when(resourceDetailsRepository.findBySubmissionDetail(submissionDetail)).thenReturn(Optional.of(resourceDetail));
-    resourceDetailsPersistenceService.saveResourceDetails(resourceForm, submissionDetail);
+    resourceDetailsPersistenceService.saveResourceDetails(resourceForm, submissionDetail, resourceDetail);
 
     verify(resourceDetailsRepository).save(captor.capture());
     verify(quadrantAndBlockPersistenceService, never()).removeCurrentQuadsAndBlocks(generalDetail);

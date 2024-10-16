@@ -1,12 +1,13 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Objects;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @Service
 class ResourceDetailsFormService {
@@ -27,14 +28,22 @@ class ResourceDetailsFormService {
         .orElse(new ResourceDetailsForm());
   }
 
-  public Map<String, String> getPreSelectedOrganisationUnit(String responsibleOrganisationId) {
-    if (StringUtils.isBlank(responsibleOrganisationId)) {
+  public Map<String, String> getPreSelectedOrganisationUnit(ResourceDetail resourceDetail, SubmissionDetail submissionDetail) {
+    if (Objects.isNull(resourceDetail.getOrganisationId())) {
       return Map.of();
     }
-    return organisationUnitQueryService.getPreSelectedOrganisationUnit(Integer.valueOf(responsibleOrganisationId));
+
+    var organisationNameDate = submissionDetail.getAcceptedTimestamp() != null
+        ? DateUtil.createLocalDate(submissionDetail.getAcceptedTimestamp())
+        : LocalDate.now();
+
+    return organisationUnitQueryService.getPreSelectedOrganisationUnitForDate(
+        resourceDetail,
+        organisationNameDate
+    );
   }
 
-  private ResourceDetailsForm resourceDetailEntityToForm(ResourceDetail resourceDetail) {
+  public ResourceDetailsForm resourceDetailEntityToForm(ResourceDetail resourceDetail) {
     var form = new ResourceDetailsForm();
     form.setResourceName(resourceDetail.getResourceName());
     form.setOnshoreOffshore(resourceDetail.getOnshoreOffshore());

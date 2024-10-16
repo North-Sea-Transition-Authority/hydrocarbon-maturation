@@ -4,7 +4,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetai
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.UUID;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -62,8 +61,10 @@ public class ResourceDetailsController {
   @GetMapping
   public ModelAndView getResourceDetails(@PathVariable("submissionDetailId") UUID submissionDetailId, User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    var form = resourceDetailsFormService.getResourceDetailsForm(submissionDetail);
-    return getResourceDetailsPageModelAndView(form, submissionDetail, user);
+    var resourceDetail = resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail)
+        .orElse(new ResourceDetail());
+    var form = resourceDetailsFormService.resourceDetailEntityToForm(resourceDetail);
+    return getResourceDetailsPageModelAndView(form, submissionDetail, resourceDetail, user);
   }
 
   @PostMapping
@@ -73,24 +74,28 @@ public class ResourceDetailsController {
                                           ValidationType validationType,
                                           User user) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
+    var resourceDetail = resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail)
+        .orElse(new ResourceDetail());
     if (resourceDetailsFormValidator.isValid(bindingResult, submissionDetail, validationType, user)) {
-      resourceDetailsPersistenceService.saveResourceDetails(form, submissionDetail);
+      resourceDetailsPersistenceService.saveResourceDetails(form, submissionDetail, resourceDetail);
       return ReverseRouter.redirect(on(TaskListController.class).getTaskList(submissionDetailId, null));
     } else {
-      return getResourceDetailsPageModelAndView(form, submissionDetail, user);
+      return getResourceDetailsPageModelAndView(form, submissionDetail, resourceDetail, user);
     }
   }
 
   private ModelAndView getResourceDetailsPageModelAndView(ResourceDetailsForm form,
                                                           SubmissionDetail submissionDetail,
+                                                          ResourceDetail resourceDetail,
                                                           User user) {
     var modelAndView = new ModelAndView("remi/submissiondetails/resourceDetails")
         .addObject("organisationUnitEndpoint",
-            SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null, null)))
+            SearchSelectorService.route(on(OrganisationUnitRestController.class)
+                .searchOrganisationUnitsWithSubmissionDetail(null,  submissionDetail.getId(), null)))
         .addObject("resourceType",
             submissionDetail.getSubmission().getResource().getType().getDisplayName().toLowerCase())
         .addObject("responsibleOrganisation", resourceDetailsFormService
-            .getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
+            .getPreSelectedOrganisationUnit(resourceDetail, submissionDetail))
         .addObject("form", form)
         .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())
         .addObject("isRegulatorOrAreaTeamUser", internalTeamService.isRegulatorOrAreaTeamUser(user))
@@ -98,35 +103,6 @@ public class ResourceDetailsController {
             submissionDetail.isDiscoveryRelinquishment()
                 || submissionDetail.isProspectRelinquishment());
 
-    var showHistoricNameInfoModelObject = "showHistoricNameInfo";
-    var noOrganisationAddedModelObject = "noOrganisationAdded";
-    var lockedOrganisationNameModelObject = "lockedOrganisationName";
-
-    modelAndView
-        .addObject(showHistoricNameInfoModelObject, false)
-        .addObject(noOrganisationAddedModelObject, false)
-        .addObject(lockedOrganisationNameModelObject, "");
-
-    if (BooleanUtils.isTrue(submissionDetail.isCorrection())) {
-      modelAndView.addObject(showHistoricNameInfoModelObject, true);
-      var resourceDetailOpt = resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail);
-      if (resourceDetailOpt.isPresent()) {
-        var resourceDetail = resourceDetailOpt.get();
-        var currentOrganisationName = resourceDetailsPersistenceService.getOrganisationNameFromPortal(resourceDetail);
-        if (currentOrganisationName.isBlank()) {
-          modelAndView.addObject(noOrganisationAddedModelObject, true);
-        } else {
-          var historicOrganisationName =
-              resourceDetailsPersistenceService.getOrganisationDisplayFromResourceDetails(resourceDetail);
-          if (!currentOrganisationName.equals(historicOrganisationName)) {
-            modelAndView.addObject(lockedOrganisationNameModelObject, historicOrganisationName);
-          } else {
-            modelAndView.addObject(lockedOrganisationNameModelObject, currentOrganisationName);
-          }
-        }
-
-      }
-    }
 
     return TaskListBreadcrumbUtil
         .addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);

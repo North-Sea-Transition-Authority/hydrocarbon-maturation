@@ -1,9 +1,13 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Map;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
+import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
 
 @ExtendWith(MockitoExtension.class)
 class ResourceDetailsFormServiceTest {
@@ -64,13 +69,36 @@ class ResourceDetailsFormServiceTest {
   }
 
   @Test
-  void getPreSelectedOrganisationUnit_assertReturn() {
-    var expectedMap = Map.of("1", "1");
-    when(organisationUnitQueryService.getPreSelectedOrganisationUnit(1))
-        .thenReturn(expectedMap);
-    var result = resourceDetailsFormService
-        .getPreSelectedOrganisationUnit("1");
-    assertThat(result).isEqualTo(expectedMap);
+  void getPreSelectedOrganisationUnit_noPreviousOrganisationSelected_assertReturn() {
+    var testSubmissionDetail = new SubmissionDetail();
+    var resourceDetail = new ResourceDetail();
+    resourceDetailsFormService.getPreSelectedOrganisationUnit(resourceDetail, testSubmissionDetail);
+    verifyNoInteractions(organisationUnitQueryService);
+  }
+
+  @Test
+  void getPreSelectedOrganisationUnit_withAcceptedDate_assertReturn() {
+    var acceptedTimestamp = Instant.now();
+    var acceptedLocalDate = DateUtil.createLocalDate(acceptedTimestamp);
+    var testSubmissionDetail = new SubmissionDetail();
+    testSubmissionDetail.setAcceptedTimestamp(acceptedTimestamp);
+    var resourceDetail = createResourceDetail();
+    resourceDetailsFormService.getPreSelectedOrganisationUnit(resourceDetail, testSubmissionDetail);
+    verify(organisationUnitQueryService, times(1)).getPreSelectedOrganisationUnitForDate(
+        resourceDetail,
+        acceptedLocalDate
+    );
+  }
+
+  @Test
+  void getPreSelectedOrganisationUnit_withoutAcceptedDate_assertReturn() {
+    var testSubmissionDetail = new SubmissionDetail();
+    var resourceDetail = createResourceDetail();
+    resourceDetailsFormService.getPreSelectedOrganisationUnit(resourceDetail, testSubmissionDetail);
+    verify(organisationUnitQueryService, times(1)).getPreSelectedOrganisationUnitForDate(
+        resourceDetail,
+        LocalDate.now()
+    );
   }
 
   private ResourceDetail createResourceDetail() {
