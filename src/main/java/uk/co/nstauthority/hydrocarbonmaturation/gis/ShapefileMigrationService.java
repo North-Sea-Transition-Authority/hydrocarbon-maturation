@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 import uk.co.fivium.fileuploadlibrary.configuration.FileUploadProperties;
 import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.FileSource;
 import uk.co.fivium.fileuploadlibrary.fds.UploadErrorType;
 import uk.co.fivium.fileuploadlibrary.s3.S3Exception;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileUsageType;
@@ -168,7 +169,7 @@ public class ShapefileMigrationService {
           new MultipartFileInputStream(fileName, SHAPEFILE_ZIP_CONTENT_TYPE, fileSize, shapefileZipInputStream);
 
       var fileUploadResponse = fileService.upload(builder -> builder
-          .withMultipartFile(multipartFileInputStream)
+          .withFileSource(FileSource.fromMultipartFile(multipartFileInputStream))
           .withUsage(submissionDetail.getId().toString(), FileUsageType.SUBMISSION_DETAIL.getUsageType(), documentType.name())
           .build());
 

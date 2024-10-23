@@ -27,6 +27,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.unit.DataSize;
 import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.FileSource;
 import uk.co.fivium.fileuploadlibrary.core.FileUploadRequest;
 import uk.co.fivium.fileuploadlibrary.fds.FileDeleteResponse;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
@@ -96,8 +97,8 @@ class UnlinkedFileControllerTest extends AbstractControllerTest {
         .withFileExtensions(Set.of("extension"));
 
     assertThat(actionCaptor.getValue().apply(builder))
-        .extracting(FileUploadRequest::multipartFile)
-        .isEqualTo(mockMultipartFile);
+        .extracting(FileUploadRequest::fileSource)
+        .isEqualTo(FileSource.fromMultipartFile(mockMultipartFile));
   }
 
   @Test

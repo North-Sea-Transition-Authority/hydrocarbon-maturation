@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.FileSource;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.FileDeleteResponse;
 import uk.co.fivium.fileuploadlibrary.fds.FileUploadResponse;
@@ -70,7 +71,7 @@ public class UnlinkedFileController {
       fileUploadCustomValidator.ifPresent(builder::withValidation);
 
       return builder
-          .withMultipartFile(file)
+          .withFileSource(FileSource.fromMultipartFile(file))
           .withUploadedBy(user.wuaId().toString())
           .build();
     });

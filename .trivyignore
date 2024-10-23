@@ -1,17 +1,8 @@
-# GraphQL
-CVE-2024-40094
-
-# spring-security-core
-CVE-2024-38810
-
-# spring-webmvc
-CVE-2024-38816
-
-# protobuf
+# protobuf-java
 CVE-2024-7254
 
-# spring-web
-CVE-2024-38809
-
-# commons-io
+# common-io
 CVE-2024-47554
+
+# spring-context
+CVE-2024-38820

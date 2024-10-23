@@ -1,11 +1,11 @@
 plugins {
-	id 'org.springframework.boot' version '3.3.2'
+	id 'org.springframework.boot' version '3.3.4'
 	id 'io.spring.dependency-management' version '1.1.6'
 	id 'java'
 	id "org.sonarqube" version "5.1.0.4882"
 	id 'checkstyle'
 	id 'jacoco'
-	id 'nu.studer.jooq' version '8.1'
+	id 'nu.studer.jooq' version '9.0'
 	//docker-compose needed to startup a postgres container for Jooq codegen
 	id 'com.avast.gradle.docker-compose' version "0.16.11"
 	//Flyway added manually here, as it's used for the Jooq codegen
@@ -17,7 +17,7 @@ version = '0.0.1-SNAPSHOT'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(21)
 	}
 }
 
@@ -57,24 +57,20 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.flywaydb:flyway-database-postgresql'
-	implementation 'org.apache.commons:commons-lang3:3.12.0'
-	implementation 'commons-io:commons-io:2.15.1'
+	implementation 'org.apache.commons:commons-lang3:3.17.0'
+	implementation 'commons-io:commons-io:2.17.0'
 	implementation 'fi.solita.clamav:clamav-client:1.0.1'
-	implementation ('uk.co.fivium.energyportalapi:client:v12.4.0') {
-		// Transitive dependency contains embedded vulnerable snakeyaml which cannot be overridden, so exclude the entire thing
-		// Can be removed once EPA is updated to v12
-		exclude group: 'net.datafaker', module: 'datafaker'
-	}
-	implementation "uk.co.fivium:file-upload-spring-boot-starter:v2.3.1"
-	implementation "com.amazonaws:aws-java-sdk-s3:1.12.763"
+	implementation 'uk.co.fivium.energyportalapi:client:v12.6.0'
+	implementation "uk.co.fivium:file-upload-spring-boot-starter:v2.6.0"
+	implementation "com.amazonaws:aws-java-sdk-s3:1.12.777"
 	implementation 'uk.co.fivium.digital.energyportalteamaccesslibrary:energy-portal-team-access-libray:v1.0.0'
-	implementation 'net.javacrumbs.shedlock:shedlock-spring:5.6.0'
-	implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:5.6.0'
+	implementation 'net.javacrumbs.shedlock:shedlock-spring:5.16.0'
+	implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:5.16.0'
 	implementation 'io.micrometer:micrometer-registry-statsd'
 
 	implementation 'com.esri.geometry:esri-geometry-api:2.2.4'
 	implementation 'mil.nga:crs:1.1.5'
-	implementation 'com.github.albfernandez:javadbf:1.13.1'
+	implementation 'com.github.albfernandez:javadbf:1.14.1'
 
 	implementation 'org.springframework.boot:spring-boot-starter-jooq'
 	implementation 'org.jooq:jooq-codegen'
@@ -90,19 +86,19 @@ dependencies {
 
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
-	testImplementation 'com.h2database:h2:2.1.214'
-	testImplementation 'com.tngtech.archunit:archunit-junit5:1.0.1'
+	testImplementation 'com.h2database:h2:2.3.232'
+	testImplementation 'com.tngtech.archunit:archunit-junit5:1.3.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 
-	testImplementation "org.testcontainers:postgresql:1.17.6"
+	testImplementation "org.testcontainers:postgresql:1.20.2"
 
 	constraints {
-		implementation("com.google.guava:guava:32.1.3-jre") {
+		implementation("com.google.guava:guava:33.3.1-jre") {
 			because("opensaml core uses a version with vulnerabilities")
 		}
 
-		implementation("org.bouncycastle:bcpkix-jdk18on:1.78") {
+		implementation("org.bouncycastle:bcpkix-jdk18on:1.78.1") {
 			because("opensaml core uses a version with vulnerabilities")
 		}
 	}
@@ -204,7 +200,7 @@ sonarqube {
 			if (System.getenv('DRONE_BRANCH') != 'develop') {
 				property 'sonar.branch.target', 'develop'
 			}
-			property 'sonar.coverage.jacoco.xmlReportPaths', "$buildDir/reports/jacoco/test/jacocoTestReport.xml"
+			property 'sonar.coverage.jacoco.xmlReportPaths', "${layout.buildDirectory}/reports/jacoco/test/jacocoTestReport.xml"
 		}
 	}
 }
