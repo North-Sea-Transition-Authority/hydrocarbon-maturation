@@ -36,6 +36,47 @@ wrapperWidth=true>
     </@fdsNotificationBanner.notificationBannerInfo>
   </#if>
 
+  <#if fieldFamilyView?has_content>
+    <#if fieldFamilyView.parentFieldName()?has_content>
+      <@fdsContactPanel.contactPanel headingText="Associated field" contentHeadingText="This Field is associated with the following fields">
+        <div class="fds-contact-panel__body">
+          Parent:
+          <@fdsAction.link linkText=fieldFamilyView.parentFieldName() linkUrl=springUrl(fieldFamilyView.parentFieldUrl()) linkClass="govuk-link--inverse"/>
+          <br>
+          Siblings:
+          <#if fieldFamilyView.siblingFields()?size == 1>
+            <#list fieldFamilyView.siblingFields() as name, url>
+              <@fdsAction.link linkText=name linkUrl=springUrl(url) linkClass="govuk-link--inverse"/>
+            </#list>
+          <#else>
+            <ul>
+              <#list fieldFamilyView.siblingFields() as name, url>
+                <li><@fdsAction.link linkText=name linkUrl=springUrl(url) linkClass="govuk-link--inverse"/></li>
+              </#list>
+            </ul>
+          </#if>
+        </div>
+      </@fdsContactPanel.contactPanel>
+    </#if>
+
+    <#if fieldFamilyView.childFields()?has_content>
+      <@fdsContactPanel.contactPanel headingText="Field subareas" contentHeadingText="This field is the parent of the following sub area fields">
+        <div class="fds-contact-panel__body">
+          <#if fieldFamilyView.childFields()?size == 1>
+            <#list fieldFamilyView.childFields() as name, url>
+              <@fdsAction.link linkText=name linkUrl=springUrl(url) linkClass="govuk-link--inverse"/>
+            </#list>
+          <#else>
+            <ul>
+              <#list fieldFamilyView.childFields() as name, url>
+                <li><@fdsAction.link linkText=name linkUrl=springUrl(url) linkClass="govuk-link--inverse"/></li>
+              </#list>
+            </ul>
+          </#if>
+        </div>
+      </@fdsContactPanel.contactPanel>
+    </#if>
+  </#if>
   <@fdsDataItems.dataItem>
     <#assign responsibleTeam = resourceRecord.responsibleTeam()
         ?has_content?then(resourceRecord.responsibleTeam().displayName, "")/>

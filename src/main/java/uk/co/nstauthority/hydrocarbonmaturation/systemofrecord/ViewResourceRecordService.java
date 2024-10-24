@@ -40,7 +40,8 @@ public class ViewResourceRecordService {
                             ResourceLinkService resourceLinkService,
                             SubmissionDetailService submissionDetailService,
                             FieldDisplayService fieldDisplayService,
-                            IndustryTeamService industryTeamService, InternalTeamService internalTeamService) {
+                            IndustryTeamService industryTeamService,
+                            InternalTeamService internalTeamService) {
     this.resourceRecordSummaryQueryService = resourceRecordSummaryQueryService;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.licenceQueryService = licenceQueryService;

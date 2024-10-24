@@ -151,4 +151,8 @@ public class FieldPersistenceService {
   public Optional<Field> getFieldByResource(Resource resource) {
     return fieldRepository.findByResource(resource);
   }
+
+  public List<Field> getFieldsByParentDeterminedField(Field parentField) {
+    return fieldRepository.findFieldsByParentDeterminedField(parentField);
+  }
 }
