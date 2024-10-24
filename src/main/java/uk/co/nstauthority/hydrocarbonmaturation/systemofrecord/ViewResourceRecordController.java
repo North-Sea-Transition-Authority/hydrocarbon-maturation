@@ -35,6 +35,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationController;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -65,6 +66,7 @@ public class ViewResourceRecordController {
   private final TeamQueryService teamQueryService;
   private final FieldMapViewService fieldMapViewService;
   private final FieldStatusService fieldStatusService;
+  private final FieldDisplayService fieldDisplayService;
 
   @Autowired
   public ViewResourceRecordController(
@@ -80,7 +82,9 @@ public class ViewResourceRecordController {
       FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService,
       FieldPersistenceService fieldPersistenceService,
       FieldMapViewService fieldMapViewService,
-      TeamQueryService teamQueryService, FieldStatusService fieldStatusService) {
+      TeamQueryService teamQueryService,
+      FieldStatusService fieldStatusService,
+      FieldDisplayService fieldDisplayService) {
     this.viewResourceRecordService = viewResourceRecordService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
@@ -95,6 +99,7 @@ public class ViewResourceRecordController {
     this.teamQueryService = teamQueryService;
     this.fieldMapViewService = fieldMapViewService;
     this.fieldStatusService = fieldStatusService;
+    this.fieldDisplayService = fieldDisplayService;
   }
 
   @GetMapping
@@ -242,7 +247,8 @@ public class ViewResourceRecordController {
           .addObject("manageResourceInformationText", "Manage field information")
           .addObject("projectTrackerUrl",
               ReverseRouter.route(on(ProjectListController.class)
-                  .getProjectList(field.getResource().getId(), null)));
+                  .getProjectList(field.getResource().getId(), null)))
+          .addObject("fieldFamilyView", fieldDisplayService.createFieldFamilyView(field));
     } else {
       modelAndView
           .addObject("regulatorManagedInformationUrl",

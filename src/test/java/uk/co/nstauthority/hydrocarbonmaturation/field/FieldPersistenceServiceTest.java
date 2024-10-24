@@ -345,4 +345,14 @@ class FieldPersistenceServiceTest {
       verifyNoInteractions(fieldRepository);
     }
   }
+
+  @Test
+  void getFieldsByParentDeterminedField() {
+    var field = new Field();
+
+    underTest.getFieldsByParentDeterminedField(field);
+
+    verify(fieldRepository).findFieldsByParentDeterminedField(field);
+  }
+
 }

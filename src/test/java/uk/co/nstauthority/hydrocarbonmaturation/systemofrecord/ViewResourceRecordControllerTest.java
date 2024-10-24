@@ -50,6 +50,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.Regu
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldDisplayService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.FieldFamilyView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -95,6 +97,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   private FieldMapViewService fieldMapViewService;
   @MockBean
   private FieldStatusService fieldStatusService;
+  @MockBean
+  private FieldDisplayService fieldDisplayService;
 
   private Resource resource;
   private UUID resourceId;
@@ -402,6 +406,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     when(fieldMapViewService.getFieldGeoJsonUrl(field))
         .thenReturn(Optional.of(fieldMapView));
 
+    var familyView = new FieldFamilyView("", "", Map.of(), Map.of());
+    when(fieldDisplayService.createFieldFamilyView(field)).thenReturn(familyView);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
@@ -436,7 +442,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
                     .getProjectList(field.getResource().getId(), null))),
             entry("fieldMapView", fieldMapView),
             entry("archiveUrl", ReverseRouter.route(on(ResourceArchiveController.class).archiveResourceConfirmation(resourceId, null))),
-            entry("archived", false)
+            entry("archived", false),
+            entry("fieldFamilyView", familyView)
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
