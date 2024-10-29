@@ -164,12 +164,13 @@ public class ReviewSubmissionController {
     var querySearchResults = submissionHistoryQueryService.getAcceptedAndSubmittedSubmissionsOnResourceWithLinkedResources(
         resourceId
     );
-    modelAndView.addObject("submissionsOnResource", SubmissionHistorySelectorUtil.getSubmissionSelectorItems(
-        querySearchResults
-    ));
-    modelAndView.addObject("submissionSelectedUrl",
-        ReverseRouter.route(on(ReviewSubmissionController.class).viewSubmission(resourceId, null))
-    );
+    modelAndView
+        .addObject("submissionsOnResource",
+            SubmissionHistorySelectorUtil.getSubmissionSelectorItems(querySearchResults))
+        .addObject("submissionSelectedUrl",
+        ReverseRouter.route(on(ReviewSubmissionController.class).viewSubmission(resourceId, null)))
+        .addObject("submissionBlocked",
+        discoveryAssociationService.associatedWithStatus300PlusField(submissionDetail.getSubmission()));
 
     var breadcrumbs = new Breadcrumbs.BreadcrumbsBuilder(
         submissionRecord.resourceNameCentreOfInterestAndLicenceApplicationReference())
@@ -206,9 +207,7 @@ public class ReviewSubmissionController {
 
       modelAndView
           .addObject("updateSubmissionUrl", updateSubmissionUrl)
-          .addObject("updateStarted", optionalSubmissionDetailUpdate.isPresent())
-          .addObject("submissionBlocked",
-              discoveryAssociationService.associatedWithStatus300PlusField(submissionDetail.getSubmission()));
+          .addObject("updateStarted", optionalSubmissionDetailUpdate.isPresent());
     }
 
     reviewSubmissionService.getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission())
