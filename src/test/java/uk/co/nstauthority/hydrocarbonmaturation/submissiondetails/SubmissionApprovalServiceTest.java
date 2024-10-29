@@ -25,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryAssociationService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSubmissionStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
@@ -54,6 +55,8 @@ class SubmissionApprovalServiceTest {
   private ReservoirSubmissionSectionService reservoirSubmissionSectionService;
   @Mock
   private InternalTeamService internalTeamService;
+  @Mock
+  private DiscoveryAssociationService discoveryAssociationService;
   @InjectMocks
   private SubmissionApprovalService submissionApprovalService;
 
@@ -292,6 +295,28 @@ class SubmissionApprovalServiceTest {
       when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail))
           .thenReturn(true);
       when(submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission()))
+          .thenReturn(true);
+      assertThat(submissionApprovalService.canApproveSubmission(submissionDetail, USER)).isFalse();
+    }
+
+    @Test
+    void canApproveSubmission_whenRegulator_inResponsibleTeam_hasNoUnresolvedUpdate_noAssociatedStatus300Field() {
+      when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail))
+          .thenReturn(true);
+      when(submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission()))
+          .thenReturn(false);
+      when(discoveryAssociationService.associatedWithStatus300PlusField(submissionDetail.getSubmission()))
+          .thenReturn(false);
+      assertThat(submissionApprovalService.canApproveSubmission(submissionDetail, USER)).isTrue();
+    }
+
+    @Test
+    void canApproveSubmission_whenRegulator_inResponsibleTeam_hasNoUnresolvedUpdate_hasAssociatedStatus300Field_assertFalse() {
+      when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail))
+          .thenReturn(true);
+      when(submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission()))
+          .thenReturn(false);
+      when(discoveryAssociationService.associatedWithStatus300PlusField(submissionDetail.getSubmission()))
           .thenReturn(true);
       assertThat(submissionApprovalService.canApproveSubmission(submissionDetail, USER)).isFalse();
     }

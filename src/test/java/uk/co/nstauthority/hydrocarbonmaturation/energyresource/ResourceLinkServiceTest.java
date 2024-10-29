@@ -268,4 +268,29 @@ class ResourceLinkServiceTest {
     assertThat(resourceLinkService.discoveryIsLinkedToField(resource))
         .isTrue();
   }
+
+  @Test
+  void getAssociatedFieldResources() {
+    var resource = new Resource();
+    resource.setType(ResourceType.DISCOVERY);
+
+    var activeField = new Resource();
+    activeField.setArchived(false);
+
+    var resourceLink = new ResourceLink();
+    resourceLink.setFieldResource(activeField);
+
+    var prospect = new Resource();
+    prospect.setType(ResourceType.PROSPECT);
+
+    var prospectLink = new ResourceLink();
+    prospectLink.setProspectResource(prospect);
+
+    when(resourceLinksRepository.findAllByDiscoveryResource(resource))
+        .thenReturn(List.of(resourceLink, prospectLink));
+    when(resourceService.getResourceById(activeField.getId()))
+        .thenReturn(Optional.of(activeField));
+
+    assertThat(resourceLinkService.getAssociatedFieldResources(resource)).isEqualTo(List.of(activeField));
+  }
 }

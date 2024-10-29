@@ -30,6 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryAssociationService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
@@ -54,7 +55,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.RequestUpdateController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.StartUpdateController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdate;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapView;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapViewService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.SubmissionSummaryModelService;
@@ -85,7 +85,7 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
   @MockBean
   private ResourceService resourceService;
   @MockBean
-  private SubmissionUpdateService submissionUpdateService;
+  private DiscoveryAssociationService discoveryAssociationService;
   @MockBean
   private ResourceGroupSummaryService resourceGroupSummaryService;
   @MockBean
@@ -238,6 +238,9 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
     when(reviewSubmissionService.getUpdateSubmissionDetailBySubmission(
         submissionDetail.getSubmission()))
         .thenReturn(Optional.of(updateSubmission));
+
+    when(discoveryAssociationService.blockedByAssociatedFieldStatus(submissionDetail.getSubmission())).thenReturn(false);
+
     mockModelAndViewCreation(submissionDetail, List.of());
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(ReviewSubmissionController.class).showReviewPage(resourceId, null)))
@@ -254,7 +257,8 @@ class ReviewSubmissionControllerTest extends AbstractControllerTest {
             entry("isInResponsibleTeam", false),
             entry("updateStarted", true),
             entry("updateSubmissionUrl", ReverseRouter.route(on(TaskListController.class)
-                .getTaskList(updateSubmission.getId(), null)))
+                .getTaskList(updateSubmission.getId(), null))),
+            entry("submissionBlocked", false)
         ).doesNotContainKey("regulatorManagedInformationSummaryView");
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));
 

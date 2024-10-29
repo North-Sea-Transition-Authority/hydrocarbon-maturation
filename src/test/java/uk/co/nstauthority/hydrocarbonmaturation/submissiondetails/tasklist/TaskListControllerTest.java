@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryAssociationService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.DeleteSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
@@ -43,12 +44,14 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
   @MockBean
   private SubmissionResourceService submissionResourceService;
 
+  @MockBean
+  private DiscoveryAssociationService discoveryAssociationService;
+
   private UUID submissionDetailId;
 
   @BeforeEach
   void setUp() {
     submissionDetailId = submissionDetail.getId();
-
   }
 
   @SecurityTest
@@ -58,6 +61,7 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
     var prospectName = "pros123";
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn(prospectName);
     when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionDetail)).thenReturn(submissionDetail.getSubmissionType().getTypeName());
+    when(discoveryAssociationService.blockedByAssociatedFieldStatus(submissionDetail.getSubmission())).thenReturn(false);
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
 
     var taskListSections = List.of(
@@ -103,7 +107,8 @@ class TaskListControllerTest extends AbstractSubmissionControllerTest {
             entry("deleteSubmissionUrl", ReverseRouter.route(on(DeleteSubmissionController.class)
                 .showDeleteConfirmationPage(submissionDetailId, null))),
             entry("isSubmissionUpdate", false),
-            entry("deleteLinkText", "Delete submission")
+            entry("deleteLinkText", "Delete submission"),
+            entry("submissionBlocked", false)
         )
         .doesNotContainKey("submissionUpdateReason");
 

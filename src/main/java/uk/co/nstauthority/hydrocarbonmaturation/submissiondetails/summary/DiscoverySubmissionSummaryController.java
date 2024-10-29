@@ -17,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecuritySubmissionTypes;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryAssociationService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionApprovalService;
@@ -44,7 +45,7 @@ public class DiscoverySubmissionSummaryController {
   private final SubmissionSummaryFormValidator submissionSummaryFormValidator;
   private final InternalTeamService internalTeamService;
   private final UndevelopedDiscoveryService undevelopedDiscoveryService;
-
+  private final DiscoveryAssociationService discoveryAssociationService;
   public static final String PAGE_NAME = "Review your submission before submitting";
 
   @Autowired
@@ -54,7 +55,8 @@ public class DiscoverySubmissionSummaryController {
                                               SubmissionApprovalService submissionApprovalService,
                                               SubmissionSummaryFormValidator submissionSummaryFormValidator,
                                               InternalTeamService internalTeamService,
-                                              UndevelopedDiscoveryService undevelopedDiscoveryService) {
+                                              UndevelopedDiscoveryService undevelopedDiscoveryService,
+                                              DiscoveryAssociationService discoveryAssociationService) {
     this.submissionDetailService = submissionDetailService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionReadyService = submissionReadyService;
@@ -62,6 +64,7 @@ public class DiscoverySubmissionSummaryController {
     this.submissionSummaryFormValidator = submissionSummaryFormValidator;
     this.internalTeamService = internalTeamService;
     this.undevelopedDiscoveryService = undevelopedDiscoveryService;
+    this.discoveryAssociationService = discoveryAssociationService;
   }
 
   @GetMapping
@@ -103,7 +106,9 @@ public class DiscoverySubmissionSummaryController {
         .addObject("pageName", PAGE_NAME)
         .addObject("cancelUrl", ReverseRouter.route(on(TaskListController.class).getTaskList(submissionDetail.getId(), null)))
         .addObject("submittable", submissionReadyService.isSubmissionSubmittable(submissionDetail, user))
-        .addObject("isRegulatorOrAreaTeamUser", internalTeamService.isRegulatorOrAreaTeamUser(user));
+        .addObject("isRegulatorOrAreaTeamUser", internalTeamService.isRegulatorOrAreaTeamUser(user))
+        .addObject("submissionBlocked",
+            discoveryAssociationService.blockedByAssociatedFieldStatus(submissionDetail.getSubmission()));
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(
         modelAndView,

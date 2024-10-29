@@ -19,7 +19,7 @@
   caption=resourceName>
 
   <#if isFieldSubmission>
-    <@banner.reviewFieldNotificationBanner fieldStatusAfterAccept/>
+    <@banner.reviewFieldNotificationBanner fieldStatusAfterSubmit=fieldStatusAfterAccept/>
   </#if>
 
   <@submissionSummary.submissionSummary

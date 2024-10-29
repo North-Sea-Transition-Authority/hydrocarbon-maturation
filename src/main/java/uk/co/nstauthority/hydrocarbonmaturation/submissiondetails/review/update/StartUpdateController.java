@@ -16,6 +16,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsLatestExtantSubmissionDetailVersion;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryAssociationService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
@@ -37,16 +38,19 @@ public class StartUpdateController {
   private final SubmissionUpdatePersistenceService submissionUpdatePersistenceService;
   private final SubmissionUpdateService submissionUpdateService;
   private final SubmissionResourceService submissionResourceService;
+  private final DiscoveryAssociationService discoveryAssociationService;
 
   @Autowired
   public StartUpdateController(SubmissionDetailService submissionDetailService,
                                SubmissionUpdatePersistenceService submissionUpdatePersistenceService,
                                SubmissionUpdateService submissionUpdateService,
-                               SubmissionResourceService submissionResourceService) {
+                               SubmissionResourceService submissionResourceService,
+                               DiscoveryAssociationService discoveryAssociationService) {
     this.submissionDetailService = submissionDetailService;
     this.submissionUpdatePersistenceService = submissionUpdatePersistenceService;
     this.submissionUpdateService = submissionUpdateService;
     this.submissionResourceService = submissionResourceService;
+    this.discoveryAssociationService = discoveryAssociationService;
   }
 
   @GetMapping
@@ -60,6 +64,11 @@ public class StartUpdateController {
               .formatted(submissionDetail.getSubmission().getId()));
     }
 
+    if (discoveryAssociationService.associatedWithStatus300PlusField(submissionDetail.getSubmission())) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+          "Could not start an update against this discovery as it is now managed as part of a field.");
+    }
+
     return getModelAndView(submissionDetail);
   }
 
@@ -68,14 +77,17 @@ public class StartUpdateController {
     var submissionDetail = submissionDetailService
         .getSubmissionDetailForIdOrError(submissionDetailId);
 
-    if (submissionUpdateService.canStartUpdateSubmissionDetailOnSubmission(submissionDetail.getSubmission())) {
-      var updateSubmissionDetail = submissionUpdatePersistenceService.startUpdate(submissionDetail, user);
-
-      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(updateSubmissionDetail.getId(), null));
-    } else {
+    if (!submissionUpdateService.canStartUpdateSubmissionDetailOnSubmission(submissionDetail.getSubmission())) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN,
           "Could not start an update due to missing update request for submission %s or a draft update exists"
               .formatted(submissionDetail.getSubmission().getId()));
+    } else if (discoveryAssociationService.associatedWithStatus300PlusField(submissionDetail.getSubmission())) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+          "Could not start an update against this discovery as it is now managed as part of a field.");
+    } else {
+      var updateSubmissionDetail = submissionUpdatePersistenceService.startUpdate(submissionDetail, user);
+
+      return ReverseRouter.redirect(on(TaskListController.class).getTaskList(updateSubmissionDetail.getId(), null));
     }
   }
 

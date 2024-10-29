@@ -15,6 +15,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasSubmissionStatu
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsFromResponsibleTeam;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryAssociationService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.DeleteSubmissionController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -32,16 +33,20 @@ public class TaskListController {
   private final SubmissionResourceService submissionResourceService;
   private final TaskListService taskListService;
   private final SubmissionUpdateService submissionUpdateService;
+  private final DiscoveryAssociationService discoveryAssociationService;
   public static final String PAGE_NAME = "Task list";
 
   @Autowired
   public TaskListController(SubmissionDetailService submissionDetailService,
-                            SubmissionResourceService submissionResourceService, TaskListService taskListService,
-                            SubmissionUpdateService submissionUpdateService) {
+                            SubmissionResourceService submissionResourceService,
+                            TaskListService taskListService,
+                            SubmissionUpdateService submissionUpdateService,
+                            DiscoveryAssociationService discoveryAssociationService) {
     this.submissionDetailService = submissionDetailService;
     this.submissionResourceService = submissionResourceService;
     this.taskListService = taskListService;
     this.submissionUpdateService = submissionUpdateService;
+    this.discoveryAssociationService = discoveryAssociationService;
   }
 
   @GetMapping
@@ -62,7 +67,9 @@ public class TaskListController {
         .addObject("resourceName", submissionResourceService.getResourceNameOrDefault(submissionDetail))
         .addObject("deleteLinkText", deleteLinkText)
         .addObject("deleteSubmissionUrl",
-            ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(submissionId, null)));
+            ReverseRouter.route(on(DeleteSubmissionController.class).showDeleteConfirmationPage(submissionId, null)))
+        .addObject("submissionBlocked",
+            discoveryAssociationService.blockedByAssociatedFieldStatus(submissionDetail.getSubmission()));
 
     var submissionUpdateOpt = submissionUpdateService
         .getLatestUnresolvedUpdateForUpdateSubmissionDetail(submissionDetail);

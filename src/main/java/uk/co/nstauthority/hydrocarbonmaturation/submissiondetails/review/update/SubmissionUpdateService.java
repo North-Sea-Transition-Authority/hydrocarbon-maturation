@@ -82,5 +82,4 @@ public class SubmissionUpdateService {
         && submissionUpdatePersistenceService.getDraftUpdateSubmissionDetail(submission).isEmpty();
   }
 
-
 }

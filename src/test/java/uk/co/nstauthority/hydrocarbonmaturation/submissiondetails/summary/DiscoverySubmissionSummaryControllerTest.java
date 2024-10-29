@@ -35,6 +35,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryAssociationService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionsFormSummaryView;
@@ -84,6 +85,9 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
 
   @MockBean
   private UndevelopedDiscoveryService undevelopedDiscoveryService;
+
+  @MockBean
+  private DiscoveryAssociationService discoveryAssociationService;
 
   private static UUID submissionDetailId;
 
@@ -269,6 +273,8 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
     when(submissionReadyService.isSubmissionSubmittable(submissionDetail, USER)).thenReturn(true);
     mockCreateDiscoverySubmissionSummaryModelAndView();
 
+    when(discoveryAssociationService.blockedByAssociatedFieldStatus(submissionDetail.getSubmission())).thenReturn(false);
+
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(DiscoverySubmissionSummaryController.class).showSubmissionSummary(submissionDetailId, null)))
                 .with(user(USER)))
@@ -302,7 +308,8 @@ class DiscoverySubmissionSummaryControllerTest extends AbstractSubmissionControl
             entry("resourceDetailSummaryView", resourceDetailSummaryView),
             entry("accordionId", submissionDetailId),
             entry("totalsRequired", false),
-            entry("chanceOfSuccessSummaryView", chanceOfSuccessSummaryView)
+            entry("chanceOfSuccessSummaryView", chanceOfSuccessSummaryView),
+            entry("submissionBlocked", false)
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

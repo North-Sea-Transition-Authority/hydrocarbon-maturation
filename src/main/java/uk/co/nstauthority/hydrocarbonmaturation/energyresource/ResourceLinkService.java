@@ -87,6 +87,14 @@ public class ResourceLinkService {
         .anyMatch(this::resourceLinkHasActiveField);
   }
 
+  public List<Resource> getAssociatedFieldResources(Resource discoveryResource) {
+    return getResourceLinksByDiscovery(discoveryResource)
+        .stream()
+        .filter(this::resourceLinkHasActiveField)
+        .map(ResourceLink::getFieldResource)
+        .toList();
+  }
+
   private List<ResourceLink> getResourceLinksByResource(Resource resource) {
     return switch (resource.getType()) {
       case PROSPECT -> getResourceLinksByProspect(resource);

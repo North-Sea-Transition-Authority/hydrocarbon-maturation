@@ -17,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.AccessibleByServiceUsers;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryAssociationService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
@@ -60,6 +61,7 @@ public class ReviewSubmissionController {
   private final FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
   private final FieldMapViewService fieldMapViewService;
   private final InternalTeamService internalTeamService;
+  private final DiscoveryAssociationService discoveryAssociationService;
 
   @Autowired
   public ReviewSubmissionController(
@@ -74,7 +76,8 @@ public class ReviewSubmissionController {
       FieldPersistenceService fieldPersistenceService,
       FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService,
       FieldMapViewService fieldMapViewService,
-      InternalTeamService internalTeamService) {
+      InternalTeamService internalTeamService,
+      DiscoveryAssociationService discoveryAssociationService) {
     this.reviewSubmissionService = reviewSubmissionService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.submissionDetailService = submissionDetailService;
@@ -87,6 +90,7 @@ public class ReviewSubmissionController {
     this.fieldRegulatorManagedInformationSummaryService = fieldRegulatorManagedInformationSummaryService;
     this.fieldMapViewService = fieldMapViewService;
     this.internalTeamService = internalTeamService;
+    this.discoveryAssociationService = discoveryAssociationService;
   }
 
   @GetMapping
@@ -202,7 +206,9 @@ public class ReviewSubmissionController {
 
       modelAndView
           .addObject("updateSubmissionUrl", updateSubmissionUrl)
-          .addObject("updateStarted", optionalSubmissionDetailUpdate.isPresent());
+          .addObject("updateStarted", optionalSubmissionDetailUpdate.isPresent())
+          .addObject("submissionBlocked",
+              discoveryAssociationService.associatedWithStatus300PlusField(submissionDetail.getSubmission()));
     }
 
     reviewSubmissionService.getLatestUnresolvedSubmissionUpdateBySubmission(submissionDetail.getSubmission())

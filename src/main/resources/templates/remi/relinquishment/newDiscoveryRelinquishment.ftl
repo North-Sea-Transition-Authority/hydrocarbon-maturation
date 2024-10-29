@@ -22,7 +22,11 @@
           If the discovery you want to relinquish is not shown in the list then you must contact the operator responsible for the discovery
           to provide you with access to their organisation.
         </p>
-        <@guidance.newSubmissionGuidanceText resourceTypeString="discovery" actionString="relinquish"/>
+        <@guidance.newSubmissionGuidanceText resourceTypeString="discovery" actionString="relinquish">
+          <li>
+            check if the discovery is associated with a field with a status of 300 or higher.
+          </li>
+        </@guidance.newSubmissionGuidanceText>
       </@fdsDetails.summaryDetails>
     <@fdsAction.submitButtons primaryButtonText="Save and continue" secondaryLinkText="Cancel" linkSecondaryAction=true linkSecondaryActionUrl="${springUrl(backLinkUrl)}"/>
   </@fdsForm.htmlForm>

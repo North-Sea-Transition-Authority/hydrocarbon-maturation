@@ -6,6 +6,7 @@
 <#import '../review/updateSummaryDetails.ftl' as updateSummaryDetails>
 <#import '../summary/_simpleSummary.ftl' as simpleSummary>
 <#import '../summary/_regulatorInformationSummary.ftl' as regulatorSummary>
+<#import '_submissionBlockedBanner.ftl' as banner>
 
 <#-- @ftlvariable name="submissionType" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType" -->
 <#-- @ftlvariable name="submissionRecord" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.SubmissionRecordSummaryView" -->
@@ -36,6 +37,10 @@
   pageSize=PageSize.FULL_WIDTH
   breadcrumbsMap=breadcrumbsMap
   wrapperWidth=true>
+
+  <#if submissionBlocked>
+      <@banner.submissionBlockedNotificationBanner/>
+  </#if>
 
   <@fdsDataItems.dataItem>
       <#if isFieldSubmission>
@@ -73,12 +78,14 @@
     <#elseif canReview>
       <@fdsAction.buttonGroup>
         <#if !updateRequested>
-          <@fdsAction.link linkText="Accept submission" linkClass="govuk-button" linkUrl=springUrl(approveUrl)/>
-          <#if canRequestUpdate>
-            <@fdsAction.link
-              linkText="Request update"
-              linkClass="govuk-button govuk-button--secondary"
-              linkUrl=springUrl(requestUpdateUrl)/>
+          <#if !submissionBlocked>
+            <@fdsAction.link linkText="Accept submission" linkClass="govuk-button" linkUrl=springUrl(approveUrl)/>
+            <#if canRequestUpdate>
+              <@fdsAction.link
+                linkText="Request update"
+                linkClass="govuk-button govuk-button--secondary"
+                linkUrl=springUrl(requestUpdateUrl)/>
+            </#if>
           </#if>
           <@fdsAction.link
             linkText="Withdraw submission"

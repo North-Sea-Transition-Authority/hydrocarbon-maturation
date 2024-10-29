@@ -5,6 +5,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryAssociationService;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.ActionNotAllowedException;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldSubmissionStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
@@ -24,6 +25,7 @@ public class SubmissionApprovalService {
   private final ReservoirSubmissionSectionService reservoirSubmissionSectionService;
   private final FieldSubmissionStatusService fieldSubmissionStatusService;
   private final InternalTeamService internalTeamService;
+  private final DiscoveryAssociationService discoveryAssociationService;
 
   @Autowired
   public SubmissionApprovalService(
@@ -33,7 +35,9 @@ public class SubmissionApprovalService {
       ResponsibleTeamService responsibleTeamService,
       ReservoirTotalsCleanAndCopyService reservoirTotalsCleanAndCopyService,
       ReservoirSubmissionSectionService reservoirSubmissionSectionService,
-      FieldSubmissionStatusService fieldSubmissionStatusService, InternalTeamService internalTeamService) {
+      FieldSubmissionStatusService fieldSubmissionStatusService,
+      InternalTeamService internalTeamService,
+      DiscoveryAssociationService discoveryAssociationService) {
     this.submissionDetailPersistenceService = submissionDetailPersistenceService;
     this.submissionEmailService = submissionEmailService;
     this.submissionUpdateService = submissionUpdateService;
@@ -42,6 +46,7 @@ public class SubmissionApprovalService {
     this.reservoirSubmissionSectionService = reservoirSubmissionSectionService;
     this.fieldSubmissionStatusService = fieldSubmissionStatusService;
     this.internalTeamService = internalTeamService;
+    this.discoveryAssociationService = discoveryAssociationService;
   }
 
   @Transactional
@@ -97,7 +102,8 @@ public class SubmissionApprovalService {
   public boolean canApproveSubmission(SubmissionDetail submissionDetail, User user) {
     return responsibleTeamService
         .isInResponsibleTeam(user, submissionDetail)
-        && !submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission());
+        && !submissionUpdateService.hasAnUnresolvedUpdateOnSubmission(submissionDetail.getSubmission())
+        && !discoveryAssociationService.associatedWithStatus300PlusField(submissionDetail.getSubmission());
   }
 
   private boolean canAutoApproveSubmission(User user) {

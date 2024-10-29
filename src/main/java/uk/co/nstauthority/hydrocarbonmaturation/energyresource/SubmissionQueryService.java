@@ -7,6 +7,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryAssociationService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
@@ -28,6 +29,7 @@ class SubmissionQueryService {
   private final ResourceLinkService resourceLinkService;
   private final IndustryTeamService industryTeamService;
   private final InternalTeamService internalTeamService;
+  private final DiscoveryAssociationService discoveryAssociationService;
 
   @Autowired
   SubmissionQueryService(ResourceDetailsPersistenceService resourceDetailsPersistenceService,
@@ -36,8 +38,10 @@ class SubmissionQueryService {
                          SubmissionFilterService submissionFilterService,
                          SubmissionSearchSelectorServiceFactory submissionSearchSelectorServiceFactory,
                          ResourceGroupService resourceGroupService,
-                         ResourceLinkService resourceLinkService, IndustryTeamService industryTeamService,
-                         InternalTeamService internalTeamService) {
+                         ResourceLinkService resourceLinkService,
+                         IndustryTeamService industryTeamService,
+                         InternalTeamService internalTeamService,
+                         DiscoveryAssociationService discoveryAssociationService) {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.submissionDetailService = submissionDetailService;
     this.submissionResourceService = submissionResourceService;
@@ -47,6 +51,7 @@ class SubmissionQueryService {
     this.resourceLinkService = resourceLinkService;
     this.industryTeamService = industryTeamService;
     this.internalTeamService = internalTeamService;
+    this.discoveryAssociationService = discoveryAssociationService;
   }
 
   public List<ResourceView> getLatestDiscoveriesByNameForSubmissionType(String name,
@@ -62,7 +67,9 @@ class SubmissionQueryService {
             .filter(resource -> BooleanUtils.isFalse(resource.getArchived()))
             .map(submissionDetailService::getLatestApprovedDiscoverySubmissionDetailForResource)
             .flatMap(Optional::stream)
-            .filter(detail -> submissionFilterService.filterDiscoverySubmissionByOtherSubmissions(detail, submissionType));
+            .filter(detail -> submissionFilterService.filterDiscoverySubmissionByOtherSubmissions(detail, submissionType))
+            .filter(submissionDetail ->
+                !discoveryAssociationService.associatedWithStatus300PlusField(submissionDetail.getSubmission()));
 
     return submissionSearchSelectorServiceFactory.getSubmissionSearchSelectorStrategy(user)
         .getResourceDetailsForSubmissionsWithTeam(latestSubmissionsWhichCanBeSubmittedUpon, submissionType, user)

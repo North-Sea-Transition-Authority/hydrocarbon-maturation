@@ -14,7 +14,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 
 @Controller
-@RequestMapping("/prospect/start-update-discovery")
+@RequestMapping("/discovery/start-update-discovery")
 @HasAnyRole(role = Role.EXPLORATION, teamType = TeamType.REGULATOR)
 @HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.NORTHERN_OFFSHORE_AREA)
 @HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.SOUTHERN_OFFSHORE_AREA)

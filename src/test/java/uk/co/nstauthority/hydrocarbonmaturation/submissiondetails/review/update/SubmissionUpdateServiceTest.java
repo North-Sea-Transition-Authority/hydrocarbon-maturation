@@ -23,6 +23,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryAssociationService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
@@ -38,6 +41,8 @@ class SubmissionUpdateServiceTest {
   private SubmissionUpdatePersistenceService submissionUpdatePersistenceService;
   @Mock
   private ResponsibleTeamService responsibleTeamService;
+  @Mock
+  private DiscoveryAssociationService discoveryAssociationService;
 
   @InjectMocks
   private SubmissionUpdateService underTest;
@@ -196,8 +201,12 @@ class SubmissionUpdateServiceTest {
   @Nested
   class WhenCheckingIfCanStartUpdateSubmissionDetailOnSubmission {
 
-    @Mock
     private Submission submission;
+
+    @BeforeEach
+    void setup() {
+      submission = new Submission();
+    }
 
     @Test
     void whenDoesNotHaveUnresolvedUpdate() {
@@ -209,6 +218,10 @@ class SubmissionUpdateServiceTest {
 
     @Test
     void whenDoesNotHaveDraftUpdate() {
+      var resource = new Resource();
+      resource.setType(ResourceType.PROSPECT);
+      submission.setResource(resource);
+
       when(submissionUpdatePersistenceService.submissionHasAnUnresolvedUpdate(submission))
           .thenReturn(true);
 

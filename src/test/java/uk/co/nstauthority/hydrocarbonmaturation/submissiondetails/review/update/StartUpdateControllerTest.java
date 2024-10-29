@@ -23,6 +23,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryAssociationService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -40,6 +41,9 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private SubmissionResourceService submissionResourceService;
+
+  @MockBean
+  private DiscoveryAssociationService discoveryAssociationService;
 
   private SubmissionUpdate submissionUpdate;
 
@@ -181,6 +185,25 @@ class StartUpdateControllerTest extends AbstractSubmissionControllerTest {
   void startUpdate_whenCannotStartUpdate_assertForbidden() throws Exception {
     setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
     when(submissionUpdateService.canStartUpdateSubmissionDetailOnSubmission(submissionDetail.getSubmission()))
+        .thenReturn(false);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
+        .thenReturn(submissionDetail);
+
+    mockMvc.perform(
+            post(ReverseRouter.route(on(StartUpdateController.class).startUpdate(SUBMISSION_DETAIL_ID, null)))
+                .with(user(USER))
+                .with(csrf()))
+        .andExpect(status().isForbidden());
+
+    verifyNoInteractions(submissionUpdatePersistenceService);
+  }
+
+  @Test
+  void startUpdate_whenBlockedByStatus300PlusField_assertForbidden() throws Exception {
+    setUpWhenUserIsResponsibleOrganisation_passSecurity(USER);
+    when(submissionUpdateService.canStartUpdateSubmissionDetailOnSubmission(submissionDetail.getSubmission()))
+        .thenReturn(true);
+    when(discoveryAssociationService.associatedWithStatus300PlusField(submissionDetail.getSubmission()))
         .thenReturn(false);
     when(submissionDetailService.getSubmissionDetailForIdOrError(SUBMISSION_DETAIL_ID))
         .thenReturn(submissionDetail);

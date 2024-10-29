@@ -3,6 +3,7 @@
 <#import '_discoverySubmissionSummary.ftl' as discoverySubmissionSummary>
 <#import '_summarySubmissionNotificationBanner.ftl' as banner>
 <#import '../../review/updateSummaryDetails.ftl' as updateSummaryDetails>
+<#import '../../review/_submissionBlockedBanner.ftl' as blockedBanner>
 
 <#-- @ftlvariable name="pageName" type="String" -->
 <#-- @ftlvariable name="actionUrl" type="String" -->
@@ -42,9 +43,13 @@
 <#-- @ftlvariable name="oilCaseVolumetricTotalsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoveryoilcasevolumetrictotals.DiscoveryOilCaseVolumetricTotalsSummaryView" -->
 <#-- @ftlvariable name="gasCaseVolumetricTotalsSummaryView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverygascasevolumetrictotals.DiscoveryGasCaseVolumetricTotalsSummaryView" -->
 
-<#if !submittable>
+<#if submissionBlocked>
   <#assign notificationBanner>
-      <@banner.submissionSummaryNotificationBanner isRegulator=isRegulatorOrAreaTeamUser/>
+    <@blockedBanner.submissionBlockedNotificationBanner/>
+  </#assign>
+<#elseif !submittable>
+  <#assign notificationBanner>
+    <@banner.submissionSummaryNotificationBanner isRegulator=isRegulatorOrAreaTeamUser/>
   </#assign>
 <#else>
   <#assign notificationBanner = ""/>
@@ -84,14 +89,14 @@
       reservoirSummaries=reservoirSummaries
       chanceOfSuccessSummaryView=chanceOfSuccessSummaryView!""
     />
-      <#if !submittable && isRegulatorOrAreaTeamUser>
+      <#if !submittable && isRegulatorOrAreaTeamUser && !submissionBlocked>
         <div class="govuk-form-group <#if errorList?has_content>govuk-form-group--error</#if>">
             <@fdsCheckbox.checkbox
               labelText="I want to complete this submission without providing all the required information"
               path="form.completeWithoutMandatoryInformation"/>
         </div>
       </#if>
-    <#if isRegulatorOrAreaTeamUser || submittable>
+    <#if !submissionBlocked && (isRegulatorOrAreaTeamUser || submittable)>
       <@fdsAction.submitButtons
         primaryButtonText="Submit"
         secondaryLinkText="Back to task list"

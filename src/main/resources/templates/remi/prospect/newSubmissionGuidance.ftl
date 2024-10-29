@@ -12,6 +12,7 @@
     <li>
       check if there is an open submission for the ${resourceTypeString} in draft or awaiting acceptance as only one open submission is allowed at a time
     </li>
+    <#nested>
   </ol>
   <p class="govuk-body">
     If you have confirmed you have access to submit updates for the ${resourceTypeString} and there are no open submissions then contact the ${customerBranding.mnemonic()} for advice.

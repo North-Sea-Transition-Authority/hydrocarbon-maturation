@@ -1,6 +1,7 @@
 <#include '../../layout/layout.ftl'>
 <#import '../../tasklist/standardTaskList.ftl' as taskList>
 <#import '../../review/updateSummaryDetails.ftl' as updateSummaryDetails>
+<#import '../../review/_submissionBlockedBanner.ftl' as banner>
 
 <#-- @ftlvariable name="taskListSections" type="java.util.List<uk.co.nstauthority.offshoresafetydirective.tasklist.TaskListSectionView>" -->
 <#-- @ftlvariable name="serviceBranding" type="uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties" -->
@@ -15,6 +16,10 @@
   breadcrumbsMap=breadcrumbsMap
   caption=resourceName>
 
+  <#if submissionBlocked!false>
+    <@banner.submissionBlockedNotificationBanner/>
+  </#if>
+
   <#if isSubmissionUpdate>
     <@updateSummaryDetails.updateDetails submissionUpdateReason=submissionUpdateReason/>
   </#if>
@@ -24,7 +29,6 @@
     linkUrl=springUrl(deleteSubmissionUrl)
     linkClass="govuk-button govuk-button--secondary"
     role=true/>
-
 
   <@taskList.standardTaskList taskListSections=taskListSections />
 </@defaultPage>

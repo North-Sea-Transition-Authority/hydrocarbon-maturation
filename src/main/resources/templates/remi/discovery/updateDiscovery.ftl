@@ -24,7 +24,11 @@
       <p class="govuk-body">
         Only discoveries that have not been relinquished are shown.
       </p>
-      <@guidance.newSubmissionGuidanceText resourceTypeString="discovery"/>
+      <@guidance.newSubmissionGuidanceText resourceTypeString="discovery">
+        <li>
+          check if the discovery is associated with a field with a status of 300 or higher.
+        </li>
+      </@guidance.newSubmissionGuidanceText>
     </@fdsDetails.summaryDetails>
       <@fdsAction.submitButtons primaryButtonText="Save and continue" secondaryLinkText="Cancel" linkSecondaryAction=true linkSecondaryActionUrl="${springUrl(backLinkUrl)}"/>
   </@fdsForm.htmlForm>

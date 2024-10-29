@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.discovery.DiscoveryAssociationService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcegroup.ResourceGroupService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
@@ -71,6 +72,9 @@ class SubmissionQueryServiceTest {
   @Mock
   private InternalTeamService internalTeamService;
 
+  @Mock
+  private DiscoveryAssociationService discoveryAssociationService;
+
   @InjectMocks
   private SubmissionQueryService submissionQueryService;
 
@@ -110,6 +114,8 @@ class SubmissionQueryServiceTest {
           .thenReturn(true);
       when(submissionSearchSelectorServiceFactory.getSubmissionSearchSelectorStrategy(USER))
           .thenReturn(operatorSubmissionSearchSelectorService);
+      when(discoveryAssociationService.associatedWithStatus300PlusField(latestApprovedResourceDetail.getSubmissionDetail().getSubmission()))
+          .thenReturn(false);
 
       ArgumentCaptor<Stream<SubmissionDetail>> lastestSubmissionStream = ArgumentCaptor.forClass(Stream.class);
 
