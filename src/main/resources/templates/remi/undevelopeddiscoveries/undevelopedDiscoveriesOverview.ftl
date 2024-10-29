@@ -17,5 +17,5 @@
     <@fdsDataItems.dataValues value="mmboe (2C)" key=keyStats.mmboeTwoC()/>
     <@fdsDataItems.dataValues value="mmboe (3C)" key=keyStats.mmboeThreeC()/>
   </@fdsDataItems.dataItem>
-  <@fdsTable.table tableContents=summaryTableView tableId="undeveloped-discoveries"/>
+  <@fdsTable.sortableTable tableContents=summaryTableView tableId="undeveloped-discoveries" tableCaption="Summary of undeveloped discoveries"/>
 </@defaultPage>

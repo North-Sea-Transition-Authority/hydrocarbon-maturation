@@ -6,3 +6,6 @@ CVE-2024-47554
 
 # spring-context
 CVE-2024-38820
+
+# spring-security-web
+CVE-2024-38821
