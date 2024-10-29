@@ -167,7 +167,7 @@ wrapperWidth=true>
       fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
       fieldMapView=fieldMapView!""
       associatedDiscoveriesMap=associatedDiscoveriesMap!""
-      linkedPostFieldDiscoveriesMap=linkedPostFieldDiscoveriesMap
+      linkedPostFieldDiscoveriesMap=linkedPostFieldDiscoveriesMap!""
       canSeePostFieldLink=canSeePostFieldLink!false/>
   <#else>
     <#if canViewRegulatorManagementInfo>
