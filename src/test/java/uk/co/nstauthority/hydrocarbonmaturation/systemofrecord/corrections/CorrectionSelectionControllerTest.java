@@ -37,6 +37,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistoryQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistorySelectorUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionIntegrationTestUtils;
@@ -99,7 +100,7 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
                 .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(correctionService, times(1)).startCorrectionForTypeAndRedirect(any(CorrectionForm.class), eq(user));
+    verify(correctionService, times(1)).startCorrectionForTypeAndRedirect(any(CorrectionForm.class), eq(user), any(Resource.class));
   }
 
   @SecurityTest
@@ -148,7 +149,7 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
                 .with(user(user))
                 .with(csrf()))
         .andExpect(status().isOk());
-    verify(correctionService, never()).startCorrectionForTypeAndRedirect(any(),any());
+    verify(correctionService, never()).startCorrectionForTypeAndRedirect(any(),any(),any());
   }
 
   @Test
@@ -230,5 +231,38 @@ class CorrectionSelectionControllerTest extends AbstractControllerTest {
                     entry("removableSubmissions", removableSubmissionMap),
                     entry("cancelUrl", ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null)))
             );
+  }
+
+  @Test
+  void getCorrectPage_assertModelAndView_fieldSubmission() throws Exception {
+    resource.setType(ResourceType.FIELD);
+
+    List<SubmissionQuerySearchRecord> approvedSubmissions = List.of(
+        SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(
+            SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail()
+        )
+    );
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResource(resourceId)).thenReturn(approvedSubmissions);
+    var correctionTypes = CorrectionType.getCorrectionTypes();
+    when(correctionService.getCorrectionTypes(resource)).thenReturn(correctionTypes);
+    var submissionsOnResource = SubmissionHistorySelectorUtil.getSubmissionSelectorItems(approvedSubmissions);
+    var removableSubmissionMap = submissionsOnResource.entrySet().stream().findFirst().stream()
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    var modelMap = Objects.requireNonNull(mockMvc.perform(
+            get(ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resourceId, null)))
+                .with(user(user)))
+        .andExpect(view().name("remi/systemofrecord/corrections/corrections"))
+        .andReturn()
+        .getModelAndView()).getModelMap();
+
+    assertEquals(CorrectionForm.class, modelMap.get("form").getClass());
+    assertThat(modelMap)
+        .contains(
+            entry("correctionTypes", correctionTypes),
+            entry("submissionsOnResource", submissionsOnResource),
+            entry("removableSubmissions", removableSubmissionMap),
+            entry("cancelUrl", ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(resourceId, null))),
+            entry("submissionTypes", List.of(SubmissionType.CREATE_CSR, SubmissionType.CREATE_FDP, SubmissionType.CREATE_FDPA, SubmissionType.CREATE_COP))
+        );
   }
 }

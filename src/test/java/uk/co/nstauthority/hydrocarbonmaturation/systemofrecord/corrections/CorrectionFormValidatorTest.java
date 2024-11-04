@@ -927,6 +927,197 @@ class CorrectionFormValidatorTest {
             ))));
   }
 
+  @Test
+  void validateMissingFieldUpdate_submissionTypeMissing() {
+    var resource = ResourceTestUtils.buildResource(ResourceType.FIELD);
+    var form = new CorrectionForm();
+    form.setCorrectionType(CorrectionType.FIELD_HISTORIC_UPDATE);
+    form.setMissingUpdateDay("1");
+    form.setMissingUpdateMonth("1");
+    form.setMissingUpdateYear("2024");
+
+    var bindingResult = validateCorrectionForm(form, resource);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors).containsExactly(
+        entry("submissionTypeForMissingUpdate", Set.of("submissionTypeForMissingUpdate.required"))
+    );
+  }
+
+  @Test
+  void validateMissingFieldUpdate_dateInTheFuture() {
+    var resource = ResourceTestUtils.buildResource(ResourceType.FIELD);
+    var form = new CorrectionForm();
+    form.setCorrectionType(CorrectionType.FIELD_HISTORIC_UPDATE);
+    form.setSubmissionTypeForMissingUpdate(SubmissionType.CREATE_FDPA);
+    form.setMissingUpdateDay("1");
+    form.setMissingUpdateMonth("1");
+    form.setMissingUpdateYear("2100");
+
+    var bindingResult = validateCorrectionForm(form, resource);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors).containsExactly(
+        entry("missingUpdateDay", Set.of("missingUpdateDay.notBeforeTargetDate")),
+        entry("missingUpdateMonth", Set.of("missingUpdateMonth.notBeforeTargetDate")),
+        entry("missingUpdateYear", Set.of("missingUpdateYear.notBeforeTargetDate"))
+    );
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains("Missing update date of the submission must be today or in the past");
+  }
+
+  @Test
+  void validateMissingFieldUpdate_submissionTypeAlreadyExists() {
+    var resource = ResourceTestUtils.buildResource(ResourceType.FIELD);
+    var submissionDetailHistory = createFieldSubmissionDetailHistory();
+    var form = new CorrectionForm();
+    form.setCorrectionType(CorrectionType.FIELD_HISTORIC_UPDATE);
+    form.setSubmissionTypeForMissingUpdate(SubmissionType.CREATE_CSR);
+    form.setMissingUpdateDay("1");
+    form.setMissingUpdateMonth("1");
+    form.setMissingUpdateYear("2024");
+
+    when(submissionDetailService.getExtantSubmissionDetailsForResource(resource)).thenReturn(submissionDetailHistory);
+
+    var bindingResult = validateCorrectionForm(form, resource);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors).containsExactly(
+        entry("submissionTypeForMissingUpdate", Set.of("submissionTypeForMissingUpdate.invalid"))
+    );
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains("Update of type %s cannot be created as a submission already exists of that type"
+            .formatted(SubmissionType.CREATE_CSR.getAcronym()));
+  }
+
+  @Test
+  void validateMissingFieldUpdate_submissionAlreadyExistsForSelectedDate() {
+    var resource = ResourceTestUtils.buildResource(ResourceType.FIELD);
+    var submissionDetailHistory = createFieldSubmissionDetailHistory();
+    var approvedSubmissions = createApprovedSubmissionHistory(submissionDetailHistory);
+    var selectedSubmissionDetail = submissionDetailHistory.get(2);
+
+    var form = new CorrectionForm();
+    form.setCorrectionType(CorrectionType.FIELD_HISTORIC_UPDATE);
+    form.setSubmissionTypeForMissingUpdate(SubmissionType.CREATE_FDPA);
+    form.setMissingUpdateDay(String.valueOf(
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth()
+    ));
+    form.setMissingUpdateMonth(String.valueOf(
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+    ));
+    form.setMissingUpdateYear(String.valueOf(
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
+
+    when(submissionDetailService.getExtantSubmissionDetailsForResource(resource)).thenReturn(submissionDetailHistory);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
+
+    var bindingResult = validateCorrectionForm(form, resource);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors).containsExactly(
+        entry("missingUpdateDay", Set.of("missingUpdateDay.invalid")),
+        entry("missingUpdateMonth", Set.of("missingUpdateMonth.invalid")),
+        entry("missingUpdateYear", Set.of("missingUpdateYear.invalid"))
+    );
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains("Missing update date cannot be the same as another accepted date");
+  }
+
+  @Test
+  void validateMissingFieldUpdate_submissionTypeOutOfOrder_beforePrevious() {
+    var resource = ResourceTestUtils.buildResource(ResourceType.FIELD);
+    var submissionDetailHistory = createFieldSubmissionDetailHistory();
+    var approvedSubmissions = createApprovedSubmissionHistory(submissionDetailHistory);
+    var selectedSubmissionDetail = submissionDetailHistory.get(1);
+
+    var form = new CorrectionForm();
+    form.setCorrectionType(CorrectionType.FIELD_HISTORIC_UPDATE);
+    form.setSubmissionTypeForMissingUpdate(SubmissionType.CREATE_FDPA);
+    form.setMissingUpdateDay(String.valueOf(
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() -1
+    ));
+    form.setMissingUpdateMonth(String.valueOf(
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+    ));
+    form.setMissingUpdateYear(String.valueOf(
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
+
+    when(submissionDetailService.getExtantSubmissionDetailsForResource(resource)).thenReturn(submissionDetailHistory);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
+
+    var bindingResult = validateCorrectionForm(form, resource);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors).containsExactly(
+        entry("missingUpdateDay", Set.of("missingUpdateDay.notAfterTargetDate")),
+        entry("missingUpdateMonth", Set.of("missingUpdateMonth.notAfterTargetDate")),
+        entry("missingUpdateYear", Set.of("missingUpdateYear.notAfterTargetDate"))
+    );
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains("Missing update date of the submission must be after date of previous submission type");
+  }
+
+  @Test
+  void validateMissingFieldUpdate_submissionTypeOutOfOrder_afterFollowing() {
+    var resource = ResourceTestUtils.buildResource(ResourceType.FIELD);
+    var submissionDetailHistory = createFieldSubmissionDetailHistory();
+    var approvedSubmissions = createApprovedSubmissionHistory(submissionDetailHistory);
+    var selectedSubmissionDetail = submissionDetailHistory.get(3);
+
+    var form = new CorrectionForm();
+    form.setCorrectionType(CorrectionType.FIELD_HISTORIC_UPDATE);
+    form.setSubmissionTypeForMissingUpdate(SubmissionType.CREATE_FDPA);
+    form.setMissingUpdateDay(String.valueOf(
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
+    ));
+    form.setMissingUpdateMonth(String.valueOf(
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+    ));
+    form.setMissingUpdateYear(String.valueOf(
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
+
+    when(submissionDetailService.getExtantSubmissionDetailsForResource(resource)).thenReturn(submissionDetailHistory);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
+
+    var bindingResult = validateCorrectionForm(form, resource);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors).containsExactly(
+        entry("missingUpdateDay", Set.of("missingUpdateDay.notBeforeTargetDate")),
+        entry("missingUpdateMonth", Set.of("missingUpdateMonth.notBeforeTargetDate")),
+        entry("missingUpdateYear", Set.of("missingUpdateYear.notBeforeTargetDate"))
+    );
+    assertThat(bindingResult.getAllErrors())
+        .extracting(DefaultMessageSourceResolvable::getDefaultMessage)
+        .contains("Missing update date of the submission must be before date of following submission type");
+  }
+
+  @Test
+  void validateMissingFieldUpdate_validForm() {
+    var resource = ResourceTestUtils.buildResource(ResourceType.FIELD);
+    var submissionDetailHistory = createFieldSubmissionDetailHistory();
+    var approvedSubmissions = createApprovedSubmissionHistory(submissionDetailHistory);
+    var selectedSubmissionDetail = submissionDetailHistory.get(2);
+
+    var form = new CorrectionForm();
+    form.setCorrectionType(CorrectionType.FIELD_HISTORIC_UPDATE);
+    form.setSubmissionTypeForMissingUpdate(SubmissionType.CREATE_FDPA);
+    form.setMissingUpdateDay(String.valueOf(
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getDayOfMonth() + 1
+    ));
+    form.setMissingUpdateMonth(String.valueOf(
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getMonthValue()
+    ));
+    form.setMissingUpdateYear(String.valueOf(
+        selectedSubmissionDetail.getAcceptedTimestamp().atZone(ZoneId.systemDefault()).getYear()));
+
+    when(submissionDetailService.getExtantSubmissionDetailsForResource(resource)).thenReturn(submissionDetailHistory);
+    when(submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId())).thenReturn(approvedSubmissions);
+
+    var bindingResult = validateCorrectionForm(form, resource);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors).isEmpty();
+  }
+
   private List<SubmissionDetail> createProspectSubmissionDetailHistory() {
     var submissionDetail1 = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
     submissionDetail1.setAcceptedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 1, 1, 0, 0)
@@ -965,6 +1156,26 @@ class CorrectionFormValidatorTest {
         .atZone(ZoneId.systemDefault())
         .toInstant());
     var submissionDetail4 = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.RELINQUISHMENT_DISCOVERY);
+    submissionDetail4.setAcceptedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 4, 1, 0, 0)
+        .atZone(ZoneId.systemDefault())
+        .toInstant());
+    return List.of(submissionDetail1, submissionDetail2, submissionDetail3, submissionDetail4);
+  }
+
+  private List<SubmissionDetail> createFieldSubmissionDetailHistory() {
+    var submissionDetail1 = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+    submissionDetail1.setAcceptedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 1, 1, 0, 0)
+        .atZone(ZoneId.systemDefault())
+        .toInstant());
+    var submissionDetail2 = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_FDP);
+    submissionDetail2.setAcceptedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 2, 2, 0, 0)
+        .atZone(ZoneId.systemDefault())
+        .toInstant());
+    var submissionDetail3 = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_FDPA);
+    submissionDetail3.setAcceptedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 3, 1, 0, 0)
+        .atZone(ZoneId.systemDefault())
+        .toInstant());
+    var submissionDetail4 = SubmissionDetailTestUtils.createDiscoverySubmissionDetail(SubmissionType.CREATE_COP);
     submissionDetail4.setAcceptedTimestamp(LocalDateTime.of(LocalDate.now().getYear() - 1, 4, 1, 0, 0)
         .atZone(ZoneId.systemDefault())
         .toInstant());

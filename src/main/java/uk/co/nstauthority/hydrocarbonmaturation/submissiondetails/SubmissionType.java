@@ -221,5 +221,4 @@ public enum SubmissionType implements Displayable {
         .flatMap(Collection::stream)
         .collect(Collectors.toSet());
   }
-
 }

@@ -16,10 +16,11 @@ backLinkUrl=springUrl(cancelUrl)>
                 <@fdsRadio.radioItem path="form.correctionType" itemMap={key : value} isFirstItem=firstItem>
                     <#if key == "HISTORIC_UPDATE">
                         <@fdsSelect.select
-                            path = "form.submissionDetailIdForMissingUpdate"
-                            labelText = "After which submission do you want to add a missing update?"
-                            options = submissionsOnResource
-                            nestingPath="form.correctionType"/>
+                        path = "form.submissionDetailIdForMissingUpdate"
+                        labelText = "After which submission do you want to add a missing update?"
+                        options = submissionsOnResource
+                        nestingPath="form.correctionType"/>
+
                         <@fdsDateInput.dateInput
                             formId="missing-update-date-input"
                             dayPath="form.missingUpdateDay"
@@ -28,6 +29,29 @@ backLinkUrl=springUrl(cancelUrl)>
                             labelText="Date of missing update"
                             hintText="For example, 31 1 2023"
                             nestingPath="form.correctionType"/>
+                    </#if>
+                    <#if key == "FIELD_HISTORIC_UPDATE" && submissionTypes?has_content>
+                        <@fdsRadio.radioGroup
+                        path="form.submissionTypeForMissingUpdate"
+                        labelText="Which missing submission type do you want to add?">
+                            <#assign firstItem=true/>
+                            <#list submissionTypes as submissionType>
+                                <@fdsRadio.radioItem
+                                path="form.submissionTypeForMissingUpdate"
+                                itemMap={submissionType.enumName: submissionType.displayName}
+                                itemHintText=submissionType.hintText isFirstItem=firstItem/>
+                                <#assign firstItem=false/>
+                            </#list>
+                        </@fdsRadio.radioGroup>
+
+                        <@fdsDateInput.dateInput
+                        formId="missing-update-date-input"
+                        dayPath="form.missingUpdateDay"
+                        monthPath="form.missingUpdateMonth"
+                        yearPath="form.missingUpdateYear"
+                        labelText="Date of missing update"
+                        hintText="For example, 31 1 2023"
+                        nestingPath="form.correctionType"/>
                     </#if>
                     <#if key == "SUBMISSION_CORRECTION">
                         <@fdsSelect.select

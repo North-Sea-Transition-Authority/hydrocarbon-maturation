@@ -64,6 +64,9 @@ class DeleteSubmissionFromCorrectionControllerTest extends AbstractSubmissionCon
   @MockBean
   private CorrectionService correctionService;
 
+  @MockBean
+  private CorrectionCreateService correctionCreateService;
+
   private GeneralDetailSummaryView generalDetailSummaryView;
   private SourceAndSealSummaryView sourceAndSealSummaryView;
   private HydrocarbonCaseSummaryView hydrocarbonCaseSummaryView;
@@ -210,7 +213,7 @@ class DeleteSubmissionFromCorrectionControllerTest extends AbstractSubmissionCon
             .showSearchResourceRecordsScreen(null, null))))
         .andReturn().getFlashMap();
 
-    verify(correctionService, times(1)).deleteSubmission(submissionDetail, USER);
+    verify(correctionCreateService, times(1)).deleteSubmission(submissionDetail, USER);
 
     assertThat((NotificationBanner) flashMap.get("flash"))
         .extracting(
@@ -234,7 +237,7 @@ class DeleteSubmissionFromCorrectionControllerTest extends AbstractSubmissionCon
             .showResourceRecord(submissionDetail.getSubmission().getResource().getId(), null))))
         .andReturn().getFlashMap();
 
-    verify(correctionService, times(1)).deleteSubmission(submissionDetail, USER);
+    verify(correctionCreateService, times(1)).deleteSubmission(submissionDetail, USER);
 
     assertThat((NotificationBanner) flashMap.get("flash"))
         .extracting(
