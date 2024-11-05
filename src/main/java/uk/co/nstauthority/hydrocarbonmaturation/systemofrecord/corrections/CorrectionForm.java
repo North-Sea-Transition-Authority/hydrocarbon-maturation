@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.corrections;
 
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ApplyFormErrorOrdering;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ErrorSummaryDisplayOrder;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 
 @ApplyFormErrorOrdering
 class CorrectionForm {
@@ -13,30 +14,33 @@ class CorrectionForm {
   private String submissionDetailIdForMissingUpdate;
 
   @ErrorSummaryDisplayOrder(3)
-  private String missingUpdateDay;
+  private SubmissionType submissionTypeForMissingUpdate;
 
   @ErrorSummaryDisplayOrder(4)
-  private String missingUpdateMonth;
+  private String missingUpdateDay;
 
   @ErrorSummaryDisplayOrder(5)
-  private String missingUpdateYear;
+  private String missingUpdateMonth;
 
   @ErrorSummaryDisplayOrder(6)
-  private String submissionDetailIdForCorrectingInformation;
+  private String missingUpdateYear;
 
   @ErrorSummaryDisplayOrder(7)
-  private String submissionDetailIdForChangingApprovedDate;
+  private String submissionDetailIdForCorrectingInformation;
 
   @ErrorSummaryDisplayOrder(8)
-  private String approvalDateChangeDay;
+  private String submissionDetailIdForChangingApprovedDate;
 
   @ErrorSummaryDisplayOrder(9)
-  private String approvalDateChangeMonth;
+  private String approvalDateChangeDay;
 
   @ErrorSummaryDisplayOrder(10)
-  private String approvalDateChangeYear;
+  private String approvalDateChangeMonth;
 
   @ErrorSummaryDisplayOrder(11)
+  private String approvalDateChangeYear;
+
+  @ErrorSummaryDisplayOrder(12)
   private String submissionDetailIdForRemoval;
 
   public CorrectionType getCorrectionType() {
@@ -126,5 +130,13 @@ class CorrectionForm {
 
   public void setSubmissionDetailIdForRemoval(String submissionDetailIdForRemoval) {
     this.submissionDetailIdForRemoval = submissionDetailIdForRemoval;
+  }
+
+  public SubmissionType getSubmissionTypeForMissingUpdate() {
+    return submissionTypeForMissingUpdate;
+  }
+
+  public void setSubmissionTypeForMissingUpdate(SubmissionType submissionTypeForMissingUpdate) {
+    this.submissionTypeForMissingUpdate = submissionTypeForMissingUpdate;
   }
 }

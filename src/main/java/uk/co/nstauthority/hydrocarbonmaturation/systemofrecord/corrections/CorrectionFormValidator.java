@@ -12,6 +12,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.SubmissionHistoryQueryService;
@@ -52,6 +53,10 @@ class CorrectionFormValidator {
 
     if (form.getCorrectionType() == CorrectionType.HISTORIC_UPDATE) {
       validateMissingUpdate(form, resource, errors);
+    }
+
+    if (form.getCorrectionType() == CorrectionType.FIELD_HISTORIC_UPDATE) {
+      validateMissingFieldUpdate(form, resource, errors);
     }
 
     if (form.getCorrectionType() == CorrectionType.REMOVE_SUBMISSION) {
@@ -335,7 +340,137 @@ class CorrectionFormValidator {
           );
         }
       }
+
     }
+  }
+
+  private void validateMissingFieldUpdate(CorrectionForm form, Resource resource, Errors errors) {
+    ValidationUtils.rejectIfEmpty(
+        errors,
+        "submissionTypeForMissingUpdate",
+        "submissionTypeForMissingUpdate.required",
+        "Select the submission type for the update you want to create");
+
+    var basicDateValidationPassed = DateValidationUtil.validateDateIsTodayOrInThePast(
+        MISSING_UPDATE_FIELD_PREFIX,
+        MISSING_UPDATE_DISPLAY_PREFIX,
+        form.getMissingUpdateDay(),
+        form.getMissingUpdateMonth(),
+        form.getMissingUpdateYear(),
+        errors);
+
+    if (form.getSubmissionTypeForMissingUpdate() != null && basicDateValidationPassed) {
+      validateFieldSubmissionTypeAndDates(form, resource, errors);
+    }
+  }
+
+  private void validateFieldSubmissionTypeAndDates(CorrectionForm form, Resource resource, Errors errors) {
+    var existingSubmissions = submissionDetailService.getExtantSubmissionDetailsForResource(resource);
+
+    var selectedSubmissionType = form.getSubmissionTypeForMissingUpdate();
+
+    var existingSubmissionTypes = existingSubmissions.stream()
+        .map(SubmissionDetail::getSubmissionType)
+        .filter(submissionType -> !submissionType.equals(SubmissionType.CREATE_FDPA))
+        .toList();
+
+    if (existingSubmissionTypes.contains(selectedSubmissionType)) {
+      errors.rejectValue(
+          "submissionTypeForMissingUpdate",
+          "submissionTypeForMissingUpdate.invalid",
+          "Update of type %s cannot be created as a submission already exists of that type"
+              .formatted(selectedSubmissionType.getAcronym())
+      );
+    } else {
+      var approvedSubmissions =
+          submissionHistoryQueryService.getAcceptedSubmissionsOnResourceWithLinkedResources(resource.getId());
+
+      checkDateAvailable(
+          approvedSubmissions,
+          form.getMissingUpdateDay(),
+          form.getMissingUpdateMonth(),
+          form.getMissingUpdateYear(),
+          MISSING_UPDATE_FIELD_PREFIX,
+          "Missing update date cannot be the same as another accepted date",
+          errors
+      );
+
+      validateFieldSubmissionTypeOrder(form, existingSubmissions, errors);
+    }
+  }
+
+  private void validateFieldSubmissionTypeOrder(CorrectionForm form,
+                                                List<SubmissionDetail> existingSubmissionDetails,
+                                                Errors errors) {
+    var selectedSubmissionType = form.getSubmissionTypeForMissingUpdate();
+
+    if (!selectedSubmissionType.equals(SubmissionType.CREATE_CSR)) {
+      checkPreviousType(form, existingSubmissionDetails, errors);
+    }
+
+    if (!selectedSubmissionType.equals(SubmissionType.CREATE_COP)) {
+      checkFollowingType(form, existingSubmissionDetails, errors);
+    }
+  }
+
+  private void checkPreviousType(CorrectionForm form,
+                                 List<SubmissionDetail> existingSubmissionDetails,
+                                 Errors errors) {
+
+    var latestPreviousSubmissionDetail = existingSubmissionDetails.stream()
+        .filter(submissionDetail ->
+            getFieldTypeOrder(submissionDetail.getSubmissionType()) < getFieldTypeOrder(form.getSubmissionTypeForMissingUpdate()))
+        .max(Comparator.comparing(SubmissionDetail::getAcceptedTimestamp));
+
+    if (latestPreviousSubmissionDetail.isEmpty()) {
+      return;
+    }
+
+    DateValidationUtil.validateDateIsAfterComparisonDate(
+        MISSING_UPDATE_FIELD_PREFIX,
+        MISSING_UPDATE_DISPLAY_PREFIX,
+        form.getMissingUpdateDay(),
+        form.getMissingUpdateMonth(),
+        form.getMissingUpdateYear(),
+        LocalDate.ofInstant(latestPreviousSubmissionDetail.get().getAcceptedTimestamp(), ZoneId.systemDefault()),
+        "after date of previous submission type",
+        errors
+    );
+  }
+
+  private void checkFollowingType(CorrectionForm form,
+                                  List<SubmissionDetail> existingSubmissionDetails,
+                                  Errors errors) {
+
+    var earliestFollowingSubmissionDetail = existingSubmissionDetails.stream()
+        .filter(submissionDetail ->
+            getFieldTypeOrder(submissionDetail.getSubmissionType()) > getFieldTypeOrder(form.getSubmissionTypeForMissingUpdate()))
+        .min(Comparator.comparing(SubmissionDetail::getAcceptedTimestamp));
+
+    if (earliestFollowingSubmissionDetail.isEmpty()) {
+      return;
+    }
+
+    DateValidationUtil.validateDateIsBeforeComparisonDate(
+        MISSING_UPDATE_FIELD_PREFIX,
+        MISSING_UPDATE_DISPLAY_PREFIX,
+        form.getMissingUpdateDay(),
+        form.getMissingUpdateMonth(),
+        form.getMissingUpdateYear(),
+        LocalDate.ofInstant(earliestFollowingSubmissionDetail.get().getAcceptedTimestamp(), ZoneId.systemDefault()),
+        "before date of following submission type",
+        errors
+    );
+  }
+
+  private int getFieldTypeOrder(SubmissionType submissionType) {
+    return switch (submissionType) {
+      case CREATE_CSR -> 1;
+      case CREATE_FDP -> 2;
+      case CREATE_FDPA -> 3;
+      case CREATE_COP -> 4;
+      default -> throw new IllegalStateException("Unexpected value: " + submissionType);
+    };
   }
 
   private void validateSubmissionRemoval(Errors errors) {

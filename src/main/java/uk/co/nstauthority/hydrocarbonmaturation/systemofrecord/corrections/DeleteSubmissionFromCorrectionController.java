@@ -45,16 +45,19 @@ public class DeleteSubmissionFromCorrectionController {
   private final SubmissionResourceService submissionResourceService;
   private final SubmissionSummaryModelService submissionSummaryModelService;
   private final CorrectionService correctionService;
+  private final CorrectionCreateService correctionCreateService;
 
   @Autowired
   public DeleteSubmissionFromCorrectionController(SubmissionDetailService submissionDetailService,
                                                   SubmissionResourceService submissionResourceService,
                                                   SubmissionSummaryModelService submissionSummaryModelService,
-                                                  CorrectionService correctionService) {
+                                                  CorrectionService correctionService,
+                                                  CorrectionCreateService correctionCreateService) {
     this.submissionDetailService = submissionDetailService;
     this.submissionResourceService = submissionResourceService;
     this.submissionSummaryModelService = submissionSummaryModelService;
     this.correctionService = correctionService;
+    this.correctionCreateService = correctionCreateService;
   }
 
   @GetMapping
@@ -95,7 +98,7 @@ public class DeleteSubmissionFromCorrectionController {
                                        User user,
                                        RedirectAttributes redirectAttributes) {
     var submissionDetail = submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId);
-    correctionService.deleteSubmission(submissionDetail, user);
+    correctionCreateService.deleteSubmission(submissionDetail, user);
 
     NotificationBannerUtil.applyNotificationBanner(
         redirectAttributes, getNotificationBanner(submissionDetail));
