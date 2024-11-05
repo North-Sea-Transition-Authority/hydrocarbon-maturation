@@ -84,8 +84,10 @@ BEGIN
         INSERT INTO remi.general_details (
             id,
             submission_detail_id,
-            resource_located_in_ukcs,
+            prospect_discovery_located_in_ukcs,
+            prospect_discovery_located_in_england,
             percentage_located_in_ukcs,
+            percentage_located_in_england,
             information_source,
             other_information_source,
             licence_application_reference,
@@ -93,8 +95,10 @@ BEGIN
         ) VALUES (
             gen_random_uuid(),
             submission_rec.id,
-            TRUE, -- can this ever be set to "No" for "Is the prospect wholly located within UKCS?"
-            NULL, -- we don't capture this in PaDI
+            CASE WHEN submission_rec.onshore_offshore = 'OFFSHORE' THEN TRUE END, -- can this ever be set to "No" for "Is the prospect wholly located within UKCS?"
+            CASE WHEN submission_rec.onshore_offshore = 'ONSHORE' THEN TRUE END,
+            NULL, -- we don't capture this in PaDI,
+            NULL,
             submission_rec.info_source,
             submission_rec.other_info_source,
             COALESCE(submission_rec.licence_app_ref, submission_rec.licence_round),

@@ -26,6 +26,8 @@ and the operators who have access to specific prospect and discovery data not cr
 - Edit padi_res_header in Notepad++ to avoid quads and blocks being converted to dates
 - Edit padi_res_data_header in Notepad++ to avoid wells being converted to dates
 - Remove single quote characters from end of text columns using Notepad++ searching for '"
+- Remove single quotes in cells by searching for ,', in notepad++
+- Remove &#039; in cells by searching for ,&#039;, in notepad++
 - Remove blank spaces from data columns where the data should be null
 - Format number cells to remove commas
 - Check where INT/NUMERIC data should be TEXT and vice-versa
