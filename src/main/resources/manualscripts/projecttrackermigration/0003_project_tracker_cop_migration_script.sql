@@ -4,6 +4,7 @@ DO $$
         cop_project_rec RECORD;
         field_id UUID;
         project_id UUID;
+        production_ceased_status_exists NUMERIC;
 
     BEGIN
 
@@ -11,13 +12,15 @@ DO $$
             SELECT
                 ptccv.project_name,
                 ptccv.field_name,
-                ptccv.estimated_final_production_date
+                ptccv.estimated_final_production_date,
+                ptccv.actual_final_production_date
             FROM remi.project_tracker_cop_current_view ptccv
         )
             LOOP
 
                 field_id := null;
                 project_id := null;
+                production_ceased_status_exists := null;
 
                 SELECT field_identifier
                 INTO field_id
@@ -89,6 +92,32 @@ DO $$
                         NULL,
                         'CREATED'
                     );
+
+                END IF;
+
+                IF cop_project_rec.actual_final_production_date IS NOT NULL THEN
+
+                    SELECT 1
+                    INTO production_ceased_status_exists
+                    FROM remi.field_status_history fsh
+                    WHERE fsh.field_identifier = field_id
+                      AND fsh.field_status = 'STATUS_900';
+
+                    IF production_ceased_status_exists IS NULL THEN
+
+                        INSERT INTO remi.field_status_history(
+                            id,
+                            field_identifier,
+                            field_status,
+                            status_date
+                        ) VALUES (
+                            gen_random_uuid(),
+                            field_id,
+                            'STATUS_900',
+                            cop_project_rec.actual_final_production_date::timestamp
+                        );
+
+                    END IF;
 
                 END IF;
 
