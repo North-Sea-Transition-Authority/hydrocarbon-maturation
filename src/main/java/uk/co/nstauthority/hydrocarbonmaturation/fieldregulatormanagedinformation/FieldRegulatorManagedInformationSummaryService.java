@@ -154,11 +154,16 @@ public class FieldRegulatorManagedInformationSummaryService {
           PARENT_DETERMINED_FIELD,
           parentField
       );
+      summaryDataView.addKeyValue(
+          FIELD_NUMBER,
+          field.getParentDeterminedField().getFieldNumber()
+      );
+    } else {
+      summaryDataView.addKeyValue(
+          FIELD_NUMBER,
+          field.getFieldNumber()
+      );
     }
-    summaryDataView.addKeyValue(
-        FIELD_NUMBER,
-        field.getFieldNumber()
-    );
     summaryDataView.addKeyValue(
         INFRASTRUCTURE_HOST,
         field.getInfrastructureHost()

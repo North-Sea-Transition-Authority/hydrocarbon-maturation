@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
@@ -72,7 +71,6 @@ public class FieldRegulatorManagedInformationService {
                       }
                   );
 
-              form.setFieldNumber(DecimalInput.createDecimalInput(field.getFieldNumber()));
               form.setInfrastructureHost(field.getInfrastructureHost());
               form.setDeterminationStatus(field.getDeterminationStatus());
 

@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field;
 
-import java.math.BigDecimal;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -9,7 +8,6 @@ import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
-import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DecimalInputValidator;
 
 @Service
 public class FieldFormValidator implements Validator {
@@ -65,15 +63,6 @@ public class FieldFormValidator implements Validator {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors,
           "parentDeterminedField", "parentDeterminedField.required", "Select the parent field");
     }
-
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors,
-        "fieldNumber", "fieldNumber.required", "Enter the field number");
-
-    DecimalInputValidator.configureValidator(errors,
-            "fieldNumber.decimalInputValue", "Field number", form.getFieldNumber())
-        .setMaxDecimalPlaces(0)
-        .setMinValue(BigDecimal.ZERO)
-        .validate();
 
     ValidationUtils.rejectIfEmpty(errors,
         "infrastructureHost", "infrastructureHost.required", "Select yes if this field's infrastructure hosts other fields");

@@ -96,7 +96,6 @@ class FieldRegulatorManagedInformationServiceTest {
     field.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     field.setFieldLocatedInUkcs(true);
     field.setFieldLocatedInEngland(null);
-    field.setFieldNumber(1);
     field.setInfrastructureHost(false);
     field.setDeterminationStatus(DeterminationStatus.DETERMINED);
     field.setIsOnLicence(false);
@@ -129,7 +128,6 @@ class FieldRegulatorManagedInformationServiceTest {
             FieldForm::getFieldLocatedInEngland,
             FieldForm::getGeographicalArea,
             FieldForm::getResponsibleTeamType,
-            fieldForm -> fieldForm.getFieldNumber().createIntegerOrNull(),
             FieldForm::getInfrastructureHost,
             FieldForm::getDeterminationStatus,
             FieldForm::getParentDeterminedField,
@@ -145,7 +143,6 @@ class FieldRegulatorManagedInformationServiceTest {
             field.getFieldLocatedInEngland(),
             regulatorManagedInformation.getGeographicalArea(),
             regulatorManagedInformation.getResponsibleTeamType(),
-            field.getFieldNumber(),
             field.getInfrastructureHost(),
             field.getDeterminationStatus(),
             "",
@@ -164,7 +161,6 @@ class FieldRegulatorManagedInformationServiceTest {
     field.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     field.setFieldLocatedInUkcs(true);
     field.setFieldLocatedInEngland(null);
-    field.setFieldNumber(1);
     field.setInfrastructureHost(false);
     field.setDeterminationStatus(DeterminationStatus.DETERMINED);
     var parentField = new Field();
@@ -200,7 +196,6 @@ class FieldRegulatorManagedInformationServiceTest {
             FieldForm::getFieldLocatedInEngland,
             FieldForm::getGeographicalArea,
             FieldForm::getResponsibleTeamType,
-            fieldForm -> fieldForm.getFieldNumber().createIntegerOrNull(),
             FieldForm::getInfrastructureHost,
             FieldForm::getDeterminationStatus,
             FieldForm::getParentDeterminedField,
@@ -216,7 +211,6 @@ class FieldRegulatorManagedInformationServiceTest {
             field.getFieldLocatedInEngland(),
             regulatorManagedInformation.getGeographicalArea(),
             regulatorManagedInformation.getResponsibleTeamType(),
-            field.getFieldNumber(),
             field.getInfrastructureHost(),
             field.getDeterminationStatus(),
             field.getParentDeterminedField().getFieldIdentifier().toString(),
@@ -235,7 +229,6 @@ class FieldRegulatorManagedInformationServiceTest {
     field.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     field.setFieldLocatedInUkcs(true);
     field.setFieldLocatedInEngland(null);
-    field.setFieldNumber(1);
     field.setInfrastructureHost(false);
     field.setDeterminationStatus(DeterminationStatus.DETERMINED);
     field.setIsOnLicence(true);
@@ -272,7 +265,6 @@ class FieldRegulatorManagedInformationServiceTest {
             FieldForm::getFieldLocatedInEngland,
             FieldForm::getGeographicalArea,
             FieldForm::getResponsibleTeamType,
-            fieldForm -> fieldForm.getFieldNumber().createIntegerOrNull(),
             FieldForm::getInfrastructureHost,
             FieldForm::getDeterminationStatus,
             FieldForm::getAssociatedDiscoveries,
@@ -288,7 +280,6 @@ class FieldRegulatorManagedInformationServiceTest {
             field.getFieldLocatedInEngland(),
             regulatorManagedInformation.getGeographicalArea(),
             regulatorManagedInformation.getResponsibleTeamType(),
-            field.getFieldNumber(),
             field.getInfrastructureHost(),
             field.getDeterminationStatus(),
             expectedResourceDetailIds.stream().map(UUID::toString).toList(),

@@ -16,4 +16,6 @@ public interface FieldRepository extends CrudRepository<Field, Integer> {
   Optional<Field> findByResource(Resource resource);
 
   List<Field> findFieldsByParentDeterminedField(Field parentDeterminedField);
+
+  Optional<Field> findTopByFieldNumberNotNullOrderByFieldNumberDesc();
 }

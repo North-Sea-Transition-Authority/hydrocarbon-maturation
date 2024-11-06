@@ -168,10 +168,6 @@
         </#list>
       </@fdsRadio.radioGroup>
 
-    <@fdsTextInput.textInput path="form.fieldNumber.decimalInputValue"
-      labelText="Field number"
-      inputClass="govuk-input--width-4"/>
-
     <@fdsRadio.radioGroup
       path="form.infrastructureHost"
       labelText="Does this field's infrastructure host other fields?">

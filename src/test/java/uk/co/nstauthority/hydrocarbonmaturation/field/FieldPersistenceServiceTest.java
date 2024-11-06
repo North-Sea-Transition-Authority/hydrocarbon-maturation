@@ -23,7 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
@@ -71,7 +70,6 @@ class FieldPersistenceServiceTest {
     private final String RESPONSIBLE_ORGANISATION_ID = "123";
     private final OnshoreOffshore ONSHORE_OFFSHORE = OnshoreOffshore.OFFSHORE;
     private final DeterminationStatus DETERMINATION_STATUS = DeterminationStatus.DETERMINED;
-    private final DecimalInput FIELD_NUMBER = DecimalInput.createDecimalInput(1);
     private final boolean INFRASTRUCTURE_HOST = true;
     private final GeographicalArea GEOGRAPHICAL_AREA = GeographicalArea.NORTHERN_NORTH_SEA;
     private final ResponsibleTeamType RESPONSIBLE_TEAM_TYPE = ResponsibleTeamType.ONSHORE;
@@ -79,6 +77,8 @@ class FieldPersistenceServiceTest {
     private final String REGISTERED_NUMBER = "123";
     private final UUID ASSOCIATED_DISCOVERY_ID = UUID.randomUUID();
     private final Boolean FIELD_LOCATED_IN_UKCS = true;
+
+    private Field highestNumberField;
 
     @BeforeEach
     void setup() {
@@ -91,16 +91,19 @@ class FieldPersistenceServiceTest {
       form.setGeographicalArea(GEOGRAPHICAL_AREA);
       form.setResponsibleTeamType(RESPONSIBLE_TEAM_TYPE);
       form.setDeterminationStatus(DETERMINATION_STATUS);
-      form.setFieldNumber(FIELD_NUMBER);
       form.setInfrastructureHost(INFRASTRUCTURE_HOST);
       form.setAssociatedDiscoveries(List.of());
       form.setFieldLocatedInUkcs(FIELD_LOCATED_IN_UKCS);
       form.setFieldLocatedInEngland(null);
+
+      highestNumberField = new Field();
+      highestNumberField.setFieldNumber(123);
     }
 
     @Test
     void onshoreSelected_GeographicalAreaAndTeamTypeAutomaticallySet() {
       when(fieldRepository.findByResource(resource)).thenReturn(Optional.empty());
+      when(fieldRepository.findTopByFieldNumberNotNullOrderByFieldNumberDesc()).thenReturn(Optional.of(highestNumberField));
       form.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
 
       var result = underTest.saveFieldFromFieldForm(form, resource);
@@ -112,6 +115,7 @@ class FieldPersistenceServiceTest {
     @Test
     void responsibleOrganisationFound() {
       when(fieldRepository.findByResource(resource)).thenReturn(Optional.empty());
+      when(fieldRepository.findTopByFieldNumberNotNullOrderByFieldNumberDesc()).thenReturn(Optional.of(highestNumberField));
       var organisationUnitDto = new OrganisationUnitDto(
           Integer.valueOf(RESPONSIBLE_ORGANISATION_ID),
           RESPONSIBLE_ORGANISATION_NAME,
@@ -156,6 +160,7 @@ class FieldPersistenceServiceTest {
       var field = new Field();
       field.setParentDeterminedField(parentDeterminedField);
       when(fieldRepository.findByResource(resource)).thenReturn(Optional.of(field));
+      when(fieldRepository.findTopByFieldNumberNotNullOrderByFieldNumberDesc()).thenReturn(Optional.of(highestNumberField));
 
       form.setDeterminationStatus(DeterminationStatus.DETERMINED);
 
@@ -167,6 +172,8 @@ class FieldPersistenceServiceTest {
     @Test
     void associatedDiscoveriesSet() {
       when(fieldRepository.findByResource(resource)).thenReturn(Optional.empty());
+      when(fieldRepository.findTopByFieldNumberNotNullOrderByFieldNumberDesc()).thenReturn(Optional.of(highestNumberField));
+
       form.setAssociatedDiscoveries(List.of(ASSOCIATED_DISCOVERY_ID.toString()));
 
       var discovery = new Resource();
@@ -184,6 +191,7 @@ class FieldPersistenceServiceTest {
     @Test
     void formValuesSetInField() {
       when(fieldRepository.findByResource(resource)).thenReturn(Optional.empty());
+      when(fieldRepository.findTopByFieldNumberNotNullOrderByFieldNumberDesc()).thenReturn(Optional.of(highestNumberField));
 
       var result = underTest.saveFieldFromFieldForm(form, resource);
       assertThat(result)
@@ -208,7 +216,7 @@ class FieldPersistenceServiceTest {
               null,
               ONSHORE_OFFSHORE,
               DETERMINATION_STATUS,
-              FIELD_NUMBER.createIntegerOrNull(),
+              highestNumberField.getFieldNumber() + 1,
               INFRASTRUCTURE_HOST,
               FIELD_LOCATED_IN_UKCS,
               null
@@ -218,6 +226,8 @@ class FieldPersistenceServiceTest {
     }
     @Test
     void fieldLicencesSaved() {
+      when(fieldRepository.findTopByFieldNumberNotNullOrderByFieldNumberDesc()).thenReturn(Optional.of(highestNumberField));
+
       form.setIsOnLicence(true);
       form.setLicences(List.of("ref1", "ref2"));
       var result = underTest.saveFieldFromFieldForm(form, resource);

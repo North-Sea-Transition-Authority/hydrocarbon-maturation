@@ -2,7 +2,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 
 import java.util.ArrayList;
 import java.util.List;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
@@ -15,7 +14,6 @@ public class FieldForm {
   private OnshoreOffshore onshoreOffshore;
   private GeographicalArea geographicalArea;
   private ResponsibleTeamType responsibleTeamType;
-  private DecimalInput fieldNumber;
   private Boolean infrastructureHost;
   private DeterminationStatus determinationStatus;
   private String parentDeterminedField;
@@ -83,14 +81,6 @@ public class FieldForm {
   public void setResponsibleTeamType(
       ResponsibleTeamType responsibleTeamType) {
     this.responsibleTeamType = responsibleTeamType;
-  }
-
-  public DecimalInput getFieldNumber() {
-    return fieldNumber;
-  }
-
-  public void setFieldNumber(DecimalInput fieldNumber) {
-    this.fieldNumber = fieldNumber;
   }
 
   public Boolean getInfrastructureHost() {

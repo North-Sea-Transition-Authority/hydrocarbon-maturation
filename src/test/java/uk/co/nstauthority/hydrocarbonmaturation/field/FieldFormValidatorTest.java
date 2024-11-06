@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.OnshoreOffshore;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ValidatorTestingUtil;
@@ -30,7 +29,7 @@ class FieldFormValidatorTest {
 
   @Test
   void emptyForm() {
-    var form = getEmptyForm();
+    var form = new FieldForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     underTest.validate(form, bindingResult);
@@ -44,7 +43,6 @@ class FieldFormValidatorTest {
             entry("commonNameForField", Set.of("commonNameForField.required")),
             entry("onshoreOffshore", Set.of("onshoreOffshore.required")),
             entry("determinationStatus", Set.of("determinationStatus.required")),
-            entry("fieldNumber.decimalInputValue", Set.of("fieldNumber.decimalInputValue.required")),
             entry("infrastructureHost", Set.of("infrastructureHost.required")),
             entry("associatedDiscoverySelect", Set.of("associatedDiscoverySelect.notEmpty")),
             entry("isOnLicence", Set.of("isOnLicence.required"))
@@ -163,21 +161,14 @@ class FieldFormValidatorTest {
     }
   }
 
-  private FieldForm getEmptyForm() {
-    var form = new FieldForm();
-    form.setFieldNumber(new DecimalInput());
-    return form;
-  }
-
   private FieldForm getValidForm() {
-    var form = getEmptyForm();
+    var form = new FieldForm();
     form.setLegalFieldName("legal name field");
     form.setCommonNameForField("common name for field");
     form.setCorrectedLegalFieldName("corrected legal field name");
     form.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
     form.setDeterminationStatus(DeterminationStatus.UNDETERMINED);
     form.setFieldLocatedInEngland(true);
-    form.setFieldNumber(DecimalInput.createDecimalInput(1));
     form.setInfrastructureHost(false);
     form.setAssociatedDiscoveries(List.of("associated discovery"));
     form.setIsOnLicence(false);

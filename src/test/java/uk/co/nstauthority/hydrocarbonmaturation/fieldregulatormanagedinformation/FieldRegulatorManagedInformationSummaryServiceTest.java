@@ -202,6 +202,7 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
     var parentFieldName = "Parent field name";
     var parentField = new Field();
     parentField.setCorrectedLegalFieldName(parentFieldName);
+    parentField.setFieldNumber(1);
 
     var field = getCompleteField();
     field.setDeterminationStatus(DeterminationStatus.SUB_AREA_OF_DETERMINED_FIELD);
@@ -234,6 +235,10 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
             Tuple.tuple(
                 FieldRegulatorManagedInformationSummaryService.PARENT_DETERMINED_FIELD,
                 parentFieldName
+            ),
+            Tuple.tuple(
+                FieldRegulatorManagedInformationSummaryService.FIELD_NUMBER,
+                String.valueOf(parentField.getFieldNumber())
             )
         );
   }

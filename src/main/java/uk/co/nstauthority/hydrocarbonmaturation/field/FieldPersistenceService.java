@@ -87,9 +87,9 @@ public class FieldPersistenceService {
     } else {
       // if status is not sub area then clear saved parent
       field.setParentDeterminedField(null);
+      field.setFieldNumber(getOrGenerateFieldNumber(field));
     }
 
-    field.setFieldNumber(form.getFieldNumber().createIntegerOrNull());
     field.setInfrastructureHost(form.getInfrastructureHost());
 
     fieldRepository.save(field);
@@ -154,5 +154,20 @@ public class FieldPersistenceService {
 
   public List<Field> getFieldsByParentDeterminedField(Field parentField) {
     return fieldRepository.findFieldsByParentDeterminedField(parentField);
+  }
+
+  private Integer getOrGenerateFieldNumber(Field field) {
+    if (field.getFieldNumber() != null) {
+      return field.getFieldNumber();
+    }
+
+    return getLatestFieldNumber() + 1;
+  }
+
+  private Integer getLatestFieldNumber() {
+    var field = fieldRepository.findTopByFieldNumberNotNullOrderByFieldNumberDesc()
+        .orElseThrow(() -> new EntityNotFoundException("No field found"));
+
+    return field.getFieldNumber();
   }
 }
