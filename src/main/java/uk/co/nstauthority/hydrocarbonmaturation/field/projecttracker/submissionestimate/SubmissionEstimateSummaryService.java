@@ -127,9 +127,11 @@ class SubmissionEstimateSummaryService implements SummarySectionService<Project>
   private List<SubmissionEstimateType> getEstimateTypesForProjectType(Project project) {
     return switch (project.getProjectType()) {
       case FIELD_DEVELOPMENT_PLAN ->
-          List.of(SubmissionEstimateType.CSR, SubmissionEstimateType.FDP, SubmissionEstimateType.FIRST_PRODUCTION);
+          List.of(SubmissionEstimateType.CSR, SubmissionEstimateType.FDP, SubmissionEstimateType.DECISION_DATE,
+              SubmissionEstimateType.FIRST_PRODUCTION);
       case FIELD_DEVELOPMENT_PLAN_ADDENDUM ->
-          List.of(SubmissionEstimateType.CSR, SubmissionEstimateType.FDPA, SubmissionEstimateType.FDPA_START_UP);
+          List.of(SubmissionEstimateType.CSR, SubmissionEstimateType.FDPA, SubmissionEstimateType.FDPA_START_UP,
+              SubmissionEstimateType.DECISION_DATE);
       case CESSATION_OF_PRODUCTION ->
           List.of(SubmissionEstimateType.COP);
     };

@@ -6,7 +6,8 @@ enum SubmissionEstimateType {
   FDPA("Estimated FDPA first draft submission date"),
   COP("Estimated CoP date"),
   FIRST_PRODUCTION("Estimated first production date"),
-  FDPA_START_UP("Estimated FDPA start-up date")
+  FDPA_START_UP("Estimated FDPA start-up date"),
+  DECISION_DATE("Estimated decision date")
   ;
 
   private final String displayName;

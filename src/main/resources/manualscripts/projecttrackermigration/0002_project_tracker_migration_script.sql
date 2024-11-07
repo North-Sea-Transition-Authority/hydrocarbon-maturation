@@ -17,6 +17,7 @@ BEGIN
         ptcv.estimated_capex,
         ptcv.expected_first_draft_csr_received_date,
         ptcv.expected_first_draft_fdp_received_date,
+        ptcv.expected_consent_date,
         ptcv.expected_production_date,
         ptcv.actual_first_production_date
         FROM remi.project_tracker_current_view ptcv
@@ -222,7 +223,29 @@ BEGIN
 
         END IF;
 
+        IF project_rec.expected_consent_date IS NOT NULL THEN
 
+            INSERT INTO remi.project_submission_estimates (
+                id,
+                project_id,
+                submission_estimate_type,
+                earliest_date,
+                most_likely_date,
+                latest_date,
+                date_when_estimated,
+                submission_estimate_status
+            ) VALUES (
+                gen_random_uuid(),
+                project_id,
+                'DECISION_DATE',
+                NULL,
+                project_rec.expected_consent_date,
+                NULL,
+                NULL,
+                'CREATED'
+            );
+
+        END IF;
 
         IF project_rec.actual_first_production_date IS NOT NULL THEN
 

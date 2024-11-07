@@ -53,11 +53,18 @@ class SubmissionEstimateService {
           Integer.parseInt(form.getLatestDateDay())
       );
     }
-    var estimatedDate = LocalDate.of(
-        Integer.parseInt(form.getEstimatedDateYear()),
-        Integer.parseInt(form.getEstimatedDateMonth()),
-        Integer.parseInt(form.getEstimatedDateDay())
-    );
+
+    LocalDate estimatedDate = null;
+    if (ObjectUtils.allNotNull(
+        form.getEstimatedDateDay(),
+        form.getEstimatedDateMonth(),
+        form.getEstimatedDateYear())) {
+      estimatedDate = LocalDate.of(
+          Integer.parseInt(form.getEstimatedDateYear()),
+          Integer.parseInt(form.getEstimatedDateMonth()),
+          Integer.parseInt(form.getEstimatedDateDay())
+      );
+    }
 
     var submissionEstimate = new SubmissionEstimate();
     submissionEstimate.setSubmissionEstimateStatus(SubmissionEstimateStatus.CREATED);

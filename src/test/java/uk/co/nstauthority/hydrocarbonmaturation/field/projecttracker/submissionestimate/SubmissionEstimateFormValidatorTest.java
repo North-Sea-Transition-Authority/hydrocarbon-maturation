@@ -63,11 +63,7 @@ class SubmissionEstimateFormValidatorTest {
           .containsExactly(
               Tuple.tuple("mostLikelyDateDay", "mostLikelyDateDay.required", "Enter a most likely date"),
               Tuple.tuple("mostLikelyDateMonth", "mostLikelyDateMonth.required", ""),
-              Tuple.tuple("mostLikelyDateYear", "mostLikelyDateYear.required", ""),
-
-              Tuple.tuple("estimatedDateDay", "estimatedDateDay.required", "Enter a date these were the estimated dates"),
-              Tuple.tuple("estimatedDateMonth", "estimatedDateMonth.required", ""),
-              Tuple.tuple("estimatedDateYear", "estimatedDateYear.required", "")
+              Tuple.tuple("mostLikelyDateYear", "mostLikelyDateYear.required", "")
           );
     }
 
@@ -110,21 +106,13 @@ class SubmissionEstimateFormValidatorTest {
     }
 
     @Test
-    void whenNoEstimatedDate_thenFalse() {
+    void whenNoEstimatedDate_thenTrue() {
       form.setEstimatedDateDay(null);
       form.setEstimatedDateMonth(null);
       form.setEstimatedDateYear(null);
 
       assertThat(submissionEstimateFormValidator.isValid(form, bindingResult))
-          .isFalse();
-
-      assertThat(bindingResult.getFieldErrors())
-          .extracting(FieldError::getField, FieldError::getCode, FieldError::getDefaultMessage)
-          .containsExactly(
-              Tuple.tuple("estimatedDateDay", "estimatedDateDay.required", "Enter a date these were the estimated dates"),
-              Tuple.tuple("estimatedDateMonth", "estimatedDateMonth.required", ""),
-              Tuple.tuple("estimatedDateYear", "estimatedDateYear.required", "")
-          );
+          .isTrue();
     }
   }
 

@@ -72,6 +72,7 @@ class SubmissionEstimateSummaryServiceTest {
 
     private List<SubmissionEstimate> csrEstimates;
     private List<SubmissionEstimate> fdpEstimates;
+    private List<SubmissionEstimate> decisionDateEstimates;
     private List<SubmissionEstimate> firstProductionEstimates;
 
     @BeforeEach
@@ -87,6 +88,7 @@ class SubmissionEstimateSummaryServiceTest {
 
         assertEmptySummaryCardOnSection(SubmissionEstimateType.CSR.getDisplayName(), summarySection);
         assertEmptySummaryCardOnSection(SubmissionEstimateType.FDP.getDisplayName(), summarySection);
+        assertEmptySummaryCardOnSection(SubmissionEstimateType.DECISION_DATE.getDisplayName(), summarySection);
         assertEmptySummaryCardOnSection(SubmissionEstimateType.FIRST_PRODUCTION.getDisplayName(), summarySection);
       }
     }
@@ -97,6 +99,7 @@ class SubmissionEstimateSummaryServiceTest {
       void setUp() {
         csrEstimates = createAndMockSubmissionEstimates(SubmissionEstimateType.CSR);
         fdpEstimates = createAndMockSubmissionEstimates(SubmissionEstimateType.FDP);
+        decisionDateEstimates = createAndMockSubmissionEstimates(SubmissionEstimateType.DECISION_DATE);
         firstProductionEstimates = createAndMockSubmissionEstimates(SubmissionEstimateType.FIRST_PRODUCTION);
       }
 
@@ -113,6 +116,11 @@ class SubmissionEstimateSummaryServiceTest {
         assertSummaryCardOnSection(
             SubmissionEstimateType.FDP.getDisplayName(),
             fdpEstimates,
+            summarySection
+        );
+        assertSummaryCardOnSection(
+            SubmissionEstimateType.DECISION_DATE.getDisplayName(),
+            decisionDateEstimates,
             summarySection
         );
         assertSummaryCardOnSection(
@@ -141,7 +149,13 @@ class SubmissionEstimateSummaryServiceTest {
         var fdpTableRows = fdpTableView.tableRows();
         assertSummaryTableRowsHaveActions(fdpTableRows, fdpEstimates);
 
-        var firstProductionCard = summaryCards.get(2);
+        var decisionDateCard = summaryCards.get(2);
+        assertSummaryCardHasActions(decisionDateCard, SubmissionEstimateType.DECISION_DATE);
+        var decisionDateTableView = (SummaryTableView) decisionDateCard.summaryData();
+        var decisionDateTableRows = decisionDateTableView.tableRows();
+        assertSummaryTableRowsHaveActions(decisionDateTableRows, decisionDateEstimates);
+
+        var firstProductionCard = summaryCards.get(3);
         assertSummaryCardHasActions(firstProductionCard, SubmissionEstimateType.FIRST_PRODUCTION);
         var firstProductionTableView = (SummaryTableView) firstProductionCard.summaryData();
         var firstProductionTableRows = firstProductionTableView.tableRows();
@@ -175,7 +189,13 @@ class SubmissionEstimateSummaryServiceTest {
         var fdpTableRows = fdpTableView.tableRows();
         assertSummaryTableRowsHaveActions(fdpTableRows, fdpEstimates);
 
-        var firstProductionCard = summaryCards.get(2);
+        var decisionDateCard = summaryCards.get(2);
+        assertSummaryCardHasActions(decisionDateCard, SubmissionEstimateType.DECISION_DATE);
+        var decisionDateTableView = (SummaryTableView) decisionDateCard.summaryData();
+        var decisionDateTableRows = decisionDateTableView.tableRows();
+        assertSummaryTableRowsHaveActions(decisionDateTableRows, decisionDateEstimates);
+        
+        var firstProductionCard = summaryCards.get(3);
         assertSummaryCardHasActions(firstProductionCard, SubmissionEstimateType.FIRST_PRODUCTION);
         var firstProductionTableView = (SummaryTableView) firstProductionCard.summaryData();
         var firstProductionTableRows = firstProductionTableView.tableRows();
@@ -209,7 +229,13 @@ class SubmissionEstimateSummaryServiceTest {
         var fdpTableRows = fdpTableView.tableRows();
         assertSummaryTableRowsHaveNoActions(fdpTableRows);
 
-        var firstProductionCard = summaryCards.get(1);
+        var decisionDateCard = summaryCards.get(2);
+        assertSummaryCardHasNoActions(decisionDateCard);
+        var decisionDateTableView = (SummaryTableView) decisionDateCard.summaryData();
+        var decisionDateTableRows = decisionDateTableView.tableRows();
+        assertSummaryTableRowsHaveNoActions(decisionDateTableRows);
+        
+        var firstProductionCard = summaryCards.get(3);
         assertSummaryCardHasNoActions(firstProductionCard);
         var firstProductionTableView = (SummaryTableView) firstProductionCard.summaryData();
         var firstProductionTableRows = firstProductionTableView.tableRows();
@@ -224,6 +250,7 @@ class SubmissionEstimateSummaryServiceTest {
     private List<SubmissionEstimate> csrEstimates;
     private List<SubmissionEstimate> fdpaEstimates;
     private List<SubmissionEstimate> fdpaStartUpEstimates;
+    private List<SubmissionEstimate> decisionDateEstimates;
 
     @BeforeEach
     void setUp() {
@@ -239,6 +266,7 @@ class SubmissionEstimateSummaryServiceTest {
         assertEmptySummaryCardOnSection(SubmissionEstimateType.CSR.getDisplayName(), summarySection);
         assertEmptySummaryCardOnSection(SubmissionEstimateType.FDPA.getDisplayName(), summarySection);
         assertEmptySummaryCardOnSection(SubmissionEstimateType.FDPA_START_UP.getDisplayName(), summarySection);
+        assertEmptySummaryCardOnSection(SubmissionEstimateType.DECISION_DATE.getDisplayName(), summarySection);
       }
     }
 
@@ -249,6 +277,7 @@ class SubmissionEstimateSummaryServiceTest {
         csrEstimates = createAndMockSubmissionEstimates(SubmissionEstimateType.CSR);
         fdpaEstimates = createAndMockSubmissionEstimates(SubmissionEstimateType.FDPA);
         fdpaStartUpEstimates = createAndMockSubmissionEstimates(SubmissionEstimateType.FDPA_START_UP);
+        decisionDateEstimates = createAndMockSubmissionEstimates(SubmissionEstimateType.DECISION_DATE);
       }
 
       @Test
@@ -269,6 +298,11 @@ class SubmissionEstimateSummaryServiceTest {
         assertSummaryCardOnSection(
             SubmissionEstimateType.FDPA_START_UP.getDisplayName(),
             fdpaStartUpEstimates,
+            summarySection
+        );
+        assertSummaryCardOnSection(
+            SubmissionEstimateType.DECISION_DATE.getDisplayName(),
+            decisionDateEstimates,
             summarySection
         );
       }
@@ -300,6 +334,12 @@ class SubmissionEstimateSummaryServiceTest {
         var fdpaStartUpTableView = (SummaryTableView) fdpaStartUpCard.summaryData();
         var fdpaStartUpTableRows = fdpaStartUpTableView.tableRows();
         assertSummaryTableRowsHaveActions(fdpaStartUpTableRows, fdpaStartUpEstimates);
+
+        var decisionDateCard = summaryCards.get(3);
+        assertSummaryCardHasActions(decisionDateCard, SubmissionEstimateType.DECISION_DATE);
+        var decisionDateTableView = (SummaryTableView) decisionDateCard.summaryData();
+        var decisionDateTableRows = decisionDateTableView.tableRows();
+        assertSummaryTableRowsHaveActions(decisionDateTableRows, decisionDateEstimates);
       }
 
       @Test
@@ -334,6 +374,12 @@ class SubmissionEstimateSummaryServiceTest {
         var fdpaStartUpTableView = (SummaryTableView) fdpaStartUpCard.summaryData();
         var fdpaStartUpTableRows = fdpaStartUpTableView.tableRows();
         assertSummaryTableRowsHaveActions(fdpaStartUpTableRows, fdpaStartUpEstimates);
+
+        var decisionDateCard = summaryCards.get(3);
+        assertSummaryCardHasActions(decisionDateCard, SubmissionEstimateType.DECISION_DATE);
+        var decisionDateTableView = (SummaryTableView) decisionDateCard.summaryData();
+        var decisionDateTableRows = decisionDateTableView.tableRows();
+        assertSummaryTableRowsHaveActions(decisionDateTableRows, decisionDateEstimates);
       }
 
       @Test
@@ -368,6 +414,12 @@ class SubmissionEstimateSummaryServiceTest {
         var fdpaStartUpTableView = (SummaryTableView) fdpaStartUpCard.summaryData();
         var fdpaStartUpTableRows = fdpaStartUpTableView.tableRows();
         assertSummaryTableRowsHaveNoActions(fdpaStartUpTableRows);
+
+        var decisionDateCard = summaryCards.get(0);
+        assertSummaryCardHasNoActions(decisionDateCard);
+        var decisionDateTableView = (SummaryTableView) decisionDateCard.summaryData();
+        var decisionDateTableRows = decisionDateTableView.tableRows();
+        assertSummaryTableRowsHaveNoActions(decisionDateTableRows);
       }
     }
   }

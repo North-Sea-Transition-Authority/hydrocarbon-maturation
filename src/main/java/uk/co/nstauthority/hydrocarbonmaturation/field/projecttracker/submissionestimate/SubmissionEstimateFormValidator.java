@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.submission
 
 import java.time.LocalDate;
 import java.util.Optional;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.DateValidationUtil;
@@ -44,15 +45,18 @@ class SubmissionEstimateFormValidator {
     validateEarliestAndMostLikelyOrder(form, errors, isValidEarliest, isValidMostLikely);
     validateLatestDateOrder(form, errors, isValidLatest, isValidEarliest, isValidMostLikely);
 
-    var isValidEstimated = DateValidationUtil.validateDate(
-        ESTIMATED_DATE,
-        "date these were the estimated dates",
-        form.getEstimatedDateDay(),
-        form.getEstimatedDateMonth(),
-        form.getEstimatedDateYear(),
-        errors
-    );
-    validateEstimatedTodayOrInPast(form, errors, isValidEstimated);
+    if (!ObjectUtils.allNull(form.getEstimatedDateDay(), form.getEstimatedDateMonth(), form.getEstimatedDateYear())) {
+      var isValidEstimated = DateValidationUtil.validateDate(
+          ESTIMATED_DATE,
+          "date these were the estimated dates",
+          form.getEstimatedDateDay(),
+          form.getEstimatedDateMonth(),
+          form.getEstimatedDateYear(),
+          errors
+      );
+
+      validateEstimatedTodayOrInPast(form, errors, isValidEstimated);
+    }
 
     return !errors.hasErrors();
   }

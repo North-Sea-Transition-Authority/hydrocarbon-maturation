@@ -7,7 +7,8 @@ public enum ProjectPhase implements Displayable {
   AUTHORISE_PHASE("Authorise phase", 20),
   EXECUTE_PHASE("Execute phase", 30),
   ON_HOLD("On hold", 40),
-  WITHDRAWN("Withdrawn", 50)
+  ONLINE("Online", 50),
+  WITHDRAWN("Withdrawn", 60)
   ;
 
   private final String displayName;

@@ -38,7 +38,8 @@ errorItems=errorList>
         dayPath="form.estimatedDateDay"
         monthPath="form.estimatedDateMonth"
         yearPath="form.estimatedDateYear"
-        labelText="On what date were these the estimated dates?"/>
+        labelText="On what date were these the estimated dates?"
+        optionalLabel=true/>
 
         <@fdsAction.submitButtons
         primaryButtonText="Save"
