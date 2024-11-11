@@ -3,7 +3,6 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.plannedsancti
 import java.math.BigDecimal;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -138,9 +137,10 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
         && isNumberOfInjectorsValid
         && isNumberOfProducersValid
         && isNumberOfMonitorsValid;
-    var allNotNull =
-        ObjectUtils.allNotNull(totalNumberOfPlannedSanctionedWells, numberOfInjectors, numberOfProducers,
-            numberOfMonitors);
+    var allNotNull = totalNumberOfPlannedSanctionedWells != null
+        && numberOfInjectors.hasContent()
+        && numberOfProducers.hasContent()
+        && numberOfMonitors.hasContent();
 
     if (allValid && allNotNull) {
       var sum = (Integer) Stream.of(numberOfInjectors, numberOfProducers, numberOfMonitors)

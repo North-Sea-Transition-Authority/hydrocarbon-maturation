@@ -41,8 +41,8 @@ class PlannedUnsanctionedWellsFormValidatorTest {
   @EnumSource(value = ValidationType.class)
   void validate_validForm_thenNoErrors(ValidationType validationType) {
     var form = new PlannedUnsanctionedWellsForm();
-    form.setTotalCapex(DecimalInput.createDecimalInput(10));
-    form.setTotalNumberOfPlannedUnsanctionedWells(DecimalInput.createDecimalInput(5));
+    form.setTotalCapex(DecimalInput.createDecimalInput(0));
+    form.setTotalNumberOfPlannedUnsanctionedWells(DecimalInput.createDecimalInput(0));
 
     assertTrue(plannedUnsanctionedWellsFormValidator.isValid(form, bindingResult, submissionDetail, validationType));
     assertThat(bindingResult.getAllErrors()).isEmpty();

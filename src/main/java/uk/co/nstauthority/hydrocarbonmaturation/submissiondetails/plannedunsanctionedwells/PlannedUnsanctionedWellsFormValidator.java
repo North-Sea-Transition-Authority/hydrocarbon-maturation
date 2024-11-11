@@ -80,7 +80,7 @@ public class PlannedUnsanctionedWellsFormValidator implements SubmissionValidato
 
     inputValidator
         .setMaxDecimalPlaces(0)
-        .setMinValue(BigDecimal.ONE);
+        .setMinValue(BigDecimal.ZERO);
     inputValidator.validate();
   }
 
@@ -108,7 +108,7 @@ public class PlannedUnsanctionedWellsFormValidator implements SubmissionValidato
 
     inputValidator
         .setMaxDecimalPlaces(2)
-        .setMinValue(BigDecimal.ONE);
+        .setMinValue(BigDecimal.ZERO);
     inputValidator.validate();
   }
 }
