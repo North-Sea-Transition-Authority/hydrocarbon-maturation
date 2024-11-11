@@ -45,7 +45,6 @@ public class FieldSubmissionStatusService {
   public Optional<FieldStatus> getNewStatusForAcceptance(SubmissionDetail submissionDetail) {
     return switch (submissionDetail.getSubmissionType()) {
       case CREATE_CSR -> Optional.of(FieldStatus.STATUS_400);
-      case CREATE_FDP -> Optional.of(FieldStatus.STATUS_600);
       case CREATE_COP -> Optional.of(FieldStatus.STATUS_900);
       default -> Optional.empty();
     };

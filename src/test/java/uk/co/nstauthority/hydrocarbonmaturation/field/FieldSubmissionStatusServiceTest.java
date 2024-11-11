@@ -123,18 +123,14 @@ class FieldSubmissionStatusServiceTest {
   }
 
   @Test
-  void updateFieldStatusForAcceptance_fdpSubmission_assertCorrectStatusUpdate() {
+  void updateFieldStatusForAcceptance_fdpSubmission_assertNoStatusUpdate() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_FDP);
-
-    var expectedNewStatus = FieldStatus.STATUS_600;
 
     when(fieldRepository.findByResource(submissionDetail.getSubmission().getResource()))
         .thenReturn(Optional.of(field));
 
     fieldSubmissionStatusService.updateFieldStatusForAcceptance(submissionDetail);
-    verify(fieldStatusService, times(1)).setMostRecentFieldStatus(eq(field), captor.capture());
-
-    assertThat(captor.getValue()).isEqualTo(expectedNewStatus);
+    verify(fieldStatusService, never()).setMostRecentFieldStatus(any(Field.class), any(FieldStatus.class));
   }
 
   @Test
