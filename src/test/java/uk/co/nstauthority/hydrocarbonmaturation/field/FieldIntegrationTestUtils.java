@@ -27,6 +27,19 @@ public class FieldIntegrationTestUtils {
     return field;
   }
 
+  public static Field buildFieldWithFieldNumber(String fieldName, EntityManager entityManager, Integer fieldNumber) {
+    var field = new Field();
+    field.setCorrectedLegalFieldName(fieldName);
+
+    field.setResource(ResourceIntegrationTestUtils.buildFieldResource(entityManager));
+    field.setFieldNumber(fieldNumber);
+
+    entityManager.persist(field);
+    entityManager.flush();
+
+    return field;
+  }
+
   /**
    * Create and persist a field resource and field with status STATUS_200 set at FIXED_DATE.
    * Note the fieldStatusHistory is also persisted.
