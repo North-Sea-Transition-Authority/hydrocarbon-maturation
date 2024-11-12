@@ -203,6 +203,7 @@ trigger:
   event:
     include:
       - push
+      - tag
 
 volumes:
   - name: webfiles
