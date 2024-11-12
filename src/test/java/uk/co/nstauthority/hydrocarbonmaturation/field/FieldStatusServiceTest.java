@@ -14,6 +14,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.field.epmq.FieldStatusSnsService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.FieldStatusHistory;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.FieldStatusHistoryService;
 
@@ -21,6 +22,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.FieldSt
 class FieldStatusServiceTest {
   @Mock
   private FieldStatusHistoryService fieldStatusHistoryService;
+  @Mock
+  private FieldStatusSnsService fieldStatusSnsService;
   @InjectMocks
   private FieldStatusService fieldStatusService;
 
@@ -29,6 +32,7 @@ class FieldStatusServiceTest {
   @BeforeEach
   void setUp() {
     field = new Field();
+    field.setFieldIdentifier(1);
   }
 
   @ParameterizedTest
@@ -63,5 +67,6 @@ class FieldStatusServiceTest {
   void setMostRecentFieldStatus(FieldStatus fieldStatus) {
     fieldStatusService.setMostRecentFieldStatus(field, fieldStatus);
     verify(fieldStatusHistoryService, times(1)).saveNewFieldStatusHistory(field, fieldStatus);
+    verify(fieldStatusSnsService).publishFieldStatusUpdateSnsMessage(field.getFieldIdentifier(), fieldStatus.getStatusValue());
   }
 }

@@ -2,6 +2,8 @@ package uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -25,11 +27,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.field.epmq.FieldStatusSnsService;
 
 @ExtendWith(MockitoExtension.class)
 class FieldStatusHistoryServiceTest {
   @Mock
   private FieldStatusHistoryRepository fieldStatusHistoryRepository;
+  @Mock
+  private FieldStatusSnsService fieldStatusSnsService;
   @Mock
   private Clock clock;
   @InjectMocks
@@ -40,6 +45,7 @@ class FieldStatusHistoryServiceTest {
   @BeforeEach
   void setUp() {
     field = new Field();
+    field.setFieldIdentifier(1);
   }
 
   @Test
@@ -169,12 +175,18 @@ class FieldStatusHistoryServiceTest {
   }
 
   @Test
-  void saveNewFieldStatusHistory() {
+  void saveNewFieldStatusHistory_latestStatus() {
     var fieldStatus = FieldStatus.STATUS_200;
 
     var fixedInstant = Instant.parse("2024-02-02T00:00:00.00Z");
     when(clock.instant()).thenReturn(fixedInstant);
     when(clock.getZone()).thenReturn(ZoneId.systemDefault());
+
+    var savedStatusHistory = new FieldStatusHistory();
+    savedStatusHistory.setFieldStatus(fieldStatus);
+    savedStatusHistory.setStatusDate(LocalDate.of(2024, 2, 2));
+
+    when(fieldStatusHistoryRepository.findAllByField(field)).thenReturn(Set.of(savedStatusHistory));
 
     var captor = ArgumentCaptor.forClass(FieldStatusHistory.class);
     fieldStatusHistoryService.saveNewFieldStatusHistory(field, fieldStatus);
@@ -190,15 +202,28 @@ class FieldStatusHistoryServiceTest {
             fieldStatus,
             LocalDate.of(2024, 2, 2)
         );
+
+
+    verify(fieldStatusSnsService).publishFieldStatusUpdateSnsMessage(field.getFieldIdentifier(), fieldStatus.getStatusValue());
   }
 
   @Test
-  void saveNewFieldStatusHistoryFromForm() {
+  void saveNewFieldStatusHistoryFromForm_notLatestStatus() {
     var form = new FieldStatusForm();
     form.setFieldStatus(FieldStatus.STATUS_400);
     form.setFieldStatusDateDay("02");
     form.setFieldStatusDateMonth("02");
     form.setFieldStatusDateYear("2024");
+
+    var savedStatusHistory = new FieldStatusHistory();
+    savedStatusHistory.setFieldStatus(form.getFieldStatus());
+    savedStatusHistory.setStatusDate(LocalDate.of(2024, 2, 2));
+
+    var latestStatusHistory = new FieldStatusHistory();
+    latestStatusHistory.setFieldStatus(FieldStatus.STATUS_600);
+    latestStatusHistory.setStatusDate(LocalDate.of(2024, 3, 3));
+
+    when(fieldStatusHistoryRepository.findAllByField(field)).thenReturn(Set.of(savedStatusHistory, latestStatusHistory));
 
     var captor = ArgumentCaptor.forClass(FieldStatusHistory.class);
     fieldStatusHistoryService.saveNewFieldStatusHistoryFromForm(form, field);
@@ -214,6 +239,8 @@ class FieldStatusHistoryServiceTest {
             form.getFieldStatus(),
             LocalDate.of(2024, 2, 2)
         );
+
+    verify(fieldStatusSnsService, never()).publishFieldStatusUpdateSnsMessage(any(Integer.class), any(Integer.class));
   }
 
   @Test
@@ -240,11 +267,52 @@ class FieldStatusHistoryServiceTest {
   }
 
   @Test
-  void removeFieldStatusHistory() {
+  void removeFieldStatusHistory_latestStatus() {
     var fieldStatusHistory = new FieldStatusHistory();
+    fieldStatusHistory.setId(UUID.randomUUID());
+    fieldStatusHistory.setField(field);
+    fieldStatusHistory.setStatusDate(LocalDate.of(2024, 2, 2));
+
+    var olderFieldStatusHistory = new FieldStatusHistory();
+    olderFieldStatusHistory.setId(UUID.randomUUID());
+    olderFieldStatusHistory.setField(field);
+    olderFieldStatusHistory.setStatusDate(LocalDate.of(2024, 1, 1));
+    olderFieldStatusHistory.setFieldStatus(FieldStatus.STATUS_400);
+
+    when(fieldStatusHistoryRepository.findAllByField(field))
+        .thenReturn(Set.of(olderFieldStatusHistory,fieldStatusHistory))
+        .thenReturn(Set.of(olderFieldStatusHistory));
+
     fieldStatusHistoryService.removeFieldStatusHistory(fieldStatusHistory);
 
     verify(fieldStatusHistoryRepository).delete(fieldStatusHistory);
     verifyNoMoreInteractions(fieldStatusHistoryRepository);
+
+    verify(fieldStatusSnsService)
+        .publishFieldStatusUpdateSnsMessage(field.getFieldIdentifier(), FieldStatus.STATUS_400.getStatusValue());
+  }
+
+  @Test
+  void removeFieldStatusHistory_notLatestStatus() {
+    var fieldStatusHistory = new FieldStatusHistory();
+    fieldStatusHistory.setId(UUID.randomUUID());
+    fieldStatusHistory.setField(field);
+    fieldStatusHistory.setStatusDate(LocalDate.of(2024, 2, 2));
+
+    var mostRecentFieldStatusHistory = new FieldStatusHistory();
+    mostRecentFieldStatusHistory.setId(UUID.randomUUID());
+    mostRecentFieldStatusHistory.setField(field);
+    mostRecentFieldStatusHistory.setStatusDate(LocalDate.of(2024, 3, 3));
+
+    when(fieldStatusHistoryRepository.findAllByField(field))
+        .thenReturn(Set.of(mostRecentFieldStatusHistory, fieldStatusHistory));
+
+    fieldStatusHistoryService.removeFieldStatusHistory(fieldStatusHistory);
+
+    verify(fieldStatusHistoryRepository).delete(fieldStatusHistory);
+    verifyNoMoreInteractions(fieldStatusHistoryRepository);
+
+    verify(fieldStatusSnsService, never())
+        .publishFieldStatusUpdateSnsMessage(field.getFieldIdentifier(), FieldStatus.STATUS_400.getStatusValue());
   }
 }

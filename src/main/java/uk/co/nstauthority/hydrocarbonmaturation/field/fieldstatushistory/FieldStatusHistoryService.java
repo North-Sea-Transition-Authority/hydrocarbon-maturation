@@ -15,16 +15,21 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
+import uk.co.nstauthority.hydrocarbonmaturation.field.epmq.FieldStatusSnsService;
 
 @Service
 public class FieldStatusHistoryService {
   private final FieldStatusHistoryRepository fieldStatusHistoryRepository;
   private final Clock clock;
+  private final FieldStatusSnsService fieldStatusSnsService;
 
   @Autowired
-  public FieldStatusHistoryService(FieldStatusHistoryRepository fieldStatusHistoryRepository, Clock clock) {
+  public FieldStatusHistoryService(FieldStatusHistoryRepository fieldStatusHistoryRepository, Clock clock,
+                                   FieldStatusSnsService fieldStatusSnsService
+  ) {
     this.fieldStatusHistoryRepository = fieldStatusHistoryRepository;
     this.clock = clock;
+    this.fieldStatusSnsService = fieldStatusSnsService;
   }
 
   public Optional<FieldStatusHistory> getMostRecentFieldStatusHistory(Field field) {
@@ -84,6 +89,8 @@ public class FieldStatusHistoryService {
     }
 
     fieldStatusHistoryRepository.save(fieldStatusHistory);
+
+    sendStatusUpdateIfMostRecentChanged(field, form.getFieldStatus());
   }
 
   @Transactional
@@ -94,6 +101,8 @@ public class FieldStatusHistoryService {
     fieldStatusHistory.setStatusDate(LocalDate.now(clock));
 
     fieldStatusHistoryRepository.save(fieldStatusHistory);
+
+    sendStatusUpdateIfMostRecentChanged(field, fieldStatus);
   }
 
   public FieldStatusHistory getFieldStatusHistoryOrThrow(UUID fieldStatusHistoryId) {
@@ -104,6 +113,40 @@ public class FieldStatusHistoryService {
 
   @Transactional
   public void removeFieldStatusHistory(FieldStatusHistory fieldStatusHistory) {
+    var previousLatestFieldStatusHistory = getMostRecentFieldStatusHistory(fieldStatusHistory.getField())
+        .orElseThrow(() -> new RemiEntityNotFoundException("There is no field status history for field id: %s"
+            .formatted(fieldStatusHistory.getField().getFieldIdentifier())));
+
     fieldStatusHistoryRepository.delete(fieldStatusHistory);
+
+    sendStatusUpdateIfMostRecentRemoved(fieldStatusHistory, previousLatestFieldStatusHistory);
+  }
+
+  private void sendStatusUpdateIfMostRecentChanged(Field field, FieldStatus fieldStatus) {
+    var latestStatusHistory = getMostRecentFieldStatusHistory(field);
+
+    latestStatusHistory.ifPresent(fieldStatusHistory -> {
+      if (fieldStatusHistory.getFieldStatus().equals(fieldStatus)) {
+        fieldStatusSnsService.publishFieldStatusUpdateSnsMessage(field.getFieldIdentifier(), fieldStatus.getStatusValue());
+      }
+    });
+  }
+
+  private void sendStatusUpdateIfMostRecentRemoved(FieldStatusHistory previousLatestFieldStatusHistory,
+                                                   FieldStatusHistory removedFieldStatusHistory) {
+
+    if (previousLatestFieldStatusHistory.getId().equals(removedFieldStatusHistory.getId())) {
+      var field = removedFieldStatusHistory.getField();
+
+      var newMostRecentFieldStatus = getMostRecentFieldStatusHistory(field)
+          .map(FieldStatusHistory::getFieldStatus)
+          .orElseThrow(() -> new RemiEntityNotFoundException("There is no field status history for field id: %s"
+              .formatted(field.getFieldIdentifier())));
+
+      fieldStatusSnsService.publishFieldStatusUpdateSnsMessage(
+          field.getFieldIdentifier(),
+          newMostRecentFieldStatus.getStatusValue()
+      );
+    }
   }
 }

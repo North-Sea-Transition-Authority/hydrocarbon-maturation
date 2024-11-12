@@ -59,7 +59,8 @@ steps:
         - echo $DOCKER_CONFIG_JSON > $DOCKER_CONFIG/config.json
         - chmod +x gradlew
         - ./gradlew generateJooq
-        - ./gradlew checkstyleMain test bootJar
+        - ./gradlew publishEpmqMessagesIntegrationTestPublicationToMavenLocal
+        - ./gradlew checkstyleMain test publishEpmqMessagesIntegrationTestPublicationToMavenLocal epmqMessagesJarIntegrationTest bootJar
       build_image: repo1.dev.fivium.local:5000/docker-compose-java21
 
   - name: sync-reports
@@ -144,6 +145,34 @@ steps:
 #    when:
 #      status:
 #        - success
+
+  - name: publish-epmq-messages-jar-snapshot
+    image: eclipse-temurin:21-jdk
+    environment:
+      NEXUS_USERNAME: jenkins
+      NEXUS_PASSWORD:
+        from_secret: nexus_password
+    commands:
+      - export EPMQ_MESSAGES_JAR_VERSION=$(echo ${DRONE_BRANCH} | sed 's/feature\\\///g' | sed 's/\\\//-/g')-SNAPSHOT
+      - echo $EPMQ_MESSAGES_JAR_VERSION
+      - ./gradlew publishEpmqMessagesPublicationToSnapshotsRepository
+    when:
+      event:
+        - push
+
+  - name: publish-epmq-messages-jar-release
+    image: eclipse-temurin:21-jdk
+    environment:
+      NEXUS_USERNAME: jenkins
+      NEXUS_PASSWORD:
+        from_secret: nexus_password
+    commands:
+      - export EPMQ_MESSAGES_JAR_VERSION=${DRONE_TAG}
+      - echo EPMQ_MESSAGES_JAR_VERSION
+      - ./gradlew publishEpmqMessagesPublicationToReleasesRepository
+    when:
+      event:
+        - tag
 
   - name: rebuild-cache
     image: drillster/drone-volume-cache
@@ -333,3 +362,9 @@ data: rRW1ISha5oByh71TQH2GqJoDNoehGqfZHnzj1S9SnGBndFbTkvwAZH3FoN4M69wPolup6KF3+b
 kind: secret
 name: drone_token
 data: mfm1f1crcixgqAtI3C1vfwnpWmOxB5wc+u8RNFXU0CN37ZX80P95qxQtsWdD+ZrXPnR9i0Iz+fits9aA
+
+---
+
+kind: secret
+name: nexus_password
+data: r0b/stEyHEnEYGFBcNyXAfjEsMr0pbVEwj7yVBF6nPpT2CeQDQ==

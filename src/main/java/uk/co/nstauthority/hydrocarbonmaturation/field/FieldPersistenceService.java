@@ -11,6 +11,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.Or
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.epmq.FieldSnsService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
@@ -27,6 +28,7 @@ public class FieldPersistenceService {
   private final SubmissionDetailService submissionDetailService;
   private final FieldLicenceService fieldLicenceService;
   private final ResourceService resourceService;
+  private final FieldSnsService fieldSnsService;
 
   @Autowired
   FieldPersistenceService(FieldRepository fieldRepository,
@@ -35,7 +37,9 @@ public class FieldPersistenceService {
                           ResourceLinkService resourceLinkService,
                           SubmissionDetailService submissionDetailService,
                           FieldLicenceService fieldLicenceService,
-                          ResourceService resourceService) {
+                          ResourceService resourceService,
+                          FieldSnsService fieldSnsService
+  ) {
     this.fieldRepository = fieldRepository;
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
@@ -43,6 +47,7 @@ public class FieldPersistenceService {
     this.submissionDetailService = submissionDetailService;
     this.fieldLicenceService = fieldLicenceService;
     this.resourceService = resourceService;
+    this.fieldSnsService = fieldSnsService;
   }
 
   @Transactional
@@ -111,6 +116,8 @@ public class FieldPersistenceService {
     field.setIsOnLicence(form.getIsOnLicence());
 
     fieldLicenceService.saveFieldLicences(field, form.getLicences());
+
+    fieldSnsService.publishFieldUpdatedSnsMessage(field);
 
     return field;
   }

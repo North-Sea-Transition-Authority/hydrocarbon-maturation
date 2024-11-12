@@ -9,6 +9,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRepository;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatusService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.epmq.FieldStatusSnsService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 
@@ -24,16 +27,26 @@ public class ResourceArchiveService {
   private final SubmissionDetailService submissionDetailService;
   private final ResourceRepository resourceRepository;
   private final PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
+  private final FieldStatusSnsService fieldStatusSnsService;
+  private final FieldPersistenceService fieldPersistenceService;
+  private final FieldStatusService fieldStatusService;
 
   @Autowired
   public ResourceArchiveService(ResourceLinkService resourceLinkService,
                                 SubmissionDetailService submissionDetailService,
                                 ResourceRepository resourceRepository,
-                                PostFieldDiscoveryLinkService postFieldDiscoveryLinkService) {
+                                PostFieldDiscoveryLinkService postFieldDiscoveryLinkService,
+                                FieldStatusSnsService fieldStatusSnsService,
+                                FieldPersistenceService fieldPersistenceService,
+                                FieldStatusService fieldStatusService
+  ) {
     this.resourceLinkService = resourceLinkService;
     this.submissionDetailService = submissionDetailService;
     this.resourceRepository = resourceRepository;
     this.postFieldDiscoveryLinkService = postFieldDiscoveryLinkService;
+    this.fieldStatusSnsService = fieldStatusSnsService;
+    this.fieldPersistenceService = fieldPersistenceService;
+    this.fieldStatusService = fieldStatusService;
   }
 
   public Optional<String> resourceCannotBeArchivedWarning(Resource resource) {
@@ -62,11 +75,25 @@ public class ResourceArchiveService {
   public void archiveResource(Resource resource) {
     resource.setArchived(true);
     resourceRepository.save(resource);
+
+    if (resource.getType().equals(ResourceType.FIELD)) {
+      var field = fieldPersistenceService.getFieldOrThrow(resource);
+      fieldStatusSnsService.publishFieldStatusUpdateSnsMessage(field.getFieldIdentifier(), 9999);
+    }
   }
 
   public void unarchiveResource(Resource resource) {
     resource.setArchived(false);
     resourceRepository.save(resource);
+
+    if (resource.getType().equals(ResourceType.FIELD)) {
+      var field = fieldPersistenceService.getFieldOrThrow(resource);
+      var status = fieldStatusService.getMostRecentFieldStatus(field)
+          .orElseThrow(() -> new IllegalStateException("field status not found for field id: %s"
+              .formatted(field.getFieldIdentifier())));
+
+      fieldStatusSnsService.publishFieldStatusUpdateSnsMessage(field.getFieldIdentifier(), status.getStatusValue());
+    }
   }
 
   private boolean resourceIsDiscoveryAndLinkedToField(Resource resource) {

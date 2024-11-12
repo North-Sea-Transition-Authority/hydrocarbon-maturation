@@ -31,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
+import uk.co.nstauthority.hydrocarbonmaturation.field.epmq.FieldSnsService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
@@ -56,6 +57,8 @@ class FieldPersistenceServiceTest {
   private FieldLicenceService fieldLicenceService;
   @Mock
   private ResourceService resourceService;
+  @Mock
+  private FieldSnsService fieldSnsService;
   @InjectMocks
   private FieldPersistenceService underTest;
 
@@ -223,6 +226,7 @@ class FieldPersistenceServiceTest {
           );
 
       verify(fieldRepository).save(result);
+      verify(fieldSnsService).publishFieldUpdatedSnsMessage(result);
     }
     @Test
     void fieldLicencesSaved() {

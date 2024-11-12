@@ -6,6 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.springframework.boot.test.autoconfigure.jooq.AutoConfigureJooq;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
 @Target(ElementType.TYPE)
@@ -13,5 +14,6 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({"development", "integration-test"})
 @AutoConfigureJooq
+@Import(EnergyPortalMessageQueueTestConfiguration.class)
 public @interface IntegrationTest {
 }

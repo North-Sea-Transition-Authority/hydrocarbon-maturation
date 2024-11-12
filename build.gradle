@@ -5,6 +5,7 @@ plugins {
 	id "org.sonarqube" version "5.1.0.4882"
 	id 'checkstyle'
 	id 'jacoco'
+	id 'maven-publish'
 	id 'nu.studer.jooq' version '9.0'
 	//docker-compose needed to startup a postgres container for Jooq codegen
 	id 'com.avast.gradle.docker-compose' version "0.16.11"
@@ -27,6 +28,10 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+}
+
+sourceSets {
+	epmqMessagesJarIntegrationTest {}
 }
 
 repositories {
@@ -62,6 +67,7 @@ dependencies {
 	implementation 'commons-io:commons-io:2.17.0'
 	implementation 'fi.solita.clamav:clamav-client:1.0.1'
 	implementation 'uk.co.fivium.energyportalapi:client:v12.7.0'
+	implementation 'uk.co.fivium.energyportalmessagequeue:spring-boot-starter:v2.0.0'
 	implementation "uk.co.fivium:file-upload-spring-boot-starter:v2.6.0"
 	implementation "com.amazonaws:aws-java-sdk-s3:1.12.777"
 	implementation 'uk.co.fivium.digital.energyportalteamaccesslibrary:energy-portal-team-access-libray:v1.0.0'
@@ -103,6 +109,10 @@ dependencies {
 			because("opensaml core uses a version with vulnerabilities")
 		}
 	}
+
+	epmqMessagesJarIntegrationTestImplementation 'org.springframework.boot:spring-boot-starter-test'
+	epmqMessagesJarIntegrationTestImplementation 'uk.co.nstauthority.hydrocarbonmaturation:remi-epmq-messages:integration-test'
+	epmqMessagesJarIntegrationTestImplementation 'uk.co.fivium.energyportalmessagequeue:spring-boot-starter:v2.0.0'
 }
 
 tasks {
@@ -219,4 +229,70 @@ jacocoTestReport {
 	reports {
 		xml.required = true
 	}
+}
+
+tasks.register('epmqMessagesJar', Jar) {
+	from sourceSets.main.output
+	include 'uk/co/nstauthority/hydrocarbonmaturation/epmqmessage/**'
+	archiveBaseName = 'remi-epmq-messages'
+}
+
+publishing {
+	publications {
+		epmqMessages(MavenPublication) {
+			groupId = 'uk.co.nstauthority.hydrocarbonmaturation'
+			// The artifact ID below must start with remi to make it unique, otherwise Spring's bootJar task will fail on EPMQ
+			// if there are two dependencies with the epmq-messages artifact id with the same version.
+			artifactId = 'remi-epmq-messages'
+			version = System.getenv("EPMQ_MESSAGES_JAR_VERSION") ?: version
+
+			artifact(epmqMessagesJar)
+		}
+		epmqMessagesIntegrationTest(MavenPublication) {
+			groupId = 'uk.co.nstauthority.hydrocarbonmaturation'
+			// The artifact ID below must start with remi to make it unique, otherwise Spring's bootJar task will fail on EPMQ
+			// if there are two dependencies with the epmq-messages artifact id with the same version.
+			artifactId = 'remi-epmq-messages'
+			version = 'integration-test'
+
+			artifact(epmqMessagesJar)
+		}
+	}
+	repositories {
+		maven {
+			name = 'snapshots'
+			url = 'https://nexus.fivium.co.uk/repository/maven-snapshots'
+			credentials {
+				username = System.getenv("NEXUS_USERNAME")
+				password = System.getenv("NEXUS_PASSWORD")
+			}
+		}
+
+		maven {
+			name = 'releases'
+			url = 'https://nexus.fivium.co.uk/repository/maven-releases'
+			credentials {
+				username = System.getenv("NEXUS_USERNAME")
+				password = System.getenv("NEXUS_PASSWORD")
+			}
+		}
+	}
+}
+
+tasks.register('epmqMessagesJarIntegrationTest', Test) {
+	useJUnitPlatform()
+	group 'verification'
+	//Need to explicitly override the default classesDirs and classpath for a test task
+	testClassesDirs = sourceSets.epmqMessagesJarIntegrationTest.output.classesDirs
+	classpath = sourceSets.epmqMessagesJarIntegrationTest.runtimeClasspath
+
+	mustRunAfter(publishEpmqMessagesIntegrationTestPublicationToMavenLocal)
+}
+
+tasks.register('epmqMessagesJarIntegrationTestReport', TestReport) {
+	destinationDir = file("$buildDir/reports/epmqMessagesJarIntegrationTests")
+	//Specify test result directory rather than task names so this task runs even if the tests fail
+	testResultDirs = [epmqMessagesJarIntegrationTest.binResultsDir]
+
+	mustRunAfter(epmqMessagesJarIntegrationTest)
 }
