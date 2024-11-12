@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
@@ -43,7 +44,7 @@ public class DiscoveryAssociationService {
         .map(fieldPersistenceService::getFieldOrThrow)
         .map(fieldStatusService::getMostRecentFieldStatus)
         .flatMap(Optional::stream)
-        .anyMatch(fieldStatus -> fieldStatus.getStatusValue() >= 300);
+        .anyMatch(fieldStatus -> fieldStatus.getStatusValue() >= FieldStatus.STATUS_300.getStatusValue());
   }
 
   public boolean blockedByAssociatedFieldStatus(Submission submission) {
