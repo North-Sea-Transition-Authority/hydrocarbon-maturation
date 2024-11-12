@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.entry;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -21,9 +22,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentsController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.file.UploadedFileTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -42,6 +45,10 @@ class RegulatorManagedInformationSummaryServiceTest {
   private ResourceSupportingDocumentService resourceSupportingDocumentService;
   @Mock
   private PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
+  @Mock
+  private ResourceLinkService resourceLinkService;
+  @Mock
+  private FieldPersistenceService fieldPersistenceService;
   @InjectMocks
   private RegulatorManagedInformationSummaryService regulatorManagedInformationSummaryService;
 
@@ -222,5 +229,39 @@ class RegulatorManagedInformationSummaryServiceTest {
             "",
             ""
         );
+  }
+
+  @Test
+  void getAssociatedFieldMap() {
+    var discovery = new Resource();
+
+    var fieldResource1 = new Resource();
+    fieldResource1.setId(UUID.randomUUID());
+    var fieldResource2 = new Resource();
+    fieldResource2.setId(UUID.randomUUID());
+
+    var field1 = new Field();
+    field1.setResource(fieldResource1);
+    field1.setCorrectedLegalFieldName("Field 1");
+    var field2 = new Field();
+    field2.setResource(fieldResource2);
+    field2.setCorrectedLegalFieldName("Field 2");
+
+    var associatedFields = List.of(fieldResource1, fieldResource2);
+
+    when(resourceLinkService.getAssociatedFieldResources(discovery)).thenReturn(associatedFields);
+    when(fieldPersistenceService.getFieldByResource(fieldResource1)).thenReturn(Optional.of(field1));
+    when(fieldPersistenceService.getFieldByResource(fieldResource2)).thenReturn(Optional.of(field2));
+
+    assertThat(regulatorManagedInformationSummaryService.getFieldsAssociatedWithDiscoveryMap(discovery)).containsExactly(
+        entry(
+            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(fieldResource1.getId(),null)),
+            field1.getCorrectedLegalFieldName()
+        ),
+        entry(
+            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(fieldResource2.getId(), null)),
+            field2.getCorrectedLegalFieldName()
+        )
+    );
   }
 }

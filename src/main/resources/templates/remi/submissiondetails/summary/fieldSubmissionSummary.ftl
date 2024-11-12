@@ -46,6 +46,7 @@ caption=resourceName>
         <@regulatorSummary.regulatorInformationSummary
         fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
         fieldMapView=fieldMapView!""
+        canViewRegulatorManagementInfo=isRegulatorOrAreaTeamUser
         associatedDiscoveriesMap=associatedDiscoveriesMap!""
         linkedPostFieldDiscoveriesMap=""
         canSeePostFieldLink=false/>

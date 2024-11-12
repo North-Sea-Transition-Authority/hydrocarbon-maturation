@@ -184,11 +184,15 @@ public class ViewResourceRecordController {
           ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resource.getId(), null)));
     }
 
-    if (isDiscovery
-        && teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.RESERVES_AND_RESOURCES_ADVISOR)) {
-      modelAndView.addObject("undevelopedDiscoveryUrl",
-          ReverseRouter.route(
-              on(UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(resource.getId(), null)));
+    if (isDiscovery) {
+      modelAndView.addObject("associatedFieldMap",
+          regulatorManagedInformationSummaryService.getFieldsAssociatedWithDiscoveryMap(resource));
+
+      if (teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.RESERVES_AND_RESOURCES_ADVISOR)) {
+        modelAndView.addObject("undevelopedDiscoveryUrl",
+            ReverseRouter.route(
+                on(UndevelopedDiscoverySummaryController.class).getUndevelopedDiscoverySummary(resource.getId(), null)));
+      }
     }
 
     addBreadCrumbsForResourceType(resourceRecord, isFieldResource, modelAndView);

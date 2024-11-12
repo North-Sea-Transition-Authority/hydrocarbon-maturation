@@ -279,6 +279,11 @@ public class ReviewSubmissionController {
                   .getRegulatorManagedInformationPage(resource.getId(), null)))
           .addObject("manageResourceInformationText", "Manage resource information")
           .addObject("canSeePostFieldLink", internalTeamService.isRegulatorOrAreaTeamUser(user));
+
+      if (selectedSubmissionDetail.isDiscoverySubmission()) {
+        modelAndView.addObject("associatedFieldMap",
+            regulatorManagedInformationSummaryService.getFieldsAssociatedWithDiscoveryMap(resource));
+      }
     }
   }
 }

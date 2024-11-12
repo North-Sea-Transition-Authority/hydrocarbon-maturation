@@ -5,25 +5,27 @@
 <#-- @ftlvariable name="fieldMapView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapView" -->
 <#-- @ftlvariable name="fieldMapView" type="uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.summary.FieldMapView" -->
 
-<#macro regulatorInformationSummary fieldRegulatorInformationCard fieldMapView associatedDiscoveriesMap linkedPostFieldDiscoveriesMap canSeePostFieldLink>
+<#macro regulatorInformationSummary fieldRegulatorInformationCard fieldMapView canViewRegulatorManagementInfo associatedDiscoveriesMap linkedPostFieldDiscoveriesMap canSeePostFieldLink>
     <@simpleSummary.simpleSummaryCard
       summaryDataView=fieldRegulatorInformationCard.summaryData()
       summaryHeading=fieldRegulatorInformationCard.displayName()!"">
-      <@fdsSummaryList.summaryListRowNoAction keyText="Associated discoveries">
-        <#list associatedDiscoveriesMap as name, link>
-          <div>
-            <@fdsAction.link linkText=name linkUrl=springUrl(link)/>
-          </div>
-        </#list>
-      </@fdsSummaryList.summaryListRowNoAction>
-      <#if canSeePostFieldLink && linkedPostFieldDiscoveriesMap?has_content>
-        <@fdsSummaryList.summaryListRowNoAction keyText="Linked post field discoveries">
-          <#list linkedPostFieldDiscoveriesMap as name, link>
+      <#if canViewRegulatorManagementInfo>
+        <@fdsSummaryList.summaryListRowNoAction keyText="Associated discoveries">
+          <#list associatedDiscoveriesMap as link, name>
             <div>
               <@fdsAction.link linkText=name linkUrl=springUrl(link)/>
             </div>
           </#list>
         </@fdsSummaryList.summaryListRowNoAction>
+        <#if canSeePostFieldLink && linkedPostFieldDiscoveriesMap?has_content>
+          <@fdsSummaryList.summaryListRowNoAction keyText="Linked post field discoveries">
+            <#list linkedPostFieldDiscoveriesMap as link, name>
+              <div>
+                <@fdsAction.link linkText=name linkUrl=springUrl(link)/>
+              </div>
+            </#list>
+          </@fdsSummaryList.summaryListRowNoAction>
+        </#if>
       </#if>
       <#if fieldMapView?has_content>
         <@shapeMapSummaryCard.shapeMapSummary

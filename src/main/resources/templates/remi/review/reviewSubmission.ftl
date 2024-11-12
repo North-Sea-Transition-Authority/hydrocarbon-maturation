@@ -115,6 +115,7 @@
     <@regulatorSummary.regulatorInformationSummary
       fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
       fieldMapView=fieldMapView!""
+      canViewRegulatorManagementInfo=true
       associatedDiscoveriesMap=associatedDiscoveriesMap!""
       linkedPostFieldDiscoveriesMap=""
       canSeePostFieldLink=false/>
@@ -123,6 +124,7 @@
       <@regulatorManagedInformationSummary.regulatorManagedInformationSummaryCard
         regulatorManagedInformationValues=regulatorManagedInformationSummaryView
         resourceGroupsValues=resourceGroupsSummaryView
+        associatedFieldMap=associatedFieldMap!""
         canSeePostFieldLink=canSeePostFieldLink!false/>
     </#if>
   </#if>

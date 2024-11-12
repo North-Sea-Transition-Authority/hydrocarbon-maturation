@@ -880,6 +880,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
   void showResourceRecordModelAndView_whenIsRegulator_discoverySubmission_assertModelPropertiesAndVerifyAddRegulatorAttributes() throws Exception {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_DISCOVERY);
     resource.setArchived(false);
+    resource.setType(ResourceType.DISCOVERY);
 
     when(viewResourceRecordService.canViewResource(resourceRecordSummaryView, resource, USER)).thenReturn(true);
     when(viewResourceRecordService.isRegulatorOrAreaTeamUser(USER))
@@ -899,6 +900,7 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
     when(resourceGroupSummaryService.getResourceGroupLinkSummaryFromResource(resource))
         .thenReturn(resourceGroupSummary);
     when(correctionService.canStartCorrection(resource, USER)).thenReturn(true);
+    when(regulatorManagedInformationSummaryService.getFieldsAssociatedWithDiscoveryMap(resource)).thenReturn(Map.of());
     var queryResult = List.of(SubmissionIntegrationTestUtils.getSubmissionQuerySearchRecord(submissionDetail));
     mockModelAndViewCreation(submissionDetail, queryResult);
 
@@ -935,7 +937,8 @@ class ViewResourceRecordControllerTest extends AbstractControllerTest {
                 ReverseRouter.route(on(CorrectionSelectionController.class).startCorrection(resource.getId(), null))),
             entry("manageResourceInformationText", "Manage resource information"),
             entry("archiveUrl", ReverseRouter.route(on(ResourceArchiveController.class).archiveResourceConfirmation(resourceId, null))),
-            entry("archived", false)
+            entry("archived", false),
+            entry("associatedFieldMap", Map.of())
         );
 
     var breadcrumbsMap = ((Map<String, String>) modelMap.get("breadcrumbsMap"));

@@ -433,10 +433,14 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
     var returnedMap = fieldRegulatorManagedInformationSummaryService.getLinkedPostFieldDiscoveriesMap(resource);
 
     assertThat(returnedMap.entrySet()).containsExactly(
-        entry(resourceDetail1.getResourceName(), ReverseRouter.route(on(ViewResourceRecordController.class)
-            .showResourceRecord(discovery1.getId(),null))),
-        entry(resourceDetail2.getResourceName(), ReverseRouter.route(on(ViewResourceRecordController.class)
-            .showResourceRecord(discovery2.getId(), null)))
+        entry(
+            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(discovery1.getId(),null)),
+            resourceDetail1.getResourceName()
+        ),
+        entry(
+            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(discovery2.getId(), null)),
+            resourceDetail2.getResourceName()
+        )
     );
   }
 
@@ -470,10 +474,14 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
         .thenReturn(associatedDiscoveryDetails);
 
     assertThat(fieldRegulatorManagedInformationSummaryService.getAssociatedDiscoveriesMap(resource)).containsExactly(
-        entry(resourceDetail1.getResourceName(), ReverseRouter.route(on(ViewResourceRecordController.class)
-            .showResourceRecord(discovery1.getId(),null))),
-        entry(resourceDetail2.getResourceName(), ReverseRouter.route(on(ViewResourceRecordController.class)
-            .showResourceRecord(discovery2.getId(), null)))
+        entry(
+            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(discovery1.getId(),null)),
+            resourceDetail1.getResourceName()
+        ),
+        entry(
+            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(discovery2.getId(), null)),
+            resourceDetail2.getResourceName()
+        )
     );
   }
 
