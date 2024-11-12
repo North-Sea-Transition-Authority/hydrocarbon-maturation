@@ -38,13 +38,13 @@ track changes over time.
 - In your IntelliJ run configuration for the Spring app, include `development` in your active profiles
 - The following environment variables are required when using this profile:
 
-| Environment Variable                    | Description                                                                                                       |
-|-----------------------------------------|-------------------------------------------------------------------------------------------------------------------|
-| NOTIFY_API_KEY                          | [TPM link](https://tpm.fivium.co.uk/index.php/pwd/view/2035)                                                      |
-| REMI_EMAIL_TEST_RECIPIENT               | Your intended recipient during testing for emails                                                                 |
-| REMI_EPMQ_SNS_SQS_AWS_ACCESS_KEY_ID     | AWS access key id for SNS/SQS. <ul><li>[Local dev](https://tpm.fivium.co.uk/index.php/prj/view/147)</li></ul>     |
-| REMI_EPMQ_SNS_SQS_AWS_SECRET_ACCESS_KEY | AWS secret access key for SNS/SQS. <ul><li>[Local dev](https://tpm.fivium.co.uk/index.php/prj/view/147)</li></ul> |
-| REMI_EPMQ_ENVIRONMENT_SUFFIX            | Something unique per environment. For local dev this can be your initials, e.g. `rm`.                             |
+| Environment Variable            | Description                                                                                                       |
+|---------------------------------|-------------------------------------------------------------------------------------------------------------------|
+| NOTIFY_API_KEY                  | [TPM link](https://tpm.fivium.co.uk/index.php/pwd/view/2035)                                                      |
+| REMI_EMAIL_TEST_RECIPIENT       | Your intended recipient during testing for emails                                                                 |
+| REMI_EPMQ_AWS_ACCESS_KEY_ID     | AWS access key id for SNS/SQS. <ul><li>[Local dev](https://tpm.fivium.co.uk/index.php/prj/view/147)</li></ul>     |
+| REMI_EPMQ_AWS_SECRET_ACCESS_KEY | AWS secret access key for SNS/SQS. <ul><li>[Local dev](https://tpm.fivium.co.uk/index.php/prj/view/147)</li></ul> |
+| REMI_EPMQ_ENVIRONMENT_SUFFIX    | Something unique per environment. For local dev this can be your initials, e.g. `rm`.                             |
 
 ### Production
 - In your IntelliJ run configuration for the Spring app, include `production` in your active profiles
@@ -88,8 +88,8 @@ track changes over time.
 | REMI_ANALYTICS_SERVICE_IDENTIFIER           | The service specific google analytics tag                                                                                                                                                                                                                                                                       |
 | ALLOW_FIELD_SUBMISSIONS                     | Allow field submissions and field search (default: false)                                                                                                                                                                                                                                                       |
 | REMI_ACTUATOR_ADMIN_USER_PASSWORD           | Password for the actuator admin user                                                                                                                                                                                                                                                                            |
-| REMI_EPMQ_SNS_SQS_AWS_ACCESS_KEY_ID         | AWS access key id for SNS/SQS. <ul><li>[Dev](https://tpm.fivium.co.uk/index.php/prj/view/147)</li><li>[ST](https://tpm.fivium.co.uk/index.php/prj/view/147)</li><li>[Pre-prod](https://tpm.fivium.co.uk/index.php/pwd/view/2217)</li><li>[Prod](https://tpm.fivium.co.uk/index.php/pwd/view/2217)</li></ul>     |
-| REMI_EPMQ_SNS_SQS_AWS_SECRET_ACCESS_KEY     | AWS secret access key for SNS/SQS. <ul><li>[Dev](https://tpm.fivium.co.uk/index.php/prj/view/147)</li><li>[ST](https://tpm.fivium.co.uk/index.php/prj/view/147)</li><li>[Pre-prod](https://tpm.fivium.co.uk/index.php/pwd/view/2217)</li><li>[Prod](https://tpm.fivium.co.uk/index.php/pwd/view/2217)</li></ul> |
+| REMI_EPMQ_AWS_ACCESS_KEY_ID                 | AWS access key id for SNS/SQS. <ul><li>[Dev](https://tpm.fivium.co.uk/index.php/prj/view/147)</li><li>[ST](https://tpm.fivium.co.uk/index.php/prj/view/147)</li><li>[Pre-prod](https://tpm.fivium.co.uk/index.php/pwd/view/2217)</li><li>[Prod](https://tpm.fivium.co.uk/index.php/pwd/view/2217)</li></ul>     |
+| REMI_EPMQ_AWS_SECRET_ACCESS_KEY             | AWS secret access key for SNS/SQS. <ul><li>[Dev](https://tpm.fivium.co.uk/index.php/prj/view/147)</li><li>[ST](https://tpm.fivium.co.uk/index.php/prj/view/147)</li><li>[Pre-prod](https://tpm.fivium.co.uk/index.php/pwd/view/2217)</li><li>[Prod](https://tpm.fivium.co.uk/index.php/pwd/view/2217)</li></ul> |
 | REMI_EPMQ_ENVIRONMENT_SUFFIX                | Something unique per environment, e.g. `dev`.                                                                                                                                                                                                                                                                   |
 
 ### 3. Initialise the Fivium Design System
