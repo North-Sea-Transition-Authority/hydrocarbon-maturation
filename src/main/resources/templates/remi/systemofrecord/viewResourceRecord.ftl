@@ -166,6 +166,7 @@ wrapperWidth=true>
     <@regulatorSummary.regulatorInformationSummary
       fieldRegulatorInformationCard=fieldRegulatorManagedInformationSummaryCard
       fieldMapView=fieldMapView!""
+      canViewRegulatorManagementInfo=canViewRegulatorManagementInfo
       associatedDiscoveriesMap=associatedDiscoveriesMap!""
       linkedPostFieldDiscoveriesMap=linkedPostFieldDiscoveriesMap!""
       canSeePostFieldLink=canSeePostFieldLink!false/>
@@ -174,6 +175,7 @@ wrapperWidth=true>
       <@regulatorManagedInformationSummary.regulatorManagedInformationSummaryCard
         regulatorManagedInformationValues=regulatorManagedInformationSummaryView
         resourceGroupsValues=resourceGroupsSummaryView
+        associatedFieldMap=associatedFieldMap!""
         canSeePostFieldLink=canSeePostFieldLink!false/>
     </#if>
   </#if>

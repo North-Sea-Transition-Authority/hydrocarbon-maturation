@@ -2,20 +2,27 @@ package uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceLinkService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.FileSummaryUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryFileViewRow;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
+import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
 
 @Service
 public class RegulatorManagedInformationSummaryService {
@@ -26,17 +33,24 @@ public class RegulatorManagedInformationSummaryService {
   private final SubmissionDetailService submissionDetailService;
   private final ResourceSupportingDocumentService resourceSupportingDocumentService;
   private final PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
+  private final ResourceLinkService resourceLinkService;
+  private final FieldPersistenceService fieldPersistenceService;
 
   @Autowired
   public RegulatorManagedInformationSummaryService(
       RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
       SubmissionDetailService submissionDetailService,
       ResourceSupportingDocumentService resourceSupportingDocumentService,
-      PostFieldDiscoveryLinkService postFieldDiscoveryLinkService) {
+      PostFieldDiscoveryLinkService postFieldDiscoveryLinkService,
+      ResourceLinkService resourceLinkService,
+      FieldPersistenceService fieldPersistenceService
+  ) {
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.submissionDetailService = submissionDetailService;
     this.resourceSupportingDocumentService = resourceSupportingDocumentService;
     this.postFieldDiscoveryLinkService = postFieldDiscoveryLinkService;
+    this.resourceLinkService = resourceLinkService;
+    this.fieldPersistenceService = fieldPersistenceService;
   }
 
   public RegulatorManagedInformationSummaryView getRegulatorManagedInformationSummaryFromResource(
@@ -48,6 +62,17 @@ public class RegulatorManagedInformationSummaryService {
         .map(regulatorManagedInfo -> createSummaryViewFromRegulatorManagedInformation(regulatorManagedInfo,
             isBeingRelinquished))
         .orElse(RegulatorManagedInformationSummaryView.empty(isBeingRelinquished));
+  }
+
+  public Map<String, String> getFieldsAssociatedWithDiscoveryMap(Resource discoveryResource) {
+    return resourceLinkService.getAssociatedFieldResources(discoveryResource).stream()
+        .map(fieldPersistenceService::getFieldByResource)
+        .flatMap(Optional::stream)
+        .sorted(Comparator.comparing(Field::getCorrectedLegalFieldName))
+        .collect(StreamUtil.toLinkedHashMap(
+            f -> ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(f.getResource().getId(), null)),
+            Field::getCorrectedLegalFieldName
+        ));
   }
 
   private RegulatorManagedInformationSummaryView createSummaryViewFromRegulatorManagedInformation(

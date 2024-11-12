@@ -202,9 +202,9 @@ public class FieldRegulatorManagedInformationSummaryService {
     return resourceDetails.stream()
         .sorted(Comparator.comparing(ResourceDetail::getResourceName))
         .collect(StreamUtil.toLinkedHashMap(
-            ResourceDetail::getResourceName,
             detail -> ReverseRouter.route(on(ViewResourceRecordController.class)
-                .showResourceRecord(detail.getSubmissionDetail().getSubmission().getResource().getId(), null))
+                .showResourceRecord(detail.getSubmissionDetail().getSubmission().getResource().getId(), null)),
+            ResourceDetail::getResourceName
         ));
   }
 
