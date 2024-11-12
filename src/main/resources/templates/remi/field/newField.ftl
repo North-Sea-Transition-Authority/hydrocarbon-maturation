@@ -175,6 +175,26 @@
       <@fdsRadio.radioNo path="form.infrastructureHost"/>
     </@fdsRadio.radioGroup>
 
+      <@fdsRadio.radioGroup
+      path="form.hasConsultingAuthorities"
+      labelText="Does this field have consulting authorities?"
+      hiddenContent=true>
+          <@fdsRadio.radioYes path="form.hasConsultingAuthorities">
+              <@fdsRadio.radioGroup
+              path="form.consultingAuthority"
+              labelText="Consulting authorities"
+              nestingPath="form.hasConsultingAuthorities">
+                  <#assign firstItem=true/>
+                  <#list consultingAuthorities as key, value>
+                      <@fdsRadio.radioItem path="form.consultingAuthority" itemMap={key : value} isFirstItem=firstItem>
+                          <#assign firstItem=false/>
+                      </@fdsRadio.radioItem>
+                  </#list>
+              </@fdsRadio.radioGroup>
+          </@fdsRadio.radioYes>
+          <@fdsRadio.radioNo path="form.hasConsultingAuthorities"/>
+      </@fdsRadio.radioGroup>
+
     <@fdsAction.submitButtons
       primaryButtonText="Save and continue"
       secondaryLinkText="Cancel"

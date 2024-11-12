@@ -24,6 +24,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.DeterminationStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldConsultingAuthority;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
@@ -105,7 +106,8 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
             FieldRegulatorManagedInformationSummaryService.LOCATED_IN_ENGLAND,
             FieldRegulatorManagedInformationSummaryService.DETERMINATION_STATUS,
             FieldRegulatorManagedInformationSummaryService.FIELD_NUMBER,
-            FieldRegulatorManagedInformationSummaryService.INFRASTRUCTURE_HOST
+            FieldRegulatorManagedInformationSummaryService.INFRASTRUCTURE_HOST,
+            FieldRegulatorManagedInformationSummaryService.HAS_CONSULTING_AUTHORITIES
         );
 
     assertThat(summaryData.keyValues())
@@ -158,7 +160,9 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.FIELD_NUMBER,
                 String.valueOf(field.getFieldNumber())),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.INFRASTRUCTURE_HOST,
-              BooleanUtil.yesNoFromBoolean(field.getInfrastructureHost()))
+              BooleanUtil.yesNoFromBoolean(field.getInfrastructureHost())),
+            Tuple.tuple(FieldRegulatorManagedInformationSummaryService.HAS_CONSULTING_AUTHORITIES,
+                BooleanUtil.yesNoFromBoolean(field.getHasConsultingAuthorities()))
         );
   }
 
@@ -239,6 +243,44 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
             Tuple.tuple(
                 FieldRegulatorManagedInformationSummaryService.FIELD_NUMBER,
                 String.valueOf(parentField.getFieldNumber())
+            )
+        );
+  }
+
+  @Test
+  void getFieldRegulatorManagedInformationSummaryCard_hasConsultingAuthorities() {
+    var field = getCompleteField();
+    field.setHasConsultingAuthorities(true);
+    var consultingAuthority = FieldConsultingAuthority.ENGLISH_AUTHORITIES;
+    field.setConsultingAuthority(consultingAuthority);
+
+    when(fieldPersistenceService.getFieldOrThrow(resource)).thenReturn(field);
+
+    var card = fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource);
+
+    assertThat(card)
+        .extracting(
+            SummaryCard::displayName,
+            SummaryCard::summaryCardType
+        ).contains(
+            FieldRegulatorManagedInformationSummaryService.REGULATOR_MANAGED_INFORMATION,
+            SummaryCardType.SIMPLE_SUMMARY
+        );
+
+    var summaryData = (SummaryDataView) card.summaryData();
+
+    assertThat(summaryData.keyValues())
+        .extracting(
+            SummaryKeyValue::key,
+            SummaryKeyValue::value)
+        .contains(
+            Tuple.tuple(
+                FieldRegulatorManagedInformationSummaryService.HAS_CONSULTING_AUTHORITIES,
+                BooleanUtil.yesNoFromBoolean(field.getHasConsultingAuthorities())
+            ),
+            Tuple.tuple(
+                FieldRegulatorManagedInformationSummaryService.CONSULTING_AUTHORITIES,
+                field.getConsultingAuthority().getDisplayName()
             )
         );
   }
@@ -448,6 +490,7 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
     field.setFieldNumber(1);
     field.setInfrastructureHost(true);
     field.setIsOnLicence(false);
+    field.setHasConsultingAuthorities(false);
     return field;
   }
 }

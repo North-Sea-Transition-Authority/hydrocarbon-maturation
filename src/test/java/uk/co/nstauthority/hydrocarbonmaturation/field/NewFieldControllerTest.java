@@ -115,6 +115,7 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
             entry("geographicalAreas", geographicalAreas),
             entry("responsibleTeamTypes", responsibleTeamTypes),
             entry("determinationStatus", DisplayableEnumOptionUtil.getDisplayableOptions(DeterminationStatus.class)),
+            entry("consultingAuthorities", FieldConsultingAuthority.getConsultingAuthorities()),
             entry("parentDeterminedFieldEndpoint", SearchSelectorService.route(on(DeterminedFieldRestController.class).searchDeterminedFields(null))),
             entry("parentDeterminedField", parentDeterminedField),
             entry("alreadyAddedAssociatedDiscoveries", alreadyAddedDiscovery),

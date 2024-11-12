@@ -30,6 +30,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.Notificat
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.DeterminationStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.DeterminedFieldRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldConsultingAuthority;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldForm;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.NewFieldService;
@@ -193,6 +194,7 @@ public class FieldRegulatorManagedInformationController {
         .addObject("geographicalAreas", newFieldService.getGeographicalAreaDisplayableOptions())
         .addObject("responsibleTeamTypes", newFieldService.getResponsibleTeamTypeDisplayableOptions())
         .addObject("determinationStatus", DisplayableEnumOptionUtil.getDisplayableOptions(DeterminationStatus.class))
+        .addObject("consultingAuthorities", FieldConsultingAuthority.getConsultingAuthorities())
         .addObject("parentDeterminedFieldEndpoint",
             SearchSelectorService.route(on(DeterminedFieldRestController.class).searchDeterminedFields(null)))
         .addObject("parentDeterminedField", newFieldService

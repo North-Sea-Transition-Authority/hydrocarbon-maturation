@@ -45,7 +45,8 @@ class FieldFormValidatorTest {
             entry("determinationStatus", Set.of("determinationStatus.required")),
             entry("infrastructureHost", Set.of("infrastructureHost.required")),
             entry("associatedDiscoverySelect", Set.of("associatedDiscoverySelect.notEmpty")),
-            entry("isOnLicence", Set.of("isOnLicence.required"))
+            entry("isOnLicence", Set.of("isOnLicence.required")),
+            entry("hasConsultingAuthorities", Set.of("hasConsultingAuthorities.required"))
         );
   }
 
@@ -92,6 +93,27 @@ class FieldFormValidatorTest {
     assertThat(extractedErrors)
         .contains(
             entry("parentDeterminedField", Set.of("parentDeterminedField.required"))
+        );
+  }
+
+  @Test
+  void errorWhenConsultingAuthoritiesNotProvided() {
+    var form = getValidForm();
+    form.setHasConsultingAuthorities(true);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    underTest.validate(form, bindingResult);
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    var extractedErrorMessages = ValidatorTestingUtil.extractErrorMessages(bindingResult);
+
+    assertThat(extractedErrors)
+        .contains(
+            entry("consultingAuthority", Set.of("consultingAuthority.required"))
+        );
+
+    assertThat(extractedErrorMessages)
+        .containsExactly(
+            entry("consultingAuthority",
+                Set.of("Select the consulting authorities"))
         );
   }
 
@@ -172,6 +194,7 @@ class FieldFormValidatorTest {
     form.setInfrastructureHost(false);
     form.setAssociatedDiscoveries(List.of("associated discovery"));
     form.setIsOnLicence(false);
+    form.setHasConsultingAuthorities(false);
 
     return form;
   }

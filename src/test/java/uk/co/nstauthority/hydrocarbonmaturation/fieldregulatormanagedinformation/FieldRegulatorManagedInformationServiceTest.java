@@ -31,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.DeterminationStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldConsultingAuthority;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldForm;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldFormValidator;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
@@ -99,6 +100,7 @@ class FieldRegulatorManagedInformationServiceTest {
     field.setInfrastructureHost(false);
     field.setDeterminationStatus(DeterminationStatus.DETERMINED);
     field.setIsOnLicence(false);
+    field.setHasConsultingAuthorities(false);
 
     when(fieldPersistenceService.getFieldByResource(resource))
         .thenReturn(Optional.of(field));
@@ -132,7 +134,8 @@ class FieldRegulatorManagedInformationServiceTest {
             FieldForm::getDeterminationStatus,
             FieldForm::getParentDeterminedField,
             FieldForm::getAssociatedDiscoveries,
-            FieldForm::getIsOnLicence
+            FieldForm::getIsOnLicence,
+            FieldForm::getHasConsultingAuthorities
         ).containsExactly(
             field.getLegalFieldName(),
             field.getCorrectedLegalFieldName(),
@@ -147,7 +150,8 @@ class FieldRegulatorManagedInformationServiceTest {
             field.getDeterminationStatus(),
             "",
             expectedResourceDetailIds.stream().map(UUID::toString).toList(),
-            field.getIsOnLicence()
+            field.getIsOnLicence(),
+            field.getHasConsultingAuthorities()
         );
   }
 
@@ -167,6 +171,7 @@ class FieldRegulatorManagedInformationServiceTest {
     parentField.setFieldIdentifier(8000);
     field.setParentDeterminedField(parentField);
     field.setIsOnLicence(false);
+    field.setHasConsultingAuthorities(false);
 
     when(fieldPersistenceService.getFieldByResource(resource))
         .thenReturn(Optional.of(field));
@@ -200,7 +205,8 @@ class FieldRegulatorManagedInformationServiceTest {
             FieldForm::getDeterminationStatus,
             FieldForm::getParentDeterminedField,
             FieldForm::getAssociatedDiscoveries,
-            FieldForm::getIsOnLicence
+            FieldForm::getIsOnLicence,
+            FieldForm::getHasConsultingAuthorities
         ).containsExactly(
             field.getLegalFieldName(),
             field.getCorrectedLegalFieldName(),
@@ -215,7 +221,8 @@ class FieldRegulatorManagedInformationServiceTest {
             field.getDeterminationStatus(),
             field.getParentDeterminedField().getFieldIdentifier().toString(),
             expectedResourceDetailIds.stream().map(UUID::toString).toList(),
-            field.getIsOnLicence()
+            field.getIsOnLicence(),
+            field.getHasConsultingAuthorities()
         );
   }
 
@@ -232,6 +239,7 @@ class FieldRegulatorManagedInformationServiceTest {
     field.setInfrastructureHost(false);
     field.setDeterminationStatus(DeterminationStatus.DETERMINED);
     field.setIsOnLicence(true);
+    field.setHasConsultingAuthorities(false);
 
     when(fieldPersistenceService.getFieldByResource(resource))
         .thenReturn(Optional.of(field));
@@ -269,7 +277,8 @@ class FieldRegulatorManagedInformationServiceTest {
             FieldForm::getDeterminationStatus,
             FieldForm::getAssociatedDiscoveries,
             FieldForm::getIsOnLicence,
-            FieldForm::getLicences
+            FieldForm::getLicences,
+            FieldForm::getHasConsultingAuthorities
         ).containsExactly(
             field.getLegalFieldName(),
             field.getCorrectedLegalFieldName(),
@@ -284,7 +293,27 @@ class FieldRegulatorManagedInformationServiceTest {
             field.getDeterminationStatus(),
             expectedResourceDetailIds.stream().map(UUID::toString).toList(),
             field.getIsOnLicence(),
-            licenceIds
+            licenceIds,
+            field.getHasConsultingAuthorities()
+        );
+  }
+
+  @Test
+  void hasConsultingAuthorities() {
+    var field = new Field();
+    field.setHasConsultingAuthorities(true);
+    field.setConsultingAuthority(FieldConsultingAuthority.ENGLISH_AUTHORITIES);
+
+    when(fieldPersistenceService.getFieldByResource(resource))
+        .thenReturn(Optional.of(field));
+
+    assertThat(fieldRegulatorManagedInformationService.resourceToFieldForm(resource))
+        .extracting(
+            FieldForm::getHasConsultingAuthorities,
+            FieldForm::getConsultingAuthority
+        ).containsExactly(
+            field.getHasConsultingAuthorities(),
+            field.getConsultingAuthority()
         );
   }
 

@@ -52,6 +52,8 @@ public class FieldRegulatorManagedInformationSummaryService {
   public static final String IS_ON_LICENCE = "Field is on licence";
   public static final String LICENCES = "Licences";
   public static final String LICENCES_TENTATIVE = "Licences (tentative)";
+  public static final String HAS_CONSULTING_AUTHORITIES = "Has consulting authorities";
+  public static final String CONSULTING_AUTHORITIES = "Consulting authorities";
 
   private final FieldRegulatorManagedInformationService fieldRegulatorManagedInformationService;
   private final ResourceDetailsPersistenceService resourceDetailsPersistenceService;
@@ -168,6 +170,17 @@ public class FieldRegulatorManagedInformationSummaryService {
         INFRASTRUCTURE_HOST,
         field.getInfrastructureHost()
     );
+
+    summaryDataView.addKeyValue(
+        HAS_CONSULTING_AUTHORITIES,
+        BooleanUtil.yesNoFromBoolean(field.getHasConsultingAuthorities())
+    );
+    if (BooleanUtils.isTrue(field.getHasConsultingAuthorities())) {
+      summaryDataView.addKeyValue(
+          CONSULTING_AUTHORITIES,
+          field.getConsultingAuthority()
+      );
+    }
 
     return SummaryCard.simpleSummaryCardWithHeading(REGULATOR_MANAGED_INFORMATION, summaryDataView);
   }

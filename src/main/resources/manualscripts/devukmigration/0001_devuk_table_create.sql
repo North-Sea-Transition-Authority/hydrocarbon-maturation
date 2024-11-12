@@ -8,5 +8,6 @@ CREATE TABLE remi.devuk_field (
   median_line_flag TEXT,
   parent_field_identifier NUMERIC,
   geographic_area_mnem TEXT,
-  field_prt_number NUMERIC
+  field_prt_number NUMERIC,
+  consulting_authorities TEXT
 );

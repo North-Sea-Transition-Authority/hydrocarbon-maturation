@@ -66,6 +66,19 @@ public class FieldFormValidator implements Validator {
 
     ValidationUtils.rejectIfEmpty(errors,
         "infrastructureHost", "infrastructureHost.required", "Select yes if this field's infrastructure hosts other fields");
+
+    ValidationUtils.rejectIfEmpty(errors,
+        "hasConsultingAuthorities",
+        "hasConsultingAuthorities.required",
+        "Select if there are consulting authorities for the field");
+
+    if (BooleanUtils.isTrue(form.getHasConsultingAuthorities())) {
+      ValidationUtils.rejectIfEmpty(errors,
+          "consultingAuthority",
+          "consultingAuthority.required",
+          "Select the consulting authorities"
+      );
+    }
   }
 
   private void validateLicences(FieldForm form, Errors errors) {

@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitQueryService;
@@ -96,6 +97,12 @@ public class FieldPersistenceService {
     }
 
     field.setInfrastructureHost(form.getInfrastructureHost());
+    field.setHasConsultingAuthorities(form.getHasConsultingAuthorities());
+    if (BooleanUtils.isTrue(form.getHasConsultingAuthorities())) {
+      field.setConsultingAuthority(form.getConsultingAuthority());
+    } else {
+      field.setConsultingAuthority(null);
+    }
 
     fieldRepository.save(field);
 

@@ -80,6 +80,7 @@ class FieldPersistenceServiceTest {
     private final String REGISTERED_NUMBER = "123";
     private final UUID ASSOCIATED_DISCOVERY_ID = UUID.randomUUID();
     private final Boolean FIELD_LOCATED_IN_UKCS = true;
+    private final Boolean HAS_CONSULTING_AUTHORITIES = false;
 
     private Field highestNumberField;
 
@@ -98,6 +99,7 @@ class FieldPersistenceServiceTest {
       form.setAssociatedDiscoveries(List.of());
       form.setFieldLocatedInUkcs(FIELD_LOCATED_IN_UKCS);
       form.setFieldLocatedInEngland(null);
+      form.setHasConsultingAuthorities(HAS_CONSULTING_AUTHORITIES);
 
       highestNumberField = new Field();
       highestNumberField.setFieldNumber(123);
@@ -192,6 +194,18 @@ class FieldPersistenceServiceTest {
     }
 
     @Test
+    void hasConsultingAuthorities() {
+      when(fieldRepository.findByResource(resource)).thenReturn(Optional.empty());
+      when(fieldRepository.findTopByFieldNumberNotNullOrderByFieldNumberDesc()).thenReturn(Optional.of(highestNumberField));
+      form.setHasConsultingAuthorities(true);
+      var consultingAuthorities = FieldConsultingAuthority.ENGLISH_AUTHORITIES;
+      form.setConsultingAuthority(consultingAuthorities);
+      var field = underTest.saveFieldFromFieldForm(form, resource);
+      assertThat(field.getHasConsultingAuthorities()).isTrue();
+      assertThat(field.getConsultingAuthority()).isEqualTo(consultingAuthorities);
+    }
+
+    @Test
     void formValuesSetInField() {
       when(fieldRepository.findByResource(resource)).thenReturn(Optional.empty());
       when(fieldRepository.findTopByFieldNumberNotNullOrderByFieldNumberDesc()).thenReturn(Optional.of(highestNumberField));
@@ -209,7 +223,9 @@ class FieldPersistenceServiceTest {
               Field::getFieldNumber,
               Field::getInfrastructureHost,
               Field::getFieldLocatedInUkcs,
-              Field::getFieldLocatedInEngland
+              Field::getFieldLocatedInEngland,
+              Field::getHasConsultingAuthorities,
+              Field::getConsultingAuthority
           )
           .containsExactly(
               resource,
@@ -222,6 +238,8 @@ class FieldPersistenceServiceTest {
               highestNumberField.getFieldNumber() + 1,
               INFRASTRUCTURE_HOST,
               FIELD_LOCATED_IN_UKCS,
+              null,
+              HAS_CONSULTING_AUTHORITIES,
               null
           );
 

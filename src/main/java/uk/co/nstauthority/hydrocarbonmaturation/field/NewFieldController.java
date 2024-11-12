@@ -84,6 +84,7 @@ class NewFieldController {
         .addObject("geographicalAreas", newFieldService.getGeographicalAreaDisplayableOptions())
         .addObject("responsibleTeamTypes", newFieldService.getResponsibleTeamTypeDisplayableOptions())
         .addObject("determinationStatus", DisplayableEnumOptionUtil.getDisplayableOptions(DeterminationStatus.class))
+        .addObject("consultingAuthorities", FieldConsultingAuthority.getConsultingAuthorities())
         .addObject("parentDeterminedFieldEndpoint",
             SearchSelectorService.route(on(DeterminedFieldRestController.class).searchDeterminedFields(null)))
         .addObject("parentDeterminedField", newFieldService

@@ -24,6 +24,8 @@ public class FieldForm {
   private String licenceSelect;
   private Boolean fieldLocatedInUkcs;
   private Boolean fieldLocatedInEngland;
+  private Boolean hasConsultingAuthorities;
+  private FieldConsultingAuthority consultingAuthority;
 
   public String getLegalFieldName() {
     return legalFieldName;
@@ -161,5 +163,22 @@ public class FieldForm {
 
   public void setFieldLocatedInEngland(Boolean fieldLocatedInEngland) {
     this.fieldLocatedInEngland = fieldLocatedInEngland;
+  }
+
+  public Boolean getHasConsultingAuthorities() {
+    return hasConsultingAuthorities;
+  }
+
+  public void setHasConsultingAuthorities(Boolean hasConsultingAuthorities) {
+    this.hasConsultingAuthorities = hasConsultingAuthorities;
+  }
+
+  public FieldConsultingAuthority getConsultingAuthority() {
+    return consultingAuthority;
+  }
+
+  public void setConsultingAuthority(
+      FieldConsultingAuthority consultingAuthority) {
+    this.consultingAuthority = consultingAuthority;
   }
 }

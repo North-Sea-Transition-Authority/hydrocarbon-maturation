@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -61,6 +62,12 @@ public class Field {
   private Boolean fieldLocatedInUkcs;
 
   private Boolean fieldLocatedInEngland;
+
+  private Boolean hasConsultingAuthorities;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "consulting_authorities")
+  private FieldConsultingAuthority consultingAuthority;
 
   public Integer getFieldIdentifier() {
     return fieldIdentifier;
@@ -190,5 +197,22 @@ public class Field {
 
   public void setFieldLocatedInEngland(Boolean fieldLocatedInEngland) {
     this.fieldLocatedInEngland = fieldLocatedInEngland;
+  }
+
+  public Boolean getHasConsultingAuthorities() {
+    return hasConsultingAuthorities;
+  }
+
+  public void setHasConsultingAuthorities(Boolean hasConsultingAuthorities) {
+    this.hasConsultingAuthorities = hasConsultingAuthorities;
+  }
+
+  public FieldConsultingAuthority getConsultingAuthority() {
+    return consultingAuthority;
+  }
+
+  public void setConsultingAuthority(
+      FieldConsultingAuthority fieldConsultingAuthority) {
+    this.consultingAuthority = fieldConsultingAuthority;
   }
 }

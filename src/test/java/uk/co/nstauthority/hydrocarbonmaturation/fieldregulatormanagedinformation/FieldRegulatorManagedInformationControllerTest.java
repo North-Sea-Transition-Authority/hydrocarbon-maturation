@@ -47,6 +47,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.field.DeterminationStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.DeterminedFieldRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldConsultingAuthority;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldForm;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.NewFieldService;
@@ -303,6 +304,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
             entry("geographicalAreas", expectedGeographicalArea),
             entry("responsibleTeamTypes", expectedResponsibleTeamTypes),
             entry("determinationStatus", DisplayableEnumOptionUtil.getDisplayableOptions(DeterminationStatus.class)),
+            entry("consultingAuthorities", FieldConsultingAuthority.getConsultingAuthorities()),
             entry("parentDeterminedFieldEndpoint",
                 SearchSelectorService.route(on(DeterminedFieldRestController.class).searchDeterminedFields(null))),
             entry("discoveriesApiEndpoint",
@@ -390,6 +392,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
             entry("geographicalAreas", expectedGeographicalArea),
             entry("responsibleTeamTypes", expectedResponsibleTeamTypes),
             entry("determinationStatus", DisplayableEnumOptionUtil.getDisplayableOptions(DeterminationStatus.class)),
+            entry("consultingAuthorities", FieldConsultingAuthority.getConsultingAuthorities()),
             entry("parentDeterminedFieldEndpoint",
                 SearchSelectorService.route(on(DeterminedFieldRestController.class).searchDeterminedFields(null))),
             entry("discoveriesApiEndpoint",

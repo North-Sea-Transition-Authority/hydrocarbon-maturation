@@ -83,6 +83,9 @@ public class FieldRegulatorManagedInformationService {
 
               form.setAssociatedDiscoveries(getAssociatedDiscoveryIdStrings(resource));
 
+              form.setHasConsultingAuthorities(field.getHasConsultingAuthorities());
+              form.setConsultingAuthority(field.getConsultingAuthority());
+
               addLicences(field, form);
 
               return form;
