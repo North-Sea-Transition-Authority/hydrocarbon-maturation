@@ -31,7 +31,6 @@ DO $$
             AND prg2.relinquishment IS FALSE
             AND prg2.resource_type = 'DISCOVERY'
             AND prg2.multi_reservoir IS FALSE
-            AND prdh2.stage_name != 'PARs'
             AND EXISTS (
                 SELECT 1
                 FROM remi.padi_resource_groupings prg3
@@ -58,7 +57,6 @@ DO $$
             AND prg2.relinquishment IS FALSE
             AND prg2.resource_type = 'DISCOVERY'
             AND prg2.multi_reservoir IS FALSE
-            AND prdh2.stage_name != 'PARs'
             AND NOT EXISTS (
                 SELECT 1
                 FROM remi.padi_resource_groupings prg3

@@ -13,7 +13,7 @@ BEGIN
         SELECT
             prdh.resdat_id,
             prdh.resource_id,
-            pom.agreed_match,
+            CASE WHEN prdh.stage_name != 'PARs' THEN pom.agreed_match END agreed_match,
             COALESCE(pmrd.resource_stage_name, prdh.name_alternative) remi_resource_name,
             CASE WHEN pmrd.resdat_id IS NOT NULL THEN true ELSE false END multi_reservoir
         FROM remi.padi_res_data_header prdh
@@ -21,11 +21,10 @@ BEGIN
         LEFT JOIN remi.padi_multi_reservoir_discoveries pmrd ON pmrd.resdat_id = prdh.resdat_id
         WHERE prdh.opportunity_type = 'Discovery'
         AND prdh.stage_name != 'Relinquishment'
-        AND prdh.stage_name != 'PARs'
         GROUP BY
             prdh.resdat_id,
             prdh.resource_id,
-            pom.agreed_match,
+            CASE WHEN prdh.stage_name != 'PARs' THEN pom.agreed_match END,
             COALESCE(pmrd.resource_stage_name, prdh.name_alternative),
             CASE WHEN pmrd.resdat_id IS NOT NULL THEN true ELSE false END
     )

@@ -13,12 +13,17 @@ BEGIN
 
     -- Create prospect groupings based on the PaDI resource and the agreed organisation names
     FOR prospect_rec IN (
-        SELECT prdh.resdat_id, prdh.resource_id, pom.agreed_match
+        SELECT
+            prdh.resdat_id,
+            prdh.resource_id,
+            CASE WHEN prdh.stage_name != 'PARs' THEN pom.agreed_match END agreed_match
         FROM remi.padi_res_data_header prdh
         LEFT JOIN remi.padi_operator_mapping pom ON LOWER(pom.padi_name) = LOWER(prdh.company)
         WHERE prdh.opportunity_type != 'Discovery'
-        AND prdh.stage_name != 'PARs'
-        GROUP BY prdh.resdat_id, prdh.resource_id, pom.agreed_match
+        GROUP BY
+            prdh.resdat_id,
+            prdh.resource_id,
+            CASE WHEN prdh.stage_name != 'PARs' THEN pom.agreed_match END
     )
     LOOP
 
@@ -83,7 +88,6 @@ BEGIN
         JOIN remi.resources r ON r.id = prg2.remi_resource_id
         WHERE prdh2.opportunity_type != 'Dry Prospect (for post-well analysis)'
         AND prdh2.stage_name != 'Relinquishment'
-        AND prdh2.stage_name != 'PARs'
         AND r.type = 'PROSPECT'
         AND prg2.resource_type = 'PROSPECT'
         UNION
@@ -99,7 +103,6 @@ BEGIN
         JOIN remi.resources r ON r.id = prg2.remi_resource_id
         WHERE prdh2.opportunity_type = 'Dry Prospect (for post-well analysis)'
         AND prdh2.stage_name != 'Relinquishment'
-        AND prdh2.stage_name != 'PARs'
         AND r.type = 'PROSPECT'
         AND prg2.resource_type = 'PROSPECT'
         UNION
@@ -114,7 +117,6 @@ BEGIN
         JOIN remi.padi_resource_groupings prg2 ON prg2.legacy_res_data_id = prdh2.resdat_id
         JOIN remi.resources r ON r.id = prg2.remi_resource_id
         WHERE prdh2.stage_name = 'Relinquishment'
-        AND prdh2.stage_name != 'PARs'
         AND r.type = 'PROSPECT'
         AND prg2.resource_type = 'PROSPECT'
     )

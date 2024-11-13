@@ -54,7 +54,8 @@ BEGIN
             END other_info_source,
             prdh.application_ref licence_app_ref,
             CASE WHEN prdh.application_ref IS NULL AND prdh.reference_round != '0' THEN prdh.reference_round END licence_round,
-            CASE WHEN prdh.stage_name = relinquishment THEN TO_DATE(prdh.stage_date, 'DD/MM/YYYY') END date_of_relinquishment
+            CASE WHEN prdh.stage_name = relinquishment THEN TO_DATE(prdh.stage_date, 'DD/MM/YYYY') END date_of_relinquishment,
+            prdh.stage_name
         FROM remi.submission_details sd
         JOIN remi.submissions s ON s.id = sd.submission_id
         JOIN remi.resources r ON r.id = s.resource_id
@@ -76,9 +77,9 @@ BEGIN
             submission_rec.id,
             submission_rec.chosen_resource_name,
             submission_rec.onshore_offshore,
-            submission_rec.org_unit_id,
-            submission_rec.org_unit_name,
-            submission_rec.registered_number
+            CASE WHEN submission_rec.stage_name != 'PARs' THEN submission_rec.org_unit_id END,
+            CASE WHEN submission_rec.stage_name != 'PARs' THEN submission_rec.org_unit_name END,
+            CASE WHEN submission_rec.stage_name != 'PARs' THEN submission_rec.registered_number END
         );
 
         INSERT INTO remi.general_details (
