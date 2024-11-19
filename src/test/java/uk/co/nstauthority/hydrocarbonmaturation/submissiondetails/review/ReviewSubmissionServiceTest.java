@@ -504,10 +504,13 @@ class ReviewSubmissionServiceTest {
     @EnumSource(
         value = SubmissionType.class,
         mode = EnumSource.Mode.INCLUDE,
-        names = {"CREATE_PROSPECT", "CREATE_DISCOVERY"})
+        names = {"CREATE_PROSPECT", "CREATE_DISCOVERY", "CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
     void WhenInitialSubmission_whenSubmitter(SubmissionType submissionType) {
-      var submissionRecord = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
-          UUID.randomUUID(), ORGANISATION_UNIT_ID, submissionType);
+      var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+      var submissionRecord = new SubmissionRecordSummaryView(submissionDetail.getId(), submissionType, "",
+          ORGANISATION_UNIT_ID, "", List.of(1),
+          List.of("1"), ResponsibleTeamType.EXPLORATION.getDisplayName(), ResponsibleTeamType.EXPLORATION,
+          null, null);
 
       when(industryTeamService.getOrganisationUnitIdsForUserWithRoles(USER_DETAIL, Set.of(Role.INDUSTRY_SUBMIT)))
           .thenReturn(List.of(ORGANISATION_UNIT_ID));
@@ -521,10 +524,13 @@ class ReviewSubmissionServiceTest {
     @EnumSource(
         value = SubmissionType.class,
         mode = EnumSource.Mode.INCLUDE,
-        names = {"CREATE_PROSPECT", "CREATE_DISCOVERY"})
+        names = {"CREATE_PROSPECT", "CREATE_DISCOVERY", "CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
     void WhenInitialSubmission_whenNotSubmitter(SubmissionType submissionType) {
-      var submissionRecord = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
-          UUID.randomUUID(), ORGANISATION_UNIT_ID, submissionType);
+      var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(submissionType);
+      var submissionRecord = new SubmissionRecordSummaryView(submissionDetail.getId(), submissionType, "",
+          ORGANISATION_UNIT_ID, "", List.of(1),
+          List.of("1"), ResponsibleTeamType.EXPLORATION.getDisplayName(), ResponsibleTeamType.EXPLORATION,
+          null, null);
 
       when(industryTeamService.getOrganisationUnitIdsForUserWithRoles(USER_DETAIL, Set.of(Role.INDUSTRY_SUBMIT)))
           .thenReturn(List.of(OTHER_ORG_UNIT));
@@ -536,6 +542,7 @@ class ReviewSubmissionServiceTest {
 
     @Test
     void WhenNotInitialSubmission_whenFoundLatestApproved_andWhenNotSubmitter() {
+      submissionDetail.setSubmissionType(SubmissionType.UPDATE_DISCOVERY);
       var submissionRecord = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
           UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
       var resourceDetail = new ResourceDetail();
@@ -554,6 +561,7 @@ class ReviewSubmissionServiceTest {
 
     @Test
     void WhenNotInitialSubmission_whenFoundLatestApproved_andWhenSubmitter() {
+      submissionDetail.setSubmissionType(SubmissionType.UPDATE_DISCOVERY);
       var submissionRecord = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
           UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
       var resourceDetail = new ResourceDetail();
@@ -572,6 +580,7 @@ class ReviewSubmissionServiceTest {
 
     @Test
     void WhenNotInitialSubmission_whenDidNotFindLatestApproved() {
+      submissionDetail.setSubmissionType(SubmissionType.UPDATE_DISCOVERY);
       var submissionRecord = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
           UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
       when(submissionDetailService.getLatestApprovedSubmissionDetailForSubmission(submissionDetail))
@@ -584,6 +593,7 @@ class ReviewSubmissionServiceTest {
 
     @Test
     void WhenNotInitialSubmission_whenDidNotFindResourceDetails() {
+      submissionDetail.setSubmissionType(SubmissionType.UPDATE_DISCOVERY);
       var submissionRecord = SubmissionIntegrationTestUtils.emptyDiscoveryOrProspectSubmissionRecordSummaryView(
           UUID.randomUUID(), ORGANISATION_UNIT_ID, SubmissionType.UPDATE_DISCOVERY);
 
