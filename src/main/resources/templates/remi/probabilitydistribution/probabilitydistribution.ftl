@@ -139,7 +139,7 @@
         <@probabilityDistributionSingularTemplate probabilityDistributionPath=probabilityDistributionPath labelText=labelText template=template error=error/>
     <#else>
         <#assign probabilityDistributionTypePathString = probabilityDistributionPath+".probabilityDistributionType"/>
-        <#assign selectDistributionLabelText = labelText+" distribution used" />
+        <#assign selectDistributionLabelText = labelText+" distribution used (${template.units})" />
         <@fdsRadio.radioGroup path=probabilityDistributionTypePathString labelText=selectDistributionLabelText hiddenContent=true>
             <#assign firstItem=true/>
             <#list template.probabilityDistributionTypeWithInputsList as inputs>
@@ -151,7 +151,7 @@
                         <@probabilityDistributionSingle
                             probabilityDistributionTypePath=probabilityDistributionTypePathString
                             formId=probabilityDistributionPath?replace("form.", "")
-                            labelText="Probability of exceedance (${template.units})"
+                            labelText=""
                             error=error
                             inputs=inputs/>
                         <@fdsTextarea.textarea

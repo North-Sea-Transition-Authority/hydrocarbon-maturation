@@ -2,9 +2,9 @@ package uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution;
 
 public enum ProbabilityDistributionValidationError {
 
-  GENERAL_ERROR("%s - all mandatory probability of exceedence inputs must be provided and " +
+  GENERAL_ERROR("%s - all mandatory probability inputs must be provided and " +
       "all inputs must be numbers with up to 2 decimal places"),
-  PERCENTAGE_ERROR("%s - all mandatory probability of exceedence inputs must be provided and " +
+  PERCENTAGE_ERROR("%s - all mandatory probability inputs must be provided and " +
       "all inputs must be numbers with up to 2 decimal places. Percentages must not be more than 100%%"),
   MIN_MAX("%s - min value must be less than max value"),
   MIN_MAX_ALLOW_EQUIVALENT("%s - min value must be less than or equal to max value"),

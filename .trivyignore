@@ -12,3 +12,6 @@ CVE-2024-38821
 
 # netty-common
 CVE-2024-47535
+
+# tomcat-embed-core
+CVE-2024-52317
