@@ -74,6 +74,7 @@ class OperatorSubmissionWorkAreaQueryService implements SubmissionWorkAreaQueryS
     return SUBMISSION_DETAILS.SUBMISSION_TYPE
         .in(SubmissionType.CREATE_PROSPECT.name(),
             SubmissionType.CREATE_DISCOVERY.name(),
+            SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT.name(),
             SubmissionType.CREATE_CSR.name(),
             SubmissionType.CREATE_FDP.name(),
             SubmissionType.CREATE_FDPA.name(),
