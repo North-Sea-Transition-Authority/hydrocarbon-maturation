@@ -9,3 +9,6 @@ CVE-2024-38820
 
 # spring-security-web
 CVE-2024-38821
+
+# netty-common
+CVE-2024-47535

@@ -463,8 +463,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_FIELD
       );
     }
-    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
-        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY) {
       ProbabilityDistributionValidationUtil.validateCustomPartial(
           reservoirForm.getDepthToGasWaterContact(),
           errors,
@@ -497,8 +496,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY
       );
     }
-    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
-        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY) {
       ProbabilityDistributionValidationUtil.validateCustomPartial(
           reservoirForm.getDepthToGasWaterContact(),
           errors,
@@ -531,8 +529,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_FIELD
       );
     }
-    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
-        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY) {
       ProbabilityDistributionValidationUtil.validateCustomFull(
           reservoirForm.getDepthToGasWaterContact(),
           errors,
@@ -570,8 +567,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY
       );
     }
-    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
-        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY) {
       ProbabilityDistributionValidationUtil.validateRequiredDistributionType(
           errors,
           "depthToGasWaterContact",
@@ -614,8 +610,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_OIL_WATER_CONTACT_FIELD
       );
     }
-    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
-        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY) {
       ProbabilityDistributionValidationUtil.validateCustomFull(
           reservoirForm.getOriginalDepthToGasWaterContact(),
           errors,
@@ -648,8 +643,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           ProbabilityDistributionFieldInstance.ORIGINAL_DEPTH_TO_OIL_WATER_CONTACT_FIELD
       );
     }
-    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
-        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY) {
       ProbabilityDistributionValidationUtil.validateCustomPartial(
           reservoirForm.getOriginalDepthToGasWaterContact(),
           errors,
@@ -682,8 +676,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_OIL_WATER_CONTACT_FIELD
       );
     }
-    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
-        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY) {
       ProbabilityDistributionValidationUtil.validateCustomFull(
           reservoirForm.getDepthToMovedGasWaterContact(),
           errors,
@@ -716,8 +709,7 @@ class ReservoirPropertiesFormValidator implements ReservoirSubmissionValidator {
           ProbabilityDistributionFieldInstance.DEPTH_TO_MOVED_OIL_WATER_CONTACT_FIELD
       );
     }
-    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY
-        || hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {
+    if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY) {
       ProbabilityDistributionValidationUtil.validateCustomPartial(
           reservoirForm.getDepthToMovedGasWaterContact(),
           errors,
