@@ -315,7 +315,7 @@ public class SubmissionCreateService {
       resourceTypesForUser.remove(ResourceType.FIELD);
     }
 
-    return DisplayableEnumOptionUtil.getDisplayableOptions(resourceTypesForUser);
+    return DisplayableEnumOptionUtil.getDisplayableOptionsWithSecondaryOptionName(resourceTypesForUser);
   }
 
   private void createReservoirSubmissionDetails(SubmissionDetail newSubmissionDetail,

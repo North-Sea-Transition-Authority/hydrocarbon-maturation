@@ -31,6 +31,18 @@ public class DisplayableEnumOptionUtil {
         ));
   }
 
+  public static Map<String, String> getDisplayableOptionsWithSecondaryOptionName(
+      Collection<? extends Displayable> displayableOptionEnumConstants
+  ) {
+    return displayableOptionEnumConstants
+        .stream()
+        .sorted(Comparator.comparingInt(Displayable::getDisplayOrder))
+        .collect(StreamUtil.toLinkedHashMap(
+            Displayable::getEnumName,
+            Displayable::getSecondaryOptionName
+        ));
+  }
+
   public static Map<String, String> getDisplayableOptionsWithDescription(
       Class<? extends Displayable> displayableOptionEnum
   ) {

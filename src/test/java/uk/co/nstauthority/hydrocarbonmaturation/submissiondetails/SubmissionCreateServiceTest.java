@@ -407,9 +407,9 @@ class SubmissionCreateServiceTest {
     when(fieldConfiguration.allowSubmissions()).thenReturn(true);
 
     var resourceTypeOptions = new HashMap<>();
-    resourceTypeOptions.put(ResourceType.PROSPECT.name(), ResourceType.PROSPECT.getDisplayName());
-    resourceTypeOptions.put(ResourceType.DISCOVERY.name(), ResourceType.DISCOVERY.getDisplayName());
-    resourceTypeOptions.put(ResourceType.FIELD.name(), ResourceType.FIELD.getDisplayName());
+    resourceTypeOptions.put(ResourceType.PROSPECT.name(), ResourceType.PROSPECT.getSecondaryOptionName());
+    resourceTypeOptions.put(ResourceType.DISCOVERY.name(), ResourceType.DISCOVERY.getSecondaryOptionName());
+    resourceTypeOptions.put(ResourceType.FIELD.name(), ResourceType.FIELD.getSecondaryOptionName());
 
     assertThat(submissionCreateService.getResourceTypeOptionsForUser(USER)).isEqualTo(resourceTypeOptions);
   }
@@ -421,8 +421,8 @@ class SubmissionCreateServiceTest {
     when(fieldConfiguration.allowSubmissions()).thenReturn(false);
 
     var resourceTypeOptions = new HashMap<>();
-    resourceTypeOptions.put(ResourceType.PROSPECT.name(), ResourceType.PROSPECT.getDisplayName());
-    resourceTypeOptions.put(ResourceType.DISCOVERY.name(), ResourceType.DISCOVERY.getDisplayName());
+    resourceTypeOptions.put(ResourceType.PROSPECT.name(), ResourceType.PROSPECT.getSecondaryOptionName());
+    resourceTypeOptions.put(ResourceType.DISCOVERY.name(), ResourceType.DISCOVERY.getSecondaryOptionName());
 
     assertThat(submissionCreateService.getResourceTypeOptionsForUser(USER)).isEqualTo(resourceTypeOptions);
   }
@@ -433,8 +433,8 @@ class SubmissionCreateServiceTest {
     when(teamQueryService.getTeamRolesForUser(USER.wuaId())).thenReturn(Set.of(teamRole));
 
     var resourceTypeOptions = new HashMap<>();
-    resourceTypeOptions.put(ResourceType.PROSPECT.name(), ResourceType.PROSPECT.getDisplayName());
-    resourceTypeOptions.put(ResourceType.DISCOVERY.name(), ResourceType.DISCOVERY.getDisplayName());
+    resourceTypeOptions.put(ResourceType.PROSPECT.name(), ResourceType.PROSPECT.getSecondaryOptionName());
+    resourceTypeOptions.put(ResourceType.DISCOVERY.name(), ResourceType.DISCOVERY.getSecondaryOptionName());
 
     assertThat(submissionCreateService.getResourceTypeOptionsForUser(USER)).isEqualTo(resourceTypeOptions);
   }

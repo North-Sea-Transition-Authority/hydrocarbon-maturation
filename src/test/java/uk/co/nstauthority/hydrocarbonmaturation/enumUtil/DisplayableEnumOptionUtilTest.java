@@ -41,6 +41,22 @@ class DisplayableEnumOptionUtilTest {
   }
 
   @Test
+  void getDisplayableOptionsWithSecondaryOptionName_fromCollection_assertMapInRightOrder() {
+    var collectionOfDisplayables = Set.of(
+        DisplayableTestEnum.OPTION_ONE,
+        DisplayableTestEnum.OPTION_TWO,
+        DisplayableTestEnum.OPTION_THREE
+    );
+    var returnedMap = DisplayableEnumOptionUtil.getDisplayableOptionsWithSecondaryOptionName(collectionOfDisplayables);
+
+    assertThat(returnedMap.entrySet()).containsExactly(
+        entry(DisplayableTestEnum.OPTION_ONE.name(), DisplayableTestEnum.OPTION_ONE.getSecondaryOptionName()),
+        entry(DisplayableTestEnum.OPTION_TWO.name(), DisplayableTestEnum.OPTION_TWO.getSecondaryOptionName()),
+        entry(DisplayableTestEnum.OPTION_THREE.name(), DisplayableTestEnum.OPTION_THREE.getSecondaryOptionName())
+    );
+  }
+
+  @Test
   void getDisplayableOptionsWithDescriptions_assertMapInRightOrder() {
     var returnedMap = DisplayableEnumOptionUtil.getDisplayableOptionsWithDescription(DisplayableTestEnum.class);
 
@@ -96,18 +112,22 @@ class DisplayableEnumOptionUtilTest {
   }
 
   enum DisplayableTestEnum implements Displayable {
-    OPTION_THREE(3, "third one", ""),
-    OPTION_ONE(1, "text", "first description"),
-    OPTION_TWO(2, "second text", "second descriptions");
+    OPTION_THREE(3, "third one", "", "third"),
+    OPTION_ONE(1, "text", "first description", "first"),
+    OPTION_TWO(2, "second text", "second descriptions", "second");
 
     private final int displayOrder;
     private final String displayName;
     private final String description;
+    private final String secondaryOptionName;
 
-    DisplayableTestEnum(int displayOrder, String displayName, String description) {
+    DisplayableTestEnum(int displayOrder, String displayName, String description,
+                        String secondaryOptionName
+    ) {
       this.displayOrder = displayOrder;
       this.displayName = displayName;
       this.description = description;
+      this.secondaryOptionName = secondaryOptionName;
     }
 
     @Override
@@ -130,5 +150,9 @@ class DisplayableEnumOptionUtilTest {
       return description;
     }
 
+    @Override
+    public String getSecondaryOptionName() {
+      return secondaryOptionName;
+    }
   }
 }
