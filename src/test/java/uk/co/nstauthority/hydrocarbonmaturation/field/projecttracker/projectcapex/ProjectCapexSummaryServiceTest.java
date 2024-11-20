@@ -140,7 +140,7 @@ class ProjectCapexSummaryServiceTest {
 
       var lastCreatedCapex = new ProjectCapex(UUID.randomUUID());
       lastCreatedCapex.setProject(project);
-      lastCreatedCapex.setSourceOfInformation(ProjectCapexSource.UKSS);
+      lastCreatedCapex.setSourceOfInformation(null);
       lastCreatedCapex.setDateProvided(FIXED_DATE.plusYears(1));
       lastCreatedCapex.setTotalCapex(BigDecimal.valueOf(26));
 
@@ -208,9 +208,7 @@ class ProjectCapexSummaryServiceTest {
               ),
               Tuple.tuple(
                   "£%s million".formatted(lastCreatedCapex.getTotalCapex()),
-                  "%s - provided %s".formatted(
-                      lastCreatedCapex.getSourceOfInformation().getDisplayName(),
-                      DateUtil.formatLongDate(lastCreatedCapex.getDateProvided()))
+                  "Provided %s".formatted(DateUtil.formatLongDate(lastCreatedCapex.getDateProvided()))
               )
           );
     }

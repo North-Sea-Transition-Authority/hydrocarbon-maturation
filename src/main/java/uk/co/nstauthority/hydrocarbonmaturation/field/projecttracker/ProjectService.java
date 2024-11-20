@@ -90,16 +90,7 @@ public class ProjectService {
     return projectRepository.findAllByField(field)
         .stream()
         .filter(project -> ProjectStatus.EXTANT.equals(project.getProjectStatus()))
-        .map(project -> new ProjectListView(
-            project.getProjectName(),
-            "%s created on %s".formatted(
-                project.getProjectType().getDisplayName(),
-                DateUtil.formatLongDate(project.getCreatedTimestamp())
-            ),
-            ReverseRouter.route(on(ViewProjectController.class)
-                .getViewProject(project.getField().getResource().getId(), project.getId(), null))
-            )
-        )
+        .map(this::createProjectListView)
         .sorted(Comparator.comparing(ProjectListView::projectName))
         .toList();
   }
@@ -133,6 +124,24 @@ public class ProjectService {
     }
 
     return form;
+  }
+
+  private ProjectListView createProjectListView(Project project) {
+    var displayString = "";
+
+    if (project.getCreatedTimestamp() != null) {
+      displayString = "%s created on %s".formatted(
+          project.getProjectType().getDisplayName(),
+          DateUtil.formatLongDate(project.getCreatedTimestamp())
+      );
+    }
+
+    return new ProjectListView(
+        project.getProjectName(),
+        displayString,
+        ReverseRouter.route(on(ViewProjectController.class)
+            .getViewProject(project.getField().getResource().getId(), project.getId(), null))
+    );
   }
 
   private void setSubmissionDetailIfSelected(ProjectForm form, Project project) {

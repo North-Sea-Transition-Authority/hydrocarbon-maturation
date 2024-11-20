@@ -2,7 +2,7 @@ DO $$
     DECLARE
 
         cop_project_rec RECORD;
-        field_id UUID;
+        field_id NUMERIC;
         project_id UUID;
         production_ceased_status_exists NUMERIC;
 
@@ -62,7 +62,7 @@ DO $$
                     gen_random_uuid(),
                     field_id,
                     cop_project_rec.project_name,
-                    'COP',
+                    'CESSATION_OF_PRODUCTION',
                     NULL,
                     NULL,
                     NULL,
