@@ -277,7 +277,7 @@ public class SubmissionDetail implements DomainReference {
   }
 
   public boolean isUpdateToSubmission() {
-    return versionNumber > 1;
+    return versionNumber != null && versionNumber > 1;
   }
 
   public Submission getSubmission() {

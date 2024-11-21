@@ -44,7 +44,7 @@ public class FieldRegulatorManagedInformationSummaryService {
   public static final String LOCATED_IN_UKCS = "Field is wholly located in the UKCS";
   public static final String LOCATED_IN_ENGLAND = "Field is wholly located in England";
   public static final String GEOGRAPHICAL_AREA = "Geographical area";
-  public static final String RESPONSIBLE_TEAM_TYPE = "Responsible team type";
+  public static final String RESPONSIBLE_TEAM_TYPE = "Responsible team";
   public static final String FIELD_NUMBER = "Field number";
   public static final String INFRASTRUCTURE_HOST = "Infrastructure host";
   public static final String DETERMINATION_STATUS = "Determination status";
