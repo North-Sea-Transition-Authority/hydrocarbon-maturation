@@ -69,7 +69,7 @@ class NewFieldControllerTest extends AbstractSubmissionControllerTest {
     var form = new FieldForm();
 
     var preselectedOrganisation = Map.of("25", "Shell Gas");
-    when(newFieldService.getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
+    when(newFieldService.getPreSelectedOrganisationUnit(form.getPrePearsOrganisationId()))
         .thenReturn(preselectedOrganisation);
 
     var geographicalAreas = Map.of("1", "Area1");

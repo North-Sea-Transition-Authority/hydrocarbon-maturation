@@ -79,7 +79,7 @@ class NewFieldController {
         .addObject("organisationUnitEndpoint",
             SearchSelectorService.route(on(OrganisationUnitRestController.class).searchOrganisationUnits(null, null)))
         .addObject("responsibleOrganisation", newFieldService
-            .getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
+            .getPreSelectedOrganisationUnit(form.getPrePearsOrganisationId()))
         .addObject("onshoreOffshore", OnshoreOffshore.getOnshoreOffshore())
         .addObject("geographicalAreas", newFieldService.getGeographicalAreaDisplayableOptions())
         .addObject("responsibleTeamTypes", newFieldService.getResponsibleTeamTypeDisplayableOptions())

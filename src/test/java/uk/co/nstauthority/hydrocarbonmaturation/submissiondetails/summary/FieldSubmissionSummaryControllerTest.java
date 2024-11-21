@@ -91,7 +91,7 @@ class FieldSubmissionSummaryControllerTest extends AbstractSubmissionControllerT
     reservoirSummaries = Collections.emptyList();
     when(submissionDetailService.getSubmissionDetail(submissionDetailId)).thenReturn(Optional.of(submissionDetail));
     var field = new Field();
-    field.setResponsibleOrganisationId(1);
+    field.setPrePearsOrganisationId(1);
     when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
         .thenReturn(field);
   }

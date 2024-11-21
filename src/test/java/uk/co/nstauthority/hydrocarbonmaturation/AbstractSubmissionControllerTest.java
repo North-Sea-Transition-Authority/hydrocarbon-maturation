@@ -202,7 +202,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
     var resourceDetail = new ResourceDetail();
     resourceDetail.setOrganisationId(1);
     var field = mock(Field.class);
-    when(field.getResponsibleOrganisationId())
+    when(field.getPrePearsOrganisationId())
             .thenReturn(resourceDetail.getOrganisationId());
     when(field.getFieldLocatedInEngland())
             .thenReturn(true);
@@ -325,7 +325,7 @@ public abstract class AbstractSubmissionControllerTest extends AbstractControlle
     var resourceDetail = new ResourceDetail();
     resourceDetail.setOrganisationId(1);
     var field = new Field();
-    field.setResponsibleOrganisationId(resourceDetail.getOrganisationId());
+    field.setPrePearsOrganisationId(resourceDetail.getOrganisationId());
     when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
             .thenReturn(field);
     when(organisationUnitQueryService.findOrganisationGroupIdsByUnitId(resourceDetail.getOrganisationId()))

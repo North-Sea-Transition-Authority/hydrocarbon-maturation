@@ -79,7 +79,7 @@ class ReservoirListControllerTest extends AbstractSubmissionControllerTest {
     var submissionDetail = SubmissionDetailTestUtils.createNewNonCopFieldSubmissionDetail();
     var submissionDetailId = submissionDetail.getId();
     var field = new Field();
-    field.setResponsibleOrganisationId(1);
+    field.setPrePearsOrganisationId(1);
     when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
         .thenReturn(field);
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);

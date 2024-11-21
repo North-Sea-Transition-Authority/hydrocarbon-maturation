@@ -173,7 +173,7 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
         )
         .containsExactly(
             field.getCorrectedLegalFieldName(),
-            field.getResponsibleOrganisationId(),
+            field.getPrePearsOrganisationId(),
             field.getParentDeterminedField().getFieldIdentifier(),
             fieldStatusHistory.getFieldStatus(),
             List.of(fieldLicence1.getLicenceId(), fieldLicence2.getLicenceId())

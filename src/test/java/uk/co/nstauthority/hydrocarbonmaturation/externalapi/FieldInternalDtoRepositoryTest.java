@@ -62,7 +62,7 @@ class FieldInternalDtoRepositoryTest {
                 field1.getCorrectedLegalFieldName(),
                 field1.getOnshoreOffshore(),
                 field1.getDeterminationStatus(),
-                field1.getResponsibleOrganisationId(),
+                field1.getPrePearsOrganisationId(),
                 GeographicalArea.CENTRAL_NORTH_SEA,
                 FieldStatus.STATUS_300
             )

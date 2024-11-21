@@ -55,8 +55,8 @@ public class FieldRegulatorManagedInformationService {
               form.setLegalFieldName(field.getLegalFieldName());
               form.setCorrectedLegalFieldName(field.getCorrectedLegalFieldName());
               form.setCommonNameForField(field.getCommonNameForField());
-              var responsibleOrganisationId = field.getResponsibleOrganisationId();
-              form.setResponsibleOrganisationId(responsibleOrganisationId != null
+              var responsibleOrganisationId = field.getPrePearsOrganisationId();
+              form.setPrePearsOrganisationId(responsibleOrganisationId != null
                   ? responsibleOrganisationId.toString()
                   : "");
               form.setOnshoreOffshore(field.getOnshoreOffshore());

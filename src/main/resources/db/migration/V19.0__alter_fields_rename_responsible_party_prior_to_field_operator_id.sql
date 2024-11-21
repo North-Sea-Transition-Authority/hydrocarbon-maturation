@@ -1,0 +1,5 @@
+ALTER TABLE fields
+RENAME COLUMN responsible_organisation_id TO responsible_party_prior_to_field_operator_id;
+
+ALTER TABLE fields_aud
+    RENAME COLUMN responsible_organisation_id TO responsible_party_prior_to_field_operator_id;

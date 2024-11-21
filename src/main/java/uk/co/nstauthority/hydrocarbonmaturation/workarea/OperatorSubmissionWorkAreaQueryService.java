@@ -66,7 +66,7 @@ class OperatorSubmissionWorkAreaQueryService implements SubmissionWorkAreaQueryS
     return getIsInitialSubmissionCondition()
         .and(
             (RESOURCE_DETAILS.ORGANISATION_ID.in(userOrgUnits))
-                .or(FIELDS.RESPONSIBLE_ORGANISATION_ID.in(userOrgUnits))
+                .or(FIELDS.RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID.in(userOrgUnits))
         );
   }
 
@@ -92,7 +92,7 @@ class OperatorSubmissionWorkAreaQueryService implements SubmissionWorkAreaQueryS
             .leftJoin(FIELDS_2).on(FIELDS_2.RESOURCE_ID.eq(RESOURCES_2.ID))
             .where(
                 (RD_2.ORGANISATION_ID.in(userOrgUnits))
-                    .or(FIELDS_2.RESPONSIBLE_ORGANISATION_ID.in(userOrgUnits))
+                    .or(FIELDS_2.RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID.in(userOrgUnits))
             )
             .and(SUBMISSION_DETAILS.ID.eq(SD_2.ID))
             .and(SD_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))

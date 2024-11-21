@@ -10,7 +10,7 @@ public class FieldForm {
   private String legalFieldName;
   private String correctedLegalFieldName;
   private String commonNameForField;
-  private String responsibleOrganisationId;
+  private String prePearsOrganisationId;
   private OnshoreOffshore onshoreOffshore;
   private GeographicalArea geographicalArea;
   private ResponsibleTeamType responsibleTeamType;
@@ -51,12 +51,12 @@ public class FieldForm {
     this.commonNameForField = commonNameForField;
   }
 
-  public String getResponsibleOrganisationId() {
-    return responsibleOrganisationId;
+  public String getPrePearsOrganisationId() {
+    return prePearsOrganisationId;
   }
 
-  public void setResponsibleOrganisationId(String responsibleOrganisationId) {
-    this.responsibleOrganisationId = responsibleOrganisationId;
+  public void setPrePearsOrganisationId(String prePearsOrganisationId) {
+    this.prePearsOrganisationId = prePearsOrganisationId;
   }
 
   public OnshoreOffshore getOnshoreOffshore() {

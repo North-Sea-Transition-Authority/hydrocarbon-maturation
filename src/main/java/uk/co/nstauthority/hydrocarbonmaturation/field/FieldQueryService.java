@@ -122,11 +122,11 @@ public class FieldQueryService {
           .getResponsibleTeamType();
       return responsibleTeamService.isInResponsibleTeam(user, responsibleTeamType);
     } else if (teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)) {
-      if (field.getResponsibleOrganisationId() == null) {
+      if (field.getPrePearsOrganisationId() == null) {
         return false;
       }
       return industryTeamService.getOrganisationUnitIdsForUserWithRoles(user, Set.of(Role.INDUSTRY_SUBMIT))
-          .contains(field.getResponsibleOrganisationId());
+          .contains(field.getPrePearsOrganisationId());
     }
     return false;
   }

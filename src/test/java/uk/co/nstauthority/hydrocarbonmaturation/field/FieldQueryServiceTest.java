@@ -86,7 +86,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_200));
       field1.setResource(resource1);
       field1.setCorrectedLegalFieldName("legalFieldName");
-      field1.setResponsibleOrganisationId(orgUnitId);
+      field1.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail1 = new SubmissionDetail();
       submissionDetail1.setStatus(SubmissionDetailStatus.ACCEPTED);
 
@@ -99,7 +99,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_200));
       field2.setResource(resource2);
       field2.setCorrectedLegalFieldName("alphabeticalLegalFieldName");
-      field2.setResponsibleOrganisationId(orgUnitId);
+      field2.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail2 = new SubmissionDetail();
       submissionDetail2.setStatus(SubmissionDetailStatus.DELETED);
 
@@ -141,7 +141,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_200));
       field1.setResource(resource1);
       field1.setCorrectedLegalFieldName("legalFieldName1");
-      field1.setResponsibleOrganisationId(orgUnitId);
+      field1.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail1 = new SubmissionDetail();
       submissionDetail1.setStatus(SubmissionDetailStatus.ACCEPTED);
 
@@ -154,7 +154,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_300));
       field2.setResource(resource2);
       field2.setCorrectedLegalFieldName("legalFieldName2");
-      field2.setResponsibleOrganisationId(orgUnitId);
+      field2.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail2 = new SubmissionDetail();
       submissionDetail2.setStatus(SubmissionDetailStatus.DELETED);
 
@@ -167,7 +167,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_400));
       field3.setResource(resource3);
       field3.setCorrectedLegalFieldName("legalFieldName3");
-      field3.setResponsibleOrganisationId(orgUnitId);
+      field3.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail3 = new SubmissionDetail();
       submissionDetail3.setStatus(SubmissionDetailStatus.ACCEPTED);
 
@@ -180,7 +180,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_500));
       field4.setResource(resource4);
       field4.setCorrectedLegalFieldName("legalFieldName4");
-      field4.setResponsibleOrganisationId(orgUnitId);
+      field4.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail4 = new SubmissionDetail();
       submissionDetail4.setStatus(SubmissionDetailStatus.DELETED);
 
@@ -216,7 +216,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_600));
       field1.setResource(resource1);
       field1.setCorrectedLegalFieldName("legalFieldName1");
-      field1.setResponsibleOrganisationId(orgUnitId);
+      field1.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail1 = new SubmissionDetail();
       submissionDetail1.setStatus(SubmissionDetailStatus.ACCEPTED);
 
@@ -229,7 +229,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_700));
       field2.setResource(resource2);
       field2.setCorrectedLegalFieldName("legalFieldName2");
-      field2.setResponsibleOrganisationId(orgUnitId);
+      field2.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail2 = new SubmissionDetail();
       submissionDetail2.setStatus(SubmissionDetailStatus.DELETED);
 
@@ -242,7 +242,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_799));
       field3.setResource(resource3);
       field3.setCorrectedLegalFieldName("legalFieldName3");
-      field3.setResponsibleOrganisationId(orgUnitId);
+      field3.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail3 = new SubmissionDetail();
       submissionDetail3.setStatus(SubmissionDetailStatus.ACCEPTED);
 
@@ -255,7 +255,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_800));
       field4.setResource(resource4);
       field4.setCorrectedLegalFieldName("legalFieldName4");
-      field4.setResponsibleOrganisationId(orgUnitId);
+      field4.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail4 = new SubmissionDetail();
       submissionDetail4.setStatus(SubmissionDetailStatus.DELETED);
 
@@ -268,7 +268,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_899));
       field5.setResource(resource5);
       field5.setCorrectedLegalFieldName("legalFieldName5");
-      field5.setResponsibleOrganisationId(orgUnitId);
+      field5.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail5 = new SubmissionDetail();
       submissionDetail5.setStatus(SubmissionDetailStatus.DELETED);
 
@@ -281,7 +281,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_900));
       field6.setResource(resource6);
       field6.setCorrectedLegalFieldName("legalFieldName6");
-      field6.setResponsibleOrganisationId(orgUnitId);
+      field6.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail6 = new SubmissionDetail();
       submissionDetail6.setStatus(SubmissionDetailStatus.DELETED);
 
@@ -319,7 +319,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_700));
       field1.setResource(resource1);
       field1.setCorrectedLegalFieldName("legalFieldName1");
-      field1.setResponsibleOrganisationId(orgUnitId);
+      field1.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail1 = new SubmissionDetail();
       submissionDetail1.setStatus(SubmissionDetailStatus.ACCEPTED);
 
@@ -332,7 +332,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_799));
       field2.setResource(resource2);
       field2.setCorrectedLegalFieldName("legalFieldName2");
-      field2.setResponsibleOrganisationId(orgUnitId);
+      field2.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail2 = new SubmissionDetail();
       submissionDetail2.setStatus(SubmissionDetailStatus.DELETED);
 
@@ -345,7 +345,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_800));
       field3.setResource(resource3);
       field3.setCorrectedLegalFieldName("legalFieldName3");
-      field3.setResponsibleOrganisationId(orgUnitId);
+      field3.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail3 = new SubmissionDetail();
       submissionDetail3.setStatus(SubmissionDetailStatus.ACCEPTED);
 
@@ -358,7 +358,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_899));
       field4.setResource(resource4);
       field4.setCorrectedLegalFieldName("legalFieldName4");
-      field4.setResponsibleOrganisationId(orgUnitId);
+      field4.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail4 = new SubmissionDetail();
       submissionDetail4.setStatus(SubmissionDetailStatus.DELETED);
 
@@ -371,7 +371,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_900));
       field5.setResource(resource5);
       field5.setCorrectedLegalFieldName("legalFieldName5");
-      field5.setResponsibleOrganisationId(orgUnitId);
+      field5.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail5 = new SubmissionDetail();
       submissionDetail5.setStatus(SubmissionDetailStatus.DELETED);
 
@@ -462,7 +462,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_200));
       field.setResource(resource);
       field.setCorrectedLegalFieldName("legalFieldName");
-      field.setResponsibleOrganisationId(orgUnitId);
+      field.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail = new SubmissionDetail();
       submissionDetail.setStatus(submissionDetailStatus);
 
@@ -548,7 +548,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_200));
       field1.setResource(resource1);
       field1.setCorrectedLegalFieldName("legalFieldName");
-      field1.setResponsibleOrganisationId(otherOrgUnit);
+      field1.setPrePearsOrganisationId(otherOrgUnit);
 
       var resource2 = new Resource();
       resource2.setArchived(false);
@@ -559,7 +559,7 @@ class FieldQueryServiceTest {
           .thenReturn(Optional.of(FieldStatus.STATUS_200));
       field2.setResource(resource2);
       field2.setCorrectedLegalFieldName("alphabeticalLegalFieldName");
-      field2.setResponsibleOrganisationId(orgUnitId);
+      field2.setPrePearsOrganisationId(orgUnitId);
       var submissionDetail2 = new SubmissionDetail();
       submissionDetail2.setStatus(SubmissionDetailStatus.DELETED);
 
