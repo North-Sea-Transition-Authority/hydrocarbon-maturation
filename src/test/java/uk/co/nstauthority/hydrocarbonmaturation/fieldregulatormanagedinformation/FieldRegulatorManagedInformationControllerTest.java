@@ -246,14 +246,14 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
     when(responsibleTeamService.isInResponsibleTeam(USER, form.getResponsibleTeamType()))
         .thenReturn(true);
 
-    form.setResponsibleOrganisationId("organisationId");
+    form.setPrePearsOrganisationId("organisationId");
     form.setParentDeterminedField("parent");
     form.setAssociatedDiscoveries(List.of("discoveries"));
     when(fieldRegulatorManagedInformationService.resourceToFieldForm(resource))
         .thenReturn(form);
 
     var expectedResponsibleOrganisation = Map.of("organisation", "unit");
-    when(newFieldService.getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
+    when(newFieldService.getPreSelectedOrganisationUnit(form.getPrePearsOrganisationId()))
         .thenReturn(expectedResponsibleOrganisation);
 
     var expectedGeographicalArea = Map.of("geographical", "areas");
@@ -334,14 +334,14 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
     when(responsibleTeamService.isInResponsibleTeam(USER, form.getResponsibleTeamType()))
         .thenReturn(true);
 
-    form.setResponsibleOrganisationId("organisationId");
+    form.setPrePearsOrganisationId("organisationId");
     form.setParentDeterminedField("parent");
     form.setAssociatedDiscoveries(List.of("discoveries"));
     when(fieldRegulatorManagedInformationService.resourceToFieldForm(resource))
         .thenReturn(form);
 
     var expectedResponsibleOrganisation = Map.of("organisation", "unit");
-    when(newFieldService.getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
+    when(newFieldService.getPreSelectedOrganisationUnit(form.getPrePearsOrganisationId()))
         .thenReturn(expectedResponsibleOrganisation);
 
     var expectedGeographicalArea = Map.of("geographical", "areas");
@@ -596,7 +596,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
         .thenReturn(form);
 
     var expectedResponsibleOrganisation = Map.of("organisation", "unit");
-    when(newFieldService.getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
+    when(newFieldService.getPreSelectedOrganisationUnit(form.getPrePearsOrganisationId()))
         .thenReturn(expectedResponsibleOrganisation);
 
     var field = new Field();
@@ -649,7 +649,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
         .thenReturn(form);
 
     var expectedResponsibleOrganisation = Map.of("organisation", "unit");
-    when(newFieldService.getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
+    when(newFieldService.getPreSelectedOrganisationUnit(form.getPrePearsOrganisationId()))
         .thenReturn(expectedResponsibleOrganisation);
 
     var field = new Field();
@@ -702,7 +702,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
         .thenReturn(form);
 
     var expectedResponsibleOrganisation = Map.of("organisation", "unit");
-    when(newFieldService.getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
+    when(newFieldService.getPreSelectedOrganisationUnit(form.getPrePearsOrganisationId()))
         .thenReturn(expectedResponsibleOrganisation);
 
     var field = new Field();
@@ -748,7 +748,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
     when(responsibleTeamService.isInResponsibleTeam(USER, submittedSubmissionDetail))
         .thenReturn(true);
 
-    form.setResponsibleOrganisationId("organisationId");
+    form.setPrePearsOrganisationId("organisationId");
     form.setParentDeterminedField("parent");
     form.setAssociatedDiscoveries(List.of("discoveries"));
     when(fieldRegulatorManagedInformationService.resourceToFieldForm(resource))
@@ -759,7 +759,7 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
         .thenReturn(true);
 
     var expectedResponsibleOrganisation = Map.of("organisation", "unit");
-    when(newFieldService.getPreSelectedOrganisationUnit(form.getResponsibleOrganisationId()))
+    when(newFieldService.getPreSelectedOrganisationUnit(form.getPrePearsOrganisationId()))
         .thenReturn(expectedResponsibleOrganisation);
 
     var expectedGeographicalArea = Map.of("geographical", "areas");

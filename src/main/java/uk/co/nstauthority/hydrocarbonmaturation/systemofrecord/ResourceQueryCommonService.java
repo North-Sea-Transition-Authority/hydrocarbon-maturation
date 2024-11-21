@@ -64,7 +64,7 @@ class ResourceQueryCommonService {
             RESOURCES.TYPE,
             FIELDS.CORRECTED_LEGAL_FIELD_NAME,
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
-            FIELDS.RESPONSIBLE_ORGANISATION_ID,
+            FIELDS.RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID,
             DSL.arrayAggDistinct(FIELD_LICENCES.LICENCE_ID)
                 .orderBy(FIELD_LICENCES.LICENCE_ID)
                 .filterWhere(FIELD_LICENCES.LICENCE_ID.isNotNull()),

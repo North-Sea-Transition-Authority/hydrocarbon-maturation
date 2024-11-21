@@ -38,7 +38,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 class ResourceArchiveServiceTest {
 
   private static final Set<SubmissionDetailStatus> OPEN_CORRECTION_STATUSES =
-      Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.DRAFT, SubmissionDetailStatus.SUBMITTED);
+      Set.of(SubmissionDetailStatus.DRAFT, SubmissionDetailStatus.SUBMITTED);
 
   @Mock
   private ResourceLinkService resourceLinkService;

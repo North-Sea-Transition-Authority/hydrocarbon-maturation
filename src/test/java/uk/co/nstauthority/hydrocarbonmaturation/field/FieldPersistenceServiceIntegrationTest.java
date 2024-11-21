@@ -52,7 +52,7 @@ class FieldPersistenceServiceIntegrationTest {
     form.setLegalFieldName("legal name");
     form.setCorrectedLegalFieldName("corrected legal name");
     form.setCommonNameForField("common name");
-    form.setResponsibleOrganisationId("123");
+    form.setPrePearsOrganisationId("123");
     form.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     form.setGeographicalArea(GeographicalArea.NORTHERN_NORTH_SEA);
     form.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
@@ -70,7 +70,7 @@ class FieldPersistenceServiceIntegrationTest {
         Field::getLegalFieldName,
         Field::getCorrectedLegalFieldName,
         Field::getCommonNameForField,
-        Field::getResponsibleOrganisationId,
+        Field::getPrePearsOrganisationId,
         Field::getOnshoreOffshore,
         Field::getDeterminationStatus,
         Field::getInfrastructureHost,
@@ -81,7 +81,7 @@ class FieldPersistenceServiceIntegrationTest {
         form.getLegalFieldName(),
         form.getCorrectedLegalFieldName(),
         form.getCommonNameForField(),
-        Integer.valueOf(form.getResponsibleOrganisationId()),
+        Integer.valueOf(form.getPrePearsOrganisationId()),
         form.getOnshoreOffshore(),
         form.getDeterminationStatus(),
         form.getInfrastructureHost(),

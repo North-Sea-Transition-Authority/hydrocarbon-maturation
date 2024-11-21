@@ -61,11 +61,11 @@ public class FieldPersistenceService {
     field.setCorrectedLegalFieldName(form.getCorrectedLegalFieldName());
     field.setCommonNameForField(form.getCommonNameForField());
 
-    Optional.ofNullable(form.getResponsibleOrganisationId())
+    Optional.ofNullable(form.getPrePearsOrganisationId())
         .map(Integer::valueOf)
         .flatMap(organisationUnitQueryService::findOrganisationUnit)
         .ifPresent(organisationUnitDto -> {
-          field.setResponsibleOrganisationId(organisationUnitDto.organisationUnitId());
+          field.setPrePearsOrganisationId(organisationUnitDto.organisationUnitId());
           field.setOrganisationName(organisationUnitDto.organisationUnitName());
           field.setOrganisationRegisteredNumber(organisationUnitDto.companyHouseNumber());
         });

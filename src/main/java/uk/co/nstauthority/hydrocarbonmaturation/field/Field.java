@@ -37,7 +37,8 @@ public class Field {
 
   private String commonNameForField;
 
-  private Integer responsibleOrganisationId;
+  @Column(name = "responsible_party_prior_to_field_operator_id")
+  private Integer prePearsOrganisationId;
 
   private String organisationRegisteredNumber;
 
@@ -109,12 +110,12 @@ public class Field {
     this.commonNameForField = commonNameForField;
   }
 
-  public Integer getResponsibleOrganisationId() {
-    return responsibleOrganisationId;
+  public Integer getPrePearsOrganisationId() {
+    return prePearsOrganisationId;
   }
 
-  public void setResponsibleOrganisationId(Integer responsibleOrganisationId) {
-    this.responsibleOrganisationId = responsibleOrganisationId;
+  public void setPrePearsOrganisationId(Integer responsibleOrganisationId) {
+    this.prePearsOrganisationId = responsibleOrganisationId;
   }
 
   public String getOrganisationName() {

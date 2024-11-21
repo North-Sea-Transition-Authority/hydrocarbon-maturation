@@ -188,7 +188,7 @@ public class SubmissionIntegrationTestUtils {
     var field = new Field();
     field.setResource(resource);
     field.setCorrectedLegalFieldName(correctedLegalFieldName);
-    field.setResponsibleOrganisationId(responsibleOrganisationId);
+    field.setPrePearsOrganisationId(responsibleOrganisationId);
     field.setParentDeterminedField(parentField);
     field.setIsOnLicence(true);
 

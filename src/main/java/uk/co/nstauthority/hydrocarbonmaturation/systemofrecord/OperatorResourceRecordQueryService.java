@@ -73,7 +73,7 @@ public class OperatorResourceRecordQueryService implements ResourceRecordQuerySe
 
   private List<Condition> getFieldOperatorConditions(SearchResourceRecordsForm form, List<Integer> userOrgUnitIds) {
     var conditionList = new ArrayList<>(resourceQueryCommonService.getFormFilterConditions(form));
-    conditionList.add(FIELDS.RESPONSIBLE_ORGANISATION_ID.in(userOrgUnitIds));
+    conditionList.add(FIELDS.RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID.in(userOrgUnitIds));
     conditionList.add(RESOURCES.ARCHIVED.eq(false));
 
     return conditionList;
@@ -135,7 +135,7 @@ public class OperatorResourceRecordQueryService implements ResourceRecordQuerySe
         .selectDistinct(FIELD_LICENCES.LICENCE_ID)
         .from(FIELD_LICENCES)
         .join(FIELDS).on(FIELDS.FIELD_IDENTIFIER.eq(FIELD_LICENCES.FIELD_IDENTIFIER))
-        .where(FIELDS.RESPONSIBLE_ORGANISATION_ID.in(userOrganisationUnits))
+        .where(FIELDS.RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID.in(userOrganisationUnits))
         .fetchInto(String.class);
   }
 

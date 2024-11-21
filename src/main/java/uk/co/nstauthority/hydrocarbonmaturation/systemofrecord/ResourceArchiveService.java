@@ -57,7 +57,7 @@ public class ResourceArchiveService {
     var resourceTypeDisplayText = resource.getType().getDisplayName();
 
     var openCorrectionExists = submissionDetailService.openCorrectionExists(
-        Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.DRAFT, SubmissionDetailStatus.SUBMITTED),
+        Set.of(SubmissionDetailStatus.DRAFT, SubmissionDetailStatus.SUBMITTED),
         resource
     );
 

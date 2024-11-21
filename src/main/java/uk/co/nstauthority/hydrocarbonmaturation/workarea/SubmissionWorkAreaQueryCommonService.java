@@ -53,7 +53,7 @@ class SubmissionWorkAreaQueryCommonService {
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
             coalesce(
                 RESOURCE_DETAILS.ORGANISATION_ID,
-                FIELDS.RESPONSIBLE_ORGANISATION_ID),
+                FIELDS.RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID),
             DSL.arrayAgg(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
@@ -114,7 +114,7 @@ class SubmissionWorkAreaQueryCommonService {
             TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
             coalesce(
                 RESOURCE_DETAILS.ORGANISATION_ID,
-                FIELDS.RESPONSIBLE_ORGANISATION_ID),
+                FIELDS.RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID),
             SUBMISSION_UPDATE.ID,
             SUBMISSION_DETAILS.CORRECTION,
             FIELDS.FIELD_IDENTIFIER,

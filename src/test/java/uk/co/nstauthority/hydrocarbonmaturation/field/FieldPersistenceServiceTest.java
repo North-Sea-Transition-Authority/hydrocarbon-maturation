@@ -70,7 +70,7 @@ class FieldPersistenceServiceTest {
     private final String LEGAL_NAME = "legal name";
     private final String CORRECTED_LEGAL_NAME = "corrected legal name";
     private final String COMMON_NAME = "common name";
-    private final String RESPONSIBLE_ORGANISATION_ID = "123";
+    private final String RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID = "123";
     private final OnshoreOffshore ONSHORE_OFFSHORE = OnshoreOffshore.OFFSHORE;
     private final DeterminationStatus DETERMINATION_STATUS = DeterminationStatus.DETERMINED;
     private final boolean INFRASTRUCTURE_HOST = true;
@@ -90,7 +90,7 @@ class FieldPersistenceServiceTest {
       form.setLegalFieldName(LEGAL_NAME);
       form.setCorrectedLegalFieldName(CORRECTED_LEGAL_NAME);
       form.setCommonNameForField(COMMON_NAME);
-      form.setResponsibleOrganisationId(RESPONSIBLE_ORGANISATION_ID);
+      form.setPrePearsOrganisationId(RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID);
       form.setOnshoreOffshore(ONSHORE_OFFSHORE);
       form.setGeographicalArea(GEOGRAPHICAL_AREA);
       form.setResponsibleTeamType(RESPONSIBLE_TEAM_TYPE);
@@ -122,23 +122,23 @@ class FieldPersistenceServiceTest {
       when(fieldRepository.findByResource(resource)).thenReturn(Optional.empty());
       when(fieldRepository.findTopByFieldNumberNotNullOrderByFieldNumberDesc()).thenReturn(Optional.of(highestNumberField));
       var organisationUnitDto = new OrganisationUnitDto(
-          Integer.valueOf(RESPONSIBLE_ORGANISATION_ID),
+          Integer.valueOf(RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID),
           RESPONSIBLE_ORGANISATION_NAME,
           REGISTERED_NUMBER,
           Collections.emptyList()
       );
 
-      when(organisationUnitQueryService.findOrganisationUnit(Integer.valueOf(RESPONSIBLE_ORGANISATION_ID))).thenReturn(Optional.of(organisationUnitDto));
+      when(organisationUnitQueryService.findOrganisationUnit(Integer.valueOf(RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID))).thenReturn(Optional.of(organisationUnitDto));
 
       var result = underTest.saveFieldFromFieldForm(form, resource);
       assertThat(result)
           .extracting(
-              Field::getResponsibleOrganisationId,
+              Field::getPrePearsOrganisationId,
               Field::getOrganisationName,
               Field::getOrganisationRegisteredNumber
           )
           .containsExactly(
-              Integer.valueOf(RESPONSIBLE_ORGANISATION_ID),
+              Integer.valueOf(RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID),
               RESPONSIBLE_ORGANISATION_NAME,
               REGISTERED_NUMBER
           );
@@ -217,7 +217,7 @@ class FieldPersistenceServiceTest {
               Field::getLegalFieldName,
               Field::getCorrectedLegalFieldName,
               Field::getCommonNameForField,
-              Field::getResponsibleOrganisationId,
+              Field::getPrePearsOrganisationId,
               Field::getOnshoreOffshore,
               Field::getDeterminationStatus,
               Field::getFieldNumber,

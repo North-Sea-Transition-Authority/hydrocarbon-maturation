@@ -491,7 +491,7 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
     field.setLegalFieldName("legal name");
     field.setCorrectedLegalFieldName("corrected name");
     field.setCommonNameForField("common name");
-    field.setResponsibleOrganisationId(24);
+    field.setPrePearsOrganisationId(24);
     field.setOnshoreOffshore(OnshoreOffshore.ONSHORE);
     field.setFieldLocatedInEngland(true);
     field.setDeterminationStatus(DeterminationStatus.DETERMINED);

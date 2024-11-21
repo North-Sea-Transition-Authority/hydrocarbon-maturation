@@ -610,6 +610,37 @@ class ProjectServiceTest {
     }
 
     @Test
+    void whenOneProjectForField_nullCreatedTimestamp_thenProjectListViewCorrect() {
+      var project = ProjectTestUtils.createPopulatedProject(
+          "Project name",
+          ProjectType.FIELD_DEVELOPMENT_PLAN_ADDENDUM,
+          ProjectPhase.AUTHORISE_PHASE,
+          true,
+          null
+      );
+
+      var expectedCaption = "";
+
+      when(projectRepository.findAllByField(field))
+          .thenReturn(List.of(project));
+      assertThat(projectService.getCreatedProjectListViews(field))
+          .extracting(
+              ProjectListView::projectName,
+              ProjectListView::projectCaption,
+              ProjectListView::linkUrl
+          ).containsExactly(
+              Tuple.tuple(
+                  project.getProjectName(),
+                  expectedCaption,
+                  ReverseRouter.route(on(ViewProjectController.class).getViewProject(
+                      project.getField().getResource().getId(),
+                      project.getId(), null)
+                  )
+              )
+          );
+    }
+
+    @Test
     void whenMultipleProjectsForField_thenOnlyCreatedProjectsInOrderedList() {
       var firstCreatedProject = ProjectTestUtils.createPopulatedProject(
           "Project 1",

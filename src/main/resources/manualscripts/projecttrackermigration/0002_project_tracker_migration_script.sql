@@ -2,7 +2,7 @@ DO $$
 DECLARE
 
     project_rec RECORD;
-    field_id UUID;
+    field_id NUMERIC;
     project_id UUID;
     producing_status_exists NUMERIC;
 
@@ -60,6 +60,9 @@ BEGIN
                 'AUTHORISE',
                 'EXECUTE',
                 'ON HOLD',
+                'ONLINE',
+                'ONLINE - 2019',
+                'ONLINE PRE-19',
                 'WITHDRAWN'
             ) THEN
 
@@ -122,8 +125,20 @@ BEGIN
             gen_random_uuid(),
             field_id,
             project_rec.project_name,
-            project_rec.project_type,
-            project_rec.project_status,
+            CASE project_rec.project_type
+                WHEN 'FDP' THEN 'FIELD_DEVELOPMENT_PLAN'
+                WHEN 'FDPA' THEN 'FIELD_DEVELOPMENT_PLAN_ADDENDUM'
+                END,
+            CASE upper(project_rec.project_status)
+                WHEN 'ASSESSMENT' THEN 'ASSESSMENT_PHASE'
+                WHEN 'AUTHORISE' THEN 'AUTHORISE_PHASE'
+                WHEN 'EXECUTE' THEN 'EXECUTE_PHASE'
+                WHEN 'ON HOLD' THEN 'ON_HOLD'
+                WHEN 'ONLINE' THEN 'ONLINE'
+                WHEN 'ONLINE - 2019' THEN 'ONLINE'
+                WHEN 'ONLINE PRE-19' THEN 'ONLINE'
+                WHEN 'WITHDRAWN' THEN 'WITHDRAWN'
+                END,
             NULL,
             NULL,
             NULL,
@@ -143,8 +158,8 @@ BEGIN
             ) VALUES (
                 gen_random_uuid(),
                 project_id,
-                NULL,
-                project_rec.estimated_capex,
+                now(),
+                ROUND(project_rec.estimated_capex, 2),
                 NULL,
                 'CREATED'
             );

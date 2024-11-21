@@ -15,7 +15,7 @@ interface FieldInternalDtoRepository extends CrudRepository<Field, Integer> {
       ", f.correctedLegalFieldName" +
       ", f.onshoreOffshore" +
       ", f.determinationStatus" +
-      ", f.responsibleOrganisationId" +
+      ", f.prePearsOrganisationId" +
       ", rmi.geographicalArea" +
       ", fsh.fieldStatus" +
       ") " +

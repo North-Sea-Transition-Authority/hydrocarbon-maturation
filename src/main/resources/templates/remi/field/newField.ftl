@@ -59,11 +59,11 @@
     </@fdsFieldset.fieldset>
 
     <@fdsSearchSelector.searchSelectorRest
-      path="form.responsibleOrganisationId"
+      path="form.prePearsOrganisationId"
       restUrl=springUrl(organisationUnitEndpoint)
-      labelText="What organisation is responsible for this field?"
+      labelText="Who is the responsible party prior to field operator?"
       selectorMinInputLength=3
-      nestingPath="form.responsibleOrganisationId"
+      nestingPath="form.prePearsOrganisationId"
       preselectedItems=responsibleOrganisation!{}
       optionalLabel=true/>
 

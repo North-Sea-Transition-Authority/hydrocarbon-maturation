@@ -20,4 +20,8 @@ public interface Displayable {
   default String getDescription() {
     return "";
   }
+
+  default String getSecondaryOptionName() {
+    return "";
+  }
 }

@@ -104,7 +104,7 @@ class NewFieldServiceTest {
 
   @Nested
   class WhenGettingPreSelectedOrganisationUnit {
-    private final String RESPONSIBLE_ORGANISATION_ID = "1";
+    private final String RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID = "1";
     @Test
     void emptyId() {
       var result = underTest.getPreSelectedOrganisationUnit("");
@@ -113,8 +113,8 @@ class NewFieldServiceTest {
 
     @Test
     void verifyMethodCalls() {
-      underTest.getPreSelectedOrganisationUnit(RESPONSIBLE_ORGANISATION_ID);
-      verify(organisationUnitQueryService).getPreSelectedOrganisationUnit(Integer.valueOf(RESPONSIBLE_ORGANISATION_ID));
+      underTest.getPreSelectedOrganisationUnit(RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID);
+      verify(organisationUnitQueryService).getPreSelectedOrganisationUnit(Integer.valueOf(RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID));
     }
   }
 

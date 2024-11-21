@@ -83,7 +83,7 @@ class FieldGasVolumetricParametersControllerTest extends AbstractSubmissionContr
         .thenReturn(reservoirSubmissionDetail);
 
     var field = new Field();
-    field.setResponsibleOrganisationId(1);
+    field.setPrePearsOrganisationId(1);
     when(fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource()))
         .thenReturn(field);
   }

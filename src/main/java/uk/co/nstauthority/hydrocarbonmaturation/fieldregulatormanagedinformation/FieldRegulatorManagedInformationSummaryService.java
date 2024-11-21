@@ -39,7 +39,7 @@ public class FieldRegulatorManagedInformationSummaryService {
   public static final String LEGAL_FIELD_NAME = "Legal field name";
   public static final String CORRECTED_LEGAL_FIELD_NAME = "Corrected legal field name";
   public static final String COMMON_NAME_FOR_FIELD = "Common name for field";
-  public static final String RESPONSIBLE_ORGANISATION = "Responsible organisation";
+  public static final String RESPONSIBLE_ORGANISATION = "Responsible party prior to field operator";
   public static final String ONSHORE_OFFSHORE = "Onshore/offshore";
   public static final String LOCATED_IN_UKCS = "Field is wholly located in the UKCS";
   public static final String LOCATED_IN_ENGLAND = "Field is wholly located in England";
@@ -102,7 +102,7 @@ public class FieldRegulatorManagedInformationSummaryService {
     );
     summaryDataView.addKeyValue(
         RESPONSIBLE_ORGANISATION,
-        submissionDetailDisplayService.getOrganisationResponsibleDisplayById(field.getResponsibleOrganisationId())
+        submissionDetailDisplayService.getOrganisationResponsibleDisplayById(field.getPrePearsOrganisationId())
     );
     summaryDataView.addKeyValue(
         IS_ON_LICENCE,

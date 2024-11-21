@@ -5,17 +5,20 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 import uk.co.nstauthority.hydrocarbonmaturation.enumutil.DisplayableEnumOptionUtil;
 
 public enum ResourceType implements Displayable {
-  PROSPECT("Prospect", "Prospects", 10),
-  DISCOVERY("Discovery", "Discoveries", 20),
-  FIELD("Field", "Fields", 30);
+  PROSPECT("Prospect", "Prospects", "Prospect (or a Lead)", 10),
+  DISCOVERY("Discovery", "Discoveries", "Discovery", 20),
+  FIELD("Field", "Fields", "Field", 30);
 
   private final String displayName;
   private final String pluralName;
+  private final String secondaryOptionName;
   private final int displayOrder;
 
-  ResourceType(String displayName, String pluralName, int displayOrder) {
+  ResourceType(String displayName, String pluralName,
+               String secondaryOptionName, int displayOrder) {
     this.displayName = displayName;
     this.pluralName = pluralName;
+    this.secondaryOptionName = secondaryOptionName;
     this.displayOrder = displayOrder;
   }
 
@@ -40,5 +43,10 @@ public enum ResourceType implements Displayable {
   @Override
   public int getDisplayOrder() {
     return displayOrder;
+  }
+
+  @Override
+  public String getSecondaryOptionName() {
+    return secondaryOptionName;
   }
 }

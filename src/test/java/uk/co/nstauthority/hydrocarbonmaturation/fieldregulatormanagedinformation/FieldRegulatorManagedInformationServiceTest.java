@@ -93,7 +93,7 @@ class FieldRegulatorManagedInformationServiceTest {
     field.setLegalFieldName("legal name");
     field.setCorrectedLegalFieldName("corrected name");
     field.setCommonNameForField("common name");
-    field.setResponsibleOrganisationId(1);
+    field.setPrePearsOrganisationId(1);
     field.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     field.setFieldLocatedInUkcs(true);
     field.setFieldLocatedInEngland(null);
@@ -124,7 +124,7 @@ class FieldRegulatorManagedInformationServiceTest {
             FieldForm::getLegalFieldName,
             FieldForm::getCorrectedLegalFieldName,
             FieldForm::getCommonNameForField,
-            FieldForm::getResponsibleOrganisationId,
+            FieldForm::getPrePearsOrganisationId,
             FieldForm::getOnshoreOffshore,
             FieldForm::getFieldLocatedInUkcs,
             FieldForm::getFieldLocatedInEngland,
@@ -140,7 +140,7 @@ class FieldRegulatorManagedInformationServiceTest {
             field.getLegalFieldName(),
             field.getCorrectedLegalFieldName(),
             field.getCommonNameForField(),
-            field.getResponsibleOrganisationId().toString(),
+            field.getPrePearsOrganisationId().toString(),
             field.getOnshoreOffshore(),
             field.getFieldLocatedInUkcs(),
             field.getFieldLocatedInEngland(),
@@ -161,7 +161,7 @@ class FieldRegulatorManagedInformationServiceTest {
     field.setLegalFieldName("legal name");
     field.setCorrectedLegalFieldName("corrected name");
     field.setCommonNameForField("common name");
-    field.setResponsibleOrganisationId(1);
+    field.setPrePearsOrganisationId(1);
     field.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     field.setFieldLocatedInUkcs(true);
     field.setFieldLocatedInEngland(null);
@@ -195,7 +195,7 @@ class FieldRegulatorManagedInformationServiceTest {
             FieldForm::getLegalFieldName,
             FieldForm::getCorrectedLegalFieldName,
             FieldForm::getCommonNameForField,
-            FieldForm::getResponsibleOrganisationId,
+            FieldForm::getPrePearsOrganisationId,
             FieldForm::getOnshoreOffshore,
             FieldForm::getFieldLocatedInUkcs,
             FieldForm::getFieldLocatedInEngland,
@@ -211,7 +211,7 @@ class FieldRegulatorManagedInformationServiceTest {
             field.getLegalFieldName(),
             field.getCorrectedLegalFieldName(),
             field.getCommonNameForField(),
-            field.getResponsibleOrganisationId().toString(),
+            field.getPrePearsOrganisationId().toString(),
             field.getOnshoreOffshore(),
             field.getFieldLocatedInUkcs(),
             field.getFieldLocatedInEngland(),
@@ -232,7 +232,7 @@ class FieldRegulatorManagedInformationServiceTest {
     field.setLegalFieldName("legal name");
     field.setCorrectedLegalFieldName("corrected name");
     field.setCommonNameForField("common name");
-    field.setResponsibleOrganisationId(1);
+    field.setPrePearsOrganisationId(1);
     field.setOnshoreOffshore(OnshoreOffshore.OFFSHORE);
     field.setFieldLocatedInUkcs(true);
     field.setFieldLocatedInEngland(null);
@@ -267,7 +267,7 @@ class FieldRegulatorManagedInformationServiceTest {
             FieldForm::getLegalFieldName,
             FieldForm::getCorrectedLegalFieldName,
             FieldForm::getCommonNameForField,
-            FieldForm::getResponsibleOrganisationId,
+            FieldForm::getPrePearsOrganisationId,
             FieldForm::getOnshoreOffshore,
             FieldForm::getFieldLocatedInUkcs,
             FieldForm::getFieldLocatedInEngland,
@@ -283,7 +283,7 @@ class FieldRegulatorManagedInformationServiceTest {
             field.getLegalFieldName(),
             field.getCorrectedLegalFieldName(),
             field.getCommonNameForField(),
-            field.getResponsibleOrganisationId().toString(),
+            field.getPrePearsOrganisationId().toString(),
             field.getOnshoreOffshore(),
             field.getFieldLocatedInUkcs(),
             field.getFieldLocatedInEngland(),

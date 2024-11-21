@@ -91,9 +91,14 @@ class ProjectCapexSummaryService implements SummarySectionService<Project> {
 
   private TimelineEvent toTimelineEvent(ProjectCapex projectCapex, User user) {
     var totalCapex = StringUtil.formatMoneyInMillions(projectCapex.getTotalCapex());
-
     var date = DateUtil.formatLongDate(projectCapex.getDateProvided());
-    var caption = "%s - provided %s".formatted(projectCapex.getSourceOfInformation().getDisplayName(), date);
+
+    String caption;
+    if (projectCapex.getSourceOfInformation() != null && projectCapex.getDateProvided() != null) {
+      caption = "%s - provided %s".formatted(projectCapex.getSourceOfInformation().getDisplayName(), date);
+    } else {
+      caption = "Provided %s".formatted(date);
+    }
 
     var resourceId = projectCapex.getProject().getField().getResource().getId();
     var projectId = projectCapex.getProject().getId();

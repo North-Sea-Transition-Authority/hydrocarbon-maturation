@@ -80,7 +80,7 @@ class OperatorResourceAccessInterceptorRuleTest {
 
     var expectedOrganisationUnitId = 1;
     var field = new Field();
-    field.setResponsibleOrganisationId(expectedOrganisationUnitId);
+    field.setPrePearsOrganisationId(expectedOrganisationUnitId);
     var teamUUID = UUID.randomUUID();
     var team = new Team(teamUUID);
     var orgGroupIds = List.of(expectedOrganisationUnitId);
