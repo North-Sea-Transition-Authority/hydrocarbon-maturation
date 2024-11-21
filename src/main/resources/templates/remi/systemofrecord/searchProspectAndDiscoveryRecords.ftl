@@ -102,6 +102,11 @@
                     <@resourceRecordSearchResultItem.prospectAndDiscoveryRecordSearchResultItem resultItem=item/>
                 </#list>
             </@fdsResultList.resultList>
+            <#if maxResultsReturned>
+                <@fdsInsetText.insetText>
+                  The search list has been limited to 200 results. Filter the search further to see more results.
+                </@fdsInsetText.insetText>
+            </#if>
         <#else>
           <h3 class="govuk-heading-s">There are no matching results</h3>
           <p class="govuk-body">Improve your results by:</p>
