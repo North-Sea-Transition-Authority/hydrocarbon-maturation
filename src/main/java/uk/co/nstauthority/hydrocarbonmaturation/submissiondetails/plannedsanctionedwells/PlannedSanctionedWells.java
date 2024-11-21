@@ -26,6 +26,8 @@ public class PlannedSanctionedWells implements SubmissionDetailChildEntity {
   @JoinColumn(name = "submission_detail_id")
   private SubmissionDetail submissionDetail;
 
+  private Boolean anyPlannedSanctionedWells;
+
   private BigDecimal numberOfPlannedSanctionedWells;
 
   private BigDecimal totalCapex;
@@ -103,6 +105,14 @@ public class PlannedSanctionedWells implements SubmissionDetailChildEntity {
 
   public void setSubmissionDetail(SubmissionDetail submissionDetail) {
     this.submissionDetail = submissionDetail;
+  }
+
+  public Boolean getAnyPlannedSanctionedWells() {
+    return anyPlannedSanctionedWells;
+  }
+
+  public void setAnyPlannedSanctionedWells(Boolean anyPlannedSanctionedWells) {
+    this.anyPlannedSanctionedWells = anyPlannedSanctionedWells;
   }
 
   public BigDecimal getNumberOfPlannedSanctionedWells() {

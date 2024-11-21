@@ -63,6 +63,7 @@ class PlannedSanctionedWellsServiceTest {
 
   @Test
   void submissionDetailToForm_existing_plannedSanctionedWellsFields() {
+    plannedSanctionedWells.setAnyPlannedSanctionedWells(true);
     plannedSanctionedWells.setTotalCapex(BigDecimal.valueOf(100));
     plannedSanctionedWells.setNumberOfPlannedSanctionedWells(BigDecimal.valueOf(10));
     plannedSanctionedWells.setNumberOfInjectors(BigDecimal.valueOf(5));
@@ -127,6 +128,7 @@ class PlannedSanctionedWellsServiceTest {
 
     assertThat(plannedSanctionedWellsService.submissionDetailToForm(submissionDetail))
         .extracting(
+            PlannedSanctionedWellsForm::getAnyPlannedSanctionedWells,
             PlannedSanctionedWellsForm::getAnyHorizontalWells,
             PlannedSanctionedWellsForm::getAnyHighPressureTemperatureWells,
             PlannedSanctionedWellsForm::getAnyWellsWithinNarrowOrTightPpfgWindow,
@@ -144,6 +146,7 @@ class PlannedSanctionedWellsServiceTest {
             PlannedSanctionedWellsForm::getAnySpecialisedDrillingEquipmentRequired,
             PlannedSanctionedWellsForm::getSpecialisedDrillingEquipmentRequired
         ).containsExactly(
+            plannedSanctionedWells.getAnyPlannedSanctionedWells(),
             plannedSanctionedWells.getAnyHorizontalWells(),
             plannedSanctionedWells.getAnyHighPressureTemperatureWells(),
             plannedSanctionedWells.getAnyWellsWithinNarrowOrTightPpfgWindow(),
@@ -570,6 +573,9 @@ class PlannedSanctionedWellsServiceTest {
   private PlannedSanctionedWellsForm getExampleForm() {
     var form = new PlannedSanctionedWellsForm();
 
+    form.setAnyPlannedSanctionedWells(
+        true
+    );
     form.setTotalCapex(
         DecimalInput.createDecimalInput(10)
     );
@@ -651,6 +657,10 @@ class PlannedSanctionedWellsServiceTest {
 
   private PlannedSanctionedWells getExpectedPlannedPlannedSanctionedWellsForExampleForm() {
     var plannedSanctionedWells = new PlannedSanctionedWells();
+
+    plannedSanctionedWells.setAnyPlannedSanctionedWells(
+        true
+    );
 
     plannedSanctionedWells.setTotalCapex(
         BigDecimal.valueOf(10)

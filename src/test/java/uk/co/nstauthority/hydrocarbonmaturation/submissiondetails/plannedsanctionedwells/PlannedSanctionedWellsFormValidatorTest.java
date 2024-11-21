@@ -56,9 +56,20 @@ class PlannedSanctionedWellsFormValidatorTest {
     assertThat(bindingResult.getAllErrors()).isEmpty();
   }
 
-  @Test
-  void validatePartial_emptyForm_thenNoErrors() {
+  @ParameterizedTest
+  @EnumSource(value = ValidationType.class)
+  void validate_validForm_noWells_thenNoErrors(ValidationType validationType) {
     var emptyForm = new PlannedSanctionedWellsForm();
+    emptyForm.setAnyPlannedSanctionedWells(false);
+
+    assertTrue(plannedSanctionedWellsFormValidator.isValid(emptyForm, bindingResult, submissionDetail, validationType));
+    assertThat(bindingResult.getAllErrors()).isEmpty();
+  }
+
+  @Test
+  void validatePartial_emptyForm_hasWells_thenNoErrors() {
+    var emptyForm = new PlannedSanctionedWellsForm();
+    emptyForm.setAnyPlannedSanctionedWells(true);
     var emptyBindingResult = new BeanPropertyBindingResult(emptyForm, "form");
 
     assertTrue(plannedSanctionedWellsFormValidator.isValid(emptyForm, emptyBindingResult, submissionDetail, ValidationType.PARTIAL));
@@ -75,8 +86,9 @@ class PlannedSanctionedWellsFormValidatorTest {
   }
 
   @Test
-  void validateFull_emptyForm_thenErrors() {
+  void validateFull_emptyForm_hasWells_thenErrors() {
     var emptyForm = new PlannedSanctionedWellsForm();
+    emptyForm.setAnyPlannedSanctionedWells(true);
     var emptyBindingResult = new BeanPropertyBindingResult(emptyForm, "form");
 
     assertFalse(plannedSanctionedWellsFormValidator.isValid(emptyForm, emptyBindingResult, submissionDetail, ValidationType.FULL));
@@ -1160,6 +1172,7 @@ class PlannedSanctionedWellsFormValidatorTest {
   private PlannedSanctionedWellsForm validForm() {
     var form = new PlannedSanctionedWellsForm();
 
+    form.setAnyPlannedSanctionedWells(true);
     form.setTotalNumberOfPlannedSanctionedWells(DecimalInput.createDecimalInput(10));
     form.setTotalCapex(DecimalInput.createDecimalInput(100));
     form.setNumberOfInjectors(DecimalInput.createDecimalInput(5));
@@ -1219,6 +1232,7 @@ class PlannedSanctionedWellsFormValidatorTest {
   private PlannedSanctionedWellsForm getFormWithOuterValuesSelected() {
     var partialForm = new PlannedSanctionedWellsForm();
 
+    partialForm.setAnyPlannedSanctionedWells(Boolean.TRUE);
     partialForm.setAnyHorizontalWells(Boolean.TRUE);
     partialForm.setAnyHighPressureTemperatureWells(Boolean.TRUE);
     partialForm.setAnyWellsWithinNarrowOrTightPpfgWindow(Boolean.TRUE);

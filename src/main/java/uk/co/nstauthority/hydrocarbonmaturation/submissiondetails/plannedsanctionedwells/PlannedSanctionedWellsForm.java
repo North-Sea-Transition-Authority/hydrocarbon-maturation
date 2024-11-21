@@ -10,6 +10,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.enumutil.Displayable;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionForm;
 
 public class PlannedSanctionedWellsForm implements SubmissionForm {
+  private Boolean anyPlannedSanctionedWells;
+
   private DecimalInput totalNumberOfPlannedSanctionedWells = new DecimalInput();
 
   private DecimalInput totalCapex = new DecimalInput();
@@ -83,6 +85,14 @@ public class PlannedSanctionedWellsForm implements SubmissionForm {
   private Map<ArtificialLiftMechanism, Boolean> selectedArtificialLiftMechanisms = new EnumMap<>(ArtificialLiftMechanism.class);
   private Map<ArtificialLiftMechanism, DecimalInput> numberOfArtificialLiftMechanisms = emptyNumberOfArtificialLiftMechanisms();
   private String otherArtificialLiftMechanism;
+
+  public Boolean getAnyPlannedSanctionedWells() {
+    return anyPlannedSanctionedWells;
+  }
+
+  public void setAnyPlannedSanctionedWells(Boolean anyPlannedSanctionedWells) {
+    this.anyPlannedSanctionedWells = anyPlannedSanctionedWells;
+  }
 
   public DecimalInput getTotalNumberOfPlannedSanctionedWells() {
     return totalNumberOfPlannedSanctionedWells;

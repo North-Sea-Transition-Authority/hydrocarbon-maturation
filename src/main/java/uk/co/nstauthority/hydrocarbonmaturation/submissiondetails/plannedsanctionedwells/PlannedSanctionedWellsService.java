@@ -38,6 +38,9 @@ public class PlannedSanctionedWellsService {
     plannedSanctionedWellsRepository.findBySubmissionDetail(submissionDetail)
         .ifPresent(
             plannedSanctionedWells -> {
+              form.setAnyPlannedSanctionedWells(
+                  plannedSanctionedWells.getAnyPlannedSanctionedWells()
+              );
               form.setTotalCapex(
                   DecimalInput.createDecimalInput(plannedSanctionedWells.getTotalCapex())
               );
@@ -145,6 +148,10 @@ public class PlannedSanctionedWellsService {
         .orElse(new PlannedSanctionedWells());
 
     plannedSanctionedWells.setSubmissionDetail(submissionDetail);
+
+    plannedSanctionedWells.setAnyPlannedSanctionedWells(
+        form.getAnyPlannedSanctionedWells()
+    );
 
     plannedSanctionedWells.setTotalCapex(
         form.getTotalCapex().createBigDecimalOrNull()

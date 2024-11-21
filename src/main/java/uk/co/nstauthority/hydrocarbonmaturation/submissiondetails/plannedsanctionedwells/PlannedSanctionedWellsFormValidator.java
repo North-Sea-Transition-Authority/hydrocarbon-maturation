@@ -23,45 +23,63 @@ public class PlannedSanctionedWellsFormValidator implements SubmissionValidator 
   public void validatePartial(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var plannedSanctionedWellsForm = (PlannedSanctionedWellsForm) form;
 
-    validateTotalCapex(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
-    validateWellTypesAndSum(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
-    validateHorizontalWells(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
-    validateHighPressureTemperatureWells(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
-    validatePpfgWells(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
-    validateWellboreStability(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
-    validateFaultCrossings(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
-    validateExpectedLosses(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
-    validateExpectedDrillingChallenges(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
-    validateStimulationTypes(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
-    validateExpectedFormationDamage(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
-    validateSpecialisedDrillingEquipment(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
-    validateMultilateralWells(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
-    validateHoleCompletionTypes(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
-    validatePlannedCompletionTypes(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
-    validateArtificialLiftMechanisms(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+    ValidationUtils.rejectIfEmpty(
+        errors,
+        "anyPlannedSanctionedWells",
+        "anyPlannedSanctionedWells.required",
+        "Select if there are any planned sanctioned wells"
+    );
+
+    if (BooleanUtils.isTrue(plannedSanctionedWellsForm.getAnyPlannedSanctionedWells())) {
+      validateTotalCapex(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+      validateWellTypesAndSum(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+      validateHorizontalWells(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+      validateHighPressureTemperatureWells(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+      validatePpfgWells(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+      validateWellboreStability(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+      validateFaultCrossings(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+      validateExpectedLosses(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+      validateExpectedDrillingChallenges(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+      validateStimulationTypes(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+      validateExpectedFormationDamage(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+      validateSpecialisedDrillingEquipment(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+      validateMultilateralWells(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+      validateHoleCompletionTypes(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+      validatePlannedCompletionTypes(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+      validateArtificialLiftMechanisms(plannedSanctionedWellsForm, errors, ValidationType.PARTIAL);
+    }
   }
 
   @Override
   public void validateFull(SubmissionForm form, Errors errors, SubmissionDetail submissionDetail) {
     var plannedSanctionedWellsForm = (PlannedSanctionedWellsForm) form;
 
-    validateTotalCapex(plannedSanctionedWellsForm, errors, ValidationType.FULL);
-    validateWellTypesAndSum(plannedSanctionedWellsForm, errors, ValidationType.FULL);
-    validateHorizontalWells(plannedSanctionedWellsForm, errors, ValidationType.FULL);
-    validateHighPressureTemperatureWells(plannedSanctionedWellsForm, errors, ValidationType.FULL);
-    validatePpfgWells(plannedSanctionedWellsForm, errors, ValidationType.FULL);
-    validateWellboreStability(plannedSanctionedWellsForm, errors, ValidationType.FULL);
-    validateFaultCrossings(plannedSanctionedWellsForm, errors, ValidationType.FULL);
-    validateExpectedLosses(plannedSanctionedWellsForm, errors, ValidationType.FULL);
-    validateExpectedDrillingChallenges(plannedSanctionedWellsForm, errors, ValidationType.FULL);
-    validateStimulationTypes(plannedSanctionedWellsForm, errors, ValidationType.FULL);
-    validateExpectedFormationDamage(plannedSanctionedWellsForm, errors, ValidationType.FULL);
-    validateHeavyOil(plannedSanctionedWellsForm, errors, ValidationType.FULL);
-    validateSpecialisedDrillingEquipment(plannedSanctionedWellsForm, errors, ValidationType.FULL);
-    validateMultilateralWells(plannedSanctionedWellsForm, errors, ValidationType.FULL);
-    validateHoleCompletionTypes(plannedSanctionedWellsForm, errors, ValidationType.FULL);
-    validatePlannedCompletionTypes(plannedSanctionedWellsForm, errors, ValidationType.FULL);
-    validateArtificialLiftMechanisms(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+    ValidationUtils.rejectIfEmpty(
+        errors,
+        "anyPlannedSanctionedWells",
+        "anyPlannedSanctionedWells.required",
+        "Select if there are any planned sanctioned wells"
+    );
+
+    if (BooleanUtils.isTrue(plannedSanctionedWellsForm.getAnyPlannedSanctionedWells())) {
+      validateTotalCapex(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+      validateWellTypesAndSum(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+      validateHorizontalWells(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+      validateHighPressureTemperatureWells(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+      validatePpfgWells(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+      validateWellboreStability(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+      validateFaultCrossings(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+      validateExpectedLosses(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+      validateExpectedDrillingChallenges(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+      validateStimulationTypes(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+      validateExpectedFormationDamage(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+      validateHeavyOil(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+      validateSpecialisedDrillingEquipment(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+      validateMultilateralWells(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+      validateHoleCompletionTypes(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+      validatePlannedCompletionTypes(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+      validateArtificialLiftMechanisms(plannedSanctionedWellsForm, errors, ValidationType.FULL);
+    }
   }
 
   private void validateTotalCapex(PlannedSanctionedWellsForm plannedSanctionedWellsForm,
