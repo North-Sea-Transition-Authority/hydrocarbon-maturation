@@ -7,6 +7,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.SummaryB
 
 public record MixedCaseOutputsSummaryView(String hasAssociatedGasRecoverableResources,
                                           String hasAssociatedCondensateRecoverableResources,
+                                          String useIndustryStandardConversion,
                                           ProbabilityDistributionTableView tableView) {
 
   public static MixedCaseOutputsSummaryView empty(SummaryBehaviour summaryBehaviour) {
@@ -23,6 +24,6 @@ public record MixedCaseOutputsSummaryView(String hasAssociatedGasRecoverableReso
             ProbabilityDistributionSummaryView.empty("Risked oil equivalent recoverable")
         )
     );
-    return new MixedCaseOutputsSummaryView("", "", emptyTableView);
+    return new MixedCaseOutputsSummaryView("", "", "", emptyTableView);
   }
 }

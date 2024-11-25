@@ -1,17 +1,23 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.gascaseoutputs;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSumService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -27,16 +33,14 @@ class GasCaseOutputsPersistenceServiceTest {
   @Mock
   private GasCaseOutputsRepository gasCaseOutputsRepository;
 
+  @Mock
+  private ProbabilityDistributionSumService probabilityDistributionSumService;
+
+  @InjectMocks
   private GasCaseOutputsPersistenceService gasCaseOutputsPersistenceService;
 
   private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
-
-  @BeforeEach
-  void setUp() {
-    gasCaseOutputsPersistenceService = new GasCaseOutputsPersistenceService(probabilityDistributionPersistenceService,
-        gasCaseOutputsRepository);
-  }
 
   @Test
   void saveGasCaseOutputs_whenGivenAForm_whenProspect_verifyCreatedEntity() {
@@ -75,6 +79,40 @@ class GasCaseOutputsPersistenceServiceTest {
             form.getOilEquivalentRecoverableResources(),
             submissionDetail,
             reservoirSubmissionDetail);
+
+    verify(gasCaseOutputsRepository, times(1)).save(any(GasCaseOutput.class));
+  }
+
+  @Test
+  void saveGasCaseOutputs_whenUseIndustryStandard_verifyDoCalculation() {
+    var form = new GasCaseOutputsForm();
+    form.setUseIndustryStandardConversion(true);
+
+    var existingDistribution = new ProbabilityDistribution();
+
+    when(probabilityDistributionPersistenceService.getProbabilityDistribution(
+        reservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT
+    ))
+        .thenReturn(Optional.of(existingDistribution));
+
+    gasCaseOutputsPersistenceService.saveGasCaseOutputs(form, reservoirSubmissionDetail);
+
+    verify(probabilityDistributionSumService)
+        .calculateIndustryStandardOilEquivalentResourcesForProspect(eq(existingDistribution), anyMap());
+
+    verify(gasCaseOutputsRepository, times(1)).save(any(GasCaseOutput.class));
+  }
+
+  @Test
+  void saveGasCaseOutputs_whenNotUseIndustryStandard_verifyNotDoCalculation() {
+    var form = new GasCaseOutputsForm();
+    form.setUseIndustryStandardConversion(false);
+
+    gasCaseOutputsPersistenceService.saveGasCaseOutputs(form, reservoirSubmissionDetail);
+
+    verify(probabilityDistributionSumService, never())
+        .calculateIndustryStandardOilEquivalentResourcesForProspect(any(), any());
 
     verify(gasCaseOutputsRepository, times(1)).save(any(GasCaseOutput.class));
   }

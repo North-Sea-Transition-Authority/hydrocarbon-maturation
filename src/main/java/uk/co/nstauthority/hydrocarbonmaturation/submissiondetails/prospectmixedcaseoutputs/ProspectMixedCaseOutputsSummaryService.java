@@ -62,7 +62,13 @@ public class ProspectMixedCaseOutputsSummaryService {
       listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT);
     }
 
-    listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT);
+    if (BooleanUtils.isTrue(mixedCaseOutput.getUseIndustryStandardConversion())) {
+      listOfInstances.add(
+          ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT);
+    } else {
+      listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT);
+    }
+
     listOfInstances.add(ProbabilityDistributionFieldInstance.MIXED_CASE_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT);
 
     var reservoirSubmissionDetail = mixedCaseOutput.getReservoirSubmissionDetail();
@@ -79,9 +85,13 @@ public class ProspectMixedCaseOutputsSummaryService {
     var hasAssociatedCondensateRecoverableResources = BooleanUtil.yesNoFromBoolean(
         mixedCaseOutput.getHasAssociatedCondensateRecoverableResources(), "");
 
+    var useIndustryStandardConversion = BooleanUtil.yesNoFromBoolean(
+        mixedCaseOutput.getUseIndustryStandardConversion(), "");
+
     return new MixedCaseOutputsSummaryView(
         hasAssociatedGasRecoverableResources,
         hasAssociatedCondensateRecoverableResources,
+        useIndustryStandardConversion,
         tableView
     );
   }

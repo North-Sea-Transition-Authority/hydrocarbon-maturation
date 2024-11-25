@@ -26,6 +26,8 @@ public class OilCaseOutput implements ReservoirSubmissionDetailChildEntity {
 
   private Boolean hasAssociatedGasRecoverableResources;
 
+  private Boolean useIndustryStandardConversion;
+
   public UUID getId() {
     return id;
   }
@@ -48,5 +50,13 @@ public class OilCaseOutput implements ReservoirSubmissionDetailChildEntity {
 
   public void setHasAssociatedGasRecoverableResources(Boolean hasAssociatedGasRecoverableResources) {
     this.hasAssociatedGasRecoverableResources = hasAssociatedGasRecoverableResources;
+  }
+
+  public Boolean getUseIndustryStandardConversion() {
+    return useIndustryStandardConversion;
+  }
+
+  public void setUseIndustryStandardConversion(Boolean useIndustryStandardConversion) {
+    this.useIndustryStandardConversion = useIndustryStandardConversion;
   }
 }

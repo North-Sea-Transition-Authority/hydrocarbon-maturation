@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
@@ -29,14 +28,11 @@ public class ProspectMixedCaseOutputsFormService {
   private MixedCaseOutputsForm submissionDetailToForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var form = new MixedCaseOutputsForm();
     var mixedCaseOutputs = prospectMixedCaseOutputsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail);
-    var hasAssociatedGasRecoverableResources = mixedCaseOutputs
-        .map(MixedCaseOutput::getHasAssociatedGasRecoverableResources)
-        .orElse(null);
-    form.setHasAssociatedGasRecoverableResources(hasAssociatedGasRecoverableResources);
-    var hasAssociatedCondensateRecoverableResources = mixedCaseOutputs
-        .map(MixedCaseOutput::getHasAssociatedCondensateRecoverableResources)
-        .orElse(null);
-    form.setHasAssociatedCondensateRecoverableResources(hasAssociatedCondensateRecoverableResources);
+    mixedCaseOutputs.ifPresent(caseOutput -> {
+      form.setHasAssociatedGasRecoverableResources(caseOutput.getHasAssociatedGasRecoverableResources());
+      form.setHasAssociatedCondensateRecoverableResources(caseOutput.getHasAssociatedCondensateRecoverableResources());
+      form.setUseIndustryStandardConversion(caseOutput.getUseIndustryStandardConversion());
+    });
 
     form.setOilInPlace(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         reservoirSubmissionDetail,

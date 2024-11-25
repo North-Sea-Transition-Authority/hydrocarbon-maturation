@@ -31,13 +31,15 @@
         </div>
       </#list>
     </@fdsSummaryList.summaryListRowNoAction>
-    <@fdsSummaryList.summaryListRowNoAction keyText="Associated fields">
-      <#list associatedFieldMap as link, name>
-        <div>
-          <@fdsAction.link linkText=name linkUrl=springUrl(link)/>
-        </div>
-      </#list>
-    </@fdsSummaryList.summaryListRowNoAction>
+    <#if associatedFieldMap?has_content>
+      <@fdsSummaryList.summaryListRowNoAction keyText="Associated fields">
+        <#list associatedFieldMap as link, name>
+          <div>
+            <@fdsAction.link linkText=name linkUrl=springUrl(link)/>
+          </div>
+        </#list>
+      </@fdsSummaryList.summaryListRowNoAction>
+    </#if>
     <#if regulatorManagedInformationValues.linkedToFieldName()?has_content && canSeePostFieldLink>
       <@fdsSummaryList.summaryListRowNoAction keyText="Created from field">
         <@fdsAction.link linkText=regulatorManagedInformationValues.linkedToFieldName()

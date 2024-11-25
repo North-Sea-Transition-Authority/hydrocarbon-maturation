@@ -12,6 +12,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,6 +30,9 @@ class ProbabilityDistributionPersistenceServiceTest {
 
   @InjectMocks
   private ProbabilityDistributionPersistenceService probabilityDistributionPersistenceService;
+  
+  @Captor
+  private ArgumentCaptor<ProbabilityDistribution> probabilityDistributionArgumentCaptor;
 
   @Test
   void saveProbabilityDistributionWhenNotNull() {
@@ -39,12 +43,12 @@ class ProbabilityDistributionPersistenceServiceTest {
         .thenReturn(Optional.empty());
 
     var probabilityDistributionForm = getProbabilityDistributionForm();
+    
+    probabilityDistributionPersistenceService
+        .saveProbabilityDistributionWhenNotNull(probabilityDistributionFieldInstance, probabilityDistributionForm, submissionDetail);
 
-    var argumentCaptor = ArgumentCaptor.forClass(ProbabilityDistribution.class);
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(probabilityDistributionFieldInstance, probabilityDistributionForm, submissionDetail);
-
-    verify(probabilityDistributionRepository).save(argumentCaptor.capture());
-    assertThat(argumentCaptor.getValue())
+    verify(probabilityDistributionRepository).save(probabilityDistributionArgumentCaptor.capture());
+    assertThat(probabilityDistributionArgumentCaptor.getValue())
         .extracting(
             ProbabilityDistribution::getSubmissionDetail,
             ProbabilityDistribution::getReservoirSubmissionDetail,
@@ -92,11 +96,12 @@ class ProbabilityDistributionPersistenceServiceTest {
 
     var probabilityDistributionForm = getProbabilityDistributionForm();
 
-    var argumentCaptor = ArgumentCaptor.forClass(ProbabilityDistribution.class);
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(probabilityDistributionFieldInstance, probabilityDistributionForm, submissionDetail, reservoirSubmissionDetail);
+    probabilityDistributionPersistenceService
+        .saveProbabilityDistributionWhenNotNull(probabilityDistributionFieldInstance, probabilityDistributionForm,
+            submissionDetail, reservoirSubmissionDetail);
 
-    verify(probabilityDistributionRepository).save(argumentCaptor.capture());
-    assertThat(argumentCaptor.getValue())
+    verify(probabilityDistributionRepository).save(probabilityDistributionArgumentCaptor.capture());
+    assertThat(probabilityDistributionArgumentCaptor.getValue())
         .extracting(
             ProbabilityDistribution::getSubmissionDetail,
             ProbabilityDistribution::getReservoirSubmissionDetail,
@@ -140,7 +145,8 @@ class ProbabilityDistributionPersistenceServiceTest {
 
     var emptyProbabilityDistributionForm = new ProbabilityDistributionForm();
 
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(probabilityDistributionFieldInstance, emptyProbabilityDistributionForm, submissionDetail);
+    probabilityDistributionPersistenceService
+        .saveProbabilityDistributionWhenNotNull(probabilityDistributionFieldInstance, emptyProbabilityDistributionForm, submissionDetail);
 
     verify(probabilityDistributionRepository, never()).save(any());
   }
@@ -153,7 +159,9 @@ class ProbabilityDistributionPersistenceServiceTest {
 
     var emptyProbabilityDistributionForm = new ProbabilityDistributionForm();
 
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(probabilityDistributionFieldInstance, emptyProbabilityDistributionForm, submissionDetail, reservoirSubmissionDetail);
+    probabilityDistributionPersistenceService
+        .saveProbabilityDistributionWhenNotNull(probabilityDistributionFieldInstance, emptyProbabilityDistributionForm,
+            submissionDetail, reservoirSubmissionDetail);
 
     verify(probabilityDistributionRepository, never()).save(any());
   }
@@ -170,7 +178,8 @@ class ProbabilityDistributionPersistenceServiceTest {
     when(probabilityDistributionRepository.findBySubmissionDetailAndInstance(submissionDetail, probabilityDistributionFieldInstance))
         .thenReturn(Optional.of(probabilityDistribution));
 
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(probabilityDistributionFieldInstance, probabilityDistributionForm, submissionDetail);
+    probabilityDistributionPersistenceService
+        .saveProbabilityDistributionWhenNotNull(probabilityDistributionFieldInstance, probabilityDistributionForm, submissionDetail);
 
     verify(probabilityDistributionRepository, times(1)).delete(probabilityDistribution);
     verify(probabilityDistributionRepository, times(1)).save(any());
@@ -186,15 +195,44 @@ class ProbabilityDistributionPersistenceServiceTest {
     probabilityDistributionForm.setProbabilityDistributionType(ProbabilityDistributionType.NORMAL);
     var probabilityDistribution = new ProbabilityDistribution();
     probabilityDistribution.setDistributionType(null);
-    when(probabilityDistributionRepository.findByReservoirSubmissionDetailAndInstance(reservoirSubmissionDetail, probabilityDistributionFieldInstance))
+    when(probabilityDistributionRepository.findByReservoirSubmissionDetailAndInstance(reservoirSubmissionDetail,
+        probabilityDistributionFieldInstance))
         .thenReturn(Optional.of(probabilityDistribution));
 
-    probabilityDistributionPersistenceService.saveProbabilityDistributionWhenNotNull(probabilityDistributionFieldInstance, probabilityDistributionForm, submissionDetail, reservoirSubmissionDetail);
+    probabilityDistributionPersistenceService
+        .saveProbabilityDistributionWhenNotNull(probabilityDistributionFieldInstance, probabilityDistributionForm,
+            submissionDetail, reservoirSubmissionDetail);
 
     verify(probabilityDistributionRepository, times(1)).delete(probabilityDistribution);
     verify(probabilityDistributionRepository, times(1)).save(any());
   }
 
+  @Test
+  void saveSummedProbabilityDistribution() {
+    var instance = ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT;
+    var submissionDetail = new SubmissionDetail();
+    var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
+    reservoirSubmissionDetail.setSubmissionDetail(submissionDetail);
+
+    probabilityDistributionPersistenceService.saveSummedProbabilityDistribution(
+        new ProbabilityDistribution(),
+        instance,
+        reservoirSubmissionDetail
+    );
+
+    verify(probabilityDistributionRepository).save(probabilityDistributionArgumentCaptor.capture());
+
+    assertThat(probabilityDistributionArgumentCaptor.getValue()).extracting(
+        ProbabilityDistribution::getInstance,
+        ProbabilityDistribution::getReservoirSubmissionDetail,
+        ProbabilityDistribution::getSubmissionDetail
+    ).containsExactly(
+        instance,
+        reservoirSubmissionDetail,
+        submissionDetail
+    );
+  }
+  
   @Test
   void deleteProbabilityDistribution_verifyMethodCall() {
     var probabilityDistributionFieldInstance = ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT;
@@ -202,7 +240,8 @@ class ProbabilityDistributionPersistenceServiceTest {
 
     probabilityDistributionPersistenceService.deleteProbabilityDistribution(probabilityDistributionFieldInstance, submissionDetail);
 
-    verify(probabilityDistributionRepository, times(1)).deleteBySubmissionDetailAndInstance(submissionDetail, probabilityDistributionFieldInstance);
+    verify(probabilityDistributionRepository, times(1))
+        .deleteBySubmissionDetailAndInstance(submissionDetail, probabilityDistributionFieldInstance);
   }
 
   @Test
@@ -212,7 +251,8 @@ class ProbabilityDistributionPersistenceServiceTest {
 
     probabilityDistributionPersistenceService.deleteProbabilityDistribution(probabilityDistributionFieldInstance, reservoirSubmissionDetail);
 
-    verify(probabilityDistributionRepository, times(1)).deleteByReservoirSubmissionDetailAndInstance(reservoirSubmissionDetail, probabilityDistributionFieldInstance);
+    verify(probabilityDistributionRepository, times(1))
+        .deleteByReservoirSubmissionDetailAndInstance(reservoirSubmissionDetail, probabilityDistributionFieldInstance);
   }
 
   @Test
@@ -220,9 +260,11 @@ class ProbabilityDistributionPersistenceServiceTest {
     var probabilityDistributionFieldInstance = ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT;
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
-    probabilityDistributionPersistenceService.getProbabilityDistribution(submissionDetail, probabilityDistributionFieldInstance);
+    probabilityDistributionPersistenceService
+        .getProbabilityDistribution(submissionDetail, probabilityDistributionFieldInstance);
 
-    verify(probabilityDistributionRepository).findBySubmissionDetailAndInstance(submissionDetail, probabilityDistributionFieldInstance);
+    verify(probabilityDistributionRepository)
+        .findBySubmissionDetailAndInstance(submissionDetail, probabilityDistributionFieldInstance);
   }
 
   @Test
@@ -230,9 +272,11 @@ class ProbabilityDistributionPersistenceServiceTest {
     var probabilityDistributionFieldInstance = ProbabilityDistributionFieldInstance.PRODUCTIVE_AREA_PROSPECT;
     var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
 
-    probabilityDistributionPersistenceService.getProbabilityDistribution(reservoirSubmissionDetail, probabilityDistributionFieldInstance);
+    probabilityDistributionPersistenceService
+        .getProbabilityDistribution(reservoirSubmissionDetail, probabilityDistributionFieldInstance);
 
-    verify(probabilityDistributionRepository).findByReservoirSubmissionDetailAndInstance(reservoirSubmissionDetail, probabilityDistributionFieldInstance);
+    verify(probabilityDistributionRepository)
+        .findByReservoirSubmissionDetailAndInstance(reservoirSubmissionDetail, probabilityDistributionFieldInstance);
   }
 
   @Test
@@ -243,9 +287,11 @@ class ProbabilityDistributionPersistenceServiceTest {
     );
     var submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
 
-    probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(submissionDetail, probabilityDistributionFieldInstances);
+    probabilityDistributionPersistenceService
+        .getAllProbabilityDistributionsForInstances(submissionDetail, probabilityDistributionFieldInstances);
 
-    verify(probabilityDistributionRepository).findBySubmissionDetailAndInstanceIn(submissionDetail, probabilityDistributionFieldInstances);
+    verify(probabilityDistributionRepository)
+        .findBySubmissionDetailAndInstanceIn(submissionDetail, probabilityDistributionFieldInstances);
   }
 
   @Test
@@ -256,9 +302,11 @@ class ProbabilityDistributionPersistenceServiceTest {
     );
     var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
 
-    probabilityDistributionPersistenceService.getAllProbabilityDistributionsForInstances(reservoirSubmissionDetail, probabilityDistributionFieldInstances);
+    probabilityDistributionPersistenceService
+        .getAllProbabilityDistributionsForInstances(reservoirSubmissionDetail, probabilityDistributionFieldInstances);
 
-    verify(probabilityDistributionRepository).findByReservoirSubmissionDetailAndInstanceIn(reservoirSubmissionDetail, probabilityDistributionFieldInstances);
+    verify(probabilityDistributionRepository)
+        .findByReservoirSubmissionDetailAndInstanceIn(reservoirSubmissionDetail, probabilityDistributionFieldInstances);
   }
 
   private ProbabilityDistributionForm getProbabilityDistributionForm() {

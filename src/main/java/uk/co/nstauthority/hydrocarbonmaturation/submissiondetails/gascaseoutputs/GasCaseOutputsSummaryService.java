@@ -39,10 +39,20 @@ public class GasCaseOutputsSummaryService implements SummarySectionService<Reser
 
   public GasCaseOutputsSummaryView getGasCaseOutputsSummaryFromReservoirSubmissionDetail(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    var instances = getInstances(reservoirSubmissionDetail);
-    var summaryBehaviour = probabilityDistributionSummaryService.getSummaryBehaviour(instances);
-
     var gasCaseOutput = gasCaseOutputsPersistenceService.getGasCaseOutput(reservoirSubmissionDetail);
+    var instances = getInstances(reservoirSubmissionDetail);
+
+    if (reservoirSubmissionDetail.getSubmissionDetail().isProspectSubmission()) {
+      if (BooleanUtils.isTrue(gasCaseOutput.map(GasCaseOutput::getUseIndustryStandardConversion).isPresent())) {
+        instances.remove(
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT);
+      } else {
+        instances.remove(
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT);
+      }
+    }
+
+    var summaryBehaviour = probabilityDistributionSummaryService.getSummaryBehaviour(instances);
 
     return gasCaseOutput.map(this::createSummaryViewFromGasCaseOutput)
         .orElse(GasCaseOutputsSummaryView.empty(summaryBehaviour));
@@ -53,15 +63,26 @@ public class GasCaseOutputsSummaryService implements SummarySectionService<Reser
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var hasAssociatedGasRecoverableResources = BooleanUtil.yesNoFromBoolean(
         gasCaseOutput.getHasAssociatedCondensateRecoverableResources(), "");
+    var useIndustryStandardConversion = BooleanUtil.yesNoFromBoolean(gasCaseOutput.getUseIndustryStandardConversion(), "");
 
     var listOfInstances = getInstances(reservoirSubmissionDetail);
+
+    if (submissionDetail.isProspectSubmission()) {
+      if (BooleanUtils.isTrue(gasCaseOutput.getUseIndustryStandardConversion())) {
+        listOfInstances.remove(
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT);
+      } else {
+        listOfInstances.remove(
+            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT);
+      }
+    }
 
     var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         listOfInstances,
         submissionDetail,
         reservoirSubmissionDetail
     );
-    return new GasCaseOutputsSummaryView(hasAssociatedGasRecoverableResources, tableView);
+    return new GasCaseOutputsSummaryView(hasAssociatedGasRecoverableResources, useIndustryStandardConversion, tableView);
   }
 
   private static List<ProbabilityDistributionFieldInstance> getInstances(
@@ -76,6 +97,8 @@ public class GasCaseOutputsSummaryService implements SummarySectionService<Reser
           ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT);
       listOfInstances.add(
           ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT);
+      listOfInstances.add(
+          ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT);
     } else if (resourceType == ResourceType.DISCOVERY) {
       listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY);
       listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY);

@@ -45,6 +45,17 @@ class GasCaseOutputsFormValidatorTest {
 
   @ParameterizedTest
   @EnumSource(value = ValidationType.class)
+  void validate_whenValidForm_whenProspect_whenUseIndustryStandard_thenNoValidationErrors(ValidationType validationType) {
+    var form = getProspectValidForm();
+    form.setUseIndustryStandardConversion(true);
+    form.setOilEquivalentRecoverableResources(null);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    gasCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, validationType);
+    assertFalse(bindingResult.hasErrors());
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = ValidationType.class)
   void validate_whenValidForm_whenDiscovery_thenNoValidationErrors(ValidationType validationType) {
     var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
     var form = getDiscoveryValidForm();
@@ -209,6 +220,7 @@ class GasCaseOutputsFormValidatorTest {
     form.setAssociatedCondensateRecoverableResources(probDistributionFormForRecoverableResource);
     form.setGasRecoverableResources(probDistributionFormForRecoverableResource);
     form.setHasAssociatedCondensateRecoverableResources(true);
+    form.setUseIndustryStandardConversion(false);
     return form;
   }
 }

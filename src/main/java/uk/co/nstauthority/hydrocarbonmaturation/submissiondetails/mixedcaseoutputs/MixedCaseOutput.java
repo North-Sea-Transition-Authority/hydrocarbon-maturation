@@ -28,6 +28,8 @@ public class MixedCaseOutput implements ReservoirSubmissionDetailChildEntity {
 
   private Boolean hasAssociatedCondensateRecoverableResources;
 
+  private Boolean useIndustryStandardConversion;
+
   public UUID getId() {
     return id;
   }
@@ -58,5 +60,13 @@ public class MixedCaseOutput implements ReservoirSubmissionDetailChildEntity {
 
   public void setHasAssociatedCondensateRecoverableResources(Boolean hasAssociatedCondensateRecoverableResources) {
     this.hasAssociatedCondensateRecoverableResources = hasAssociatedCondensateRecoverableResources;
+  }
+
+  public Boolean getUseIndustryStandardConversion() {
+    return useIndustryStandardConversion;
+  }
+
+  public void setUseIndustryStandardConversion(Boolean useIndustryStandardConversion) {
+    this.useIndustryStandardConversion = useIndustryStandardConversion;
   }
 }

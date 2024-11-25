@@ -79,10 +79,11 @@ public class OilCaseOutputsFormService {
 
     var oilCaseOutput = oilCaseOutputsPersistenceService.getOilCaseOutput(reservoirSubmissionDetail);
 
-    var hasAssociatedGasRecoverableResources = oilCaseOutput
-        .map(OilCaseOutput::getHasAssociatedGasRecoverableResources)
-        .orElse(null);
-    form.setHasAssociatedGasRecoverableResources(hasAssociatedGasRecoverableResources);
+    oilCaseOutput.ifPresent(caseOutput -> {
+      form.setHasAssociatedGasRecoverableResources(caseOutput.getHasAssociatedGasRecoverableResources());
+      form.setUseIndustryStandardConversion(caseOutput.getUseIndustryStandardConversion());
+    });
+
     return form;
   }
 }

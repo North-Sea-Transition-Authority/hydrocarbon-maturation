@@ -26,12 +26,12 @@ class GasCaseOutputsFormService {
     var form = new GasCaseOutputsForm();
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
 
-    var hasAssociatedCondensateRecoverableResources = gasCaseOutputsPersistenceService.getGasCaseOutput(
-            reservoirSubmissionDetail)
-        .map(GasCaseOutput::getHasAssociatedCondensateRecoverableResources)
-        .orElse(null);
+    var gasCaseOutput = gasCaseOutputsPersistenceService.getGasCaseOutput(reservoirSubmissionDetail);
 
-    form.setHasAssociatedCondensateRecoverableResources(hasAssociatedCondensateRecoverableResources);
+    gasCaseOutput.ifPresent(caseOutput -> {
+      form.setHasAssociatedCondensateRecoverableResources(caseOutput.getHasAssociatedCondensateRecoverableResources());
+      form.setUseIndustryStandardConversion(caseOutput.getUseIndustryStandardConversion());
+    });
 
     var resourceType = submissionDetail.getSubmission().getResource().getType();
     if (resourceType == ResourceType.PROSPECT) {

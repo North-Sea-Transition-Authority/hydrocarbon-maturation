@@ -9,7 +9,10 @@
       ${mixedCaseOutputsValues.hasAssociatedGasRecoverableResources()}
     </@fdsSummaryList.summaryListRowNoAction>
     <@fdsSummaryList.summaryListRowNoAction keyText="Do you expect to find associated condensate recoverable resources?">
-        ${mixedCaseOutputsValues.hasAssociatedCondensateRecoverableResources()}
+      ${mixedCaseOutputsValues.hasAssociatedCondensateRecoverableResources()}
+    </@fdsSummaryList.summaryListRowNoAction>
+    <@fdsSummaryList.summaryListRowNoAction keyText="Do you want to use the industry standard conversion for calculating the oil equivalent recoverable values?">
+      ${mixedCaseOutputsValues.useIndustryStandardConversion()}
     </@fdsSummaryList.summaryListRowNoAction>
   </@fdsSummaryList.summaryListCard>
 

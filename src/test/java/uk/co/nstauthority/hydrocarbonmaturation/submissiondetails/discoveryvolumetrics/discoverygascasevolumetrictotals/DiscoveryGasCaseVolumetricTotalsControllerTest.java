@@ -197,7 +197,7 @@ class DiscoveryGasCaseVolumetricTotalsControllerTest extends AbstractSubmissionC
     assertThat(modelMap)
         .contains(
             entry("form", form),
-            entry("resourceType", submissionDetail.getSubmission().getResource()),
+            entry("resourceType", submissionDetail.getSubmission().getResource().getType()),
             entry("pageTitle", DiscoveryGasCaseVolumetricTotalsController.PAGE_NAME),
             entry("gasInPlaceTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY)),

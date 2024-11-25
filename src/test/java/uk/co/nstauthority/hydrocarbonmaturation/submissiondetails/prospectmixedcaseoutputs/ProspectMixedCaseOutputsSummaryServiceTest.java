@@ -50,6 +50,17 @@ class ProspectMixedCaseOutputsSummaryServiceTest {
       ProbabilityDistributionFieldInstance.MIXED_CASE_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT
   );
 
+  private static final List<ProbabilityDistributionFieldInstance> INSTANCES_INDUSTRY_STANDARD = List.of(
+      ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_IN_PLACE_PROSPECT,
+      ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_IN_PLACE_PROSPECT,
+      ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT,
+      ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT,
+      ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT,
+      ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT,
+      ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT,
+      ProbabilityDistributionFieldInstance.MIXED_CASE_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT
+  );
+
   @BeforeEach
   void setUp() {
     mixedCaseOutput.setReservoirSubmissionDetail(reservoirSubmissionDetail);
@@ -63,13 +74,14 @@ class ProspectMixedCaseOutputsSummaryServiceTest {
         .thenReturn(Optional.of(mixedCaseOutput));
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionTableViewFromInstancesAndSubmission(
-            INSTANCES,
+            INSTANCES_INDUSTRY_STANDARD,
             submissionDetail,
             reservoirSubmissionDetail))
         .thenReturn(tableView);
 
     mixedCaseOutput.setHasAssociatedGasRecoverableResources(true);
     mixedCaseOutput.setHasAssociatedCondensateRecoverableResources(true);
+    mixedCaseOutput.setUseIndustryStandardConversion(true);
 
     var view = prospectMixedCaseOutputsSummaryService.getMixedCaseOutputsSummaryFromReservoirSubmissionDetail(
         reservoirSubmissionDetail);
@@ -77,8 +89,10 @@ class ProspectMixedCaseOutputsSummaryServiceTest {
         .extracting(
             MixedCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
             MixedCaseOutputsSummaryView::hasAssociatedCondensateRecoverableResources,
+            MixedCaseOutputsSummaryView::useIndustryStandardConversion,
             MixedCaseOutputsSummaryView::tableView)
         .containsExactly(
+            "Yes",
             "Yes",
             "Yes",
             tableView
@@ -99,8 +113,10 @@ class ProspectMixedCaseOutputsSummaryServiceTest {
         .extracting(
             MixedCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
             MixedCaseOutputsSummaryView::hasAssociatedCondensateRecoverableResources,
+            MixedCaseOutputsSummaryView::useIndustryStandardConversion,
             MixedCaseOutputsSummaryView::tableView)
         .containsExactly(
+            "",
             "",
             "",
             new ProbabilityDistributionTableView(

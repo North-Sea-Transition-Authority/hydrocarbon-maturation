@@ -1,7 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutputs;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -44,6 +43,14 @@ class OilCaseOutputsSummaryServiceTest {
       ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT
   );
 
+  static final List<ProbabilityDistributionFieldInstance> OIL_VOLUMETRIC_INSTANCES_PROSPECTS_INDUSTRY_STANDARD = List.of(
+      ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT,
+      ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT,
+      ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT,
+      ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT,
+      ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT
+  );
+
   @Mock
   private OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService;
 
@@ -67,60 +74,30 @@ class OilCaseOutputsSummaryServiceTest {
   }
 
   @Test
-  void getOilCaseOutputsSummaryFromReservoirSubmissionDetail_whenPresent_fullSummary() {
+  void getOilCaseOutputsSummaryFromReservoirSubmissionDetail_whenPresent_whenProspect_fullSummary() {
     var tableView = ProbabilityDistributionTableView.empty();
 
     when(oilCaseOutputsPersistenceService.getOilCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(oilCaseOutput));
     when(probabilityDistributionSummaryService
         .getProbabilityDistributionTableViewFromInstancesAndSubmission(
-            any(),
-            eq(submissionDetail),
-            eq(reservoirSubmissionDetail)))
-        .thenReturn(tableView);
-
-    oilCaseOutput.setHasAssociatedGasRecoverableResources(true);
-
-    var view = oilCaseOutputsSummaryService.getOilCaseOutputsSummaryFromReservoirSubmissionDetail(
-        reservoirSubmissionDetail);
-    assertThat(view)
-        .extracting(
-            OilCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
-            OilCaseOutputsSummaryView::tableView)
-        .containsExactly(
-            "Yes",
-            tableView
-        );
-  }
-
-  @Test
-  void getOilCaseOutputsSummaryFromReservoirSubmissionDetail_whenPresent_notEmptySummary_whenProspect() {
-    var tableView = ProbabilityDistributionTableView.empty();
-
-    when(oilCaseOutputsPersistenceService.getOilCaseOutput(reservoirSubmissionDetail))
-        .thenReturn(Optional.of(oilCaseOutput));
-    when(probabilityDistributionSummaryService
-        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
-            List.of(
-                ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT,
-                ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT,
-                ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT,
-                ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT,
-                ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT
-            ),
+            OIL_VOLUMETRIC_INSTANCES_PROSPECTS_INDUSTRY_STANDARD,
             submissionDetail,
             reservoirSubmissionDetail))
         .thenReturn(tableView);
 
     oilCaseOutput.setHasAssociatedGasRecoverableResources(true);
+    oilCaseOutput.setUseIndustryStandardConversion(true);
 
     var view = oilCaseOutputsSummaryService.getOilCaseOutputsSummaryFromReservoirSubmissionDetail(
         reservoirSubmissionDetail);
     assertThat(view)
         .extracting(
             OilCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
+            OilCaseOutputsSummaryView::useIndustryStandardConversion,
             OilCaseOutputsSummaryView::tableView)
         .containsExactly(
+            "Yes",
             "Yes",
             tableView
         );
@@ -162,7 +139,7 @@ class OilCaseOutputsSummaryServiceTest {
   @Test
   void getOilCaseOutputsSummaryFromReservoirSubmissionDetail_whenNotPresent_notEmptySummary() {
     var summaryBehaviour = new SummaryBehaviour();
-    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_PROSPECT);
 
     when(oilCaseOutputsPersistenceService.getOilCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.empty());
@@ -175,8 +152,10 @@ class OilCaseOutputsSummaryServiceTest {
     assertThat(view)
         .extracting(
             OilCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
+            OilCaseOutputsSummaryView::useIndustryStandardConversion,
             OilCaseOutputsSummaryView::tableView)
         .containsExactly(
+            "",
             "",
             new ProbabilityDistributionTableView(
                 summaryBehaviour,

@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.oilcaseoutput
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
@@ -44,10 +45,20 @@ public class OilCaseOutputsSummaryService implements SummarySectionService<Reser
 
   public OilCaseOutputsSummaryView getOilCaseOutputsSummaryFromReservoirSubmissionDetail(
       ReservoirSubmissionDetail reservoirSubmissionDetail) {
-    var instances = getInstances(reservoirSubmissionDetail);
-    var summaryBehaviour = probabilityDistributionSummaryService.getSummaryBehaviour(instances);
-
     var oilCaseOutput = oilCaseOutputsPersistenceService.getOilCaseOutput(reservoirSubmissionDetail);
+    var instances = getInstances(reservoirSubmissionDetail);
+
+    if (reservoirSubmissionDetail.getSubmissionDetail().isProspectSubmission()) {
+      if (BooleanUtils.isTrue(oilCaseOutput.map(OilCaseOutput::getUseIndustryStandardConversion).isPresent())) {
+        instances.remove(
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT);
+      } else {
+        instances.remove(
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT);
+      }
+    }
+
+    var summaryBehaviour = probabilityDistributionSummaryService.getSummaryBehaviour(instances);
 
     return oilCaseOutput.map(this::createSummaryViewFromOilCaseOutput)
         .orElse(OilCaseOutputsSummaryView.empty(summaryBehaviour));
@@ -58,15 +69,25 @@ public class OilCaseOutputsSummaryService implements SummarySectionService<Reser
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
     var hasAssociatedGasRecoverableResources = BooleanUtil.yesNoFromBoolean(
         oilCaseOutput.getHasAssociatedGasRecoverableResources(), "");
+    var useIndustryStandardConversion = BooleanUtil.yesNoFromBoolean(oilCaseOutput.getUseIndustryStandardConversion(), "");
 
     var listOfInstances = getInstances(reservoirSubmissionDetail);
 
+    if (submissionDetail.isProspectSubmission()) {
+      if (BooleanUtils.isTrue(oilCaseOutput.getUseIndustryStandardConversion())) {
+        listOfInstances.remove(
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT);
+      } else {
+        listOfInstances.remove(
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT);
+      }
+    }
     var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         listOfInstances,
         submissionDetail,
         reservoirSubmissionDetail
     );
-    return new OilCaseOutputsSummaryView(hasAssociatedGasRecoverableResources, tableView);
+    return new OilCaseOutputsSummaryView(hasAssociatedGasRecoverableResources, useIndustryStandardConversion, tableView);
   }
 
   private static List<ProbabilityDistributionFieldInstance> getInstances(
@@ -81,6 +102,8 @@ public class OilCaseOutputsSummaryService implements SummarySectionService<Reser
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT);
       listOfInstances.add(
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT);
+      listOfInstances.add(
+          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT);
       listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT);
 
     } else if (resourceType == ResourceType.DISCOVERY) {

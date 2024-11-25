@@ -59,8 +59,12 @@ class OilCaseOutputsFormServiceTest {
             form -> form.getOilRecoverableResources().getProbabilityDistributionType(),
             form -> form.getAssociatedGasRecoverableResources().getProbabilityDistributionType(),
             form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
-            form -> form.getRiskedOilEquivalentRecoverableMean().getProbabilityDistributionType()
+            form -> form.getRiskedOilEquivalentRecoverableMean().getProbabilityDistributionType(),
+            OilCaseOutputsForm::getUseIndustryStandardConversion,
+            OilCaseOutputsForm::getHasAssociatedGasRecoverableResources
         ).containsExactly(
+            null,
+            null,
             null,
             null,
             null,
@@ -91,6 +95,8 @@ class OilCaseOutputsFormServiceTest {
         .thenReturn(probabilityDistributionForm);
 
     OilCaseOutput oilCaseOutput = new OilCaseOutput();
+    oilCaseOutput.setUseIndustryStandardConversion(true);
+    oilCaseOutput.setHasAssociatedGasRecoverableResources(true);
     when(oilCaseOutputsPersistenceService.getOilCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(oilCaseOutput));
 
@@ -110,7 +116,9 @@ class OilCaseOutputsFormServiceTest {
             form -> form.getAssociatedGasRecoverableResources().getCustom().getComments(),
             form -> form.getRiskedOilEquivalentRecoverableMean().getProbabilityDistributionType(),
             form -> form.getRiskedOilEquivalentRecoverableMean().getCustom().getMean(),
-            form -> form.getRiskedOilEquivalentRecoverableMean().getCustom().getComments()
+            form -> form.getRiskedOilEquivalentRecoverableMean().getCustom().getComments(),
+            OilCaseOutputsForm::getUseIndustryStandardConversion,
+            OilCaseOutputsForm::getHasAssociatedGasRecoverableResources
         )
         .containsExactly(
             probabilityDistributionForm.getProbabilityDistributionType(),
@@ -127,7 +135,9 @@ class OilCaseOutputsFormServiceTest {
             probabilityDistributionForm.getCustom().getComments(),
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getCustom().getMean(),
-            probabilityDistributionForm.getCustom().getComments()
+            probabilityDistributionForm.getCustom().getComments(),
+            oilCaseOutput.getHasAssociatedGasRecoverableResources(),
+            oilCaseOutput.getUseIndustryStandardConversion()
         );
   }
 

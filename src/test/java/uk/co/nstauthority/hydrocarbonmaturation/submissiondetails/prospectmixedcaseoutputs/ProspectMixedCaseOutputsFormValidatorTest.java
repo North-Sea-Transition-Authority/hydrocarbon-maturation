@@ -44,6 +44,17 @@ class ProspectMixedCaseOutputsFormValidatorTest {
     assertFalse(bindingResult.hasErrors());
   }
 
+  @ParameterizedTest
+  @EnumSource(value = ValidationType.class)
+  void validate_whenValidForm_whenProspect_whenUseIndustryStandard_thenNoValidationErrors(ValidationType validationType) {
+    var form = getValidForm();
+    form.setUseIndustryStandardConversion(true);
+    form.setOilEquivalentRecoverableResources(null);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    prospectMixedCaseOutputsFormValidator.isValid(form, bindingResult, submissionDetail, validationType);
+    assertFalse(bindingResult.hasErrors());
+  }
+
   @Test
   void validate_whenInvalidForm_thenValidationErrors() {
     var probabilityDistributionType = ProbabilityDistributionType.CUSTOM;
@@ -174,6 +185,7 @@ class ProspectMixedCaseOutputsFormValidatorTest {
     form.setRiskedOilEquivalentRecoverableMean(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm(ProbabilityDistributionFieldInstance.MIXED_CASE_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT));
     form.setHasAssociatedGasRecoverableResources(true);
     form.setHasAssociatedCondensateRecoverableResources(true);
+    form.setUseIndustryStandardConversion(false);
     return form;
   }
 

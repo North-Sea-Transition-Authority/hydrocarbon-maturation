@@ -89,11 +89,33 @@
         error=salesGasReservesError/>
     </#if>
 
-    <@probabilityDistribution.probabilityDistributionSingularTemplate
-      probabilityDistributionPath="form.oilEquivalentRecoverableResources"
-      labelText="Oil equivalent recoverable resources"
-      template=oilEquivalentRecoverableResourcesTemplate
-      error=oilEquivalentRecoverableResourcesError/>
+    <#if resourceType == 'PROSPECT'>
+      <@fdsRadio.radioGroup
+      path="form.useIndustryStandardConversion"
+      labelText="Do you want to use the industry standard conversion for calculating the oil equivalent recoverable values?"
+      hiddenContent=true>
+        <@fdsRadio.radioYes path="form.useIndustryStandardConversion"/>
+        <@fdsRadio.radioNo path="form.useIndustryStandardConversion">
+          <@probabilityDistribution.probabilityDistributionSingularTemplate
+          probabilityDistributionPath="form.oilEquivalentRecoverableResources"
+          labelText="Oil equivalent recoverable resources"
+          template=oilEquivalentRecoverableResourcesTemplate
+          error=oilEquivalentRecoverableResourcesError/>
+        </@fdsRadio.radioNo>
+      </@fdsRadio.radioGroup>
+
+      <@fdsDetails.summaryDetails summaryTitle="What is the industry standard conversion?">
+        <p class="govuk-body">
+          The industry standard conversion is the BOE converted sum of recoverable values where BOE = mmstb + bcf/5.8.
+        </p>
+      </@fdsDetails.summaryDetails>
+    <#else>
+      <@probabilityDistribution.probabilityDistributionSingularTemplate
+        probabilityDistributionPath="form.oilEquivalentRecoverableResources"
+        labelText="Oil equivalent recoverable resources"
+        template=oilEquivalentRecoverableResourcesTemplate
+        error=oilEquivalentRecoverableResourcesError/>
+    </#if>
 
     <#if resourceType == 'FIELD' && showReserves>
       <@probabilityDistribution.probabilityDistributionSingularTemplate

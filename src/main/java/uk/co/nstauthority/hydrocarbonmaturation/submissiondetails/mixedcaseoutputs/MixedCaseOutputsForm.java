@@ -24,6 +24,7 @@ public class MixedCaseOutputsForm implements SubmissionForm {
   private Boolean hasAssociatedGasRecoverableResources;
   private Boolean hasAssociatedCondensateRecoverableResources;
   private Boolean fieldVolumetricInformationCorrect;
+  private Boolean useIndustryStandardConversion;
 
   public ProbabilityDistributionForm getGasInPlace() {
     return gasInPlace;
@@ -175,5 +176,13 @@ public class MixedCaseOutputsForm implements SubmissionForm {
 
   public void setFieldVolumetricInformationCorrect(Boolean fieldVolumetricInformationCorrect) {
     this.fieldVolumetricInformationCorrect = fieldVolumetricInformationCorrect;
+  }
+
+  public Boolean getUseIndustryStandardConversion() {
+    return useIndustryStandardConversion;
+  }
+
+  public void setUseIndustryStandardConversion(Boolean useIndustryStandardConversion) {
+    this.useIndustryStandardConversion = useIndustryStandardConversion;
   }
 }

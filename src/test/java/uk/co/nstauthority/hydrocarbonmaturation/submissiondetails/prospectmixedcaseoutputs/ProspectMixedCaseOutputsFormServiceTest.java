@@ -76,8 +76,10 @@ class ProspectMixedCaseOutputsFormServiceTest {
             form -> form.getGasRecoverableResources().getProbabilityDistributionType(),
             form -> form.getRiskedOilEquivalentRecoverableMean().getProbabilityDistributionType(),
             MixedCaseOutputsForm::getHasAssociatedGasRecoverableResources,
-            MixedCaseOutputsForm::getHasAssociatedCondensateRecoverableResources)
+            MixedCaseOutputsForm::getHasAssociatedCondensateRecoverableResources,
+            MixedCaseOutputsForm::getUseIndustryStandardConversion)
         .containsExactly(
+            null,
             null,
             null,
             null,
@@ -139,12 +141,16 @@ class ProspectMixedCaseOutputsFormServiceTest {
 
     MixedCaseOutput mixedCaseOutput = new MixedCaseOutput();
     mixedCaseOutput.setHasAssociatedCondensateRecoverableResources(true);
+    mixedCaseOutput.setUseIndustryStandardConversion(true);
     mixedCaseOutput.setReservoirSubmissionDetail(reservoirSubmissionDetail);
     when(prospectMixedCaseOutputsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(mixedCaseOutput));
 
     assertThat(prospectMixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
         .getHasAssociatedCondensateRecoverableResources()).isTrue();
+
+    assertThat(prospectMixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
+        .getUseIndustryStandardConversion()).isTrue();
 
     assertThat(prospectMixedCaseOutputsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
         .getHasAssociatedGasRecoverableResources()).isNull();

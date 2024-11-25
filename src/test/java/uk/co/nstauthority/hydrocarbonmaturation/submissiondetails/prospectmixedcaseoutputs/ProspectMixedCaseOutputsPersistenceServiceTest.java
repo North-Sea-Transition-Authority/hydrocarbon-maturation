@@ -1,17 +1,23 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.prospectmixedcaseoutputs;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSumService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -30,17 +36,14 @@ class ProspectMixedCaseOutputsPersistenceServiceTest {
   @Mock
   private MixedCaseOutputsRepository mixedCaseOutputsRepository;
 
+  @Mock
+  private ProbabilityDistributionSumService probabilityDistributionSumService;
+
+  @InjectMocks
   private ProspectMixedCaseOutputsPersistenceService prospectMixedCaseOutputsPersistenceService;
 
   private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewProspectSubmissionDetail();
   private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
-
-  @BeforeEach
-  void setUp() {
-    prospectMixedCaseOutputsPersistenceService = new ProspectMixedCaseOutputsPersistenceService(
-        probabilityDistributionPersistenceService,
-        mixedCaseOutputsRepository);
-  }
 
   @Test
   void saveMixedCaseOutputs_whenGivenAForm_verifyCreatedEntity() {
@@ -114,6 +117,40 @@ class ProspectMixedCaseOutputsPersistenceServiceTest {
             form.getRiskedOilEquivalentRecoverableMean(),
             submissionDetail,
             reservoirSubmissionDetail);
+
+    verify(mixedCaseOutputsRepository, times(1)).save(any(MixedCaseOutput.class));
+  }
+
+  @Test
+  void saveMixedCaseOutputs_whenUseIndustryStandard_verifyDoCalculation() {
+    var form = new MixedCaseOutputsForm();
+    form.setUseIndustryStandardConversion(true);
+
+    var existingDistribution = new ProbabilityDistribution();
+
+    when(probabilityDistributionPersistenceService.getProbabilityDistribution(
+        reservoirSubmissionDetail,
+        ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT
+    ))
+        .thenReturn(Optional.of(existingDistribution));
+
+    prospectMixedCaseOutputsPersistenceService.saveMixedCaseOutputs(form, reservoirSubmissionDetail);
+
+    verify(probabilityDistributionSumService)
+        .calculateIndustryStandardOilEquivalentResourcesForProspect(eq(existingDistribution), anyMap());
+
+    verify(mixedCaseOutputsRepository, times(1)).save(any(MixedCaseOutput.class));
+  }
+
+  @Test
+  void saveGasCaseOutputs_whenNotUseIndustryStandard_verifyNotDoCalculation() {
+    var form = new MixedCaseOutputsForm();
+    form.setUseIndustryStandardConversion(false);
+
+    prospectMixedCaseOutputsPersistenceService.saveMixedCaseOutputs(form, reservoirSubmissionDetail);
+
+    verify(probabilityDistributionSumService, never())
+        .calculateIndustryStandardOilEquivalentResourcesForProspect(any(), any());
 
     verify(mixedCaseOutputsRepository, times(1)).save(any(MixedCaseOutput.class));
   }

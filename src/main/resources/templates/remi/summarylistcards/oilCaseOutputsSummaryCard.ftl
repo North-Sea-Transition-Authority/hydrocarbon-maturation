@@ -8,6 +8,9 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Do you expect to find associated gas recoverable resources?">
       ${oilCaseOutputsValues.hasAssociatedGasRecoverableResources()}
     </@fdsSummaryList.summaryListRowNoAction>
+    <@fdsSummaryList.summaryListRowNoAction keyText="Do you want to use the industry standard conversion for calculating the oil equivalent recoverable values?">
+      ${oilCaseOutputsValues.useIndustryStandardConversion()}
+    </@fdsSummaryList.summaryListRowNoAction>
   </@fdsSummaryList.summaryListCard>
 
   <@probabilityDistribution.probabilityDistributionTable

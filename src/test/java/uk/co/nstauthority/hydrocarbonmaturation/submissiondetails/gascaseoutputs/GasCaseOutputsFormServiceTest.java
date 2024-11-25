@@ -56,8 +56,10 @@ class GasCaseOutputsFormServiceTest {
             form -> form.getGasRecoverableResources().getProbabilityDistributionType(),
             form -> form.getAssociatedCondensateRecoverableResources().getProbabilityDistributionType(),
             form -> form.getOilEquivalentRecoverableResources().getProbabilityDistributionType(),
-            GasCaseOutputsForm::getHasAssociatedCondensateRecoverableResources
+            GasCaseOutputsForm::getHasAssociatedCondensateRecoverableResources,
+            GasCaseOutputsForm::getUseIndustryStandardConversion
         ).containsExactly(
+            null,
             null,
             null,
             null,
@@ -86,6 +88,7 @@ class GasCaseOutputsFormServiceTest {
 
     GasCaseOutput gasCaseOutput = new GasCaseOutput();
     gasCaseOutput.setHasAssociatedCondensateRecoverableResources(true);
+    gasCaseOutput.setUseIndustryStandardConversion(true);
     when(gasCaseOutputsPersistenceService.getGasCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(gasCaseOutput));
 
@@ -103,7 +106,8 @@ class GasCaseOutputsFormServiceTest {
             form -> form.getAssociatedCondensateRecoverableResources().getProbabilityDistributionType(),
             form -> form.getAssociatedCondensateRecoverableResources().getCustom().getConstant(),
             form -> form.getAssociatedCondensateRecoverableResources().getCustom().getComments(),
-            GasCaseOutputsForm::getHasAssociatedCondensateRecoverableResources
+            GasCaseOutputsForm::getHasAssociatedCondensateRecoverableResources,
+            GasCaseOutputsForm::getUseIndustryStandardConversion
         )
         .containsExactly(
             probabilityDistributionForm.getProbabilityDistributionType(),
@@ -118,6 +122,7 @@ class GasCaseOutputsFormServiceTest {
             probabilityDistributionForm.getProbabilityDistributionType(),
             probabilityDistributionForm.getCustom().getConstant(),
             probabilityDistributionForm.getCustom().getComments(),
+            true,
             true
         );
   }

@@ -6,6 +6,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.SummaryBehaviour;
 
 public record GasCaseOutputsSummaryView(String hasAssociatedCondensateRecoverableResources,
+                                        String useIndustryStandardConversion,
                                         ProbabilityDistributionTableView tableView) {
   public static GasCaseOutputsSummaryView empty(SummaryBehaviour summaryBehaviour) {
     var emptyTableView = new ProbabilityDistributionTableView(
@@ -18,6 +19,6 @@ public record GasCaseOutputsSummaryView(String hasAssociatedCondensateRecoverabl
         )
     );
 
-    return new GasCaseOutputsSummaryView("", emptyTableView);
+    return new GasCaseOutputsSummaryView("", "", emptyTableView);
   }
 }

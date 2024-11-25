@@ -204,7 +204,7 @@ class GasCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
     assertThat(modelMap)
         .contains(
             entry("form", form),
-            entry("resourceType", reservoirSubmissionDetail.getSubmissionDetail().getSubmission().getResource()),
+            entry("resourceType", reservoirSubmissionDetail.getSubmissionDetail().getSubmission().getResource().getType()),
             entry("pageTitle", GasCaseOutputsController.PROSPECT_PAGE_NAME),
             entry("gasInPlaceTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_PROSPECT)),
@@ -257,7 +257,7 @@ class GasCaseOutputsControllerTest extends AbstractSubmissionControllerTest {
     assertThat(modelMap)
         .contains(
             entry("form", form),
-            entry("resourceType", discoveryReservoirSubmissionDetail.getSubmissionDetail().getSubmission().getResource()),
+            entry("resourceType", discoveryReservoirSubmissionDetail.getSubmissionDetail().getSubmission().getResource().getType()),
             entry("pageTitle", GasCaseOutputsController.DISCOVERY_PAGE_NAME),
             entry("gasInPlaceTemplate", probabilityDistributionTemplateService.getProbabilityDistributionTemplateForInstance(
                 ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY)),

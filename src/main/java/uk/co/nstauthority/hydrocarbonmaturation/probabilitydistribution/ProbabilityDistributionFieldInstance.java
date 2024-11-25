@@ -462,6 +462,11 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.MMBOE,
       "Risked oil equivalent recoverable"
   ),
+  OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBOE,
+    "Oil equivalent recoverable resources"
+  ),
 
   //Total field oil case outputs / volumetrics
   TOTAL_OIL_VOLUMETRICS_OIL_IN_PLACE_FIELD(
@@ -533,6 +538,11 @@ public enum ProbabilityDistributionFieldInstance {
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"
   ),
+  GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBOE,
+      "Oil equivalent recoverable resources"
+  ),
 
   // Total field gas case outputs / volumetrics
   TOTAL_GAS_VOLUMETRICS_GAS_IN_PLACE_FIELD(
@@ -593,6 +603,11 @@ public enum ProbabilityDistributionFieldInstance {
       MeanOnlyBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Risked oil equivalent recoverable"
+  ),
+  MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT(
+      ProspectOutputsPreDrillBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBOE,
+      "Oil equivalent recoverable resources"
   ),
 
   // Common outputs for discoveries
