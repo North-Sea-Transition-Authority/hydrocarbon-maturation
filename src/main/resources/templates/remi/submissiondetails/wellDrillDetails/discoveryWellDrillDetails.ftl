@@ -22,6 +22,8 @@
       longitudeHemisphere=longitudeHemisphere
       well=well!{}
       wellEndpoint=wellEndpoint
+      formationRestEndpoint=formationRestEndpoint
+      preSelectedTotalDepthFormation=preSelectedTotalDepthFormation
       formPath="form.wellDetailsForm"/>
     <h2 class="govuk-heading-l">Discovery details</h2>
     <@fdsRadio.radioGroup path="form.discoveryStatus" labelText="Discovery status">

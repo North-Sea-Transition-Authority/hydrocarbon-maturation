@@ -45,7 +45,15 @@ public class WellDetailsFormService {
     coordinateInputForm.setLatitudeCoordinates(latitudeCoordinates);
     coordinateInputForm.setLongitudeHemisphere(hemisphere);
     form.setCoordinateInputForm(coordinateInputForm);
-    form.setTotalDepthFormation(drillDetail.getTotalDepthFormation());
+
+    if (drillDetail.getTotalDepthFormation() != null) {
+      form.setTotalDepthFormation(drillDetail.getTotalDepthFormation().name());
+    } else if (drillDetail.getTotalDepthFormationManual() != null) {
+      form.setTotalDepthFormation(
+          SearchSelectorService.getValueWithManualEntryPrefix(drillDetail.getTotalDepthFormationManual())
+      );
+    }
+
     form.setTotalDepthFormationComments(drillDetail.getTotalDepthFormationComments());
 
     return form;

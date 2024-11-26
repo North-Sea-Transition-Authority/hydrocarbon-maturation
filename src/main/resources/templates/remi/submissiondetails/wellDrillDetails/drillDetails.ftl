@@ -1,7 +1,7 @@
 <#include '../../layout/layout.ftl'>
 <#import '../../coordinates/coordinateInput.ftl' as coordinateInput/>
 
-<#macro drillDetails datumTypes longitudeHemisphere wellEndpoint well formPath="form">
+<#macro drillDetails datumTypes longitudeHemisphere wellEndpoint well formationRestEndpoint preSelectedTotalDepthFormation formPath="form">
   <h2 class="govuk-heading-l">Drill details</h2>
   <@fdsSearchSelector.searchSelectorRest
     path="${formPath}.well"
@@ -37,9 +37,12 @@
       <#assign firstItem=false/>
     </#list>
   </@fdsRadio.radioGroup>
-  <@fdsTextInput.textInput
+  <@fdsSearchSelector.searchSelectorRest
     path="${formPath}.totalDepthFormation"
-    labelText="Total depth formation"/>
+    restUrl=springUrl(formationRestEndpoint)
+    labelText="Total depth formation name"
+    preselectedItems=preSelectedTotalDepthFormation!{}
+  />
   <@fdsTextarea.textarea
     path="${formPath}.totalDepthFormationComments"
     labelText="Total depth formation comments"

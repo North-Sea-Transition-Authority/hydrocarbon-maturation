@@ -20,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellQueryServi
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 
 @ExtendWith(MockitoExtension.class)
@@ -73,6 +74,7 @@ class DiscoveryWellDetailsPersistenceServiceTest {
             DiscoveryWellDetail::getTopReservoirLongitudeHemisphere,
             DiscoveryWellDetail::getTopReservoirDatum,
             DiscoveryWellDetail::getTotalDepthFormation,
+            DiscoveryWellDetail::getTotalDepthFormationManual,
             DiscoveryWellDetail::getTotalDepthFormationComments,
             DiscoveryWellDetail::getDataAcquisitionProgramme,
             DiscoveryWellDetail::getGeophysicalUpdateCommentary,
@@ -106,6 +108,7 @@ class DiscoveryWellDetailsPersistenceServiceTest {
             DiscoveryWellDetail::getTopReservoirLongitudeHemisphere,
             DiscoveryWellDetail::getTopReservoirDatum,
             DiscoveryWellDetail::getTotalDepthFormation,
+            DiscoveryWellDetail::getTotalDepthFormationManual,
             DiscoveryWellDetail::getTotalDepthFormationComments,
             DiscoveryWellDetail::getDataAcquisitionProgramme,
             DiscoveryWellDetail::getGeophysicalUpdateCommentary,
@@ -123,7 +126,8 @@ class DiscoveryWellDetailsPersistenceServiceTest {
             detailForm.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull(),
             detailForm.getCoordinateInputForm().getLongitudeHemisphere(),
             detailForm.getReservoirDatum(),
-            detailForm.getTotalDepthFormation(),
+            Formation.ASGARD,
+            null,
             detailForm.getTotalDepthFormationComments(),
             detailForm.getDataAcquisitionProgramme(),
             detailForm.getGeophysicalUpdate(),
@@ -137,6 +141,8 @@ class DiscoveryWellDetailsPersistenceServiceTest {
   @Test
   void saveDiscoveryWellDetails_whenGivenAForm_verifyDeletedProbabilityDistribution() {
     var form = getFilledForm();
+    form.getWellDetailsForm().setTotalDepthFormation("FT_text");
+
     var discoveryWellDetailArgumentCaptor = ArgumentCaptor.forClass(DiscoveryWellDetail.class);
     discoveryWellDetailsPersistenceService.saveDiscoveryWellDetails(form, submissionDetail);
 
@@ -156,6 +162,7 @@ class DiscoveryWellDetailsPersistenceServiceTest {
             DiscoveryWellDetail::getTopReservoirLongitudeHemisphere,
             DiscoveryWellDetail::getTopReservoirDatum,
             DiscoveryWellDetail::getTotalDepthFormation,
+            DiscoveryWellDetail::getTotalDepthFormationManual,
             DiscoveryWellDetail::getTotalDepthFormationComments,
             DiscoveryWellDetail::getDataAcquisitionProgramme,
             DiscoveryWellDetail::getGeophysicalUpdateCommentary,
@@ -173,7 +180,8 @@ class DiscoveryWellDetailsPersistenceServiceTest {
             detailForm.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull(),
             detailForm.getCoordinateInputForm().getLongitudeHemisphere(),
             detailForm.getReservoirDatum(),
-            detailForm.getTotalDepthFormation(),
+            null,
+            "text",
             detailForm.getTotalDepthFormationComments(),
             detailForm.getDataAcquisitionProgramme(),
             detailForm.getGeophysicalUpdate(),
@@ -197,7 +205,7 @@ class DiscoveryWellDetailsPersistenceServiceTest {
     form.getWellDetailsForm().getCoordinateInputForm().setLongitudeHemisphere(Hemisphere.EAST);
     form.getWellDetailsForm().setDataAcquisitionProgramme("data");
     form.getWellDetailsForm().setGeophysicalUpdate("update");
-    form.getWellDetailsForm().setTotalDepthFormation("formation");
+    form.getWellDetailsForm().setTotalDepthFormation("ASGARD");
     form.setDryHoleCost(DecimalInput.createDecimalInput(BigDecimal.ONE));
     form.setSuccessRelatedCosts(DecimalInput.createDecimalInput(BigDecimal.ONE));
     form.getWellDetailsForm().setTotalDepthFormationComments("Depth comments");

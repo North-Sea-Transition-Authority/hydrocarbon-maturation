@@ -22,6 +22,8 @@
       longitudeHemisphere=longitudeHemisphere
       wellEndpoint=wellEndpoint
       well=well!{}
+      formationRestEndpoint=formationRestEndpoint
+      preSelectedTotalDepthFormation=preSelectedTotalDepthFormation
       formPath="form.drillDetailsForm"/>
 
     <h2 class="govuk-heading-l">Dry hole details</h2>

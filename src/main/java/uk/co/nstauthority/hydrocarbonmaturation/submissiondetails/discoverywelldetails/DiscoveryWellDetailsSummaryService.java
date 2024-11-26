@@ -26,8 +26,10 @@ public class DiscoveryWellDetailsSummaryService {
         .orElse(DiscoveryWellDetailsSummaryView.empty());
   }
 
-  private DiscoveryWellDetailsSummaryView createSummaryViewFromDiscoveryWellDetail(
-      DiscoveryWellDetail discoveryWellDetail) {
+  private DiscoveryWellDetailsSummaryView createSummaryViewFromDiscoveryWellDetail(DiscoveryWellDetail discoveryWellDetail) {
+    var totalDepthFormation = discoveryWellDetail.getTotalDepthFormation() != null
+        ? DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(discoveryWellDetail.getTotalDepthFormation())
+        : ObjectUtils.defaultIfNull(discoveryWellDetail.getTotalDepthFormationManual(), "");
 
     return new DiscoveryWellDetailsSummaryView(
         ObjectUtils.defaultIfNull(discoveryWellDetail.getWellReference(), ""),
@@ -39,7 +41,7 @@ public class DiscoveryWellDetailsSummaryService {
         NumberUtil.getNumberStringWithUnitsWithoutSpaceOrEmpty(discoveryWellDetail.getTopReservoirLongitudeSeconds(), "\""),
         DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(discoveryWellDetail.getTopReservoirLongitudeHemisphere()),
         DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(discoveryWellDetail.getTopReservoirDatum()),
-        ObjectUtils.defaultIfNull(discoveryWellDetail.getTotalDepthFormation(), ""),
+        totalDepthFormation,
         ObjectUtils.defaultIfNull(discoveryWellDetail.getTotalDepthFormationComments(), ""),
         ObjectUtils.defaultIfNull(discoveryWellDetail.getDataAcquisitionProgramme(), ""),
         ObjectUtils.defaultIfNull(discoveryWellDetail.getGeophysicalUpdateCommentary(), ""),

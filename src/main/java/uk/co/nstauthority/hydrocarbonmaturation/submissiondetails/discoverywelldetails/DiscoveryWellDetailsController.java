@@ -26,6 +26,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationSearchService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
@@ -42,6 +44,7 @@ public class DiscoveryWellDetailsController {
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
+  private final FormationSearchService formationSearchService;
 
   public static final String PAGE_NAME = "Discovery well details";
 
@@ -49,11 +52,14 @@ public class DiscoveryWellDetailsController {
   public DiscoveryWellDetailsController(DiscoveryWellDetailsFormService discoveryWellDetailsFormService,
                                         ControllerHelperService controllerHelperService,
                                         SubmissionDetailService submissionDetailService,
-                                        DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService) {
+                                        DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService,
+                                        FormationSearchService formationSearchService
+  ) {
     this.discoveryWellDetailsFormService = discoveryWellDetailsFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.discoveryWellDetailsPersistenceService = discoveryWellDetailsPersistenceService;
+    this.formationSearchService = formationSearchService;
   }
 
   @GetMapping
@@ -90,7 +96,14 @@ public class DiscoveryWellDetailsController {
         .addObject("hydrocarbonsDiscovered", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class))
         .addObject("longitudeHemisphere", Hemisphere.getLongitudeHemisphere())
         .addObject("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null)))
-        .addObject("well", discoveryWellDetailsFormService.getPreSelectedWell(form.getWellDetailsForm().getWell()));
+        .addObject("well", discoveryWellDetailsFormService.getPreSelectedWell(form.getWellDetailsForm().getWell()))
+        .addObject("formationRestEndpoint",
+            SearchSelectorService.route(on(FormationRestController.class).getFormationListWithManualEntry(null))
+        )
+        .addObject("preSelectedTotalDepthFormation",
+            formationSearchService.getPreSelectedFormation(form.getWellDetailsForm().getTotalDepthFormation())
+        );
+
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(
         modelAndView, PAGE_NAME, submissionDetail);

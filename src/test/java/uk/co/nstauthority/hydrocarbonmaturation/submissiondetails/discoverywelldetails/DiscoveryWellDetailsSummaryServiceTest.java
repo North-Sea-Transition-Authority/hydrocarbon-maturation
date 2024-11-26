@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 
 @ExtendWith(MockitoExtension.class)
@@ -74,7 +75,7 @@ class DiscoveryWellDetailsSummaryServiceTest {
     discoveryWellDetail.setTopReservoirLongitudeSeconds(BigDecimal.ONE);
     discoveryWellDetail.setTopReservoirLongitudeHemisphere(Hemisphere.EAST);
     discoveryWellDetail.setTopReservoirDatum(ReservoirDatum.ED50);
-    discoveryWellDetail.setTotalDepthFormation("depth");
+    discoveryWellDetail.setTotalDepthFormation(Formation.ASGARD);
     discoveryWellDetail.setTotalDepthFormationComments("depthC");
     discoveryWellDetail.setDataAcquisitionProgramme("data");
     discoveryWellDetail.setGeophysicalUpdateCommentary("geophysical");
@@ -117,7 +118,7 @@ class DiscoveryWellDetailsSummaryServiceTest {
             BigDecimal.ONE + "\"",
             Hemisphere.EAST.getDisplayName(),
             ReservoirDatum.ED50.getDisplayName(),
-            "depth",
+            Formation.ASGARD.getDisplayName(),
             "depthC",
             "data",
             "geophysical",
@@ -125,6 +126,30 @@ class DiscoveryWellDetailsSummaryServiceTest {
             "comments commerciality",
             "£" + BigDecimal.ZERO + " million",
             "£" + BigDecimal.ONE + " million"
+        );
+  }
+
+  @Test
+  void getDiscoveryWellDetailSummaryFromSubmissionDetail_manualTotalDepthFormation() {
+    var discoveryWellDetail = new DiscoveryWellDetail();
+    discoveryWellDetail.setWellReference("wellname");
+    discoveryWellDetail.setWellId(1);
+    discoveryWellDetail.setTotalDepthFormationManual("depth");
+
+
+    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(discoveryWellDetail));
+
+    var view = discoveryWellDetailsSummaryService.getDiscoveryWellDetailSummaryFromSubmissionDetail(submissionDetail);
+
+    assertThat(view)
+        .extracting(
+            DiscoveryWellDetailsSummaryView::principalWell,
+            DiscoveryWellDetailsSummaryView::totalDepthFormation
+            )
+        .containsExactly(
+            "wellname",
+            "depth"
         );
   }
 }

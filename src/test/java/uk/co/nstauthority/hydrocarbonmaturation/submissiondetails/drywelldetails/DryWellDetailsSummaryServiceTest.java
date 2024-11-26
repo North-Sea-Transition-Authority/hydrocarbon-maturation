@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 
 @ExtendWith(MockitoExtension.class)
@@ -115,7 +116,7 @@ class DryWellDetailsSummaryServiceTest {
     dryWellDetail.setTopReservoirLongitudeSeconds(BigDecimal.ONE);
     dryWellDetail.setTopReservoirLongitudeHemisphere(Hemisphere.EAST);
     dryWellDetail.setTopReservoirDatum(ReservoirDatum.ED50);
-    dryWellDetail.setTotalDepthFormation("depth");
+    dryWellDetail.setTotalDepthFormation(Formation.ASGARD);
     dryWellDetail.setTotalDepthFormationComments("depthC");
     dryWellDetail.setDataAcquisitionProgramme("data");
     dryWellDetail.setGeophysicalUpdateCommentary("geophysical");
@@ -170,7 +171,7 @@ class DryWellDetailsSummaryServiceTest {
             BigDecimal.ONE + "\"",
             Hemisphere.EAST.getDisplayName(),
             ReservoirDatum.ED50.getDisplayName(),
-            "depth",
+            Formation.ASGARD.getDisplayName(),
             "depthC",
             "data",
             "geophysical",
@@ -184,6 +185,29 @@ class DryWellDetailsSummaryServiceTest {
             SourceFailureCategory.SOURCE_NOT_MATURE.getDisplayName(),
             SealFailureCategory.SEAL_LITHOLOGY_PRESENT_POOR_QUALITY.getDisplayName(),
             TrapFailureCategory.STRATIGRAPHIC_TRAP_COMPONENTS_NOT_PRESENT.getDisplayName()
+        );
+  }
+
+  @Test
+  void getDryWellDetailSummaryFromSubmissionDetail_manualTotalDepthFormation() {
+    var dryWellDetail = new DryWellDetail();
+    dryWellDetail.setWellReference("wellname");
+    dryWellDetail.setWellId(1);
+    dryWellDetail.setTotalDepthFormationManual("depth");
+
+    when(dryWellDetailsPersistenceService.getDryWellDetailBySubmissionDetail(submissionDetail))
+        .thenReturn(Optional.of(dryWellDetail));
+
+    var view = dryWellDetailsSummaryService.getDryWellDetailSummaryFromSubmissionDetail(submissionDetail);
+
+    assertThat(view)
+        .extracting(
+            DryWellDetailsSummaryView::principalWell,
+            DryWellDetailsSummaryView::totalDepthFormation
+        )
+        .containsExactly(
+            "wellname",
+            "depth"
         );
   }
 }

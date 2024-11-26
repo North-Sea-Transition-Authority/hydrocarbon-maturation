@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 import org.hibernate.annotations.GenericGenerator;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 
 @MappedSuperclass
@@ -47,7 +48,10 @@ public class DrillDetail {
   @Enumerated(EnumType.STRING)
   private ReservoirDatum topReservoirDatum;
 
-  private String totalDepthFormation;
+  @Enumerated(EnumType.STRING)
+  private Formation totalDepthFormation;
+
+  private String totalDepthFormationManual;
 
   private String totalDepthFormationComments;
 
@@ -152,12 +156,20 @@ public class DrillDetail {
     this.topReservoirDatum = datum;
   }
 
-  public String getTotalDepthFormation() {
+  public Formation getTotalDepthFormation() {
     return totalDepthFormation;
   }
 
-  public void setTotalDepthFormation(String totalDepthFormation) {
+  public void setTotalDepthFormation(Formation totalDepthFormation) {
     this.totalDepthFormation = totalDepthFormation;
+  }
+
+  public String getTotalDepthFormationManual() {
+    return totalDepthFormationManual;
+  }
+
+  public void setTotalDepthFormationManual(String totalDepthFormationManual) {
+    this.totalDepthFormationManual = totalDepthFormationManual;
   }
 
   public String getTotalDepthFormationComments() {

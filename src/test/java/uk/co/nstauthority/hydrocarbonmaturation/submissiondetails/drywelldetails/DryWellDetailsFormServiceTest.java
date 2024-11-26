@@ -27,6 +27,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.WellDetailsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.WellDetailsFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -205,7 +206,7 @@ class DryWellDetailsFormServiceTest {
     dryWellDetail.setTopReservoirLongitudeHemisphere(Hemisphere.EAST);
     dryWellDetail.setDataAcquisitionProgramme("data");
     dryWellDetail.setGeophysicalUpdateCommentary("update");
-    dryWellDetail.setTotalDepthFormation("formation");
+    dryWellDetail.setTotalDepthFormation(Formation.ASGARD);
     dryWellDetail.setDryHoleType(DryHoleType.GAS);
     dryWellDetail.setDryHoleCost(BigDecimal.ONE);
     dryWellDetail.setTotalDepthFormationComments("Depth comments");

@@ -24,6 +24,10 @@ public class DryWellDetailsSummaryService {
   }
 
   private DryWellDetailsSummaryView createSummaryViewFromDryWellDetail(DryWellDetail dryWellDetail) {
+    var totalDepthFormation = dryWellDetail.getTotalDepthFormation() != null
+        ? DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(dryWellDetail.getTotalDepthFormation())
+        : ObjectUtils.defaultIfNull(dryWellDetail.getTotalDepthFormationManual(), "");
+
     return new DryWellDetailsSummaryView(
         ObjectUtils.defaultIfNull(dryWellDetail.getWellReference(), ""),
         NumberUtil.getNumberStringWithUnitsWithoutSpaceOrEmpty(dryWellDetail.getTopReservoirLatitudeDegrees(), "°"),
@@ -34,7 +38,7 @@ public class DryWellDetailsSummaryService {
         NumberUtil.getNumberStringWithUnitsWithoutSpaceOrEmpty(dryWellDetail.getTopReservoirLongitudeSeconds(), "\""),
         DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(dryWellDetail.getTopReservoirLongitudeHemisphere()),
         DisplayableEnumOptionUtil.getDisplayableOptionOrEmpty(dryWellDetail.getTopReservoirDatum()),
-        ObjectUtils.defaultIfNull(dryWellDetail.getTotalDepthFormation(), ""),
+        totalDepthFormation,
         ObjectUtils.defaultIfNull(dryWellDetail.getTotalDepthFormationComments(), ""),
         ObjectUtils.defaultIfNull(dryWellDetail.getDataAcquisitionProgramme(), ""),
         ObjectUtils.defaultIfNull(dryWellDetail.getGeophysicalUpdateCommentary(), ""),

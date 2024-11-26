@@ -17,7 +17,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.DrillDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 
 @ExtendWith(MockitoExtension.class)
@@ -71,6 +73,7 @@ class DryWellDetailsPersistenceServiceTest {
             DryWellDetail::getTopReservoirLongitudeHemisphere,
             DryWellDetail::getTopReservoirDatum,
             DryWellDetail::getTotalDepthFormation,
+            DryWellDetail::getTotalDepthFormationManual,
             DryWellDetail::getTotalDepthFormationComments,
             DryWellDetail::getDataAcquisitionProgramme,
             DryWellDetail::getGeophysicalUpdateCommentary,
@@ -94,7 +97,8 @@ class DryWellDetailsPersistenceServiceTest {
             detailForm.getCoordinateInputForm().getLongitudeCoordinates().getSeconds().createBigDecimalOrNull(),
             detailForm.getCoordinateInputForm().getLongitudeHemisphere(),
             detailForm.getReservoirDatum(),
-            detailForm.getTotalDepthFormation(),
+            Formation.ASGARD,
+            null,
             detailForm.getTotalDepthFormationComments(),
             detailForm.getDataAcquisitionProgramme(),
             detailForm.getGeophysicalUpdate(),
@@ -134,6 +138,7 @@ class DryWellDetailsPersistenceServiceTest {
             DryWellDetail::getTopReservoirLongitudeHemisphere,
             DryWellDetail::getTopReservoirDatum,
             DryWellDetail::getTotalDepthFormation,
+            DryWellDetail::getTotalDepthFormationManual,
             DryWellDetail::getTotalDepthFormationComments,
             DryWellDetail::getDataAcquisitionProgramme,
             DryWellDetail::getGeophysicalUpdateCommentary,
@@ -158,6 +163,7 @@ class DryWellDetailsPersistenceServiceTest {
             detailForm.getCoordinateInputForm().getLongitudeHemisphere(),
             detailForm.getReservoirDatum(),
             detailForm.getTotalDepthFormation(),
+            detailForm.getTotalDepthFormation(),
             detailForm.getTotalDepthFormationComments(),
             detailForm.getDataAcquisitionProgramme(),
             detailForm.getGeophysicalUpdate(),
@@ -171,6 +177,29 @@ class DryWellDetailsPersistenceServiceTest {
             form.getSourceFailureCategory(),
             form.getSealFailureCategory(),
             form.getTrapFailureCategory()
+        );
+  }
+
+  @Test
+  void saveDryWellDetails_manualTotalDepthFormation_verifyCreatedEntity() {
+    var form = new DryWellDetailsForm();
+    form.getDrillDetailsForm().setTotalDepthFormation("FT_text");
+
+    var dryWellDetailsCaptor = ArgumentCaptor.forClass(DryWellDetail.class);
+    dryWellDetailsPersistenceService.saveDryWellDetails(form, submissionDetail);
+
+    verify(dryWellDetailsRepository, times(1))
+        .save(dryWellDetailsCaptor.capture());
+    var savedDryWellDetail = dryWellDetailsCaptor.getValue();
+
+    assertThat(savedDryWellDetail)
+        .extracting(
+            DrillDetail::getTotalDepthFormation,
+            DryWellDetail::getTotalDepthFormationManual
+        )
+        .containsExactly(
+            null,
+            "text"
         );
   }
 
@@ -194,7 +223,7 @@ class DryWellDetailsPersistenceServiceTest {
     form.getDrillDetailsForm().getCoordinateInputForm().setLongitudeHemisphere(Hemisphere.EAST);
     form.getDrillDetailsForm().setDataAcquisitionProgramme("data");
     form.getDrillDetailsForm().setGeophysicalUpdate("update");
-    form.getDrillDetailsForm().setTotalDepthFormation("formation");
+    form.getDrillDetailsForm().setTotalDepthFormation("ASGARD");
     form.setDryHoleType(DryHoleType.GAS);
     form.setDryHoleCost(DecimalInput.createDecimalInput(BigDecimal.ONE));
     form.getDrillDetailsForm().setTotalDepthFormationComments("Depth comments");

@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoverywelldetails;
 
 
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellView;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.EnumUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.WellDetailsForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 
 @Service
 public class DiscoveryWellDetailsPersistenceService {
@@ -61,8 +66,10 @@ public class DiscoveryWellDetailsPersistenceService {
     );
     discoveryWellDetails.setDataAcquisitionProgramme(form.getWellDetailsForm().getDataAcquisitionProgramme());
     discoveryWellDetails.setGeophysicalUpdateCommentary(form.getWellDetailsForm().getGeophysicalUpdate());
-    discoveryWellDetails.setTotalDepthFormation(form.getWellDetailsForm().getTotalDepthFormation());
     discoveryWellDetails.setTotalWellCost(form.getDryHoleCost().createBigDecimalOrNull());
+
+    setTotalDepthFormation(form.getWellDetailsForm(), discoveryWellDetails);
+
     discoveryWellDetails.setTotalDepthFormationComments(form.getWellDetailsForm().getTotalDepthFormationComments());
 
     discoveryWellDetailsRepository.save(discoveryWellDetails);
@@ -70,5 +77,20 @@ public class DiscoveryWellDetailsPersistenceService {
 
   public Optional<DiscoveryWellDetail> getDiscoveryWellDetailBySubmissionDetail(SubmissionDetail submissionDetail) {
     return discoveryWellDetailsRepository.findBySubmissionDetail(submissionDetail);
+  }
+
+  public void setTotalDepthFormation(WellDetailsForm form, DiscoveryWellDetail discoveryWellDetail) {
+    if (!Objects.isNull(form.getTotalDepthFormation())) {
+      if (SearchSelectorService.isManualEntry(form.getTotalDepthFormation())) {
+        discoveryWellDetail.setTotalDepthFormation(null);
+        discoveryWellDetail.setTotalDepthFormationManual(SearchSelectorService.removePrefix(form.getTotalDepthFormation()));
+      } else {
+        discoveryWellDetail.setTotalDepthFormation(EnumUtils.getEnumValue(Formation.class, form.getTotalDepthFormation()));
+        discoveryWellDetail.setTotalDepthFormationManual(null);
+      }
+    } else {
+      discoveryWellDetail.setTotalDepthFormation(null);
+      discoveryWellDetail.setTotalDepthFormationManual(null);
+    }
   }
 }

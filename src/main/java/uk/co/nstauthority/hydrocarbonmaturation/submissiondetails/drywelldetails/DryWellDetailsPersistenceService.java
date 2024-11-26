@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drywelldetails;
 
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellView;
+import uk.co.nstauthority.hydrocarbonmaturation.enumutil.EnumUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.WellDetailsForm;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 
 @Service
 class DryWellDetailsPersistenceService {
@@ -58,7 +63,9 @@ class DryWellDetailsPersistenceService {
     dryWellDetail.setTopReservoirLongitudeHemisphere(detailForm.getCoordinateInputForm().getLongitudeHemisphere());
     dryWellDetail.setDataAcquisitionProgramme(detailForm.getDataAcquisitionProgramme());
     dryWellDetail.setGeophysicalUpdateCommentary(detailForm.getGeophysicalUpdate());
-    dryWellDetail.setTotalDepthFormation(detailForm.getTotalDepthFormation());
+
+    setTotalDepthFormation(detailForm, dryWellDetail);
+
     dryWellDetail.setDryHoleType(form.getDryHoleType());
     dryWellDetail.setDryHoleCost(form.getDryHoleCost().createBigDecimalOrNull());
     dryWellDetail.setTotalDepthFormationComments(detailForm.getTotalDepthFormationComments());
@@ -72,5 +79,20 @@ class DryWellDetailsPersistenceService {
 
   public Optional<DryWellDetail> getDryWellDetailBySubmissionDetail(SubmissionDetail submissionDetail) {
     return dryWellDetailsRepository.findBySubmissionDetail(submissionDetail);
+  }
+
+  public void setTotalDepthFormation(WellDetailsForm form, DryWellDetail dryWellDetail) {
+    if (!Objects.isNull(form.getTotalDepthFormation())) {
+      if (SearchSelectorService.isManualEntry(form.getTotalDepthFormation())) {
+        dryWellDetail.setTotalDepthFormation(null);
+        dryWellDetail.setTotalDepthFormationManual(SearchSelectorService.removePrefix(form.getTotalDepthFormation()));
+      } else {
+        dryWellDetail.setTotalDepthFormation(EnumUtils.getEnumValue(Formation.class, form.getTotalDepthFormation()));
+        dryWellDetail.setTotalDepthFormationManual(null);
+      }
+    } else {
+      dryWellDetail.setTotalDepthFormation(null);
+      dryWellDetail.setTotalDepthFormationManual(null);
+    }
   }
 }

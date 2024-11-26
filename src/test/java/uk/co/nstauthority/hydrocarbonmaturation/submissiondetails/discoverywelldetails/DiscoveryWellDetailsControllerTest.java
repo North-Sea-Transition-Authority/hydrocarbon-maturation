@@ -38,6 +38,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationSearchService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
@@ -52,6 +54,10 @@ class DiscoveryWellDetailsControllerTest extends AbstractSubmissionControllerTes
 
   @MockBean
   private DiscoveryWellDetailsPersistenceService discoveryWellDetailsPersistenceService;
+
+  @MockBean
+  private FormationSearchService formationSearchService;
+
   private UUID submissionDetailId;
 
   @BeforeEach
@@ -155,9 +161,12 @@ class DiscoveryWellDetailsControllerTest extends AbstractSubmissionControllerTes
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var form = new DiscoveryWellDetailsForm();
     var preselectedWell = Map.of("well1", "well1");
+    var preselectedTotalDepthFormation = Map.of("formation1", "formation1");
 
     when(discoveryWellDetailsFormService.getDiscoveryWellDetailsForm(submissionDetail)).thenReturn(form);
     when(discoveryWellDetailsFormService.getPreSelectedWell(form.getWellDetailsForm().getWell())).thenReturn(preselectedWell);
+    when(formationSearchService.getPreSelectedFormation(form.getWellDetailsForm().getTotalDepthFormation()))
+        .thenReturn(preselectedTotalDepthFormation);
 
     var modelMap = Objects.requireNonNull(
             mockMvc.perform(
@@ -177,7 +186,9 @@ class DiscoveryWellDetailsControllerTest extends AbstractSubmissionControllerTes
             entry("hydrocarbonsDiscovered", DisplayableEnumOptionUtil.getDisplayableOptions(HydrocarbonsDiscovered.class)),
             entry("wellEndpoint",
                 SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null))),
-            entry("well", preselectedWell)
+            entry("well", preselectedWell),
+            entry("formationRestEndpoint", SearchSelectorService.route(on(FormationRestController.class).getFormationListWithManualEntry(null))),
+            entry("preSelectedTotalDepthFormation", preselectedTotalDepthFormation)
         );
 
     assertEquals(DiscoveryWellDetailsForm.class, modelMap.get("form").getClass());

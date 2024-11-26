@@ -27,6 +27,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationSearchService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListBreadcrumbUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
@@ -43,6 +45,7 @@ public class DryWellDetailsController {
   private final ControllerHelperService controllerHelperService;
   private final SubmissionDetailService submissionDetailService;
   private final DryWellDetailsPersistenceService dryWellDetailsPersistenceService;
+  private final FormationSearchService formationSearchService;
 
   public static final String PAGE_NAME = "Dry well details";
 
@@ -50,11 +53,13 @@ public class DryWellDetailsController {
   public DryWellDetailsController(DryWellDetailsFormService dryWellDetailsFormService,
                                   ControllerHelperService controllerHelperService,
                                   SubmissionDetailService submissionDetailService,
-                                  DryWellDetailsPersistenceService dryWellDetailsPersistenceService) {
+                                  DryWellDetailsPersistenceService dryWellDetailsPersistenceService,
+                                  FormationSearchService formationSearchService) {
     this.dryWellDetailsFormService = dryWellDetailsFormService;
     this.controllerHelperService = controllerHelperService;
     this.submissionDetailService = submissionDetailService;
     this.dryWellDetailsPersistenceService = dryWellDetailsPersistenceService;
+    this.formationSearchService = formationSearchService;
   }
 
   @GetMapping
@@ -98,7 +103,12 @@ public class DryWellDetailsController {
             DisplayableEnumOptionUtil.getDisplayableOptions(TrapFailureCategory.class))
         .addObject("migrationFailureCategories",
             DisplayableEnumOptionUtil.getDisplayableOptions(MigrationFailureCategory.class))
-        ;
+        .addObject("formationRestEndpoint",
+            SearchSelectorService.route(on(FormationRestController.class).getFormationListWithManualEntry(null))
+        )
+        .addObject("preSelectedTotalDepthFormation",
+            formationSearchService.getPreSelectedFormation(form.getDrillDetailsForm().getTotalDepthFormation())
+        );
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(
         modelAndView, PAGE_NAME, submissionDetail);

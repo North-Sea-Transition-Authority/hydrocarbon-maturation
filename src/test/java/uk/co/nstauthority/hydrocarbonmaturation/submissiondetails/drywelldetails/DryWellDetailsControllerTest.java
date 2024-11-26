@@ -38,6 +38,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationRestController;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.FormationSearchService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TaskListController;
 import uk.co.nstauthority.hydrocarbonmaturation.util.ControllerTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -51,6 +53,9 @@ class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
 
   @MockBean
   private DryWellDetailsPersistenceService dryWellDetailsPersistenceService;
+
+  @MockBean
+  private FormationSearchService formationSearchService;
 
   private UUID submissionDetailId;
 
@@ -145,9 +150,12 @@ class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
     when(submissionDetailService.getSubmissionDetailForIdOrError(submissionDetailId)).thenReturn(submissionDetail);
     var form = new DryWellDetailsForm();
     var preselectedWell = Map.of("well1", "well1");
+    var preselectedTotalDepthFormation = Map.of("formation1", "formation1");
 
     when(dryWellDetailsFormService.getDryWellDetailsForm(submissionDetail)).thenReturn(form);
     when(dryWellDetailsFormService.getPreSelectedWell(form.getDrillDetailsForm().getWell())).thenReturn(preselectedWell);
+    when(formationSearchService.getPreSelectedFormation(form.getDrillDetailsForm().getTotalDepthFormation()))
+        .thenReturn(preselectedTotalDepthFormation);
 
     var modelMap = Objects.requireNonNull(
         mockMvc.perform(
@@ -175,7 +183,9 @@ class DryWellDetailsControllerTest extends AbstractSubmissionControllerTest {
             DisplayableEnumOptionUtil.getDisplayableOptions(MigrationFailureCategory.class)),
             entry("wellEndpoint",
                 SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null))),
-            entry("well", preselectedWell)
+            entry("well", preselectedWell),
+            entry("formationRestEndpoint", SearchSelectorService.route(on(FormationRestController.class).getFormationListWithManualEntry(null))),
+            entry("preSelectedTotalDepthFormation", preselectedTotalDepthFormation)
         );
 
     assertEquals(DryWellDetailsForm.class, modelMap.get("form").getClass());

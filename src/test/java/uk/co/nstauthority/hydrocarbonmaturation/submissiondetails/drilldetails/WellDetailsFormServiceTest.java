@@ -17,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellView;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 
 @ExtendWith(MockitoExtension.class)
@@ -76,9 +77,22 @@ class WellDetailsFormServiceTest {
             drillDetail.getTopReservoirLongitudeSeconds(),
             drillDetail.getTopReservoirLongitudeHemisphere(),
             drillDetail.getGeophysicalUpdateCommentary(),
-            drillDetail.getTotalDepthFormation(),
+            drillDetail.getTotalDepthFormation().name(),
             drillDetail.getTotalDepthFormationComments()
         );
+  }
+
+  @Test
+  void wellDetailToForm_manualTopDepthFormation() {
+    var drillDetail = getDrillDetail(submissionDetail);
+    drillDetail.setTotalDepthFormation(null);
+    drillDetail.setTotalDepthFormationManual("text");
+
+    var form = wellDetailsFormService.drillDetailToForm(drillDetail);
+
+    assertThat(form)
+        .extracting(WellDetailsForm::getTotalDepthFormation)
+        .isEqualTo("FT_text");
   }
 
   @Test
@@ -115,7 +129,7 @@ class WellDetailsFormServiceTest {
     drillDetail.setTopReservoirLongitudeHemisphere(Hemisphere.EAST);
     drillDetail.setDataAcquisitionProgramme("data");
     drillDetail.setGeophysicalUpdateCommentary("update");
-    drillDetail.setTotalDepthFormation("formation");
+    drillDetail.setTotalDepthFormation(Formation.ASGARD);
     drillDetail.setTotalDepthFormationComments("Depth comments");
     return drillDetail;
   }

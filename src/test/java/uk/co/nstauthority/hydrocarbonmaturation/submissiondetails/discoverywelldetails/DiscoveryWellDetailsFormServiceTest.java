@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.ReservoirDatum;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.WellDetailsFormService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.formation.Formation;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.Hemisphere;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.SubmissionFormValidatorHints;
 import uk.co.nstauthority.hydrocarbonmaturation.validationutil.ValidationType;
@@ -142,13 +143,29 @@ class DiscoveryWellDetailsFormServiceTest {
             discoveryWellDetail.getDataAcquisitionProgramme(),
             discoveryWellDetail.getGeophysicalUpdateCommentary(),
             discoveryWellDetail.getTopReservoirDatum(),
-            discoveryWellDetail.getTotalDepthFormation(),
+            discoveryWellDetail.getTotalDepthFormation().name(),
             discoveryWellDetail.getTotalDepthFormationComments(),
             discoveryWellDetail.getChanceOfCommercialityComments(),
             discoveryWellDetail.getDiscoveryStatus(),
             Optional.of(discoveryWellDetail.getTotalWellCost()),
             Optional.of(discoveryWellDetail.getSuccessRelatedCosts())
         );
+  }
+
+  @Test
+  void getDiscoveryWellDetailsForm_manualTopDepthFormation_assertFilledForm() {
+    var discoveryWellDetail = getDiscoveryWellDetail();
+    discoveryWellDetail.setTotalDepthFormation(null);
+    discoveryWellDetail.setTotalDepthFormationManual("text");
+
+    when(discoveryWellDetailsPersistenceService.getDiscoveryWellDetailBySubmissionDetail(submissionDetail)).thenReturn(
+        Optional.of(discoveryWellDetail));
+    when(wellDetailsFormService.drillDetailToForm(discoveryWellDetail)).thenCallRealMethod();
+    var form = discoveryWellDetailsFormService.getDiscoveryWellDetailsForm(submissionDetail);
+
+    assertThat(form)
+        .extracting(theForm -> theForm.getWellDetailsForm().getTotalDepthFormation())
+        .isEqualTo("FT_text");
   }
 
   DiscoveryWellDetail getDiscoveryWellDetail() {
@@ -166,7 +183,7 @@ class DiscoveryWellDetailsFormServiceTest {
     discoveryWellDetail.setTopReservoirLongitudeHemisphere(Hemisphere.EAST);
     discoveryWellDetail.setDataAcquisitionProgramme("data");
     discoveryWellDetail.setGeophysicalUpdateCommentary("update");
-    discoveryWellDetail.setTotalDepthFormation("formation");
+    discoveryWellDetail.setTotalDepthFormation(Formation.ASGARD);
     discoveryWellDetail.setTotalDepthFormationComments("Depth comments");
     discoveryWellDetail.setSuccessRelatedCosts(BigDecimal.ONE);
     discoveryWellDetail.setTotalWellCost(BigDecimal.ONE);
