@@ -6,6 +6,13 @@ DECLARE
     custom_dist_type TEXT := 'CUSTOM';
 
 BEGIN
+    CREATE OR REPLACE FUNCTION calculate_summed_equiv(oil_val NUMERIC, cond_val NUMERIC, gas_val NUMERIC, ass_gas_val NUMERIC)
+    RETURNS NUMERIC AS $calculate_summed_equiv$
+    BEGIN
+        RETURN oil_val + cond_val + ((gas_val + ass_gas_val)/5.8);
+    END;
+    $calculate_summed_equiv$;
+
 
     -- Get oil and gas outputs and apply to either oil or gas hydrocarbon case
     -- as we can't rely on the PaDI hydrocarbon case to be accurate for the information supplied
@@ -27,10 +34,12 @@ BEGIN
         INSERT INTO remi.oil_case_outputs (
             id,
             reservoir_submission_detail_id,
-            has_associated_gas_recoverable_resources
+            has_associated_gas_recoverable_resources,
+            use_industry_standard_conversion
         ) VALUES (
             gen_random_uuid(),
             oil_and_gas_output_rec.rsd_id,
+            FALSE, -- updated later if required
             FALSE -- updated later if required
         );
 
@@ -208,16 +217,54 @@ BEGIN
                 oil_and_gas_output_rec.rsd_id
             );
 
+        ELSE
+
+            UPDATE remi.oil_case_outputs
+            SET use_industry_standard_conversion = TRUE
+            WHERE reservoir_submission_detail_id = oil_and_gas_output_rec.rsd_id;
+
+            INSERT INTO remi.probability_distributions (
+                id,
+                submission_detail_id,
+                distribution_type,
+                instance,
+                p99,
+                p90,
+                mode_value,
+                p50,
+                mean_value,
+                p10,
+                p1,
+                comments,
+                reservoir_submission_detail_id
+            ) VALUES (
+                 gen_random_uuid(),
+                 oil_and_gas_output_rec.sd_id,
+                 custom_dist_type,
+                 'OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT',
+                 calculate_summed_equiv(abs(oil_and_gas_output_rec.oil_recoverable_p99), 0, 0, abs(oil_and_gas_output_rec.assgas_recoverable_p99)),
+                 calculate_summed_equiv(abs(oil_and_gas_output_rec.oil_recoverable_p90), 0, 0, abs(oil_and_gas_output_rec.assgas_recoverable_p90)),
+                 calculate_summed_equiv(abs(oil_and_gas_output_rec.oil_recoverable_mode), 0, 0, abs(oil_and_gas_output_rec.assgas_recoverable_mode)),
+                 calculate_summed_equiv(abs(oil_and_gas_output_rec.oil_recoverable_p50), 0, 0, abs(oil_and_gas_output_rec.assgas_recoverable_p50)),
+                 calculate_summed_equiv(abs(oil_and_gas_output_rec.oil_recoverable_mean), 0, 0, abs(oil_and_gas_output_rec.assgas_recoverable_mean)),
+                 calculate_summed_equiv(abs(oil_and_gas_output_rec.oil_recoverable_p10), 0, 0, abs(oil_and_gas_output_rec.assgas_recoverable_p10)),
+                 calculate_summed_equiv(abs(oil_and_gas_output_rec.oil_recoverable_p01), 0, 0, abs(oil_and_gas_output_rec.assgas_recoverable_p01)),
+                 NULL,
+                 oil_and_gas_output_rec.rsd_id
+             );
+
         END IF;
 
         -- gas case outputs
         INSERT INTO remi.gas_case_outputs (
             id,
             reservoir_submission_detail_id,
-            has_associated_condensate_recoverable_resources
+            has_associated_condensate_recoverable_resources,
+            use_industry_standard_conversion
         ) VALUES (
             gen_random_uuid(),
             oil_and_gas_output_rec.rsd_id,
+            FALSE, -- updated later if required
             FALSE -- updated later if required
         );
 
@@ -395,6 +442,42 @@ BEGIN
                 oil_and_gas_output_rec.rsd_id
             );
 
+        ELSE
+
+            UPDATE remi.gas_case_outputs
+            SET use_industry_standard_conversion = TRUE
+            WHERE reservoir_submission_detail_id = oil_and_gas_output_rec.rsd_id;
+
+            INSERT INTO remi.probability_distributions (
+                id,
+                submission_detail_id,
+                distribution_type,
+                instance,
+                p99,
+                p90,
+                mode_value,
+                p50,
+                mean_value,
+                p10,
+                p1,
+                comments,
+                reservoir_submission_detail_id
+            ) VALUES (
+                 gen_random_uuid(),
+                 oil_and_gas_output_rec.sd_id,
+                 custom_dist_type,
+                 'GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT',
+                 calculate_summed_equiv(0, abs(oil_and_gas_output_rec.asscon_recoverable_p99), abs(oil_and_gas_output_rec.gas_recoverable_p99), 0),
+                 calculate_summed_equiv(0, abs(oil_and_gas_output_rec.asscon_recoverable_p90), abs(oil_and_gas_output_rec.gas_recoverable_p90), 0),
+                 calculate_summed_equiv(0, abs(oil_and_gas_output_rec.asscon_recoverable_mode), abs(oil_and_gas_output_rec.gas_recoverable_mode), 0),
+                 calculate_summed_equiv(0, abs(oil_and_gas_output_rec.asscon_recoverable_p50), abs(oil_and_gas_output_rec.gas_recoverable_p50), 0),
+                 calculate_summed_equiv(0, abs(oil_and_gas_output_rec.asscon_recoverable_mean), abs(oil_and_gas_output_rec.gas_recoverable_mean), 0),
+                 calculate_summed_equiv(0, abs(oil_and_gas_output_rec.asscon_recoverable_p10), abs(oil_and_gas_output_rec.gas_recoverable_p10), 0),
+                 calculate_summed_equiv(0, abs(oil_and_gas_output_rec.asscon_recoverable_p01), abs(oil_and_gas_output_rec.gas_recoverable_p01), 0),
+                 NULL,
+                 oil_and_gas_output_rec.rsd_id
+             );
+
         END IF;
 
     END LOOP;
@@ -418,10 +501,12 @@ BEGIN
         INSERT INTO remi.mixed_case_outputs (
             id,
             reservoir_submission_detail_id,
-            has_associated_gas_recoverable_resources
+            has_associated_gas_recoverable_resources,
+            use_industry_standard_conversion
         ) VALUES (
              gen_random_uuid(),
              mixed_output_rec.rsd_id,
+             FALSE, -- updated later if required
              FALSE -- updated later if required
          );
 
@@ -727,6 +812,42 @@ BEGIN
                 mixed_output_rec.oilequiv_recoverable_comment,
                 mixed_output_rec.rsd_id
             );
+
+        ELSE
+
+            UPDATE remi.mixed_case_outputs
+            SET use_industry_standard_conversion = TRUE
+            WHERE reservoir_submission_detail_id = mixed_output_rec.rsd_id;
+
+            INSERT INTO remi.probability_distributions (
+                id,
+                submission_detail_id,
+                distribution_type,
+                instance,
+                p99,
+                p90,
+                mode_value,
+                p50,
+                mean_value,
+                p10,
+                p1,
+                comments,
+                reservoir_submission_detail_id
+            ) VALUES (
+                 gen_random_uuid(),
+                 mixed_output_rec.sd_id,
+                 custom_dist_type,
+                 'MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT',
+                 calculate_summed_equiv(abs(mixed_output_rec.oil_recoverable_p99), abs(mixed_output_rec.asscon_recoverable_p99), abs(mixed_output_rec.gas_recoverable_p99), abs(mixed_output_rec.assgas_recoverable_p99)),
+                 calculate_summed_equiv(abs(mixed_output_rec.oil_recoverable_p90), abs(mixed_output_rec.asscon_recoverable_p90), abs(mixed_output_rec.gas_recoverable_p90), abs(mixed_output_rec.assgas_recoverable_p90)),
+                 calculate_summed_equiv(abs(mixed_output_rec.oil_recoverable_mode), abs(mixed_output_rec.asscon_recoverable_mode), abs(mixed_output_rec.gas_recoverable_mode), abs(mixed_output_rec.assgas_recoverable_mode)),
+                 calculate_summed_equiv(abs(mixed_output_rec.oil_recoverable_p50), abs(mixed_output_rec.asscon_recoverable_p50), abs(mixed_output_rec.gas_recoverable_p50), abs(mixed_output_rec.assgas_recoverable_p50)),
+                 calculate_summed_equiv(abs(mixed_output_rec.oil_recoverable_mean), abs(mixed_output_rec.asscon_recoverable_mean), abs(mixed_output_rec.gas_recoverable_mean), abs(mixed_output_rec.assgas_recoverable_mean)),
+                 calculate_summed_equiv(abs(mixed_output_rec.oil_recoverable_p10), abs(mixed_output_rec.asscon_recoverable_p10), abs(mixed_output_rec.gas_recoverable_p10), abs(mixed_output_rec.assgas_recoverable_p10)),
+                 calculate_summed_equiv(abs(mixed_output_rec.oil_recoverable_p01), abs(mixed_output_rec.asscon_recoverable_p01), abs(mixed_output_rec.gas_recoverable_p01), abs(mixed_output_rec.assgas_recoverable_p01)),
+                 NULL,
+                 mixed_output_rec.rsd_id
+             );
 
         END IF;
 
