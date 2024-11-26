@@ -11,3 +11,10 @@ CREATE TABLE remi.devuk_field (
   field_prt_number NUMERIC,
   consulting_authorities TEXT
 );
+
+CREATE TABLE pre_pears_field_organisations (
+    field_identifier  INTEGER,
+    organ_id          INTEGER,
+    name              TEXT,
+    registered_number TEXT
+);
