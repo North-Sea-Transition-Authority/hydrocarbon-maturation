@@ -14,8 +14,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionReso
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.IndustryTeamService;
-import uk.co.nstauthority.hydrocarbonmaturation.teams.InternalTeamService;
 
 @Service
 class SubmissionQueryService {
@@ -26,9 +24,6 @@ class SubmissionQueryService {
   private final SubmissionFilterService submissionFilterService;
   private final SubmissionSearchSelectorServiceFactory submissionSearchSelectorServiceFactory;
   private final ResourceGroupService resourceGroupService;
-  private final ResourceLinkService resourceLinkService;
-  private final IndustryTeamService industryTeamService;
-  private final InternalTeamService internalTeamService;
   private final DiscoveryAssociationService discoveryAssociationService;
 
   @Autowired
@@ -38,9 +33,6 @@ class SubmissionQueryService {
                          SubmissionFilterService submissionFilterService,
                          SubmissionSearchSelectorServiceFactory submissionSearchSelectorServiceFactory,
                          ResourceGroupService resourceGroupService,
-                         ResourceLinkService resourceLinkService,
-                         IndustryTeamService industryTeamService,
-                         InternalTeamService internalTeamService,
                          DiscoveryAssociationService discoveryAssociationService) {
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.submissionDetailService = submissionDetailService;
@@ -48,9 +40,6 @@ class SubmissionQueryService {
     this.submissionFilterService = submissionFilterService;
     this.submissionSearchSelectorServiceFactory = submissionSearchSelectorServiceFactory;
     this.resourceGroupService = resourceGroupService;
-    this.resourceLinkService = resourceLinkService;
-    this.industryTeamService = industryTeamService;
-    this.internalTeamService = internalTeamService;
     this.discoveryAssociationService = discoveryAssociationService;
   }
 
@@ -100,25 +89,6 @@ class SubmissionQueryService {
         .toList();
   }
 
-  public List<ResourceView> getLatestResourceSubmissionsByName(String name, User user) {
-    // Get every resource by name
-    return submissionResourceService.getResourcesByName(name).stream()
-        // remove any prospects that are linked to a discovery
-        .filter(resource ->
-            resource.getType() == ResourceType.DISCOVERY
-                || (resource.getType() == ResourceType.PROSPECT && !resourceLinkService.prospectIsLinkedToDiscovery(resource))
-        )
-        .filter(resource -> filterResourceByUser(resource, user))
-        // Get the latest approved submission for each resource
-        .map(submissionDetailService::getLatestApprovedSubmissionDetailForResource)
-        .flatMap(Optional::stream)
-        .map(resourceDetailsPersistenceService::getResourceDetailOrThrow)
-        // Create a list of resource views for prospects to be displayed in a search selector
-        .map(this::getResourceViewFromResourceDetail)
-        .sorted(Comparator.comparing(ResourceView::getSelectionText))
-        .toList();
-  }
-
   public List<ResourceView> getLatestNotRelinquishedAndNotInGroupOrPreferredViewDiscoveriesByName(String name) {
     //gets every discovery resource with the name specified
     var distinctDiscoveries =
@@ -144,19 +114,5 @@ class SubmissionQueryService {
   private ResourceView getResourceViewFromResourceDetail(ResourceDetail resourceDetail) {
     var resourceDisplayName = submissionResourceService.getResourceDisplayName(resourceDetail);
     return new ResourceView(resourceDetail.getId(), resourceDisplayName);
-  }
-
-  private boolean filterResourceByUser(Resource resource, User user) {
-    if (internalTeamService.isRegulatorOrAreaTeamUser(user)) {
-      return true;
-    }
-
-    Integer responsibleOrganisationId = submissionDetailService.getLatestApprovedSubmissionDetailForResource(resource)
-        .map(submissionDetail -> resourceDetailsPersistenceService.getResourceDetailOrThrow(submissionDetail).getOrganisationId())
-        .orElse(null);
-    var userSubmitterOrgUnits = industryTeamService
-        .getOrganisationUnitIdsForUser(user);
-
-    return (responsibleOrganisationId != null && userSubmitterOrgUnits.contains(responsibleOrganisationId));
   }
 }
