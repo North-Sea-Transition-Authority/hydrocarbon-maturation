@@ -37,19 +37,23 @@ public class OilCaseOutputsPersistenceService {
   @Transactional
   public void saveOilCaseOutputs(OilCaseOutputsForm oilCaseOutputsForm, ReservoirSubmissionDetail reservoirSubmissionDetail) {
     saveProbabilityDistributionFields(oilCaseOutputsForm, reservoirSubmissionDetail);
+    var oilCaseOutput = getOilCaseOutput(reservoirSubmissionDetail).orElseGet(OilCaseOutput::new);
+    oilCaseOutput.setReservoirSubmissionDetail(reservoirSubmissionDetail);
+    oilCaseOutput.setUseIndustryStandardConversion(oilCaseOutputsForm.getUseIndustryStandardConversion());
 
     if (reservoirSubmissionDetail.getSubmissionDetail().isProspectSubmission()) {
-      var oilCaseOutput = getOilCaseOutput(reservoirSubmissionDetail).orElseGet(OilCaseOutput::new);
-
-      oilCaseOutput.setReservoirSubmissionDetail(reservoirSubmissionDetail);
       oilCaseOutput.setHasAssociatedGasRecoverableResources(oilCaseOutputsForm.getHasAssociatedGasRecoverableResources());
-      oilCaseOutput.setUseIndustryStandardConversion(oilCaseOutputsForm.getUseIndustryStandardConversion());
-
-      oilCaseOutputsRepository.save(oilCaseOutput);
 
       if (BooleanUtils.isTrue(oilCaseOutputsForm.getUseIndustryStandardConversion())) {
         calculateAndSaveIndustryStandardOilEquivalentResourcesForProspect(oilCaseOutputsForm, reservoirSubmissionDetail);
       }
+    }
+
+    oilCaseOutputsRepository.save(oilCaseOutput);
+
+    if (reservoirSubmissionDetail.getSubmissionDetail().isDiscoverySubmission()
+        && BooleanUtils.isTrue(oilCaseOutputsForm.getUseIndustryStandardConversion())) {
+      calculateAndSaveIndustryStandardOilEquivalentResourcesForDiscovery(oilCaseOutputsForm, reservoirSubmissionDetail);
     }
   }
 
@@ -62,6 +66,9 @@ public class OilCaseOutputsPersistenceService {
       OilCaseOutputsForm oilCaseOutputsForm,
       ReservoirSubmissionDetail reservoirSubmissionDetail
   ) {
+    var instance =
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT;
+
     var distributionFormMap = Map.of(
         ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT,
         oilCaseOutputsForm.getOilRecoverableResources(),
@@ -70,14 +77,41 @@ public class OilCaseOutputsPersistenceService {
     );
     var summedDistribution = probabilityDistributionPersistenceService.getProbabilityDistribution(
             reservoirSubmissionDetail,
-            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT
+            instance
         )
         .orElse(new ProbabilityDistribution());
 
     probabilityDistributionPersistenceService.saveSummedProbabilityDistribution(
         probabilityDistributionSumService.calculateIndustryStandardOilEquivalentResourcesForProspect(
             summedDistribution, distributionFormMap),
-        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT,
+        instance,
+        reservoirSubmissionDetail
+    );
+  }
+
+  private void calculateAndSaveIndustryStandardOilEquivalentResourcesForDiscovery(
+      OilCaseOutputsForm oilCaseOutputsForm,
+      ReservoirSubmissionDetail reservoirSubmissionDetail
+  ) {
+    var instance =
+        ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY;
+
+    var distributionFormMap = Map.of(
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
+        oilCaseOutputsForm.getOilRecoverableResources(),
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
+        oilCaseOutputsForm.getAssociatedGasRecoverableResources()
+    );
+    var summedDistribution = probabilityDistributionPersistenceService.getProbabilityDistribution(
+            reservoirSubmissionDetail,
+            instance
+        )
+        .orElse(new ProbabilityDistribution());
+
+    probabilityDistributionPersistenceService.saveSummedProbabilityDistribution(
+        probabilityDistributionSumService.calculateIndustryStandardOilEquivalentResourcesForDiscovery(
+            summedDistribution, distributionFormMap),
+        instance,
         reservoirSubmissionDetail
     );
   }

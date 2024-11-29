@@ -64,6 +64,18 @@ class OilCaseOutputsFormValidatorTest {
     assertFalse(bindingResult.hasErrors());
   }
 
+  @ParameterizedTest
+  @EnumSource(value = ValidationType.class)
+  void validate_whenValidForm_andDiscovery_whenUseIndustryStandard_thenNoValidationErrors(ValidationType validationType) {
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var form = getDiscoveryValidForm();
+    form.setUseIndustryStandardConversion(true);
+    form.setOilEquivalentRecoverableResources(null);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    oilCaseOutputsFormValidator.isValid(form, bindingResult, discoverySubmissionDetail, validationType);
+    assertFalse(bindingResult.hasErrors());
+  }
+
   @Test
   void validate_whenInvalidForm_andProspect_thenValidationErrors() {
     var form = getFormWithEmptyDistributions(ProbabilityDistributionType.CUSTOM);
@@ -194,7 +206,7 @@ class OilCaseOutputsFormValidatorTest {
     form.setOilInPlace(probabilityDistributionForm);
     form.setRiskedOilEquivalentRecoverableMean(probabilityDistributionForm);
     form.setHasAssociatedGasRecoverableResources(true);
-
+    form.setUseIndustryStandardConversion(false);
     return form;
   }
 
@@ -210,6 +222,7 @@ class OilCaseOutputsFormValidatorTest {
     form.setOilInPlace(probabilityDistributionForm);
     form.setRiskedOilEquivalentRecoverableMean(probabilityDistributionForm);
     form.setHasAssociatedGasRecoverableResources(true);
+    form.setUseIndustryStandardConversion(false);
     return form;
   }
 

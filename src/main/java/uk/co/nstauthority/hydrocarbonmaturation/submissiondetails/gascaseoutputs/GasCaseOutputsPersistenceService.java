@@ -94,9 +94,12 @@ public class GasCaseOutputsPersistenceService {
 
     gasCaseOutputsRepository.save(gasCaseOutput);
 
-    if (reservoirSubmissionDetail.getSubmissionDetail().isProspectSubmission()
-        && BooleanUtils.isTrue(gasCaseOutputsForm.getUseIndustryStandardConversion())) {
-      calculateAndSaveIndustryStandardOilEquivalentResourcesForProspect(gasCaseOutputsForm, reservoirSubmissionDetail);
+    if (BooleanUtils.isTrue(gasCaseOutputsForm.getUseIndustryStandardConversion())) {
+      if (resourceType == ResourceType.PROSPECT) {
+        calculateAndSaveIndustryStandardOilEquivalentResourcesForProspect(gasCaseOutputsForm, reservoirSubmissionDetail);
+      } else if (resourceType == ResourceType.DISCOVERY) {
+        calculateAndSaveIndustryStandardOilEquivalentResourcesForDiscovery(gasCaseOutputsForm, reservoirSubmissionDetail);
+      }
     }
   }
 
@@ -113,6 +116,9 @@ public class GasCaseOutputsPersistenceService {
       GasCaseOutputsForm gasCaseOutputsForm,
       ReservoirSubmissionDetail reservoirSubmissionDetail
   ) {
+    var instance =
+        ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT;
+
     var distributionFormMap = Map.of(
         ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_PROSPECT,
         gasCaseOutputsForm.getGasRecoverableResources(),
@@ -122,14 +128,42 @@ public class GasCaseOutputsPersistenceService {
 
     var summedDistribution = probabilityDistributionPersistenceService.getProbabilityDistribution(
             reservoirSubmissionDetail,
-            ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT
+            instance
         )
         .orElse(new ProbabilityDistribution());
 
     probabilityDistributionPersistenceService.saveSummedProbabilityDistribution(
         probabilityDistributionSumService.calculateIndustryStandardOilEquivalentResourcesForProspect(
             summedDistribution, distributionFormMap),
-        ProbabilityDistributionFieldInstance.GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT,
+        instance,
+        reservoirSubmissionDetail
+    );
+  }
+
+  private void calculateAndSaveIndustryStandardOilEquivalentResourcesForDiscovery(
+      GasCaseOutputsForm gasCaseOutputsForm,
+      ReservoirSubmissionDetail reservoirSubmissionDetail
+  ) {
+    var instance =
+        ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY;
+
+    var distributionFormMap = Map.of(
+        ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
+        gasCaseOutputsForm.getGasRecoverableResources(),
+        ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
+        gasCaseOutputsForm.getAssociatedCondensateRecoverableResources()
+    );
+
+    var summedDistribution = probabilityDistributionPersistenceService.getProbabilityDistribution(
+            reservoirSubmissionDetail,
+            instance
+        )
+        .orElse(new ProbabilityDistribution());
+
+    probabilityDistributionPersistenceService.saveSummedProbabilityDistribution(
+        probabilityDistributionSumService.calculateIndustryStandardOilEquivalentResourcesForDiscovery(
+            summedDistribution, distributionFormMap),
+        instance,
         reservoirSubmissionDetail
     );
   }

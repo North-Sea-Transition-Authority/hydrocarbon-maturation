@@ -70,6 +70,20 @@ public class ProbabilityDistributionPersistenceService {
     probabilityDistributionRepository.save(summedProbabilityDistribution);
   }
 
+  @Transactional
+  public void saveSummedProbabilityDistribution(
+      ProbabilityDistribution summedProbabilityDistribution,
+      ProbabilityDistributionFieldInstance instance,
+      SubmissionDetail submissionDetail
+  ) {
+    summedProbabilityDistribution.setDistributionType(ProbabilityDistributionType.CUSTOM);
+    summedProbabilityDistribution.setInstance(instance);
+    summedProbabilityDistribution.setSubmissionDetail(submissionDetail);
+    summedProbabilityDistribution.setReservoirSubmissionDetail(null);
+
+    probabilityDistributionRepository.save(summedProbabilityDistribution);
+  }
+
   private void saveProbabilityDistribution(
       ProbabilityDistributionFieldInstance instance,
       ProbabilityDistributionForm form,
@@ -113,7 +127,7 @@ public class ProbabilityDistributionPersistenceService {
     probabilityDistributionRepository.save(probabilityDistribution);
   }
 
-  Optional<ProbabilityDistribution> getProbabilityDistribution(
+  public Optional<ProbabilityDistribution> getProbabilityDistribution(
       SubmissionDetail submissionDetail,
       ProbabilityDistributionFieldInstance instance
   ) {

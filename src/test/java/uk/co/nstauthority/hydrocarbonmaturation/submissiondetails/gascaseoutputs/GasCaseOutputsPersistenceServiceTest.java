@@ -84,7 +84,7 @@ class GasCaseOutputsPersistenceServiceTest {
   }
 
   @Test
-  void saveGasCaseOutputs_whenUseIndustryStandard_verifyDoCalculation() {
+  void saveGasCaseOutputs_whenProspect_whenUseIndustryStandard_verifyDoCalculation() {
     var form = new GasCaseOutputsForm();
     form.setUseIndustryStandardConversion(true);
 
@@ -105,7 +105,7 @@ class GasCaseOutputsPersistenceServiceTest {
   }
 
   @Test
-  void saveGasCaseOutputs_whenNotUseIndustryStandard_verifyNotDoCalculation() {
+  void saveGasCaseOutputs_whenProspect_whenNotUseIndustryStandard_verifyNotDoCalculation() {
     var form = new GasCaseOutputsForm();
     form.setUseIndustryStandardConversion(false);
 
@@ -128,6 +128,7 @@ class GasCaseOutputsPersistenceServiceTest {
     form.setAssociatedCondensateRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
     form.setOilEquivalentRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
     form.setHasAssociatedCondensateRecoverableResources(true);
+    form.setUseIndustryStandardConversion(false);
     gasCaseOutputsPersistenceService.saveGasCaseOutputs(form, discoveryReservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
@@ -169,6 +170,7 @@ class GasCaseOutputsPersistenceServiceTest {
     form.setAssociatedCondensateRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
     form.setOilEquivalentRecoverableResources(ProbabilityDistributionTestUtil.getValidCustomProbabilityDistributionForm());
     form.setHasAssociatedCondensateRecoverableResources(false);
+    form.setUseIndustryStandardConversion(false);
     gasCaseOutputsPersistenceService.saveGasCaseOutputs(form, reservoirSubmissionDetail);
 
     verify(probabilityDistributionPersistenceService, times(1))
@@ -198,6 +200,35 @@ class GasCaseOutputsPersistenceServiceTest {
             reservoirSubmissionDetail);
 
     verify(gasCaseOutputsRepository, times(1)).save(any(GasCaseOutput.class));
+  }
+
+  @Test
+  void saveGasCaseOutputs_whenDiscovery_whenUseIndustryStandardConversion_verifyCreatedEntity() {
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
+
+    var form = new GasCaseOutputsForm();
+    form.setUseIndustryStandardConversion(true);
+
+    var gasCaseOutput = new GasCaseOutput();
+    gasCaseOutput.setUseIndustryStandardConversion(true);
+    gasCaseOutput.setReservoirSubmissionDetail(discoveryReservoirSubmissionDetail);
+
+    when(gasCaseOutputsRepository.findByReservoirSubmissionDetail(discoveryReservoirSubmissionDetail)).thenReturn(Optional.of(gasCaseOutput));
+
+    var instance = ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY;
+    var distribution = new ProbabilityDistribution();
+
+    when(probabilityDistributionPersistenceService.getProbabilityDistribution(discoveryReservoirSubmissionDetail, instance))
+        .thenReturn(Optional.of(distribution));
+
+    when(probabilityDistributionSumService.calculateIndustryStandardOilEquivalentResourcesForDiscovery(eq(distribution), anyMap()))
+        .thenReturn(distribution);
+
+    gasCaseOutputsPersistenceService.saveGasCaseOutputs(form, discoveryReservoirSubmissionDetail);
+
+    verify(gasCaseOutputsRepository, times(1)).save(any(GasCaseOutput.class));
+    verify(probabilityDistributionPersistenceService, times(1)).saveSummedProbabilityDistribution(distribution, instance, discoveryReservoirSubmissionDetail);
   }
 
   @Test

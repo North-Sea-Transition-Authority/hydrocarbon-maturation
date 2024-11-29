@@ -5,7 +5,10 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.Probabil
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.SummaryBehaviour;
 
-public record DiscoveryOilCaseVolumetricTotalsSummaryView(ProbabilityDistributionTableView tableView) {
+public record DiscoveryOilCaseVolumetricTotalsSummaryView(
+    String useIndustryStandardConversion,
+    ProbabilityDistributionTableView tableView
+) {
 
   public static DiscoveryOilCaseVolumetricTotalsSummaryView empty(SummaryBehaviour summaryBehaviour) {
     var emptyTableView = new ProbabilityDistributionTableView(
@@ -18,6 +21,6 @@ public record DiscoveryOilCaseVolumetricTotalsSummaryView(ProbabilityDistributio
         )
     );
 
-    return new DiscoveryOilCaseVolumetricTotalsSummaryView(emptyTableView);
+    return new DiscoveryOilCaseVolumetricTotalsSummaryView("", emptyTableView);
   }
 }

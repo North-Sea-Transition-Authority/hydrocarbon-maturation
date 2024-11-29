@@ -49,12 +49,6 @@ class GasCaseOutputsFormValidator implements SubmissionValidator {
         );
       }
 
-      ValidationUtils.rejectIfEmptyOrWhitespace(
-          errors,
-          "useIndustryStandardConversion",
-          "useIndustryStandardConversion.required",
-          "Select if you want to use industry standard conversion");
-
       if (BooleanUtils.isFalse(useIndustryStandardConversion(gasCaseOutputsForm))) {
         var oilEquivalentRecoverableResources = gasCaseOutputsForm.getOilEquivalentRecoverableResources();
         ProbabilityDistributionValidationUtil.validateCustomPartial(
@@ -95,14 +89,16 @@ class GasCaseOutputsFormValidator implements SubmissionValidator {
         );
       }
 
-      var oilEquivalentRecoverableResources = gasCaseOutputsForm.getOilEquivalentRecoverableResources();
-      ProbabilityDistributionValidationUtil.validateCustomPartial(
-          oilEquivalentRecoverableResources,
-          errors,
-          "oilEquivalentRecoverableResources",
-          "Oil equivalent recoverable resources",
-          ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
-      );
+      if (BooleanUtils.isFalse(useIndustryStandardConversion(gasCaseOutputsForm))) {
+        var oilEquivalentRecoverableResources = gasCaseOutputsForm.getOilEquivalentRecoverableResources();
+        ProbabilityDistributionValidationUtil.validateCustomPartial(
+            oilEquivalentRecoverableResources,
+            errors,
+            "oilEquivalentRecoverableResources",
+            "Oil equivalent recoverable resources",
+            ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+        );
+      }
     }
   }
 
@@ -151,7 +147,8 @@ class GasCaseOutputsFormValidator implements SubmissionValidator {
           errors,
           "useIndustryStandardConversion",
           "useIndustryStandardConversion.required",
-          "Select if you want to use industry standard conversion");
+          "Select if you want to use industry standard conversion"
+      );
 
       if (BooleanUtils.isFalse(useIndustryStandardConversion(gasCaseOutputsForm))) {
         var oilEquivalentRecoverableResources = gasCaseOutputsForm.getOilEquivalentRecoverableResources();
@@ -199,14 +196,23 @@ class GasCaseOutputsFormValidator implements SubmissionValidator {
         );
       }
 
-      var oilEquivalentRecoverableResources = gasCaseOutputsForm.getOilEquivalentRecoverableResources();
-      ProbabilityDistributionValidationUtil.validateCustomFull(
-          oilEquivalentRecoverableResources,
+      ValidationUtils.rejectIfEmptyOrWhitespace(
           errors,
-          "oilEquivalentRecoverableResources",
-          "Oil equivalent recoverable resources",
-          ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+          "useIndustryStandardConversion",
+          "useIndustryStandardConversion.required",
+          "Select if you want to use industry standard conversion"
       );
+
+      if (BooleanUtils.isFalse(useIndustryStandardConversion(gasCaseOutputsForm))) {
+        var oilEquivalentRecoverableResources = gasCaseOutputsForm.getOilEquivalentRecoverableResources();
+        ProbabilityDistributionValidationUtil.validateCustomFull(
+            oilEquivalentRecoverableResources,
+            errors,
+            "oilEquivalentRecoverableResources",
+            "Oil equivalent recoverable resources",
+            ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+        );
+      }
     }
   }
 

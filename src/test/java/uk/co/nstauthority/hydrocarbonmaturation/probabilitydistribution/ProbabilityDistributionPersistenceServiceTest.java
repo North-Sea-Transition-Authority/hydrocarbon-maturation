@@ -208,7 +208,7 @@ class ProbabilityDistributionPersistenceServiceTest {
   }
 
   @Test
-  void saveSummedProbabilityDistribution() {
+  void saveSummedProbabilityDistribution_reservoirSubmissionDetail() {
     var instance = ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT;
     var submissionDetail = new SubmissionDetail();
     var reservoirSubmissionDetail = new ReservoirSubmissionDetail();
@@ -229,6 +229,30 @@ class ProbabilityDistributionPersistenceServiceTest {
     ).containsExactly(
         instance,
         reservoirSubmissionDetail,
+        submissionDetail
+    );
+  }
+
+  @Test
+  void saveSummedProbabilityDistribution_submissionDetail() {
+    var instance = ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT;
+    var submissionDetail = new SubmissionDetail();
+
+    probabilityDistributionPersistenceService.saveSummedProbabilityDistribution(
+        new ProbabilityDistribution(),
+        instance,
+        submissionDetail
+    );
+
+    verify(probabilityDistributionRepository).save(probabilityDistributionArgumentCaptor.capture());
+
+    assertThat(probabilityDistributionArgumentCaptor.getValue()).extracting(
+        ProbabilityDistribution::getInstance,
+        ProbabilityDistribution::getReservoirSubmissionDetail,
+        ProbabilityDistribution::getSubmissionDetail
+    ).containsExactly(
+        instance,
+        null,
         submissionDetail
     );
   }

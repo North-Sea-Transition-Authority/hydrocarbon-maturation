@@ -45,6 +45,17 @@ class DiscoveryCombinedCaseVolTotalsFormValidatorTest {
     assertFalse(bindingResult.hasErrors());
   }
 
+  @ParameterizedTest
+  @EnumSource(value = ValidationType.class)
+  void validate_whenValidForm_whenUseIndustryStandardConversion_thenNoValidationErrors(ValidationType validationType) {
+    var form = getValidForm();
+    form.setUseIndustryStandardConversion(true);
+    form.setOilEquivalentRecoverableResources(null);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    discoveryCombinedCaseVolTotalsFormValidator.isValid(form, bindingResult, submissionDetail, validationType);
+    assertFalse(bindingResult.hasErrors());
+  }
+
   @Test
   void validate_whenInvalidForm_thenValidationErrors() {
     var form = getFormWithEmptyDistributions(ProbabilityDistributionType.CUSTOM);
@@ -76,6 +87,7 @@ class DiscoveryCombinedCaseVolTotalsFormValidatorTest {
   void validate_whenYesNoNotSelected_thenValidationErrors() {
     var form = getValidForm();
     form.setHasAssociatedCondensateRecoverableResources(null);
+    form.setUseIndustryStandardConversion(null);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     discoveryCombinedCaseVolTotalsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.FULL);
 
@@ -83,7 +95,8 @@ class DiscoveryCombinedCaseVolTotalsFormValidatorTest {
 
     assertThat(extractedErrors)
         .contains(
-            entry("hasAssociatedCondensateRecoverableResources", Set.of("hasAssociatedCondensateRecoverableResources.required"))
+            entry("hasAssociatedCondensateRecoverableResources", Set.of("hasAssociatedCondensateRecoverableResources.required")),
+            entry("useIndustryStandardConversion", Set.of("useIndustryStandardConversion.required"))
         );
   }
 
@@ -159,6 +172,7 @@ class DiscoveryCombinedCaseVolTotalsFormValidatorTest {
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionForm);
     form.setGasInPlace(probabilityDistributionForm);
     form.setHasAssociatedCondensateRecoverableResources(true);
+    form.setUseIndustryStandardConversion(false);
 
     return form;
   }
@@ -177,6 +191,7 @@ class DiscoveryCombinedCaseVolTotalsFormValidatorTest {
     form.setGasInPlace(probabilityDistributionForm);
     form.setAssociatedCondensateRecoverableResources(probabilityDistributionForm);
     form.setHasAssociatedCondensateRecoverableResources(true);
+    form.setUseIndustryStandardConversion(false);
     return form;
   }
 
@@ -211,6 +226,7 @@ class DiscoveryCombinedCaseVolTotalsFormValidatorTest {
     form.setAssociatedCondensateRecoverableResources(associatedCondensate);
     form.setGasRecoverableResources(gasRecoverableResources);
     form.setHasAssociatedCondensateRecoverableResources(true);
+    form.setUseIndustryStandardConversion(false);
     return form;
   }
 }

@@ -6,7 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,8 +46,8 @@ class OilCaseOutputsSummaryServiceTest {
       ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_PROSPECT,
       ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT,
       ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT,
-      ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT,
-      ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT
+      ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT,
+      ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT
   );
 
   @Mock
@@ -111,8 +110,13 @@ class OilCaseOutputsSummaryServiceTest {
         discoverySubmissionDetail);
     oilCaseOutput.setReservoirSubmissionDetail(discoveryReservoirSubmissionDetail);
 
-    var instances = new ArrayList<>(OilCaseOutputsSummaryService.OIL_VOLUMETRIC_INSTANCES_DISCOVERY);
-    instances.add(ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
+    var instances = List.of(
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY,
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
+        ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+    );
+
     when(oilCaseOutputsPersistenceService.getOilCaseOutput(discoveryReservoirSubmissionDetail))
         .thenReturn(Optional.of(oilCaseOutput));
     when(probabilityDistributionSummaryService
@@ -131,6 +135,46 @@ class OilCaseOutputsSummaryServiceTest {
             OilCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
             OilCaseOutputsSummaryView::tableView)
         .containsExactly(
+            "Yes",
+            tableView
+        );
+  }
+
+  @Test
+  void getOilCaseOutputsSummaryFromReservoirSubmissionDetail_whenPresent_notEmptySummary_whenDiscovery_whenUseIndustryStandardConversion() {
+    var tableView = ProbabilityDistributionTableView.empty();
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+        discoverySubmissionDetail);
+    oilCaseOutput.setReservoirSubmissionDetail(discoveryReservoirSubmissionDetail);
+    oilCaseOutput.setHasAssociatedGasRecoverableResources(true);
+    oilCaseOutput.setUseIndustryStandardConversion(true);
+
+    var instances = List.of(
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY,
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
+        ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY
+        );
+
+    when(oilCaseOutputsPersistenceService.getOilCaseOutput(discoveryReservoirSubmissionDetail))
+        .thenReturn(Optional.of(oilCaseOutput));
+    when(probabilityDistributionSummaryService
+        .getProbabilityDistributionTableViewFromInstancesAndSubmission(
+            instances,
+            discoverySubmissionDetail,
+            discoveryReservoirSubmissionDetail))
+        .thenReturn(tableView);
+
+    var view = oilCaseOutputsSummaryService.getOilCaseOutputsSummaryFromReservoirSubmissionDetail(
+        discoveryReservoirSubmissionDetail);
+    assertThat(view)
+        .extracting(
+            OilCaseOutputsSummaryView::hasAssociatedGasRecoverableResources,
+            OilCaseOutputsSummaryView::useIndustryStandardConversion,
+            OilCaseOutputsSummaryView::tableView)
+        .containsExactly(
+            "Yes",
             "Yes",
             tableView
         );
@@ -192,13 +236,15 @@ class OilCaseOutputsSummaryServiceTest {
   @Test
   @SuppressWarnings("unchecked")
   void getSummarySection_discoverySubmissionAndOilOnly_assertProperties() {
-    reservoirSubmissionDetail.getSubmissionDetail().setSubmissionType(SubmissionType.CREATE_DISCOVERY);
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+        discoverySubmissionDetail);
 
-    when(generalReservoirInformationService.isOilOnly(reservoirSubmissionDetail))
+    when(generalReservoirInformationService.isOilOnly(discoveryReservoirSubmissionDetail))
         .thenReturn(true);
 
     var captor = ArgumentCaptor.forClass(List.class);
-    assertThat(oilCaseOutputsSummaryService.getSummarySection(reservoirSubmissionDetail, USER))
+    assertThat(oilCaseOutputsSummaryService.getSummarySection(discoveryReservoirSubmissionDetail, USER))
         .isPresent()
         .get()
         .extracting(
@@ -210,14 +256,15 @@ class OilCaseOutputsSummaryServiceTest {
         );
 
     verify(probabilityDistributionSummaryService).getProbabilityDistributionTableViewFromInstancesAndSubmission(
-        captor.capture(), eq(submissionDetail), eq(reservoirSubmissionDetail)
+        captor.capture(), eq(discoverySubmissionDetail), eq(discoveryReservoirSubmissionDetail)
     );
     verifyNoMoreInteractions(probabilityDistributionSummaryService);
 
     var expectedProbabilityInstances = List.of(
         ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY,
         ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
-        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
+        ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
     );
 
     assertThat(captor.getValue())

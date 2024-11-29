@@ -72,14 +72,16 @@ public class DiscoveryMixedCaseVolumetricsFormValidator implements SubmissionVal
         ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
     );
 
-    var oilEquivalentRecoverableResources = mixedCaseOutputsForm.getOilEquivalentRecoverableResources();
-    ProbabilityDistributionValidationUtil.validateCustomPartial(
-        oilEquivalentRecoverableResources,
-        errors,
-        "oilEquivalentRecoverableResources",
-        "Oil equivalent recoverable resources",
-        ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
-    );
+    if (BooleanUtils.isFalse(useIndustryStandardConversion(mixedCaseOutputsForm))) {
+      var oilEquivalentRecoverableResources = mixedCaseOutputsForm.getOilEquivalentRecoverableResources();
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          oilEquivalentRecoverableResources,
+          errors,
+          "oilEquivalentRecoverableResources",
+          "Oil equivalent recoverable resources",
+          ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+      );
+    }
   }
 
   @Override
@@ -148,17 +150,30 @@ public class DiscoveryMixedCaseVolumetricsFormValidator implements SubmissionVal
       );
     }
 
-    var oilEquivalentRecoverableResources = mixedCaseOutputsForm.getOilEquivalentRecoverableResources();
-    ProbabilityDistributionValidationUtil.validateCustomFull(
-        oilEquivalentRecoverableResources,
+    ValidationUtils.rejectIfEmptyOrWhitespace(
         errors,
-        "oilEquivalentRecoverableResources",
-        "Oil equivalent recoverable resources",
-        ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+        "useIndustryStandardConversion",
+        "useIndustryStandardConversion.required",
+        "Select if you want to use industry standard conversion"
     );
+
+    if (BooleanUtils.isFalse(useIndustryStandardConversion(mixedCaseOutputsForm))) {
+      var oilEquivalentRecoverableResources = mixedCaseOutputsForm.getOilEquivalentRecoverableResources();
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          oilEquivalentRecoverableResources,
+          errors,
+          "oilEquivalentRecoverableResources",
+          "Oil equivalent recoverable resources",
+          ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+      );
+    }
   }
 
   private boolean hasAssociatedCondensateRecoverableResources(MixedCaseOutputsForm mixedCaseOutputsForm) {
     return BooleanUtils.isTrue(mixedCaseOutputsForm.getHasAssociatedCondensateRecoverableResources());
+  }
+
+  private boolean useIndustryStandardConversion(MixedCaseOutputsForm mixedCaseOutputsForm) {
+    return BooleanUtils.isTrue(mixedCaseOutputsForm.getUseIndustryStandardConversion());
   }
 }

@@ -22,6 +22,8 @@ public class OilCaseVolumetricTotal implements SubmissionDetailChildEntity {
   @JoinColumn(name = "submission_detail_id")
   private SubmissionDetail submissionDetail;
 
+  private Boolean useIndustryStandardConversion;
+
   private Boolean fieldVolumetricInformationCorrect;
 
   public UUID getId() {
@@ -39,6 +41,14 @@ public class OilCaseVolumetricTotal implements SubmissionDetailChildEntity {
   @Override
   public void setSubmissionDetail(SubmissionDetail submissionDetail) {
     this.submissionDetail = submissionDetail;
+  }
+
+  public Boolean getUseIndustryStandardConversion() {
+    return useIndustryStandardConversion;
+  }
+
+  public void setUseIndustryStandardConversion(Boolean useIndustryStandardConversion) {
+    this.useIndustryStandardConversion = useIndustryStandardConversion;
   }
 
   public Boolean getFieldVolumetricInformationCorrect() {
