@@ -16,7 +16,7 @@ pageSize=PageSize.TWO_THIRDS_COLUMN
 backLinkUrl=springUrl(backLinkUrl)>
   <@fdsStartPage.startPage startActionText="Start now" startActionUrl=actionUrl>
     <p class="govuk-body">
-      [Insert guidance text here]
+      ${guidanceText}
     </p>
   </@fdsStartPage.startPage>
 </@defaultPage>

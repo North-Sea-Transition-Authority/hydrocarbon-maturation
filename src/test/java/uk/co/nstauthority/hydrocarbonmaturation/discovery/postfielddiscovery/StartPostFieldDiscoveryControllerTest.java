@@ -82,7 +82,7 @@ class StartPostFieldDiscoveryControllerTest extends AbstractSubmissionController
   }
 
   @Test
-  void getStartPostFieldDiscoveryPage_assertModelProperties() throws Exception {
+  void getStartPostFieldDiscoveryPage_whenShelved_assertModelProperties() throws Exception {
     when(teamQueryService.userHasRoleInTeamType(eq(USER.wuaId()), any(TeamType.class), any(Role.class))).thenReturn(true);
 
     var field = new Field();
@@ -99,7 +99,30 @@ class StartPostFieldDiscoveryControllerTest extends AbstractSubmissionController
               .startPostFieldDiscovery(resourceId, USER))))
         .andExpect(model().attribute("backLinkUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
               .showResourceRecord(resourceId, USER))))
-        .andExpect(model().attribute("fieldStatus", fieldStatus));
+        .andExpect(model().attribute("fieldStatus", fieldStatus))
+        .andExpect(model().attribute("guidanceText", StartPostFieldDiscoveryController.SHELVED_GUIDANCE_TEXT));
+  }
+
+  @Test
+  void getStartPostFieldDiscoveryPage_whenCop_assertModelProperties() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(eq(USER.wuaId()), any(TeamType.class), any(Role.class))).thenReturn(true);
+
+    var field = new Field();
+    var fieldStatus = FieldStatus.STATUS_900;
+    when(fieldPersistenceService.getFieldOrThrow(resourceId)).thenReturn(field);
+    when(fieldStatusService.getMostRecentFieldStatus(field)).thenReturn(Optional.of(fieldStatus));
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(StartPostFieldDiscoveryController.class).getStartPostFieldDiscoveryPage(resourceId, null)))
+                .with(user(USER)))
+        .andExpect(status().isOk())
+        .andExpect(view().name("/remi/discovery/startDiscoveryFromField"))
+        .andExpect(model().attribute("actionUrl", ReverseRouter.route(on(StartPostFieldDiscoveryController.class)
+            .startPostFieldDiscovery(resourceId, USER))))
+        .andExpect(model().attribute("backLinkUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
+            .showResourceRecord(resourceId, USER))))
+        .andExpect(model().attribute("fieldStatus", fieldStatus))
+        .andExpect(model().attribute("guidanceText", StartPostFieldDiscoveryController.COP_GUIDANCE_TEXT));
   }
 
 }

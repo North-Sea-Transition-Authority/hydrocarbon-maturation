@@ -14,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.systemofrecord.ViewResourceRecordController;
@@ -26,6 +27,13 @@ import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 @HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.SOUTHERN_OFFSHORE_AREA)
 @HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.ONSHORE_AREA)
 public class StartPostFieldDiscoveryController {
+
+  public static final String SHELVED_GUIDANCE_TEXT =
+      "Some fields that were consented to, but were never originally developed (shelved), could be re-developed. " +
+          "If the discovery you are about to create is related to such case, start here. ";
+
+  public static final String COP_GUIDANCE_TEXT =
+      "Some abandoned fields can be re-developed. If the discovery you are about to create is related to such case, start here.";
 
   private final FieldPersistenceService fieldPersistenceService;
   private final FieldStatusService fieldStatusService;
@@ -48,7 +56,14 @@ public class StartPostFieldDiscoveryController {
         .addObject("backLinkUrl", ReverseRouter.route(on(ViewResourceRecordController.class)
             .showResourceRecord(resourceId, null)));
 
-    fieldStatus.ifPresent(status -> modelAndView.addObject("fieldStatus", status));
+    fieldStatus.ifPresent(status ->
+        modelAndView
+            .addObject("fieldStatus", status)
+            .addObject("guidanceText", status.equals(FieldStatus.STATUS_000)
+                ? SHELVED_GUIDANCE_TEXT
+                : COP_GUIDANCE_TEXT
+            )
+    );
 
     return modelAndView;
   }
