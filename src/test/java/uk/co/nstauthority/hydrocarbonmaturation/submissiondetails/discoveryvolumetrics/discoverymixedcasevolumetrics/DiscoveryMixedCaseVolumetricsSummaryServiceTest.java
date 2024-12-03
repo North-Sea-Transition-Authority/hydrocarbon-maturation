@@ -159,9 +159,54 @@ class DiscoveryMixedCaseVolumetricsSummaryServiceTest {
     listOfInstances.add(
         ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
     listOfInstances.add(
         ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
-    listOfInstances.add(ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
+
+    var tableView = ProbabilityDistributionTableView.empty();
+
+    when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
+        listOfInstances, submissionDetail, reservoirSubmissionDetail))
+        .thenReturn(tableView);
+
+    var summarySection = discoveryMixedCaseVolumetricsSummaryService.getSummarySection(reservoirSubmissionDetail, USER);
+
+    assertThat(summarySection).isPresent();
+    assertSummarySection(summarySection.get(),
+        DiscoveryMixedCaseVolumetricsSummaryService.OIL_AND_GAS_CASE_OUTPUTS_DISPLAY_ORDER);
+
+    var summaryCard = SummaryCard.probabilitySummaryCard(tableView);
+    var summaryItem = SummaryItem.withCard(DiscoveryMixedCaseVolumetricsSummaryService.OIL_AND_GAS_CASE_OUTPUTS,
+        summaryCard);
+    assertThat(summarySection.get().summaryItems()).containsExactly(summaryItem);
+  }
+
+  @Test
+  void getSummarySection_whenMixedCase_whenUseIndustryStandardConversion() {
+    var reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(
+        SubmissionType.CREATE_DISCOVERY);
+    var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+    var reservoirHydrocarbons = new ReservoirHydrocarbons();
+    reservoirHydrocarbons.setReservoirSubmissionDetail(reservoirSubmissionDetail);
+    reservoirHydrocarbons.setHydrocarbonsDiscovered(HydrocarbonsDiscovered.MIXED_OIL_AND_GAS);
+    when(generalReservoirInformationService.getReservoirHydrocarbons(reservoirSubmissionDetail)).thenReturn(
+        Optional.of(reservoirHydrocarbons)
+    );
+    var mixedCaseOutput = mock(MixedCaseOutput.class);
+    when(discoveryMixedCaseVolumetricsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail))
+        .thenReturn(Optional.of(mixedCaseOutput));
+    when(mixedCaseOutput.getHasAssociatedCondensateRecoverableResources())
+        .thenReturn(false);
+    when(mixedCaseOutput.getUseIndustryStandardConversion())
+        .thenReturn(true);
+    var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
+    listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY);
+    listOfInstances.add(
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY);
 
     var tableView = ProbabilityDistributionTableView.empty();
 

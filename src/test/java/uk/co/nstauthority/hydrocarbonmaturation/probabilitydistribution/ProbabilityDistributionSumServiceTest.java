@@ -58,4 +58,35 @@ class ProbabilityDistributionSumServiceTest {
         BigDecimal.valueOf(8.21)
     );
   }
+
+  @Test
+  void calculateIndustryStandardOilEquivalentResourcesForDiscovery() {
+    var inputDistributionForm = new ProbabilityDistributionForm();
+    inputDistributionForm.setProbabilityDistributionType(ProbabilityDistributionType.CUSTOM);
+
+    inputDistributionForm.getProbabilityOfExceedanceForm().setP90(DecimalInput.createDecimalInput(1));
+    inputDistributionForm.getProbabilityOfExceedanceForm().setP50(DecimalInput.createDecimalInput(2));
+    inputDistributionForm.getProbabilityOfExceedanceForm().setMean(DecimalInput.createDecimalInput(3));
+    inputDistributionForm.getProbabilityOfExceedanceForm().setP10(DecimalInput.createDecimalInput(4));
+
+    var distributionFormMap = Map.of(
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY, inputDistributionForm,
+        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY, inputDistributionForm
+    );
+
+    assertThat(probabilityDistributionSumService.calculateIndustryStandardOilEquivalentResourcesForDiscovery(
+        new ProbabilityDistribution(),
+        distributionFormMap
+    )).extracting(
+        ProbabilityDistribution::getP90,
+        ProbabilityDistribution::getP50,
+        ProbabilityDistribution::getMeanValue,
+        ProbabilityDistribution::getP10
+    ).containsExactly(
+        BigDecimal.valueOf(1.17),
+        BigDecimal.valueOf(2.34),
+        BigDecimal.valueOf(3.52),
+        BigDecimal.valueOf(4.69)
+    );
+  }
 }

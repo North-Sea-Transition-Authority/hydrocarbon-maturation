@@ -33,7 +33,6 @@ public class DiscoveryGasCaseVolumetricTotalsSummaryService {
 
     var summaryBehaviour = probabilityDistributionSummaryService.getSummaryBehaviour(instances);
     var gasCaseOutput = discoveryGasCaseVolumetricTotalsService.getGasCaseVolumetricTotal(submissionDetail);
-
     return gasCaseOutput.map(this::createSummaryViewFromGasCaseVolumetricTotal)
         .orElse(DiscoveryGasCaseVolumetricTotalsSummaryView.empty(summaryBehaviour));
   }
@@ -44,16 +43,27 @@ public class DiscoveryGasCaseVolumetricTotalsSummaryService {
     var submissionDetail = gasCaseVolumetricTotal.getSubmissionDetail();
     var hasAssociatedGasRecoverableResources = BooleanUtil.yesNoFromBoolean(
         gasCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources(), "");
+    var useIndustryStandardConversion = BooleanUtil.yesNoFromBoolean(
+        gasCaseVolumetricTotal.getUseIndustryStandardConversion(), "");
 
     if (BooleanUtils.isTrue(gasCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources())) {
       listOfInstances.add(
           ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
     }
 
+    if (BooleanUtils.isTrue(gasCaseVolumetricTotal.getUseIndustryStandardConversion())) {
+      listOfInstances.remove(ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
+      listOfInstances.add(
+          ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY);
+    }
+
     var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         listOfInstances, submissionDetail, null
     );
-    return new DiscoveryGasCaseVolumetricTotalsSummaryView(hasAssociatedGasRecoverableResources, tableView);
+    return new DiscoveryGasCaseVolumetricTotalsSummaryView(
+        hasAssociatedGasRecoverableResources,
+        useIndustryStandardConversion,
+        tableView);
   }
 
   private List<ProbabilityDistributionFieldInstance> getInstances() {
@@ -61,8 +71,7 @@ public class DiscoveryGasCaseVolumetricTotalsSummaryService {
 
     listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
-    listOfInstances.add(
-        ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
 
     return listOfInstances;
   }

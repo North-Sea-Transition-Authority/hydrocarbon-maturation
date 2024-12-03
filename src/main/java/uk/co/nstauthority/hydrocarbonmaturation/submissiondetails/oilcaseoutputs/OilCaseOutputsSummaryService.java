@@ -10,6 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSummaryService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generalreservoirinformation.GeneralReservoirInformationService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
@@ -23,12 +24,6 @@ public class OilCaseOutputsSummaryService implements SummarySectionService<Reser
 
   public static final String OIL_VOLUMETRICS = "Oil case volumetrics";
   public static final int OIL_VOLUMETRICS_DISPLAY_ORDER = 60;
-
-  static final List<ProbabilityDistributionFieldInstance> OIL_VOLUMETRIC_INSTANCES_DISCOVERY = List.of(
-      ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY,
-      ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
-      ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
-  );
 
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
   private final OilCaseOutputsPersistenceService oilCaseOutputsPersistenceService;
@@ -48,15 +43,8 @@ public class OilCaseOutputsSummaryService implements SummarySectionService<Reser
     var oilCaseOutput = oilCaseOutputsPersistenceService.getOilCaseOutput(reservoirSubmissionDetail);
     var instances = getInstances(reservoirSubmissionDetail);
 
-    if (reservoirSubmissionDetail.getSubmissionDetail().isProspectSubmission()) {
-      if (BooleanUtils.isTrue(oilCaseOutput.map(OilCaseOutput::getUseIndustryStandardConversion).isPresent())) {
-        instances.remove(
-            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT);
-      } else {
-        instances.remove(
-            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT);
-      }
-    }
+    oilCaseOutput.ifPresent(caseOutput ->
+        filterIndustryStandardInstances(instances, reservoirSubmissionDetail.getSubmissionDetail(), caseOutput));
 
     var summaryBehaviour = probabilityDistributionSummaryService.getSummaryBehaviour(instances);
 
@@ -73,21 +61,32 @@ public class OilCaseOutputsSummaryService implements SummarySectionService<Reser
 
     var listOfInstances = getInstances(reservoirSubmissionDetail);
 
-    if (submissionDetail.isProspectSubmission()) {
-      if (BooleanUtils.isTrue(oilCaseOutput.getUseIndustryStandardConversion())) {
-        listOfInstances.remove(
-            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT);
-      } else {
-        listOfInstances.remove(
-            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT);
-      }
-    }
+    filterIndustryStandardInstances(listOfInstances, submissionDetail, oilCaseOutput);
+
     var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         listOfInstances,
         submissionDetail,
         reservoirSubmissionDetail
     );
     return new OilCaseOutputsSummaryView(hasAssociatedGasRecoverableResources, useIndustryStandardConversion, tableView);
+  }
+
+  private void filterIndustryStandardInstances(
+      List<ProbabilityDistributionFieldInstance> instances,
+      SubmissionDetail submissionDetail,
+      OilCaseOutput oilCaseOutput
+  ) {
+    if (submissionDetail.isProspectSubmission() && BooleanUtils.isTrue(oilCaseOutput.getUseIndustryStandardConversion())) {
+      instances.remove(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT);
+      instances.add(
+            ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT);
+    }
+
+    if (submissionDetail.isDiscoverySubmission() && BooleanUtils.isTrue(oilCaseOutput.getUseIndustryStandardConversion())) {
+      instances.remove(ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
+      instances.add(
+            ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY);
+    }
   }
 
   private static List<ProbabilityDistributionFieldInstance> getInstances(
@@ -102,8 +101,6 @@ public class OilCaseOutputsSummaryService implements SummarySectionService<Reser
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT);
       listOfInstances.add(
           ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_PROSPECT);
-      listOfInstances.add(
-          ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT);
       listOfInstances.add(ProbabilityDistributionFieldInstance.OIL_OUTPUTS_RISKED_OIL_EQUIVALENT_RECOVERABLE_PROSPECT);
 
     } else if (resourceType == ResourceType.DISCOVERY) {
@@ -133,11 +130,15 @@ public class OilCaseOutputsSummaryService implements SummarySectionService<Reser
   }
 
   private SummaryItem getOilVolumetricsSummaryDiscovery(ReservoirSubmissionDetail reservoirSubmissionDetail) {
+    var instances = getInstances(reservoirSubmissionDetail);
 
     var submissionDetail = reservoirSubmissionDetail.getSubmissionDetail();
+    var oilCaseOutput = oilCaseOutputsPersistenceService.getOilCaseOutput(reservoirSubmissionDetail);
+    oilCaseOutput.ifPresent(caseOutput ->
+        filterIndustryStandardInstances(instances, reservoirSubmissionDetail.getSubmissionDetail(), caseOutput));
 
     var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
-            OIL_VOLUMETRIC_INSTANCES_DISCOVERY,
+            instances,
         submissionDetail,
         reservoirSubmissionDetail
     );

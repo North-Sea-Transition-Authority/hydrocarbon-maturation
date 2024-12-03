@@ -24,6 +24,8 @@ public class GasCaseVolumetricTotal implements SubmissionDetailChildEntity {
 
   private Boolean hasAssociatedCondensateRecoverableResources;
 
+  private Boolean useIndustryStandardConversion;
+
   private Boolean fieldVolumetricInformationCorrect;
 
   public UUID getId() {
@@ -49,6 +51,14 @@ public class GasCaseVolumetricTotal implements SubmissionDetailChildEntity {
 
   public void setHasAssociatedCondensateRecoverableResources(Boolean hasAssociatedCondensateRecoverableResources) {
     this.hasAssociatedCondensateRecoverableResources = hasAssociatedCondensateRecoverableResources;
+  }
+
+  public Boolean getUseIndustryStandardConversion() {
+    return useIndustryStandardConversion;
+  }
+
+  public void setUseIndustryStandardConversion(Boolean useIndustryStandardConversion) {
+    this.useIndustryStandardConversion = useIndustryStandardConversion;
   }
 
   public Boolean getFieldVolumetricInformationCorrect() {

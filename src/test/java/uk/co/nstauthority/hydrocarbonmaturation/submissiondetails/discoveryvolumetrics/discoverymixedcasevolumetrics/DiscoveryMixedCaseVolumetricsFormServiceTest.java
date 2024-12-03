@@ -73,8 +73,11 @@ class DiscoveryMixedCaseVolumetricsFormServiceTest {
             form -> form.getGasRecoverableResources().getProbabilityDistributionType(),
             form -> form.getRiskedOilEquivalentRecoverableMean().getProbabilityDistributionType(),
             MixedCaseOutputsForm::getHasAssociatedGasRecoverableResources,
-            MixedCaseOutputsForm::getHasAssociatedCondensateRecoverableResources)
+            MixedCaseOutputsForm::getHasAssociatedCondensateRecoverableResources,
+            MixedCaseOutputsForm::getUseIndustryStandardConversion
+        )
         .containsExactly(
+            null,
             null,
             null,
             null,
@@ -136,35 +139,22 @@ class DiscoveryMixedCaseVolumetricsFormServiceTest {
 
     MixedCaseOutput mixedCaseOutput = new MixedCaseOutput();
     mixedCaseOutput.setHasAssociatedCondensateRecoverableResources(true);
+    mixedCaseOutput.setUseIndustryStandardConversion(true);
     mixedCaseOutput.setReservoirSubmissionDetail(reservoirSubmissionDetail);
     when(discoveryMixedCaseVolumetricsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail))
         .thenReturn(Optional.of(mixedCaseOutput));
 
-    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
-        .getHasAssociatedCondensateRecoverableResources()).isTrue();
+    var result = discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail);
 
-    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
-        .getHasAssociatedGasRecoverableResources()).isNull();
-
-    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
-        .getOilInPlace()).usingRecursiveComparison().isEqualTo(oilInPlace);
-
-    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
-        .getOilRecoverableResources()).usingRecursiveComparison().isEqualTo(oilRecoverableResources);
-
-    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
-        .getAssociatedGasRecoverableResources()).usingRecursiveComparison().isEqualTo(associatedGas);
-
-    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
-        .getGasInPlace()).usingRecursiveComparison().isEqualTo(gasInPlace);
-
-    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
-        .getGasRecoverableResources()).usingRecursiveComparison().isEqualTo(gasRecoverableResources);
-
-    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
-        .getAssociatedCondensateRecoverableResources()).usingRecursiveComparison().isEqualTo(associatedCondensate);
-
-    assertThat(discoveryMixedCaseVolumetricsFormService.getMixedCaseOutputsForm(reservoirSubmissionDetail)
-        .getOilEquivalentRecoverableResources()).usingRecursiveComparison().isEqualTo(oilEquivalent);
+    assertThat(result.getHasAssociatedCondensateRecoverableResources()).isTrue();
+    assertThat(result.getUseIndustryStandardConversion()).isTrue();
+    assertThat(result.getHasAssociatedGasRecoverableResources()).isNull();
+    assertThat(result.getOilInPlace()).usingRecursiveComparison().isEqualTo(oilInPlace);
+    assertThat(result.getOilRecoverableResources()).usingRecursiveComparison().isEqualTo(oilRecoverableResources);
+    assertThat(result.getAssociatedGasRecoverableResources()).usingRecursiveComparison().isEqualTo(associatedGas);
+    assertThat(result.getGasInPlace()).usingRecursiveComparison().isEqualTo(gasInPlace);
+    assertThat(result.getGasRecoverableResources()).usingRecursiveComparison().isEqualTo(gasRecoverableResources);
+    assertThat(result.getAssociatedCondensateRecoverableResources()).usingRecursiveComparison().isEqualTo(associatedCondensate);
+    assertThat(result.getOilEquivalentRecoverableResources()).usingRecursiveComparison().isEqualTo(oilEquivalent);
   }
 }

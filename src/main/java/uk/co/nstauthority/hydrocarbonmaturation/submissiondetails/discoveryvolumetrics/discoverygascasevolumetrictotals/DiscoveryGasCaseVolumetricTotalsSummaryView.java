@@ -7,6 +7,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.SummaryB
 
 public record DiscoveryGasCaseVolumetricTotalsSummaryView(
     String hasAssociatedCondensateRecoverableResources,
+    String useIndustryStandardConversion,
     ProbabilityDistributionTableView tableView) {
   public static DiscoveryGasCaseVolumetricTotalsSummaryView empty(SummaryBehaviour summaryBehaviour) {
     var emptyTableView = new ProbabilityDistributionTableView(
@@ -19,6 +20,6 @@ public record DiscoveryGasCaseVolumetricTotalsSummaryView(
         )
     );
 
-    return new DiscoveryGasCaseVolumetricTotalsSummaryView("", emptyTableView);
+    return new DiscoveryGasCaseVolumetricTotalsSummaryView("", "", emptyTableView);
   }
 }

@@ -75,11 +75,6 @@ class ProspectMixedCaseOutputsFormValidator implements SubmissionValidator {
           ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT
       );
     }
-    ValidationUtils.rejectIfEmptyOrWhitespace(
-        errors,
-        "useIndustryStandardConversion",
-        "useIndustryStandardConversion.required",
-        "Select if you want to use industry standard conversion");
 
     if (BooleanUtils.isFalse(useIndustryStandardConversion(mixedCaseOutputsForm))) {
       var oilEquivalentRecoverableResources = mixedCaseOutputsForm.getOilEquivalentRecoverableResources();
@@ -182,7 +177,8 @@ class ProspectMixedCaseOutputsFormValidator implements SubmissionValidator {
         errors,
         "useIndustryStandardConversion",
         "useIndustryStandardConversion.required",
-        "Select if you want to use industry standard conversion");
+        "Select if you want to use industry standard conversion"
+    );
 
     if (BooleanUtils.isFalse(useIndustryStandardConversion(mixedCaseOutputsForm))) {
       var oilEquivalentRecoverableResources = mixedCaseOutputsForm.getOilEquivalentRecoverableResources();

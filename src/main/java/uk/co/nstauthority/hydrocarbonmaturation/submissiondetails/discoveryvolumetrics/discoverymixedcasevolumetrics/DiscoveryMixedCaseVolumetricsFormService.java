@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFormService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutput;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.mixedcaseoutputs.MixedCaseOutputsForm;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetail;
 
@@ -29,11 +28,10 @@ public class DiscoveryMixedCaseVolumetricsFormService {
   private MixedCaseOutputsForm submissionDetailToForm(ReservoirSubmissionDetail reservoirSubmissionDetail) {
     var form = new MixedCaseOutputsForm();
     var mixedCaseOutputs = discoveryMixedCaseVolumetricsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail);
-    var hasAssociatedCondensateRecoverableResources = mixedCaseOutputs
-        .map(MixedCaseOutput::getHasAssociatedCondensateRecoverableResources)
-        .orElse(null);
-
-    form.setHasAssociatedCondensateRecoverableResources(hasAssociatedCondensateRecoverableResources);
+    mixedCaseOutputs.ifPresent(mixedCaseOutput -> {
+      form.setHasAssociatedCondensateRecoverableResources(mixedCaseOutput.getHasAssociatedCondensateRecoverableResources());
+      form.setUseIndustryStandardConversion(mixedCaseOutput.getUseIndustryStandardConversion());
+    });
 
     form.setOilInPlace(probabilityDistributionFormService.probabilityDistributionEntityToForm(
         reservoirSubmissionDetail,

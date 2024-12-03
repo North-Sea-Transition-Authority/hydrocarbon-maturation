@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverygascasevolumetrictotals;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -46,14 +47,16 @@ public class DiscoveryGasCaseVolumetricTotalsFormValidator implements Submission
       );
     }
 
-    var oilEquivalentRecoverableResources = gasCaseOutputsForm.getOilEquivalentRecoverableResources();
-    ProbabilityDistributionValidationUtil.validateCustomPartial(
-        oilEquivalentRecoverableResources,
-        errors,
-        "oilEquivalentRecoverableResources",
-        "Oil equivalent recoverable resources",
-        ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
-    );
+    if (BooleanUtils.isFalse(useIndustryStandardConversion(gasCaseOutputsForm))) {
+      var oilEquivalentRecoverableResources = gasCaseOutputsForm.getOilEquivalentRecoverableResources();
+      ProbabilityDistributionValidationUtil.validateCustomPartial(
+          oilEquivalentRecoverableResources,
+          errors,
+          "oilEquivalentRecoverableResources",
+          "Oil equivalent recoverable resources",
+          ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+      );
+    }
   }
 
   @Override
@@ -95,18 +98,30 @@ public class DiscoveryGasCaseVolumetricTotalsFormValidator implements Submission
       );
     }
 
-    var oilEquivalentRecoverableResources = gasCaseOutputsForm.getOilEquivalentRecoverableResources();
-    ProbabilityDistributionValidationUtil.validateCustomFull(
-        oilEquivalentRecoverableResources,
+    ValidationUtils.rejectIfEmptyOrWhitespace(
         errors,
-        "oilEquivalentRecoverableResources",
-        "Oil equivalent recoverable resources",
-        ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+        "useIndustryStandardConversion",
+        "useIndustryStandardConversion.required",
+        "Select if you want to use industry standard conversion"
     );
+
+    if (BooleanUtils.isFalse(useIndustryStandardConversion(gasCaseOutputsForm))) {
+      var oilEquivalentRecoverableResources = gasCaseOutputsForm.getOilEquivalentRecoverableResources();
+      ProbabilityDistributionValidationUtil.validateCustomFull(
+          oilEquivalentRecoverableResources,
+          errors,
+          "oilEquivalentRecoverableResources",
+          "Oil equivalent recoverable resources",
+          ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+      );
+    }
   }
 
   private boolean hasAssociatedCondensateRecoverableResources(GasCaseOutputsForm gasCaseOutputsForm) {
-    return gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources() != null
-        && gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources();
+    return BooleanUtils.isTrue(gasCaseOutputsForm.getHasAssociatedCondensateRecoverableResources());
+  }
+
+  private boolean useIndustryStandardConversion(GasCaseOutputsForm gasCaseOutputsForm) {
+    return BooleanUtils.isTrue(gasCaseOutputsForm.getUseIndustryStandardConversion());
   }
 }

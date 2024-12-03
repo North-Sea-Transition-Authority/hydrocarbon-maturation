@@ -142,7 +142,7 @@
             error=salesGasReservesError/>
       </#if>
 
-    <#if resourceType == 'PROSPECT'>
+    <#if resourceType == 'PROSPECT' || resourceType == 'DISCOVERY'>
       <@fdsRadio.radioGroup
       path="form.useIndustryStandardConversion"
       labelText="Do you want to use the industry standard conversion for calculating the oil equivalent recoverable values?"

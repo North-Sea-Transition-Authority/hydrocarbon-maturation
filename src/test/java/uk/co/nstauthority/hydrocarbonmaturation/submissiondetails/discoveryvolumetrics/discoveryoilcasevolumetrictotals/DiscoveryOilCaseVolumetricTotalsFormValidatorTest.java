@@ -44,6 +44,17 @@ class DiscoveryOilCaseVolumetricTotalsFormValidatorTest {
     assertFalse(bindingResult.hasErrors());
   }
 
+  @ParameterizedTest
+  @EnumSource(value = ValidationType.class)
+  void validate_whenValidForm_whenUseIndustryStandardConversion_thenNoValidationErrors(ValidationType validationType) {
+    var form = getDiscoveryValidForm();
+    form.setUseIndustryStandardConversion(true);
+    form.setOilEquivalentRecoverableResources(null);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    discoveryOilCaseVolumetricTotalsFormValidator.isValid(form, bindingResult, submissionDetail, validationType);
+    assertFalse(bindingResult.hasErrors());
+  }
+
   @Test
   void validate_whenInvalidForm_thenValidationErrors() {
     var form = getFormWithEmptyDistributions(ProbabilityDistributionType.CUSTOM);
@@ -130,7 +141,7 @@ class DiscoveryOilCaseVolumetricTotalsFormValidatorTest {
     form.setAssociatedGasRecoverableResources(probabilityDistributionForm);
     form.setOilInPlace(probabilityDistributionForm);
     form.setHasAssociatedGasRecoverableResources(true);
-
+    form.setUseIndustryStandardConversion(false);
     return form;
   }
 
@@ -145,6 +156,7 @@ class DiscoveryOilCaseVolumetricTotalsFormValidatorTest {
     form.setOilInPlace(probabilityDistributionForm);
     form.setAssociatedGasRecoverableResources(probabilityDistributionForm);
     form.setHasAssociatedGasRecoverableResources(true);
+    form.setUseIndustryStandardConversion(false);
     return form;
   }
 
@@ -171,6 +183,7 @@ class DiscoveryOilCaseVolumetricTotalsFormValidatorTest {
     form.setAssociatedGasRecoverableResources(associatedGas);
     form.setOilRecoverableResources(recoverableResources);
     form.setHasAssociatedGasRecoverableResources(true);
+    form.setUseIndustryStandardConversion(false);
     return form;
   }
 }

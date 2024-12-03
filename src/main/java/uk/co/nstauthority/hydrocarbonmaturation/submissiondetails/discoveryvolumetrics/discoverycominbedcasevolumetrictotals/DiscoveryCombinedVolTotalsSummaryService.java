@@ -21,7 +21,8 @@ public class DiscoveryCombinedVolTotalsSummaryService {
       ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY,
       ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
       ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
-      ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY
+      ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY,
+      ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY
   );
 
   private final ProbabilityDistributionSummaryService probabilityDistributionSummaryService;
@@ -52,19 +53,33 @@ public class DiscoveryCombinedVolTotalsSummaryService {
 
     var hasAssociatedCondensateRecoverableResources = BooleanUtil.yesNoFromBoolean(
         combinedCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources(), "");
+
     if (BooleanUtils.isTrue(combinedCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources())) {
       listOfInstances.add(
           ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
     }
-    listOfInstances.add(
-        ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
+
+    var useIndustryStandardConversion = BooleanUtil.yesNoFromBoolean(
+        combinedCaseVolumetricTotal.getUseIndustryStandardConversion(), "");
+
+    if (BooleanUtils.isTrue(combinedCaseVolumetricTotal.getUseIndustryStandardConversion())) {
+      listOfInstances.add(
+          ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY);
+    } else {
+      listOfInstances.add(
+          ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY);
+    }
 
     var tableView = probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
         listOfInstances,
         submissionDetail,
         null
     );
-    return new DiscoveryCombinedCaseVolTotalsSummaryView(hasAssociatedCondensateRecoverableResources, tableView);
+
+    return new DiscoveryCombinedCaseVolTotalsSummaryView(
+        hasAssociatedCondensateRecoverableResources,
+        useIndustryStandardConversion,
+        tableView);
   }
 
   private List<ProbabilityDistributionFieldInstance> getBaseInstances() {

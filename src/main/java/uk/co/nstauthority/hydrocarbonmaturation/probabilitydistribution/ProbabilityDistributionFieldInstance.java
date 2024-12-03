@@ -465,7 +465,7 @@ public enum ProbabilityDistributionFieldInstance {
   OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT(
       ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
-    "Oil equivalent recoverable resources"
+    "Oil equivalent recoverable resources (industry standard conversion)"
   ),
 
   //Total field oil case outputs / volumetrics
@@ -541,7 +541,7 @@ public enum ProbabilityDistributionFieldInstance {
   GAS_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT(
       ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
-      "Oil equivalent recoverable resources"
+      "Oil equivalent recoverable resources (industry standard conversion)"
   ),
 
   // Total field gas case outputs / volumetrics
@@ -607,7 +607,7 @@ public enum ProbabilityDistributionFieldInstance {
   MIXED_CASE_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT(
       ProspectOutputsPreDrillBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
-      "Oil equivalent recoverable resources"
+      "Oil equivalent recoverable resources (industry standard conversion)"
   ),
 
   // Common outputs for discoveries
@@ -615,6 +615,11 @@ public enum ProbabilityDistributionFieldInstance {
       DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"
+  ),
+  OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY(
+      DiscoveryOutputsBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBOE,
+      "Oil equivalent recoverable resources (industry standard conversion)"
   ),
   OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY(
       DiscoveryOutputsBehaviour.class,
@@ -625,6 +630,11 @@ public enum ProbabilityDistributionFieldInstance {
       DiscoveryOutputsBehaviour.class,
       ProbabilityOfExceedanceUnits.MMBOE,
       "Oil equivalent recoverable resources"
+  ),
+  TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY(
+      DiscoveryOutputsBehaviour.class,
+      ProbabilityOfExceedanceUnits.MMBOE,
+      "Oil equivalent recoverable resources (industry standard conversion)"
   ),
   TOTAL_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY(
       DiscoveryOutputsBehaviour.class,

@@ -13,30 +13,44 @@ import uk.co.nstauthority.hydrocarbonmaturation.decimalinput.DecimalInput;
 @Service
 public class ProbabilityDistributionSumService {
 
-  private static final Set<ProbabilityDistributionFieldInstance> OIL_DISTRIBUTIONS = Set.of(
+  private static final Set<ProbabilityDistributionFieldInstance> OIL_DISTRIBUTIONS_PROSPECT = Set.of(
       ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_PROSPECT,
       ProbabilityDistributionFieldInstance.GAS_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT,
       ProbabilityDistributionFieldInstance.MIXED_CASE_OIL_RECOVERABLE_RESOURCES_PROSPECT,
       ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_PROSPECT
   );
 
-  private static final Set<ProbabilityDistributionFieldInstance> GAS_DISTRIBUTIONS = Set.of(
+  private static final Set<ProbabilityDistributionFieldInstance> GAS_DISTRIBUTIONS_PROSPECT = Set.of(
       ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT,
       ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_PROSPECT,
       ProbabilityDistributionFieldInstance.MIXED_CASE_GAS_RECOVERABLE_RESOURCES_PROSPECT,
       ProbabilityDistributionFieldInstance.MIXED_CASE_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_PROSPECT
   );
 
+  private static final Set<ProbabilityDistributionFieldInstance> OIL_DISTRIBUTIONS_DISCOVERY = Set.of(
+      ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
+      ProbabilityDistributionFieldInstance.OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY,
+      ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY,
+      ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY
+  );
+
+  private static final Set<ProbabilityDistributionFieldInstance> GAS_DISTRIBUTIONS_DISCOVERY = Set.of(
+      ProbabilityDistributionFieldInstance.OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
+      ProbabilityDistributionFieldInstance.GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
+      ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY,
+      ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY
+      );
+
   public ProbabilityDistribution calculateIndustryStandardOilEquivalentResourcesForProspect(
       ProbabilityDistribution summedProbabilityDistribution,
       Map<ProbabilityDistributionFieldInstance, ProbabilityDistributionForm> distributionFormMap
   ) {
     var oilDistributionSet = distributionFormMap.entrySet().stream()
-        .filter(entry -> OIL_DISTRIBUTIONS.contains(entry.getKey()))
+        .filter(entry -> OIL_DISTRIBUTIONS_PROSPECT.contains(entry.getKey()))
         .collect(Collectors.toSet());
 
     var gasDistributionSet = distributionFormMap.entrySet().stream()
-        .filter(entry -> GAS_DISTRIBUTIONS.contains(entry.getKey()))
+        .filter(entry -> GAS_DISTRIBUTIONS_PROSPECT.contains(entry.getKey()))
         .collect(Collectors.toSet());
 
     summedProbabilityDistribution.setP99(calculateP99Value(oilDistributionSet, gasDistributionSet));
@@ -46,6 +60,26 @@ public class ProbabilityDistributionSumService {
     summedProbabilityDistribution.setMeanValue(calculateMeanValue(oilDistributionSet, gasDistributionSet));
     summedProbabilityDistribution.setP10(calculateP10Value(oilDistributionSet, gasDistributionSet));
     summedProbabilityDistribution.setP1(calculateP1Value(oilDistributionSet, gasDistributionSet));
+
+    return summedProbabilityDistribution;
+  }
+
+  public ProbabilityDistribution calculateIndustryStandardOilEquivalentResourcesForDiscovery(
+      ProbabilityDistribution summedProbabilityDistribution,
+      Map<ProbabilityDistributionFieldInstance, ProbabilityDistributionForm> distributionFormMap
+  ) {
+    var oilDistributionSet = distributionFormMap.entrySet().stream()
+        .filter(entry -> OIL_DISTRIBUTIONS_DISCOVERY.contains(entry.getKey()))
+        .collect(Collectors.toSet());
+
+    var gasDistributionSet = distributionFormMap.entrySet().stream()
+        .filter(entry -> GAS_DISTRIBUTIONS_DISCOVERY.contains(entry.getKey()))
+        .collect(Collectors.toSet());
+
+    summedProbabilityDistribution.setP90(calculateP90Value(oilDistributionSet, gasDistributionSet));
+    summedProbabilityDistribution.setP50(calculateP50Value(oilDistributionSet, gasDistributionSet));
+    summedProbabilityDistribution.setMeanValue(calculateMeanValue(oilDistributionSet, gasDistributionSet));
+    summedProbabilityDistribution.setP10(calculateP10Value(oilDistributionSet, gasDistributionSet));
 
     return summedProbabilityDistribution;
   }

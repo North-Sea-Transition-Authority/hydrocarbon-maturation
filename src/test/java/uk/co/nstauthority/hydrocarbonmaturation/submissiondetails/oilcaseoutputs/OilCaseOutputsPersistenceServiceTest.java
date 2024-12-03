@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -98,20 +97,23 @@ class OilCaseOutputsPersistenceServiceTest {
     var form = new OilCaseOutputsForm();
     form.setUseIndustryStandardConversion(true);
 
+    var instance = ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT;
+
     var existingDistribution = new ProbabilityDistribution();
 
     when(probabilityDistributionPersistenceService.getProbabilityDistribution(
         reservoirSubmissionDetail,
-        ProbabilityDistributionFieldInstance.OIL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_PROSPECT
+        instance
     ))
         .thenReturn(Optional.of(existingDistribution));
 
+    when(probabilityDistributionSumService.calculateIndustryStandardOilEquivalentResourcesForProspect(eq(existingDistribution), anyMap()))
+        .thenReturn(existingDistribution);
+
     oilCaseOutputsPersistenceService.saveOilCaseOutputs(form, reservoirSubmissionDetail);
 
-    verify(probabilityDistributionSumService)
-        .calculateIndustryStandardOilEquivalentResourcesForProspect(eq(existingDistribution), anyMap());
-
     verify(oilCaseOutputsRepository, times(1)).save(any(OilCaseOutput.class));
+    verify(probabilityDistributionPersistenceService).saveSummedProbabilityDistribution(existingDistribution, instance, reservoirSubmissionDetail);
   }
 
   @Test
@@ -168,8 +170,35 @@ class OilCaseOutputsPersistenceServiceTest {
             form.getOilEquivalentRecoverableResources(),
             discoverySubmissionDetail,
             discoveryReservoirSubmissionDetail);
+  }
 
-    verifyNoInteractions(oilCaseOutputsRepository);
+  @Test
+  void saveOilCaseOutputs_whenGivenAForm_whenDiscovery_whenUseIndustryStandardConversion_verifyCreatedEntity() {
+    var discoverySubmissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    var discoveryReservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(discoverySubmissionDetail);
+
+    var form = new OilCaseOutputsForm();
+    form.setUseIndustryStandardConversion(true);
+
+    var oilCaseOutput = new OilCaseOutput();
+    oilCaseOutput.setUseIndustryStandardConversion(true);
+    oilCaseOutput.setReservoirSubmissionDetail(discoveryReservoirSubmissionDetail);
+
+    when(oilCaseOutputsRepository.findByReservoirSubmissionDetail(discoveryReservoirSubmissionDetail)).thenReturn(Optional.of(oilCaseOutput));
+
+    var instance = ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY;
+    var distribution = new ProbabilityDistribution();
+
+    when(probabilityDistributionPersistenceService.getProbabilityDistribution(discoveryReservoirSubmissionDetail, instance))
+        .thenReturn(Optional.of(distribution));
+
+    when(probabilityDistributionSumService.calculateIndustryStandardOilEquivalentResourcesForDiscovery(eq(distribution), anyMap()))
+        .thenReturn(distribution);
+
+    oilCaseOutputsPersistenceService.saveOilCaseOutputs(form, discoveryReservoirSubmissionDetail);
+
+    verify(oilCaseOutputsRepository, times(1)).save(any(OilCaseOutput.class));
+    verify(probabilityDistributionPersistenceService, times(1)).saveSummedProbabilityDistribution(distribution, instance, discoveryReservoirSubmissionDetail);
   }
 
   @Test

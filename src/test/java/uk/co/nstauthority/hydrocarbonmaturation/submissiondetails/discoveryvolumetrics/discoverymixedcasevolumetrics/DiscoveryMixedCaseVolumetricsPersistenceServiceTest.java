@@ -1,17 +1,23 @@
 package uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.discoveryvolumetrics.discoverymixedcasevolumetrics;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistribution;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionFieldInstance;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionSumService;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -30,17 +36,14 @@ class DiscoveryMixedCaseVolumetricsPersistenceServiceTest {
   @Mock
   private MixedCaseOutputsRepository mixedCaseOutputsRepository;
 
+  @Mock
+  private ProbabilityDistributionSumService probabilityDistributionSumService;
+
+  @InjectMocks
   private DiscoveryMixedCaseVolumetricsPersistenceService discoveryMixedCaseVolumetricsPersistenceService;
 
   private final SubmissionDetail submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
   private final ReservoirSubmissionDetail reservoirSubmissionDetail = ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail);
-
-  @BeforeEach
-  void setUp() {
-    discoveryMixedCaseVolumetricsPersistenceService = new DiscoveryMixedCaseVolumetricsPersistenceService(
-        probabilityDistributionPersistenceService,
-        mixedCaseOutputsRepository);
-  }
 
   @Test
   void saveMixedCaseOutputs_whenGivenAForm_verifyCreatedEntity() {
@@ -54,6 +57,7 @@ class DiscoveryMixedCaseVolumetricsPersistenceServiceTest {
     form.setOilEquivalentRecoverableResources(probDistribution);
     form.setAssociatedCondensateRecoverableResources(probDistribution);
     form.setHasAssociatedCondensateRecoverableResources(true);
+    form.setUseIndustryStandardConversion(false);
 
     discoveryMixedCaseVolumetricsPersistenceService.saveMixedCaseOutputs(form, reservoirSubmissionDetail);
 
@@ -172,5 +176,31 @@ class DiscoveryMixedCaseVolumetricsPersistenceServiceTest {
     discoveryMixedCaseVolumetricsPersistenceService.getMixedCaseOutput(reservoirSubmissionDetail);
 
     verify(mixedCaseOutputsRepository, times(1)).findByReservoirSubmissionDetail(reservoirSubmissionDetail);
+  }
+
+  @Test
+  void saveMixedCaseOutputs_whenUseIndustryStandardConversion_verifyCreatedEntity() {
+    var form = new MixedCaseOutputsForm();
+    form.setUseIndustryStandardConversion(true);
+
+    var mixedCaseOutput = new MixedCaseOutput();
+    mixedCaseOutput.setUseIndustryStandardConversion(true);
+    mixedCaseOutput.setReservoirSubmissionDetail(reservoirSubmissionDetail);
+
+    when(mixedCaseOutputsRepository.findByReservoirSubmissionDetail(reservoirSubmissionDetail)).thenReturn(Optional.of(mixedCaseOutput));
+
+    var instance = ProbabilityDistributionFieldInstance.OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY;
+    var distribution = new ProbabilityDistribution();
+
+    when(probabilityDistributionPersistenceService.getProbabilityDistribution(reservoirSubmissionDetail, instance))
+        .thenReturn(Optional.of(distribution));
+
+    when(probabilityDistributionSumService.calculateIndustryStandardOilEquivalentResourcesForDiscovery(eq(distribution), anyMap()))
+        .thenReturn(distribution);
+
+    discoveryMixedCaseVolumetricsPersistenceService.saveMixedCaseOutputs(form, reservoirSubmissionDetail);
+
+    verify(mixedCaseOutputsRepository, times(1)).save(any(MixedCaseOutput.class));
+    verify(probabilityDistributionPersistenceService, times(1)).saveSummedProbabilityDistribution(distribution, instance, reservoirSubmissionDetail);
   }
 }

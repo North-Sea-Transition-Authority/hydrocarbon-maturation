@@ -48,9 +48,11 @@ class DiscoveryCombinedVolTotalsSummaryServiceTest {
         submissionDetail))
         .extracting(
             DiscoveryCombinedCaseVolTotalsSummaryView::hasAssociatedCondensateRecoverableResources,
+            DiscoveryCombinedCaseVolTotalsSummaryView::useIndustryStandardConversion,
             DiscoveryCombinedCaseVolTotalsSummaryView::tableView
         )
         .containsExactly(
+            "",
             "",
             new ProbabilityDistributionTableView(
                 summaryBehaviour,
@@ -74,23 +76,37 @@ class DiscoveryCombinedVolTotalsSummaryServiceTest {
     var combinedCaseVolumetricTotal = new CombinedCaseVolumetricTotal();
     combinedCaseVolumetricTotal.setSubmissionDetail(submissionDetail);
     combinedCaseVolumetricTotal.setHasAssociatedCondensateRecoverableResources(true);
+    combinedCaseVolumetricTotal.setUseIndustryStandardConversion(true);
+
+    var listOfInstances = new ArrayList<ProbabilityDistributionFieldInstance>();
+    listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY);
+    listOfInstances.add(
+        ProbabilityDistributionFieldInstance.TOTAL_OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY);
+    listOfInstances.add(ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY);
+    listOfInstances.add(
+        ProbabilityDistributionFieldInstance.TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY);
 
     var tableView = ProbabilityDistributionTableView.empty();
 
     when(discoveryCombinedCaseVolTotalsService.getCombinedCaseVolumetricTotal(submissionDetail))
         .thenReturn(Optional.of(combinedCaseVolumetricTotal));
     when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
-        DiscoveryCombinedVolTotalsSummaryService.ALL_INSTANCES, submissionDetail, null))
+        listOfInstances, submissionDetail, null))
         .thenReturn(tableView);
 
     assertThat(discoveryCombinedVolTotalsSummaryService.getCombinedCaseVolumetricTotalsSummaryFromSubmissionDetail(
         submissionDetail))
         .extracting(
             DiscoveryCombinedCaseVolTotalsSummaryView::hasAssociatedCondensateRecoverableResources,
+            DiscoveryCombinedCaseVolTotalsSummaryView::useIndustryStandardConversion,
             DiscoveryCombinedCaseVolTotalsSummaryView::tableView
         )
         .containsExactly(
             BooleanUtil.yesNoFromBoolean(combinedCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources()),
+            BooleanUtil.yesNoFromBoolean(combinedCaseVolumetricTotal.getUseIndustryStandardConversion()),
             tableView
         );
   }
@@ -102,6 +118,7 @@ class DiscoveryCombinedVolTotalsSummaryServiceTest {
     var combinedCaseVolumetricTotal = new CombinedCaseVolumetricTotal();
     combinedCaseVolumetricTotal.setSubmissionDetail(submissionDetail);
     combinedCaseVolumetricTotal.setHasAssociatedCondensateRecoverableResources(false);
+    combinedCaseVolumetricTotal.setUseIndustryStandardConversion(false);
 
     when(discoveryCombinedCaseVolTotalsService.getCombinedCaseVolumetricTotal(submissionDetail)).thenReturn(Optional.of(
         combinedCaseVolumetricTotal
@@ -127,10 +144,12 @@ class DiscoveryCombinedVolTotalsSummaryServiceTest {
         submissionDetail))
         .extracting(
             DiscoveryCombinedCaseVolTotalsSummaryView::hasAssociatedCondensateRecoverableResources,
+            DiscoveryCombinedCaseVolTotalsSummaryView::useIndustryStandardConversion,
             DiscoveryCombinedCaseVolTotalsSummaryView::tableView
         )
         .containsExactly(
             BooleanUtil.yesNoFromBoolean(combinedCaseVolumetricTotal.getHasAssociatedCondensateRecoverableResources()),
+            BooleanUtil.yesNoFromBoolean(combinedCaseVolumetricTotal.getUseIndustryStandardConversion()),
             tableView
         );
   }
