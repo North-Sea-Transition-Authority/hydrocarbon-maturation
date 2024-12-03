@@ -34,6 +34,11 @@ public class GeneralDetailsForm implements SubmissionForm {
   private DriveMechanism currentDriveMechanism;
   private String otherDriveMechanism;
 
+  private String fdpTitle;
+  private String fdpDateDay;
+  private String fdpDateMonth;
+  private String fdpDateYear;
+
   private List<UploadedFileForm> fieldReport = new ArrayList<>();
 
   public Boolean getProspectDiscoveryLocatedInUkcs() {
@@ -197,6 +202,38 @@ public class GeneralDetailsForm implements SubmissionForm {
 
   public void setOtherDriveMechanism(String otherDriveMechanism) {
     this.otherDriveMechanism = otherDriveMechanism;
+  }
+
+  public String getFdpTitle() {
+    return fdpTitle;
+  }
+
+  public void setFdpTitle(String fdpTitle) {
+    this.fdpTitle = fdpTitle;
+  }
+
+  public String getFdpDateDay() {
+    return fdpDateDay;
+  }
+
+  public void setFdpDateDay(String fdpDateDay) {
+    this.fdpDateDay = fdpDateDay;
+  }
+
+  public String getFdpDateMonth() {
+    return fdpDateMonth;
+  }
+
+  public void setFdpDateMonth(String fdpDateMonth) {
+    this.fdpDateMonth = fdpDateMonth;
+  }
+
+  public String getFdpDateYear() {
+    return fdpDateYear;
+  }
+
+  public void setFdpDateYear(String fdpDateYear) {
+    this.fdpDateYear = fdpDateYear;
   }
 
   public List<UploadedFileForm> getFieldReport() {

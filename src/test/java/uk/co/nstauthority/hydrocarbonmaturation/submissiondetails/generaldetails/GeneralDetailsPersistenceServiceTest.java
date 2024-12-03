@@ -383,6 +383,9 @@ class GeneralDetailsPersistenceServiceTest {
   void saveGeneralDetails_whenField_verifyCommon(SubmissionType submissionType) {
     var form = new GeneralDetailsForm();
     form.setFieldReport(List.of(new UploadedFileForm()));
+    form.setFdpDateDay("1");
+    form.setFdpDateMonth("1");
+    form.setFdpDateYear("2024");
     submissionDetail.setSubmissionType(submissionType);
     var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
 
@@ -427,9 +430,13 @@ class GeneralDetailsPersistenceServiceTest {
 
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {"CREATE_FDP", "CREATE_FDPA"})
-  void saveGeneralDetails_whenFdpOrFdpa_assertFieldStoppedProducingDate(SubmissionType submissionType) {
+  void saveGeneralDetails_whenFdpOrFdpa_assertFdpFdpaOnlyFields(SubmissionType submissionType) {
     var form = new GeneralDetailsForm();
     form.setCapitalProjectScopeDelivered("test");
+    form.setFdpTitle("FDP Title");
+    form.setFdpDateDay("1");
+    form.setFdpDateMonth("1");
+    form.setFdpDateYear("2024");
 
     submissionDetail.setSubmissionType(submissionType);
     var generalDetailsArgumentCaptor = ArgumentCaptor.forClass(GeneralDetail.class);
@@ -441,6 +448,16 @@ class GeneralDetailsPersistenceServiceTest {
 
     assertThat(savedGeneralDetail.getCapitalProjectScopeDelivered())
         .isEqualTo(form.getCapitalProjectScopeDelivered());
+
+    assertThat(savedGeneralDetail.getFdpTitle()).isEqualTo(form.getFdpTitle());
+
+    assertThat(savedGeneralDetail.getFdpDate())
+        .isEqualTo(
+            LocalDate.of(
+            Integer.parseInt(form.getFdpDateYear()),
+            Integer.parseInt(form.getFdpDateMonth()),
+            Integer.parseInt(form.getFdpDateDay()))
+        );
   }
 
   @Test

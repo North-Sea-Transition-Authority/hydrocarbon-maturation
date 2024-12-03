@@ -73,6 +73,14 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
       validateDateOfRelinquishment(ValidationType.PARTIAL, generalDetailsForm, errors);
     }
 
+    if (submissionDetail.isFieldDevelopmentPlanSubmission() || submissionDetail.isFieldDevelopmentPlanAddendumSubmission()) {
+      var fieldReportTypeName = GeneralDetailsFormService
+          .getFieldReportTypeForSubmissionDetail(submissionType)
+          .toLowerCase();
+
+      validateFdpDate(ValidationType.PARTIAL, generalDetailsForm, errors, fieldReportTypeName);
+    }
+
     if (submissionDetail.isCessationOfProductionSubmission()) {
       validateFieldStoppedProducingDate(ValidationType.PARTIAL, generalDetailsForm, errors);
     }
@@ -162,13 +170,25 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
         );
       }
 
-      var fieldReportTitle = GeneralDetailsFormService
+      var fieldReportTypeName = GeneralDetailsFormService
           .getFieldReportTypeForSubmissionDetail(submissionType)
           .toLowerCase();
+
+      if (submissionDetail.isFieldDevelopmentPlanSubmission() || submissionDetail.isFieldDevelopmentPlanAddendumSubmission()) {
+        ValidationUtils.rejectIfEmptyOrWhitespace(
+            errors,
+            "fdpTitle",
+            "fdpTitle.required",
+            "Provide the %s title".formatted(fieldReportTypeName)
+        );
+
+        validateFdpDate(ValidationType.FULL, generalDetailsForm, errors, fieldReportTypeName);
+      }
+
       var fieldReport = generalDetailsForm.getFieldReport();
       var fieldReportValidator = FileValidationUtil.validator()
-          .withMaximumNumberOfFiles(1, "Upload at most one %s".formatted(fieldReportTitle))
-          .withMinimumNumberOfFiles(1, "Upload a %s".formatted(fieldReportTitle));
+          .withMaximumNumberOfFiles(1, "Upload at most one %s".formatted(fieldReportTypeName))
+          .withMinimumNumberOfFiles(1, "Upload a %s".formatted(fieldReportTypeName));
       if (submissionDetail.isCessationOfProductionSubmission()) {
         fieldReportValidator = fieldReportValidator.isPartiallyValidated();
       }
@@ -197,6 +217,34 @@ class GeneralDetailsFormValidator implements SubmissionValidator {
           form.getRelinquishmentMonth(),
           form.getRelinquishmentYear(),
           errors);
+    }
+  }
+
+  private void validateFdpDate(
+      ValidationType validationType,
+      GeneralDetailsForm form,
+      Errors errors,
+      String fieldReportTypeName
+  ) {
+    if (validationType == ValidationType.FULL) {
+      DateValidationUtil.validateDateIsTodayOrInThePast(
+          "fdpDate",
+          "date of %s".formatted(fieldReportTypeName),
+          form.getFdpDateDay(),
+          form.getFdpDateMonth(),
+          form.getFdpDateYear(),
+          errors
+      );
+    } else if (validationType == ValidationType.PARTIAL
+        && !StringUtils.isAllBlank(form.getFdpDateDay(), form.getFdpDateMonth(), form.getFdpDateYear())) {
+      DateValidationUtil.validateDateIsTodayOrInThePast(
+          "fdpDate",
+          "date of %s".formatted(fieldReportTypeName),
+          form.getFdpDateDay(),
+          form.getFdpDateMonth(),
+          form.getFdpDateYear(),
+          errors
+      );
     }
   }
 

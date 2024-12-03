@@ -151,7 +151,8 @@ public class GeneralDetailsController {
                   FileDocumentType.FIELD_REPORT, submissionDetail))
           .addObject("fieldReportType",
               getFieldReportTypeForSubmissionType(submissionDetail))
-          .addObject("fieldWhollyLocatedInArea", fieldWhollyLocatedInArea);
+          .addObject("fieldWhollyLocatedInArea", fieldWhollyLocatedInArea)
+          .addObject("reportTypeAcronym", submissionDetail.getSubmissionType().getAcronym());
     }
 
     TaskListBreadcrumbUtil.addTaskListAndWorkAreaToModelAndView(modelAndView, PAGE_NAME, submissionDetail);

@@ -26,8 +26,6 @@ public class GeneralDetailSummaryService {
   public static final String GENERAL_DETAILS = "General details";
   public static final int GENERAL_DETAIL_SECTION_ORDER = 10;
   public static final String LICENCES = "Licences";
-  public static final String WHOLLY_WITHIN_UKCS = "Wholly located within UKCS";
-  public static final String WHOLLY_WITHIN_ENGLAND = "Wholly located within England";
   public static final String PERCENT_WITHIN_UKCS = "Percentage located in UKCS";
   public static final String PERCENT_WITHIN_ENGLAND = "Percentage located in England";
   public static final String QUADRANT_AND_BLOCKS = "Quadrant and blocks";
@@ -38,6 +36,8 @@ public class GeneralDetailSummaryService {
   public static final String FINAL_FIELD_DEVELOPMENT_PLAN = "Final field development plan";
   public static final String FINAL_FIELD_DEVELOPMENT_PLAN_ADDENDUM = "Final field development plan addendum";
   public static final String CESSATION_OF_PRODUCTION_REPORT = "Cessation of production report";
+  public static final String FDP_TITLE = "%s title";
+  public static final String FDP_DATE = "%s date";
 
   private final GeneralDetailsPersistenceService generalDetailsPersistenceService;
   private final QuadrantAndBlockPersistenceService quadrantAndBlockPersistenceService;
@@ -221,10 +221,6 @@ public class GeneralDetailSummaryService {
           DateUtil.formatDateOrBlank(generalDetail.getFieldStoppedProducingDate()));
     }
 
-    if (submissionDetail.isFieldDevelopmentPlanSubmission() || submissionDetail.isFieldDevelopmentPlanAddendumSubmission()) {
-      summaryDataView.addKeyValue(CAPITAL_PROJECT_SCOPE_DELIVERED, generalDetail.getCapitalProjectScopeDelivered());
-    }
-
     if (submissionDetail.isFieldSubmission()) {
       if (DriveMechanism.OTHER.equals(generalDetail.getCurrentDriveMechanism())) {
         summaryDataView.addKeyValue(CURRENT_DRIVE_MECHANISM, generalDetail.getOtherDriveMechanism());
@@ -234,6 +230,16 @@ public class GeneralDetailSummaryService {
             : "";
         summaryDataView.addKeyValue(CURRENT_DRIVE_MECHANISM, currentDriveMechanism);
       }
+    }
+
+    if (submissionDetail.isFieldDevelopmentPlanSubmission() || submissionDetail.isFieldDevelopmentPlanAddendumSubmission()) {
+      var fieldReportTypeName = submissionDetail.isFieldDevelopmentPlanSubmission()
+          ? FINAL_FIELD_DEVELOPMENT_PLAN
+          : FINAL_FIELD_DEVELOPMENT_PLAN_ADDENDUM;
+
+      summaryDataView.addKeyValue(CAPITAL_PROJECT_SCOPE_DELIVERED, generalDetail.getCapitalProjectScopeDelivered());
+      summaryDataView.addKeyValue(FDP_TITLE.formatted(fieldReportTypeName), generalDetail.getFdpTitle());
+      summaryDataView.addKeyValue(FDP_DATE.formatted(fieldReportTypeName), generalDetail.getFdpDate());
     }
   }
 

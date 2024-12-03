@@ -550,6 +550,8 @@ class GeneralDetailSummaryServiceTest {
     generalDetail.setCapitalProjectScopeDelivered("test");
     generalDetail.setCurrentDriveMechanism(DriveMechanism.OTHER);
     generalDetail.setOtherDriveMechanism("test");
+    generalDetail.setFdpTitle("FDP Title");
+    generalDetail.setFdpDate(LocalDate.of(2024, 1, 1));
 
     var summaryDataView = SummaryDataView.newWithKeyValue(
         GeneralDetailSummaryService.LICENCES,
@@ -559,12 +561,22 @@ class GeneralDetailSummaryServiceTest {
         GeneralDetailSummaryService.QUADRANT_AND_BLOCKS,
         String.join(", ", List.of(quadBlockRef1, quadBlockRef2))
     );
-
+    summaryDataView.addKeyValue(
+        GeneralDetailSummaryService.CURRENT_DRIVE_MECHANISM, generalDetail.getOtherDriveMechanism()
+    );
     summaryDataView.addKeyValue(
         GeneralDetailSummaryService.CAPITAL_PROJECT_SCOPE_DELIVERED, generalDetail.getCapitalProjectScopeDelivered()
     );
+
+    var fieldReportTypeName = submissionDetail.isFieldDevelopmentPlanSubmission()
+        ? GeneralDetailSummaryService.FINAL_FIELD_DEVELOPMENT_PLAN
+        : GeneralDetailSummaryService.FINAL_FIELD_DEVELOPMENT_PLAN_ADDENDUM;
+
     summaryDataView.addKeyValue(
-        GeneralDetailSummaryService.CURRENT_DRIVE_MECHANISM, generalDetail.getOtherDriveMechanism()
+        GeneralDetailSummaryService.FDP_TITLE.formatted(fieldReportTypeName), generalDetail.getFdpTitle()
+    );
+    summaryDataView.addKeyValue(
+        GeneralDetailSummaryService.FDP_DATE.formatted(fieldReportTypeName), generalDetail.getFdpDate()
     );
 
     var summaryCard = SummaryCard.simpleSummaryWithFiles(

@@ -56,6 +56,10 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
 
   private String otherDriveMechanism;
 
+  private String fdpTitle;
+
+  private LocalDate fdpDate;
+
   public UUID getId() {
     return id;
   }
@@ -183,5 +187,21 @@ public class GeneralDetail implements SubmissionDetailChildEntity {
 
   public void setOtherDriveMechanism(String otherDriveMechanism) {
     this.otherDriveMechanism = otherDriveMechanism;
+  }
+
+  public String getFdpTitle() {
+    return fdpTitle;
+  }
+
+  public void setFdpTitle(String fdpTitle) {
+    this.fdpTitle = fdpTitle;
+  }
+
+  public LocalDate getFdpDate() {
+    return fdpDate;
+  }
+
+  public void setFdpDate(LocalDate fdpDate) {
+    this.fdpDate = fdpDate;
   }
 }

@@ -88,6 +88,13 @@ public class GeneralDetailsPersistenceService {
 
     if (submissionDetail.isFieldDevelopmentPlanSubmission() || submissionDetail.isFieldDevelopmentPlanAddendumSubmission()) {
       generalDetail.setCapitalProjectScopeDelivered(form.getCapitalProjectScopeDelivered());
+      generalDetail.setFdpTitle(form.getFdpTitle());
+      generalDetail.setFdpDate(
+          LocalDate.of(
+            Integer.parseInt(form.getFdpDateYear()),
+            Integer.parseInt(form.getFdpDateMonth()),
+            Integer.parseInt(form.getFdpDateDay()))
+      );
     }
 
     if (submissionDetail.isFieldSubmission()) {

@@ -170,6 +170,19 @@ breadcrumbsMap=breadcrumbsMap>
         legendHeadingSize="h2"
         legendHeadingClass="govuk-fieldset__legend--m"
         optionalLabel=(submissionType=="CREATE_COP")>
+          <#if submissionType == "CREATE_FDP" || submissionType == "CREATE_FDPA">
+            <@fdsTextInput.textInput
+            path="form.fdpTitle"
+            labelText="What is the final ${reportTypeAcronym} title?"
+            />
+
+            <@fdsDateInput.dateInput
+            dayPath="form.fdpDateDay"
+            monthPath="form.fdpDateMonth"
+            yearPath="form.fdpDateYear"
+            labelText="What date was the ${reportTypeAcronym} finalised?"
+            formId="fdp-date-input"/>
+          </#if>
           <@fdsFileUpload.fileUpload
           id="fieldReport"
           path="form.fieldReport"

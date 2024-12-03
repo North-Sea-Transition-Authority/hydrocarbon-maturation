@@ -342,7 +342,6 @@ class GeneralDetailsFormValidatorTest {
     form.setRelinquishmentMonth(null);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     submissionDetail.setSubmissionType(SubmissionType.RELINQUISHMENT_PROSPECT);
-    GeneralDetail nullGeneralDetail = null;
     generalDetailsFormValidator.isValid(
         form,
         bindingResult,
@@ -452,9 +451,8 @@ class GeneralDetailsFormValidatorTest {
     assertThat(extractedErrors).isEmpty();
   }
 
-  @ParameterizedTest
-  @MethodSource("allFieldSubmissionTypes")
-  void validateFull_validFieldSubmission_selectedDriveMechanism(SubmissionType submissionType) {
+  @Test
+  void validateFull_validFieldSubmission_selectedDriveMechanism() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_FDP);
 
     var form = getValidForm();
@@ -466,9 +464,8 @@ class GeneralDetailsFormValidatorTest {
     assertThat(extractedErrors).isEmpty();
   }
 
-  @ParameterizedTest
-  @MethodSource("allFieldSubmissionTypes")
-  void validateFull_fieldSubmission_emptyOtherDriveMechanism(SubmissionType submissionType) {
+  @Test
+  void validateFull_fieldSubmission_emptyOtherDriveMechanism() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_FDP);
 
     var form = getValidForm();
@@ -482,9 +479,8 @@ class GeneralDetailsFormValidatorTest {
         .containsExactly(entry("otherDriveMechanism", Set.of("otherDriveMechanism.required")));
   }
 
-  @ParameterizedTest
-  @MethodSource("allFieldSubmissionTypes")
-  void validatePartial_fieldSubmission_emptyOtherDriveMechanism(SubmissionType submissionType) {
+  @Test
+  void validatePartial_fieldSubmission_emptyOtherDriveMechanism() {
     submissionDetail.setSubmissionType(SubmissionType.CREATE_FDP);
 
     var form = getValidForm();
@@ -514,7 +510,11 @@ class GeneralDetailsFormValidatorTest {
         .contains(
             entry("currentDriveMechanism", Set.of("currentDriveMechanism.required")),
             entry("quadrantBlockSelect", Set.of("quadrantBlockSelect.notEmpty")),
-            entry("capitalProjectScopeDelivered", Set.of("capitalProjectScopeDelivered.required"))
+            entry("capitalProjectScopeDelivered", Set.of("capitalProjectScopeDelivered.required")),
+            entry("fdpTitle", Set.of("fdpTitle.required")),
+            entry("fdpDateDay", Set.of("fdpDateDay.invalid")),
+            entry("fdpDateMonth", Set.of("fdpDateMonth.invalid")),
+            entry("fdpDateYear", Set.of("fdpDateYear.invalid"))
         );
   }
 
@@ -523,15 +523,39 @@ class GeneralDetailsFormValidatorTest {
       value = SubmissionType.class,
       names = {"CREATE_FDP", "CREATE_FDPA"}
   )
-  void validatePartial_FdpAndFdpa_invalidForm(SubmissionType submissionType) {
+  void validatePartial_FdpAndFdpa_emptyDate_validForm(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
 
     var form = getInvalidForm();
+    form.setFdpDateDay(null);
+    form.setFdpDateMonth(null);
+    form.setFdpDateYear(null);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     assertTrue(generalDetailsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.PARTIAL));
     var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
     assertThat(extractedErrors).isEmpty();
+  }
+
+  @ParameterizedTest
+  @EnumSource(
+      value = SubmissionType.class,
+      names = {"CREATE_FDP", "CREATE_FDPA"}
+  )
+  void validatePartial_FdpAndFdpa_invalidDate_invalidForm(SubmissionType submissionType) {
+    submissionDetail.setSubmissionType(submissionType);
+
+    var form = getInvalidForm();
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    assertFalse(generalDetailsFormValidator.isValid(form, bindingResult, submissionDetail, ValidationType.PARTIAL));
+    var extractedErrors = ValidatorTestingUtil.extractErrors(bindingResult);
+    assertThat(extractedErrors)
+        .contains(
+            entry("fdpDateDay", Set.of("fdpDateDay.invalid")),
+            entry("fdpDateMonth", Set.of("fdpDateMonth.invalid")),
+            entry("fdpDateYear", Set.of("fdpDateYear.invalid"))
+        );
   }
 
   @Test
@@ -741,6 +765,10 @@ class GeneralDetailsFormValidatorTest {
     form.setFieldStoppedProducingDay("a");
     form.setFieldStoppedProducingMonth("a");
     form.setFieldStoppedProducingYear("a");
+    form.setFdpTitle(null);
+    form.setFdpDateDay("a");
+    form.setFdpDateMonth("a");
+    form.setFdpDateYear("a");
     return form;
   }
 
@@ -759,6 +787,10 @@ class GeneralDetailsFormValidatorTest {
     form.setFieldStoppedProducingDay("01");
     form.setFieldStoppedProducingMonth("05");
     form.setFieldStoppedProducingYear("1999");
+    form.setFdpTitle("FDP Title");
+    form.setFdpDateDay("1");
+    form.setFdpDateMonth("1");
+    form.setFdpDateYear("2024");
 
     var fieldReport = new UploadedFileForm();
     fieldReport.setFileName("file.pdf");

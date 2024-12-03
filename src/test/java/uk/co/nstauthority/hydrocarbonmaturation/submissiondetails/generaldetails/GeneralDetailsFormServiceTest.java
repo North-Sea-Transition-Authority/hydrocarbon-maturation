@@ -291,17 +291,24 @@ class GeneralDetailsFormServiceTest {
 
   @ParameterizedTest
   @EnumSource(value = SubmissionType.class, names = {"CREATE_FDP", "CREATE_FDPA"})
-  void generalDetailEntityToForm_existingEntity_FdpAndFdpa_thenCapitalProjectScope(SubmissionType submissionType) {
+  void generalDetailEntityToForm_existingEntity_FdpAndFdpa_thenCapitalProjectScopeAndFdpDateAndTitle(SubmissionType submissionType) {
     submissionDetail.setSubmissionType(submissionType);
     var generalDetail = getGeneralDetail(submissionDetail);
 
     generalDetail.setCapitalProjectScopeDelivered("test");
+    generalDetail.setFdpTitle("FDP Title");
+    generalDetail.setFdpDate(LocalDate.of(2024, 1, 1));
 
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
 
-    assertThat(generalDetailsFormService.getGeneralDetailsForm(submissionDetail).getCapitalProjectScopeDelivered())
-        .isEqualTo(generalDetail.getCapitalProjectScopeDelivered());
+    var result = generalDetailsFormService.getGeneralDetailsForm(submissionDetail);
+
+    assertThat(result.getCapitalProjectScopeDelivered()).isEqualTo(generalDetail.getCapitalProjectScopeDelivered());
+    assertThat(result.getFdpTitle()).isEqualTo(generalDetail.getFdpTitle());
+    assertThat(result.getFdpDateDay()).isEqualTo(String.valueOf(generalDetail.getFdpDate().getDayOfMonth()));
+    assertThat(result.getFdpDateMonth()).isEqualTo(String.valueOf(generalDetail.getFdpDate().getMonthValue()));
+    assertThat(result.getFdpDateYear()).isEqualTo(String.valueOf(generalDetail.getFdpDate().getYear()));
   }
 
   @ParameterizedTest
@@ -312,6 +319,7 @@ class GeneralDetailsFormServiceTest {
 
     generalDetail.setCurrentDriveMechanism(DriveMechanism.OTHER);
     generalDetail.setOtherDriveMechanism("test");
+    generalDetail.setFdpDate(LocalDate.of(2024, 1, 1));
 
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(submissionDetail))
         .thenReturn(Optional.of(generalDetail));
