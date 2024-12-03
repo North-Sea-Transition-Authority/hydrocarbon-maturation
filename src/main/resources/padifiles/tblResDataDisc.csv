@@ -1,230 +1,230 @@
-﻿resdat_id,resource_id,stage_id,discovery_status,discovery_status_comment,facies,reservoir_description,connectivity,permeability_min,permeability_max,permeability_average,permeability_average_type,permeability_source,permeability_comment,drill_stem_test_results,oil_gravity,oil_viscosity,oil_sulphur,oil_wax,oil_other,cond_gravity,cond_viscosity,cond_sulphur,cond_wax,cond_other,gas_gravity,gas_h2s,gas_co2,gas_n2,gas_other,datum_depth,datum_units,datum_temp,datum_pressure,datum_saturation_pressure,depth_gas_oil_contact
-48203,RID0007396,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48208,RID0003307,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48212,RID0000513,1,Technical Discovery,Gas produced but low flow rates. Production technology has advanced over the nearly 30 years since 113/27-2 was drilled and low permeability reservoirs can now be made to produce at commercial rates.,mixed aeolian and fluviatile ,,barriers detected on DST4,0.01,82.00,2.20,Arithmetic,Conventional core,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48213,RID0011119,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48214,RID0011120,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48234,RID0000176,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48249,RID0001096,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48253,RID0006029,1,Potentially Commercial Discovery,To be provided after test of appraisal well,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48261,RID0000175,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48263,RID0001403,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48264,RID0013209,1,Potentially Commercial Discovery,,"Fault zones and fractured basement. Fault zones facies contain improved poro-perm characteristics compared to fractured basement facies, however both have been demostrated to be productive",,Connectivity is provided by the fault and fracture network. Seismic interpretation of the fault network shows the reservoir is intensely faulted,0.00,0.00,265.00,Arithmetic,other,,,estimated 38 from NMR,estimated 1.2 from NMR,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48267,RID0001949,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48268,RID0013213,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48269,RID0011126,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48273,RID0007320,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48274,RID0011127,1,Minor Discovery,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48275,RID0011136,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48276,RID0011122,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48277,RID0011123,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48279,RID0000076,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48280,RID0013379,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48281,RID0011129,1,Potentially Commercial Discovery,,,,,0.00,0.00,0.00,Arithmetic,Conventional core,,,,,none,n/a,n/a,,,none,n/a,,,,,,,0.00,m tvdss,0,0.00,0.00,0.00
-48282,RID0004713,1,Potentially Commercial Discovery,Marginal Gas cap development alone. This oil rim appraisal to improve commercaility of an oil rim development.,Thin Turbiditic sands with limited or no inter-channel connectivity ,,Mod-poor connectivity between channels. Currently limited pressure data.,20.00,1000.00,200.00,Arithmetic,Conventional core,,,40,0.22,none,n/a,n/a,47.9,n/a,none,n/a,,0.67,<10ppm,1.5,0.5,,2844.00,m tvdss,244,4349.00,5475.00,2815.00
-48283,RID0004713,1,Potentially Commercial Discovery,Marginal Gas cap development alone. This oil rim appraisal to improve commercaility of an oil rim development.,Thin Turbiditic sands with limited or no inter-channel connectivity ,,Mod-poor connectivity between channels. Currently limited pressure data.,20.00,1000.00,200.00,Arithmetic,Conventional core,,,40,0.22,none,n/a,n/a,47.9,n/a,none,n/a,,0.67,<10ppm,1.5,0.5,,2844.00,m tvdss,244,4349.00,5475.00,2815.00
-48284,RID0011131,1,Potentially Commercial Discovery,,,,,0.00,0.00,0.00,Arithmetic,Conventional core,,,,,none,n/a,n/a,,,none,n/a,,,,,,,0.00,m tvdss,0,0.00,0.00,0.00
-48285,RID0013245,1,Potentially Commercial Discovery,,,,,0.00,0.00,0.00,Arithmetic,Conventional core,,,,,none,n/a,n/a,,,none,n/a,,,,,,,0.00,m tvdss,0,0.00,0.00,0.00
-48287,RID0006832,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48288,RID0002125,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48289,RID0011133,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48290,RID0011134,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48291,RID0011135,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48296,RID0011137,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48297,RID0011128,1,Potentially Commercial Discovery,,Litoral calcarenites or sandy carbonates,,Unknown but encountered in both wells,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,12 to 19,unknown,unknown,unknown,,NA,,,,,NA,,,,,1475.00,ft tvdss,108,,,
-48299,RID0011498,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48303,RID0013248,2,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48671,RID0007396,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48672,RID0011498,1,Minor Discovery,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,ft tvdss,0,0.00,0.00,0.00
-48677,RID0006308,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48678,RID0011501,1,Potentially Commercial Discovery,,"Fault zones and fractured basement. Fault zones facies contain improved poro-perm characteristics compared to fractured basement facies, however both have been demostrated to be productive",,Connectivity is provided by the fault and fracture network. Seismic interpretation of the fault network shows the reservoir is intensely faulted,0.00,0.00,265.00,Arithmetic,other,,,estimated 38 from NMR,estimated 1.2 from NMR,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48682,RID0000076,1,Technical Discovery,"Sub economic discovery, success case logging package including sonic and a sampling program was not run",Submarine channels,,"Poor, laterally discontinuous, thin isolated sand lenses. Connectivity to an aquifer is unlikely",0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-48686,RID0000076,2,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-50268,RID0012029,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-50269,RID0012030,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-50272,RID0013243,1,Potentially Commercial Discovery,,Injected sand emanating from Balder basin floor fans.,,Good connectivity.,0.00,0.00,1500.00,Arithmetic,Conventional core,,,28.95,2.3,<1,1.9,,N/A,,,,,,0.014,3.09-3.23,0.081-0.119,,5600.00,ft tvdss,143,2407.00,2325.00,59.00
-50273,RID0013211,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51240,RID0012432,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51242,RID0011137,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51243,RID0011902,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51245,RID0002469,1,Potentially Commercial Discovery,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,38.3,0.364,6400,7.8,WAT = 28°C; WDT=37°C,,,,,,,0,3.735,1.524,,10880.00,ft tvdss,280,7040.00,1499.00,0.00
-51246,RID0002469,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51252,RID0000843,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51253,RID0013332,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51255,RID0001949,1,Potentially Commercial Discovery,Verbier Apprasial well (20/05b-N) will be drilled in 2018,"turbidite sandstones, observations between main bore and sidetrack would suggest channelized",,"Presure data would suggest tands encountored with main bore, sidetrack and 20/05a-10Y are in comunication over geological time ",0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51260,RID0012998,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51261,RID0012432,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51262,RID0012999,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51264,RID0013143,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51265,RID0011129,1,Potentially Commercial Discovery,,,,,0.00,0.00,0.00,Arithmetic,Conventional core,,,,,none,n/a,n/a,,,none,n/a,,,,,,,0.00,m tvdss,0,0.00,0.00,0.00
-51266,RID0004713,1,Potentially Commercial Discovery,Marginal Gas cap development alone. This oil rim appraisal to improve commercaility of an oil rim development.,Thin Turbiditic sands with limited or no inter-channel connectivity ,,Mod-poor connectivity between channels. Currently limited pressure data.,20.00,1000.00,200.00,Arithmetic,Conventional core,,,40,0.22,none,n/a,n/a,47.9,n/a,none,n/a,,0.67,<10ppm,1.5,0.5,,2844.00,m tvdss,244,4349.00,5475.00,2815.00
-51267,RID0011131,1,Potentially Commercial Discovery,,,,,0.00,0.00,0.00,Arithmetic,Conventional core,,,,,none,n/a,n/a,,,none,n/a,,,,,,,0.00,m tvdss,0,0.00,0.00,0.00
-51268,RID0013000,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51269,RID0013885,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51270,RID0013002,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51271,RID0013003,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51272,RID0002722,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51273,RID0003504,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51274,RID0013332,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51276,RID0002668,1,Potentially Commercial Discovery,Appraisal of existing discovery,Deep-water thin-bedded mass flow sandstones. Deposited within lobe setting,,"Formation tester pressures prove pressure continuity with Gannet F, 6km to north. Sheet sandstones in overlapping lobes, with vertical connectivity enhanced by sst remobilisation (injection)",367.00,4505.00,849.00,Arithmetic,Formation Pressure Tester,,,No samples taken,,,,,,,,,,,,,,No gas seen in well,0.00,ft tvdss,0,0.00,0.00,0.00
-51277,RID0013248,1,Potentially Commercial Discovery,"BP is awaiting final sidewall core analysis to determine reservoir properties, as well as fluid data final report.  Commercial assessment and development concepts will follow.","The facies of the Mid Turonian is conglomeratic, derived from a canyon updip to the east.  The reservoir appears to be highly cemented, which degrades net calculation and reservoir quality. The facies of the Lower Turonian/?Early Cretaceous is sandstone, probably shallow marine.  The upper part of this zone is dated as Lower Turonian, but the lower (and best) part of the reservoir is barren and undated.  BP's interpretation is that this is likely to be Early Cretaceous, but could be Lower Turonian or Late Jurassic.",,Connectivity is uncertain at this stage.  Work ongoing to understand lithology prediction from seismic.,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,16.6,32.57,work ongoing,work ongoing,work ongoing,,,,,,,,,,,1958.70,m tvdss,163,2898.00,873.00,0.00
-51278,RID0005509,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51279,RID0013245,1,Potentially Commercial Discovery,,,,,0.00,0.00,0.00,Arithmetic,Conventional core,,,,,none,n/a,n/a,,,none,n/a,,,,,,,0.00,m tvdss,0,0.00,0.00,0.00
-51280,RID0011469,1,Technical Discovery,DST flowed poorly at 2.725 mmscfgd gas and 516 bpd of 46Âº API condensate. The appraisal well 9/10b-3 was drilled to test the southern extent of the structure and was entirely wet.,,,BP believe the structure to be small and compartmentalised,0.00,0.00,0.00,,,,,,,,,,46,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51281,RID0013885,2,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51282,RID0013002,2,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51283,RID0011126,2,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51284,RID0013213,2,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51285,RID0002125,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51287,RID0011135,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51290,RID0011134,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51291,RID0005698,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51292,RID0006350,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51293,RID0006542,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51294,RID0011160,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51302,RID0002722,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51311,RID0012033,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51313,RID0012033,4,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51318,RID0004177,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51319,RID0004178,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51320,RID0004176,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51322,RID0005182,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51431,,0,,,,,,0.00,0.00,0.00,,,,,Dec-15,300-800,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51432,,0,,,,,,0.00,0.00,0.00,,,,,13-14,2000,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51492,RID0013209,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51496,RID0011890,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51497,RID0011744,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51498,RID0011744,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51499,RID0011744,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-51500,RID0011744,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52055,RID0013269,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52056,RID0013612,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52057,RID0013270,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52058,RID0013271,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52063,,0,,,,,,0.00,0.00,0.00,,,,,8.5,1200-1600,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52065,,0,,,,,,0.00,0.00,0.00,,,,,33,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52066,,0,,,,,,0.00,0.00,0.00,,,,,36.7,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52079,,0,,,,,,0.00,0.00,0.00,,,,,33.5,1.025,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52080,RID0013405,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52081,RID0013293,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52084,RID0000139,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52085,RID0013295,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52086,RID0002078,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52087,RID0013297,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52090,RID0013298,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52091,RID0013299,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52092,RID0013300,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52093,RID0013301,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52094,RID0013302,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52095,RID0013303,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52096,RID0013304,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52097,RID0013370,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52098,RID0013306,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52100,RID0013311,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52101,RID0013312,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52104,RID0013311,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52106,RID0013312,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52107,RID0013379,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52108,RID0012033,4,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52109,RID0013313,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52110,RID0003563,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52111,RID0003558,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52112,RID0005185,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52114,RID0013318,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52115,RID0013319,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52116,RID0013320,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52117,RID0013321,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52118,RID0013322,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52119,RID0013323,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52120,RID0013324,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52121,RID0013325,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52122,RID0011126,1,Potentially Commercial Discovery,,Sandstone,,Likely to contain a combination of visible and sub-seismic resolveable connectivity. ,1.30,5.20,2.80,Arithmetic,Log transform,,,20.3,13.72,0.47,<1,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52123,RID0013328,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52124,RID0004177,2,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52125,RID0004178,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52126,RID0004176,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52127,RID0013330,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52128,RID0013331,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52129,RID0013332,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52130,RID0013333,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52131,RID0013334,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52132,RID0013335,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52133,RID0013317,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52134,RID0013336,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52135,RID0013337,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52136,RID0013338,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52137,RID0013339,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52138,RID0013340,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52139,RID0013341,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52140,RID0013342,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52141,RID0013343,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52142,RID0013344,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52143,RID0013345,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52144,RID0013346,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52145,RID0013347,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52146,RID0013348,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52147,RID0013378,1,,,tbc,,tbc,0.00,0.00,0.00,Arithmetic,Sidewall core,,,,,,,,,,,,,,,,,,0.00,ft tvdss,0,0.00,0.00,0.00
-52148,RID0013379,1,,,tbc,,tbc,0.00,0.00,0.00,Arithmetic,Sidewall core,,,,,,,,,,,,,,,,,,0.00,ft tvdss,0,0.00,0.00,0.00
-52149,RID0013351,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52157,RID0013356,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52205,RID0013358,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52206,RID0001715,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52900,RID0014033,1,Potentially Commercial Discovery,,High res image logs and petrophysical evaluation confirms presence of injectite sand bodies with excellent reservoir quality as predicted.,,,1750.00,3477.00,2613.00,Arithmetic,Formation Pressure Tester,,,21,4.6 - 5.3 @ res condt,0.4 wt%,<1,"Pour pt -45 °C, WAT/WDT Could not be determined ",,,,,,0.578,0.52,0.47,0.28,GOR 263 - 309 scf/stb,5730.00,ft tvdss,142,2492.00,2135.00,5730.00
-52902,RID0014034,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52903,RID0014035,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-52906,RID0014036,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55018,RID0002596,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55019,RID0011627,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55050,RID0013014,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55051,RID0013014,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55052,RID0011950,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55053,RID0014221,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55054,RID0014222,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55055,RID0013356,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55056,RID0000032,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55057,RID0014235,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55058,RID0003160,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55059,RID0011719,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55060,RID0011260,1,Technical Discovery,"This discovery, made by the 205/27-3 &3z well, is assessed as a technical discovery/sub-commercial accumulation","Fine grained, clean & well-sorted marine turbidite sandstones",,Moderate to good laterally moderate to fair vertically,0.02,328.00,145.00,Arithmetic, ,"From Routine Core Analysis (horizontal, air perm, unstressed)",,19.9,9.3,0.35,4.8,WAT=34degC; 8.7w% asphaltene,,,,,,,,,,,8350.00,ft tvdss,195,3740.00,706.00,
-55061,RID0014248,1,,Not Applicable,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55062,RID0013299,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55063,RID0011620,1, ,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55068,RID0011504,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55069,RID0014253,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55070,RID0013299,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55071,RID0013299,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55072,RID0013299,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55073,RID0014257,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55074,RID0011740,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55134,RID0011732,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55135,RID0011827,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55136,RID0011829,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55137,RID0011730,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55138,RID0011826,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55139,RID0011825,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55140,RID0011643,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55141,RID0011754,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55142,RID0011808,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55143,RID0011646,1,Potentially Commercial Discovery,,,,,,,, , ,,,25.2,1.95 @ Pres,1.72,,BaSO4 scaling is a big risk if sea water is mixed,,,,,,,,,,,8856.00,ft MD,240,3525.70,,
-55144,RID0000030,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55145,RID0000042,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55146,RID0000029,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55147,RID0000027,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55148,RID0000028,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55149,RID0000043,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55150,RID0000034,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55151,RID0000035,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55152,RID0000036,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55153,RID0011701,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55154,RID0012014,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55155,RID0011854,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55156,RID0011401,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55157,RID0014298,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55158,RID0014299,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55159,RID0014300,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55160,RID0011547,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55161,RID0011550,1,Technical Discovery,Could be commercial in the future but would require appraisal to demonstrate flow and development cost synergies,Pelagic carbonate,Chalk ( Tor and Ekofisk),Unknown ,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55162,RID0011545,1,Technical Discovery,Small discovery with proven leg wholly within 4 way dip closure,Shallow Marine Sandstone,Fulmar Shallow Marine Sandstone,Well test indicates a discontinuity at a short distance away from the well ( eg < 70m) - however this could be the contact.,0.50,5.90,2.68,Arithmetic,Formation Pressure Tester,From core analysis. Well test analysis by original operator interpreted 375mD.,"A single drill stem test of the fulmar sands was devised to be run in two parts. Due to the lower than expected permeability of the upper sand members an initial test was carried out on this sand DST1 and then the main high permeability sands perforated and tested as DST 2 without pulling the test string. 
+resdat_id,resource_id,stage_id,discovery_status,discovery_status_comment,facies,reservoir_description,connectivity,permeability_min,permeability_max,permeability_average,permeability_average_type,permeability_source,permeability_comment,drill_stem_test_results,oil_gravity,oil_viscosity,oil_sulphur,oil_wax,oil_other,cond_gravity,cond_viscosity,cond_sulphur,cond_wax,cond_other,gas_gravity,gas_h2s,gas_co2,gas_n2,gas_other,datum_depth,datum_units,datum_temp,datum_pressure,datum_saturation_pressure,depth_gas_oil_contact,
+48203,RID0007396,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48208,RID0003307,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48212,RID0000513,1,Technical Discovery,Gas produced but low flow rates. Production technology has advanced over the nearly 30 years since 113/27-2 was drilled and low permeability reservoirs can now be made to produce at commercial rates.,mixed aeolian and fluviatile ,,barriers detected on DST4,0.01,82.00,2.20,Arithmetic,Conventional core,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48213,RID0011119,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48214,RID0011120,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48234,RID0000176,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48249,RID0001096,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48253,RID0006029,1,Potentially Commercial Discovery,To be provided after test of appraisal well,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48261,RID0000175,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48263,RID0001403,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48264,RID0013209,1,Potentially Commercial Discovery,,"Fault zones and fractured basement. Fault zones facies contain improved poro-perm characteristics compared to fractured basement facies, however both have been demostrated to be productive",,Connectivity is provided by the fault and fracture network. Seismic interpretation of the fault network shows the reservoir is intensely faulted,0.00,0.00,265.00,Arithmetic,other,,,estimated 38 from NMR,estimated 1.2 from NMR,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48267,RID0001949,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48268,RID0013213,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48269,RID0011126,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48273,RID0007320,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48274,RID0011127,1,Minor Discovery,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48275,RID0011136,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48276,RID0011122,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48277,RID0011123,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48279,RID0000076,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48280,RID0013379,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48281,RID0011129,1,Potentially Commercial Discovery,,,,,0.00,0.00,0.00,Arithmetic,Conventional core,,,,,none,n/a,n/a,,,none,n/a,,,,,,,0.00,m tvdss,0.00,0.00,0.00,0.00,
+48282,RID0004713,1,Potentially Commercial Discovery,Marginal Gas cap development alone. This oil rim appraisal to improve commercaility of an oil rim development.,Thin Turbiditic sands with limited or no inter-channel connectivity ,,Mod-poor connectivity between channels. Currently limited pressure data.,20.00,1000.00,200.00,Arithmetic,Conventional core,,,40,0.22,none,n/a,n/a,47.9,n/a,none,n/a,,0.67,<10ppm,1.5,0.5,,2844.00,m tvdss,244.00,4349.00,5475.00,2815.00,
+48283,RID0004713,1,Potentially Commercial Discovery,Marginal Gas cap development alone. This oil rim appraisal to improve commercaility of an oil rim development.,Thin Turbiditic sands with limited or no inter-channel connectivity ,,Mod-poor connectivity between channels. Currently limited pressure data.,20.00,1000.00,200.00,Arithmetic,Conventional core,,,40,0.22,none,n/a,n/a,47.9,n/a,none,n/a,,0.67,<10ppm,1.5,0.5,,2844.00,m tvdss,244.00,4349.00,5475.00,2815.00,
+48284,RID0011131,1,Potentially Commercial Discovery,,,,,0.00,0.00,0.00,Arithmetic,Conventional core,,,,,none,n/a,n/a,,,none,n/a,,,,,,,0.00,m tvdss,0.00,0.00,0.00,0.00,
+48285,RID0013245,1,Potentially Commercial Discovery,,,,,0.00,0.00,0.00,Arithmetic,Conventional core,,,,,none,n/a,n/a,,,none,n/a,,,,,,,0.00,m tvdss,0.00,0.00,0.00,0.00,
+48287,RID0006832,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48288,RID0002125,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48289,RID0011133,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48290,RID0011134,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48291,RID0011135,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48296,RID0011137,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48297,RID0011128,1,Potentially Commercial Discovery,,Litoral calcarenites or sandy carbonates,,Unknown but encountered in both wells,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,12 to 19,unknown,unknown,unknown,,NA,,,,,NA,,,,,1475.00,ft tvdss,108.00,,,,
+48299,RID0011498,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48303,RID0013248,2,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48671,RID0007396,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48672,RID0011498,1,Minor Discovery,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,ft tvdss,0.00,0.00,0.00,0.00,
+48677,RID0006308,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48678,RID0011501,1,Potentially Commercial Discovery,,"Fault zones and fractured basement. Fault zones facies contain improved poro-perm characteristics compared to fractured basement facies, however both have been demostrated to be productive",,Connectivity is provided by the fault and fracture network. Seismic interpretation of the fault network shows the reservoir is intensely faulted,0.00,0.00,265.00,Arithmetic,other,,,estimated 38 from NMR,estimated 1.2 from NMR,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48682,RID0000076,1,Technical Discovery,"Sub economic discovery, success case logging package including sonic and a sampling program was not run",Submarine channels,,"Poor, laterally discontinuous, thin isolated sand lenses. Connectivity to an aquifer is unlikely",0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+48686,RID0000076,2,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+50268,RID0012029,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+50269,RID0012030,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+50272,RID0013243,1,Potentially Commercial Discovery,,Injected sand emanating from Balder basin floor fans.,,Good connectivity.,0.00,0.00,1500.00,Arithmetic,Conventional core,,,28.95,2.3,<1,1.9,,N/A,,,,,,0.014,3.09-3.23,0.081-0.119,,5600.00,ft tvdss,143.00,2407.00,2325.00,59.00,
+50273,RID0013211,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51240,RID0012432,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51242,RID0011137,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51243,RID0011902,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51245,RID0002469,1,Potentially Commercial Discovery,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,38.3,0.364,6400,7.8,WAT = 28°C; WDT=37°C,,,,,,,0,3.735,1.524,,10880.00,ft tvdss,280.00,7040.00,1499.00,0.00,
+51246,RID0002469,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51252,RID0000843,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51253,RID0013332,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51255,RID0001949,1,Potentially Commercial Discovery,Verbier Apprasial well (20/05b-N) will be drilled in 2018,"turbidite sandstones, observations between main bore and sidetrack would suggest channelized",,"Presure data would suggest tands encountored with main bore, sidetrack and 20/05a-10Y are in comunication over geological time ",0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51260,RID0012998,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51261,RID0012432,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51262,RID0012999,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51264,RID0013143,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51265,RID0011129,1,Potentially Commercial Discovery,,,,,0.00,0.00,0.00,Arithmetic,Conventional core,,,,,none,n/a,n/a,,,none,n/a,,,,,,,0.00,m tvdss,0.00,0.00,0.00,0.00,
+51266,RID0004713,1,Potentially Commercial Discovery,Marginal Gas cap development alone. This oil rim appraisal to improve commercaility of an oil rim development.,Thin Turbiditic sands with limited or no inter-channel connectivity ,,Mod-poor connectivity between channels. Currently limited pressure data.,20.00,1000.00,200.00,Arithmetic,Conventional core,,,40,0.22,none,n/a,n/a,47.9,n/a,none,n/a,,0.67,<10ppm,1.5,0.5,,2844.00,m tvdss,244.00,4349.00,5475.00,2815.00,
+51267,RID0011131,1,Potentially Commercial Discovery,,,,,0.00,0.00,0.00,Arithmetic,Conventional core,,,,,none,n/a,n/a,,,none,n/a,,,,,,,0.00,m tvdss,0.00,0.00,0.00,0.00,
+51268,RID0013000,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51269,RID0013885,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51270,RID0013002,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51271,RID0013003,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51272,RID0002722,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51273,RID0003504,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51274,RID0013332,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51276,RID0002668,1,Potentially Commercial Discovery,Appraisal of existing discovery,Deep-water thin-bedded mass flow sandstones. Deposited within lobe setting,,"Formation tester pressures prove pressure continuity with Gannet F, 6km to north. Sheet sandstones in overlapping lobes, with vertical connectivity enhanced by sst remobilisation (injection)",367.00,4505.00,849.00,Arithmetic,Formation Pressure Tester,,,No samples taken,,,,,,,,,,,,,,No gas seen in well,0.00,ft tvdss,0.00,0.00,0.00,0.00,
+51277,RID0013248,1,Potentially Commercial Discovery,"BP is awaiting final sidewall core analysis to determine reservoir properties, as well as fluid data final report.  Commercial assessment and development concepts will follow.","The facies of the Mid Turonian is conglomeratic, derived from a canyon updip to the east.  The reservoir appears to be highly cemented, which degrades net calculation and reservoir quality. The facies of the Lower Turonian/?Early Cretaceous is sandstone, probably shallow marine.  The upper part of this zone is dated as Lower Turonian, but the lower (and best) part of the reservoir is barren and undated.  BP's interpretation is that this is likely to be Early Cretaceous, but could be Lower Turonian or Late Jurassic.",,Connectivity is uncertain at this stage.  Work ongoing to understand lithology prediction from seismic.,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,16.6,32.57,work ongoing,work ongoing,work ongoing,,,,,,,,,,,1958.70,m tvdss,163.00,2898.00,873.00,0.00,
+51278,RID0005509,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51279,RID0013245,1,Potentially Commercial Discovery,,,,,0.00,0.00,0.00,Arithmetic,Conventional core,,,,,none,n/a,n/a,,,none,n/a,,,,,,,0.00,m tvdss,0.00,0.00,0.00,0.00,
+51280,RID0011469,1,Technical Discovery,DST flowed poorly at 2.725 mmscfgd gas and 516 bpd of 46Âº API condensate. The appraisal well 9/10b-3 was drilled to test the southern extent of the structure and was entirely wet.,,,BP believe the structure to be small and compartmentalised,0.00,0.00,0.00,,,,,,,,,,46,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51281,RID0013885,2,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51282,RID0013002,2,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51283,RID0011126,2,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51284,RID0013213,2,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51285,RID0002125,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51287,RID0011135,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51290,RID0011134,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51291,RID0005698,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51292,RID0006350,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51293,RID0006542,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51294,RID0011160,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51302,RID0002722,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51311,RID0012033,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51313,RID0012033,4,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51318,RID0004177,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51319,RID0004178,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51320,RID0004176,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51322,RID0005182,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51431,,0,,,,,,0.00,0.00,0.00,,,,,Dec-15,300-800,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51432,,0,,,,,,0.00,0.00,0.00,,,,,13-14,2000,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51492,RID0013209,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51496,RID0011890,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51497,RID0011744,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51498,RID0011744,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51499,RID0011744,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+51500,RID0011744,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52055,RID0013269,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52056,RID0013612,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52057,RID0013270,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52058,RID0013271,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52063,,0,,,,,,0.00,0.00,0.00,,,,,8.5,1200-1600,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52065,,0,,,,,,0.00,0.00,0.00,,,,,33,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52066,,0,,,,,,0.00,0.00,0.00,,,,,36.7,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52079,,0,,,,,,0.00,0.00,0.00,,,,,33.5,1.025,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52080,RID0013405,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52081,RID0013293,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52084,RID0000139,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52085,RID0013295,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52086,RID0002078,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52087,RID0013297,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52090,RID0013298,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52091,RID0013299,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52092,RID0013300,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52093,RID0013301,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52094,RID0013302,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52095,RID0013303,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52096,RID0013304,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52097,RID0013370,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52098,RID0013306,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52100,RID0013311,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52101,RID0013312,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52104,RID0013311,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52106,RID0013312,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52107,RID0013379,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52108,RID0012033,4,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52109,RID0013313,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52110,RID0003563,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52111,RID0003558,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52112,RID0005185,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52114,RID0013318,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52115,RID0013319,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52116,RID0013320,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52117,RID0013321,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52118,RID0013322,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52119,RID0013323,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52120,RID0013324,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52121,RID0013325,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52122,RID0011126,1,Potentially Commercial Discovery,,Sandstone,,Likely to contain a combination of visible and sub-seismic resolveable connectivity. ,1.30,5.20,2.80,Arithmetic,Log transform,,,20.3,13.72,0.47,<1,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52123,RID0013328,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52124,RID0004177,2,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52125,RID0004178,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52126,RID0004176,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52127,RID0013330,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52128,RID0013331,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52129,RID0013332,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52130,RID0013333,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52131,RID0013334,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52132,RID0013335,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52133,RID0013317,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52134,RID0013336,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52135,RID0013337,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52136,RID0013338,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52137,RID0013339,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52138,RID0013340,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52139,RID0013341,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52140,RID0013342,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52141,RID0013343,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52142,RID0013344,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52143,RID0013345,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52144,RID0013346,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52145,RID0013347,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52146,RID0013348,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52147,RID0013378,1,,,tbc,,tbc,0.00,0.00,0.00,Arithmetic,Sidewall core,,,,,,,,,,,,,,,,,,0.00,ft tvdss,0.00,0.00,0.00,0.00,
+52148,RID0013379,1,,,tbc,,tbc,0.00,0.00,0.00,Arithmetic,Sidewall core,,,,,,,,,,,,,,,,,,0.00,ft tvdss,0.00,0.00,0.00,0.00,
+52149,RID0013351,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52157,RID0013356,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52205,RID0013358,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52206,RID0001715,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52900,RID0014033,1,Potentially Commercial Discovery,,High res image logs and petrophysical evaluation confirms presence of injectite sand bodies with excellent reservoir quality as predicted.,,,1750.00,3477.00,2613.00,Arithmetic,Formation Pressure Tester,,,21,4.6 - 5.3 @ res condt,0.4 wt%,<1,"Pour pt -45 °C, WAT/WDT Could not be determined ",,,,,,0.578,0.52,0.47,0.28,GOR 263 - 309 scf/stb,5730.00,ft tvdss,142.00,2492.00,2135.00,5730.00,
+52902,RID0014034,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52903,RID0014035,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+52906,RID0014036,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55018,RID0002596,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55019,RID0011627,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55050,RID0013014,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55051,RID0013014,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55052,RID0011950,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55053,RID0014221,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55054,RID0014222,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55055,RID0013356,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55056,RID0000032,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55057,RID0014235,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55058,RID0003160,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55059,RID0011719,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55060,RID0011260,1,Technical Discovery,"This discovery, made by the 205/27-3 &3z well, is assessed as a technical discovery/sub-commercial accumulation","Fine grained, clean & well-sorted marine turbidite sandstones",,Moderate to good laterally moderate to fair vertically,0.02,328.00,145.00,Arithmetic, ,"From Routine Core Analysis (horizontal, air perm, unstressed)",,19.9,9.3,0.35,4.8,WAT=34degC; 8.7w% asphaltene,,,,,,,,,,,8350.00,ft tvdss,195.00,3740.00,706.00,,
+55061,RID0014248,1,,Not Applicable,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55062,RID0013299,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55063,RID0011620,1, ,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55068,RID0011504,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55069,RID0014253,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55070,RID0013299,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55071,RID0013299,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55072,RID0013299,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55073,RID0014257,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55074,RID0011740,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55134,RID0011732,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55135,RID0011827,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55136,RID0011829,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55137,RID0011730,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55138,RID0011826,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55139,RID0011825,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55140,RID0011643,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55141,RID0011754,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55142,RID0011808,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55143,RID0011646,1,Potentially Commercial Discovery,,,,,,,, , ,,,25.2,1.95 @ Pres,1.72,,BaSO4 scaling is a big risk if sea water is mixed,,,,,,,,,,,8856.00,ft MD,240.00,3525.70,,,
+55144,RID0000030,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55145,RID0000042,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55146,RID0000029,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55147,RID0000027,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55148,RID0000028,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55149,RID0000043,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55150,RID0000034,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55151,RID0000035,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55152,RID0000036,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55153,RID0011701,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55154,RID0012014,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55155,RID0011854,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55156,RID0011401,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55157,RID0014298,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55158,RID0014299,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55159,RID0014300,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55160,RID0011547,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55161,RID0011550,1,Technical Discovery,Could be commercial in the future but would require appraisal to demonstrate flow and development cost synergies,Pelagic carbonate,Chalk ( Tor and Ekofisk),Unknown ,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55162,RID0011545,1,Technical Discovery,Small discovery with proven leg wholly within 4 way dip closure,Shallow Marine Sandstone,Fulmar Shallow Marine Sandstone,Well test indicates a discontinuity at a short distance away from the well ( eg &lt; 70m) - however this could be the contact.,0.50,5.90,2.68,Arithmetic,Formation Pressure Tester,From core analysis. Well test analysis by original operator interpreted 375mD.,"A single drill stem test of the fulmar sands was devised to be run in two parts. Due to the lower than expected permeability of the upper sand members an initial test was carried out on this sand DST1 and then the main high permeability sands perforated and tested as DST 2 without pulling the test string. 
 
 DST-1 - The formation did not flow at measurable productive rates , however some fluid was recovered into the gauge tank. detailed examination of the downhaul shut in and flow periods of DST one show that the formation was open but the flow capacity was very low with either sea water or Base Oil as the cushion. An unsuccessful attempt was made to induce flow pressure by pulsing. The formations have possibly been heavily damaged by the drilling fluid but do show that fluid movement is possible .
 
@@ -239,8 +239,8 @@ Conclusions
 2 - The reservoir is heterogeneous and will need careful further evaluation 
 3 - The low oil gravity and GOR reduced the overall well production performance 
 4 - The apparent reservoir pressure depletion whilst testing is not conclusive evidence of a very limited reservoir. It may be due in part to restricted formation productivity away from the wellbore 
-5 - There was no identifiable evidence that a reservoir limit was seen during this test ",28,,,,,,,,,,,,,,,0.00,m tvdss,0,0.00,0.00,0.00
-55163,RID0011545,1,Technical Discovery,Small discovery with proven leg wholly within 4 way dip closure,Shallow Marine Sandstone,Fulmar Shallow Marine Sandstone,Well test indicates a discontinuity at a short distance away from the well ( eg <  70m) - however this could be the contact.,0.50,5.90,2.68,Arithmetic,Formation Pressure Tester,From core analysis. Well test analysis by original operator interpreted 375mD.,"A single drill stem test of the fulmar sands was devised to be run in two parts. Due to the lower than expected permeability of the upper sand members an initial test was carried out on this sand DST1 and then the main high permeability sands perforated and tested as DST 2 without pulling the test string. 
+5 - There was no identifiable evidence that a reservoir limit was seen during this test ",28,,,,,,,,,,,,,,,0.00,m tvdss,0.00,0.00,0.00,0.00,
+55163,RID0011545,1,Technical Discovery,Small discovery with proven leg wholly within 4 way dip closure,Shallow Marine Sandstone,Fulmar Shallow Marine Sandstone,Well test indicates a discontinuity at a short distance away from the well ( eg &lt;  70m) - however this could be the contact.,0.50,5.90,2.68,Arithmetic,Formation Pressure Tester,From core analysis. Well test analysis by original operator interpreted 375mD.,"A single drill stem test of the fulmar sands was devised to be run in two parts. Due to the lower than expected permeability of the upper sand members an initial test was carried out on this sand DST1 and then the main high permeability sands perforated and tested as DST 2 without pulling the test string. 
 
 DST-1 - The formation did not flow at measurable productive rates , however some fluid was recovered into the gauge tank. detailed examination of the downhaul shut in and flow periods of DST one show that the formation was open but the flow capacity was very low with either sea water or Base Oil as the cushion. An unsuccessful attempt was made to induce flow pressure by pulsing. The formations have possibly been heavily damaged by the drilling fluid but do show that fluid movement is possible .
 
@@ -255,94 +255,218 @@ Conclusions
 2 - The reservoir is heterogeneous and will need careful further evaluation 
 3 - The low oil gravity and GOR reduced the overall well production performance 
 4 - The apparent reservoir pressure depletion whilst testing is not conclusive evidence of a very limited reservoir. It may be due in part to restricted formation productivity away from the wellbore 
-5 - There was no identifiable evidence that a reservoir limit was seen during this test ",28,,,,,,,,,,,,,,,0.00,m tvdss,0,0.00,0.00,0.00
-55164,RID0011600,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55165,RID0011603,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55166,RID0011602,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55167,RID0000101,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55168,RID0000100,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55563,RID0014304,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55564,RID0014304,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55565,RID0014304,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55615,RID0000075,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55664,RID0013345,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55665,RID0013348,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55666,RID0013347,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55667,RID0014321,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55668,RID0014322,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55669,RID0014323,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55670,RID0014324,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55671,RID0013346,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55672,RID0014325,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55694,RID0014332,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55695,RID0014235,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55696,RID0011671,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55697,RID0000026,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55698,RID0000287,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55701,RID0014337,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55702,RID0011588,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55703,RID0014339,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55704,RID0011589,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55705,RID0014341,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+5 - There was no identifiable evidence that a reservoir limit was seen during this test ",28,,,,,,,,,,,,,,,0.00,m tvdss,0.00,0.00,0.00,0.00,
+55164,RID0011600,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55165,RID0011603,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55166,RID0011602,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55167,RID0000101,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55168,RID0000100,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55563,RID0014304,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55564,RID0014304,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55565,RID0014304,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55615,RID0000075,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55664,RID0013345,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55665,RID0013348,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55666,RID0013347,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55667,RID0014321,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55668,RID0014322,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55669,RID0014323,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55670,RID0014324,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55671,RID0013346,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55672,RID0014325,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55694,RID0014332,1,,,,,,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55695,RID0014235,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55696,RID0011671,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55697,RID0000026,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55698,RID0000287,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55701,RID0014337,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55702,RID0011588,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55703,RID0014339,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55704,RID0011589,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55705,RID0014341,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 55706,RID0011620,1,Potentially Commercial Discovery,,,"E&A wells demonstrate excellent quality reservoir which correlates across the accumulation, with a stratigraphic division observed
 Upper, ratty injected sand ‘halo’ unit (8-25ft thick) occurring above E&A wells, generally absent in offsets.  Characterised by complex, high-angle & unpredictable sand geometries•Lower, blocky ‘massive sand’ unit (56-80ft thick inside Fotla field, up to 133ft in 8 well –channel axis?)
 Static parameters in-line with pre-drill expectations from offset wells: high quality, high poroperm & mobility (>30% ?& D-scale K), high oil saturations (~85%)
-Alternative working geological interpretations for depositional origin: highly remobilised deep marine channel complex, sandstone injectite complex or hybrid injectite/ remobilised channel system.  Further work to address uncertainty in depositional origin ongoing (e.g. HM studies), alternative realisations to be captured in post-well work","During the Fotla E&A programme, successful pressure and sampling activities have been undertaken on all three wells, which have supported characterisation of a common fluid type across the Fotla field.",,,, , ,,,41.9,0.243,<0.1,,,,,,,,,,0.17,0.58,,6961.00,feet,199,3062.00,3001.00,
-55707,RID0013165,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55708,RID0013412,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55709,RID0014345,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55710,RID0013022,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55711,RID0013166,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55712,RID0000827,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55713,RID0011757,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55714,RID0011757,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55715,RID0012787,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55716,RID0011763,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55717,RID0011755,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55718,RID0013101,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55719,RID0011962,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55720,RID0014257,1,Potentially Commercial Discovery,"899 ft of column found in the well of the primary reservoir target (Joanne reservoir), translates to 1042 ft of column found in the structure. Hydrocarbons also found in the Pentland and Josephine reservoirs. To be completed and put onto production.","Fluvial Channelised facies system: Channel, hetrolithic and floodplain",,To be confirmed on start up,1.00,1000.00,25.00,Arithmetic,Log transform,,,,,,,,,,,,,,,,,,16031.00,ft tvdss,341,12335.00,0.00,0.00
-55733,RID0014357,1,Potentially Commercial Discovery,,no core data; image logs not suitable for facies determination,,no DST,0.40,170.00,0.00,Arithmetic,Sidewall Core,"Core plugs / perm measurements undersampled reservoir  interval and focus around shoulders, mean not representative",,,,,,,46,<1,200,09-Oct,Condensate Sulphur content from IP336 test ;  Condensate wax appearance: 40°C,1.23,8.1,3.2,0.4, CO2 & N2 Mol % of reservoir fluid sample,14363.00,ft tvdss,328,13188.00,5287.00,0.00
-55734,RID0014358,1,,,tbc,,tbc,0.00,0.00,0.00,Arithmetic,Sidewall core,,,,,,,,,,,,,,,,,,0.00,ft tvdss,0,0.00,0.00,0.00
-55735,RID0014359,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55736,RID0014360,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55737,,0,Technical Discovery,,,,,,,, , ,,,,,,,,,,,,,,,,,,,,,,,
-55738,,0,Technical Discovery,,,,,,,, , ,,,,,,,,,,,,,,,,,,,,,,,
-55742,RID0014363,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55743,RID0003658,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55744,RID0014365,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55745,RID0014366,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55746,RID0014367,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55747,RID0014368,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55748,RID0014369,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55749,RID0014370,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55750,RID0014371,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55751,RID0014372,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55779,RID0014373,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55780,RID0014374,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55781,RID0014375,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-55807,RID0013886,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55808,RID0013888,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55809,RID0013887,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-55810,RID0013889,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-56439,RID0013847,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-56440,RID0013848,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-56441,RID0013849,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-56442,RID0013167,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0,0.00,0.00,0.00
-56503,RID0001277,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-56504,RID0003969,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-56505,RID0002980,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-56506,RID0004309,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-56507,RID0005698,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-56508,RID0003137,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-56509,RID0013000,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-56510,RID0003700,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-56511,RID0011306,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-56512,RID0011344,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-56513,RID0004336,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-56514,RID0011591,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-56515,RID0011959,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-56516,RID0011895,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-56517,RID0011719,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-56518,RID0014034,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-56519,RID0014035,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Alternative working geological interpretations for depositional origin: highly remobilised deep marine channel complex, sandstone injectite complex or hybrid injectite/ remobilised channel system.  Further work to address uncertainty in depositional origin ongoing (e.g. HM studies), alternative realisations to be captured in post-well work","During the Fotla E&amp;A programme, successful pressure and sampling activities have been undertaken on all three wells, which have supported characterisation of a common fluid type across the Fotla field.",,,, , ,,,41.9,0.243,<0.1,,,,,,,,,,0.17,0.58,,6961.00,feet,199.00,3062.00,3001.00,,
+55707,RID0013165,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55708,RID0013412,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55709,RID0014345,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55710,RID0013022,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55711,RID0013166,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55712,RID0000827,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55713,RID0011757,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55714,RID0011757,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55715,RID0012787,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55716,RID0011763,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55717,RID0011755,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55718,RID0013101,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55719,RID0011962,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55720,RID0014257,1,Potentially Commercial Discovery,"899 ft of column found in the well of the primary reservoir target (Joanne reservoir), translates to 1042 ft of column found in the structure. Hydrocarbons also found in the Pentland and Josephine reservoirs. To be completed and put onto production.","Fluvial Channelised facies system: Channel, hetrolithic and floodplain",,To be confirmed on start up,1.00,1000.00,25.00,Arithmetic,Log transform,,,,,,,,,,,,,,,,,,16031.00,ft tvdss,341.00,12335.00,0.00,0.00,
+55733,RID0014357,1,Potentially Commercial Discovery,,no core data; image logs not suitable for facies determination,,no DST,0.40,170.00,0.00,Arithmetic,Sidewall Core,"Core plugs / perm measurements undersampled reservoir  interval and focus around shoulders, mean not representative",,,,,,,46,<1,200,09-Oct,Condensate Sulphur content from IP336 test ;  Condensate wax appearance: 40°C,1.23,8.1,3.2,0.4, CO2 & N2 Mol % of reservoir fluid sample,14363.00,ft tvdss,328.00,13188.00,5287.00,0.00,
+55734,RID0014358,1,,,tbc,,tbc,0.00,0.00,0.00,Arithmetic,Sidewall core,,,,,,,,,,,,,,,,,,0.00,ft tvdss,0.00,0.00,0.00,0.00,
+55735,RID0014359,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55736,RID0014360,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55737,,0,Technical Discovery,,,,,,,, , ,,,,,,,,,,,,,,,,,,,,,,,,
+55738,,0,Technical Discovery,,,,,,,, , ,,,,,,,,,,,,,,,,,,,,,,,,
+55742,RID0014363,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55743,RID0003658,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55744,RID0014365,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55745,RID0014366,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55746,RID0014367,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55747,RID0014368,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55748,RID0014369,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55749,RID0014370,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55750,RID0014371,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55751,RID0014372,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55779,RID0014373,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55780,RID0014374,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55781,RID0014375,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+55807,RID0013886,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55808,RID0013888,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55809,RID0013887,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+55810,RID0013889,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56439,RID0013847,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+56440,RID0013848,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+56441,RID0013849,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+56442,RID0013167,1,,,,,,0.00,0.00,0.00,Arithmetic,Formation Pressure Tester,,,,,,,,,,,,,,,,,,0.00,,0.00,0.00,0.00,0.00,
+56503,RID0001277,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56504,RID0003969,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56505,RID0002980,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56506,RID0004309,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56507,RID0005698,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56508,RID0003137,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56509,RID0013000,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56510,RID0003700,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56511,RID0011306,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56512,RID0011344,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56513,RID0004336,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56514,RID0011591,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56515,RID0011959,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56516,RID0011895,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56517,RID0011719,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56518,RID0014034,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56519,RID0014035,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56520,RID0014332,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56521,RID0011587,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56522,RID0011900,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56523,RID0011899,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56524,RID0011627,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56525,RID0013765,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56526,RID0013889,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56527,RID0013887,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56528,RID0013886,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56529,RID0013888,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56530,RID0011592,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56531,RID0011663,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56532,RID0013002,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56533,RID0013379,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56534,RID0004864,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56535,RID0011840,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56536,RID0002756,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56537,RID0013714,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56538,RID0013724,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56539,RID0013722,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56540,RID0013711,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56541,RID0014033,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56542,RID0013461,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56543,RID0013686,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56544,RID0013498,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56545,RID0001715,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56546,RID0013629,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56547,RID0013550,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56548,RID0013551,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56549,RID0013549,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56550,RID0013552,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56551,RID0014868,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56552,RID0012884,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56553,RID0011999,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56554,RID0012577,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56555,RID0011814,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56556,RID0011774,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56557,RID0011773,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56558,RID0015029,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56559,RID0015030,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56560,RID0013459,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56561,RID0013457,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56562,RID0013458,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56563,RID0014357,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56564,RID0014359,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56565,RID0014360,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56566,RID0014363,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56567,RID0003658,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56568,RID0013726,1,,,Litoral calcarenites or sandy carbonates,,Unknown but encountered in both wells,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,ft tvdss,0.00,0.00,0.00,0.00,
+56569,RID0013725,1,,,Litoral calcarenites or sandy carbonates,,Unknown but encountered in both wells,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,ft tvdss,0.00,0.00,0.00,0.00,
+56570,RID0013711,1,,,Litoral calcarenites or sandy carbonates,,Unknown but encountered in both wells,0.00,0.00,0.00,,,,,,,,,,,,,,,,,,,,0.00,ft tvdss,0.00,0.00,0.00,0.00,
+56597,RID0013700,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56598,RID0011323,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56599,RID0013572,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56727,RID0013466,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56728,RID0013502,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56729,RID0015060,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56730,RID0001964,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56731,RID0015062,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56732,RID0013498,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56733,RID0011143,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56734,RID0011974,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56735,RID0011587,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56736,RID0011999,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56737,RID0011889,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56738,RID0011887,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56739,RID0011814,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56740,RID0011773,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56741,RID0015030,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56742,RID0015073,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56743,RID0012577,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56744,RID0013751,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56745,RID0015076,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56746,RID0015076,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56747,RID0015076,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56748,RID0015079,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56749,RID0013728,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56751,RID0015082,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56752,RID0015082,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56753,RID0015082,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56754,RID0015085,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56755,RID0015085,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56756,RID0015085,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56757,RID0015088,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56758,RID0013686,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56759,RID0013936,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56760,RID0002547,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56761,RID0013476,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56762,RID0013477,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56763,RID0013552,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56764,RID0014374,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56765,RID0013722,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56766,RID0013714,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56767,RID0002756,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56768,RID0013724,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56769,RID0013717,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56770,RID0013718,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56771,RID0013712,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56772,RID0013713,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56773,RID0013720,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56774,RID0013719,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56775,RID0013721,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56776,RID0013723,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56777,RID0013697,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56778,RID0013906,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56779,RID0013895,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56780,RID0013893,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56781,RID0013897,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56782,RID0013565,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56783,RID0013914,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56785,RID0015115,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56786,RID0006951,1,Potentially Commercial Discovery,High N2 and CO2 content limit development choices,,,,,,, , ,,,,,,,,,,,,,1.064,0,49,9,Methane - 42%,,,180.00,3430.00,,,
+56787,RID0012386,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56788,RID0012380,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56789,RID0006819,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56790,RID0014332,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56791,RID0013802,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56792,RID0014824,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56793,RID0014825,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56794,RID0005684,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56796,RID0015125,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56797,RID0015126,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56798,RID0015127,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+56799,RID0015128,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
