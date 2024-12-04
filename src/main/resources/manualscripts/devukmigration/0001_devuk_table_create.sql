@@ -12,7 +12,7 @@ CREATE TABLE remi.devuk_field (
   consulting_authorities TEXT
 );
 
-CREATE TABLE pre_pears_field_organisations (
+CREATE TABLE remi.devuk_pre_pears_field_organisations (
     field_identifier  INTEGER,
     organ_id          INTEGER,
     name              TEXT,
