@@ -69,14 +69,14 @@
 
     <@fdsRadio.radioGroup
     path="form.isOnLicence"
-    labelText="Is this field on a licence?"
+    labelText="Is this field on a licence prior to field operator?"
     hiddenContent=true>
       <@fdsRadio.radioYes
       path="form.isOnLicence">
         <@fdsFieldset.fieldset
         legendHeadingSize="h2"
         legendHeadingClass="govuk-fieldset__legend--s"
-        legendHeading="What licences are on this field?">
+        legendHeading="What licences are on this field prior to field operator?">
           <@fdsAddToList.addToList
           pathForList="form.licences"
           pathForSelector="form.licenceSelect"

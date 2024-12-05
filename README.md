@@ -106,35 +106,15 @@ track changes over time.
 - Some errors/warnings are fine as long as the task was _successful_
 - Then restart the db container
 
-### 6. Add the admin user to the team
-- Connect to the remi db and use the following script in a console to add the admin user to the team member roles table as an `ACCESS_MANAGER`
-
-```postgresql
-INSERT INTO remi.team_roles(id, team_id, role, wua_id) VALUES (
-    gen_random_uuid()
-    , (
-     SELECT t.id
-       FROM remi.teams t
-       WHERE t.type = 'REGULATOR'
-    )
-    , 'MANAGE_TEAM'
-    , 53192 -- This is the ReMI NSTA Team Admin user account on the Energy Portal Dev environment
-);
-```
+### 6. Add the users and teams
+- Run `teams.sql` followed by `team_roles.sql` found in the `resources/manualscripts/teams` directory.
 
 ### 7. Run the app
 - Create a run configuration for the Spring app and start the application.
 - The application will be running on `localhost:8080/remi/<endpoint>`
 - Go to `localhost:8080/remi/work-area` and log in as `administrator@remi.co.uk`
 
-### 8. Add the other NSTA users
-- Go to `Manage Teams` and add the `NSTA` users from the [ReMI Development Users confluence page](https://fivium.atlassian.net/wiki/spaces/BESPOKE/pages/1739600/ReMI+Development+Users)
-
-### 9. Add the industry team and users
-- Log in as the `industry-manage@remi.co.uk`
-- Manage the industry team and add the `Industry` users from the [ReMI Development Users confluence page](https://fivium.atlassian.net/wiki/spaces/BESPOKE/pages/1739600/ReMI+Development+Users)
-
-### 10. Checkstyle
+### 8. Checkstyle
 1. In Intellij install the Checkstyle-IDEA plugin (from third-party repositories)
 2. Go to File > Settings > Tools > Checkstyle
 3. Click the plus icon under "Configuration File"

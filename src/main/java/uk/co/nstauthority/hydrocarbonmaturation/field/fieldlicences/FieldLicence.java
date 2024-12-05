@@ -1,5 +1,6 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -22,9 +23,11 @@ public class FieldLicence {
   @JoinColumn(name = "field_identifier")
   private Field field;
 
-  private String licenceReference;
+  @Column(name = "licence_prior_to_field_operator_reference")
+  private String prePearsLicenceReference;
 
-  private Integer licenceId;
+  @Column(name = "licence_prior_to_field_operator_id")
+  private Integer prePearsLicenceId;
 
   public UUID getId() {
     return id;
@@ -42,19 +45,19 @@ public class FieldLicence {
     this.field = field;
   }
 
-  public String getLicenceReference() {
-    return licenceReference;
+  public String getPrePearsLicenceReference() {
+    return prePearsLicenceReference;
   }
 
-  public void setLicenceReference(String licenceReference) {
-    this.licenceReference = licenceReference;
+  public void setPrePearsLicenceReference(String licenceReference) {
+    this.prePearsLicenceReference = licenceReference;
   }
 
-  public Integer getLicenceId() {
-    return licenceId;
+  public Integer getPrePearsLicenceId() {
+    return prePearsLicenceId;
   }
 
-  public void setLicenceId(Integer licenceId) {
-    this.licenceId = licenceId;
+  public void setPrePearsLicenceId(Integer licenceId) {
+    this.prePearsLicenceId = licenceId;
   }
 }

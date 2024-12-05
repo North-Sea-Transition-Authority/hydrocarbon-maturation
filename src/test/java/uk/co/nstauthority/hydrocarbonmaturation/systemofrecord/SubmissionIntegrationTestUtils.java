@@ -80,8 +80,8 @@ public class SubmissionIntegrationTestUtils {
   public static FieldLicence createFieldLicence(Field field, int licenceId, String ref, EntityManager entityManager) {
     var licence = new FieldLicence();
     licence.setField(field);
-    licence.setLicenceId(licenceId);
-    licence.setLicenceReference(ref);
+    licence.setPrePearsLicenceId(licenceId);
+    licence.setPrePearsLicenceReference(ref);
 
     entityManager.persist(licence);
     entityManager.flush();

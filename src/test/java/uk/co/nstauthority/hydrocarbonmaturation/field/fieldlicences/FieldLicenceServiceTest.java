@@ -65,12 +65,12 @@ class FieldLicenceServiceTest {
     form.setLicences(List.of("ref 1", "ref 2"));
 
     var licence1 = new FieldLicence();
-    licence1.setLicenceId(1);
-    licence1.setLicenceReference("ref 1");
+    licence1.setPrePearsLicenceId(1);
+    licence1.setPrePearsLicenceReference("ref 1");
 
     var licence2 = new FieldLicence();
-    licence2.setLicenceId(2);
-    licence2.setLicenceReference("ref 2");
+    licence2.setPrePearsLicenceId(2);
+    licence2.setPrePearsLicenceReference("ref 2");
 
     var field = new Field();
     when(fieldLicenceRepository.getLicencesByField(field))
@@ -145,8 +145,8 @@ class FieldLicenceServiceTest {
     assertThat(results)
         .extracting(
             FieldLicence::getField,
-            FieldLicence::getLicenceId,
-            FieldLicence::getLicenceReference
+            FieldLicence::getPrePearsLicenceId,
+            FieldLicence::getPrePearsLicenceReference
         ).containsExactly(
             Tuple.tuple(field, 1, "ref 1"),
             Tuple.tuple(field, 2, "ref 2")
@@ -197,10 +197,10 @@ class FieldLicenceServiceTest {
     var field = new Field();
 
     var licence1 = new FieldLicence();
-    licence1.setLicenceReference("ref 1");
+    licence1.setPrePearsLicenceReference("ref 1");
 
     var licence2 = new FieldLicence();
-    licence2.setLicenceReference("ref 2");
+    licence2.setPrePearsLicenceReference("ref 2");
 
     when(fieldLicenceRepository.getLicencesByField(field))
         .thenReturn(List.of(licence1, licence2));
@@ -221,6 +221,6 @@ class FieldLicenceServiceTest {
   }
 
   private static LicenceView getLicenceViewFromFieldLicence(FieldLicence fieldLicence) {
-    return new LicenceView(fieldLicence.getLicenceReference(), fieldLicence.getLicenceId(), null);
+    return new LicenceView(fieldLicence.getPrePearsLicenceReference(), fieldLicence.getPrePearsLicenceId(), null);
   }
 }
