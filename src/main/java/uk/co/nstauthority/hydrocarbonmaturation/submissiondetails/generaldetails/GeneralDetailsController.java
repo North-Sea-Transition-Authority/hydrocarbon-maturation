@@ -137,12 +137,9 @@ public class GeneralDetailsController {
     if (submissionDetail.isFieldSubmission()) {
       var field = fieldPersistenceService.getFieldOrThrow(submissionDetail.getSubmission().getResource());
 
-      boolean fieldWhollyLocatedInArea;
-      if (onshoreOffshore == OnshoreOffshore.OFFSHORE) {
-        fieldWhollyLocatedInArea = field.getFieldLocatedInUkcs();
-      } else {
-        fieldWhollyLocatedInArea = field.getFieldLocatedInEngland();
-      }
+      boolean fieldWhollyLocatedInArea = onshoreOffshore == OnshoreOffshore.OFFSHORE
+          ? field.getFieldLocatedInUkcs()
+          : field.getFieldLocatedInEngland();
 
       modelAndView
           .addObject("fieldReportTemplate",

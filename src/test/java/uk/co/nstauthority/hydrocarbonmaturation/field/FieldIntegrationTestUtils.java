@@ -92,8 +92,8 @@ public class FieldIntegrationTestUtils {
 
   public static FieldLicence createLicence(int id, String ref, Field field, EntityManager entityManager) {
     var licence = new FieldLicence();
-    licence.setLicenceId(id);
-    licence.setLicenceReference(ref);
+    licence.setPrePearsLicenceId(id);
+    licence.setPrePearsLicenceReference(ref);
     licence.setField(field);
 
     entityManager.persist(licence);

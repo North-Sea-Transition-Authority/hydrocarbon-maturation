@@ -176,7 +176,7 @@ class ResourceRecordSummaryQueryServiceIntegrationTest {
             field.getPrePearsOrganisationId(),
             field.getParentDeterminedField().getFieldIdentifier(),
             fieldStatusHistory.getFieldStatus(),
-            List.of(fieldLicence1.getLicenceId(), fieldLicence2.getLicenceId())
+            List.of(fieldLicence1.getPrePearsLicenceId(), fieldLicence2.getPrePearsLicenceId())
         );
   }
 

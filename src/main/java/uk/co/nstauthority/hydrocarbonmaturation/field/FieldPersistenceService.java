@@ -179,9 +179,6 @@ public class FieldPersistenceService {
   }
 
   private Integer getLatestFieldNumber() {
-    var field = fieldRepository.findTopByFieldNumberNotNullOrderByFieldNumberDesc()
-        .orElseThrow(() -> new EntityNotFoundException("No field found"));
-
-    return field.getFieldNumber();
+    return fieldRepository.findTopByFieldNumberNotNullOrderByFieldNumberDesc().map(Field::getFieldNumber).orElse(1);
   }
 }

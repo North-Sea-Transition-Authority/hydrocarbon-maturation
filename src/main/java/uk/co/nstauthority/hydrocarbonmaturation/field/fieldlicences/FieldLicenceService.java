@@ -47,7 +47,8 @@ public class FieldLicenceService {
   List<LicenceView> getFieldLicencesViewsIgnoreStatus(Field field) {
     return fieldLicenceRepository.getLicencesByField(field)
         .stream()
-        .map(fieldLicence -> new LicenceView(fieldLicence.getLicenceReference(), fieldLicence.getLicenceId(), null))
+        .map(fieldLicence ->
+            new LicenceView(fieldLicence.getPrePearsLicenceReference(), fieldLicence.getPrePearsLicenceId(), null))
         .toList();
   }
 
@@ -79,7 +80,7 @@ public class FieldLicenceService {
   public List<String> getFieldLicenceIds(Field field) {
     return fieldLicenceRepository.getLicencesByField(field)
         .stream()
-        .map(fieldLicence -> fieldLicence.getLicenceId().toString())
+        .map(fieldLicence -> fieldLicence.getPrePearsLicenceId().toString())
         .toList();
   }
 
@@ -104,8 +105,8 @@ public class FieldLicenceService {
   private FieldLicence createFieldLicence(Field field, String licenceRef, Integer licenceId) {
     var licence = new FieldLicence();
     licence.setField(field);
-    licence.setLicenceId(licenceId);
-    licence.setLicenceReference(licenceRef);
+    licence.setPrePearsLicenceId(licenceId);
+    licence.setPrePearsLicenceReference(licenceRef);
     return licence;
   }
 }

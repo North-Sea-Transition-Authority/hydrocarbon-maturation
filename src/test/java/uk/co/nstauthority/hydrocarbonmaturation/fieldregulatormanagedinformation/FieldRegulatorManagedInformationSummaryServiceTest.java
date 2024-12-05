@@ -319,7 +319,7 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
             SummaryKeyValue::value)
         .contains(
             Tuple.tuple(
-              FieldRegulatorManagedInformationSummaryService.LICENCES_TENTATIVE,
+              FieldRegulatorManagedInformationSummaryService.PRE_PEARS_LICENCES,
                 "ref1, ref2"
             )
         );

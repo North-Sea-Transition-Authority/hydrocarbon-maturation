@@ -1,0 +1,16 @@
+INSERT INTO remi.team_roles (id, team_id, role, wua_id) VALUES ('41d0d389-56d2-4521-bc81-12ac9193add5', '17e90b74-a6ae-4c83-9ca6-7ff08166e34e', 'EXPLORATION', 53212);
+INSERT INTO remi.team_roles (id, team_id, role, wua_id) VALUES ('e0587bfa-d5bb-4143-9ec5-fda90cfad5e7', '17e90b74-a6ae-4c83-9ca6-7ff08166e34e', 'REGULATOR_MANAGE_ALL_ORGANISATIONS', 53213);
+INSERT INTO remi.team_roles (id, team_id, role, wua_id) VALUES ('31cb26c8-0ed6-4f9c-86b4-5193a2b8bd3c', '17e90b74-a6ae-4c83-9ca6-7ff08166e34e', 'MANAGE_TEAM', 53192);
+INSERT INTO remi.team_roles (id, team_id, role, wua_id) VALUES ('cf998441-2a31-4fa3-9ef9-ca48b97fdb11', '17e90b74-a6ae-4c83-9ca6-7ff08166e34e', 'REGULATOR_MANAGE_ALL_ORGANISATIONS', 53192);
+INSERT INTO remi.team_roles (id, team_id, role, wua_id) VALUES ('8d1d14c5-0cff-4755-9711-ee083cd4fbba', '17e90b74-a6ae-4c83-9ca6-7ff08166e34e', 'VIEW_ANY_RESOURCE', 53214);
+INSERT INTO remi.team_roles (id, team_id, role, wua_id) VALUES ('9c9a2e1b-5989-422b-8166-63d3c0ec4611', '6b63b26a-12a0-45a6-b124-528b9378ae20', 'MANAGE_TEAM', 53252);
+INSERT INTO remi.team_roles (id, team_id, role, wua_id) VALUES ('38578775-2b29-4d5f-a029-5bb22eb73dbe', '6b63b26a-12a0-45a6-b124-528b9378ae20', 'INDUSTRY_SUBMIT', 53272);
+INSERT INTO remi.team_roles (id, team_id, role, wua_id) VALUES ('d7c674e5-567b-434d-9be7-4cb1d6826b4b', '6b63b26a-12a0-45a6-b124-528b9378ae20', 'INDUSTRY_VIEWER', 53273);
+INSERT INTO remi.team_roles (id, team_id, role, wua_id) VALUES ('87f2433f-0e70-4133-886d-b9f5669eeac4', '7482a192-0b8c-4a8a-8e26-326f227f3b5a', 'MANAGE_TEAM', 53432);
+INSERT INTO remi.team_roles (id, team_id, role, wua_id) VALUES ('3c8ab620-26ee-4bb4-8a27-ae5230161c5e', 'c6ef0d82-d94f-44f2-930a-c7537f10ca19', 'MANAGE_TEAM', 53434);
+INSERT INTO remi.team_roles (id, team_id, role, wua_id) VALUES ('529d22cb-0e08-4d61-88a5-4dadf0d67377', '0dbe597f-18a0-488c-9966-e87c1f256497', 'MANAGE_TEAM', 53436);
+INSERT INTO remi.team_roles (id, team_id, role, wua_id) VALUES ('ea0de633-224e-4669-a709-9ce2b21b44ce', '7482a192-0b8c-4a8a-8e26-326f227f3b5a', 'MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM', 53433);
+INSERT INTO remi.team_roles (id, team_id, role, wua_id) VALUES ('7cdf36a7-c5f1-4675-8b1e-a46456dd5829', 'c6ef0d82-d94f-44f2-930a-c7537f10ca19', 'MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM', 53435);
+INSERT INTO remi.team_roles (id, team_id, role, wua_id) VALUES ('8d6f0a59-a7e8-4542-adb6-0fcbd1e9cb83', '0dbe597f-18a0-488c-9966-e87c1f256497', 'MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM', 53437);
+INSERT INTO remi.team_roles (id, team_id, role, wua_id) VALUES ('1e621cfe-9933-410e-8233-80126a252f82', '17e90b74-a6ae-4c83-9ca6-7ff08166e34e', 'PROJECT_ANALYST', 53833);
+INSERT INTO remi.team_roles (id, team_id, role, wua_id) VALUES ('9a448aab-e206-422e-8f39-50503ae06e68', '17e90b74-a6ae-4c83-9ca6-7ff08166e34e', 'RESERVES_AND_RESOURCES_ADVISOR', 53834);

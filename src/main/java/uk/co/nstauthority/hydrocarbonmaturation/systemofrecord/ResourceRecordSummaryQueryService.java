@@ -59,9 +59,9 @@ class ResourceRecordSummaryQueryService {
                 DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
                 .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
-                DSL.arrayAggDistinct(FIELD_LICENCES.LICENCE_ID)
-                    .orderBy(FIELD_LICENCES.LICENCE_ID)
-                    .filterWhere(FIELD_LICENCES.LICENCE_ID.isNotNull())
+                DSL.arrayAggDistinct(FIELD_LICENCES.LICENCE_PRIOR_TO_FIELD_OPERATOR_ID)
+                    .orderBy(FIELD_LICENCES.LICENCE_PRIOR_TO_FIELD_OPERATOR_ID)
+                    .filterWhere(FIELD_LICENCES.LICENCE_PRIOR_TO_FIELD_OPERATOR_ID.isNotNull())
             ),
             FIELDS.PARENT_DETERMINED_FIELD_ID,
             max(FIELD_STATUS_HISTORY.FIELD_STATUS)

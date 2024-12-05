@@ -22,8 +22,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
-import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
-import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
@@ -51,9 +49,6 @@ class GeneralDetailsDuplicationServiceTest {
 
   @Mock
   private SubmissionSupportingDocumentService supportingDocumentService;
-
-  @Mock
-  private FieldPersistenceService fieldPersistenceService;
 
   @InjectMocks
   private GeneralDetailsDuplicationService generalDetailsDuplicationService;
@@ -254,10 +249,6 @@ class GeneralDetailsDuplicationServiceTest {
     when(submissionDuplicationPersistenceService.duplicateChildAndReplaceParent(any(SubmissionDetail.class), any(), any()))
             .thenReturn(newGeneralDetail);
 
-    var field = new Field();
-
-    when(fieldPersistenceService.getFieldByResource(newResource)).thenReturn(Optional.of(field));
-
     generalDetailsDuplicationService.duplicateSubmissionSection(oldSubmissionDetail, newSubmissionDetail);
 
     verify(supportingDocumentService).copyUploadedFiles(oldSubmissionDetail, newSubmissionDetail, FileDocumentType.FIELD_REPORT);
@@ -269,10 +260,6 @@ class GeneralDetailsDuplicationServiceTest {
                     GeneralDetail::getProspectDiscoveryLocatedInEngland
             )
             .containsOnlyNulls();
-
-    verify(entityManager, times(1)).persist(field);
-
-    assertThat(field).extracting(Field::getFieldLocatedInUkcs).isEqualTo(true);
   }
 
   @Test

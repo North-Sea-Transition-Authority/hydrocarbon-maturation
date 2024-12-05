@@ -105,9 +105,9 @@ public class OperatorResourceRecordQueryService implements ResourceRecordQuerySe
             .map(LicenceView::getId)
             .toList());
 
-    return DSL.arrayAggDistinct(FIELD_LICENCES.LICENCE_ID)
-        .orderBy(FIELD_LICENCES.LICENCE_ID)
-        .filterWhere(FIELD_LICENCES.LICENCE_ID.in(userExtantLicences))
+    return DSL.arrayAggDistinct(FIELD_LICENCES.LICENCE_PRIOR_TO_FIELD_OPERATOR_ID)
+        .orderBy(FIELD_LICENCES.LICENCE_PRIOR_TO_FIELD_OPERATOR_ID)
+        .filterWhere(FIELD_LICENCES.LICENCE_PRIOR_TO_FIELD_OPERATOR_ID.in(userExtantLicences))
         .isNotNull();
   }
 
@@ -132,7 +132,7 @@ public class OperatorResourceRecordQueryService implements ResourceRecordQuerySe
 
   private List<String> getFieldUserLicences(List<Integer> userOrganisationUnits) {
     return context
-        .selectDistinct(FIELD_LICENCES.LICENCE_ID)
+        .selectDistinct(FIELD_LICENCES.LICENCE_PRIOR_TO_FIELD_OPERATOR_ID)
         .from(FIELD_LICENCES)
         .join(FIELDS).on(FIELDS.FIELD_IDENTIFIER.eq(FIELD_LICENCES.FIELD_IDENTIFIER))
         .where(FIELDS.RESPONSIBLE_PARTY_PRIOR_TO_FIELD_OPERATOR_ID.in(userOrganisationUnits))

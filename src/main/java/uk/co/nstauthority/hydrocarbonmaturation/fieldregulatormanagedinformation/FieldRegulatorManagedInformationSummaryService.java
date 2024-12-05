@@ -51,7 +51,7 @@ public class FieldRegulatorManagedInformationSummaryService {
   public static final String PARENT_DETERMINED_FIELD = "Parent determined field";
   public static final String IS_ON_LICENCE = "Field is on licence";
   public static final String LICENCES = "Licences";
-  public static final String LICENCES_TENTATIVE = "Licences (tentative)";
+  public static final String PRE_PEARS_LICENCES = "Licences prior to field operator";
   public static final String HAS_CONSULTING_AUTHORITIES = "Has consulting authorities";
   public static final String CONSULTING_AUTHORITIES = "Consulting authorities";
 
@@ -116,7 +116,7 @@ public class FieldRegulatorManagedInformationSummaryService {
       var licenceDisplayNames = getLicenceDisplayNames(licenceList);
 
       summaryDataView.addKeyValue(
-          fieldLicenceService.fieldHasPearsLicences(pearsLicenceList) ? LICENCES : LICENCES_TENTATIVE,
+          fieldLicenceService.fieldHasPearsLicences(pearsLicenceList) ? LICENCES : PRE_PEARS_LICENCES,
           StringUtils.join(licenceDisplayNames, ", ")
       );
     }
