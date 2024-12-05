@@ -12,7 +12,6 @@ BEGIN
         SELECT *
         FROM remi.fdp_migration fm
         JOIN remi.fields f ON f.field_identifier = fm.field_id
-        WHERE fm.date IS NOT NULL -- TODO determine if this is correct
     )
     LOOP
 
@@ -37,13 +36,13 @@ BEGIN
             submission_id
         ) VALUES (
             gen_random_uuid(),
-            COALESCE(TO_DATE(fdp_rec.date, 'YYYY/MM/DD HH24:MI:SS'), now()), -- TODO remove belt and braces if not migrating FDP/FDPAs without dates
+            TO_DATE(fdp_rec.date, 'YYYY/MM/DD HH24:MI:SS'),
             1,
             'ACCEPTED',
             'CREATE_FDP',
             1,
-            COALESCE(TO_DATE(fdp_rec.date, 'YYYY/MM/DD HH24:MI:SS'), now()),
-            COALESCE(TO_DATE(fdp_rec.date, 'YYYY/MM/DD HH24:MI:SS'), now()),
+            TO_DATE(fdp_rec.date, 'YYYY/MM/DD HH24:MI:SS'),
+            TO_DATE(fdp_rec.date, 'YYYY/MM/DD HH24:MI:SS'),
             1,
             1,
             'REGULATOR',
@@ -98,13 +97,13 @@ BEGIN
             submission_id
         ) VALUES (
             gen_random_uuid(),
-            COALESCE(TO_DATE(fdpa_rec.date, 'YYYY/MM/DD HH24:MI:SS'), now()),
+            TO_DATE(fdpa_rec.date, 'YYYY/MM/DD HH24:MI:SS'),
             1,
             'ACCEPTED',
             'CREATE_FDPA',
             1,
-            COALESCE(TO_DATE(fdpa_rec.date, 'YYYY/MM/DD HH24:MI:SS'), now()),
-            COALESCE(TO_DATE(fdpa_rec.date, 'YYYY/MM/DD HH24:MI:SS'), now()),
+            TO_DATE(fdpa_rec.date, 'YYYY/MM/DD HH24:MI:SS'),
+            TO_DATE(fdpa_rec.date, 'YYYY/MM/DD HH24:MI:SS'),
             1,
             1,
             'REGULATOR',
