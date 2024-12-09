@@ -340,6 +340,29 @@ class SubmissionDetailServiceTest {
   }
 
   @Test
+  void getAcceptedExtantSubmissionDetailsForResource_oneNotAccepted_assertReturn() {
+    var resource = mock(Resource.class);
+    var submissionDetail1 = SubmissionDetailTestUtils.createNewProspectUpdateSubmissionDetail();
+    var submissionDetail2 = SubmissionDetailTestUtils.createDiscoveryFromProspectSubmissionDetail();
+    var listOfSubmissions = List.of(submissionDetail1.getSubmission(), submissionDetail2.getSubmission());
+
+    when(submissionPersistenceService.getSubmissionsByResource(resource))
+        .thenReturn(listOfSubmissions);
+    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(
+        submissionDetail1.getSubmission(),
+        Set.of(SubmissionDetailStatus.ACCEPTED)))
+        .thenReturn(Optional.of(submissionDetail1));
+    when(submissionDetailRepository.findFirstBySubmissionAndStatusInOrderByVersionNumberDesc(
+        submissionDetail2.getSubmission(),
+        Set.of(SubmissionDetailStatus.ACCEPTED)))
+        .thenReturn(Optional.empty());
+
+    var result = submissionDetailService.getAcceptedExtantSubmissionDetailsForResource(resource);
+
+    assertThat(result).containsExactly(submissionDetail1);
+  }
+
+  @Test
   void openCorrectionExists() {
     var statuses = Set.of(SubmissionDetailStatus.DRAFT);
     var resource = ResourceTestUtils.buildResource(ResourceType.PROSPECT);

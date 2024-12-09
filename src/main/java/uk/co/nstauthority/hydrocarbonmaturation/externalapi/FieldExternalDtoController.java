@@ -9,10 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.Unauthenticated;
 
 @RestController
-@RequestMapping(FieldExternalDtoController.ENERGY_PORTAL_API_BASE_PATH)
+@RequestMapping("/api/external/v1")
 @Unauthenticated
 public class FieldExternalDtoController {
-  public static final String ENERGY_PORTAL_API_BASE_PATH = "/api/external/v1";
   private final FieldExternalDtoService fieldExternalDtoService;
 
   @Autowired

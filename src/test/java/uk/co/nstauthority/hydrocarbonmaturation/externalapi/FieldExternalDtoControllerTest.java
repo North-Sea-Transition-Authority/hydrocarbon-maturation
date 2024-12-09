@@ -25,7 +25,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 class FieldExternalDtoControllerTest extends RealSecurityAbstractControllerTest {
   @MockBean
   private FieldExternalDtoService fieldExternalDtoService;
-
   private static final String PRE_SHARED_KEY = "testKey1";
   private static final ObjectMapper MAPPER = new ObjectMapper();
 

@@ -75,6 +75,8 @@ dependencies {
 	implementation 'net.javacrumbs.shedlock:shedlock-provider-jdbc-template:5.16.0'
 	implementation 'io.micrometer:micrometer-registry-statsd'
 
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
 	implementation 'com.esri.geometry:esri-geometry-api:2.2.4'
 	implementation 'mil.nga:crs:1.1.5'
 	implementation 'com.github.albfernandez:javadbf:1.14.1'

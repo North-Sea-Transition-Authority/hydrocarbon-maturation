@@ -104,11 +104,28 @@ public class SubmissionDetailService {
   }
 
   public List<SubmissionDetail> getExtantSubmissionDetailsForResource(Resource resource) {
+    return getExtantSubmissionDetailsForResourceByStatuses(
+        resource,
+        Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)
+    );
+  }
+
+  public List<SubmissionDetail> getAcceptedExtantSubmissionDetailsForResource(Resource resource) {
+    return getExtantSubmissionDetailsForResourceByStatuses(
+        resource,
+        Set.of(SubmissionDetailStatus.ACCEPTED)
+    );
+  }
+
+  private List<SubmissionDetail> getExtantSubmissionDetailsForResourceByStatuses(
+      Resource resource,
+      Set<SubmissionDetailStatus> submissionDetailStatuses
+  ) {
     return submissionPersistenceService.getSubmissionsByResource(resource)
         .stream()
         .map(submission -> getLatestExtantVersionSubmissionDetailBySubmissionAndStatuses(
             submission,
-            Set.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED, SubmissionDetailStatus.DRAFT)
+            submissionDetailStatuses
         ))
         .flatMap(Optional::stream)
         .toList();
