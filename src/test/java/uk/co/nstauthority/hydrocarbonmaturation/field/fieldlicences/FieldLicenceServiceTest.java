@@ -180,47 +180,14 @@ class FieldLicenceServiceTest {
   }
 
   @Test
-  void getMostCurrentLicencesForField_WithPearsLicencesAndFieldLicences_ShouldReturnExtantLicenceRefs() {
+  void filterExtantLicences_WithPearsLicencesAndFieldPearsLicences_ShouldReturnExtantLicenceRefs() {
     var licenceExpired = new LicenceView("ref1-expired", 1, LicenceStatus.EXPIRED);
     var licenceExtant = new LicenceView("ref2-extant", 2, LicenceStatus.EXTANT);
     var pearsLicenceList = List.of(licenceExpired, licenceExtant);
-    var field = new Field();
 
-    var result = fieldLicenceService.getMostCurrentLicencesForField(pearsLicenceList, field);
+    var result = fieldLicenceService.filterExtantLicences(pearsLicenceList);
 
     assertThat(result).containsExactly(licenceExtant);
   }
 
-  @Test
-  void getMostCurrentLicencesForField_WithoutPearsLicences_ShouldReturnFieldLicenceRefs() {
-    List<LicenceView> pearsLicenceList = List.of();
-    var field = new Field();
-
-    var licence1 = new FieldLicence();
-    licence1.setPrePearsLicenceReference("ref 1");
-
-    var licence2 = new FieldLicence();
-    licence2.setPrePearsLicenceReference("ref 2");
-
-    when(fieldLicenceRepository.getLicencesByField(field))
-        .thenReturn(List.of(licence1, licence2));
-
-    var result = fieldLicenceService.getMostCurrentLicencesForField(pearsLicenceList, field);
-
-    assertThat(result).containsExactly(getLicenceViewFromFieldLicence(licence1), getLicenceViewFromFieldLicence(licence2));
-  }
-
-  @Test
-  void getMostCurrentLicencesForField_WithNoLicencesInField_ShouldReturnEmptyList() {
-    List<LicenceView> pearsLicenceList = List.of();
-    var field = new Field();
-
-    var result = fieldLicenceService.getMostCurrentLicencesForField(pearsLicenceList, field);
-
-    assertThat(result).isEmpty();
-  }
-
-  private static LicenceView getLicenceViewFromFieldLicence(FieldLicence fieldLicence) {
-    return new LicenceView(fieldLicence.getPrePearsLicenceReference(), fieldLicence.getPrePearsLicenceId(), null);
-  }
 }

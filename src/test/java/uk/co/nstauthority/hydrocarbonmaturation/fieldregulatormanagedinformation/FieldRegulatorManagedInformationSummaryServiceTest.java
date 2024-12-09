@@ -101,7 +101,7 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
             FieldRegulatorManagedInformationSummaryService.CORRECTED_LEGAL_FIELD_NAME,
             FieldRegulatorManagedInformationSummaryService.COMMON_NAME_FOR_FIELD,
             FieldRegulatorManagedInformationSummaryService.RESPONSIBLE_ORGANISATION,
-            FieldRegulatorManagedInformationSummaryService.IS_ON_LICENCE,
+            FieldRegulatorManagedInformationSummaryService.IS_ON_PRE_PEARS_LICENCE,
             FieldRegulatorManagedInformationSummaryService.ONSHORE_OFFSHORE,
             FieldRegulatorManagedInformationSummaryService.LOCATED_IN_ENGLAND,
             FieldRegulatorManagedInformationSummaryService.DETERMINATION_STATUS,
@@ -149,8 +149,8 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
               field.getCommonNameForField()),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.RESPONSIBLE_ORGANISATION,
                 RESPONSIBLE_ORGANISATION),
-            Tuple.tuple(FieldRegulatorManagedInformationSummaryService.IS_ON_LICENCE,
-                BooleanUtil.yesNoFromBoolean(field.getIsOnLicence())),
+            Tuple.tuple(FieldRegulatorManagedInformationSummaryService.IS_ON_PRE_PEARS_LICENCE,
+                BooleanUtil.yesNoFromBoolean(field.getIsOnPrePearsLicence())),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.ONSHORE_OFFSHORE,
               field.getOnshoreOffshore().getDisplayName()),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.LOCATED_IN_ENGLAND,
@@ -288,17 +288,15 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
   @Test
   void getFieldRegulatorManagedInformationSummaryCard_fieldOnLicence_thenShowLicences() {
     var field = getCompleteField();
-    field.setIsOnLicence(true);
+    field.setIsOnPrePearsLicence(true);
 
     when(fieldPersistenceService.getFieldOrThrow(resource)).thenReturn(field);
 
-    List<LicenceView> pearsLicenceList = List.of();
     var licenceView1 = new LicenceView("ref1", 1, LicenceStatus.EXTANT);
     var licenceView2 = new LicenceView("ref2", 2, LicenceStatus.EXTANT);
     var mostCurrentLicences = List.of(licenceView1, licenceView2);
 
-    when(fieldLicenceService.getPearsLicenceList(field)).thenReturn(pearsLicenceList);
-    when(fieldLicenceService.getMostCurrentLicencesForField(pearsLicenceList, field)).thenReturn(mostCurrentLicences);
+    when(fieldLicenceService.getFieldLicencesViewsIgnoreStatus(field)).thenReturn(mostCurrentLicences);
 
     var card = fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource);
 
@@ -328,7 +326,7 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
   @Test
   void getFieldRegulatorManagedInformationSummaryCard_fieldHasPearLicences_thenShowPearsLicences() {
     var field = getCompleteField();
-    field.setIsOnLicence(true);
+    field.setIsOnPrePearsLicence(false);
 
     when(fieldPersistenceService.getFieldOrThrow(resource)).thenReturn(field);
 
@@ -338,7 +336,7 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
     );
 
     when(fieldLicenceService.getPearsLicenceList(field)).thenReturn(pearsLicenceList);
-    when(fieldLicenceService.getMostCurrentLicencesForField(pearsLicenceList, field)).thenReturn(pearsLicenceList);
+    when(fieldLicenceService.filterExtantLicences(pearsLicenceList)).thenReturn(pearsLicenceList);
     when(fieldLicenceService.fieldHasPearsLicences(pearsLicenceList)).thenReturn(true);
 
     var card = fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource);
@@ -497,7 +495,7 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
     field.setDeterminationStatus(DeterminationStatus.DETERMINED);
     field.setFieldNumber(1);
     field.setInfrastructureHost(true);
-    field.setIsOnLicence(false);
+    field.setIsOnPrePearsLicence(false);
     field.setHasConsultingAuthorities(false);
     return field;
   }

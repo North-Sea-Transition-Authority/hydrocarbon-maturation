@@ -190,7 +190,7 @@ public class SubmissionIntegrationTestUtils {
     field.setCorrectedLegalFieldName(correctedLegalFieldName);
     field.setPrePearsOrganisationId(responsibleOrganisationId);
     field.setParentDeterminedField(parentField);
-    field.setIsOnLicence(true);
+    field.setIsOnPrePearsLicence(true);
 
     entityManager.persist(field);
     entityManager.flush();

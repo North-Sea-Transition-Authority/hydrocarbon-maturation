@@ -254,7 +254,7 @@ class FieldPersistenceServiceTest {
       form.setLicences(List.of("ref1", "ref2"));
       var result = underTest.saveFieldFromFieldForm(form, resource);
 
-      assertThat(result.getIsOnLicence()).isEqualTo(form.getIsOnLicence());
+      assertThat(result.getIsOnPrePearsLicence()).isEqualTo(form.getIsOnLicence());
 
       verify(fieldLicenceService).saveFieldLicences(any(Field.class), eq(form.getLicences()));
       verifyNoMoreInteractions(fieldLicenceService);

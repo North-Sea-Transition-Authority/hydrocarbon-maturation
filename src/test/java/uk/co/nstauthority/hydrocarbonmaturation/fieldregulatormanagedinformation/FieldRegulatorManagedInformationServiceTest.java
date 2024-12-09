@@ -99,7 +99,7 @@ class FieldRegulatorManagedInformationServiceTest {
     field.setFieldLocatedInEngland(null);
     field.setInfrastructureHost(false);
     field.setDeterminationStatus(DeterminationStatus.DETERMINED);
-    field.setIsOnLicence(false);
+    field.setIsOnPrePearsLicence(false);
     field.setHasConsultingAuthorities(false);
 
     when(fieldPersistenceService.getFieldByResource(resource))
@@ -150,7 +150,7 @@ class FieldRegulatorManagedInformationServiceTest {
             field.getDeterminationStatus(),
             "",
             expectedResourceDetailIds.stream().map(UUID::toString).toList(),
-            field.getIsOnLicence(),
+            field.getIsOnPrePearsLicence(),
             field.getHasConsultingAuthorities()
         );
   }
@@ -170,7 +170,7 @@ class FieldRegulatorManagedInformationServiceTest {
     var parentField = new Field();
     parentField.setFieldIdentifier(8000);
     field.setParentDeterminedField(parentField);
-    field.setIsOnLicence(false);
+    field.setIsOnPrePearsLicence(false);
     field.setHasConsultingAuthorities(false);
 
     when(fieldPersistenceService.getFieldByResource(resource))
@@ -221,7 +221,7 @@ class FieldRegulatorManagedInformationServiceTest {
             field.getDeterminationStatus(),
             field.getParentDeterminedField().getFieldIdentifier().toString(),
             expectedResourceDetailIds.stream().map(UUID::toString).toList(),
-            field.getIsOnLicence(),
+            field.getIsOnPrePearsLicence(),
             field.getHasConsultingAuthorities()
         );
   }
@@ -238,7 +238,7 @@ class FieldRegulatorManagedInformationServiceTest {
     field.setFieldLocatedInEngland(null);
     field.setInfrastructureHost(false);
     field.setDeterminationStatus(DeterminationStatus.DETERMINED);
-    field.setIsOnLicence(true);
+    field.setIsOnPrePearsLicence(true);
     field.setHasConsultingAuthorities(false);
 
     when(fieldPersistenceService.getFieldByResource(resource))
@@ -292,7 +292,7 @@ class FieldRegulatorManagedInformationServiceTest {
             field.getInfrastructureHost(),
             field.getDeterminationStatus(),
             expectedResourceDetailIds.stream().map(UUID::toString).toList(),
-            field.getIsOnLicence(),
+            field.getIsOnPrePearsLicence(),
             licenceIds,
             field.getHasConsultingAuthorities()
         );

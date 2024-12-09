@@ -1,6 +1,5 @@
 package uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
@@ -43,8 +42,7 @@ public class FieldLicenceService {
    * @param field a FieldForm containing a list of licenceId's
    * @return A list of LicenceView's for the associated licences with all statuses set to null
    */
-  @VisibleForTesting
-  List<LicenceView> getFieldLicencesViewsIgnoreStatus(Field field) {
+  public List<LicenceView> getFieldLicencesViewsIgnoreStatus(Field field) {
     return fieldLicenceRepository.getLicencesByField(field)
         .stream()
         .map(fieldLicence ->
@@ -56,22 +54,11 @@ public class FieldLicenceService {
     return fieldLicenceQueryService.getFieldLicencesByFieldIdentifier(field.getFieldIdentifier());
   }
 
-  // TODO HM-932: remove/refactor this method once we know how to deal with pre-pears licences
   public boolean fieldHasPearsLicences(List<LicenceView> pearsLicenceList) {
     return ObjectUtils.isNotEmpty(pearsLicenceList);
   }
 
-  // TODO HM-932: remove/refactor this method once we know how to deal with pre-pears licences
-  public List<LicenceView> getMostCurrentLicencesForField(List<LicenceView> pearsLicenceList, Field field) {
-    // if the field has been associated with a live PEARS licence
-    return fieldHasPearsLicences(pearsLicenceList)
-        // then return extant licences the field is associated with in PEARS at the current licence position
-        ? filterExtantLicences(pearsLicenceList)
-        // otherwise get licences in ReMI
-        : getFieldLicencesViewsIgnoreStatus(field);
-  }
-
-  private List<LicenceView> filterExtantLicences(List<LicenceView> licenceViewList) {
+  public List<LicenceView> filterExtantLicences(List<LicenceView> licenceViewList) {
     return licenceViewList.stream()
         .filter(licence -> licence.licenceStatus() == LicenceStatus.EXTANT)
         .toList();

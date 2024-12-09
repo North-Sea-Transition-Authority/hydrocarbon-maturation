@@ -58,7 +58,8 @@ public class Field {
   @ManyToOne
   private Field parentDeterminedField;
 
-  private Boolean isOnLicence;
+  @Column(name = "is_on_licence_prior_to_field_operator")
+  private Boolean isOnPrePearsLicence;
 
   private Boolean fieldLocatedInUkcs;
 
@@ -175,12 +176,12 @@ public class Field {
     this.parentDeterminedField = parentDeterminedField;
   }
 
-  public Boolean getIsOnLicence() {
-    return isOnLicence;
+  public Boolean getIsOnPrePearsLicence() {
+    return isOnPrePearsLicence;
   }
 
-  public void setIsOnLicence(Boolean onLicence) {
-    isOnLicence = onLicence;
+  public void setIsOnPrePearsLicence(Boolean onLicence) {
+    isOnPrePearsLicence = onLicence;
   }
 
 

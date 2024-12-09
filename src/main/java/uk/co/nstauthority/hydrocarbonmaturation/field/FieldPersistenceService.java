@@ -120,7 +120,7 @@ public class FieldPersistenceService {
         .map(submissionDetail -> submissionDetail.getSubmission().getResource())
         .forEach(discovery -> resourceLinkService.createNewDiscoveryFieldResourceLink(discovery, field.getResource()));
 
-    field.setIsOnLicence(form.getIsOnLicence());
+    field.setIsOnPrePearsLicence(form.getIsOnLicence());
 
     fieldLicenceService.saveFieldLicences(field, form.getLicences());
 

@@ -109,9 +109,9 @@ public class FieldRegulatorManagedInformationService {
   }
 
   private void addLicences(Field field, FieldForm form) {
-    form.setIsOnLicence(field.getIsOnLicence());
+    form.setIsOnLicence(field.getIsOnPrePearsLicence());
 
-    if (BooleanUtils.isTrue(field.getIsOnLicence())) {
+    if (BooleanUtils.isTrue(field.getIsOnPrePearsLicence())) {
       form.setLicences(
           fieldLicenceService.getFieldLicenceIds(field)
       );

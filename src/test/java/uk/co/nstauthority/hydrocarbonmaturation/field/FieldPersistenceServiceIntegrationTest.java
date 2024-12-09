@@ -75,7 +75,7 @@ class FieldPersistenceServiceIntegrationTest {
         Field::getDeterminationStatus,
         Field::getInfrastructureHost,
         Field::getFieldLocatedInUkcs,
-        Field::getIsOnLicence,
+        Field::getIsOnPrePearsLicence,
         Field::getFieldNumber
     ).containsExactly(
         form.getLegalFieldName(),

@@ -49,9 +49,10 @@ public class FieldRegulatorManagedInformationSummaryService {
   public static final String INFRASTRUCTURE_HOST = "Infrastructure host";
   public static final String DETERMINATION_STATUS = "Determination status";
   public static final String PARENT_DETERMINED_FIELD = "Parent determined field";
+  public static final String IS_ON_PRE_PEARS_LICENCE = "Field is on licence prior to field operator";
+  public static final String PRE_PEARS_LICENCES = "Licences prior to field operator";
   public static final String IS_ON_LICENCE = "Field is on licence";
   public static final String LICENCES = "Licences";
-  public static final String PRE_PEARS_LICENCES = "Licences prior to field operator";
   public static final String HAS_CONSULTING_AUTHORITIES = "Has consulting authorities";
   public static final String CONSULTING_AUTHORITIES = "Consulting authorities";
 
@@ -105,18 +106,32 @@ public class FieldRegulatorManagedInformationSummaryService {
         submissionDetailDisplayService.getOrganisationResponsibleDisplayById(field.getPrePearsOrganisationId())
     );
     summaryDataView.addKeyValue(
-        IS_ON_LICENCE,
-        BooleanUtil.yesNoFromBoolean(field.getIsOnLicence())
+        IS_ON_PRE_PEARS_LICENCE,
+        BooleanUtil.yesNoFromBoolean(field.getIsOnPrePearsLicence())
     );
 
-    if (BooleanUtils.isTrue(field.getIsOnLicence())) {
-      // TODO HM-932: remove/refactor this method once we know how to deal with pre-pears licences
-      var pearsLicenceList = fieldLicenceService.getPearsLicenceList(field);
-      var licenceList = fieldLicenceService.getMostCurrentLicencesForField(pearsLicenceList, field);
+    if (BooleanUtils.isTrue(field.getIsOnPrePearsLicence())) {
+      var prePearsLicenceList = fieldLicenceService.getFieldLicencesViewsIgnoreStatus(field);
+      var prePearsLicenceDisplayNames = getLicenceDisplayNames(prePearsLicenceList);
+
+      summaryDataView.addKeyValue(
+          PRE_PEARS_LICENCES,
+          StringUtils.join(prePearsLicenceDisplayNames, ", ")
+      );
+    }
+
+    var pearsLicenceList = fieldLicenceService.getPearsLicenceList(field);
+    if (fieldLicenceService.fieldHasPearsLicences(pearsLicenceList)) {
+      var licenceList = fieldLicenceService.filterExtantLicences(pearsLicenceList);
       var licenceDisplayNames = getLicenceDisplayNames(licenceList);
 
       summaryDataView.addKeyValue(
-          fieldLicenceService.fieldHasPearsLicences(pearsLicenceList) ? LICENCES : PRE_PEARS_LICENCES,
+          IS_ON_LICENCE,
+          BooleanUtil.yesNoFromBoolean(true)
+      );
+
+      summaryDataView.addKeyValue(
+          LICENCES,
           StringUtils.join(licenceDisplayNames, ", ")
       );
     }
