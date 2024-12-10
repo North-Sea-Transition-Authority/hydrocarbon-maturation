@@ -9,6 +9,10 @@ BEGIN
     CREATE OR REPLACE FUNCTION calculate_summed_equiv(oil_val NUMERIC, cond_val NUMERIC, gas_val NUMERIC, ass_gas_val NUMERIC)
     RETURNS NUMERIC AS $calculate_summed_equiv$
     BEGIN
+        oil_val := COALESCE(oil_val, 0);
+        cond_val := COALESCE(cond_val, 0);
+        gas_val := COALESCE(gas_val, 0);
+        ass_gas_val := COALESCE(ass_gas_val, 0);
         RETURN oil_val + cond_val + ((gas_val + ass_gas_val)/5.8);
     END;
     $calculate_summed_equiv$;

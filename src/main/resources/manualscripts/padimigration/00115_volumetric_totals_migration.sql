@@ -8,6 +8,7 @@ DECLARE
     gas_in_place_rec RECORD;
     gas_recoverable_resources_rec RECORD;
     oil_equivalent_rec RECORD;
+    oil_equivalent_industry_rec RECORD;
     associated_condensate_rec RECORD;
 
 BEGIN
@@ -25,40 +26,62 @@ BEGIN
         SELECT
             rc.sd_id,
             rsd.id rsd_id,
+            oco.use_industry_standard_conversion oil_use_industry_standard,
             gco.has_associated_condensate_recoverable_resources gas_associated_condensate,
-            mco.has_associated_condensate_recoverable_resources combined_associated_condensate
+            gco.use_industry_standard_conversion gas_use_industry_standard,
+            mco.has_associated_condensate_recoverable_resources combined_associated_condensate,
+            mco.use_industry_standard_conversion combined_use_industry_standard
         FROM res_count rc
         JOIN remi.reservoir_submission_details rsd ON rsd.submission_detail_id = rc.sd_id
+        LEFT JOIN remi.oil_case_outputs oco ON oco.reservoir_submission_detail_id = rsd.id
         LEFT JOIN remi.gas_case_outputs gco ON gco.reservoir_submission_detail_id = rsd.id
         LEFT JOIN remi.mixed_case_outputs mco ON mco.reservoir_submission_detail_id = rsd.id
         WHERE rc.rsd_count = 1
     )
     LOOP
 
-        IF single_reservoir_rec.gas_associated_condensate IS NOT NULL THEN
+        IF single_reservoir_rec.oil_use_industry_standard IS NOT NULL THEN
+
+            INSERT INTO remi.oil_case_volumetric_totals (
+                id,
+                submission_detail_id,
+                use_industry_standard_conversion
+            ) VALUES (
+                 gen_random_uuid(),
+                 single_reservoir_rec.sd_id,
+                 single_reservoir_rec.oil_use_industry_standard
+             );
+
+        END IF;
+
+        IF single_reservoir_rec.gas_associated_condensate IS NOT NULL OR single_reservoir_rec.gas_use_industry_standard IS NOT NULL THEN
 
             INSERT INTO remi.gas_case_volumetric_totals (
                 id,
                 submission_detail_id,
-                has_associated_condensate_recoverable_resources
+                has_associated_condensate_recoverable_resources,
+                use_industry_standard_conversion
             ) VALUES (
                 gen_random_uuid(),
                 single_reservoir_rec.sd_id,
-                single_reservoir_rec.gas_associated_condensate
+                single_reservoir_rec.gas_associated_condensate,
+                single_reservoir_rec.gas_use_industry_standard
             );
 
         END IF;
 
-        IF single_reservoir_rec.combined_associated_condensate IS NOT NULL THEN
+        IF single_reservoir_rec.combined_associated_condensate IS NOT NULL OR single_reservoir_rec.combined_use_industry_standard IS NOT NULL THEN
 
             INSERT INTO remi.combined_case_volumetric_totals (
                 id,
                 submission_detail_id,
-                has_associated_condensate_recoverable_resources
+                has_associated_condensate_recoverable_resources,
+                use_industry_standard_conversion
             ) VALUES (
                 gen_random_uuid(),
                 single_reservoir_rec.sd_id,
-                single_reservoir_rec.combined_associated_condensate
+                single_reservoir_rec.combined_associated_condensate,
+                single_reservoir_rec.combined_use_industry_standard
             );
 
         END IF;
@@ -385,6 +408,60 @@ BEGIN
                 oil_equivalent_rec.other_distribution_type,
                 NULL
             );
+        END LOOP;
+
+        FOR oil_equivalent_industry_rec IN (
+            SELECT *
+            FROM remi.probability_distributions pd
+            WHERE pd.reservoir_submission_detail_id = single_reservoir_rec.rsd_id
+            AND pd.instance = 'OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY'
+        )
+        LOOP
+            INSERT INTO remi.probability_distributions (
+                id,
+                submission_detail_id,
+                distribution_type,
+                instance,
+                min_value,
+                p99,
+                p90,
+                mode_value,
+                p50,
+                mean_value,
+                p10,
+                p1,
+                max_value,
+                constant_value,
+                most_likely_value,
+                comments,
+                three_c,
+                two_c,
+                one_c,
+                other_distribution_type,
+                reservoir_submission_detail_id
+            ) VALUES (
+                 gen_random_uuid(),
+                 single_reservoir_rec.sd_id,
+                 oil_equivalent_rec.distribution_type,
+                 'TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY',
+                 oil_equivalent_rec.min_value,
+                 oil_equivalent_rec.p99,
+                 oil_equivalent_rec.p90,
+                 oil_equivalent_rec.mode_value,
+                 oil_equivalent_rec.p50,
+                 oil_equivalent_rec.mean_value,
+                 oil_equivalent_rec.p10,
+                 oil_equivalent_rec.p1,
+                 oil_equivalent_rec.max_value,
+                 oil_equivalent_rec.constant_value,
+                 oil_equivalent_rec.most_likely_value,
+                 oil_equivalent_rec.comments,
+                 oil_equivalent_rec.three_c,
+                 oil_equivalent_rec.two_c,
+                 oil_equivalent_rec.one_c,
+                 oil_equivalent_rec.other_distribution_type,
+                 NULL
+             );
         END LOOP;
 
         FOR associated_condensate_rec IN (
