@@ -15,7 +15,7 @@ BEGIN
         ass_gas_val := COALESCE(ass_gas_val, 0);
         RETURN oil_val + cond_val + ((gas_val + ass_gas_val)/5.8);
     END;
-    $calculate_summed_equiv$;
+    $calculate_summed_equiv$ LANGUAGE plpgsql;
 
     -- Get oil and gas outputs and apply to either oil or gas hydrocarbon case
     -- as we can't rely on the PaDI hydrocarbon case to be accurate for the information supplied

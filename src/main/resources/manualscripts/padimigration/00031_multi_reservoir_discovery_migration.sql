@@ -54,7 +54,7 @@ BEGIN
         -- Discoveries tied to prospects
         SELECT
             prg2.remi_resource_id,
-            TO_DATE(MAX(prdh2.stage_date), 'DD/MM/YYYY HH24:MI:SS') approved_date,
+            TO_DATE(MAX(prdh2.stage_date), 'YYYY-MM-DD HH24:MI:SS') approved_date,
             'CREATE_DISCOVERY_FROM_PROSPECT' submission_type
         FROM remi.padi_res_data_header prdh2
         JOIN remi.padi_resource_groupings prg2 ON prg2.legacy_res_data_id = prdh2.resdat_id
@@ -75,7 +75,7 @@ BEGIN
         -- Discoveries not tied to prospects
         SELECT
             prg2.remi_resource_id,
-            TO_DATE(MAX(prdh2.stage_date), 'DD/MM/YYYY HH24:MI:SS') approved_date,
+            TO_DATE(MAX(prdh2.stage_date), 'YYYY-MM-DD HH24:MI:SS') approved_date,
             'CREATE_DISCOVERY' submission_type
         FROM remi.padi_res_data_header prdh2
         JOIN remi.padi_resource_groupings prg2 ON prg2.legacy_res_data_id = prdh2.resdat_id
