@@ -10,13 +10,15 @@ public record RegulatorManagedInformationSummaryView(String responsibleTeamType,
                                                      boolean isBeingRelinquished,
                                                      List<SummaryFileViewRow> relinquishmentReport,
                                                      String linkedToFieldName,
-                                                     String linkedToFieldUrl) {
+                                                     String linkedToFieldUrl,
+                                                     String wellReference) {
   public static RegulatorManagedInformationSummaryView empty(boolean isBeingRelinquished) {
     return new RegulatorManagedInformationSummaryView(
         "",
         "",
         isBeingRelinquished,
         List.of(SummaryFileViewRow.empty(FILE_ROW_KEY)),
+        "",
         "",
         ""
     );

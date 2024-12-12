@@ -25,6 +25,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelecto
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.WellDetailsFormService;
 
 @ExtendWith(MockitoExtension.class)
 class RegulatorManagedInformationFormServiceTest {
@@ -44,6 +45,9 @@ class RegulatorManagedInformationFormServiceTest {
   @Mock
   private SearchSelectorService searchSelectorService;
 
+  @Mock
+  private WellDetailsFormService wellDetailsFormService;
+
   @InjectMocks
   private RegulatorManagedInformationFormService regulatorManagedInformationFormService;
 
@@ -56,6 +60,7 @@ class RegulatorManagedInformationFormServiceTest {
     regulatorManagedInformation.setGeographicalArea(geographicalArea);
     regulatorManagedInformation.setResource(resource);
     regulatorManagedInformation.setLinkedToShelvedCopField(false);
+    regulatorManagedInformation.setWellId(1);
     var relinquishmentReportForms = List.of(mock(UploadedFileForm.class));
 
     when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResource(resource))
@@ -69,13 +74,15 @@ class RegulatorManagedInformationFormServiceTest {
             RegulatorManagedInformationForm::getGeographicalArea,
             RegulatorManagedInformationForm::getRelinquishmentReport,
             RegulatorManagedInformationForm::getResponsibleTeamType,
-            RegulatorManagedInformationForm::getLinkedToShelvedCopField
+            RegulatorManagedInformationForm::getLinkedToShelvedCopField,
+            RegulatorManagedInformationForm::getWell
         )
         .containsExactly(
             geographicalArea,
             relinquishmentReportForms,
             regulatorManagedInformation.getResponsibleTeamType(),
-            regulatorManagedInformation.getLinkedToShelvedCopField()
+            regulatorManagedInformation.getLinkedToShelvedCopField(),
+            regulatorManagedInformation.getWellId().toString()
         );
   }
 
@@ -163,5 +170,12 @@ class RegulatorManagedInformationFormServiceTest {
     when(postFieldDiscoveryLinkService.getFieldLinkedToDiscoveryIfExists(resource)).thenReturn(Optional.empty());
 
     assertThat(regulatorManagedInformationFormService.getPreSelectedFieldOption(resource)).isEqualTo(Map.of());
+  }
+
+  @Test
+  void getPreselectedWell() {
+    var wellId = "well-id";
+    regulatorManagedInformationFormService.getPreSelectedWell(wellId);
+    verify(wellDetailsFormService).getPreSelectedWell(wellId);
   }
 }

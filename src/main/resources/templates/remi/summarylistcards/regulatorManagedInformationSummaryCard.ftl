@@ -13,6 +13,9 @@
     <@fdsSummaryList.summaryListRowNoAction keyText="Geographical area">
       ${regulatorManagedInformationValues.geographicalArea()}
     </@fdsSummaryList.summaryListRowNoAction>
+    <@fdsSummaryList.summaryListRowNoAction keyText="Principal well">
+        ${regulatorManagedInformationValues.wellReference()}
+    </@fdsSummaryList.summaryListRowNoAction>
     <#if regulatorManagedInformationValues.isBeingRelinquished()>
       <@fileUploadSummary.fileUploadSummary filesUploaded=regulatorManagedInformationValues.relinquishmentReport()/>
     </#if>

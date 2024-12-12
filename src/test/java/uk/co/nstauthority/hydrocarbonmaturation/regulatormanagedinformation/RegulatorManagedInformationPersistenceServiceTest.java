@@ -20,6 +20,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
@@ -38,6 +40,9 @@ class RegulatorManagedInformationPersistenceServiceTest {
   @Mock
   private PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
 
+  @Mock
+  private WellQueryService wellQueryService;
+
   @InjectMocks
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
@@ -52,15 +57,26 @@ class RegulatorManagedInformationPersistenceServiceTest {
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
 
     assertThat(argCaptor.getValue())
-        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea", "linkedToShelvedCopField")
+        .hasOnlyFields(
+            "id",
+            "resource",
+            "responsibleTeamType",
+            "geographicalArea",
+            "linkedToShelvedCopField",
+            "wellId",
+            "wellReference")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
-            RegulatorManagedInformation::getLinkedToShelvedCopField)
+            RegulatorManagedInformation::getLinkedToShelvedCopField,
+            RegulatorManagedInformation::getWellId,
+            RegulatorManagedInformation::getWellReference)
         .containsExactly(
             resource,
             ResponsibleTeamType.EXPLORATION,
+            null,
+            null,
             null,
             null);
   }
@@ -77,15 +93,26 @@ class RegulatorManagedInformationPersistenceServiceTest {
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
 
     assertThat(argCaptor.getValue())
-        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea", "linkedToShelvedCopField")
+        .hasOnlyFields(
+            "id",
+            "resource",
+            "responsibleTeamType",
+            "geographicalArea",
+            "linkedToShelvedCopField",
+            "wellId",
+            "wellReference")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
-            RegulatorManagedInformation::getLinkedToShelvedCopField)
+            RegulatorManagedInformation::getLinkedToShelvedCopField,
+            RegulatorManagedInformation::getWellId,
+            RegulatorManagedInformation::getWellReference)
         .containsExactly(
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
+            null,
+            null,
             null,
             null);
   }
@@ -102,17 +129,28 @@ class RegulatorManagedInformationPersistenceServiceTest {
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
 
     assertThat(argCaptor.getValue())
-        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea", "linkedToShelvedCopField")
+        .hasOnlyFields(
+            "id",
+            "resource",
+            "responsibleTeamType",
+            "geographicalArea",
+            "linkedToShelvedCopField",
+            "wellId",
+            "wellReference")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
-            RegulatorManagedInformation::getLinkedToShelvedCopField)
+            RegulatorManagedInformation::getLinkedToShelvedCopField,
+            RegulatorManagedInformation::getWellId,
+            RegulatorManagedInformation::getWellReference)
         .containsExactly(
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
             null,
-            true);
+            true,
+            null,
+            null);
   }
 
   @Test
@@ -122,12 +160,17 @@ class RegulatorManagedInformationPersistenceServiceTest {
     var form = new RegulatorManagedInformationForm();
     form.setGeographicalArea(GeographicalArea.ONSHORE);
     form.setLinkedToShelvedCopField(true);
+    var wellId = "1";
+    form.setWell(wellId);
     var fileUploadForm = new UploadedFileForm();
     var listOfUploads = List.of(fileUploadForm);
     form.setRelinquishmentReport(listOfUploads);
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
     when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.empty());
+    var wellRef = "well-ref";
+    var wellView = new WellView(wellId, wellRef);
+    when(wellQueryService.findWellById(Integer.valueOf(form.getWell()))).thenReturn(Optional.of(wellView));
 
     regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
         form, resource);
@@ -137,17 +180,30 @@ class RegulatorManagedInformationPersistenceServiceTest {
     verify(postFieldDiscoveryLinkService, never()).deletePostFieldDiscoveryLinkIfExists(any(Resource.class));
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
     assertThat(argCaptor.getValue())
-        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea", "linkedToShelvedCopField")
+        .hasOnlyFields(
+            "id",
+            "resource",
+            "responsibleTeamType",
+            "geographicalArea",
+            "linkedToShelvedCopField",
+            "wellId",
+            "wellReference"
+        )
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
-            RegulatorManagedInformation::getLinkedToShelvedCopField)
+            RegulatorManagedInformation::getLinkedToShelvedCopField,
+            RegulatorManagedInformation::getWellId,
+            RegulatorManagedInformation::getWellReference)
         .containsExactly(
             resource,
             null,
             GeographicalArea.ONSHORE,
-            true);
+            true,
+            Integer.valueOf(form.getWell()),
+            wellView.reference()
+        );
   }
 
   @Test
@@ -157,12 +213,17 @@ class RegulatorManagedInformationPersistenceServiceTest {
     var form = new RegulatorManagedInformationForm();
     form.setGeographicalArea(GeographicalArea.ONSHORE);
     form.setLinkedToShelvedCopField(false);
+    var wellId = "1";
+    form.setWell(wellId);
     var fileUploadForm = new UploadedFileForm();
     var listOfUploads = List.of(fileUploadForm);
     form.setRelinquishmentReport(listOfUploads);
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
     when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.empty());
+    var wellRef = "well-ref";
+    var wellView = new WellView(wellId, wellRef);
+    when(wellQueryService.findWellById(Integer.valueOf(form.getWell()))).thenReturn(Optional.of(wellView));
 
     regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
         form, resource);
@@ -172,17 +233,29 @@ class RegulatorManagedInformationPersistenceServiceTest {
     verify(postFieldDiscoveryLinkService, times(1)).deletePostFieldDiscoveryLinkIfExists(resource);
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
     assertThat(argCaptor.getValue())
-        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea", "linkedToShelvedCopField")
+        .hasOnlyFields(
+            "id",
+            "resource",
+            "responsibleTeamType",
+            "geographicalArea",
+            "linkedToShelvedCopField",
+            "wellId",
+            "wellReference"
+        )
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
-            RegulatorManagedInformation::getLinkedToShelvedCopField)
+            RegulatorManagedInformation::getLinkedToShelvedCopField,
+            RegulatorManagedInformation::getWellId,
+            RegulatorManagedInformation::getWellReference)
         .containsExactly(
             resource,
             null,
             GeographicalArea.ONSHORE,
-            false);
+            false,
+            Integer.valueOf(form.getWell()),
+            wellView.reference());
   }
 
   @Test
@@ -195,10 +268,15 @@ class RegulatorManagedInformationPersistenceServiceTest {
     form.setGeographicalArea(GeographicalArea.CENTRAL_NORTH_SEA);
     form.setResponsibleTeamType(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
     form.setLinkedToShelvedCopField(false);
+    var wellId = "1";
+    form.setWell(wellId);
 
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
     when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.of(regulatorManagedInformation));
+    var wellRef = "well-ref";
+    var wellView = new WellView(wellId, wellRef);
+    when(wellQueryService.findWellById(Integer.valueOf(form.getWell()))).thenReturn(Optional.of(wellView));
 
     regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
         form, resource);
@@ -206,17 +284,28 @@ class RegulatorManagedInformationPersistenceServiceTest {
     verify(resourceSupportingDocumentService, times(1)).saveDocuments(resource, form.getRelinquishmentReport(), FileDocumentType.RELINQUISHMENT_REPORT);
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
     assertThat(argCaptor.getValue())
-        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea", "linkedToShelvedCopField")
+        .hasOnlyFields(
+            "id",
+            "resource",
+            "responsibleTeamType",
+            "geographicalArea",
+            "linkedToShelvedCopField",
+            "wellId",
+            "wellReference")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
-            RegulatorManagedInformation::getLinkedToShelvedCopField)
+            RegulatorManagedInformation::getLinkedToShelvedCopField,
+            RegulatorManagedInformation::getWellId,
+            RegulatorManagedInformation::getWellReference)
         .containsExactly(
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
             GeographicalArea.CENTRAL_NORTH_SEA,
-            false);
+            false,
+            Integer.valueOf(form.getWell()),
+            wellView.reference());
   }
 
   @Test
@@ -229,10 +318,15 @@ class RegulatorManagedInformationPersistenceServiceTest {
     form.setGeographicalArea(GeographicalArea.CENTRAL_NORTH_SEA);
     form.setResponsibleTeamType(null);
     form.setLinkedToShelvedCopField(false);
+    var wellId = "1";
+    form.setWell(wellId);
 
     var argCaptor = ArgumentCaptor.forClass(RegulatorManagedInformation.class);
     when(regulatorManagedInformationRepository.findRegulatorManagedInformationByResource(resource))
         .thenReturn(Optional.of(regulatorManagedInformation));
+    var wellRef = "well-ref";
+    var wellView = new WellView(wellId, wellRef);
+    when(wellQueryService.findWellById(Integer.valueOf(form.getWell()))).thenReturn(Optional.of(wellView));
 
     regulatorManagedInformationPersistenceService.saveRegulatorManagedInformation(
         form, resource);
@@ -240,17 +334,28 @@ class RegulatorManagedInformationPersistenceServiceTest {
     verify(resourceSupportingDocumentService, times(1)).saveDocuments(resource, form.getRelinquishmentReport(), FileDocumentType.RELINQUISHMENT_REPORT);
     verify(regulatorManagedInformationRepository, times(1)).save(argCaptor.capture());
     assertThat(argCaptor.getValue())
-        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea", "linkedToShelvedCopField")
+        .hasOnlyFields(
+            "id",
+            "resource",
+            "responsibleTeamType",
+            "geographicalArea",
+            "linkedToShelvedCopField",
+            "wellId",
+            "wellReference")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
-            RegulatorManagedInformation::getLinkedToShelvedCopField)
+            RegulatorManagedInformation::getLinkedToShelvedCopField,
+            RegulatorManagedInformation::getWellId,
+            RegulatorManagedInformation::getWellReference)
         .containsExactly(
             resource,
             ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
             GeographicalArea.CENTRAL_NORTH_SEA,
-            false);
+            false,
+            Integer.valueOf(form.getWell()),
+            wellView.reference());
   }
 
   @Test
@@ -265,16 +370,27 @@ class RegulatorManagedInformationPersistenceServiceTest {
     verify(regulatorManagedInformationRepository).save(argCaptor.capture());
 
     assertThat(argCaptor.getValue())
-        .hasOnlyFields("id", "resource", "responsibleTeamType", "geographicalArea", "linkedToShelvedCopField")
+        .hasOnlyFields(
+            "id",
+            "resource",
+            "responsibleTeamType",
+            "geographicalArea",
+            "linkedToShelvedCopField",
+            "wellId",
+            "wellReference")
         .extracting(
             RegulatorManagedInformation::getResource,
             RegulatorManagedInformation::getResponsibleTeamType,
             RegulatorManagedInformation::getGeographicalArea,
-            RegulatorManagedInformation::getLinkedToShelvedCopField)
+            RegulatorManagedInformation::getLinkedToShelvedCopField,
+            RegulatorManagedInformation::getWellId,
+            RegulatorManagedInformation::getWellReference)
         .containsExactly(
             resource,
             responsibleTeamType,
             geographicalArea,
+            null,
+            null,
             null
         );
   }

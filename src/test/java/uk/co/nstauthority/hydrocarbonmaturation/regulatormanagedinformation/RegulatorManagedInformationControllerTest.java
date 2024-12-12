@@ -36,6 +36,7 @@ import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.SecurityTest;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
@@ -181,6 +182,9 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(form);
     when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(false);
     when(internalTeamService.isAreaTeamUser(user)).thenReturn(false);
+
+    var preselectedWell = Map.of("well1", "well1");
+    when(regulatorManagedInformationFormService.getPreSelectedWell(form.getWell())).thenReturn(preselectedWell);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
                 get(ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(resourceId, null)))
@@ -197,7 +201,9 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
             entry("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
                 .showReviewPage(resource.getId(), null))),
             entry("isResourceBeingRelinquished", false),
-            entry("canUpdateResponsibleTeam", false)
+            entry("canUpdateResponsibleTeam", false),
+            entry("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null))),
+            entry("well", preselectedWell)
         )
         .containsKeys("breadcrumbsMap")
         .doesNotContainKeys("relinquishmentReportTemplate", "relinquishmentReportUploads", "responsibleTeamTypes");
@@ -221,6 +227,8 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
         .thenReturn(form);
     when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
     when(internalTeamService.isAreaTeamUser(user)).thenReturn(false);
+    var preselectedWell = Map.of("well1", "well1");
+    when(regulatorManagedInformationFormService.getPreSelectedWell(form.getWell())).thenReturn(preselectedWell);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
                 get(ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(resourceId, null)))
@@ -234,7 +242,9 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     assertThat(modelMap)
         .contains(
             entry("canUpdateResponsibleTeam", true),
-            entry("responsibleTeamTypes", DisplayableEnumOptionUtil.getDisplayableOptions(ResponsibleTeamType.class))
+            entry("responsibleTeamTypes", DisplayableEnumOptionUtil.getDisplayableOptions(ResponsibleTeamType.class)),
+            entry("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null))),
+            entry("well", preselectedWell)
         ).containsKey("breadcrumbsMap");
   }
 
@@ -257,6 +267,8 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(true);
     when(internalTeamService.isAreaTeamUser(user)).thenReturn(true);
     when(regulatorManagedInformationFormService.getPreSelectedFieldOption(discoveryResource)).thenReturn(Map.of());
+    var preselectedWell = Map.of("well1", "well1");
+    when(regulatorManagedInformationFormService.getPreSelectedWell(form.getWell())).thenReturn(preselectedWell);
     var modelMap = Objects.requireNonNull(mockMvc.perform(
                 get(ReverseRouter.route(on(RegulatorManagedInformationController.class)
                     .getRegulatorManagedInformationPage(resourceId, null)))
@@ -273,7 +285,9 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
             entry("responsibleTeamTypes", DisplayableEnumOptionUtil.getDisplayableOptions(ResponsibleTeamType.class)),
             entry("shelvedCopFieldApiEndpoint", SearchSelectorService.route(on(ResourceRestController.class)
                 .searchShelvedAndCopFields(null, null))),
-            entry("preSelectedFieldOption", Map.of())
+            entry("preSelectedFieldOption", Map.of()),
+            entry("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null))),
+            entry("well", preselectedWell)
         ).containsKey("breadcrumbsMap");
   }
 
@@ -566,7 +580,8 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
     when(submissionDetailService.getMostRecentlySubmittedSubmissionDetailForResource(resource))
         .thenReturn(Optional.of(submissionDetail));
     when(regulatorManagedInformationPersistenceService.canUpdateResponsibleTeam(resource)).thenReturn(false);
-
+    var preselectedWell = Map.of("well1", "well1");
+    when(regulatorManagedInformationFormService.getPreSelectedWell(form.getWell())).thenReturn(preselectedWell);
 
     var modelMap = Objects.requireNonNull(mockMvc.perform(
             get(ReverseRouter.route(on(RegulatorManagedInformationController.class)
@@ -581,7 +596,9 @@ class RegulatorManagedInformationControllerTest extends AbstractSubmissionContro
             entry("geographicalAreas", DisplayableEnumOptionUtil.getDisplayableOptions(GeographicalArea.class)),
             entry("cancelUrl", ReverseRouter.route(on(ReviewSubmissionController.class)
                 .showReviewPage(resourceId, null))),
-        entry("relinquishmentReportTemplate", fileUploadComponentAttributes)
+            entry("relinquishmentReportTemplate", fileUploadComponentAttributes),
+            entry("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null))),
+            entry("well", preselectedWell)
         )
         .containsKeys("breadcrumbsMap");
 

@@ -69,6 +69,14 @@
         <@fdsRadio.radioNo path="form.linkedToShelvedCopField" />
       </@fdsRadio.radioGroup>
     </#if>
+      <@fdsSearchSelector.searchSelectorRest
+      path="form.well"
+      restUrl=springUrl(wellEndpoint)
+      labelText="Principal well"
+      selectorMinInputLength=3
+      preselectedItems=well!{}
+      optionalLabel=true/>
+
       <@fdsAction.submitButtons primaryButtonText="Save and complete"
       secondaryLinkText="Cancel"
       linkSecondaryAction=true

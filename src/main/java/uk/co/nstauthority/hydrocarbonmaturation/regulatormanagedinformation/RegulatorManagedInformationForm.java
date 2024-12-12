@@ -11,6 +11,7 @@ public class RegulatorManagedInformationForm {
   private ResponsibleTeamType responsibleTeamType;
   private Boolean linkedToShelvedCopField;
   private String fieldSelectedOption;
+  private String well;
 
   public GeographicalArea getGeographicalArea() {
     return geographicalArea;
@@ -53,5 +54,13 @@ public class RegulatorManagedInformationForm {
 
   public void setFieldSelectedOption(String fieldSelectedOption) {
     this.fieldSelectedOption = fieldSelectedOption;
+  }
+
+  public String getWell() {
+    return well;
+  }
+
+  public void setWell(String well) {
+    this.well = well;
   }
 }

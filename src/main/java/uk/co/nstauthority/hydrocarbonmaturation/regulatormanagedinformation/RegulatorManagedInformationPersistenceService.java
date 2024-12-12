@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellQueryService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceType;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
@@ -18,15 +20,17 @@ public class RegulatorManagedInformationPersistenceService {
   private final RegulatorManagedInformationRepository regulatorManagedInformationRepository;
   private final ResourceSupportingDocumentService resourceSupportingDocumentService;
   private final PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
+  private final WellQueryService wellQueryService;
 
   @Autowired
   public RegulatorManagedInformationPersistenceService(
       RegulatorManagedInformationRepository regulatorManagedInformationRepository,
       ResourceSupportingDocumentService resourceSupportingDocumentService,
-      PostFieldDiscoveryLinkService postFieldDiscoveryLinkService) {
+      PostFieldDiscoveryLinkService postFieldDiscoveryLinkService, WellQueryService wellQueryService) {
     this.regulatorManagedInformationRepository = regulatorManagedInformationRepository;
     this.resourceSupportingDocumentService = resourceSupportingDocumentService;
     this.postFieldDiscoveryLinkService = postFieldDiscoveryLinkService;
+    this.wellQueryService = wellQueryService;
   }
 
   @Transactional
@@ -71,6 +75,19 @@ public class RegulatorManagedInformationPersistenceService {
 
     resourceSupportingDocumentService.saveDocuments(
         resource, regulatorManagedInformationForm.getRelinquishmentReport(), FileDocumentType.RELINQUISHMENT_REPORT);
+
+    if (regulatorManagedInformationForm.getWell() != null) {
+      regulatorManagedInformation.setWellId(Integer.valueOf(regulatorManagedInformationForm.getWell()));
+      regulatorManagedInformation.setWellReference(wellQueryService
+          .findWellById(Integer.valueOf(regulatorManagedInformationForm.getWell()))
+          .map(WellView::reference)
+          .orElse(null)
+      );
+    } else {
+      regulatorManagedInformation.setWellId(null);
+      regulatorManagedInformation.setWellReference(null);
+    }
+
     regulatorManagedInformationRepository.save(regulatorManagedInformation);
   }
 

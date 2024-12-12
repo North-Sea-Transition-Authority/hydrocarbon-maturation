@@ -808,6 +808,7 @@ class UndevelopedDiscoveriesOverviewServiceTest {
         false,
         List.of(SummaryFileViewRow.empty("")),
         "",
+        "",
         ""
     );
 

@@ -39,7 +39,7 @@ class DryWellDetailsPersistenceService {
     if (!StringUtils.isBlank(detailForm.getWell())) {
       dryWellDetail.setWellReference(wellQueryService
           .findWellById(Integer.valueOf(detailForm.getWell()))
-          .map(WellView::registeredNumber)
+          .map(WellView::reference)
           .orElse(null)
       );
     }

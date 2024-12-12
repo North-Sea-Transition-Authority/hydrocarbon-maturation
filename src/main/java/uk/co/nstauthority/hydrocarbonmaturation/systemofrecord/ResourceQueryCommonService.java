@@ -7,6 +7,7 @@ import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIE
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.FIELD_LICENCES;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.GENERAL_DETAILS_LICENCES;
+import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.LATEST_SUBMISSION_DETAIL_REPORTING_VIEW;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.OPPORTUNITY_DETAILS;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.REGULATOR_MANAGED_INFORMATION;
 import static uk.co.nstauthority.hydrocarbonmaturation.generated.jooq.Tables.RESOURCES;
@@ -38,10 +39,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDeta
 class ResourceQueryCommonService {
 
   static final int MAX_RESULTS = 200;
-  private static final SubmissionDetails SD_2 = SUBMISSION_DETAILS.as("sd2");
-  private static final SubmissionDetails SD_3 = SUBMISSION_DETAILS.as("sd3");
-  private static final Submissions SUBMISSIONS_2 = SUBMISSIONS.as("s3");
-  private static final GeneralDetails GD_3 = GENERAL_DETAILS.as("gd3");
+  private static final SubmissionDetails SUBMISSION_DETAILS_2 = SUBMISSION_DETAILS.as("sd2");
+  private static final Submissions SUBMISSIONS_2 = SUBMISSIONS.as("s2");
+  private static final GeneralDetails GENERAL_DETAILS_2 = GENERAL_DETAILS.as("gd2");
   private static final FieldStatusHistory FIELD_STATUS_HISTORY = FieldStatusHistory.FIELD_STATUS_HISTORY.as("fsh");
   private static final FieldStatusHistory FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS =
       FieldStatusHistory.FIELD_STATUS_HISTORY.as("fsh2");
@@ -88,16 +88,10 @@ class ResourceQueryCommonService {
                                 .where(FSH_FOR_FINDING_MOST_RECENT_FIELD_STATUS.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
                         ))
                 )))
-            .leftJoin(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
-                select(SD_2.ID)
-                    .from(SUBMISSIONS.join(SD_2)
-                        //gets latest approved submission detail for a submission on a resource
-                        .on(SD_2.SUBMISSION_ID.eq(SUBMISSIONS.ID)
-                            .and(SD_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))))
-                    .where(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID)
-                        .and(SUBMISSIONS.WITHDRAWN.isNull()))
-                    .orderBy(SD_2.ACCEPTED_TIMESTAMP.desc().nullsLast())
-                    .limit(1)))
+            .leftJoin(SUBMISSIONS).on(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID))
+            .leftJoin(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.SUBMISSION_ID.eq(SUBMISSIONS.ID))
+            .leftJoin(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW)
+              .on(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.LATEST_SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(FIELD_LICENCES).on(FIELD_LICENCES.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
             .leftJoin(REGULATOR_MANAGED_INFORMATION).on(RESOURCES.ID.eq(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID))
@@ -144,16 +138,10 @@ class ResourceQueryCommonService {
             GENERAL_DETAILS.LICENCE_APPLICATION_REFERENCE,
             RESOURCES.ARCHIVED)
         .from(RESOURCES
-            .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.ID.eq(
-                select(SD_2.ID)
-                    .from(SUBMISSIONS.join(SD_2)
-                        //gets latest approved submission detail for a submission on a resource
-                        .on(SD_2.SUBMISSION_ID.eq(SUBMISSIONS.ID)
-                            .and(SD_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))))
-                    .where(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID)
-                        .and(SUBMISSIONS.WITHDRAWN.isNull()))
-                    .orderBy(SD_2.ACCEPTED_TIMESTAMP.desc().nullsLast(), SD_2.LEGACY_RES_DATA_ID.desc())
-                    .limit(1)))
+            .join(SUBMISSIONS).on(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID))
+            .join(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.SUBMISSION_ID.eq(SUBMISSIONS.ID))
+            .join(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW)
+              .on(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.LATEST_SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(RESOURCE_DETAILS).on(RESOURCE_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(RESOURCE_GROUP_LINKS).on(RESOURCE_GROUP_LINKS.RESOURCE_ID.eq(RESOURCES.ID))
             .leftJoin(RESOURCE_LINKS).on(RESOURCE_LINKS.PROSPECT_RESOURCE_ID.eq(RESOURCES.ID)
@@ -281,11 +269,11 @@ class ResourceQueryCommonService {
     return GENERAL_DETAILS.LICENCE_APPLICATION_REFERENCE
         .likeIgnoreCase("%" + form.getLicenceRound() + "%")
         .orExists(select()
-                .from(SD_3
-                    .join(SUBMISSIONS_2).on(SUBMISSIONS_2.ID.eq(SD_3.SUBMISSION_ID))
-                  .join(GD_3).on(GD_3.SUBMISSION_DETAIL_ID.eq(SD_3.ID)
-                    .and(SD_3.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))))
-                .where(GD_3.LICENCE_APPLICATION_REFERENCE
+                .from(SUBMISSION_DETAILS_2
+                    .join(SUBMISSIONS_2).on(SUBMISSIONS_2.ID.eq(SUBMISSION_DETAILS_2.SUBMISSION_ID))
+                  .join(GENERAL_DETAILS_2).on(GENERAL_DETAILS_2.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS_2.ID)
+                    .and(SUBMISSION_DETAILS_2.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))))
+                .where(GENERAL_DETAILS_2.LICENCE_APPLICATION_REFERENCE
                     .likeIgnoreCase("%" + form.getLicenceRound() + "%")
                     .and(SUBMISSIONS_2.RESOURCE_ID.eq(RESOURCES.ID))));
   }

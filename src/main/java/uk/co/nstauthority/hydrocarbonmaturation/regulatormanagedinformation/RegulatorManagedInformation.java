@@ -37,6 +37,10 @@ public class RegulatorManagedInformation {
 
   private Boolean linkedToShelvedCopField;
 
+  private Integer wellId;
+
+  private String wellReference;
+
   public UUID getId() {
     return id;
   }
@@ -73,5 +77,21 @@ public class RegulatorManagedInformation {
 
   public void setLinkedToShelvedCopField(Boolean linkedToShelvedCopField) {
     this.linkedToShelvedCopField = linkedToShelvedCopField;
+  }
+
+  public Integer getWellId() {
+    return wellId;
+  }
+
+  public void setWellId(Integer wellId) {
+    this.wellId = wellId;
+  }
+
+  public String getWellReference() {
+    return wellReference;
+  }
+
+  public void setWellReference(String wellReference) {
+    this.wellReference = wellReference;
   }
 }

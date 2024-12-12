@@ -12,6 +12,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.resourcesupportingdocuments.ResourceSupportingDocumentService;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.searchselector.SearchSelectorService;
 import uk.co.nstauthority.hydrocarbonmaturation.file.FileDocumentType;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.drilldetails.WellDetailsFormService;
 
 @Service
 public class RegulatorManagedInformationFormService {
@@ -21,6 +22,7 @@ public class RegulatorManagedInformationFormService {
   private final ResourceSupportingDocumentService resourceSupportingDocumentService;
   private final PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
   private final SearchSelectorService searchSelectorService;
+  private final WellDetailsFormService wellDetailsFormService;
 
   @Autowired
   RegulatorManagedInformationFormService(
@@ -28,12 +30,13 @@ public class RegulatorManagedInformationFormService {
       RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
       ResourceSupportingDocumentService resourceSupportingDocumentService,
       PostFieldDiscoveryLinkService postFieldDiscoveryLinkService,
-      SearchSelectorService searchSelectorService) {
+      SearchSelectorService searchSelectorService, WellDetailsFormService wellDetailsFormService) {
     this.regulatorManagedInformationFormValidator = regulatorManagedInformationFormValidator;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
     this.resourceSupportingDocumentService = resourceSupportingDocumentService;
     this.postFieldDiscoveryLinkService = postFieldDiscoveryLinkService;
     this.searchSelectorService = searchSelectorService;
+    this.wellDetailsFormService = wellDetailsFormService;
   }
 
   RegulatorManagedInformationForm getRegulatorManagedInformationForm(Resource resource) {
@@ -77,7 +80,14 @@ public class RegulatorManagedInformationFormService {
     form.setRelinquishmentReport(relinquishmentReportUploads);
     form.setResponsibleTeamType(regulatorManagedInformation.getResponsibleTeamType());
     form.setLinkedToShelvedCopField(regulatorManagedInformation.getLinkedToShelvedCopField());
+    if (regulatorManagedInformation.getWellId() != null) {
+      form.setWell(regulatorManagedInformation.getWellId().toString());
+    }
 
     return form;
+  }
+
+  public Map<String, String> getPreSelectedWell(String wellReference) {
+    return wellDetailsFormService.getPreSelectedWell(wellReference);
   }
 }

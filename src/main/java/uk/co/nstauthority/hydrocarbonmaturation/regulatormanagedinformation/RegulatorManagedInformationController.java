@@ -20,6 +20,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.Breadcrumbs;
 import uk.co.nstauthority.hydrocarbonmaturation.breadcrumb.BreadcrumbsUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.controllerhelper.ControllerHelperService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.well.WellRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceRestController;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceService;
@@ -171,6 +172,8 @@ public class RegulatorManagedInformationController {
         .addObject("form", form)
         .addObject("geographicalAreas", DisplayableEnumOptionUtil
             .getDisplayableOptions(GeographicalArea.class))
+        .addObject("wellEndpoint", SearchSelectorService.route(on(WellRestController.class).searchWonsWells(null)))
+        .addObject("well", regulatorManagedInformationFormService.getPreSelectedWell(form.getWell()))
         .addObject("isResourceBeingRelinquished", isResourceBeingRelinquished);
     if (isResourceBeingRelinquished) {
       modelAndView

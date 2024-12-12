@@ -63,6 +63,8 @@ class RegulatorManagedInformationSummaryServiceTest {
     regulatorManagedInfo.setResponsibleTeamType(ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND);
     regulatorManagedInfo.setResource(resource);
     regulatorManagedInfo.setLinkedToShelvedCopField(false);
+    var wellRef = "well-ref";
+    regulatorManagedInfo.setWellReference(wellRef);
 
     when(submissionDetailService.isLatestSubmissionForResourceRelinquishment(resource))
         .thenReturn(false);
@@ -79,14 +81,16 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::responsibleTeamType,
             RegulatorManagedInformationSummaryView::relinquishmentReport,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
-            RegulatorManagedInformationSummaryView::linkedToFieldUrl)
+            RegulatorManagedInformationSummaryView::linkedToFieldUrl,
+            RegulatorManagedInformationSummaryView::wellReference)
         .containsExactly(
             geographicalArea.getDisplayName(),
             false,
             ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName(),
             List.of(),
             "",
-            ""
+            "",
+            wellRef
         );
     verifyNoInteractions(resourceSupportingDocumentService);
   }
@@ -122,14 +126,16 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::responsibleTeamType,
             RegulatorManagedInformationSummaryView::relinquishmentReport,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
-            RegulatorManagedInformationSummaryView::linkedToFieldUrl)
+            RegulatorManagedInformationSummaryView::linkedToFieldUrl,
+            RegulatorManagedInformationSummaryView::wellReference)
         .containsExactly(
             GeographicalArea.NORTHERN_NORTH_SEA.getDisplayName(),
             false,
             ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName(),
             List.of(),
             "Name",
-            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(fieldResource.getId(), null))
+            ReverseRouter.route(on(ViewResourceRecordController.class).showResourceRecord(fieldResource.getId(), null)),
+            ""
         );
     verifyNoInteractions(resourceSupportingDocumentService);
   }
@@ -182,11 +188,13 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::isBeingRelinquished,
             RegulatorManagedInformationSummaryView::responsibleTeamType,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
-            RegulatorManagedInformationSummaryView::linkedToFieldUrl)
+            RegulatorManagedInformationSummaryView::linkedToFieldUrl,
+            RegulatorManagedInformationSummaryView::wellReference)
         .containsExactly(
             GeographicalArea.ONSHORE.getDisplayName(),
             isBeingRelinquished,
             ResponsibleTeamType.EXPLORATION.getDisplayName(),
+            "",
             "",
             ""
         );
@@ -220,12 +228,14 @@ class RegulatorManagedInformationSummaryServiceTest {
             RegulatorManagedInformationSummaryView::responsibleTeamType,
             RegulatorManagedInformationSummaryView::relinquishmentReport,
             RegulatorManagedInformationSummaryView::linkedToFieldName,
-            RegulatorManagedInformationSummaryView::linkedToFieldUrl)
+            RegulatorManagedInformationSummaryView::linkedToFieldUrl,
+            RegulatorManagedInformationSummaryView::wellReference)
         .containsExactly(
             "",
             isBeingRelinquished,
             "",
             List.of(SummaryFileViewRow.empty(FILE_ROW_KEY)),
+            "",
             "",
             ""
         );

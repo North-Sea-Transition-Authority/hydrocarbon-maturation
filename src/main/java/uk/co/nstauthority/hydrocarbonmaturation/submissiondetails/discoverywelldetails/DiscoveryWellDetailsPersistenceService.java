@@ -40,7 +40,7 @@ public class DiscoveryWellDetailsPersistenceService {
     if (!StringUtils.isBlank(form.getWellDetailsForm().getWell())) {
       discoveryWellDetails.setWellReference(wellQueryService
           .findWellById(Integer.valueOf(form.getWellDetailsForm().getWell()))
-          .map(WellView::registeredNumber)
+          .map(WellView::reference)
           .orElse(null)
       );
     }

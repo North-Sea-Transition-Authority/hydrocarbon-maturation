@@ -95,7 +95,8 @@ public class RegulatorManagedInformationSummaryService {
         isBeingRelinquished,
         isBeingRelinquished ? getRelinquishmentReportUploads(regulatorManagedInformation) : List.of(),
         linkedToFieldName,
-        linkedToFieldUrl
+        linkedToFieldUrl,
+        regulatorManagedInformation.getWellReference() != null ? regulatorManagedInformation.getWellReference() : ""
     );
   }
 
