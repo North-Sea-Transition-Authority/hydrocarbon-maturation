@@ -89,9 +89,9 @@ class ResourceQueryCommonService {
                         ))
                 )))
             .leftJoin(SUBMISSIONS).on(SUBMISSIONS.RESOURCE_ID.eq(RESOURCES.ID))
-            .leftJoin(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.SUBMISSION_ID.eq(SUBMISSIONS.ID))
-            .leftJoin(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW)
-              .on(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.LATEST_SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
+            .leftJoin(SUBMISSION_DETAILS).on(SUBMISSION_DETAILS.SUBMISSION_ID.eq(SUBMISSIONS.ID)
+                .and(SUBMISSION_DETAILS.STATUS.eq(SubmissionDetailStatus.ACCEPTED.name()))
+            )
             .leftJoin(TRAP_PROPERTIES).on(TRAP_PROPERTIES.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID))
             .leftJoin(FIELD_LICENCES).on(FIELD_LICENCES.FIELD_IDENTIFIER.eq(FIELDS.FIELD_IDENTIFIER))
             .leftJoin(REGULATOR_MANAGED_INFORMATION).on(RESOURCES.ID.eq(REGULATOR_MANAGED_INFORMATION.RESOURCE_ID))
@@ -99,6 +99,14 @@ class ResourceQueryCommonService {
             .on(FIELDS_FOR_FINDING_PARENT.FIELD_IDENTIFIER.eq(FIELDS.PARENT_DETERMINED_FIELD_ID))
             .leftJoin(GENERAL_DETAILS).on(GENERAL_DETAILS.SUBMISSION_DETAIL_ID.eq(SUBMISSION_DETAILS.ID)))
         .where(conditionList)
+        .and(
+            SUBMISSION_DETAILS.ID.isNull()
+                .or(SUBMISSION_DETAILS.ID.in(
+                    select(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW.LATEST_SUBMISSION_DETAIL_ID)
+                        .from(LATEST_SUBMISSION_DETAIL_REPORTING_VIEW)
+                    )
+                )
+        )
         .groupBy(
             RESOURCES.ID,
             SUBMISSION_DETAILS.ID,

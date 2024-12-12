@@ -21,6 +21,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.GeographicalArea;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionTestUtils;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.Team;
 import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamRole;
@@ -357,6 +359,20 @@ public class CommonFieldRecordQueryServiceIntegrationTest {
           .extracting(ResourceRecordQueryResult::resourceName)
           .containsExactly(childField1.getCorrectedLegalFieldName());
     }
+  }
+
+  @Test
+  void getFieldsWithSubmissionsAndWithout() {
+    var field1 = FieldIntegrationTestUtils.createField("Field 1", entityManager);
+    var submission = SubmissionTestUtils.createSubmissionForIntegrationTest(field1.getResource(), entityManager);
+    SubmissionIntegrationTestUtils.createSubmissionDetail(submission, SubmissionType.CREATE_CSR, entityManager);
+    var field2 = FieldIntegrationTestUtils.createField("Field 2", entityManager);
+    assertThat(regulatorResourceRecordQueryService.getResourceRecordSearchResults(form, USER))
+        .extracting(ResourceRecordQueryResult::resourceId)
+        .containsExactlyInAnyOrder(
+            field1.getResource().getId(),
+            field2.getResource().getId()
+        );
   }
 
   private void setUpRegulatorTest() {
