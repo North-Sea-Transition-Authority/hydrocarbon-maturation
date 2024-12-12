@@ -63,7 +63,7 @@ DO $$
             FROM remi.padi_resource_groupings prg
             JOIN remi.resource_group_links rgl ON rgl.resource_id = prg.remi_resource_id
             JOIN remi.padi_res_data_header prdh ON prdh.resdat_id = prg.legacy_res_data_id
-            WHERE prdh.stage_choice = '1'
+            WHERE TRIM(prdh.stage_choice) = '1'
             AND prg.resource_type = 'DISCOVERY'
             AND prdh.resdat_id NOT IN (
                 SELECT pmrd.resdat_id
