@@ -12,6 +12,7 @@ BEGIN
         SELECT *
         FROM remi.fdp_migration fm
         JOIN remi.fields f ON f.field_identifier = fm.field_id
+        WHERE fm.date IS NOT NULL
     )
     LOOP
 
