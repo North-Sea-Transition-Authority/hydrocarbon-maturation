@@ -10,7 +10,9 @@ public record SubmissionEstimateView(
 ) {
   static SubmissionEstimateView from(SubmissionEstimate estimates) {
     return new SubmissionEstimateView(
-        DateUtil.formatLongDate(estimates.getDateWhenEstimated()),
+        estimates.getDateWhenEstimated() != null
+            ? DateUtil.formatLongDate(estimates.getDateWhenEstimated())
+            : "",
         estimates.getEarliestDate() != null
             ? DateUtil.formatLongDate(estimates.getEarliestDate())
             : "",
