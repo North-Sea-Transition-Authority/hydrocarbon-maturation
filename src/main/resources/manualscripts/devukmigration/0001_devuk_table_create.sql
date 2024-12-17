@@ -18,3 +18,21 @@ CREATE TABLE remi.devuk_pre_pears_field_organisations (
     name              TEXT,
     registered_number TEXT
 );
+
+CREATE TABLE remi.devuk_historic_equity_partners_migration (
+    field_identifier INTEGER,
+    start_date TEXT,
+    end_date TEXT,
+    organ_id INTEGER,
+    organisation_name TEXT,
+    operator_flag TEXT
+);
+
+CREATE TABLE remi.devuk_historic_equity_partners_and_operators (
+    field_identifier INTEGER,
+    start_date DATE,
+    end_date DATE,
+    organ_id INTEGER,
+    organisation_name TEXT,
+    operator_flag TEXT
+);
