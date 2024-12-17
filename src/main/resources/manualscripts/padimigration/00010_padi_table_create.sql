@@ -717,6 +717,12 @@ CREATE TABLE remi.padi_well_mapping (
     well_id              INTEGER
 );
 
+CREATE TABLE remi.padi_header_well_mapping (
+    padi_resource_id     TEXT,
+    well_registration_no TEXT,
+    well_id              INTEGER
+);
+
 CREATE TABLE remi.padi_quad_block_mapping (
     padi_resource_id     TEXT,
     padi_block_polygon   TEXT,
