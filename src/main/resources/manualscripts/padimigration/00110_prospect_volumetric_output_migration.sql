@@ -13,7 +13,7 @@ BEGIN
         cond_val := COALESCE(cond_val, 0);
         gas_val := COALESCE(gas_val, 0);
         ass_gas_val := COALESCE(ass_gas_val, 0);
-        RETURN oil_val + cond_val + ((gas_val + ass_gas_val)/5.8);
+        RETURN ROUND(oil_val + cond_val + ((gas_val + ass_gas_val)/5.8), 2);
     END;
     $calculate_summed_equiv$ LANGUAGE plpgsql;
 

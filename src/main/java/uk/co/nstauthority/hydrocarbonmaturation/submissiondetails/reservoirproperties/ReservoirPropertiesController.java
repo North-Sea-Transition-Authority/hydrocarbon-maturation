@@ -268,7 +268,7 @@ public class ReservoirPropertiesController {
                       ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY))
           .addObject(DEPTH_TO_OIL_WATER_CONTACT_ERROR, ProbabilityDistributionTypeError.emptyError());
     }
-    if (gasCase || mixedCase) {
+    if (gasCase) {
       modelAndView
           .addObject("depthToGasWaterContactTemplate",
               probabilityDistributionTemplateService

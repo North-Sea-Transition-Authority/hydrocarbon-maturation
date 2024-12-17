@@ -380,7 +380,6 @@ class ReservoirPropertiesSummaryServiceTest {
     var depthTableView = ProbabilityDistributionTableView.empty();
     var depthToExpectedList = List.of(
         ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY,
-        ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY,
         ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY
     );
     when(probabilityDistributionSummaryService.getProbabilityDistributionTableViewFromInstancesAndSubmission(
@@ -840,7 +839,6 @@ class ReservoirPropertiesSummaryServiceTest {
     listOfInstances.add(ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY);
-    listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY);
 
     var probabilityTableView = ProbabilityDistributionTableView.empty();
@@ -908,7 +906,6 @@ class ReservoirPropertiesSummaryServiceTest {
     listOfInstances.add(ProbabilityDistributionFieldInstance.NET_TO_GROSS_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY);
-    listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY);
     listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY);
 
     var probabilityTableView = ProbabilityDistributionTableView.empty();

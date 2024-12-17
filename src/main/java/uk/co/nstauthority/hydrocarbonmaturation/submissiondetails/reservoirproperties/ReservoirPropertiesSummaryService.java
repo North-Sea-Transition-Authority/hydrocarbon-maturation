@@ -286,7 +286,7 @@ public class ReservoirPropertiesSummaryService implements SummarySectionService<
           if (isOilOnly || isCombinedOilAndGas) {
             listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY);
           }
-          if (isGasOnly || isCombinedOilAndGas) {
+          if (isGasOnly) {
             listOfInstances.add(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY);
           }
           if (isCombinedOilAndGas) {
@@ -484,8 +484,7 @@ public class ReservoirPropertiesSummaryService implements SummarySectionService<
                 || hydrocarbonsDiscovered == HydrocarbonsDiscovered.OIL_ONLY) {
               addDepthToOilWaterContact(listOfDepthToContactInstances);
             }
-            if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS
-                || hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY) {
+            if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.GAS_ONLY) {
               addDepthToGasWaterContact(listOfDepthToContactInstances);
             }
             if (hydrocarbonsDiscovered == HydrocarbonsDiscovered.MIXED_OIL_AND_GAS) {

@@ -264,62 +264,59 @@ DO $$
 
             -- RESERVOIR PROPERTIES
             -- Depth to hydrocarbon contact
-            IF reservoir_volumetric_parameters.hydrocarbon_case IN ('oil','condensate','gas') THEN
 
-                IF COALESCE(
-                        reservoir_volumetric_parameters.depth_to_water_p99,
-                        reservoir_volumetric_parameters.depth_to_water_p90,
-                        reservoir_volumetric_parameters.depth_to_water_mode,
-                        reservoir_volumetric_parameters.depth_to_water_p50,
-                        reservoir_volumetric_parameters.depth_to_water_mean,
-                        reservoir_volumetric_parameters.depth_to_water_p10,
-                        reservoir_volumetric_parameters.depth_to_water_p01
-                    ) IS NOT NULL THEN
+            IF COALESCE(
+                    reservoir_volumetric_parameters.depth_to_water_p99,
+                    reservoir_volumetric_parameters.depth_to_water_p90,
+                    reservoir_volumetric_parameters.depth_to_water_mode,
+                    reservoir_volumetric_parameters.depth_to_water_p50,
+                    reservoir_volumetric_parameters.depth_to_water_mean,
+                    reservoir_volumetric_parameters.depth_to_water_p10,
+                    reservoir_volumetric_parameters.depth_to_water_p01
+                ) IS NOT NULL THEN
 
-                    INSERT INTO remi.probability_distributions (
-                        id,
-                        submission_detail_id,
-                        distribution_type,
-                        other_distribution_type,
-                        instance,
-                        min_value,
-                        p99,
-                        p90,
-                        mode_value,
-                        p50,
-                        mean_value,
-                        p10,
-                        p1,
-                        max_value,
-                        constant_value,
-                        most_likely_value,
-                        comments,
-                        reservoir_submission_detail_id
-                    ) VALUES (
-                         gen_random_uuid(),
-                         reservoir_volumetric_parameters.sd_id,
-                         'CUSTOM',
-                         NULL,
-                         CASE
-                             WHEN reservoir_volumetric_parameters.hydrocarbon_case = 'oil' THEN 'DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY'
-                             WHEN reservoir_volumetric_parameters.hydrocarbon_case IN ('gas', 'condensate') THEN 'DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY'
-                             END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_p99) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_p99) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_p90) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_mode) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_p50) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_mean) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_p10) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_p01) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_p01) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN abs(reservoir_volumetric_parameters.depth_to_water_mean) END,
-                         CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_mean) END,
-                         reservoir_volumetric_parameters.depth_to_water_comment,
-                         reservoir_volumetric_parameters.rsd_id
-                     );
-
-                END IF;
+                INSERT INTO remi.probability_distributions (
+                    id,
+                    submission_detail_id,
+                    distribution_type,
+                    other_distribution_type,
+                    instance,
+                    min_value,
+                    p99,
+                    p90,
+                    mode_value,
+                    p50,
+                    mean_value,
+                    p10,
+                    p1,
+                    max_value,
+                    constant_value,
+                    most_likely_value,
+                    comments,
+                    reservoir_submission_detail_id
+                ) VALUES (
+                     gen_random_uuid(),
+                     reservoir_volumetric_parameters.sd_id,
+                     'CUSTOM',
+                     NULL,
+                     CASE
+                         WHEN reservoir_volumetric_parameters.hydrocarbon_case IN ('oil', 'mixed oil and gas') THEN 'DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY'
+                         WHEN reservoir_volumetric_parameters.hydrocarbon_case IN ('gas', 'condensate') THEN 'DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY'
+                         END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_p99) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_p99) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_p90) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_mode) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_p50) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_mean) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_p10) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_p01) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_p01) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN abs(reservoir_volumetric_parameters.depth_to_water_mean) END,
+                     CASE WHEN padi_distribution_type = CONSTANT THEN NULL ELSE abs(reservoir_volumetric_parameters.depth_to_water_mean) END,
+                     reservoir_volumetric_parameters.depth_to_water_comment,
+                     reservoir_volumetric_parameters.rsd_id
+                 );
 
             END IF;
 
@@ -1116,7 +1113,7 @@ DO $$
                          reservoir_volumetric_parameters.rf_oil_comment,
                          reservoir_volumetric_parameters.rsd_id
                      );
-                    
+
                 END IF;
 
                 padi_distribution_type := NULL;
@@ -1590,7 +1587,7 @@ DO $$
                          reservoir_volumetric_parameters.rf_gas_comment,
                          reservoir_volumetric_parameters.rsd_id
                      );
-                    
+
                 END IF;
 
                 padi_distribution_type := NULL;
@@ -1662,7 +1659,7 @@ DO $$
                          reservoir_volumetric_parameters.cgr_comment,
                          reservoir_volumetric_parameters.rsd_id
                      );
-                    
+
                 END IF;
 
             END IF;

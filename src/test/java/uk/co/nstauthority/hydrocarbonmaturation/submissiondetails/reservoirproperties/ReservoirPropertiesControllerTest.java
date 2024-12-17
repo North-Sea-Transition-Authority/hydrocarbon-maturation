@@ -734,7 +734,6 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
         .containsEntry("netToGrossError", ProbabilityDistributionTypeError.emptyError())
         .containsEntry("netPorosityError", ProbabilityDistributionTypeError.emptyError())
         .containsEntry("depthToOilWaterContactError", ProbabilityDistributionTypeError.emptyError())
-        .containsEntry("depthToGasWaterContactError", ProbabilityDistributionTypeError.emptyError())
         .containsEntry("depthToGasOilContactError", ProbabilityDistributionTypeError.emptyError())
         .containsEntry("averageNetPayThicknessTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.AVERAGE_NET_PAY_THICKNESS_DISCOVERY))
@@ -750,11 +749,12 @@ class ReservoirPropertiesControllerTest extends AbstractSubmissionControllerTest
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.NET_POROSITY_DISCOVERY))
         .containsEntry("depthToOilWaterContactTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.DEPTH_TO_OIL_WATER_CONTACT_DISCOVERY))
-        .containsEntry("depthToGasWaterContactTemplate", probabilityDistributionTemplateService
-            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY))
         .containsEntry("depthToGasOilContactTemplate", probabilityDistributionTemplateService
             .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_OIL_CONTACT_DISCOVERY))
-        .containsEntry("mixedCase", true);
+        .containsEntry("mixedCase", true)
+        .doesNotContainEntry("depthToGasWaterContactTemplate", probabilityDistributionTemplateService
+            .getProbabilityDistributionTemplateForInstance(ProbabilityDistributionFieldInstance.DEPTH_TO_GAS_WATER_CONTACT_DISCOVERY))
+        .doesNotContainEntry("depthToGasWaterContactError", ProbabilityDistributionTypeError.emptyError());
   }
 
   @Test

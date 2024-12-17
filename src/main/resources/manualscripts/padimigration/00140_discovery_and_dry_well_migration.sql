@@ -11,6 +11,8 @@ DECLARE
     long_minutes NUMERIC;
     long_minutes_dec NUMERIC;
     long_seconds NUMERIC;
+    td_formation TEXT;
+    td_manual_formation TEXT;
 
 BEGIN
 
@@ -33,6 +35,8 @@ BEGIN
         long_minutes_dec := NULL;
         long_minutes := NULL;
         long_seconds := NULL;
+        td_formation := NULL;
+        td_manual_formation := NULL;
 
         IF discovery_rec.well_reservoir_lat_dd IS NOT NULL THEN
 
@@ -52,6 +56,125 @@ BEGIN
 
         END IF;
 
+        SELECT
+            CASE
+                WHEN REPLACE(REPLACE(UPPER(discovery_rec.td_formation), ' ', '_'), '''', '')
+                    IN ('ASGARD',
+                        'AUK',
+                        'BALDER',
+                        'BEATRICE',
+                        'BEAULY',
+                        'BERYL',
+                        'BOSIES_BANK',
+                        'BRAEMORE_MUDSTONE',
+                        'BROOM',
+                        'BRORA_COAL',
+                        'BRYNE',
+                        'BUCHAN',
+                        'BUNTER_SHALE',
+                        'CAISTER',
+                        'CAITHNESS_FLAGSTONE',
+                        'CEMENTSTONE',
+                        'CLEAVER',
+                        'COMMODORE',
+                        'CORMORANT',
+                        'CRUISER',
+                        'DORNOCH',
+                        'DUNNET_HEAD_SANDSTONE',
+                        'EKOFISK',
+                        'ERIKSSON',
+                        'ETIVE',
+                        'FARSUND',
+                        'FELL',
+                        'FINDHORN',
+                        'FLETT',
+                        'FOULA',
+                        'FRASERBURGH',
+                        'FULMAR',
+                        'GOLSPIE',
+                        'HALIBUT_CARBONATE',
+                        'HEATHER',
+                        'HERRING',
+                        'HIDRA',
+                        'HOD',
+                        'HORDA',
+                        'HOY_SANDSTONE',
+                        'HUTTON',
+                        'JORSALFARE',
+                        'KIMMERIDGE_CLAY',
+                        'KINNESSWOOD',
+                        'KYRRE',
+                        'LADYS_WALK',
+                        'LAMBA',
+                        'LARK',
+                        'LEMAN',
+                        'LINNHE',
+                        'LISTA',
+                        'LOSSIEHEAD',
+                        'LOWER_CLAIR',
+                        'MACBETH',
+                        'MACKEREL',
+                        'MAINS',
+                        'MANDAL',
+                        'MAUREEN',
+                        'MIDDLE_CLAIR',
+                        'MILLSTONE_GRIT',
+                        'MORRISON',
+                        'MOUSA',
+                        'NANSEN',
+                        'NAUST',
+                        'NESS',
+                        'ORCADIA',
+                        'ORRIN',
+                        'OTTER_BANK',
+                        'OUSDALE_ARKOSE',
+                        'PENTLAND',
+                        'PIPER',
+                        'RANNOCH',
+                        'RODBY',
+                        'RONA',
+                        'ROYAL_SOVEREIGN',
+                        'SAUDA',
+                        'SCREMERSTON',
+                        'SELE',
+                        'SHEARWATER_SALT',
+                        'SILVERPIT',
+                        'SKADE',
+                        'SKAGERRAK',
+                        'SMITH_BANK',
+                        'SOLA',
+                        'SOLAN_BANK',
+                        'STATFJORD',
+                        'STOTFIELD_CALCRETE',
+                        'STRATH_RORY',
+                        'STRUIE',
+                        'SULLOM',
+                        'SVARTE',
+                        'TARBERT',
+                        'TAU',
+                        'TAYPORT',
+                        'TEITH',
+                        'TOR',
+                        'TURBOT_ANDYDRITE',
+                        'ULA',
+                        'UPPER_CLAIR',
+                        'UPPER_GREENSAND',
+                        'UTSIRA',
+                        'VAILA',
+                        'VALHALL',
+                        'VICTORY',
+                        'WESTOE',
+                        'WICK',
+                        'YESNABY_SANDSTONE',
+                        'YOREDALE')
+                    THEN REPLACE(REPLACE(UPPER(discovery_rec.td_formation), ' ', '_'), '''', '')
+                END
+        INTO td_formation;
+
+        IF td_formation IS NULL THEN
+            td_manual_formation := discovery_rec.td_formation;
+        END IF;
+
         INSERT INTO remi.discovery_well_details (
             id,
             submission_detail_id,
@@ -64,6 +187,7 @@ BEGIN
             top_reservoir_longitude_hemisphere,
             top_reservoir_datum,
             total_depth_formation,
+            total_depth_formation_manual,
             total_depth_formation_comments,
             data_acquisition_programme,
             geophysical_update_commentary,
@@ -90,7 +214,8 @@ BEGIN
                 WHEN discovery_rec.well_reservoir_lat_dd IS NOT NULL AND discovery_rec.well_reservoir_long_dd IS NOT NULL
                 THEN 'ED50' -- to confirm with NSTA
             END,
-            discovery_rec.td_formation,
+            td_formation,
+            td_manual_formation,
             discovery_rec.td_comment,
             discovery_rec.data_acquisition_programme,
             discovery_rec.geophysical_update_comment,
@@ -130,6 +255,8 @@ BEGIN
         long_minutes_dec := NULL;
         long_minutes := NULL;
         long_seconds := NULL;
+        td_formation := NULL;
+        td_manual_formation := NULL;
 
         IF dry_well_rec.well_reservoir_lat_dd IS NOT NULL THEN
 
@@ -149,6 +276,125 @@ BEGIN
 
         END IF;
 
+        SELECT
+            CASE
+                WHEN REPLACE(REPLACE(UPPER(dry_well_rec.td_formation), ' ', '_'), '''', '')
+                    IN ('ASGARD',
+                        'AUK',
+                        'BALDER',
+                        'BEATRICE',
+                        'BEAULY',
+                        'BERYL',
+                        'BOSIES_BANK',
+                        'BRAEMORE_MUDSTONE',
+                        'BROOM',
+                        'BRORA_COAL',
+                        'BRYNE',
+                        'BUCHAN',
+                        'BUNTER_SHALE',
+                        'CAISTER',
+                        'CAITHNESS_FLAGSTONE',
+                        'CEMENTSTONE',
+                        'CLEAVER',
+                        'COMMODORE',
+                        'CORMORANT',
+                        'CRUISER',
+                        'DORNOCH',
+                        'DUNNET_HEAD_SANDSTONE',
+                        'EKOFISK',
+                        'ERIKSSON',
+                        'ETIVE',
+                        'FARSUND',
+                        'FELL',
+                        'FINDHORN',
+                        'FLETT',
+                        'FOULA',
+                        'FRASERBURGH',
+                        'FULMAR',
+                        'GOLSPIE',
+                        'HALIBUT_CARBONATE',
+                        'HEATHER',
+                        'HERRING',
+                        'HIDRA',
+                        'HOD',
+                        'HORDA',
+                        'HOY_SANDSTONE',
+                        'HUTTON',
+                        'JORSALFARE',
+                        'KIMMERIDGE_CLAY',
+                        'KINNESSWOOD',
+                        'KYRRE',
+                        'LADYS_WALK',
+                        'LAMBA',
+                        'LARK',
+                        'LEMAN',
+                        'LINNHE',
+                        'LISTA',
+                        'LOSSIEHEAD',
+                        'LOWER_CLAIR',
+                        'MACBETH',
+                        'MACKEREL',
+                        'MAINS',
+                        'MANDAL',
+                        'MAUREEN',
+                        'MIDDLE_CLAIR',
+                        'MILLSTONE_GRIT',
+                        'MORRISON',
+                        'MOUSA',
+                        'NANSEN',
+                        'NAUST',
+                        'NESS',
+                        'ORCADIA',
+                        'ORRIN',
+                        'OTTER_BANK',
+                        'OUSDALE_ARKOSE',
+                        'PENTLAND',
+                        'PIPER',
+                        'RANNOCH',
+                        'RODBY',
+                        'RONA',
+                        'ROYAL_SOVEREIGN',
+                        'SAUDA',
+                        'SCREMERSTON',
+                        'SELE',
+                        'SHEARWATER_SALT',
+                        'SILVERPIT',
+                        'SKADE',
+                        'SKAGERRAK',
+                        'SMITH_BANK',
+                        'SOLA',
+                        'SOLAN_BANK',
+                        'STATFJORD',
+                        'STOTFIELD_CALCRETE',
+                        'STRATH_RORY',
+                        'STRUIE',
+                        'SULLOM',
+                        'SVARTE',
+                        'TARBERT',
+                        'TAU',
+                        'TAYPORT',
+                        'TEITH',
+                        'TOR',
+                        'TURBOT_ANDYDRITE',
+                        'ULA',
+                        'UPPER_CLAIR',
+                        'UPPER_GREENSAND',
+                        'UTSIRA',
+                        'VAILA',
+                        'VALHALL',
+                        'VICTORY',
+                        'WESTOE',
+                        'WICK',
+                        'YESNABY_SANDSTONE',
+                        'YOREDALE')
+                    THEN REPLACE(REPLACE(UPPER(dry_well_rec.td_formation), ' ', '_'), '''', '')
+                END
+        INTO td_formation;
+
+        IF td_formation IS NULL THEN
+            td_manual_formation := dry_well_rec.td_formation;
+        END IF;
+
         INSERT INTO remi.dry_well_details (
             id,
             submission_detail_id,
@@ -161,6 +407,7 @@ BEGIN
             top_reservoir_longitude_hemisphere,
             top_reservoir_datum,
             total_depth_formation,
+            total_depth_formation_manual,
             total_depth_formation_comments,
             data_acquisition_programme,
             geophysical_update_commentary,
@@ -193,7 +440,8 @@ BEGIN
                 WHEN dry_well_rec.well_reservoir_lat_dd IS NOT NULL AND dry_well_rec.well_reservoir_long_dd IS NOT NULL
                 THEN 'ED50' -- to confirm with NSTA
             END,
-            dry_well_rec.td_formation,
+            td_formation,
+            td_manual_formation,
             dry_well_rec.td_comment,
             dry_well_rec.data_acquisition_programme,
             dry_well_rec.geophysical_update_comment,
