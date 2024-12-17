@@ -36,3 +36,5 @@ CREATE TABLE remi.devuk_historic_equity_partners_and_operators (
     organisation_name TEXT,
     operator_flag TEXT
 );
+
+DROP TABLE remi.devuk_historic_equity_partners_migration;
