@@ -15,6 +15,14 @@ CVE-2024-47535
 
 # tomcat-embed-core
 CVE-2024-52317
+CVE-2024-50379
 
 # spring
 CVE-2024-38827
+
+# logback-core
+CVE-2024-12798
+CVE-2024-12801
+
+# spring-webmvc
+CVE-2024-38819

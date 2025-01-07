@@ -69,7 +69,7 @@ class ProjectStageFormValidatorTest {
   void isValid_whenDateInFuture_thenFalse() {
     var tomorrow = LocalDate.now().plusDays(1);
 
-    form.setStageDateDay(String.valueOf(tomorrow.getDayOfYear()));
+    form.setStageDateDay(String.valueOf(tomorrow.getDayOfMonth()));
     form.setStageDateMonth(String.valueOf(tomorrow.getMonthValue()));
     form.setStageDateYear(String.valueOf(tomorrow.getYear()));
 
@@ -78,12 +78,14 @@ class ProjectStageFormValidatorTest {
     assertThat(bindingResult.getFieldErrors())
         .extracting(FieldError::getField, FieldError::getCode, FieldError::getDefaultMessage)
         .containsExactly(
-            Tuple.tuple("stageDateDay" , "stageDateDay.invalid", "Date the project entered stage must be a real date")
+            Tuple.tuple("stageDateDay" , "stageDateDay.notBeforeTargetDate", "Date the project entered stage must be today or in the past"),
+            Tuple.tuple("stageDateMonth" , "stageDateMonth.notBeforeTargetDate", ""),
+            Tuple.tuple("stageDateYear" , "stageDateYear.notBeforeTargetDate", "")
         );
   }
 
   @Test
-  void isValid_whenDateMalformed_thenFalse() {
+  void isValid_whenDateMalformed_Strings_thenFalse() {
     form.setStageDateDay("not a day");
     form.setStageDateMonth("not a month");
     form.setStageDateYear("not a year");
@@ -97,6 +99,19 @@ class ProjectStageFormValidatorTest {
             Tuple.tuple("stageDateMonth" , "stageDateMonth.invalid", ""),
             Tuple.tuple("stageDateYear" , "stageDateYear.invalid", "")
         );
+  }
+
+  @Test
+  void isValid_whenDateMalformed_badDate_thenFalse() {
+    form.setStageDateDay("100");
+    form.setStageDateMonth("1");
+    form.setStageDateYear("2024");
+
+    assertFalse(projectStageFormValidator.isValid(form, bindingResult, project));
+
+    assertThat(bindingResult.getFieldErrors())
+        .extracting(FieldError::getField, FieldError::getCode, FieldError::getDefaultMessage)
+        .containsExactly(Tuple.tuple("stageDateDay" , "stageDateDay.invalid", "Date the project entered stage must be a real date"));
   }
 
   @Test
