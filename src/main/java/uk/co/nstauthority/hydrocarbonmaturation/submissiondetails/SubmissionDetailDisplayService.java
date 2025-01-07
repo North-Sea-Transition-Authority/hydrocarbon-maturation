@@ -42,7 +42,7 @@ public class SubmissionDetailDisplayService {
     return getOrganisationResponsibleDisplay(organisationUnitDto);
   }
 
-  private String getOrganisationResponsibleDisplay(@Nullable OrganisationUnitDto organisationUnitDto) {
+  public String getOrganisationResponsibleDisplay(@Nullable OrganisationUnitDto organisationUnitDto) {
     return Optional.ofNullable(organisationUnitDto)
         .map(OrganisationUnitDto::organisationUnitName)
         .orElse(NOT_PROVIDED);

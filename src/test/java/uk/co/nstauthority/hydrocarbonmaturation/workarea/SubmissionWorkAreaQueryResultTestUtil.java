@@ -26,6 +26,7 @@ class SubmissionWorkAreaQueryResultTestUtil {
     private List<Integer> licencesTheResourceIsOn = List.of(1,2);
     private Boolean updateRequested = false;
     private Boolean isCorrection = false;
+    private Integer fieldIdentifier = 8002;
     private Integer parentFieldId = 8001;
     private FieldStatus fieldStatus = FieldStatus.STATUS_300;
     private String licenceApplicationReference = null;
@@ -87,7 +88,7 @@ class SubmissionWorkAreaQueryResultTestUtil {
 
       return new SubmissionWorkAreaQueryResult(submissionDetailId, submissionType, status, resourceName,
           centreOfInterestQuadBlock, organisationResponsibleId, licencesTheResourceIsOn, updateRequested, isCorrection,
-          parentFieldId, fieldStatus, licenceApplicationReference);
+          fieldIdentifier, parentFieldId, fieldStatus, licenceApplicationReference);
     }
   }
 

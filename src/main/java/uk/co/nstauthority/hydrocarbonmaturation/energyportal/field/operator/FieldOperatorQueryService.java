@@ -1,18 +1,29 @@
 package uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.fivium.energyportalapi.client.field.FieldApi;
 import uk.co.fivium.energyportalapi.generated.client.FieldProjectionRoot;
+import uk.co.fivium.energyportalapi.generated.client.FieldsProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.Field;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
+import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
 
 @Service
 public class FieldOperatorQueryService {
   public static final FieldProjectionRoot FIELD_OPERATOR_PROJECTION_ROOT =
       new FieldProjectionRoot()
+          .fieldOperator()
+          .organisationUnitId()
+          .name()
+          .root();
+
+  public static final FieldsProjectionRoot FIELDS_OPERATOR_PROJECTION_ROOT =
+      new FieldsProjectionRoot()
           .fieldOperator()
           .organisationUnitId()
           .name()
@@ -36,6 +47,20 @@ public class FieldOperatorQueryService {
                 logCorrelationId
             )
             .map(Field::getFieldOperator)
+    );
+  }
+
+  public Map<Integer, OrganisationUnit> getFieldOperatorIdMap(List<Integer> ids) {
+    return energyPortalApiWrapper.makeRequest((logCorrelationId, requestPurpose) ->
+        fieldApi.getFieldsByIds(
+                ids,
+                FIELDS_OPERATOR_PROJECTION_ROOT,
+                requestPurpose,
+                logCorrelationId
+            )
+            .stream()
+            .filter(field -> field.getFieldOperator() != null)
+            .collect(StreamUtil.toLinkedHashMap(Field::getFieldId, Field::getFieldOperator))
     );
   }
 }

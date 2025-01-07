@@ -26,8 +26,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
+import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
@@ -64,6 +66,8 @@ class WorkAreaItemServiceTest {
   private LicenceQueryService licenceQueryService;
   @Mock
   private MetricsProvider metricsProvider;
+  @Mock
+  private FieldOperatorQueryService fieldOperatorQueryService;
   @InjectMocks
   private WorkAreaItemService workAreaItemService;
 
@@ -511,6 +515,59 @@ class WorkAreaItemServiceTest {
         .thenReturn(List.of(queryResultInSubmitted));
     var responsibleOrganisation = "Not provided";
     when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(eq(ORGANISATION_UNIT_MAP), anyInt()))
+        .thenReturn(responsibleOrganisation);
+    var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
+    when(submissionDetailService.getSubmissionDetailForIdOrError(queryResultInSubmitted.getSubmissionDetailId()))
+        .thenReturn(submissionDetail);
+    var parentFieldName = "parent";
+    when(fieldDisplayService.getParentFieldNameOrNoneFound(queryResultInSubmitted.getParentFieldId()))
+        .thenReturn(parentFieldName);
+    var expectedHeading = queryResultInSubmitted.getResourceName() + " (" + queryResultInSubmitted.getCentreOfInterestQuadBlock() +")";
+    var result = workAreaItemService.getWorkAreaItems(USER);
+    assertThat(result)
+        .extracting(WorkAreaItem::type,
+            WorkAreaItem::headingText,
+            WorkAreaItem::captionText,
+            WorkAreaItem::actionUrl)
+        .contains(
+            tuple(
+                WorkAreaItemType.SUBMISSION,
+                expectedHeading,
+                submissionTypeName,
+                ReverseRouter.route(on(ReviewSubmissionController.class)
+                    .showReviewPage(submissionDetail.getSubmission().getResource().getId(), null)))
+        );
+
+    assertThat(result.get(0).modelProperties().getProperties())
+        .contains(
+            entry("isFieldResource", true),
+            entry("organisationResponsible", responsibleOrganisation),
+            entry("parentFieldName", parentFieldName),
+            entry("fieldStatus", queryResultInSubmitted.getFieldStatus().getDisplayName()));
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = SubmissionType.class, names = {"CREATE_CSR", "CREATE_FDP", "CREATE_FDPA", "CREATE_COP"})
+  void getWorkAreaItemsOneItemReturned_whenFieldSubmission_hasPearsFieldOperator_assertFieldContextInformation(SubmissionType submissionType) {
+    var queryResultInSubmitted = SubmissionWorkAreaQueryResultTestUtil
+        .builder()
+        .withStatus(SubmissionDetailStatus.SUBMITTED.name())
+        .withSubmissionType(submissionType.getEnumName())
+        .build();
+    var submissionTypeName ="submission type";
+    when(submissionDetailService.getSubmissionTypeNameWithAcronym(submissionType))
+        .thenReturn(submissionTypeName);
+    when(submissionWorkAreaServiceFactory.getWorkAreaServiceStrategy(USER))
+        .thenReturn(responsibleTeamSubmissionWorkAreaQueryService);
+    when(responsibleTeamSubmissionWorkAreaQueryService.getWorkAreaSubmissionItems(USER))
+        .thenReturn(List.of(queryResultInSubmitted));
+
+    var orgUnit = new OrganisationUnit();
+    when(fieldOperatorQueryService.getFieldOperatorIdMap(List.of(queryResultInSubmitted.getFieldIdentifier())))
+        .thenReturn(Map.of(queryResultInSubmitted.getFieldIdentifier(), orgUnit));
+
+    var responsibleOrganisation = "Name of organisation";
+    when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(OrganisationUnitDto.fromOrganisationUnit(orgUnit)))
         .thenReturn(responsibleOrganisation);
     var submissionDetail = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_PROSPECT);
     when(submissionDetailService.getSubmissionDetailForIdOrError(queryResultInSubmitted.getSubmissionDetailId()))
