@@ -108,13 +108,17 @@ class WorkAreaItemService {
         .filter(Objects::nonNull)
         .toList();
 
-    return fieldOperatorQueryService.getFieldOperatorIdMap(fieldIds).entrySet().stream()
-        .collect(
-            StreamUtil.toLinkedHashMap(
-              Map.Entry::getKey,
-              e -> OrganisationUnitDto.fromOrganisationUnit(e.getValue())
-            )
-        );
+    if (!fieldIds.isEmpty()) {
+      return fieldOperatorQueryService.getFieldOperatorIdMap(fieldIds).entrySet().stream()
+          .collect(
+              StreamUtil.toLinkedHashMap(
+                  Map.Entry::getKey,
+                  e -> OrganisationUnitDto.fromOrganisationUnit(e.getValue())
+              )
+          );
+    }
+
+    return Map.of();
   }
 
   private WorkAreaItem getWorkAreaItem(SubmissionWorkAreaQueryResult submissionWorkAreaQueryResult,
