@@ -17,7 +17,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
+import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceTestUtils;
@@ -64,6 +66,8 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
   private SubmissionDetailService submissionDetailService;
   @Mock
   private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
+  @Mock
+  private FieldOperatorQueryService fieldOperatorQueryService;
   @InjectMocks
   private FieldRegulatorManagedInformationSummaryService fieldRegulatorManagedInformationSummaryService;
 
@@ -100,7 +104,7 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
             FieldRegulatorManagedInformationSummaryService.LEGAL_FIELD_NAME,
             FieldRegulatorManagedInformationSummaryService.CORRECTED_LEGAL_FIELD_NAME,
             FieldRegulatorManagedInformationSummaryService.COMMON_NAME_FOR_FIELD,
-            FieldRegulatorManagedInformationSummaryService.RESPONSIBLE_ORGANISATION,
+            FieldRegulatorManagedInformationSummaryService.RESPONSIBLE_ORGANISATION_PRE_PEARS,
             FieldRegulatorManagedInformationSummaryService.IS_ON_PRE_PEARS_LICENCE,
             FieldRegulatorManagedInformationSummaryService.ONSHORE_OFFSHORE,
             FieldRegulatorManagedInformationSummaryService.LOCATED_IN_ENGLAND,
@@ -147,7 +151,7 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
               field.getCorrectedLegalFieldName()),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.COMMON_NAME_FOR_FIELD,
               field.getCommonNameForField()),
-            Tuple.tuple(FieldRegulatorManagedInformationSummaryService.RESPONSIBLE_ORGANISATION,
+            Tuple.tuple(FieldRegulatorManagedInformationSummaryService.RESPONSIBLE_ORGANISATION_PRE_PEARS,
                 RESPONSIBLE_ORGANISATION),
             Tuple.tuple(FieldRegulatorManagedInformationSummaryService.IS_ON_PRE_PEARS_LICENCE,
                 BooleanUtil.yesNoFromBoolean(field.getIsOnPrePearsLicence())),
@@ -364,6 +368,41 @@ class FieldRegulatorManagedInformationSummaryServiceTest {
         );
   }
 
+  @Test
+  void getFieldRegulatorManagedInformationSummaryCard_fieldHasOperator_thenShowFieldOperator() {
+    var field = getCompleteField();
+
+    when(fieldPersistenceService.getFieldOrThrow(resource)).thenReturn(field);
+
+    var orgUnit = new OrganisationUnit();
+    orgUnit.setName("Org name");
+
+    when(fieldOperatorQueryService.getFieldOperatorByFieldIdentifier(field.getFieldIdentifier())).thenReturn(Optional.of(orgUnit));
+
+    var card = fieldRegulatorManagedInformationSummaryService.getFieldRegulatorManagedInformationSummaryCard(resource);
+
+    assertThat(card)
+        .extracting(
+            SummaryCard::displayName,
+            SummaryCard::summaryCardType
+        ).contains(
+            FieldRegulatorManagedInformationSummaryService.REGULATOR_MANAGED_INFORMATION,
+            SummaryCardType.SIMPLE_SUMMARY
+        );
+
+    var summaryData = (SummaryDataView) card.summaryData();
+
+    assertThat(summaryData.keyValues())
+        .extracting(
+            SummaryKeyValue::key,
+            SummaryKeyValue::value)
+        .contains(
+            Tuple.tuple(
+                FieldRegulatorManagedInformationSummaryService.RESPONSIBLE_ORGANISATION,
+                orgUnit.getName()
+            )
+        );
+  }
 
   @Test
   void getLicenceDisplayNames_EmptyList() {

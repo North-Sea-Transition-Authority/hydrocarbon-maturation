@@ -1,0 +1,82 @@
+package uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.energyportalapi.client.LogCorrelationId;
+import uk.co.fivium.energyportalapi.client.RequestPurpose;
+import uk.co.fivium.energyportalapi.client.field.FieldApi;
+import uk.co.fivium.energyportalapi.generated.types.Field;
+import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
+import uk.co.nstauthority.hydrocarbonmaturation.branding.ServiceConfigurationProperties;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
+import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
+
+@ExtendWith(MockitoExtension.class)
+class FieldOperatorQueryServiceTest {
+
+  @Mock
+  private FieldApi fieldApi;
+
+  @Mock
+  private QueryCounter queryCounter;
+
+  private final ServiceConfigurationProperties serviceConfigurationProperties = new ServiceConfigurationProperties(
+      "name",
+      "mnemonic"
+  );
+
+  private FieldOperatorQueryService fieldOperatorQueryService;
+  private static final int FIELD_IDENTIFIER = 100;
+
+  @BeforeEach
+  void setUp() {
+    fieldOperatorQueryService = new FieldOperatorQueryService(
+        fieldApi,
+        new EnergyPortalApiWrapper(serviceConfigurationProperties, queryCounter)
+    );
+  }
+
+  @Test
+  void getFieldOperatorByFieldIdentifier_noOperator_shouldReturnEmpty() {
+
+    when(fieldApi.findFieldById(
+        eq(FIELD_IDENTIFIER),
+        eq(FieldOperatorQueryService.FIELD_OPERATOR_PROJECTION_ROOT),
+        any(RequestPurpose.class),
+        any(LogCorrelationId.class)
+    )).thenReturn(Optional.empty());
+
+    var result = fieldOperatorQueryService.getFieldOperatorByFieldIdentifier(FIELD_IDENTIFIER);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  void getFieldOperatorByFieldIdentifier_shouldReturnOrgUnit() {
+
+    var orgUnit = new OrganisationUnit();
+
+    var field = new Field();
+    field.setFieldOperator(orgUnit);
+
+    when(fieldApi.findFieldById(
+        eq(FIELD_IDENTIFIER),
+        eq(FieldOperatorQueryService.FIELD_OPERATOR_PROJECTION_ROOT),
+        any(RequestPurpose.class),
+        any(LogCorrelationId.class)
+    )).thenReturn(Optional.of(field));
+
+    var result = fieldOperatorQueryService.getFieldOperatorByFieldIdentifier(FIELD_IDENTIFIER);
+
+    assertThat(result).isEqualTo(Optional.of(orgUnit));
+  }
+}

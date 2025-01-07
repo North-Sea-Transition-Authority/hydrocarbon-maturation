@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.discovery.postfielddiscovery.PostFieldDiscoveryLinkService;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceViewByReferenceComparator;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
@@ -39,7 +40,8 @@ public class FieldRegulatorManagedInformationSummaryService {
   public static final String LEGAL_FIELD_NAME = "Legal field name";
   public static final String CORRECTED_LEGAL_FIELD_NAME = "Corrected legal field name";
   public static final String COMMON_NAME_FOR_FIELD = "Common name for field";
-  public static final String RESPONSIBLE_ORGANISATION = "Responsible party prior to field operator";
+  public static final String RESPONSIBLE_ORGANISATION_PRE_PEARS = "Responsible party prior to field operator";
+  public static final String RESPONSIBLE_ORGANISATION = "Responsible organisation";
   public static final String ONSHORE_OFFSHORE = "Onshore/offshore";
   public static final String LOCATED_IN_UKCS = "Field is wholly located in the UKCS";
   public static final String LOCATED_IN_ENGLAND = "Field is wholly located in England";
@@ -64,6 +66,7 @@ public class FieldRegulatorManagedInformationSummaryService {
   private final PostFieldDiscoveryLinkService postFieldDiscoveryLinkService;
   private final SubmissionDetailService submissionDetailService;
   private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
+  private final FieldOperatorQueryService fieldOperatorQueryService;
 
   @Autowired
   public FieldRegulatorManagedInformationSummaryService(
@@ -74,7 +77,9 @@ public class FieldRegulatorManagedInformationSummaryService {
       FieldLicenceService fieldLicenceService,
       PostFieldDiscoveryLinkService postFieldDiscoveryLinkService,
       SubmissionDetailService submissionDetailService,
-      RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService) {
+      RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService,
+      FieldOperatorQueryService fieldOperatorQueryService
+  ) {
     this.fieldRegulatorManagedInformationService = fieldRegulatorManagedInformationService;
     this.resourceDetailsPersistenceService = resourceDetailsPersistenceService;
     this.submissionDetailDisplayService = submissionDetailDisplayService;
@@ -83,6 +88,7 @@ public class FieldRegulatorManagedInformationSummaryService {
     this.postFieldDiscoveryLinkService = postFieldDiscoveryLinkService;
     this.submissionDetailService = submissionDetailService;
     this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
+    this.fieldOperatorQueryService = fieldOperatorQueryService;
   }
 
   public SummaryCard getFieldRegulatorManagedInformationSummaryCard(Resource resource) {
@@ -102,9 +108,17 @@ public class FieldRegulatorManagedInformationSummaryService {
         field.getCommonNameForField()
     );
     summaryDataView.addKeyValue(
-        RESPONSIBLE_ORGANISATION,
+        RESPONSIBLE_ORGANISATION_PRE_PEARS,
         submissionDetailDisplayService.getOrganisationResponsibleDisplayById(field.getPrePearsOrganisationId())
     );
+
+    var fieldOperator = fieldOperatorQueryService.getFieldOperatorByFieldIdentifier(field.getFieldIdentifier());
+
+    fieldOperator.ifPresent(organisationUnit -> summaryDataView.addKeyValue(
+        RESPONSIBLE_ORGANISATION,
+        organisationUnit.getName()
+    ));
+
     summaryDataView.addKeyValue(
         IS_ON_PRE_PEARS_LICENCE,
         BooleanUtil.yesNoFromBoolean(field.getIsOnPrePearsLicence())
