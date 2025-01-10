@@ -16,7 +16,7 @@ as well as acting as a system of record for the captured information to be able 
 track changes over time.
 
 ## Pre-requisites
-- Java 17
+- Java 21
 - Node 18 + NPM
 - [Docker for Windows](https://hub.docker.com/editions/community/docker-ce-desktop-windows)
   (See [Docker setup](https://confluence.fivium.co.uk/display/JAVA/Java+development+environment+setup#Javadevelopmentenvironmentsetup-Docker)
