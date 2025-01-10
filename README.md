@@ -92,6 +92,10 @@ track changes over time.
 | REMI_EPMQ_AWS_SECRET_ACCESS_KEY             | AWS secret access key for SNS/SQS. <ul><li>[Dev](https://tpm.fivium.co.uk/index.php/prj/view/147)</li><li>[ST](https://tpm.fivium.co.uk/index.php/prj/view/147)</li><li>[Pre-prod](https://tpm.fivium.co.uk/index.php/pwd/view/2217)</li><li>[Prod](https://tpm.fivium.co.uk/index.php/pwd/view/2217)</li></ul> |
 | REMI_EPMQ_ENVIRONMENT_SUFFIX                | Something unique per environment, e.g. `dev`.                                                                                                                                                                                                                                                                   |
 
+## Logging
+PWA can log in either JSON or text mode.
+In order to turn on JSON logging, set the profile 'json-logging'. This will automatically include any MDC attributes.
+
 ### 3. Initialise the Fivium Design System
 - `git submodule update --init --recursive`
 - `cd fivium-design-system-core && npm install && npx gulp buildAll && cd ..`

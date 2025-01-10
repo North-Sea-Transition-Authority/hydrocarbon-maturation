@@ -1,21 +1,19 @@
 package uk.co.nstauthority.hydrocarbonmaturation.mvc;
 
+import static net.logstash.logback.argument.StructuredArguments.value;
+
 import com.google.common.base.Stopwatch;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.lang.NonNull;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.OrRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerMapping;
@@ -25,13 +23,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.metrics.QueryCounter;
 
 @Component
 public class RequestLogFilter extends OncePerRequestFilter {
-
-  private final List<RequestMatcher> ignorePathList = List.of(
-      new AntPathRequestMatcher("/actuator/health/**"),
-      new AntPathRequestMatcher("/assets/**")
-  );
-  private final OrRequestMatcher ignorePaths = new OrRequestMatcher(ignorePathList);
-
   static final String MDC_WUA_ID = RequestLogFilter.class.getName() + ".%s".formatted(
       EnergyPortalSamlAttribute.WEB_USER_ACCOUNT_ID.getAttributeName()
   );
@@ -48,6 +39,15 @@ public class RequestLogFilter extends OncePerRequestFilter {
   }
 
   @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    var requestUri = request.getRequestURI();
+    var contextPath = request.getContextPath();
+
+    return requestUri.equals(contextPath + "/actuator/health")
+        || requestUri.startsWith(contextPath + "/assets");
+  }
+
+  @Override
   protected void doFilterInternal(
       @NonNull HttpServletRequest request,
       @NonNull HttpServletResponse response,
@@ -58,40 +58,31 @@ public class RequestLogFilter extends OncePerRequestFilter {
     try {
       filterChain.doFilter(request, response);
     } finally {
-      if (!this.ignorePaths.matches(request)) {
-        var elapsedMs = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-        var queryString = Optional.ofNullable(request.getQueryString()).map("?"::concat).orElse("");
-        var pattern = Optional.ofNullable(request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE)).orElse(
-            "unknown");
-        var wuaId = MDC.get(MDC_WUA_ID);
-        var proxyWuaId = MDC.get(MDC_PROXY_WUA_ID);
+      var elapsedMs = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+      var queryString = Optional.ofNullable(request.getQueryString()).map("?"::concat).orElse("");
+      var pattern = Optional.ofNullable(request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE)).orElse(
+          "unknown");
+      var wuaId = MDC.get(MDC_WUA_ID);
+      var proxyWuaId = MDC.get(MDC_PROXY_WUA_ID);
 
-        LOGGER.info(
-            "[{}] {}ms {} {}{} ({}) wuaId:{} proxyWuaId:{} {}",
-            response.getStatus(),
-            elapsedMs,
-            request.getMethod(),
-            request.getRequestURI(),
-            queryString,
-            pattern,
-            wuaId,
-            proxyWuaId,
-            getQueryCounts()
-        );
+      LOGGER.info(
+          "[{}] {}ms {} {}{} ({}) wuaId:{} proxyWuaId:{} queryCounts[hibernate:{} jooq:{} epa:{}]",
+          value("response_status", response.getStatus()),
+          value("request_time_ms", elapsedMs),
+          value("request_method", request.getMethod()),
+          value("request_uri", request.getRequestURI()),
+          value("request_query_string", queryString),
+          value("request_uri_pattern", pattern),
+          value("wua_id", wuaId),
+          value("proxy_wua_id", proxyWuaId),
+          value("query_count_hibernate", queryCounter.getAndResetHibernate()),
+          value("query_count_jooq", queryCounter.getAndResetJooq()),
+          value("query_count_epa", queryCounter.getAndResetEpa())
+      );
 
-        CorrelationIdUtil.removeCorrelationIdFromMdc();
-        MDC.remove(RequestLogFilter.MDC_WUA_ID);
-        MDC.remove(RequestLogFilter.MDC_PROXY_WUA_ID);
-      }
+      CorrelationIdUtil.removeCorrelationIdFromMdc();
+      MDC.remove(RequestLogFilter.MDC_WUA_ID);
+      MDC.remove(RequestLogFilter.MDC_PROXY_WUA_ID);
     }
   }
-
-  private String getQueryCounts() {
-    return "queryCounts[epa:%s jooq:%s hibernate:%s]".formatted(
-        queryCounter.getAndResetEpa(),
-        queryCounter.getAndResetJooq(),
-        queryCounter.getAndResetHibernate()
-    );
-  }
-
 }

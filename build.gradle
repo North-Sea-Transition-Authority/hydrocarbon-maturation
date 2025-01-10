@@ -77,6 +77,8 @@ dependencies {
 
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
+	implementation 'net.logstash.logback:logstash-logback-encoder:7.2'
+
 	implementation 'com.esri.geometry:esri-geometry-api:2.2.4'
 	implementation 'mil.nga:crs:1.1.5'
 	implementation 'com.github.albfernandez:javadbf:1.14.1'
