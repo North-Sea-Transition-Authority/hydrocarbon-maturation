@@ -10,6 +10,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
@@ -21,9 +22,9 @@ import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.DateUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
 
 @Service
 public class SearchResourceRecordsService {
@@ -32,19 +33,21 @@ public class SearchResourceRecordsService {
   private final OrganisationUnitQueryService organisationUnitQueryService;
   private final LicenceQueryService licenceQueryService;
   private final SubmissionDetailService submissionDetailService;
+  private final FieldOperatorQueryService fieldOperatorQueryService;
 
   @Autowired
   public SearchResourceRecordsService(SubmissionDetailDisplayService submissionDetailDisplayService,
-                               SearchSelectorService searchSelectorService,
-                               SubmissionResourceService submissionResourceService,
-                               OrganisationUnitQueryService organisationUnitQueryService,
-                               LicenceQueryService licenceQueryService,
-                               SubmissionDetailService submissionDetailService) {
+                                      SearchSelectorService searchSelectorService,
+                                      OrganisationUnitQueryService organisationUnitQueryService,
+                                      LicenceQueryService licenceQueryService,
+                                      SubmissionDetailService submissionDetailService,
+                                      FieldOperatorQueryService fieldOperatorQueryService) {
     this.submissionDetailDisplayService = submissionDetailDisplayService;
     this.searchSelectorService = searchSelectorService;
     this.organisationUnitQueryService = organisationUnitQueryService;
     this.licenceQueryService = licenceQueryService;
     this.submissionDetailService = submissionDetailService;
+    this.fieldOperatorQueryService = fieldOperatorQueryService;
   }
 
   List<ResourceRecordSearchResultItem> getResourceRecordSearchResults(SearchResourceRecordsForm form,
@@ -55,11 +58,13 @@ public class SearchResourceRecordsService {
     var organisationUnitIds = getOrganisationUnitIdsFromResults(resourceRecordSearchResults);
     var organisationUnitMap = organisationUnitQueryService.getOrganisationUnitMapByIds(organisationUnitIds);
 
+    var fieldOperatorMap = getFieldOperatorOrganisationUnitDtos(resourceRecordSearchResults);
+
     var licences = getLicencesFromResults(resourceRecordSearchResults);
     var licenceMap = licenceQueryService.getLicenceMapByIds(licences);
 
     return resourceRecordSearchResults.stream()
-        .map(result -> buildResourceRecordSearchResultItem(result, organisationUnitMap, licenceMap))
+        .map(result -> buildResourceRecordSearchResultItem(result, organisationUnitMap, licenceMap, fieldOperatorMap))
         .toList();
   }
 
@@ -90,6 +95,27 @@ public class SearchResourceRecordsService {
         .flatMap(List::stream)
         .distinct()
         .toList();
+  }
+
+  private Map<Integer, OrganisationUnitDto> getFieldOperatorOrganisationUnitDtos(
+      List<ResourceRecordQueryResult> resourceRecordSearchResults
+  ) {
+    var fieldIds = resourceRecordSearchResults.stream()
+        .map(ResourceRecordQueryResult::fieldIdentifier)
+        .filter(Objects::nonNull)
+        .toList();
+
+    if (!fieldIds.isEmpty()) {
+      return fieldOperatorQueryService.getFieldOperatorIdMap(fieldIds).entrySet().stream()
+          .collect(
+              StreamUtil.toLinkedHashMap(
+                  Map.Entry::getKey,
+                  e -> OrganisationUnitDto.fromOrganisationUnit(e.getValue())
+              )
+          );
+    }
+
+    return Map.of();
   }
 
   boolean maxResultsReturned(List<ResourceRecordSearchResultItem> searchResultItems) {
@@ -163,13 +189,14 @@ public class SearchResourceRecordsService {
   private ResourceRecordSearchResultItem buildResourceRecordSearchResultItem(
       ResourceRecordQueryResult resourceRecordQueryResult,
       Map<Integer, OrganisationUnitDto> organisationUnitMap,
-      Map<Integer, LicenceView> licenceMap) {
+      Map<Integer, LicenceView> licenceMap,
+      Map<Integer, OrganisationUnitDto> fieldOperatorMap) {
 
     return new ResourceRecordSearchResultItem(
         getHeadingText(resourceRecordQueryResult),
         getCaptionText(resourceRecordQueryResult),
         getActionUrl(resourceRecordQueryResult),
-        getResultItemModelProperties(resourceRecordQueryResult, organisationUnitMap, licenceMap));
+        getResultItemModelProperties(resourceRecordQueryResult, organisationUnitMap, licenceMap, fieldOperatorMap));
   }
 
   private String getHeadingText(ResourceRecordQueryResult resourceRecordQueryResult) {
@@ -210,14 +237,23 @@ public class SearchResourceRecordsService {
   private ResourceRecordSearchResultItemModelProperties getResultItemModelProperties(
       ResourceRecordQueryResult resourceRecordQueryResult,
       Map<Integer, OrganisationUnitDto> organisationUnitMap,
-      Map<Integer, LicenceView> licenceMap) {
+      Map<Integer, LicenceView> licenceMap,
+      Map<Integer, OrganisationUnitDto> fieldOperatorMap) {
 
     var responsibleTeam = resourceRecordQueryResult.responsibleTeam();
     var organisationResponsibleId = resourceRecordQueryResult.organisationResponsibleId();
     var licencesTheResourceIsOn = resourceRecordQueryResult.licencesTheResourceIsOn();
+    var fieldId = resourceRecordQueryResult.fieldIdentifier();
 
-    var organisationResponsibleDisplay =
-        submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(organisationUnitMap, organisationResponsibleId);
+    String organisationResponsibleDisplay;
+    if (fieldId != null && fieldOperatorMap.containsKey(fieldId)) {
+      organisationResponsibleDisplay =
+          submissionDetailDisplayService.getOrganisationResponsibleDisplay(fieldOperatorMap.get(fieldId));
+    } else {
+      organisationResponsibleDisplay =
+          submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(organisationUnitMap, organisationResponsibleId);
+    }
+
     var licencesForDisplay = submissionDetailDisplayService.getLicencesForDisplayFromMap(licenceMap, licencesTheResourceIsOn);
     var teamResponsibleDisplay = submissionDetailDisplayService.getTeamResponsibleDisplay(responsibleTeam);
 

@@ -26,8 +26,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
+import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
+import uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator.FieldOperatorQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceQueryService;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.licence.application.LicenceView;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.organisationunit.OrganisationUnitDto;
@@ -41,7 +43,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.LicenceViewTes
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailDisplayService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.opportunitydetails.OpportunityType;
 
@@ -57,13 +58,13 @@ class SearchResourceRecordsServiceTest {
   @Mock
   private SearchSelectorService searchSelectorService;
   @Mock
-  private SubmissionResourceService submissionResourceService;
-  @Mock
   private LicenceQueryService licenceQueryService;
   @Mock
   private OrganisationUnitQueryService organisationUnitQueryService;
   @Mock
   private SubmissionDetailService submissionDetailService;
+  @Mock
+  private FieldOperatorQueryService fieldOperatorQueryService;
   @InjectMocks
   private SearchResourceRecordsService underTest;
   private final Instant fixedInstant = Instant.parse("2002-01-11T12:00:00.00Z");
@@ -120,20 +121,40 @@ class SearchResourceRecordsServiceTest {
 
     @Test
     void buildsDiscoveryAndProspectRecordSearchResultItem_AssertAllReturnedAndItemsAreBuiltCorrectly() {
+      var orgName1 = "Org A";
+      when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, ORGANISATION_ID_1))
+          .thenReturn(orgName1);
+      var orgName2 = "Org B";
+      when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, ORGANISATION_ID_2))
+          .thenReturn(orgName2);
 
       var result1 = buildAndMockResourceRecordQueryResult(
-        "resource-name1", ResourceType.PROSPECT, "1/12",
-        ORGANISATION_ID_1, "Org A",
+        "resource-name1",
+        ResourceType.PROSPECT,
+        null,
+        "1/12",
+        ORGANISATION_ID_1,
         List.of(EXTANT_LICENCE_1.licenceId(), EXTANT_LICENCE_2.licenceId()),
         List.of(EXTANT_LICENCE_1.licenceRef(), EXTANT_LICENCE_2.licenceRef()),
-        ResponsibleTeamType.EXPLORATION, null, null, null, false
+        ResponsibleTeamType.EXPLORATION,
+        null,
+        null,
+        null,
+        false
       );
       var result2 = buildAndMockResourceRecordQueryResult(
-          "resource-name2", ResourceType.DISCOVERY, null,
-        ORGANISATION_ID_2, "Org B",
+        "resource-name2",
+        ResourceType.DISCOVERY,
+        null,
+        null,
+        ORGANISATION_ID_2,
         List.of(NOT_EXTANT_LICENCE_2.licenceId(), NOT_EXTANT_LICENCE_3.licenceId()),
         List.of(NOT_EXTANT_LICENCE_2.licenceRef(), NOT_EXTANT_LICENCE_3.licenceRef()),
-        ResponsibleTeamType.EXPLORATION, null, null, fixedInstant, true
+        ResponsibleTeamType.EXPLORATION,
+        null,
+        null,
+        fixedInstant,
+        true
       );
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form, USER))
           .thenReturn(List.of(result1, result2));
@@ -170,7 +191,7 @@ class SearchResourceRecordsServiceTest {
       assertThat(results.get(0).modelProperties().getProperties())
           .containsExactly(
               entry("teamResponsible", ResponsibleTeamType.EXPLORATION.getDisplayName()),
-              entry("organisationResponsible", "Org A"),
+              entry("organisationResponsible", orgName1),
               entry("isArchived", false),
               entry("licences", List.of("L1", "L2"))
           );
@@ -178,7 +199,7 @@ class SearchResourceRecordsServiceTest {
       assertThat(results.get(1).modelProperties().getProperties())
           .containsExactly(
               entry("teamResponsible", ResponsibleTeamType.EXPLORATION.getDisplayName()),
-              entry("organisationResponsible", "Org B"),
+              entry("organisationResponsible", orgName2),
               entry("isArchived", true),
               entry("licences", List.of("F1", "F2"))
           );
@@ -186,24 +207,40 @@ class SearchResourceRecordsServiceTest {
 
     @Test
     void buildsFieldRecordSearchResultItem_AssertAllReturnedAndItemsAreBuiltCorrectly() {
+      var orgName1 = "Org A";
+      when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, ORGANISATION_ID_1))
+          .thenReturn(orgName1);
+      var orgName2 = "Org B";
+      when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, ORGANISATION_ID_2))
+          .thenReturn(orgName2);
 
       var result1 = buildAndMockResourceRecordQueryResult(
-          "field-name1", ResourceType.FIELD, "1/12",
-          ORGANISATION_ID_1, "Org A",
-          List.of(EXTANT_LICENCE_1.licenceId(), EXTANT_LICENCE_2.licenceId()),
-          List.of(EXTANT_LICENCE_1.licenceRef(), EXTANT_LICENCE_2.licenceRef()),
-          ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, null, FieldStatus.STATUS_200, fixedInstant, false
+        "field-name1",
+        ResourceType.FIELD,
+        1,
+        "1/12",
+        ORGANISATION_ID_1,
+        List.of(EXTANT_LICENCE_1.licenceId(), EXTANT_LICENCE_2.licenceId()),
+        List.of(EXTANT_LICENCE_1.licenceRef(), EXTANT_LICENCE_2.licenceRef()),
+        ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND,
+        null,
+        FieldStatus.STATUS_200,
+        fixedInstant,
+        false
       );
       var result2 = buildAndMockResourceRecordQueryResult(
-          "field-name2", ResourceType.FIELD, null,
-          ORGANISATION_ID_2, "Org B",
-          List.of(NOT_EXTANT_LICENCE_2.licenceId(), NOT_EXTANT_LICENCE_3.licenceId()),
-          List.of(NOT_EXTANT_LICENCE_2.licenceRef(), NOT_EXTANT_LICENCE_3.licenceRef()),
-          ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
-          "Parent field name",
-          FieldStatus.STATUS_400,
-          fixedInstant,
-          true
+        "field-name2",
+        ResourceType.FIELD,
+        2,
+        null,
+        ORGANISATION_ID_2,
+        List.of(NOT_EXTANT_LICENCE_2.licenceId(), NOT_EXTANT_LICENCE_3.licenceId()),
+        List.of(NOT_EXTANT_LICENCE_2.licenceRef(), NOT_EXTANT_LICENCE_3.licenceRef()),
+        ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
+        "Parent field name",
+        FieldStatus.STATUS_400,
+        fixedInstant,
+        true
       );
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form, USER))
           .thenReturn(List.of(result1, result2));
@@ -239,7 +276,7 @@ class SearchResourceRecordsServiceTest {
       assertThat(results.get(0).modelProperties().getProperties())
           .containsExactly(
               entry("teamResponsible", ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName()),
-              entry("organisationResponsible", "Org A"),
+              entry("organisationResponsible", orgName1),
               entry("isArchived", false),
               entry("fieldStatus", result1.fieldStatus().getDisplayName()),
               entry("parentField", "No parent field")
@@ -248,7 +285,103 @@ class SearchResourceRecordsServiceTest {
       assertThat(results.get(1).modelProperties().getProperties())
           .containsExactly(
               entry("teamResponsible", ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getDisplayName()),
-              entry("organisationResponsible", "Org B"),
+              entry("organisationResponsible", orgName2),
+              entry("isArchived", true),
+              entry("fieldStatus", result2.fieldStatus().getDisplayName()),
+              entry("parentField", "Parent field name")
+          );
+    }
+
+    @Test
+    void buildsFieldRecordSearchResultItem_whenHasPearsOperator_AssertAllReturnedAndItemsAreBuiltCorrectly() {
+
+      var result1 = buildAndMockResourceRecordQueryResult(
+        "field-name1",
+        ResourceType.FIELD,
+        1,
+        "1/12",
+        ORGANISATION_ID_1,
+        List.of(EXTANT_LICENCE_1.licenceId(), EXTANT_LICENCE_2.licenceId()),
+        List.of(EXTANT_LICENCE_1.licenceRef(), EXTANT_LICENCE_2.licenceRef()),
+        ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND,
+        null,
+        FieldStatus.STATUS_200,
+        fixedInstant,
+        false
+      );
+      var result2 = buildAndMockResourceRecordQueryResult(
+        "field-name2",
+        ResourceType.FIELD,
+        2,
+        null,
+        ORGANISATION_ID_2,
+        List.of(NOT_EXTANT_LICENCE_2.licenceId(), NOT_EXTANT_LICENCE_3.licenceId()),
+        List.of(NOT_EXTANT_LICENCE_2.licenceRef(), NOT_EXTANT_LICENCE_3.licenceRef()),
+        ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA,
+        "Parent field name",
+        FieldStatus.STATUS_400,
+        fixedInstant,
+        true
+      );
+      when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form, USER))
+          .thenReturn(List.of(result1, result2));
+
+      var submissionDetailCsr = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_CSR);
+      when(submissionDetailService.getSubmissionDetail(result1.submissionDetailId()))
+          .thenReturn(Optional.of(submissionDetailCsr));
+      var submissionDetailFdp = SubmissionDetailTestUtils.createSubmissionDetail(SubmissionType.CREATE_FDP);
+      when(submissionDetailService.getSubmissionDetail(result2.submissionDetailId()))
+          .thenReturn(Optional.of(submissionDetailFdp));
+
+      var orgUnit1Name = "Org 1";
+      var orgUnit1 = new OrganisationUnit();
+      orgUnit1.setName(orgUnit1Name);
+
+      var orgUnit2Name = "Org 2";
+      var orgUnit2 = new OrganisationUnit();
+      orgUnit2.setName(orgUnit2Name);
+
+      when(fieldOperatorQueryService.getFieldOperatorIdMap(List.of(1,2))).thenReturn(Map.of(1, orgUnit1, 2, orgUnit2));
+
+      when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(OrganisationUnitDto.fromOrganisationUnit(orgUnit1)))
+          .thenReturn(orgUnit1Name);
+      when(submissionDetailDisplayService.getOrganisationResponsibleDisplay(OrganisationUnitDto.fromOrganisationUnit(orgUnit2)))
+          .thenReturn(orgUnit2Name);
+
+      var results = underTest.getResourceRecordSearchResults(form, resourceRecordQueryServiceStrategy, USER);
+
+      assertThat(results)
+          .extracting(
+              ResourceRecordSearchResultItem::headingText,
+              ResourceRecordSearchResultItem::captionText,
+              ResourceRecordSearchResultItem::actionUrl
+          )
+          .containsExactly(
+              tuple(
+                  "field-name1 (1/12)",
+                  "Field: latest submission on 11 January 2002",
+                  getActionUrl(result1.resourceId())
+              ),
+              tuple(
+                  "field-name2",
+                  "Field: latest submission on 11 January 2002",
+                  getActionUrl(result2.resourceId())
+              )
+          );
+
+      assertThat(results.get(0).modelProperties().getProperties())
+          .containsExactly(
+              entry("teamResponsible", ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName()),
+              entry("organisationResponsible", orgUnit1Name),
+              entry("isArchived", false),
+              entry("fieldStatus", result1.fieldStatus().getDisplayName()),
+              entry("parentField", "No parent field")
+          );
+
+      assertThat(results.get(1).modelProperties().getProperties())
+          .containsExactly(
+              entry("teamResponsible", ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getDisplayName()),
+              entry("organisationResponsible", orgUnit2Name),
               entry("isArchived", true),
               entry("fieldStatus", result2.fieldStatus().getDisplayName()),
               entry("parentField", "Parent field name")
@@ -257,17 +390,23 @@ class SearchResourceRecordsServiceTest {
 
     @Test
     void buildsFieldRecordSearchResultItem_whenReturnedFieldRecordHasNoSubmission_AssertAllReturnedAndItemsAreBuiltCorrectly() {
+      var orgName = "Org A";
+      when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, ORGANISATION_ID_1))
+          .thenReturn(orgName);
 
       var result = buildAndMockResourceRecordQueryResult(
-          "field-name1", ResourceType.FIELD, null,
-          ORGANISATION_ID_1, "Org A",
-          List.of(EXTANT_LICENCE_1.licenceId(), EXTANT_LICENCE_2.licenceId()),
-          List.of(EXTANT_LICENCE_1.licenceRef(), EXTANT_LICENCE_2.licenceRef()),
-          ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND,
-          null,
-          FieldStatus.STATUS_200,
-          fixedInstant,
-          false
+        "field-name1",
+        ResourceType.FIELD,
+        1,
+        null,
+        ORGANISATION_ID_1,
+        List.of(EXTANT_LICENCE_1.licenceId(), EXTANT_LICENCE_2.licenceId()),
+        List.of(EXTANT_LICENCE_1.licenceRef(), EXTANT_LICENCE_2.licenceRef()),
+        ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND,
+        null,
+        FieldStatus.STATUS_200,
+        fixedInstant,
+        false
       );
       when(resourceRecordQueryServiceStrategy.getResourceRecordSearchResults(form, USER))
           .thenReturn(List.of(result));
@@ -291,7 +430,7 @@ class SearchResourceRecordsServiceTest {
       assertThat(results.get(0).modelProperties().getProperties())
           .containsExactly(
               entry("teamResponsible", ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND.getDisplayName()),
-              entry("organisationResponsible", "Org A"),
+              entry("organisationResponsible", orgName),
               entry("isArchived", false),
               entry("fieldStatus", result.fieldStatus().getDisplayName()),
               entry("parentField", "No parent field")
@@ -304,9 +443,10 @@ class SearchResourceRecordsServiceTest {
     }
 
     private ResourceRecordQueryResult buildAndMockResourceRecordQueryResult(String resourceName,
-                                                                            ResourceType resourceType, String centreOfInterest,
+                                                                            ResourceType resourceType,
+                                                                            Integer fieldIdentifier,
+                                                                            String centreOfInterest,
                                                                             int organisationResponsibleId,
-                                                                            String orgName,
                                                                             List<Integer> licencesTheResourceIsOn,
                                                                             List<String> licencesDisplayed,
                                                                             ResponsibleTeamType responsibleTeam,
@@ -314,7 +454,6 @@ class SearchResourceRecordsServiceTest {
                                                                             FieldStatus fieldStatus,
                                                                             Instant acceptedSubmissionInstant,
                                                                             boolean archived) {
-      when(submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(ORGANISATION_UNIT_MAP, organisationResponsibleId)).thenReturn(orgName);
       if (!ResourceType.FIELD.equals(resourceType)) {
         when(submissionDetailDisplayService.getLicencesForDisplayFromMap(LICENCE_MAP, licencesTheResourceIsOn)).thenReturn(licencesDisplayed);
       }
@@ -325,6 +464,7 @@ class SearchResourceRecordsServiceTest {
           UUID.randomUUID(),
           acceptedSubmissionInstant,
           resourceType,
+          fieldIdentifier,
           resourceName,
           centreOfInterest,
           organisationResponsibleId,
@@ -387,7 +527,7 @@ class SearchResourceRecordsServiceTest {
     }
 
     private ResourceRecordQueryResult newSearchResultWithResourceName(String resourceName) {
-      return new ResourceRecordQueryResult(null, null, null, null,
+      return new ResourceRecordQueryResult(null, null, null, null, null,
           resourceName, null, null, null, null, null, null, null, false);
     }
   }

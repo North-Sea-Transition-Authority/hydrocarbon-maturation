@@ -12,6 +12,7 @@ public record ResourceRecordQueryResult(
     UUID submissionDetailId,
     Instant submissionAcceptedTimestamp,
     ResourceType resourceType,
+    Integer fieldIdentifier,
     String resourceName,
     String centreOfInterestQuadBlock,
     Integer organisationResponsibleId,
