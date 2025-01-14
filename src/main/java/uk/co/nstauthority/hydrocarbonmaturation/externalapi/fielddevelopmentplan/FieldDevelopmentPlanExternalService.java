@@ -1,6 +1,7 @@
 package uk.co.nstauthority.hydrocarbonmaturation.externalapi.fielddevelopmentplan;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.FieldPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails.GeneralDetailsPersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
 
 @Service
 public class FieldDevelopmentPlanExternalService {
@@ -27,12 +29,14 @@ public class FieldDevelopmentPlanExternalService {
     this.submissionDetailService = submissionDetailService;
   }
 
-  List<FieldDevelopmentPlanExternalDto> createFdpDtosByFieldIds(Set<Integer> fieldIds) {
+  Map<Integer, FieldDevelopmentPlanExternalDto> createFdpDtosByFieldIds(Set<Integer> fieldIds) {
     return fieldIds.stream()
         .map(fieldPersistenceService::getField)
         .flatMap(Optional::stream)
-        .map(this::createFdpDtoByField)
-        .toList();
+        .collect(StreamUtil.toLinkedHashMap(
+            Field::getFieldIdentifier,
+            this::createFdpDtoByField
+        ));
   }
 
   private FieldDevelopmentPlanExternalDto createFdpDtoByField(Field field) {

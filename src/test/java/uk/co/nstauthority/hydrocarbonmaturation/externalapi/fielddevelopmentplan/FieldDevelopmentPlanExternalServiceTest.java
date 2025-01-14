@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -52,6 +53,7 @@ class FieldDevelopmentPlanExternalServiceTest {
     var resource = new Resource();
 
     var field = new Field();
+    field.setFieldIdentifier(1);
     field.setResource(resource);
 
     var fdpSubmissionDetail = new SubmissionDetail();
@@ -75,7 +77,7 @@ class FieldDevelopmentPlanExternalServiceTest {
     when(generalDetailsPersistenceService.getGeneralDetailBySubmissionDetail(fdpaSubmissionDetail))
         .thenReturn(Optional.of(fdpaGeneralDetail));
 
-    assertThat(fieldDevelopmentPlanExternalService.createFdpDtosByFieldIds(Set.of(1))).isEqualTo(List.of(fdpDto));
+    assertThat(fieldDevelopmentPlanExternalService.createFdpDtosByFieldIds(Set.of(1))).isEqualTo(Map.of(1, fdpDto));
   }
 
 }
