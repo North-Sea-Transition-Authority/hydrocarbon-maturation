@@ -72,6 +72,7 @@ public class FieldSnsService {
         .setParentFieldId(parentFieldId)
         .setGeographicalAreaMnemonic(geographicalAreaToMnemonic(geographicalArea))
         .setFieldNumber(fieldNumber)
+        .setPrePearsOrganisationUnitId(field.getPrePearsOrganisationId())
         .build();
 
     snsService.publishMessage(fieldSnsTopicArn, message);

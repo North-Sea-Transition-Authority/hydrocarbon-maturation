@@ -110,12 +110,14 @@ In order to turn on JSON logging, set the profile 'json-logging'. This will auto
 - Some errors/warnings are fine as long as the task was _successful_
 - Then restart the db container
 
-### 6. Add the users and teams
-- Run `teams.sql` followed by `team_roles.sql` found in the `resources/manualscripts/teams` directory.
-
-### 7. Run the app
+### 6. Run the app
 - Create a run configuration for the Spring app and start the application.
 - The application will be running on `localhost:8080/remi/<endpoint>`
+
+### 7. Add the users and teams
+- Run `teams.sql` followed by `team_roles.sql` found in the `resources/manualscripts/teams` directory.
+
+### 8. Login to the app
 - Go to `localhost:8080/remi/work-area` and log in as `administrator@remi.co.uk`
 
 ### 8. Checkstyle

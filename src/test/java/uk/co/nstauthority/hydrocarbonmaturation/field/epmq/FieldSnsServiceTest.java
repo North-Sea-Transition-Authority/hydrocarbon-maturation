@@ -91,6 +91,7 @@ class FieldSnsServiceTest {
         .setParentFieldId(null)
         .setGeographicalAreaMnemonic(null)
         .setFieldNumber(field.getFieldNumber())
+        .setPrePearsOrganisationUnitId(field.getPrePearsOrganisationId())
         .build();
 
     fieldSnsService.publishFieldUpdatedSnsMessage(field);
@@ -131,6 +132,7 @@ class FieldSnsServiceTest {
         .setParentFieldId(parentField.getFieldIdentifier())
         .setGeographicalAreaMnemonic(null)
         .setFieldNumber(parentField.getFieldNumber())
+        .setPrePearsOrganisationUnitId(field.getPrePearsOrganisationId())
         .build();
 
     fieldSnsService.publishFieldUpdatedSnsMessage(field);
@@ -154,6 +156,7 @@ class FieldSnsServiceTest {
     field.setFieldLocatedInEngland(true);
     field.setParentDeterminedField(null);
     field.setFieldNumber(1);
+    field.setPrePearsOrganisationId(120);
 
     return field;
   }
