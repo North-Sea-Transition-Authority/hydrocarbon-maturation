@@ -25,7 +25,7 @@ WITH groupings AS (
         ROW_NUMBER() OVER (
             PARTITION BY s.resource_id
             ORDER BY
-                sd.accepted_timestamp DESC NULLS LAST, -- order the submission by the latest accepted timestamp
+                sd.accepted_timestamp DESC, -- order the submission by the latest accepted timestamp
                 sd.correction_timestamp DESC NULLS LAST, -- also order by correction timestamp as the accepted timestamp may be the same across corrections
                 sd.legacy_res_data_id DESC	-- also order by the PaDI data ID (the latest stage info provided for a resource) in the case that two accepted timestamps are the same
         ) ord
