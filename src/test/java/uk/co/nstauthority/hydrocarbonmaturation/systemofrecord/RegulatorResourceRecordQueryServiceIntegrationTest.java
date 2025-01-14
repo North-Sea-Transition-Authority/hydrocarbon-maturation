@@ -88,7 +88,8 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   void getProspectAndDiscoveryRecordSearchResults_whenOneFullSubmission_assertAllValuesAndOrderIsCorrect() {
     var resource1 = buildProspectResource();
     setUpRegulatorTest();
-    var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT, null);
+    var earlierInstant = Instant.parse("2024-12-02T10:15:30.00Z");
+    var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT, earlierInstant);
     var resourceName1 = "The resource name A";
     var organisationId1 = 46;
     var licenceApplicationReference1 = "RT9";
@@ -109,8 +110,8 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var licence2 = createProspectAndDiscoveryLicence(953, "AL6", generalDetails1);
 
     var resource2 = buildProspectResource();
-    var fixedInstant = Instant.parse("2002-01-11T10:15:30.00Z");
-    var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT, fixedInstant);
+    var laterInstant = Instant.parse("2024-12-03T10:15:30.00Z");
+    var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT, laterInstant);
     var resourceName2 = "The resource name B";
     var organisationId2 = 48;
     var licenceApplicationReference2 = "RT2";
@@ -155,7 +156,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
                 resourceName2,
                 ResourceType.PROSPECT,
                 List.of(licence3.getLicenceId(), licence4.getLicenceId()),
-                fixedInstant,
+                laterInstant,
                 licenceApplicationReference2
             ),
             tuple(
@@ -165,7 +166,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
                 resourceName1,
                 ResourceType.PROSPECT,
                 List.of(licence1.getLicenceId(), licence2.getLicenceId()),
-                null,
+                earlierInstant,
                 licenceApplicationReference1
             )
         );
@@ -178,7 +179,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     var resource1 = buildProspectResource();
     var submission1 =
-        buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT, null);
+        buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT, Instant.now());
     var resourceName1 = "Resource";
     var generalDetail1 = createGeneralDetail(submission1, null);
     createResourceDetail(
@@ -188,7 +189,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     var resource2 = buildDiscoveryResource();
     var submission2 =
-        buildSubmissionDetail(resource2, SubmissionType.CREATE_DISCOVERY, null);
+        buildSubmissionDetail(resource2, SubmissionType.CREATE_DISCOVERY, Instant.now());
     var resourceName2 = "A resource";
     var generalDetail2 = createGeneralDetail(submission2, null);
     createResourceDetail(
@@ -198,7 +199,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     var resource3 = buildProspectResource();
     var submission3 =
-        buildSubmissionDetail(resource3, SubmissionType.CREATE_DISCOVERY, null);
+        buildSubmissionDetail(resource3, SubmissionType.CREATE_DISCOVERY, Instant.now());
     var resourceName3 = "Something else";
     var generalDetail3 = createGeneralDetail(submission3, null);
     createResourceDetail(
@@ -297,7 +298,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   void getProspectAndDiscoveryRecordSearchResults_whenFilteringOnResourceName_assertOnlyFilteredDisplayed() {
     var resource1 = buildProspectResource();
     setUpRegulatorTest();
-    var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT, null);
+    var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT, Instant.now());
     var resourceName1 = "The resource name A";
     var organisationId1 = 46;
     var generalDetails1 = createGeneralDetail(submissionDetail1, null);
@@ -316,7 +317,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var licence2 = createProspectAndDiscoveryLicence(953, "AL6", generalDetails1);
 
     var resource2 = buildProspectResource();
-    var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT, null);
+    var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT, Instant.now());
     var resourceName2 = "The resource name B";
     var organisationId2 = 48;
     var generalDetails2 = createGeneralDetail(submissionDetail2, null);
@@ -366,7 +367,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   void getProspectAndDiscoveryRecordSearchResults_whenFilteringOnResponsibleOrganisation_assertOnlyFilteredDisplayed() {
     setUpRegulatorTest();
     var resource1 = buildProspectResource();
-    var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT, null);
+    var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT, Instant.now());
     var resourceName1 = "The resource name A";
     var organisationId1 = 46;
     var generalDetails1 = createGeneralDetail(submissionDetail1, null);
@@ -385,7 +386,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var licence2 = createProspectAndDiscoveryLicence(953, "AL6", generalDetails1);
 
     var resource2 = buildProspectResource();
-    var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT, null);
+    var submissionDetail2 = buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT, Instant.now());
     var resourceName2 = "The resource name B";
     var organisationId2 = 48;
     var generalDetails2 = createGeneralDetail(submissionDetail2, null);
@@ -435,7 +436,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   void getProspectAndDiscoveryRecordSearchResults_whenFilteringOnResourceType_assertOnlyDiscoveryDisplayed() {
     var resource1 = buildDiscoveryResource();
     setUpRegulatorTest();
-    var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_DISCOVERY, null);
+    var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_DISCOVERY, Instant.now());
     var resourceName1 = "The resource name A";
     var organisationId1 = 46;
     createResourceDetail(submissionDetail1, resourceName1, organisationId1);
@@ -454,7 +455,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var licence2 = createProspectAndDiscoveryLicence(953, "AL6", generalDetails1);
 
     var resource2 = buildProspectResource();
-    buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT, null);
+    buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT, Instant.now());
 
     var form = new SearchResourceRecordsForm();
     form.setResourceTypes(List.of(ResourceType.DISCOVERY.name()));
@@ -486,7 +487,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   void getProspectAndDiscoveryRecordSearchResults_whenFilteringOnResourceType_assertOnlyProspectDisplayed() {
     var resource1 = buildProspectResource();
     setUpRegulatorTest();
-    var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT, null);
+    var submissionDetail1 = buildSubmissionDetail(resource1, SubmissionType.CREATE_PROSPECT, Instant.now());
     var resourceName1 = "The resource name A";
     var organisationId1 = 46;
     createResourceDetail(submissionDetail1, resourceName1, organisationId1);
@@ -505,7 +506,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var licence2 = createProspectAndDiscoveryLicence(953, "AL6", generalDetails1);
 
     var resource2 = buildDiscoveryResource();
-    buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT, null);
+    buildSubmissionDetail(resource2, SubmissionType.CREATE_PROSPECT, Instant.now());
     var form = new SearchResourceRecordsForm();
     form.setResourceTypes(List.of(ResourceType.PROSPECT.name()));
     form.setOpportunityTypes(List.of("NOT_SET"));
@@ -538,14 +539,14 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     setUpRegulatorTest();
     var discoveryResource = buildDiscoveryResource();
 
-    var discoverySubmission = buildSubmissionDetail(discoveryResource, SubmissionType.CREATE_DISCOVERY, null);
+    var discoverySubmission = buildSubmissionDetail(discoveryResource, SubmissionType.CREATE_DISCOVERY, Instant.now());
     createResourceDetail(
         discoverySubmission, "NOT_RELEVANT_NAME", 1);
     createGeneralDetail(discoverySubmission, null);
 
     var prospectResource = buildProspectResource();
 
-    var prospectSubmission = buildSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT, null);
+    var prospectSubmission = buildSubmissionDetail(prospectResource, SubmissionType.CREATE_PROSPECT, Instant.now());
     createResourceDetail(
         prospectSubmission, "NOT_RELEVANT_NAME", 2);
 
@@ -579,7 +580,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   void getProspectAndDiscoveryRecordSearchResults_whenFilteringOnQuadAndBlock_assertOnlyFilteredDisplayed() {
     setUpRegulatorTest();
     var resourceMatchingFilter = buildProspectResource();
-    var submissionMatchingFilter = buildSubmissionDetail(resourceMatchingFilter, SubmissionType.CREATE_PROSPECT, null);
+    var submissionMatchingFilter = buildSubmissionDetail(resourceMatchingFilter, SubmissionType.CREATE_PROSPECT, Instant.now());
     var resourceNameForMatchingFilter = "The resource name A";
     var generalDetailsMatchingFilter = createGeneralDetail(submissionMatchingFilter, null);
     createResourceDetail(submissionMatchingFilter, resourceNameForMatchingFilter, 1);
@@ -596,7 +597,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     var resourceNotMatchingFilter = buildProspectResource();
     var submissionNotMatchingFilter = buildSubmissionDetail(resourceNotMatchingFilter, SubmissionType.CREATE_PROSPECT,
-        null);
+        Instant.now());
     var generalDetailsNotMatchingFilter = createGeneralDetail(submissionNotMatchingFilter, null);
     createResourceDetail(submissionNotMatchingFilter, "NOT_RELEVANT", 1);
     var quadrantBlockNotMatchingFilter = "50/11";
@@ -638,13 +639,13 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     setUpRegulatorTest();
     var resourceWithWrongLicences = buildProspectResource();
     var submissionWithWrongLicences = buildSubmissionDetail(resourceWithWrongLicences, SubmissionType.CREATE_PROSPECT,
-        null);
+        Instant.now());
     var generalDetailsWithWrongLicences = createGeneralDetail(submissionWithWrongLicences, null);
     createResourceDetail(submissionWithWrongLicences, "NOT_RELEVANT_NAME", 46);
     createProspectAndDiscoveryLicence(951, "AL10", generalDetailsWithWrongLicences);
 
     var resourceRightLicence = buildProspectResource();
-    var submissionWithRightLicence = buildSubmissionDetail(resourceRightLicence, SubmissionType.CREATE_PROSPECT, null);
+    var submissionWithRightLicence = buildSubmissionDetail(resourceRightLicence, SubmissionType.CREATE_PROSPECT, Instant.now());
     var generalDetailWithRightLicence = createGeneralDetail(submissionWithRightLicence, null);
     createResourceDetail(submissionWithRightLicence, "NOT_RELEVANT_NAME", 1);
 
@@ -680,14 +681,14 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     setUpRegulatorTest();
     var resourceWithNotMatchingOpportunityType = buildProspectResource();
     var submissionWithNotMatchingOpportunityType =
-        buildSubmissionDetail(resourceWithNotMatchingOpportunityType, SubmissionType.CREATE_PROSPECT, null);
+        buildSubmissionDetail(resourceWithNotMatchingOpportunityType, SubmissionType.CREATE_PROSPECT, Instant.now());
 
     createGeneralDetail(submissionWithNotMatchingOpportunityType, null);
     createResourceDetail(submissionWithNotMatchingOpportunityType, "NOT_RELEVANT_NAME", 1);
 
     var resourceWithMatchingOpportunityType = buildProspectResource();
     var submissionWithMatchingOpportunityType =
-        buildSubmissionDetail(resourceWithMatchingOpportunityType, SubmissionType.CREATE_PROSPECT, null);
+        buildSubmissionDetail(resourceWithMatchingOpportunityType, SubmissionType.CREATE_PROSPECT, Instant.now());
     createGeneralDetail(submissionWithMatchingOpportunityType, null);
     createResourceDetail(submissionWithMatchingOpportunityType, "NOT_RELEVANT_NAME", 2);
 
@@ -717,14 +718,14 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     setUpRegulatorTest();
     var discoveryWithDiscoveryOpportunityType = buildDiscoveryResource();
     var submissionWithDiscoveryOpportunityType =
-        buildSubmissionDetail(discoveryWithDiscoveryOpportunityType, SubmissionType.CREATE_DISCOVERY, null);
+        buildSubmissionDetail(discoveryWithDiscoveryOpportunityType, SubmissionType.CREATE_DISCOVERY, Instant.now());
 
     createGeneralDetail(submissionWithDiscoveryOpportunityType, null);
     createResourceDetail(submissionWithDiscoveryOpportunityType, "NOT_RELEVANT_NAME", 1);
 
     var prospectWithLeadOpportunityType = buildProspectResource();
     var submissionWithLeadOpportunityType =
-        buildSubmissionDetail(prospectWithLeadOpportunityType, SubmissionType.CREATE_PROSPECT, null);
+        buildSubmissionDetail(prospectWithLeadOpportunityType, SubmissionType.CREATE_PROSPECT, Instant.now());
     createGeneralDetail(submissionWithLeadOpportunityType, null);
     createResourceDetail(submissionWithLeadOpportunityType, "NOT_RELEVANT_NAME", 2);
 
@@ -761,7 +762,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     var otherResourceSubmissionMatchingFiltersWithLinkedResource = buildProspectResource();
     var otherSubmissionMatchingFiltersWithLinkedResource = buildSubmissionDetail(
-        otherResourceSubmissionMatchingFiltersWithLinkedResource, SubmissionType.CREATE_PROSPECT, null);
+        otherResourceSubmissionMatchingFiltersWithLinkedResource, SubmissionType.CREATE_PROSPECT, Instant.now());
     createResourceDetail(otherSubmissionMatchingFiltersWithLinkedResource, "NOT_RELEVANT_NAME", 3);
 
     var linkedDiscovery = buildDiscoveryResource();
@@ -787,11 +788,11 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     setUpRegulatorTest();
     var prospectResourceWithNoLink = buildProspectResource();
     var submissionWithNoLinkedDiscovery = buildSubmissionDetail(
-        prospectResourceWithNoLink, SubmissionType.CREATE_PROSPECT, null);
+        prospectResourceWithNoLink, SubmissionType.CREATE_PROSPECT, Instant.now());
     createResourceDetail(submissionWithNoLinkedDiscovery, "NOT_RELEVANT_NAME", 1);
     var prospectWithLinkedDiscovery = buildProspectResource();
     var submissionWithLinkedDiscovery =
-        buildSubmissionDetail(prospectWithLinkedDiscovery, SubmissionType.CREATE_PROSPECT, null);
+        buildSubmissionDetail(prospectWithLinkedDiscovery, SubmissionType.CREATE_PROSPECT, Instant.now());
     createResourceDetail(submissionWithLinkedDiscovery, "NOT_RELEVANT_NAME", 2);
 
     var linkedDiscoveryResource = buildDiscoveryResource();
@@ -825,7 +826,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     setUpRegulatorTest();
     var discoveryWithLinkedProspect = buildDiscoveryResource();
     var submissionWithLinkedProspect = buildSubmissionDetail(discoveryWithLinkedProspect,
-        SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT, null);
+        SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT, Instant.now());
     createResourceDetail(submissionWithLinkedProspect, "NOT_RELEVANT_NAME", 1);
 
     var linkedProspectResource = buildProspectResource();
@@ -857,9 +858,9 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var resourceWithMatchingLicenceApplication  = buildDiscoveryResource();
     var resourceNotMatchingLicenceApplication = buildDiscoveryResource();
     var submissionMatchingFilter = buildSubmissionDetail(resourceWithMatchingLicenceApplication ,
-        SubmissionType.CREATE_DISCOVERY, null);
+        SubmissionType.CREATE_DISCOVERY, Instant.now());
     var submissionNotMatchingFilter = buildSubmissionDetail(resourceNotMatchingLicenceApplication,
-        SubmissionType.CREATE_DISCOVERY, null);
+        SubmissionType.CREATE_DISCOVERY, Instant.now());
     var matchingFilterLicenceRound = "LICENCE_ROUND_9000";
     var matchingFilterGeneralDetail = createGeneralDetail(submissionMatchingFilter, null);
     var notMatchingFilterRound = "COOL_LICENCE";
@@ -896,7 +897,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     setUpRegulatorTest();
     var resourceNotMatchingLicenceApplication = buildDiscoveryResource();
     var submissionNotMatchingLicenceApplication = buildSubmissionDetail(resourceNotMatchingLicenceApplication,
-        SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT, null);
+        SubmissionType.CREATE_DISCOVERY_FROM_PROSPECT, Instant.now());
     var notMatchingFilterLicenceApplication = "LICENCE_ROUND_9000";
     createResourceDetail(submissionNotMatchingLicenceApplication, "NOT_RELEVANT", 1);
     var generalDetailNotMatchingLicenceApp = createGeneralDetail(submissionNotMatchingLicenceApplication, null);
@@ -919,10 +920,12 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     setUpRegulatorTest();
 
     var resourceWithTwoLicenceRounds = buildProspectResource();
+    var earlierInstant = Instant.parse("2024-12-02T10:15:30.00Z");
     var firstSubmission = buildSubmissionDetail(resourceWithTwoLicenceRounds,
-        SubmissionType.CREATE_PROSPECT, null);
+        SubmissionType.CREATE_PROSPECT, earlierInstant);
+    var laterInstant = Instant.parse("2024-12-03T10:15:30.00Z");
     var latestSubmission = buildSubmissionDetail(resourceWithTwoLicenceRounds,
-        SubmissionType.PROSPECT_UPDATE, null);
+        SubmissionType.PROSPECT_UPDATE, laterInstant);
 
     //ensures the test is deterministic, latest submission is always later than first submission
     latestSubmission.setAcceptedTimestamp(Instant.now().plus(500000, ChronoUnit.MILLIS));
@@ -963,10 +966,12 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   void getProspectAndDiscoveryRecordSearchResults_whenFilterOnLicenceRound_whenLicenceRoundOnNewerDraftSubmission_assertNoResult() {
     setUpRegulatorTest();
     var resourceWithLicenceApplications = buildProspectResource();
+    var earlierInstant = Instant.parse("2024-12-03T10:15:30.00Z");
     var approvedSubmission = buildSubmissionDetail(resourceWithLicenceApplications,
-        SubmissionType.CREATE_PROSPECT, null);
+        SubmissionType.CREATE_PROSPECT, earlierInstant);
+    var laterInstant = Instant.parse("2024-12-03T10:15:30.00Z");
     var draftSubmission = buildSubmissionDetail(resourceWithLicenceApplications,
-        SubmissionType.PROSPECT_UPDATE, null);
+        SubmissionType.PROSPECT_UPDATE, laterInstant);
     draftSubmission.setStatus(SubmissionDetailStatus.DRAFT);
     var approvedLicencelicenceApplicationReference = "FIRST_LICENCE";
     var draftLicencelicenceApplicationReferenceMatchingFilter = "SECOND_LICENCE";
@@ -992,14 +997,14 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     var resourceWithoutLicence = buildProspectResource();
     var submissionWithoutExtantLicence =
-        buildSubmissionDetail(resourceWithoutLicence, SubmissionType.CREATE_PROSPECT, null);
+        buildSubmissionDetail(resourceWithoutLicence, SubmissionType.CREATE_PROSPECT, Instant.now());
     createGeneralDetail(submissionWithoutExtantLicence, null);
     createResourceDetail(
         submissionWithoutExtantLicence, "Not relevant name", 1);
 
     var resourceWithNotExtantLicence = buildProspectResource();
     var submissionWithNotExtantLicence =
-        buildSubmissionDetail(resourceWithNotExtantLicence, SubmissionType.CREATE_PROSPECT, null);
+        buildSubmissionDetail(resourceWithNotExtantLicence, SubmissionType.CREATE_PROSPECT, Instant.now());
     var nonExtantLicenceId = 2;
     var generalDetailWithNonExtantLicence = createGeneralDetail(submissionWithNotExtantLicence, null);
     createResourceDetail(
@@ -1034,7 +1039,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     var resourceWithGeographicalArea = buildProspectResource();
     var submissionWithGeographicalArea =
-        buildSubmissionDetail(resourceWithGeographicalArea, SubmissionType.CREATE_PROSPECT, null);
+        buildSubmissionDetail(resourceWithGeographicalArea, SubmissionType.CREATE_PROSPECT, Instant.now());
     buildRegulatorManagedInformation(resourceWithGeographicalArea, geographicalArea);
     createGeneralDetail(submissionWithGeographicalArea, null);
     createResourceDetail(
@@ -1043,7 +1048,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var resourceWithOnshoreGeographicalArea = buildProspectResource();
     buildRegulatorManagedInformation(resourceWithOnshoreGeographicalArea, GeographicalArea.ONSHORE);
     var submissionWithOnshoreGeographicalArea =
-        buildSubmissionDetail(resourceWithOnshoreGeographicalArea, SubmissionType.CREATE_PROSPECT, null);
+        buildSubmissionDetail(resourceWithOnshoreGeographicalArea, SubmissionType.CREATE_PROSPECT, Instant.now());
     createGeneralDetail(submissionWithOnshoreGeographicalArea, null);
     createResourceDetail(
         submissionWithOnshoreGeographicalArea, "Not relevant name", 2);
@@ -1051,7 +1056,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var resourceWithNoGeographicalArea = buildProspectResource();
     buildRegulatorManagedInformation(resourceWithOnshoreGeographicalArea, null);
     var submissionWithNosGeographicalArea =
-        buildSubmissionDetail(resourceWithNoGeographicalArea, SubmissionType.CREATE_PROSPECT, null);
+        buildSubmissionDetail(resourceWithNoGeographicalArea, SubmissionType.CREATE_PROSPECT, Instant.now());
     createGeneralDetail(submissionWithNosGeographicalArea, null);
     createResourceDetail(
         submissionWithNosGeographicalArea, "Not relevant name", 2);
@@ -1086,7 +1091,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     var preferredViewResource = buildProspectResource();
     var preferredViewSubmissionDetail =
-        buildSubmissionDetail(preferredViewResource, SubmissionType.CREATE_PROSPECT, null);
+        buildSubmissionDetail(preferredViewResource, SubmissionType.CREATE_PROSPECT, Instant.now());
     createGeneralDetail(preferredViewSubmissionDetail, null);
     buildResourceGroupLink(true, preferredViewResource);
 
@@ -1095,7 +1100,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     var nonPreferredViewResource = buildProspectResource();
     var nonPreferredSubmissionDetail =
-        buildSubmissionDetail(nonPreferredViewResource, SubmissionType.CREATE_PROSPECT, null);
+        buildSubmissionDetail(nonPreferredViewResource, SubmissionType.CREATE_PROSPECT, Instant.now());
     buildResourceGroupLink(false, nonPreferredViewResource);
     createGeneralDetail(nonPreferredSubmissionDetail, null);
     createResourceDetail(
@@ -1129,7 +1134,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     var preferredViewResource = buildProspectResource();
     var preferredViewSubmissionDetail =
-        buildSubmissionDetail(preferredViewResource, SubmissionType.CREATE_PROSPECT, null);
+        buildSubmissionDetail(preferredViewResource, SubmissionType.CREATE_PROSPECT, Instant.now());
     createGeneralDetail(preferredViewSubmissionDetail, null);
     createResourceDetail(
         preferredViewSubmissionDetail, "Not relevant name", 1);
@@ -1153,8 +1158,9 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     var prospect = buildProspectResource();
     var submission = SubmissionIntegrationTestUtils.createSubmission(prospect, entityManager);
 
+    var initialInstant = Instant.parse("2024-12-01T10:15:30.00Z");
     var submissionDetailInitial =
-        buildSubmissionDetail(prospect, SubmissionType.CREATE_PROSPECT, null);
+        buildSubmissionDetail(prospect, SubmissionType.CREATE_PROSPECT, initialInstant);
     submissionDetailInitial.setVersionNumber(1);
     submissionDetailInitial.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetailInitial.setSubmission(submission);
@@ -1164,8 +1170,9 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     entityManager.persist(submissionDetailInitial);
     entityManager.flush();
 
+    var updateInstant = Instant.parse("2024-12-02T10:15:30.00Z");
     var submissionDetailSubmittedUpdate =
-        buildSubmissionDetail(prospect, SubmissionType.CREATE_PROSPECT, null);
+        buildSubmissionDetail(prospect, SubmissionType.CREATE_PROSPECT, updateInstant);
     submissionDetailSubmittedUpdate.setVersionNumber(2);
     submissionDetailSubmittedUpdate.setStatus(SubmissionDetailStatus.SUBMITTED);
     submissionDetailSubmittedUpdate.setSubmission(submission);
@@ -1175,8 +1182,9 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     createResourceDetail(
         submissionDetailSubmittedUpdate, "Not relevant name", 1);
 
+    var latestApprovedInstant = Instant.parse("2024-12-03T10:15:30.00Z");
     var submissionDetailApprovedUpdate =
-        buildSubmissionDetail(prospect, SubmissionType.CREATE_PROSPECT, null);
+        buildSubmissionDetail(prospect, SubmissionType.CREATE_PROSPECT, latestApprovedInstant);
     submissionDetailApprovedUpdate.setVersionNumber(3);
     submissionDetailApprovedUpdate.setStatus(SubmissionDetailStatus.ACCEPTED);
     submissionDetailApprovedUpdate.setSubmission(submission);
@@ -1186,8 +1194,9 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     createResourceDetail(
         submissionDetailApprovedUpdate, "Not relevant name", 1);
 
+    var draftInstant = Instant.parse("2024-12-03T10:15:30.00Z");
     var deletedDraftUpdate =
-        buildSubmissionDetail(prospect, SubmissionType.CREATE_PROSPECT, null);
+        buildSubmissionDetail(prospect, SubmissionType.CREATE_PROSPECT, draftInstant);
     deletedDraftUpdate.setVersionNumber(4);
     deletedDraftUpdate.setStatus(SubmissionDetailStatus.DELETED);
     deletedDraftUpdate.setSubmission(submission);
@@ -1220,7 +1229,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     }
     var resourceWithWithdrawnSubmission = buildDiscoveryResource();
     var submissionDetailWithWithdrawnSubmission =
-        buildSubmissionDetail(resourceWithWithdrawnSubmission, SubmissionType.CREATE_DISCOVERY, null);
+        buildSubmissionDetail(resourceWithWithdrawnSubmission, SubmissionType.CREATE_DISCOVERY, Instant.now());
     var withdrawnSubmission =
         SubmissionIntegrationTestUtils.createSubmission(resourceWithWithdrawnSubmission, withdrawn, entityManager);
     submissionDetailWithWithdrawnSubmission.setSubmission(withdrawnSubmission);
@@ -1255,7 +1264,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     var archivedResource = buildArchivedProspectResource();
     var archivedSubmissionDetail =
-            buildSubmissionDetail(archivedResource, SubmissionType.CREATE_PROSPECT, null);
+            buildSubmissionDetail(archivedResource, SubmissionType.CREATE_PROSPECT, Instant.now());
     createGeneralDetail(archivedSubmissionDetail, null);
     buildResourceGroupLink(true, archivedResource);
 
@@ -1263,7 +1272,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     var nonArchivedResource = buildProspectResource();
     var nonArchivedSubmissionDetail =
-            buildSubmissionDetail(nonArchivedResource, SubmissionType.CREATE_PROSPECT, null);
+            buildSubmissionDetail(nonArchivedResource, SubmissionType.CREATE_PROSPECT, Instant.now());
     buildResourceGroupLink(true, nonArchivedResource);
     createGeneralDetail(nonArchivedSubmissionDetail, null);
     createResourceDetail(nonArchivedSubmissionDetail, "Not relevant name", 2);
@@ -1286,7 +1295,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     var archivedResource = buildArchivedProspectResource();
     var archivedSubmissionDetail =
-            buildSubmissionDetail(archivedResource, SubmissionType.CREATE_PROSPECT, null);
+            buildSubmissionDetail(archivedResource, SubmissionType.CREATE_PROSPECT, Instant.now());
     createGeneralDetail(archivedSubmissionDetail, null);
     buildResourceGroupLink(true, archivedResource);
 
@@ -1294,7 +1303,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     var nonArchivedResource = buildProspectResource();
     var nonArchivedSubmissionDetail =
-            buildSubmissionDetail(nonArchivedResource, SubmissionType.CREATE_PROSPECT, null);
+            buildSubmissionDetail(nonArchivedResource, SubmissionType.CREATE_PROSPECT, Instant.now());
     buildResourceGroupLink(true, nonArchivedResource);
     createGeneralDetail(nonArchivedSubmissionDetail, null);
     createResourceDetail(nonArchivedSubmissionDetail, "Not relevant name", 2);
@@ -1318,7 +1327,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     var responsibleOrgId1 = 45;
     var resource1 = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
-    buildSubmissionDetail(resource1, SubmissionType.CREATE_CSR, null);
+    buildSubmissionDetail(resource1, SubmissionType.CREATE_CSR, Instant.now());
     var resourceName1 = "Field A";
     var regulatorManagedInformation1 = SubmissionIntegrationTestUtils
         .createRegulatorManagedInformation(resource1, ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
@@ -1330,7 +1339,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
 
     var responsibleOrgId2 = 46;
     var resource2 =  SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
-    buildSubmissionDetail(resource2, SubmissionType.CREATE_CSR, null);
+    buildSubmissionDetail(resource2, SubmissionType.CREATE_CSR, Instant.now());
     var resourceName2 = "Field B";
     var regulatorManagedInformation2 = SubmissionIntegrationTestUtils
         .createRegulatorManagedInformation(resource2, ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
@@ -1434,7 +1443,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
   private void buildFieldResultWithFieldName(String fieldName, int organisationUnitIdUserIsInGroupFor) {
     var resource = SubmissionIntegrationTestUtils.createResource(entityManager, ResourceType.FIELD);
     var submission =
-        buildSubmissionDetail(resource, SubmissionType.CREATE_CSR, null);
+        buildSubmissionDetail(resource, SubmissionType.CREATE_CSR, Instant.now());
     var generalDetail = createGeneralDetail(submission, null);
     SubmissionIntegrationTestUtils.createRegulatorManagedInformation(resource,
         ResponsibleTeamType.NORTHERN_NORTH_SEA_WEST_OF_SHETLAND, GeographicalArea.NORTHERN_NORTH_SEA, entityManager);
