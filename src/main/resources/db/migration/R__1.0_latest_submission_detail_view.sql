@@ -6,8 +6,11 @@ CREATE VIEW latest_submission_detail_reporting_view AS
 WITH groupings AS (
     SELECT
         s.resource_id,
+        r.type,
         sd.id submission_detail_id,
-        CASE WHEN s.resource_id IN ( -- it is a preferred view in a group
+        CASE
+            WHEN r.type = 'FIELD' THEN NULL
+            WHEN s.resource_id IN ( -- it is a preferred view in a group
             SELECT rgl.resource_id
             FROM remi.resource_group_links rgl
             WHERE rgl.preferred_view = TRUE
@@ -20,6 +23,7 @@ WITH groupings AS (
         END pref_view,
         CASE WHEN rgl.resource_group_id IS NOT NULL
             THEN TRUE
+             WHEN r.type = 'FIELD' THEN NULL
             ELSE FALSE
         END in_resource_group, -- an additional helper flag to know if the resource is in a group
         ROW_NUMBER() OVER (
@@ -29,7 +33,8 @@ WITH groupings AS (
                 sd.correction_timestamp DESC NULLS LAST, -- also order by correction timestamp as the accepted timestamp may be the same across corrections
                 sd.legacy_res_data_id DESC	-- also order by the PaDI data ID (the latest stage info provided for a resource) in the case that two accepted timestamps are the same
         ) ord
-    FROM remi.submissions s
+    FROM remi.resources r
+    JOIN remi.submissions s ON s.resource_id = r.id
     JOIN remi.submission_details sd ON sd.submission_id = s.id
     LEFT JOIN remi.resource_group_links rgl ON rgl.resource_id = s.resource_id
     WHERE sd.status = 'ACCEPTED' -- only care about accepted submissions for reporting
@@ -37,6 +42,7 @@ WITH groupings AS (
 )
 SELECT
     g.resource_id, -- the overall resource id
+    g.type,
     g.submission_detail_id latest_submission_detail_id, -- the latest submission detail id for the resource
     g.pref_view preferred_view, -- true/false
     g.in_resource_group -- true/false
