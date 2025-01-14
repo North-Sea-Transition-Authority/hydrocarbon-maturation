@@ -27,7 +27,7 @@ WITH groupings AS (
             ORDER BY
                 sd.accepted_timestamp DESC NULLS LAST, -- order the submission by the latest accepted timestamp
                 sd.correction_timestamp DESC NULLS LAST, -- also order by correction timestamp as the accepted timestamp may be the same across corrections
-                sd.legacy_res_data_id DESC	-- also order by the PaDI data ID (the latest stage info provided for a resource) in the case that two accepted timestamps are the same
+                sd.legacy_res_data_id DESC NULLS LAST	-- also order by the PaDI data ID (the latest stage info provided for a resource) in the case that two accepted timestamps are the same
         ) ord
     FROM remi.submissions s
     JOIN remi.submission_details sd ON sd.submission_id = s.id
