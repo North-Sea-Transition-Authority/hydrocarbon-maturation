@@ -82,7 +82,7 @@ class SubmissionDetailServiceTest {
   @Test
   void getLatestApprovedDiscoverySubmissionDetailForResource_assertReturn() {
     var resource = new Resource();
-    when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(
+    when(submissionDetailRepository.findLatestForSubmissionsBySubmissionTypesAndStatusOrderedByAcceptedTimestamp(
         submissionList,
         List.of(
             SubmissionType.CREATE_DISCOVERY,
@@ -104,7 +104,7 @@ class SubmissionDetailServiceTest {
     when(submissionPersistenceService.getSubmissionsByResource(resource))
         .thenReturn(submissionList);
     when(submissionDetailRepository
-        .findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(submissionList,
+        .findLatestForSubmissionsBySubmissionTypesAndStatusOrderedByAcceptedTimestamp(submissionList,
             List.of(SubmissionType.PROSPECT_UPDATE, SubmissionType.CREATE_PROSPECT),
             SubmissionDetailStatus.ACCEPTED))
         .thenReturn(Optional.of(latestApprovedSubmissionDetail));
@@ -118,7 +118,7 @@ class SubmissionDetailServiceTest {
   void isLatestSubmissionForResourceRelinquishment_whenReturnedSubmissionDetail_assertTrue() {
     when(submissionPersistenceService.getSubmissionsByResource(submissionDetail.getSubmission().getResource()))
         .thenReturn(submissionList);
-    when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
+    when(submissionDetailRepository.findLatestForSubmissionsBySubmissionTypesAndStatusesOrderedBySubmittedTimestamp(
         submissionList,
         List.of(SubmissionType.RELINQUISHMENT_DISCOVERY, SubmissionType.RELINQUISHMENT_PROSPECT),
         List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)))
@@ -132,7 +132,7 @@ class SubmissionDetailServiceTest {
   void isLatestSubmissionForResourceRelinquishment_whenNotReturnedSubmissionDetail_assertFalse() {
     when(submissionPersistenceService.getSubmissionsByResource(submissionDetail.getSubmission().getResource()))
         .thenReturn(submissionList);
-    when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
+    when(submissionDetailRepository.findLatestForSubmissionsBySubmissionTypesAndStatusesOrderedBySubmittedTimestamp(
         submissionList,
         List.of(SubmissionType.RELINQUISHMENT_DISCOVERY, SubmissionType.RELINQUISHMENT_PROSPECT),
         List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)))
@@ -146,7 +146,7 @@ class SubmissionDetailServiceTest {
   void getLatestApprovedSubmissionDetailForResource_assertEmpty() {
     when(submissionPersistenceService.getSubmissionsByResource(submissionDetail.getSubmission().getResource()))
         .thenReturn(submissionList);
-    when(submissionDetailRepository.findFirstBySubmissionInAndStatusOrderByAcceptedTimestampDesc(
+    when(submissionDetailRepository.findLatestForSubmissionsByStatusOrderedByAcceptedTimestamp(
         submissionList,
         SubmissionDetailStatus.ACCEPTED
     )).thenReturn(Optional.empty());
@@ -160,7 +160,7 @@ class SubmissionDetailServiceTest {
   void getLatestApprovedSubmissionDetailForResource_assertReturn() {
     when(submissionPersistenceService.getSubmissionsByResource(submissionDetail.getSubmission().getResource()))
         .thenReturn(submissionList);
-    when(submissionDetailRepository.findFirstBySubmissionInAndStatusOrderByAcceptedTimestampDesc(
+    when(submissionDetailRepository.findLatestForSubmissionsByStatusOrderedByAcceptedTimestamp(
         submissionList,
         SubmissionDetailStatus.ACCEPTED
     )).thenReturn(Optional.of(submissionDetail));
@@ -175,7 +175,7 @@ class SubmissionDetailServiceTest {
     var submissionTypes = List.of(SubmissionType.CREATE_DISCOVERY, SubmissionType.RELINQUISHMENT_DISCOVERY);
     when(submissionPersistenceService.getSubmissionsByResource(submissionDetail.getSubmission().getResource()))
         .thenReturn(submissionList);
-    when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(
+    when(submissionDetailRepository.findLatestForSubmissionsBySubmissionTypesAndStatusOrderedByAcceptedTimestamp(
         submissionList,
         submissionTypes,
         SubmissionDetailStatus.ACCEPTED
@@ -191,7 +191,7 @@ class SubmissionDetailServiceTest {
     var submissionTypes = List.of(SubmissionType.CREATE_DISCOVERY, SubmissionType.RELINQUISHMENT_DISCOVERY);
     when(submissionPersistenceService.getSubmissionsByResource(submissionDetail.getSubmission().getResource()))
         .thenReturn(submissionList);
-    when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(
+    when(submissionDetailRepository.findLatestForSubmissionsBySubmissionTypesAndStatusOrderedByAcceptedTimestamp(
         submissionList,
         submissionTypes,
         SubmissionDetailStatus.ACCEPTED
@@ -400,7 +400,7 @@ class SubmissionDetailServiceTest {
     List<Submission> submissions = List.of();
     when(submissionPersistenceService.getSubmissionsByResource(resource))
         .thenReturn(submissions);
-    when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
+    when(submissionDetailRepository.findLatestForSubmissionsBySubmissionTypesAndStatusesOrderedBySubmittedTimestamp(
         submissions,
         SubmissionType.getSubmissionTypesForResourceType(resource.getType()),
         List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)
@@ -421,7 +421,7 @@ class SubmissionDetailServiceTest {
         .thenReturn(submissions);
 
     var mostRecentSubmissionDetail = new SubmissionDetail();
-    when(submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
+    when(submissionDetailRepository.findLatestForSubmissionsBySubmissionTypesAndStatusesOrderedBySubmittedTimestamp(
         submissions,
         SubmissionType.getSubmissionTypesForResourceType(resource.getType()),
         List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)

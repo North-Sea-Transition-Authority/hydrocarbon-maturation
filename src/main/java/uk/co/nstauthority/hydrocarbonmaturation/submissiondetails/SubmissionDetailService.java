@@ -55,7 +55,7 @@ public class SubmissionDetailService {
 
   public Optional<SubmissionDetail> getLatestApprovedProspectSubmissionForResource(Resource resource) {
     // Finds the latest prospect update or create update submission that is approved.
-    return submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(
+    return submissionDetailRepository.findLatestForSubmissionsBySubmissionTypesAndStatusOrderedByAcceptedTimestamp(
         submissionPersistenceService.getSubmissionsByResource(resource),
         List.of(SubmissionType.PROSPECT_UPDATE, SubmissionType.CREATE_PROSPECT),
         SubmissionDetailStatus.ACCEPTED
@@ -65,7 +65,7 @@ public class SubmissionDetailService {
   public Optional<SubmissionDetail> getLatestApprovedDiscoverySubmissionDetailForResource(Resource resource) {
     // Finds the latest approved discovery (update or create) submission that is approved for the resource.
     return submissionDetailRepository
-        .findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(
+        .findLatestForSubmissionsBySubmissionTypesAndStatusOrderedByAcceptedTimestamp(
             submissionPersistenceService.getSubmissionsByResource(resource),
             List.of(
                 SubmissionType.CREATE_DISCOVERY,
@@ -76,7 +76,7 @@ public class SubmissionDetailService {
 
   public Optional<SubmissionDetail> getLatestApprovedSubmissionDetailForResource(Resource resource) {
     return submissionDetailRepository
-        .findFirstBySubmissionInAndStatusOrderByAcceptedTimestampDesc(
+        .findLatestForSubmissionsByStatusOrderedByAcceptedTimestamp(
             submissionPersistenceService.getSubmissionsByResource(resource),
             SubmissionDetailStatus.ACCEPTED);
   }
@@ -85,7 +85,7 @@ public class SubmissionDetailService {
       Resource resource,
       List<SubmissionType> submissionTypes) {
     return submissionDetailRepository
-        .findFirstBySubmissionInAndSubmissionTypeInAndStatusOrderByAcceptedTimestampDesc(
+        .findLatestForSubmissionsBySubmissionTypesAndStatusOrderedByAcceptedTimestamp(
             submissionPersistenceService.getSubmissionsByResource(resource),
             submissionTypes,
             SubmissionDetailStatus.ACCEPTED);
@@ -243,7 +243,7 @@ public class SubmissionDetailService {
   private Optional<SubmissionDetail> getMostRecentlySubmittedDetailForResourceWithSubmissionTypes(
       Resource resource,
       List<SubmissionType> submissionTypes) {
-    return submissionDetailRepository.findFirstBySubmissionInAndSubmissionTypeInAndStatusInOrderBySubmittedTimestampDesc(
+    return submissionDetailRepository.findLatestForSubmissionsBySubmissionTypesAndStatusesOrderedBySubmittedTimestamp(
         submissionPersistenceService.getSubmissionsByResource(resource),
         submissionTypes,
         List.of(SubmissionDetailStatus.ACCEPTED, SubmissionDetailStatus.SUBMITTED)
