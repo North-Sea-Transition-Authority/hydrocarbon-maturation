@@ -168,7 +168,7 @@ public class ShapefileMigrationService {
       var documentType = outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail);
       var resourceName = resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail)
           .map(ResourceDetail::getResourceName).orElse(fileName);
-      var fileNameForSubmission = "Outline for maximum case for %s".formatted(resourceName);
+      var fileNameForSubmission = "Outline for maximum case for %s.zip".formatted(resourceName);
       var multipartFileInputStream =
           new MultipartFileInputStream(fileNameForSubmission, SHAPEFILE_ZIP_CONTENT_TYPE, fileSize, shapefileZipInputStream);
 
@@ -191,7 +191,9 @@ public class ShapefileMigrationService {
 
       var uploadedFile = fileService.find(fileUploadResponse.getFileId()).orElseThrow(() ->
           new IllegalStateException("Uploaded file not found for submission detail %s".formatted(submissionDetail.getId())));
-      uploadedFile.setDescription(fileNameForSubmission);
+
+      var fileDescription = "Outline for maximum case for %s".formatted(resourceName);
+      uploadedFile.setDescription(fileDescription);
 
 
       var geoJson = shapefileConversionService.getGeoJsonFromShapefileZip(shapefileZipContents);
