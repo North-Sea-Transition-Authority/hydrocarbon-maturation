@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -42,12 +43,14 @@ class FieldDevelopmentPlanExternalControllerTest extends RealSecurityAbstractCon
         "FDPA Title"
     );
 
-    var fdpDtos = List.of(
+    var fdpDtos = Map.of(
+        1,
         new FieldDevelopmentPlanExternalDto(
             LocalDate.of(2024, 1, 1),
             "FDP Title 1",
             List.of(fdpaDto)
         ),
+        2,
         new FieldDevelopmentPlanExternalDto(
             LocalDate.of(2024, 1, 1),
             "FDP Title 2",

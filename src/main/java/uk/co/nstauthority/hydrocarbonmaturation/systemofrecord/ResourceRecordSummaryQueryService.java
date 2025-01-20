@@ -57,8 +57,8 @@ class ResourceRecordSummaryQueryService {
             REGULATOR_MANAGED_INFORMATION.RESPONSIBLE_TEAM,
             coalesce(
                 DSL.arrayAggDistinct(GENERAL_DETAILS_LICENCES.LICENCE_ID)
-                .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
-                .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
+                    .orderBy(GENERAL_DETAILS_LICENCES.LICENCE_ID)
+                    .filterWhere(GENERAL_DETAILS_LICENCES.LICENCE_ID.isNotNull()),
                 DSL.arrayAggDistinct(FIELD_LICENCES.LICENCE_PRIOR_TO_FIELD_OPERATOR_ID)
                     .orderBy(FIELD_LICENCES.LICENCE_PRIOR_TO_FIELD_OPERATOR_ID)
                     .filterWhere(FIELD_LICENCES.LICENCE_PRIOR_TO_FIELD_OPERATOR_ID.isNotNull())
@@ -113,7 +113,10 @@ class ResourceRecordSummaryQueryService {
             FIELDS.FIELD_IDENTIFIER,
             FIELD_STATUS_HISTORY.FIELD_IDENTIFIER
         ))
-        .orderBy(SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP.desc().nullsLast(), SUBMISSION_DETAILS.LEGACY_RES_DATA_ID.desc())
+        .orderBy(
+            SUBMISSION_DETAILS.ACCEPTED_TIMESTAMP.desc().nullsLast(),
+            SUBMISSION_DETAILS.CORRECTION_TIMESTAMP.desc().nullsLast(),
+            SUBMISSION_DETAILS.LEGACY_RES_DATA_ID.desc())
         .limit(1)
         .fetchOptionalInto(ResourceRecordSummaryQueryResult.class);
   }

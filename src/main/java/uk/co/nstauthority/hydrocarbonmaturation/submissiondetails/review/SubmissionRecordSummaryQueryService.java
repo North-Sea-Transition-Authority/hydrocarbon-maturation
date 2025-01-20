@@ -107,7 +107,11 @@ class SubmissionRecordSummaryQueryService {
             FIELD_STATUS_HISTORY.FIELD_IDENTIFIER,
             GENERAL_DETAILS.ID
         ))
-        .orderBy(SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP.desc())
+        .orderBy(
+            SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP.desc(),
+            SUBMISSION_DETAILS.CORRECTION_TIMESTAMP.desc().nullsLast(),
+            SUBMISSION_DETAILS.LEGACY_RES_DATA_ID.desc()
+        )
         .limit(1)
         .fetchOptionalInto(SubmissionRecordSummaryQueryResult.class);
   }

@@ -80,6 +80,7 @@ public class SubmissionHistoryQueryService {
         .where(conditions)
         .orderBy(
             SUBMISSION_DETAILS.SUBMITTED_TIMESTAMP.desc(),
+            SUBMISSION_DETAILS.CORRECTION_TIMESTAMP.desc().nullsLast(),
             // below is for legacy cases that have the same submitted date across multiple submissions.
             SUBMISSION_DETAILS.LEGACY_RES_DATA_ID.desc()
         )

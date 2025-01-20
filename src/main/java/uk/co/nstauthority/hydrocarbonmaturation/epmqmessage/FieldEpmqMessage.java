@@ -14,6 +14,7 @@ public class FieldEpmqMessage extends RemiEpmqMessage {
   private Integer parentFieldId;
   private String geographicalAreaMnemonic;
   private Integer fieldNumber;
+  private Integer prePearsOrganisationUnitId;
 
   public FieldEpmqMessage() {
     super(RemiTypeMapping.FIELD_UPDATED.name(), null, null);
@@ -30,6 +31,7 @@ public class FieldEpmqMessage extends RemiEpmqMessage {
       Integer parentFieldId,
       String geographicalAreaMnemonic,
       Integer fieldNumber,
+      Integer prePearsOrganisationUnitId,
       String correlationId,
       Instant createdInstant
   ) {
@@ -44,6 +46,7 @@ public class FieldEpmqMessage extends RemiEpmqMessage {
     this.parentFieldId = parentFieldId;
     this.geographicalAreaMnemonic = geographicalAreaMnemonic;
     this.fieldNumber = fieldNumber;
+    this.prePearsOrganisationUnitId = prePearsOrganisationUnitId;
   }
 
   public Integer getFieldId() {
@@ -86,6 +89,10 @@ public class FieldEpmqMessage extends RemiEpmqMessage {
     return fieldNumber;
   }
 
+  public Integer getPrePearsOrganisationUnitId() {
+    return prePearsOrganisationUnitId;
+  }
+
   public static Builder builder(String correlationId, Instant createdInstant) {
     return new Builder(correlationId, createdInstant);
   }
@@ -104,6 +111,7 @@ public class FieldEpmqMessage extends RemiEpmqMessage {
     private Integer parentFieldId;
     private String geographicalAreaMnemonic;
     private Integer fieldNumber;
+    private Integer prePearsOrganisationUnitId;
 
     public Builder setFieldId(Integer fieldId) {
       this.fieldId = fieldId;
@@ -155,6 +163,11 @@ public class FieldEpmqMessage extends RemiEpmqMessage {
       return this;
     }
 
+    public Builder setPrePearsOrganisationUnitId(Integer prePearsOrganisationUnitId) {
+      this.prePearsOrganisationUnitId = prePearsOrganisationUnitId;
+      return this;
+    }
+
     private Builder(
         String correlationId,
         Instant createdInstant
@@ -175,6 +188,7 @@ public class FieldEpmqMessage extends RemiEpmqMessage {
         parentFieldId,
           geographicalAreaMnemonic,
         fieldNumber,
+        prePearsOrganisationUnitId,
         correlationId,
         createdInstant
       );
