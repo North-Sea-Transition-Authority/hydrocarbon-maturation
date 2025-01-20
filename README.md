@@ -93,7 +93,7 @@ track changes over time.
 | REMI_EPMQ_ENVIRONMENT_SUFFIX                | Something unique per environment, e.g. `dev`.                                                                                                                                                                                                                                                                   |
 
 ## Logging
-PWA can log in either JSON or text mode.
+ReMI can log in either JSON or text mode.
 In order to turn on JSON logging, set the profile 'json-logging'. This will automatically include any MDC attributes.
 
 ### 3. Initialise the Fivium Design System
