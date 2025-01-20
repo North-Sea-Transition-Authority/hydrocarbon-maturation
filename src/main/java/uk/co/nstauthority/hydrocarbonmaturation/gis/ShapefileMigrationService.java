@@ -31,6 +31,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.geojson.Submis
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCase;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCaseDocumentTypeService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.outlineformaximumcase.OutlineForMaximumCasePersistenceService;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetail;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetails.ResourceDetailsPersistenceService;
 
 @Service
@@ -165,8 +166,11 @@ public class ShapefileMigrationService {
 
     for (var submissionDetail : submissionDetails) {
       var documentType = outlineForMaximumCaseDocumentTypeService.getOutlineForMaximumCaseDocumentType(submissionDetail);
+      var resourceName = resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail)
+          .map(ResourceDetail::getResourceName).orElse(fileName);
+      var fileNameForSubmission = "Outline for maximum case for %s".formatted(resourceName);
       var multipartFileInputStream =
-          new MultipartFileInputStream(fileName, SHAPEFILE_ZIP_CONTENT_TYPE, fileSize, shapefileZipInputStream);
+          new MultipartFileInputStream(fileNameForSubmission, SHAPEFILE_ZIP_CONTENT_TYPE, fileSize, shapefileZipInputStream);
 
       var fileUploadResponse = fileService.upload(builder -> builder
           .withFileSource(FileSource.fromMultipartFile(multipartFileInputStream))
@@ -187,9 +191,7 @@ public class ShapefileMigrationService {
 
       var uploadedFile = fileService.find(fileUploadResponse.getFileId()).orElseThrow(() ->
           new IllegalStateException("Uploaded file not found for submission detail %s".formatted(submissionDetail.getId())));
-      resourceDetailsPersistenceService.getResourceDetailBySubmissionDetail(submissionDetail)
-          .ifPresent(detail -> uploadedFile.setDescription("Outline for maximum case for %s".formatted(detail.getResourceName())
-          ));
+      uploadedFile.setDescription(fileNameForSubmission);
 
 
       var geoJson = shapefileConversionService.getGeoJsonFromShapefileZip(shapefileZipContents);
