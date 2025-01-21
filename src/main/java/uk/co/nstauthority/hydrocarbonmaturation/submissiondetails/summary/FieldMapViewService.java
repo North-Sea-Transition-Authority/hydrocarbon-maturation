@@ -4,6 +4,9 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -13,6 +16,8 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.generaldetails
 @Service
 public class FieldMapViewService {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(FieldMapViewService.class);
+
   static final String URL_TEMPLATE = "https://data.nstauthority.co.uk/arcgis/rest/services/Public_WGS84/" +
       "{onshoreOffshore}/FeatureServer/0/query?where=FIELDNAME%3D%27{fieldName}%27&f=geoJson&outFields=*";
   static final String OFFSHORE_PATH_VARIABLE = "UKCS_Offshore_Fields_WGS84";
@@ -21,7 +26,9 @@ public class FieldMapViewService {
   private final RestClient restClient;
 
   public FieldMapViewService() {
-    this.restClient = RestClient.create();
+    this.restClient = RestClient.builder()
+        .requestFactory(new SimpleClientHttpRequestFactory())
+        .build();
   }
 
   public Optional<FieldMapView> getFieldGeoJsonUrl(Field field) {
@@ -45,16 +52,21 @@ public class FieldMapViewService {
   }
 
   private boolean returnsValidShapeMap(String url) {
-    GeoJsonResponse response = restClient
-        .get()
-        .uri(URI.create(url))
-        .retrieve()
-        .body(GeoJsonResponse.class);
+    try {
+      GeoJsonResponse response = restClient
+          .get()
+          .uri(URI.create(url))
+          .retrieve()
+          .body(GeoJsonResponse.class);
 
-    if (response == null) {
+      if (response == null) {
+        return false;
+      }
+
+      return !response.features().isEmpty();
+    } catch (Exception e) {
+      LOGGER.warn("Exception thrown when performing shapefile request for URL: %s.".formatted(url), e);
       return false;
     }
-
-    return !response.features().isEmpty();
   }
 }
