@@ -15,8 +15,9 @@ DECLARE
 BEGIN
 
     FOR trap_rec IN (
-        SELECT prdh.*, sd.id sd_id
-        FROM remi.padi_res_data_header prdh
+        SELECT prdh.*, prh.latitude_centroid, prh.longitude_centroid, sd.id sd_id
+        FROM remi.padi_res_header prh
+        JOIN remi.padi_res_data_header prdh ON prh.resource_id = prdh.resource_id
         JOIN remi.submission_details sd ON sd.legacy_res_data_id = prdh.resdat_id
     )
     LOOP
@@ -50,6 +51,7 @@ BEGIN
         long_minutes := NULL;
         long_seconds := NULL;
 
+        -- set the latitude based on the data header if available
         IF trap_rec.latitude_c_of_i IS NOT NULL THEN
 
             lat_degrees := FLOOR(ABS(trap_rec.latitude_c_of_i)); -- whole number part of latitude degrees
@@ -57,12 +59,29 @@ BEGIN
             lat_minutes := FLOOR(lat_minutes_dec); -- whole number part of latitude minutes
             lat_seconds := ROUND((ABS(lat_minutes_dec) - FLOOR(ABS(lat_minutes_dec))) * 60, 2); -- latitude seconds to 2 decimal places
 
+        -- else set the latitude based on the header if available
+        ELSIF trap_rec.latitude_centroid IS NOT NULL THEN
+
+            lat_degrees := FLOOR(ABS(trap_rec.latitude_centroid)); -- whole number part of latitude degrees
+            lat_minutes_dec := (ABS(trap_rec.latitude_centroid) - FLOOR(ABS(trap_rec.latitude_centroid))) * 60; -- minutes part of latitude with the decimal places
+            lat_minutes := FLOOR(lat_minutes_dec); -- whole number part of latitude minutes
+            lat_seconds := ROUND((ABS(lat_minutes_dec) - FLOOR(ABS(lat_minutes_dec))) * 60, 2); -- latitude seconds to 2 decimal places
+
         END IF;
 
+        -- set the latitude based on the data header if available
         IF trap_rec.longitude_c_of_i IS NOT NULL THEN
 
             long_degrees := FLOOR(ABS(trap_rec.longitude_c_of_i)); -- whole number part of longitude degrees
             long_minutes_dec := (ABS(trap_rec.longitude_c_of_i) - FLOOR(ABS(trap_rec.longitude_c_of_i))) * 60; -- minutes part of longitude with the decimal places
+            long_minutes := FLOOR(long_minutes_dec); -- whole number part of longitude minutes
+            long_seconds := ROUND((ABS(long_minutes_dec) - FLOOR(ABS(long_minutes_dec))) * 60, 2); -- longitude seconds to 2 decimal places
+
+        -- else set the longitude based on the header if available
+        ELSIF trap_rec.longitude_centroid IS NOT NULL THEN
+
+            long_degrees := FLOOR(ABS(trap_rec.longitude_centroid)); -- whole number part of longitude degrees
+            long_minutes_dec := (ABS(trap_rec.longitude_centroid) - FLOOR(ABS(trap_rec.longitude_centroid))) * 60; -- minutes part of longitude with the decimal places
             long_minutes := FLOOR(long_minutes_dec); -- whole number part of longitude minutes
             long_seconds := ROUND((ABS(long_minutes_dec) - FLOOR(ABS(long_minutes_dec))) * 60, 2); -- longitude seconds to 2 decimal places
 
@@ -95,11 +114,14 @@ BEGIN
             long_minutes,
             long_seconds,
             CASE
-                WHEN trap_rec.longitude_c_of_i < 0 THEN 'WEST'
-                WHEN trap_rec.longitude_c_of_i >= 0 THEN 'EAST'
+                WHEN (trap_rec.longitude_c_of_i IS NOT NULL AND trap_rec.longitude_c_of_i < 0)
+                    OR (trap_rec.longitude_centroid IS NOT NULL AND trap_rec.longitude_centroid < 0) THEN 'WEST'
+                WHEN (trap_rec.longitude_c_of_i IS NOT NULL AND trap_rec.longitude_c_of_i >= 0)
+                    OR (trap_rec.longitude_centroid IS NOT NULL AND trap_rec.longitude_centroid >= 0) THEN 'EAST'
             END,
             CASE
-                WHEN trap_rec.latitude_c_of_i IS NOT NULL AND trap_rec.longitude_c_of_i IS NOT NULL
+                WHEN (trap_rec.latitude_c_of_i IS NOT NULL AND trap_rec.longitude_c_of_i IS NOT NULL)
+                    OR (trap_rec.latitude_centroid IS NOT NULL AND trap_rec.longitude_centroid IS NOT NULL)
                 THEN 'ED50'
             END -- to confirm with NSTA
         );
