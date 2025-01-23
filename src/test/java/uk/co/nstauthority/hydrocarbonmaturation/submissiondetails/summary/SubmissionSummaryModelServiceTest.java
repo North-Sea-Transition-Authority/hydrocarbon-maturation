@@ -22,6 +22,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.UserTestUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.ProbabilityDistributionTableView;
 import uk.co.nstauthority.hydrocarbonmaturation.probabilitydistribution.SummaryBehaviour;
+import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionDetailTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionResourceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.SubmissionType;
@@ -48,7 +49,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.resourcedetail
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdate;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.sourceandseal.SourceAndSealSummaryView;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.trapproperties.TrapPropertiesSummaryView;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummarySection;
 
@@ -76,8 +76,6 @@ class SubmissionSummaryModelServiceTest {
   private FieldSummaryService fieldSummaryService;
   @Mock
   private SubmissionResourceService submissionResourceService;
-  @Mock
-  private TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
   @Mock
   private ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
 
@@ -337,7 +335,6 @@ class SubmissionSummaryModelServiceTest {
         .thenReturn(chanceOfSuccessSummaryView);
 
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn("test");
-    when(totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail, USER)).thenReturn(false);
     var modelAndView =
         submissionSummaryModelService.createDiscoverySubmissionSummaryModelAndView(submissionDetail, "view-name", USER);
 
@@ -359,9 +356,11 @@ class SubmissionSummaryModelServiceTest {
         );
   }
 
-  @Test
-  void createDiscoverySubmissionSummaryModelAndView_whenTotalsAreRequired() {
+  @ParameterizedTest
+  @EnumSource(value = SubmissionDetailStatus.class, names = {"ACCEPTED", "SUBMITTED"})
+  void createDiscoverySubmissionSummaryModelAndView_whenTotalsAreRequired(SubmissionDetailStatus status) {
     var submissionDetail = SubmissionDetailTestUtils.createNewDiscoverySubmissionDetail();
+    submissionDetail.setStatus(status);
 
     when(discoverySummaryService.getGeneralDetailsSummaryViewFromSubmissionDetail(submissionDetail))
         .thenReturn(generalDetailSummaryView);
@@ -384,7 +383,6 @@ class SubmissionSummaryModelServiceTest {
 
     when(submissionResourceService.getResourceNameOrDefault(submissionDetail)).thenReturn("test");
 
-    when(totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail, USER)).thenReturn(true);
     var reservoirSubmissionDetails = List.of(
         ReservoirSubmissionDetailsTestUtils.createReservoirSubmissionDetail(submissionDetail));
     when(reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(

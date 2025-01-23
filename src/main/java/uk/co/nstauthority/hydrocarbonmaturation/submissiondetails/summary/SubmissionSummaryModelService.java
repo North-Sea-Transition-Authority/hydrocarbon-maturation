@@ -11,7 +11,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.fieldvolumetri
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.hydrocarboncase.HydrocarbonCasePersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.reservoirsubmissiondetails.ReservoirSubmissionDetailPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.review.update.SubmissionUpdateService;
-import uk.co.nstauthority.hydrocarbonmaturation.submissiondetails.tasklist.TotalVolumesTaskListSectionService;
 
 @Service
 public class SubmissionSummaryModelService {
@@ -24,7 +23,6 @@ public class SubmissionSummaryModelService {
   private final SubmissionResourceService submissionResourceService;
   private final SubmissionSummaryService submissionSummaryService;
   private final FieldSummaryService fieldSummaryService;
-  private final TotalVolumesTaskListSectionService totalVolumesTaskListSectionService;
   private final ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService;
 
 
@@ -38,7 +36,6 @@ public class SubmissionSummaryModelService {
                                 SubmissionResourceService submissionResourceService,
                                 SubmissionSummaryService submissionSummaryService,
                                 FieldSummaryService fieldSummaryService,
-                                TotalVolumesTaskListSectionService totalVolumesTaskListSectionService,
                                 ReservoirHydrocarbonCaseService reservoirHydrocarbonCaseService) {
     this.prospectSummaryService = prospectSummaryService;
     this.hydrocarbonCasePersistenceService = hydrocarbonCasePersistenceService;
@@ -49,7 +46,6 @@ public class SubmissionSummaryModelService {
     this.submissionResourceService = submissionResourceService;
     this.submissionSummaryService = submissionSummaryService;
     this.fieldSummaryService = fieldSummaryService;
-    this.totalVolumesTaskListSectionService = totalVolumesTaskListSectionService;
     this.reservoirHydrocarbonCaseService = reservoirHydrocarbonCaseService;
   }
 
@@ -169,7 +165,7 @@ public class SubmissionSummaryModelService {
         .addObject("chanceOfSuccessSummaryView",
             discoverySummaryService.getChanceOfSuccessSummaryViewFromSubmissionDetail(submissionDetail));
 
-    addDiscoveryTotalVolumes(submissionDetail, modelAndView, user);
+    addDiscoveryTotalVolumes(submissionDetail, modelAndView);
     addCommonAttributes(submissionDetail, modelAndView);
     return modelAndView;
   }
@@ -200,8 +196,8 @@ public class SubmissionSummaryModelService {
     }
   }
 
-  private void addDiscoveryTotalVolumes(SubmissionDetail submissionDetail, ModelAndView modelAndView, User user) {
-    if (totalVolumesTaskListSectionService.sectionIsPresent(submissionDetail, user)) {
+  private void addDiscoveryTotalVolumes(SubmissionDetail submissionDetail, ModelAndView modelAndView) {
+    if (submissionDetail.isApprovedOrSubmittedSubmission()) {
       modelAndView.addObject("totalsRequired", true);
       var reservoirSubmissionDetails =
           reservoirSubmissionDetailPersistenceService.getAllExtantReservoirSubmissionDetailsForSubmissionDetail(submissionDetail);

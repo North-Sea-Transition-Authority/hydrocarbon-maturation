@@ -8,12 +8,19 @@ BEGIN
 
     CREATE OR REPLACE FUNCTION calculate_summed_equiv(oil_val NUMERIC, cond_val NUMERIC, gas_val NUMERIC, ass_gas_val NUMERIC)
         RETURNS NUMERIC AS $calculate_summed_equiv$
+    DECLARE
+        summed_equiv NUMERIC;
     BEGIN
         oil_val := COALESCE(oil_val, 0);
         cond_val := COALESCE(cond_val, 0);
         gas_val := COALESCE(gas_val, 0);
         ass_gas_val := COALESCE(ass_gas_val, 0);
-        RETURN ROUND(oil_val + cond_val + ((gas_val + ass_gas_val)/5.8), 2);
+        summed_equiv := ROUND(oil_val + cond_val + ((gas_val + ass_gas_val)/5.8), 2);
+        IF summed_equiv = 0 THEN
+            RETURN NULL;
+        ELSE
+            RETURN summed_equiv;
+        END IF;
     END;
     $calculate_summed_equiv$ LANGUAGE plpgsql;
 
@@ -389,7 +396,36 @@ BEGIN
                  output_rec.rsd_id
              );
 
-        ELSE
+        ELSIF COALESCE(
+                output_rec.oil_recoverable_p99,
+                output_rec.oil_recoverable_p90,
+                output_rec.oil_recoverable_mode,
+                output_rec.oil_recoverable_p50,
+                output_rec.oil_recoverable_mean,
+                output_rec.oil_recoverable_p10,
+                output_rec.oil_recoverable_p01,
+                output_rec.assgas_recoverable_p99,
+                output_rec.assgas_recoverable_p90,
+                output_rec.assgas_recoverable_mode,
+                output_rec.assgas_recoverable_p50,
+                output_rec.assgas_recoverable_mean,
+                output_rec.assgas_recoverable_p10,
+                output_rec.assgas_recoverable_p01,
+                output_rec.gas_recoverable_p99,
+                output_rec.gas_recoverable_p90,
+                output_rec.gas_recoverable_mode,
+                output_rec.gas_recoverable_p50,
+                output_rec.gas_recoverable_mean,
+                output_rec.gas_recoverable_p10,
+                output_rec.gas_recoverable_p01,
+                output_rec.asscon_recoverable_p99,
+                output_rec.asscon_recoverable_p90,
+                output_rec.asscon_recoverable_mode,
+                output_rec.asscon_recoverable_p50,
+                output_rec.asscon_recoverable_mean,
+                output_rec.asscon_recoverable_p10,
+                output_rec.asscon_recoverable_p01
+            ) IS NOT NULL THEN
 
             IF output_rec.hydrocarbon_case IN ('gas','condensate') THEN
 

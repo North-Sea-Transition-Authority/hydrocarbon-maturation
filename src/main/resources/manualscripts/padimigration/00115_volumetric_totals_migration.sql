@@ -2,14 +2,9 @@ DO $$
 DECLARE
 
     single_reservoir_rec RECORD;
-    oil_in_place_rec RECORD;
-    oil_recoverable_resources_rec RECORD;
-    associated_gas_rec RECORD;
-    gas_in_place_rec RECORD;
-    gas_recoverable_resources_rec RECORD;
-    oil_equivalent_rec RECORD;
-    oil_equivalent_industry_rec RECORD;
-    associated_condensate_rec RECORD;
+    oil_totals_exist INTEGER;
+    gas_totals_exist INTEGER;
+    combined_totals_exist INTEGER;
 
 BEGIN
 
@@ -30,17 +25,44 @@ BEGIN
             gco.has_associated_condensate_recoverable_resources gas_associated_condensate,
             gco.use_industry_standard_conversion gas_use_industry_standard,
             mco.has_associated_condensate_recoverable_resources combined_associated_condensate,
-            mco.use_industry_standard_conversion combined_use_industry_standard
+            mco.use_industry_standard_conversion combined_use_industry_standard,
+            pd.*
         FROM res_count rc
         JOIN remi.reservoir_submission_details rsd ON rsd.submission_detail_id = rc.sd_id
+        JOIN remi.probability_distributions pd ON pd.reservoir_submission_detail_id = rsd.id
         LEFT JOIN remi.oil_case_outputs oco ON oco.reservoir_submission_detail_id = rsd.id
         LEFT JOIN remi.gas_case_outputs gco ON gco.reservoir_submission_detail_id = rsd.id
         LEFT JOIN remi.mixed_case_outputs mco ON mco.reservoir_submission_detail_id = rsd.id
         WHERE rc.rsd_count = 1
     )
     LOOP
+        
+        -- check if totals exist for each type so only one record is created per submission detail
+        SELECT 1
+        INTO oil_totals_exist
+        WHERE EXISTS (
+            SELECT 1
+            FROM remi.oil_case_volumetric_totals o 
+            WHERE o.submission_detail_id = single_reservoir_rec.sd_id
+        );
 
-        IF single_reservoir_rec.oil_use_industry_standard IS NOT NULL THEN
+        SELECT 1
+        INTO gas_totals_exist
+        WHERE EXISTS (
+            SELECT 1
+            FROM remi.gas_case_volumetric_totals o
+            WHERE o.submission_detail_id = single_reservoir_rec.sd_id
+        );
+
+        SELECT 1
+        INTO combined_totals_exist
+        WHERE EXISTS (
+            SELECT 1
+            FROM remi.combined_case_volumetric_totals o
+            WHERE o.submission_detail_id = single_reservoir_rec.sd_id
+        );
+
+        IF single_reservoir_rec.oil_use_industry_standard IS NOT NULL AND oil_totals_exist IS NULL THEN
 
             INSERT INTO remi.oil_case_volumetric_totals (
                 id,
@@ -54,7 +76,7 @@ BEGIN
 
         END IF;
 
-        IF single_reservoir_rec.gas_associated_condensate IS NOT NULL OR single_reservoir_rec.gas_use_industry_standard IS NOT NULL THEN
+        IF (single_reservoir_rec.gas_associated_condensate IS NOT NULL OR single_reservoir_rec.gas_use_industry_standard IS NOT NULL) AND gas_totals_exist IS NULL THEN
 
             INSERT INTO remi.gas_case_volumetric_totals (
                 id,
@@ -70,7 +92,7 @@ BEGIN
 
         END IF;
 
-        IF single_reservoir_rec.combined_associated_condensate IS NOT NULL OR single_reservoir_rec.combined_use_industry_standard IS NOT NULL THEN
+        IF (single_reservoir_rec.combined_associated_condensate IS NOT NULL OR single_reservoir_rec.combined_use_industry_standard IS NOT NULL) AND combined_totals_exist IS NULL THEN
 
             INSERT INTO remi.combined_case_volumetric_totals (
                 id,
@@ -86,337 +108,8 @@ BEGIN
 
         END IF;
 
-        FOR oil_in_place_rec IN (
-            SELECT *
-            FROM remi.probability_distributions pd
-            WHERE pd.reservoir_submission_detail_id = single_reservoir_rec.rsd_id
-            AND pd.instance = 'OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY'
-        )
-        LOOP
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                min_value,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                max_value,
-                constant_value,
-                most_likely_value,
-                comments,
-                three_c,
-                two_c,
-                one_c,
-                other_distribution_type,
-                reservoir_submission_detail_id
-            ) VALUES (
-                gen_random_uuid(),
-                single_reservoir_rec.sd_id,
-                oil_in_place_rec.distribution_type,
-                'TOTAL_OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY',
-                oil_in_place_rec.min_value,
-                oil_in_place_rec.p99,
-                oil_in_place_rec.p90,
-                oil_in_place_rec.mode_value,
-                oil_in_place_rec.p50,
-                oil_in_place_rec.mean_value,
-                oil_in_place_rec.p10,
-                oil_in_place_rec.p1,
-                oil_in_place_rec.max_value,
-                oil_in_place_rec.constant_value,
-                oil_in_place_rec.most_likely_value,
-                oil_in_place_rec.comments,
-                oil_in_place_rec.three_c,
-                oil_in_place_rec.two_c,
-                oil_in_place_rec.one_c,
-                oil_in_place_rec.other_distribution_type,
-                NULL
-            );
-        END LOOP;
+        IF single_reservoir_rec.instance = 'OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY' THEN
 
-        FOR oil_recoverable_resources_rec IN (
-            SELECT *
-            FROM remi.probability_distributions pd
-            WHERE pd.reservoir_submission_detail_id = single_reservoir_rec.rsd_id
-            AND pd.instance = 'OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY'
-        )
-        LOOP
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                min_value,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                max_value,
-                constant_value,
-                most_likely_value,
-                comments,
-                three_c,
-                two_c,
-                one_c,
-                other_distribution_type,
-                reservoir_submission_detail_id
-            ) VALUES (
-                gen_random_uuid(),
-                single_reservoir_rec.sd_id,
-                oil_recoverable_resources_rec.distribution_type,
-                'TOTAL_OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY',
-                oil_recoverable_resources_rec.min_value,
-                oil_recoverable_resources_rec.p99,
-                oil_recoverable_resources_rec.p90,
-                oil_recoverable_resources_rec.mode_value,
-                oil_recoverable_resources_rec.p50,
-                oil_recoverable_resources_rec.mean_value,
-                oil_recoverable_resources_rec.p10,
-                oil_recoverable_resources_rec.p1,
-                oil_recoverable_resources_rec.max_value,
-                oil_recoverable_resources_rec.constant_value,
-                oil_recoverable_resources_rec.most_likely_value,
-                oil_recoverable_resources_rec.comments,
-                oil_recoverable_resources_rec.three_c,
-                oil_recoverable_resources_rec.two_c,
-                oil_recoverable_resources_rec.one_c,
-                oil_recoverable_resources_rec.other_distribution_type,
-                NULL
-            );
-        END LOOP;
-
-        FOR associated_gas_rec IN (
-            SELECT *
-            FROM remi.probability_distributions pd
-            WHERE pd.reservoir_submission_detail_id = single_reservoir_rec.rsd_id
-            AND pd.instance = 'OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY'
-        )
-        LOOP
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                min_value,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                max_value,
-                constant_value,
-                most_likely_value,
-                comments,
-                three_c,
-                two_c,
-                one_c,
-                other_distribution_type,
-                reservoir_submission_detail_id
-            ) VALUES (
-                gen_random_uuid(),
-                single_reservoir_rec.sd_id,
-                associated_gas_rec.distribution_type,
-                'TOTAL_OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY',
-                associated_gas_rec.min_value,
-                associated_gas_rec.p99,
-                associated_gas_rec.p90,
-                associated_gas_rec.mode_value,
-                associated_gas_rec.p50,
-                associated_gas_rec.mean_value,
-                associated_gas_rec.p10,
-                associated_gas_rec.p1,
-                associated_gas_rec.max_value,
-                associated_gas_rec.constant_value,
-                associated_gas_rec.most_likely_value,
-                associated_gas_rec.comments,
-                associated_gas_rec.three_c,
-                associated_gas_rec.two_c,
-                associated_gas_rec.one_c,
-                associated_gas_rec.other_distribution_type,
-                NULL
-            );
-        END LOOP;
-
-        FOR gas_in_place_rec IN (
-            SELECT *
-            FROM remi.probability_distributions pd
-            WHERE pd.reservoir_submission_detail_id = single_reservoir_rec.rsd_id
-            AND pd.instance = 'GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY'
-        )
-        LOOP
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                min_value,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                max_value,
-                constant_value,
-                most_likely_value,
-                comments,
-                three_c,
-                two_c,
-                one_c,
-                other_distribution_type,
-                reservoir_submission_detail_id
-            ) VALUES (
-                gen_random_uuid(),
-                single_reservoir_rec.sd_id,
-                gas_in_place_rec.distribution_type,
-                'TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY',
-                gas_in_place_rec.min_value,
-                gas_in_place_rec.p99,
-                gas_in_place_rec.p90,
-                gas_in_place_rec.mode_value,
-                gas_in_place_rec.p50,
-                gas_in_place_rec.mean_value,
-                gas_in_place_rec.p10,
-                gas_in_place_rec.p1,
-                gas_in_place_rec.max_value,
-                gas_in_place_rec.constant_value,
-                gas_in_place_rec.most_likely_value,
-                gas_in_place_rec.comments,
-                gas_in_place_rec.three_c,
-                gas_in_place_rec.two_c,
-                gas_in_place_rec.one_c,
-                gas_in_place_rec.other_distribution_type,
-                NULL
-            );
-        END LOOP;
-
-        FOR gas_recoverable_resources_rec IN (
-            SELECT *
-            FROM remi.probability_distributions pd
-            WHERE pd.reservoir_submission_detail_id = single_reservoir_rec.rsd_id
-            AND pd.instance = 'GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY'
-        )
-        LOOP
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                min_value,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                max_value,
-                constant_value,
-                most_likely_value,
-                comments,
-                three_c,
-                two_c,
-                one_c,
-                other_distribution_type,
-                reservoir_submission_detail_id
-            ) VALUES (
-                gen_random_uuid(),
-                single_reservoir_rec.sd_id,
-                gas_recoverable_resources_rec.distribution_type,
-                'TOTAL_GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY',
-                gas_recoverable_resources_rec.min_value,
-                gas_recoverable_resources_rec.p99,
-                gas_recoverable_resources_rec.p90,
-                gas_recoverable_resources_rec.mode_value,
-                gas_recoverable_resources_rec.p50,
-                gas_recoverable_resources_rec.mean_value,
-                gas_recoverable_resources_rec.p10,
-                gas_recoverable_resources_rec.p1,
-                gas_recoverable_resources_rec.max_value,
-                gas_recoverable_resources_rec.constant_value,
-                gas_recoverable_resources_rec.most_likely_value,
-                gas_recoverable_resources_rec.comments,
-                gas_recoverable_resources_rec.three_c,
-                gas_recoverable_resources_rec.two_c,
-                gas_recoverable_resources_rec.one_c,
-                gas_recoverable_resources_rec.other_distribution_type,
-                NULL
-            );
-        END LOOP;
-
-        FOR oil_equivalent_rec IN (
-            SELECT *
-            FROM remi.probability_distributions pd
-            WHERE pd.reservoir_submission_detail_id = single_reservoir_rec.rsd_id
-            AND pd.instance = 'OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY'
-        )
-        LOOP
-            INSERT INTO remi.probability_distributions (
-                id,
-                submission_detail_id,
-                distribution_type,
-                instance,
-                min_value,
-                p99,
-                p90,
-                mode_value,
-                p50,
-                mean_value,
-                p10,
-                p1,
-                max_value,
-                constant_value,
-                most_likely_value,
-                comments,
-                three_c,
-                two_c,
-                one_c,
-                other_distribution_type,
-                reservoir_submission_detail_id
-            ) VALUES (
-                gen_random_uuid(),
-                single_reservoir_rec.sd_id,
-                oil_equivalent_rec.distribution_type,
-                'TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY',
-                oil_equivalent_rec.min_value,
-                oil_equivalent_rec.p99,
-                oil_equivalent_rec.p90,
-                oil_equivalent_rec.mode_value,
-                oil_equivalent_rec.p50,
-                oil_equivalent_rec.mean_value,
-                oil_equivalent_rec.p10,
-                oil_equivalent_rec.p1,
-                oil_equivalent_rec.max_value,
-                oil_equivalent_rec.constant_value,
-                oil_equivalent_rec.most_likely_value,
-                oil_equivalent_rec.comments,
-                oil_equivalent_rec.three_c,
-                oil_equivalent_rec.two_c,
-                oil_equivalent_rec.one_c,
-                oil_equivalent_rec.other_distribution_type,
-                NULL
-            );
-        END LOOP;
-
-        FOR oil_equivalent_industry_rec IN (
-            SELECT *
-            FROM remi.probability_distributions pd
-            WHERE pd.reservoir_submission_detail_id = single_reservoir_rec.rsd_id
-            AND pd.instance = 'OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY'
-        )
-        LOOP
             INSERT INTO remi.probability_distributions (
                 id,
                 submission_detail_id,
@@ -442,35 +135,31 @@ BEGIN
             ) VALUES (
                  gen_random_uuid(),
                  single_reservoir_rec.sd_id,
-                 oil_equivalent_rec.distribution_type,
-                 'TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY',
-                 oil_equivalent_rec.min_value,
-                 oil_equivalent_rec.p99,
-                 oil_equivalent_rec.p90,
-                 oil_equivalent_rec.mode_value,
-                 oil_equivalent_rec.p50,
-                 oil_equivalent_rec.mean_value,
-                 oil_equivalent_rec.p10,
-                 oil_equivalent_rec.p1,
-                 oil_equivalent_rec.max_value,
-                 oil_equivalent_rec.constant_value,
-                 oil_equivalent_rec.most_likely_value,
-                 oil_equivalent_rec.comments,
-                 oil_equivalent_rec.three_c,
-                 oil_equivalent_rec.two_c,
-                 oil_equivalent_rec.one_c,
-                 oil_equivalent_rec.other_distribution_type,
+                 single_reservoir_rec.distribution_type,
+                 'TOTAL_OIL_OUTPUTS_OIL_IN_PLACE_DISCOVERY',
+                 single_reservoir_rec.min_value,
+                 single_reservoir_rec.p99,
+                 single_reservoir_rec.p90,
+                 single_reservoir_rec.mode_value,
+                 single_reservoir_rec.p50,
+                 single_reservoir_rec.mean_value,
+                 single_reservoir_rec.p10,
+                 single_reservoir_rec.p1,
+                 single_reservoir_rec.max_value,
+                 single_reservoir_rec.constant_value,
+                 single_reservoir_rec.most_likely_value,
+                 single_reservoir_rec.comments,
+                 single_reservoir_rec.three_c,
+                 single_reservoir_rec.two_c,
+                 single_reservoir_rec.one_c,
+                 single_reservoir_rec.other_distribution_type,
                  NULL
              );
-        END LOOP;
 
-        FOR associated_condensate_rec IN (
-            SELECT *
-            FROM remi.probability_distributions pd
-            WHERE pd.reservoir_submission_detail_id = single_reservoir_rec.rsd_id
-            AND pd.instance = 'OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY'
-        )
-        LOOP
+        END IF;
+
+        IF single_reservoir_rec.instance = 'OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY' THEN
+
             INSERT INTO remi.probability_distributions (
                 id,
                 submission_detail_id,
@@ -494,29 +183,330 @@ BEGIN
                 other_distribution_type,
                 reservoir_submission_detail_id
             ) VALUES (
-                gen_random_uuid(),
-                single_reservoir_rec.sd_id,
-                associated_condensate_rec.distribution_type,
-                'TOTAL_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY',
-                associated_condensate_rec.min_value,
-                associated_condensate_rec.p99,
-                associated_condensate_rec.p90,
-                associated_condensate_rec.mode_value,
-                associated_condensate_rec.p50,
-                associated_condensate_rec.mean_value,
-                associated_condensate_rec.p10,
-                associated_condensate_rec.p1,
-                associated_condensate_rec.max_value,
-                associated_condensate_rec.constant_value,
-                associated_condensate_rec.most_likely_value,
-                associated_condensate_rec.comments,
-                associated_condensate_rec.three_c,
-                associated_condensate_rec.two_c,
-                associated_condensate_rec.one_c,
-                associated_condensate_rec.other_distribution_type,
-                NULL
-            );
-        END LOOP;
+                 gen_random_uuid(),
+                 single_reservoir_rec.sd_id,
+                 single_reservoir_rec.distribution_type,
+                 'TOTAL_OIL_OUTPUTS_OIL_RECOVERABLE_RESOURCES_DISCOVERY',
+                 single_reservoir_rec.min_value,
+                 single_reservoir_rec.p99,
+                 single_reservoir_rec.p90,
+                 single_reservoir_rec.mode_value,
+                 single_reservoir_rec.p50,
+                 single_reservoir_rec.mean_value,
+                 single_reservoir_rec.p10,
+                 single_reservoir_rec.p1,
+                 single_reservoir_rec.max_value,
+                 single_reservoir_rec.constant_value,
+                 single_reservoir_rec.most_likely_value,
+                 single_reservoir_rec.comments,
+                 single_reservoir_rec.three_c,
+                 single_reservoir_rec.two_c,
+                 single_reservoir_rec.one_c,
+                 single_reservoir_rec.other_distribution_type,
+                 NULL
+             );
+
+        END IF;
+
+        IF single_reservoir_rec.instance = 'OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY' THEN
+
+            INSERT INTO remi.probability_distributions (
+                id,
+                submission_detail_id,
+                distribution_type,
+                instance,
+                min_value,
+                p99,
+                p90,
+                mode_value,
+                p50,
+                mean_value,
+                p10,
+                p1,
+                max_value,
+                constant_value,
+                most_likely_value,
+                comments,
+                three_c,
+                two_c,
+                one_c,
+                other_distribution_type,
+                reservoir_submission_detail_id
+            ) VALUES (
+                 gen_random_uuid(),
+                 single_reservoir_rec.sd_id,
+                 single_reservoir_rec.distribution_type,
+                 'TOTAL_OIL_OUTPUTS_ASSOCIATED_GAS_RECOVERABLE_RESOURCES_DISCOVERY',
+                 single_reservoir_rec.min_value,
+                 single_reservoir_rec.p99,
+                 single_reservoir_rec.p90,
+                 single_reservoir_rec.mode_value,
+                 single_reservoir_rec.p50,
+                 single_reservoir_rec.mean_value,
+                 single_reservoir_rec.p10,
+                 single_reservoir_rec.p1,
+                 single_reservoir_rec.max_value,
+                 single_reservoir_rec.constant_value,
+                 single_reservoir_rec.most_likely_value,
+                 single_reservoir_rec.comments,
+                 single_reservoir_rec.three_c,
+                 single_reservoir_rec.two_c,
+                 single_reservoir_rec.one_c,
+                 single_reservoir_rec.other_distribution_type,
+                 NULL
+             );
+
+        END IF;
+
+        IF single_reservoir_rec.instance = 'GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY' THEN
+
+            INSERT INTO remi.probability_distributions (
+                id,
+                submission_detail_id,
+                distribution_type,
+                instance,
+                min_value,
+                p99,
+                p90,
+                mode_value,
+                p50,
+                mean_value,
+                p10,
+                p1,
+                max_value,
+                constant_value,
+                most_likely_value,
+                comments,
+                three_c,
+                two_c,
+                one_c,
+                other_distribution_type,
+                reservoir_submission_detail_id
+            ) VALUES (
+                 gen_random_uuid(),
+                 single_reservoir_rec.sd_id,
+                 single_reservoir_rec.distribution_type,
+                 'TOTAL_GAS_OUTPUTS_GAS_IN_PLACE_DISCOVERY',
+                 single_reservoir_rec.min_value,
+                 single_reservoir_rec.p99,
+                 single_reservoir_rec.p90,
+                 single_reservoir_rec.mode_value,
+                 single_reservoir_rec.p50,
+                 single_reservoir_rec.mean_value,
+                 single_reservoir_rec.p10,
+                 single_reservoir_rec.p1,
+                 single_reservoir_rec.max_value,
+                 single_reservoir_rec.constant_value,
+                 single_reservoir_rec.most_likely_value,
+                 single_reservoir_rec.comments,
+                 single_reservoir_rec.three_c,
+                 single_reservoir_rec.two_c,
+                 single_reservoir_rec.one_c,
+                 single_reservoir_rec.other_distribution_type,
+                 NULL
+             );
+
+        END IF;
+
+        IF single_reservoir_rec.instance = 'GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY' THEN
+
+            INSERT INTO remi.probability_distributions (
+                id,
+                submission_detail_id,
+                distribution_type,
+                instance,
+                min_value,
+                p99,
+                p90,
+                mode_value,
+                p50,
+                mean_value,
+                p10,
+                p1,
+                max_value,
+                constant_value,
+                most_likely_value,
+                comments,
+                three_c,
+                two_c,
+                one_c,
+                other_distribution_type,
+                reservoir_submission_detail_id
+            ) VALUES (
+                 gen_random_uuid(),
+                 single_reservoir_rec.sd_id,
+                 single_reservoir_rec.distribution_type,
+                 'TOTAL_GAS_OUTPUTS_GAS_RECOVERABLE_RESOURCES_DISCOVERY',
+                 single_reservoir_rec.min_value,
+                 single_reservoir_rec.p99,
+                 single_reservoir_rec.p90,
+                 single_reservoir_rec.mode_value,
+                 single_reservoir_rec.p50,
+                 single_reservoir_rec.mean_value,
+                 single_reservoir_rec.p10,
+                 single_reservoir_rec.p1,
+                 single_reservoir_rec.max_value,
+                 single_reservoir_rec.constant_value,
+                 single_reservoir_rec.most_likely_value,
+                 single_reservoir_rec.comments,
+                 single_reservoir_rec.three_c,
+                 single_reservoir_rec.two_c,
+                 single_reservoir_rec.one_c,
+                 single_reservoir_rec.other_distribution_type,
+                 NULL
+             );
+
+        END IF;
+
+        IF single_reservoir_rec.instance = 'OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY' THEN
+
+            INSERT INTO remi.probability_distributions (
+                id,
+                submission_detail_id,
+                distribution_type,
+                instance,
+                min_value,
+                p99,
+                p90,
+                mode_value,
+                p50,
+                mean_value,
+                p10,
+                p1,
+                max_value,
+                constant_value,
+                most_likely_value,
+                comments,
+                three_c,
+                two_c,
+                one_c,
+                other_distribution_type,
+                reservoir_submission_detail_id
+            ) VALUES (
+                 gen_random_uuid(),
+                 single_reservoir_rec.sd_id,
+                 single_reservoir_rec.distribution_type,
+                 'TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_DISCOVERY',
+                 single_reservoir_rec.min_value,
+                 single_reservoir_rec.p99,
+                 single_reservoir_rec.p90,
+                 single_reservoir_rec.mode_value,
+                 single_reservoir_rec.p50,
+                 single_reservoir_rec.mean_value,
+                 single_reservoir_rec.p10,
+                 single_reservoir_rec.p1,
+                 single_reservoir_rec.max_value,
+                 single_reservoir_rec.constant_value,
+                 single_reservoir_rec.most_likely_value,
+                 single_reservoir_rec.comments,
+                 single_reservoir_rec.three_c,
+                 single_reservoir_rec.two_c,
+                 single_reservoir_rec.one_c,
+                 single_reservoir_rec.other_distribution_type,
+                 NULL
+             );
+            
+        END IF;
+
+        IF single_reservoir_rec.instance = 'OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY' THEN
+
+            INSERT INTO remi.probability_distributions (
+                id,
+                submission_detail_id,
+                distribution_type,
+                instance,
+                min_value,
+                p99,
+                p90,
+                mode_value,
+                p50,
+                mean_value,
+                p10,
+                p1,
+                max_value,
+                constant_value,
+                most_likely_value,
+                comments,
+                three_c,
+                two_c,
+                one_c,
+                other_distribution_type,
+                reservoir_submission_detail_id
+            ) VALUES (
+                 gen_random_uuid(),
+                 single_reservoir_rec.sd_id,
+                 single_reservoir_rec.distribution_type,
+                 'TOTAL_OUTPUTS_OIL_EQUIVALENT_RECOVERABLE_RESOURCES_INDUSTRY_STANDARD_DISCOVERY',
+                 single_reservoir_rec.min_value,
+                 single_reservoir_rec.p99,
+                 single_reservoir_rec.p90,
+                 single_reservoir_rec.mode_value,
+                 single_reservoir_rec.p50,
+                 single_reservoir_rec.mean_value,
+                 single_reservoir_rec.p10,
+                 single_reservoir_rec.p1,
+                 single_reservoir_rec.max_value,
+                 single_reservoir_rec.constant_value,
+                 single_reservoir_rec.most_likely_value,
+                 single_reservoir_rec.comments,
+                 single_reservoir_rec.three_c,
+                 single_reservoir_rec.two_c,
+                 single_reservoir_rec.one_c,
+                 single_reservoir_rec.other_distribution_type,
+                 NULL
+             );
+
+        END IF;
+
+        IF single_reservoir_rec.instance = 'OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY' THEN
+
+            INSERT INTO remi.probability_distributions (
+                id,
+                submission_detail_id,
+                distribution_type,
+                instance,
+                min_value,
+                p99,
+                p90,
+                mode_value,
+                p50,
+                mean_value,
+                p10,
+                p1,
+                max_value,
+                constant_value,
+                most_likely_value,
+                comments,
+                three_c,
+                two_c,
+                one_c,
+                other_distribution_type,
+                reservoir_submission_detail_id
+            ) VALUES (
+                 gen_random_uuid(),
+                 single_reservoir_rec.sd_id,
+                 single_reservoir_rec.distribution_type,
+                 'TOTAL_OUTPUTS_ASSOCIATED_CONDENSATE_RECOVERABLE_RESOURCES_DISCOVERY',
+                 single_reservoir_rec.min_value,
+                 single_reservoir_rec.p99,
+                 single_reservoir_rec.p90,
+                 single_reservoir_rec.mode_value,
+                 single_reservoir_rec.p50,
+                 single_reservoir_rec.mean_value,
+                 single_reservoir_rec.p10,
+                 single_reservoir_rec.p1,
+                 single_reservoir_rec.max_value,
+                 single_reservoir_rec.constant_value,
+                 single_reservoir_rec.most_likely_value,
+                 single_reservoir_rec.comments,
+                 single_reservoir_rec.three_c,
+                 single_reservoir_rec.two_c,
+                 single_reservoir_rec.one_c,
+                 single_reservoir_rec.other_distribution_type,
+                 NULL
+             );
+
+        END IF;
 
     END LOOP;
 

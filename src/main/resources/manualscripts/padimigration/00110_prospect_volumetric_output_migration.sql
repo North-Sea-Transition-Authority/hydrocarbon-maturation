@@ -8,12 +8,19 @@ DECLARE
 BEGIN
     CREATE OR REPLACE FUNCTION calculate_summed_equiv(oil_val NUMERIC, cond_val NUMERIC, gas_val NUMERIC, ass_gas_val NUMERIC)
     RETURNS NUMERIC AS $calculate_summed_equiv$
+    DECLARE
+        summed_equiv NUMERIC;
     BEGIN
         oil_val := COALESCE(oil_val, 0);
         cond_val := COALESCE(cond_val, 0);
         gas_val := COALESCE(gas_val, 0);
         ass_gas_val := COALESCE(ass_gas_val, 0);
-        RETURN ROUND(oil_val + cond_val + ((gas_val + ass_gas_val)/5.8), 2);
+        summed_equiv := ROUND(oil_val + cond_val + ((gas_val + ass_gas_val)/5.8), 2);
+        IF summed_equiv = 0 THEN
+            RETURN NULL;
+        ELSE
+            RETURN summed_equiv;
+        END IF;
     END;
     $calculate_summed_equiv$ LANGUAGE plpgsql;
 
@@ -34,7 +41,7 @@ BEGIN
     )
     LOOP
 
-        -- oil case outputs
+--         -- oil case outputs
         INSERT INTO remi.oil_case_outputs (
             id,
             reservoir_submission_detail_id,
@@ -132,8 +139,8 @@ BEGIN
             );
 
         END IF;
-
-        -- associated gas recoverable resources
+--
+--         -- associated gas recoverable resources
         IF COALESCE(
             oil_and_gas_output_rec.assgas_recoverable_p99,
             oil_and_gas_output_rec.assgas_recoverable_p90,
@@ -221,7 +228,22 @@ BEGIN
                 oil_and_gas_output_rec.rsd_id
             );
 
-        ELSE
+        ELSIF COALESCE(
+                oil_and_gas_output_rec.oil_recoverable_p99,
+                oil_and_gas_output_rec.oil_recoverable_p90,
+                oil_and_gas_output_rec.oil_recoverable_mode,
+                oil_and_gas_output_rec.oil_recoverable_p50,
+                oil_and_gas_output_rec.oil_recoverable_mean,
+                oil_and_gas_output_rec.oil_recoverable_p10,
+                oil_and_gas_output_rec.oil_recoverable_p01,
+                oil_and_gas_output_rec.assgas_recoverable_p99,
+                oil_and_gas_output_rec.assgas_recoverable_p90,
+                oil_and_gas_output_rec.assgas_recoverable_mode,
+                oil_and_gas_output_rec.assgas_recoverable_p50,
+                oil_and_gas_output_rec.assgas_recoverable_mean,
+                oil_and_gas_output_rec.assgas_recoverable_p10,
+                oil_and_gas_output_rec.assgas_recoverable_p01
+        ) IS NOT NULL THEN
 
             UPDATE remi.oil_case_outputs
             SET use_industry_standard_conversion = TRUE
@@ -259,7 +281,7 @@ BEGIN
 
         END IF;
 
-        -- gas case outputs
+--         -- gas case outputs
         INSERT INTO remi.gas_case_outputs (
             id,
             reservoir_submission_detail_id,
@@ -446,7 +468,22 @@ BEGIN
                 oil_and_gas_output_rec.rsd_id
             );
 
-        ELSE
+        ELSIF COALESCE(
+            oil_and_gas_output_rec.gas_recoverable_p99,
+            oil_and_gas_output_rec.gas_recoverable_p90,
+            oil_and_gas_output_rec.gas_recoverable_mode,
+            oil_and_gas_output_rec.gas_recoverable_p50,
+            oil_and_gas_output_rec.gas_recoverable_mean,
+            oil_and_gas_output_rec.gas_recoverable_p10,
+            oil_and_gas_output_rec.gas_recoverable_p01,
+            oil_and_gas_output_rec.asscon_recoverable_p99,
+            oil_and_gas_output_rec.asscon_recoverable_p90,
+            oil_and_gas_output_rec.asscon_recoverable_mode,
+            oil_and_gas_output_rec.asscon_recoverable_p50,
+            oil_and_gas_output_rec.asscon_recoverable_mean,
+            oil_and_gas_output_rec.asscon_recoverable_p10,
+            oil_and_gas_output_rec.asscon_recoverable_p01
+        ) IS NOT NULL THEN
 
             UPDATE remi.gas_case_outputs
             SET use_industry_standard_conversion = TRUE
@@ -501,7 +538,7 @@ BEGIN
     )
     LOOP
 
-        -- mixed case outputs
+--         -- mixed case outputs
         INSERT INTO remi.mixed_case_outputs (
             id,
             reservoir_submission_detail_id,
@@ -817,7 +854,36 @@ BEGIN
                 mixed_output_rec.rsd_id
             );
 
-        ELSE
+        ELSIF COALESCE(
+            oil_and_gas_output_rec.oil_recoverable_p99,
+            oil_and_gas_output_rec.oil_recoverable_p90,
+            oil_and_gas_output_rec.oil_recoverable_mode,
+            oil_and_gas_output_rec.oil_recoverable_p50,
+            oil_and_gas_output_rec.oil_recoverable_mean,
+            oil_and_gas_output_rec.oil_recoverable_p10,
+            oil_and_gas_output_rec.oil_recoverable_p01,
+            oil_and_gas_output_rec.assgas_recoverable_p99,
+            oil_and_gas_output_rec.assgas_recoverable_p90,
+            oil_and_gas_output_rec.assgas_recoverable_mode,
+            oil_and_gas_output_rec.assgas_recoverable_p50,
+            oil_and_gas_output_rec.assgas_recoverable_mean,
+            oil_and_gas_output_rec.assgas_recoverable_p10,
+            oil_and_gas_output_rec.assgas_recoverable_p01,
+            oil_and_gas_output_rec.gas_recoverable_p99,
+            oil_and_gas_output_rec.gas_recoverable_p90,
+            oil_and_gas_output_rec.gas_recoverable_mode,
+            oil_and_gas_output_rec.gas_recoverable_p50,
+            oil_and_gas_output_rec.gas_recoverable_mean,
+            oil_and_gas_output_rec.gas_recoverable_p10,
+            oil_and_gas_output_rec.gas_recoverable_p01,
+            oil_and_gas_output_rec.asscon_recoverable_p99,
+            oil_and_gas_output_rec.asscon_recoverable_p90,
+            oil_and_gas_output_rec.asscon_recoverable_mode,
+            oil_and_gas_output_rec.asscon_recoverable_p50,
+            oil_and_gas_output_rec.asscon_recoverable_mean,
+            oil_and_gas_output_rec.asscon_recoverable_p10,
+            oil_and_gas_output_rec.asscon_recoverable_p01
+        ) IS NOT NULL THEN
 
             UPDATE remi.mixed_case_outputs
             SET use_industry_standard_conversion = TRUE
