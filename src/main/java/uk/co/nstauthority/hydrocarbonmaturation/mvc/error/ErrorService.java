@@ -7,8 +7,8 @@ import static jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.text.RandomStringGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +62,7 @@ public class ErrorService {
   }
 
   private String generateErrorReference() {
-    return RandomStringUtils.random(9, SAFE_CHARACTERS.toUpperCase());
+    return RandomStringGenerator.builder().selectFrom(SAFE_CHARACTERS.toUpperCase().toCharArray()).get().generate(9);
   }
 
   private boolean isStackTraceEnabled() {
