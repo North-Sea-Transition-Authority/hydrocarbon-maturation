@@ -4,6 +4,7 @@ DECLARE
     project_rec RECORD;
     field_id NUMERIC;
     project_id UUID;
+    csr_approved_status_exists NUMERIC;
     producing_status_exists NUMERIC;
 
 BEGIN
@@ -19,6 +20,7 @@ BEGIN
         ptcv.expected_first_draft_fdp_received_date,
         ptcv.expected_consent_date,
         ptcv.expected_production_date,
+        ptcv.actual_csr_approval_date,
         ptcv.actual_first_production_date
         FROM remi.project_tracker_current_view ptcv
     )
@@ -27,6 +29,7 @@ BEGIN
         field_id := null;
         project_id := null;
         producing_status_exists := null;
+        csr_approved_status_exists := null;
 
         SELECT f.field_identifier
         INTO field_id
@@ -259,6 +262,32 @@ BEGIN
                 NULL,
                 'CREATED'
             );
+
+        END IF;
+
+        IF project_rec.actual_csr_approval_date IS NOT NULL THEN
+
+            SELECT 1
+            INTO csr_approved_status_exists
+            FROM remi.field_status_history fsh
+            WHERE fsh.field_identifier = field_id
+              AND fsh.field_status = 'STATUS_400';
+
+            IF csr_approved_status_exists IS NULL THEN
+
+                INSERT INTO remi.field_status_history(
+                    id,
+                    field_identifier,
+                    field_status,
+                    status_date
+                ) VALUES (
+                    gen_random_uuid(),
+                    field_id,
+                    'STATUS_400',
+                    project_rec.actual_csr_approval_date::timestamp
+                );
+
+            END IF;
 
         END IF;
 
