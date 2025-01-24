@@ -3,6 +3,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.energyportal.field.operator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.fivium.energyportalapi.client.field.FieldApi;
@@ -11,7 +12,6 @@ import uk.co.fivium.energyportalapi.generated.client.FieldsProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.Field;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationUnit;
 import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApiWrapper;
-import uk.co.nstauthority.hydrocarbonmaturation.util.StreamUtil;
 
 @Service
 public class FieldOperatorQueryService {
@@ -60,7 +60,7 @@ public class FieldOperatorQueryService {
             )
             .stream()
             .filter(field -> field.getFieldOperator() != null)
-            .collect(StreamUtil.toLinkedHashMap(Field::getFieldId, Field::getFieldOperator))
+            .collect(Collectors.toMap(Field::getFieldId, Field::getFieldOperator, (f1, f2) -> f1))
     );
   }
 }
