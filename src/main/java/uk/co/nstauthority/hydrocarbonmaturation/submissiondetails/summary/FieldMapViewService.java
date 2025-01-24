@@ -23,6 +23,7 @@ public class FieldMapViewService {
   static final String OFFSHORE_PATH_VARIABLE = "UKCS_Offshore_Fields_WGS84";
   static final String ONSHORE_PATH_VARIABLE = "ENG_Onshore_Fields_WGS84";
 
+
   private final RestClient restClient;
 
   public FieldMapViewService() {

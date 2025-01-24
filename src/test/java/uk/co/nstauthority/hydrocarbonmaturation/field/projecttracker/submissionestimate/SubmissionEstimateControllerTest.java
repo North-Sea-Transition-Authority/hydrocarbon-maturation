@@ -78,13 +78,11 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
-  void getSubmissionEstimate_whenNotResponsibleRegulator_thenForbidden() throws Exception {
-    mockRegulatorManagedInfoForField(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
-
-    when(teamQueryService.userHasStaticRole(
+  void getSubmissionEstimate_whenNotProjectAnalyst_thenForbidden() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(
             USER.wuaId(),
-            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
-            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getRole()))
+            TeamType.REGULATOR,
+            Role.PROJECT_ANALYST))
         .thenReturn(false);
 
     mockMvc.perform(
@@ -96,13 +94,11 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
 
   @ParameterizedTest
   @EnumSource(value = SubmissionEstimateType.class)
-  void getSubmissionEstimate_whenResponsibleRegulator(SubmissionEstimateType type) throws Exception {
-    mockRegulatorManagedInfoForField(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
-
-    when(teamQueryService.userHasStaticRole(
+  void getSubmissionEstimate_whenProjectAnalyst(SubmissionEstimateType type) throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(
             USER.wuaId(),
-            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
-            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getRole()))
+            TeamType.REGULATOR,
+            Role.PROJECT_ANALYST))
             .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
@@ -123,7 +119,7 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   void getSubmissionEstimate_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
-    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
         .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
@@ -144,7 +140,7 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   void saveSubmissionEstimate_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
-    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
             .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
@@ -158,13 +154,11 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
-  void saveSubmissionEstimate_whenNotResponsibleRegulator_thenForbidden() throws Exception {
-    mockRegulatorManagedInfoForField(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
-
-    when(teamQueryService.userHasStaticRole(
+  void saveSubmissionEstimate_whenNotProjectAnalyst_thenForbidden() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(
             USER.wuaId(),
-            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
-            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getRole()))
+            TeamType.REGULATOR,
+            Role.PROJECT_ANALYST))
             .thenReturn(false);
 
     mockMvc.perform(
@@ -176,13 +170,11 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
-  void saveSubmissionEstimate_whenResponsibleRegulator_thenOk() throws Exception {
-    mockRegulatorManagedInfoForField(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
-
-    when(teamQueryService.userHasStaticRole(
+  void saveSubmissionEstimate_whenProjectAnalyst_thenOk() throws Exception {
+  when(teamQueryService.userHasRoleInTeamType(
             USER.wuaId(),
-            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
-            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getRole()))
+            TeamType.REGULATOR,
+            Role.PROJECT_ANALYST))
             .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
@@ -204,7 +196,7 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   void getRemoveConfirmation_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
-    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
             .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
@@ -218,13 +210,11 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
-  void getRemoveConfirmation_whenResponsibleRegulator_thenOk() throws Exception {
-    mockRegulatorManagedInfoForField(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
-
-    when(teamQueryService.userHasStaticRole(
+  void getRemoveConfirmation_whenProjectAnalyst_thenOk() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(
             USER.wuaId(),
-            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
-            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getRole()))
+            TeamType.REGULATOR,
+            Role.PROJECT_ANALYST))
             .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
@@ -245,13 +235,13 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
-  void getRemoveConfirmation_whenNotResponsibleRegulator_assertForbidden() throws Exception {
+  void getRemoveConfirmation_whenNotProjectAnalyst_assertForbidden() throws Exception {
     mockRegulatorManagedInfoForField(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
 
-    when(teamQueryService.userHasStaticRole(
+    when(teamQueryService.userHasRoleInTeamType(
             USER.wuaId(),
-            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
-            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getRole()))
+            TeamType.REGULATOR,
+            Role.PROJECT_ANALYST))
             .thenReturn(false);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
             .thenReturn(project);
@@ -272,7 +262,7 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   void removeEstimate_whenProjectNotExtant_thenNotFound(ProjectStatus status) throws Exception {
     project.setProjectStatus(status);
 
-    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
             .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenReturn(project);
@@ -286,13 +276,11 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   }
 
   @SecurityTest
-  void removeSubmissionEstimate_whenNotResponsibleRegulator_thenForbidden() throws Exception {
-    mockRegulatorManagedInfoForField(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
-
-    when(teamQueryService.userHasStaticRole(
+  void removeSubmissionEstimate_whenNotProjectAnalyst_thenForbidden() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(
             USER.wuaId(),
-            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
-            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getRole()))
+            TeamType.REGULATOR,
+            Role.PROJECT_ANALYST))
             .thenReturn(false);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
             .thenReturn(project);
@@ -307,13 +295,11 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
 
   @ParameterizedTest
   @EnumSource(value = SubmissionEstimateType.class)
-  void removeSubmissionEstimate_whenResponsibleRegulator_thenRedirect(SubmissionEstimateType type) throws Exception {
-    mockRegulatorManagedInfoForField(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
-
-    when(teamQueryService.userHasStaticRole(
+  void removeSubmissionEstimate_whenProjectAnalyst_thenRedirect(SubmissionEstimateType type) throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(
             USER.wuaId(),
-            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
-            ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getRole()))
+            TeamType.REGULATOR,
+            Role.PROJECT_ANALYST))
             .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
             .thenReturn(project);
@@ -339,7 +325,7 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
 
   @Test
   void getSubmissionEstimate_whenProjectDoesNotMatchResource_thenNotFound() throws Exception {
-    when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+    when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
             .thenReturn(true);
     when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
         .thenThrow(RemiEntityNotFoundException.class);
@@ -355,7 +341,7 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   class GivenUrlIsInValid {
     @Test
     void whenGetAddEstimate_andInvalidSubmissionEstimateType_thenNotFound() throws Exception {
-      when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+      when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
               .thenReturn(true);
       when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
           .thenReturn(project);
@@ -369,7 +355,7 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
 
     @Test
     void whenSaveEstimate_andInvalidSubmissionEstimateType_thenNotFound() throws Exception {
-      when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+      when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
               .thenReturn(true);
       when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
           .thenReturn(project);
@@ -384,7 +370,7 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
 
     @Test
     void whenGetRemoveConfirmation_andInvalidSubmissionEstimateType_thenNotFound() throws Exception {
-      when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+      when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
               .thenReturn(true);
       when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
           .thenReturn(project);
@@ -401,7 +387,7 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
   class GivenIsProjectAnalyst {
     @BeforeEach
     void setUp() {
-      when(teamQueryService.userHasStaticRole(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
+      when(teamQueryService.userHasRoleInTeamType(USER.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST))
               .thenReturn(true);
       when(projectTrackerControllerService.getProjectForResourceOrThrow(RESOURCE_ID, PROJECT_ID))
           .thenReturn(project);
@@ -701,7 +687,6 @@ class SubmissionEstimateControllerTest extends AbstractControllerTest {
     }
   }
 
-  @SuppressWarnings("unchecked")
   private void mockRegulatorManagedInfoForField(ResponsibleTeamType responsibleTeamType) {
     var regulatorManagedInformation = new RegulatorManagedInformation();
     regulatorManagedInformation.setResponsibleTeamType(responsibleTeamType);

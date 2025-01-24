@@ -13,6 +13,9 @@ DO $$
                 ptccv.project_name,
                 ptccv.field_name,
                 ptccv.estimated_final_production_date,
+                ptccv.actual_first_cop_submission_received_date,
+                ptccv.cop_no_objection_letter_sent,
+                ptccv.operator_confirmation_of_cop_received,
                 ptccv.actual_final_production_date
             FROM remi.project_tracker_cop_current_view ptccv
         )
@@ -90,6 +93,60 @@ DO $$
                         cop_project_rec.estimated_final_production_date,
                         NULL,
                         NULL,
+                        'CREATED'
+                    );
+
+                END IF;
+
+                IF cop_project_rec.actual_first_cop_submission_received_date IS NOT NULL THEN
+
+                    INSERT INTO remi.actual_project_dates (
+                        id,
+                        project_id,
+                        actual_project_date_type,
+                        date,
+                        actual_project_date_status
+                    ) VALUES (
+                        gen_random_uuid(),
+                        project_id,
+                        'COP_FIRST_SUBMISSION',
+                        cop_project_rec.actual_first_cop_submission_received_date,
+                        'CREATED'
+                    );
+
+                END IF;
+
+                IF cop_project_rec.cop_no_objection_letter_sent IS NOT NULL THEN
+
+                    INSERT INTO remi.actual_project_dates (
+                        id,
+                        project_id,
+                        actual_project_date_type,
+                        date,
+                        actual_project_date_status
+                    ) VALUES (
+                        gen_random_uuid(),
+                        project_id,
+                        'COP_NO_OBJECTION_LETTER_SENT',
+                        cop_project_rec.cop_no_objection_letter_sent,
+                        'CREATED'
+                    );
+
+                END IF;
+
+                IF cop_project_rec.operator_confirmation_of_cop_received IS NOT NULL THEN
+
+                    INSERT INTO remi.actual_project_dates (
+                        id,
+                        project_id,
+                        actual_project_date_type,
+                        date,
+                        actual_project_date_status
+                    ) VALUES (
+                        gen_random_uuid(),
+                        project_id,
+                        'COP_CONFIRMATION_RECEIVED',
+                        cop_project_rec.operator_confirmation_of_cop_received,
                         'CREATED'
                     );
 

@@ -27,9 +27,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectType;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.projectdetails.ProjectTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformation;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.ResponsibleTeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
@@ -51,8 +48,6 @@ class SubmissionEstimateSummaryServiceTest {
   private SubmissionEstimateService submissionEstimateService;
   @Mock
   private TeamQueryService teamQueryService;
-  @Mock
-  private RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
   @InjectMocks
   SubmissionEstimateSummaryService submissionEstimateSummaryService;
 
@@ -63,8 +58,6 @@ class SubmissionEstimateSummaryServiceTest {
   @BeforeEach
   void setUp() {
     project = ProjectTestUtils.createProject(FieldTestUtils.createField(8000), UUID.randomUUID());
-
-    mockGetRegManagedTeamPermissions();
   }
 
   @Nested
@@ -163,57 +156,13 @@ class SubmissionEstimateSummaryServiceTest {
       }
 
       @Test
-      void whenResponsibleRegulator_assertActionsAndHeader() {
-        when(teamQueryService.userHasStaticRole(
-                USER.wuaId(),
-                TeamType.REGULATOR,
-                Role.PROJECT_ANALYST)
-        ).thenReturn(false);
-        when(teamQueryService.userHasStaticRole(
-                USER.wuaId(),
-                ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
-                Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
-        ).thenReturn(true);
-
-        var summaryCards = invokeAndGetSummaryCards();
-
-        var csrCard = summaryCards.get(0);
-        assertSummaryCardHasActions(csrCard, SubmissionEstimateType.CSR);
-        var csrTableView = (SummaryTableView) csrCard.summaryData();
-        var csrTableRows = csrTableView.tableRows();
-        assertSummaryTableRowsHaveActions(csrTableRows, csrEstimates);
-
-        var fdpCard = summaryCards.get(1);
-        assertSummaryCardHasActions(fdpCard, SubmissionEstimateType.FDP);
-        var fdpTableView = (SummaryTableView) fdpCard.summaryData();
-        var fdpTableRows = fdpTableView.tableRows();
-        assertSummaryTableRowsHaveActions(fdpTableRows, fdpEstimates);
-
-        var decisionDateCard = summaryCards.get(2);
-        assertSummaryCardHasActions(decisionDateCard, SubmissionEstimateType.DECISION_DATE);
-        var decisionDateTableView = (SummaryTableView) decisionDateCard.summaryData();
-        var decisionDateTableRows = decisionDateTableView.tableRows();
-        assertSummaryTableRowsHaveActions(decisionDateTableRows, decisionDateEstimates);
-        
-        var firstProductionCard = summaryCards.get(3);
-        assertSummaryCardHasActions(firstProductionCard, SubmissionEstimateType.FIRST_PRODUCTION);
-        var firstProductionTableView = (SummaryTableView) firstProductionCard.summaryData();
-        var firstProductionTableRows = firstProductionTableView.tableRows();
-        assertSummaryTableRowsHaveActions(firstProductionTableRows, firstProductionEstimates);
-      }
-
-      @Test
       void whenCannotManageProject_assertActionsAndHeader() {
         when(teamQueryService.userHasStaticRole(
                 USER.wuaId(),
                 TeamType.REGULATOR,
                 Role.PROJECT_ANALYST)
         ).thenReturn(false);
-        when(teamQueryService.userHasStaticRole(
-                USER.wuaId(),
-                ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
-                Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
-        ).thenReturn(false);
+        
 
         var summaryCards = invokeAndGetSummaryCards();
 
@@ -343,57 +292,13 @@ class SubmissionEstimateSummaryServiceTest {
       }
 
       @Test
-      void whenResponsibleRegulator_assertActionsAndHeader() {
-        when(teamQueryService.userHasStaticRole(
-                USER.wuaId(),
-                TeamType.REGULATOR,
-                Role.PROJECT_ANALYST)
-        ).thenReturn(false);
-        when(teamQueryService.userHasStaticRole(
-                USER.wuaId(),
-                ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
-                Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
-        ).thenReturn(true);
-
-        var summaryCards = invokeAndGetSummaryCards();
-
-        var csrCard = summaryCards.get(0);
-        assertSummaryCardHasActions(csrCard, SubmissionEstimateType.CSR);
-        var csrTableView = (SummaryTableView) csrCard.summaryData();
-        var csrTableRows = csrTableView.tableRows();
-        assertSummaryTableRowsHaveActions(csrTableRows, csrEstimates);
-
-        var fdpaCard = summaryCards.get(1);
-        assertSummaryCardHasActions(fdpaCard, SubmissionEstimateType.FDPA);
-        var fdpaTableView = (SummaryTableView) fdpaCard.summaryData();
-        var fdpaTableRows = fdpaTableView.tableRows();
-        assertSummaryTableRowsHaveActions(fdpaTableRows, fdpaEstimates);
-
-        var fdpaStartUpCard = summaryCards.get(2);
-        assertSummaryCardHasActions(fdpaStartUpCard, SubmissionEstimateType.FDPA_START_UP);
-        var fdpaStartUpTableView = (SummaryTableView) fdpaStartUpCard.summaryData();
-        var fdpaStartUpTableRows = fdpaStartUpTableView.tableRows();
-        assertSummaryTableRowsHaveActions(fdpaStartUpTableRows, fdpaStartUpEstimates);
-
-        var decisionDateCard = summaryCards.get(3);
-        assertSummaryCardHasActions(decisionDateCard, SubmissionEstimateType.DECISION_DATE);
-        var decisionDateTableView = (SummaryTableView) decisionDateCard.summaryData();
-        var decisionDateTableRows = decisionDateTableView.tableRows();
-        assertSummaryTableRowsHaveActions(decisionDateTableRows, decisionDateEstimates);
-      }
-
-      @Test
       void whenCannotManageProject_assertActionsAndHeader() {
         when(teamQueryService.userHasStaticRole(
                 USER.wuaId(),
                 TeamType.REGULATOR,
                 Role.PROJECT_ANALYST)
         ).thenReturn(false);
-        when(teamQueryService.userHasStaticRole(
-                USER.wuaId(),
-                ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
-                Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
-        ).thenReturn(false);
+        
 
         var summaryCards = invokeAndGetSummaryCards();
 
@@ -481,38 +386,11 @@ class SubmissionEstimateSummaryServiceTest {
       }
 
       @Test
-      void whenResponsibleRegulator_assertActionsAndHeader() {
-        when(teamQueryService.userHasStaticRole(
-                USER.wuaId(),
-                TeamType.REGULATOR,
-                Role.PROJECT_ANALYST)
-        ).thenReturn(false);
-        when(teamQueryService.userHasStaticRole(
-                USER.wuaId(),
-                ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
-                Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
-        ).thenReturn(true);
-
-        var summaryCards = invokeAndGetSummaryCards();
-
-        var copCard = summaryCards.get(0);
-        assertSummaryCardHasActions(copCard, SubmissionEstimateType.COP);
-        var copTableView = (SummaryTableView) copCard.summaryData();
-        var copTableRows = copTableView.tableRows();
-        assertSummaryTableRowsHaveActions(copTableRows, copEstimates);
-      }
-
-      @Test
       void whenCannotManageProject_assertActionsAndHeader() {
         when(teamQueryService.userHasStaticRole(
                 USER.wuaId(),
                 TeamType.REGULATOR,
                 Role.PROJECT_ANALYST)
-        ).thenReturn(false);
-        when(teamQueryService.userHasStaticRole(
-                USER.wuaId(),
-                ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA.getTeamType(),
-                Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)
         ).thenReturn(false);
 
         var summaryCards = invokeAndGetSummaryCards();
@@ -556,14 +434,6 @@ class SubmissionEstimateSummaryServiceTest {
         .thenReturn(createdEstimates);
 
     return createdEstimates;
-  }
-
-  @SuppressWarnings("unchecked")
-  private void mockGetRegManagedTeamPermissions() {
-    var regulatorManagedInformation = new RegulatorManagedInformation();
-    regulatorManagedInformation.setResponsibleTeamType(ResponsibleTeamType.CENTRAL_NORTH_SEA_SOUTHERN_NORTH_SEA_EAST_IRISH_SEA);
-    when(regulatorManagedInformationPersistenceService.getRegulatorManagedInformationByResourceOrThrow(project.getField().getResource()))
-        .thenReturn(regulatorManagedInformation);
   }
 
   private LocalDate getRandomDate() {

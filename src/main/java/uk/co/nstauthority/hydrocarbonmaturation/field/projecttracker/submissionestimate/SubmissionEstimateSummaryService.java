@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import uk.co.nstauthority.hydrocarbonmaturation.authentication.User;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
-import uk.co.nstauthority.hydrocarbonmaturation.regulatormanagedinformation.RegulatorManagedInformationPersistenceService;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryAction;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCard;
 import uk.co.nstauthority.hydrocarbonmaturation.summary.SummaryCardType;
@@ -37,15 +36,14 @@ class SubmissionEstimateSummaryService implements SummarySectionService<Project>
 
   private final SubmissionEstimateService submissionEstimateService;
   private final TeamQueryService teamQueryService;
-  private final RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService;
 
   @Autowired
-  SubmissionEstimateSummaryService(SubmissionEstimateService submissionEstimateService,
-                                   TeamQueryService teamQueryService,
-                                   RegulatorManagedInformationPersistenceService regulatorManagedInformationPersistenceService) {
+  SubmissionEstimateSummaryService(
+      SubmissionEstimateService submissionEstimateService,
+      TeamQueryService teamQueryService
+  ) {
     this.submissionEstimateService = submissionEstimateService;
     this.teamQueryService = teamQueryService;
-    this.regulatorManagedInformationPersistenceService = regulatorManagedInformationPersistenceService;
   }
 
   @Override
@@ -62,14 +60,7 @@ class SubmissionEstimateSummaryService implements SummarySectionService<Project>
   }
 
   SummaryCard getEstimateSummaryCard(Project project, SubmissionEstimateType type, User user) {
-    var responsibleTeamType = regulatorManagedInformationPersistenceService
-        .getRegulatorManagedInformationByResourceOrThrow(project.getField().getResource())
-        .getResponsibleTeamType();
-    var teamType = responsibleTeamType.getTeamType();
-    var role = responsibleTeamType.getRole();
-
-    var canModifyDates = teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST)
-        || teamQueryService.userHasStaticRole(user.wuaId(), teamType, role);
+    var canModifyDates = teamQueryService.userHasStaticRole(user.wuaId(), TeamType.REGULATOR, Role.PROJECT_ANALYST);
 
     var headings = getHeadingRow();
     if (canModifyDates) {

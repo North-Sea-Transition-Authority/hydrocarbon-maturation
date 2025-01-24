@@ -16,20 +16,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import uk.co.nstauthority.hydrocarbonmaturation.authorisation.HasAnyRole;
 import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsExtantProject;
-import uk.co.nstauthority.hydrocarbonmaturation.authorisation.IsRegulatorForProjectField;
 import uk.co.nstauthority.hydrocarbonmaturation.exception.RemiEntityNotFoundException;
 import uk.co.nstauthority.hydrocarbonmaturation.fds.notificationbanner.NotificationBannerUtil;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.Project;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ProjectTrackerControllerService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.projecttracker.ViewProjectController;
 import uk.co.nstauthority.hydrocarbonmaturation.mvc.ReverseRouter;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.Role;
+import uk.co.nstauthority.hydrocarbonmaturation.teams.TeamType;
 import uk.co.nstauthority.hydrocarbonmaturation.util.StringUtil;
 
 @Controller
 @RequestMapping("/view-resource-record/{resourceId}/project-tracker/{projectId}")
 @IsExtantProject
-@IsRegulatorForProjectField
+@HasAnyRole(role = Role.PROJECT_ANALYST, teamType = TeamType.REGULATOR)
 class SubmissionEstimateController {
   private final ProjectTrackerControllerService projectTrackerControllerService;
   private final SubmissionEstimateFormValidator submissionEstimateFormValidator;

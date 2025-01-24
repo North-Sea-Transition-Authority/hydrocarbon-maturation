@@ -20,6 +20,8 @@ BEGIN
         ptcv.expected_first_draft_fdp_received_date,
         ptcv.expected_consent_date,
         ptcv.expected_production_date,
+        ptcv.actual_first_draft_csr_received_date,
+        ptcv.actual_first_draft_fdp_received_date,
         ptcv.actual_csr_approval_date,
         ptcv.actual_first_production_date
         FROM remi.project_tracker_current_view ptcv
@@ -261,6 +263,42 @@ BEGIN
                 NULL,
                 NULL,
                 'CREATED'
+            );
+
+        END IF;
+
+        IF project_rec.actual_first_draft_csr_received_date IS NOT NULL THEN
+
+            INSERT INTO remi.actual_project_dates (
+                id,
+                project_id,
+                actual_project_date_type,
+                date,
+                actual_project_date_status
+            ) VALUES (
+                gen_random_uuid(),
+                project_id,
+                'CSR_FIRST_DRAFT',
+                project_rec.actual_first_draft_csr_received_date,
+                'CREATED'
+            );
+
+        END IF;
+
+        IF project_rec.actual_first_draft_fdp_received_date IS NOT NULL THEN
+
+            INSERT INTO remi.actual_project_dates (
+                id,
+                project_id,
+                actual_project_date_type,
+                date,
+                actual_project_date_status
+            ) VALUES (
+                 gen_random_uuid(),
+                 project_id,
+                 'FDP_FIRST_DRAFT',
+                 project_rec.actual_first_draft_fdp_received_date,
+                 'CREATED'
             );
 
         END IF;
