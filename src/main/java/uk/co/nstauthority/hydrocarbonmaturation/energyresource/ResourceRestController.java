@@ -60,7 +60,6 @@ public class ResourceRestController {
         searchTerm,
         submissionQueryService.getLatestDiscoveriesByNameForSubmissionType(
             searchTerm,
-            submissionType,
             user)
     );
   }
@@ -69,7 +68,7 @@ public class ResourceRestController {
   public RestSearchResult searchDiscoveriesNotInGroupOrPreferredView(@RequestParam("term") String searchTerm) {
     return searchSelectorService.search(
         searchTerm,
-        submissionQueryService.getLatestNotRelinquishedAndNotInGroupOrPreferredViewDiscoveriesByName(
+        submissionQueryService.getLatestActivePreferredViewDiscoveriesByName(
             searchTerm)
     );
   }

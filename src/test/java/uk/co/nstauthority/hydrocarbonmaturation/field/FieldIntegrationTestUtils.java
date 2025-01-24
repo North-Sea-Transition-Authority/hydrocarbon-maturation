@@ -2,6 +2,7 @@ package uk.co.nstauthority.hydrocarbonmaturation.field;
 
 import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
+import uk.co.nstauthority.hydrocarbonmaturation.energyresource.Resource;
 import uk.co.nstauthority.hydrocarbonmaturation.energyresource.ResourceIntegrationTestUtils;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicence;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldstatushistory.FieldStatusHistory;
@@ -15,11 +16,11 @@ public class FieldIntegrationTestUtils {
     throw new AssertionError();
   }
 
-  private static Field buildField(String fieldName, EntityManager entityManager) {
+  private static Field buildField(String fieldName, Resource fieldResource, EntityManager entityManager) {
     var field = new Field();
     field.setCorrectedLegalFieldName(fieldName);
 
-    field.setResource(ResourceIntegrationTestUtils.buildFieldResource(entityManager));
+    field.setResource(fieldResource);
 
     entityManager.persist(field);
     entityManager.flush();
@@ -49,7 +50,14 @@ public class FieldIntegrationTestUtils {
    * @return the created field with an associated field status history with STATUS_200
    */
   public static Field createField(String fieldName, EntityManager entityManager) {
-    var field = buildField(fieldName, entityManager);
+    var field = buildField(fieldName, ResourceIntegrationTestUtils.buildFieldResource(entityManager), entityManager);
+    addFieldStatusHistory(field, FieldStatus.STATUS_200, entityManager);
+
+    return field;
+  }
+
+  public static Field createField(String fieldName, Resource fieldResource, EntityManager entityManager) {
+    var field = buildField(fieldName, fieldResource, entityManager);
     addFieldStatusHistory(field, FieldStatus.STATUS_200, entityManager);
 
     return field;

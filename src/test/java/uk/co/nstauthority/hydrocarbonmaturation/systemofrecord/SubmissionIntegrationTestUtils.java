@@ -154,6 +154,17 @@ public class SubmissionIntegrationTestUtils {
     return resourceLink;
   }
 
+  public static ResourceLink createFieldResourceLink(Resource discovery, Resource field, EntityManager entityManager) {
+    var resourceLink = new ResourceLink();
+    resourceLink.setDiscoveryResource(discovery);
+    resourceLink.setFieldResource(field);
+
+    entityManager.persist(resourceLink);
+    entityManager.flush();
+
+    return resourceLink;
+  }
+
   public static ResourceDetail createResourceDetail(SubmissionDetail submissionDetail, String resourceName, int organisationId,
                                                     EntityManager entityManager) {
     var resourceDetail = new ResourceDetail();
