@@ -108,7 +108,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
       assertThat(results)
           .extracting(
               ResourceRecordQueryResult::submissionDetailId,
-              ResourceRecordQueryResult::organisationResponsibleId
+              ResourceRecordQueryResult::prePearsOrganisationId
           )
           .containsExactly(
               tuple(
@@ -192,7 +192,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
-            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::prePearsOrganisationId,
             ResourceRecordQueryResult::licenceApplicationReference
         )
         .containsExactly(
@@ -294,7 +294,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
-            ResourceRecordQueryResult::organisationResponsibleId)
+            ResourceRecordQueryResult::prePearsOrganisationId)
         .containsExactly(
             tuple(
                 submissionUserIsResponsibleFor.getId(),
@@ -591,7 +591,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
             ResourceRecordQueryResult::resourceId,
             ResourceRecordQueryResult::resourceType,
             ResourceRecordQueryResult::resourceName,
-            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::prePearsOrganisationId,
             ResourceRecordQueryResult::responsibleTeam,
             ResourceRecordQueryResult::parentFieldName,
             ResourceRecordQueryResult::fieldStatus,
@@ -652,7 +652,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
             ResourceRecordQueryResult::resourceId,
             ResourceRecordQueryResult::resourceType,
             ResourceRecordQueryResult::resourceName,
-            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::prePearsOrganisationId,
             ResourceRecordQueryResult::responsibleTeam,
             ResourceRecordQueryResult::parentFieldName,
             ResourceRecordQueryResult::fieldStatus,
@@ -712,7 +712,7 @@ class OperatorResourceRecordQueryServiceIntegrationTest {
                     ResourceRecordQueryResult::resourceId,
                     ResourceRecordQueryResult::resourceType,
                     ResourceRecordQueryResult::resourceName,
-                    ResourceRecordQueryResult::organisationResponsibleId,
+                    ResourceRecordQueryResult::prePearsOrganisationId,
                     ResourceRecordQueryResult::responsibleTeam,
                     ResourceRecordQueryResult::parentFieldName,
                     ResourceRecordQueryResult::fieldStatus,

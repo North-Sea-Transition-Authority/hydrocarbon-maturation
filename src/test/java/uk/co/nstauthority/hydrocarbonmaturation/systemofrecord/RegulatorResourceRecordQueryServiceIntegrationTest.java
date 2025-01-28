@@ -141,7 +141,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
             ResourceRecordQueryResult::centreOfInterestQuadBlock,
-            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::prePearsOrganisationId,
             ResourceRecordQueryResult::resourceName,
             ResourceRecordQueryResult::resourceType,
             ResourceRecordQueryResult::licencesTheResourceIsOn,
@@ -277,7 +277,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
             ResourceRecordQueryResult::centreOfInterestQuadBlock,
-            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::prePearsOrganisationId,
             ResourceRecordQueryResult::resourceName,
             ResourceRecordQueryResult::resourceType,
             ResourceRecordQueryResult::licencesTheResourceIsOn
@@ -346,7 +346,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
             ResourceRecordQueryResult::centreOfInterestQuadBlock,
-            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::prePearsOrganisationId,
             ResourceRecordQueryResult::resourceName,
             ResourceRecordQueryResult::resourceType,
             ResourceRecordQueryResult::licencesTheResourceIsOn
@@ -415,7 +415,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
             ResourceRecordQueryResult::centreOfInterestQuadBlock,
-            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::prePearsOrganisationId,
             ResourceRecordQueryResult::resourceName,
             ResourceRecordQueryResult::resourceType,
             ResourceRecordQueryResult::licencesTheResourceIsOn
@@ -466,7 +466,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
             ResourceRecordQueryResult::centreOfInterestQuadBlock,
-            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::prePearsOrganisationId,
             ResourceRecordQueryResult::resourceName,
             ResourceRecordQueryResult::resourceType,
             ResourceRecordQueryResult::licencesTheResourceIsOn
@@ -517,7 +517,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
             ResourceRecordQueryResult::centreOfInterestQuadBlock,
-            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::prePearsOrganisationId,
             ResourceRecordQueryResult::resourceName,
             ResourceRecordQueryResult::resourceType,
             ResourceRecordQueryResult::licencesTheResourceIsOn
@@ -1018,7 +1018,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
     assertThat(results)
         .extracting(
             ResourceRecordQueryResult::submissionDetailId,
-            ResourceRecordQueryResult::organisationResponsibleId)
+            ResourceRecordQueryResult::prePearsOrganisationId)
         .containsExactly(
             tuple(
                 submissionWithNotExtantLicence.getId(),
@@ -1362,7 +1362,7 @@ class RegulatorResourceRecordQueryServiceIntegrationTest {
             ResourceRecordQueryResult::resourceId,
             ResourceRecordQueryResult::resourceType,
             ResourceRecordQueryResult::resourceName,
-            ResourceRecordQueryResult::organisationResponsibleId,
+            ResourceRecordQueryResult::prePearsOrganisationId,
             ResourceRecordQueryResult::responsibleTeam,
             ResourceRecordQueryResult::parentFieldName,
             ResourceRecordQueryResult::fieldStatus

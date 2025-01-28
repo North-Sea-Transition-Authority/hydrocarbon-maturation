@@ -55,8 +55,8 @@ public class SearchResourceRecordsService {
                                                                       User user) {
     var resourceRecordSearchResults = queryServiceStrategy.getResourceRecordSearchResults(form, user);
 
-    var organisationUnitIds = getOrganisationUnitIdsFromResults(resourceRecordSearchResults);
-    var organisationUnitMap = organisationUnitQueryService.getOrganisationUnitMapByIds(organisationUnitIds);
+    var prePearsOrganisationUnitIds = getPrePearsOrganisationUnitIdsFromResults(resourceRecordSearchResults);
+    var prePearsOrganisationUnitMap = organisationUnitQueryService.getOrganisationUnitMapByIds(prePearsOrganisationUnitIds);
 
     var fieldOperatorMap = getFieldOperatorOrganisationUnitDtos(resourceRecordSearchResults);
 
@@ -64,7 +64,7 @@ public class SearchResourceRecordsService {
     var licenceMap = licenceQueryService.getLicenceMapByIds(licences);
 
     return resourceRecordSearchResults.stream()
-        .map(result -> buildResourceRecordSearchResultItem(result, organisationUnitMap, licenceMap, fieldOperatorMap))
+        .map(result -> buildResourceRecordSearchResultItem(result, prePearsOrganisationUnitMap, licenceMap, fieldOperatorMap))
         .toList();
   }
 
@@ -80,9 +80,9 @@ public class SearchResourceRecordsService {
         .toList();
   }
 
-  private List<Integer> getOrganisationUnitIdsFromResults(List<ResourceRecordQueryResult> resourceRecordSearchResults) {
+  private List<Integer> getPrePearsOrganisationUnitIdsFromResults(List<ResourceRecordQueryResult> resourceRecordSearchResults) {
     return resourceRecordSearchResults.stream()
-        .map(ResourceRecordQueryResult::organisationResponsibleId)
+        .map(ResourceRecordQueryResult::prePearsOrganisationId)
         .filter(Objects::nonNull)
         .distinct()
         .toList();
@@ -188,7 +188,7 @@ public class SearchResourceRecordsService {
 
   private ResourceRecordSearchResultItem buildResourceRecordSearchResultItem(
       ResourceRecordQueryResult resourceRecordQueryResult,
-      Map<Integer, OrganisationUnitDto> organisationUnitMap,
+      Map<Integer, OrganisationUnitDto> prePearsOrganisationUnitMap,
       Map<Integer, LicenceView> licenceMap,
       Map<Integer, OrganisationUnitDto> fieldOperatorMap) {
 
@@ -196,7 +196,7 @@ public class SearchResourceRecordsService {
         getHeadingText(resourceRecordQueryResult),
         getCaptionText(resourceRecordQueryResult),
         getActionUrl(resourceRecordQueryResult),
-        getResultItemModelProperties(resourceRecordQueryResult, organisationUnitMap, licenceMap, fieldOperatorMap));
+        getResultItemModelProperties(resourceRecordQueryResult, prePearsOrganisationUnitMap, licenceMap, fieldOperatorMap));
   }
 
   private String getHeadingText(ResourceRecordQueryResult resourceRecordQueryResult) {
@@ -236,12 +236,12 @@ public class SearchResourceRecordsService {
 
   private ResourceRecordSearchResultItemModelProperties getResultItemModelProperties(
       ResourceRecordQueryResult resourceRecordQueryResult,
-      Map<Integer, OrganisationUnitDto> organisationUnitMap,
+      Map<Integer, OrganisationUnitDto> prePearsOrganisationUnitMap,
       Map<Integer, LicenceView> licenceMap,
       Map<Integer, OrganisationUnitDto> fieldOperatorMap) {
 
     var responsibleTeam = resourceRecordQueryResult.responsibleTeam();
-    var organisationResponsibleId = resourceRecordQueryResult.organisationResponsibleId();
+    var organisationResponsibleId = resourceRecordQueryResult.prePearsOrganisationId();
     var licencesTheResourceIsOn = resourceRecordQueryResult.licencesTheResourceIsOn();
     var fieldId = resourceRecordQueryResult.fieldIdentifier();
 
@@ -251,7 +251,10 @@ public class SearchResourceRecordsService {
           submissionDetailDisplayService.getOrganisationResponsibleDisplay(fieldOperatorMap.get(fieldId));
     } else {
       organisationResponsibleDisplay =
-          submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(organisationUnitMap, organisationResponsibleId);
+          submissionDetailDisplayService.getOrganisationResponsibleDisplayFromMap(
+              prePearsOrganisationUnitMap,
+              organisationResponsibleId
+          );
     }
 
     var licencesForDisplay = submissionDetailDisplayService.getLicencesForDisplayFromMap(licenceMap, licencesTheResourceIsOn);

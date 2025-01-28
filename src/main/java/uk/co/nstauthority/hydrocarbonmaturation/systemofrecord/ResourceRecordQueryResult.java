@@ -15,7 +15,7 @@ public record ResourceRecordQueryResult(
     Integer fieldIdentifier,
     String resourceName,
     String centreOfInterestQuadBlock,
-    Integer organisationResponsibleId,
+    Integer prePearsOrganisationId,
     List<Integer> licencesTheResourceIsOn,
     ResponsibleTeamType responsibleTeam,
     String parentFieldName,

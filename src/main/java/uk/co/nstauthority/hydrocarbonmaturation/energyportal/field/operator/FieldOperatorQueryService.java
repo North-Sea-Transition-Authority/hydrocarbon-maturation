@@ -17,6 +17,7 @@ import uk.co.nstauthority.hydrocarbonmaturation.energyportal.api.EnergyPortalApi
 public class FieldOperatorQueryService {
   public static final FieldProjectionRoot FIELD_OPERATOR_PROJECTION_ROOT =
       new FieldProjectionRoot()
+          .fieldId()
           .fieldOperator()
           .organisationUnitId()
           .name()
@@ -24,6 +25,7 @@ public class FieldOperatorQueryService {
 
   public static final FieldsProjectionRoot FIELDS_OPERATOR_PROJECTION_ROOT =
       new FieldsProjectionRoot()
+          .fieldId()
           .fieldOperator()
           .organisationUnitId()
           .name()
