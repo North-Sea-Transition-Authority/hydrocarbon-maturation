@@ -85,7 +85,7 @@ class SubmissionQueryService {
     }
 
     var submissionQueryResults = context.select(
-        RESOURCES.ID,
+        RESOURCE_DETAILS.ID,
         RESOURCE_DETAILS.RESOURCE_NAME,
         TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
         GENERAL_DETAILS.LICENCE_APPLICATION_REFERENCE
@@ -154,7 +154,7 @@ class SubmissionQueryService {
     }
 
     var submissionQueryResults = context.select(
-        RESOURCES.ID,
+        RESOURCE_DETAILS.ID,
         RESOURCE_DETAILS.RESOURCE_NAME,
         TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
         GENERAL_DETAILS.LICENCE_APPLICATION_REFERENCE
@@ -228,7 +228,7 @@ class SubmissionQueryService {
    */
   public List<ResourceView> getLatestActivePreferredViewDiscoveriesByName(String name) {
     var submissionQueryResults = context.select(
-        RESOURCES.ID,
+        RESOURCE_DETAILS.ID,
         RESOURCE_DETAILS.RESOURCE_NAME,
         TRAP_PROPERTIES.CENTRE_OF_INTEREST_QUADRANT_BLOCK,
         GENERAL_DETAILS.LICENCE_APPLICATION_REFERENCE

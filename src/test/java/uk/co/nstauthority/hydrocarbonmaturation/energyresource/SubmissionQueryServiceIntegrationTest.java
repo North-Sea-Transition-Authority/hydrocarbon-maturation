@@ -65,7 +65,7 @@ class SubmissionQueryServiceIntegrationTest {
         generalDetail.getLicenceApplicationReference()
     );
 
-    var resourceView1 = new ResourceView(prospect1.getId(), displayString);
+    var resourceView1 = new ResourceView(resourceDetail1.getId(), displayString);
 
     var prospect2 = ResourceIntegrationTestUtils.buildResource(ResourceType.PROSPECT, entityManager);
 
@@ -74,7 +74,7 @@ class SubmissionQueryServiceIntegrationTest {
 
     var resourceDetail2 = SubmissionIntegrationTestUtils.createResourceDetail(submissionDetail2, "Prospect 2", 2, entityManager);
 
-    var resourceView2 = new ResourceView(prospect2.getId(), resourceDetail2.getResourceName());
+    var resourceView2 = new ResourceView(resourceDetail2.getId(), resourceDetail2.getResourceName());
 
     var expectedResult = List.of(resourceView1, resourceView2);
 
@@ -101,7 +101,7 @@ class SubmissionQueryServiceIntegrationTest {
         null
     );
 
-    var resourceView = new ResourceView(prospect1.getId(), displayString);
+    var resourceView = new ResourceView(resourceDetail1.getId(), displayString);
 
     var prospect2 = ResourceIntegrationTestUtils.buildResource(ResourceType.PROSPECT, entityManager);
 
@@ -226,7 +226,7 @@ class SubmissionQueryServiceIntegrationTest {
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
     assertThat(submissionQueryService.getLatestProspectsByNameForSubmissionType("prospect", SubmissionType.CREATE_PROSPECT, USER))
-        .isEqualTo(List.of(new ResourceView(prospect.getId(), displayString)));
+        .isEqualTo(List.of(new ResourceView(resourceDetails.getId(), displayString)));
   }
 
   @Test
@@ -249,7 +249,7 @@ class SubmissionQueryServiceIntegrationTest {
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
     assertThat(submissionQueryService.getLatestProspectsByNameForSubmissionType("prospect", SubmissionType.CREATE_PROSPECT, USER))
-        .isEqualTo(List.of(new ResourceView(prospect.getId(), displayString)));
+        .isEqualTo(List.of(new ResourceView(resourceDetails.getId(), displayString)));
   }
 
   @Test
@@ -287,7 +287,7 @@ class SubmissionQueryServiceIntegrationTest {
         null
     );
 
-    var resourceView1 = new ResourceView(discovery1.getId(), displayString);
+    var resourceView1 = new ResourceView(resourceDetail1.getId(), displayString);
 
     var discovery2 = ResourceIntegrationTestUtils.buildResource(ResourceType.DISCOVERY, entityManager);
 
@@ -301,7 +301,7 @@ class SubmissionQueryServiceIntegrationTest {
         null,
         null
     );
-    var resourceView2 = new ResourceView(discovery2.getId(), displayString2);
+    var resourceView2 = new ResourceView(resourceDetail2.getId(), displayString2);
 
     var expectedResult = List.of(resourceView1, resourceView2);
 
@@ -328,7 +328,7 @@ class SubmissionQueryServiceIntegrationTest {
         null
     );
 
-    var resourceView = new ResourceView(discovery1.getId(), displayString);
+    var resourceView = new ResourceView(resourceDetail1.getId(), displayString);
 
     var discovery2 = ResourceIntegrationTestUtils.buildResource(ResourceType.DISCOVERY, entityManager);
 
@@ -416,7 +416,7 @@ class SubmissionQueryServiceIntegrationTest {
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
     assertThat(submissionQueryService.getLatestDiscoveriesByNameForSubmissionType("discovery", USER))
-        .isEqualTo(List.of(new ResourceView(discovery.getId(), displayString)));
+        .isEqualTo(List.of(new ResourceView(resourceDetails.getId(), displayString)));
   }
 
   @Test
@@ -439,7 +439,7 @@ class SubmissionQueryServiceIntegrationTest {
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
     assertThat(submissionQueryService.getLatestDiscoveriesByNameForSubmissionType("discovery", USER))
-        .isEqualTo(List.of(new ResourceView(discovery.getId(), displayString)));
+        .isEqualTo(List.of(new ResourceView(resourceDetails.getId(), displayString)));
   }
 
   @Test
@@ -459,7 +459,7 @@ class SubmissionQueryServiceIntegrationTest {
     );
     SubmissionIntegrationTestUtils.createFieldResourceLink(discovery, fieldResource, entityManager);
 
-    var resourceView = new ResourceView(discovery.getId(), displayString);
+    var resourceView = new ResourceView(resourceDetail.getId(), displayString);
 
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
@@ -486,7 +486,7 @@ class SubmissionQueryServiceIntegrationTest {
     );
     SubmissionIntegrationTestUtils.createFieldResourceLink(discovery, fieldResource, entityManager);
 
-    var resourceView = new ResourceView(discovery.getId(), displayString);
+    var resourceView = new ResourceView(resourceDetail.getId(), displayString);
 
     when(internalTeamService.isRegulatorOrAreaTeamUser(USER)).thenReturn(true);
 
@@ -529,7 +529,7 @@ class SubmissionQueryServiceIntegrationTest {
         null,
         null
     );
-    var resourceView = new ResourceView(discovery.getId(), displayString);
+    var resourceView = new ResourceView(resourceDetail.getId(), displayString);
 
     assertThat(submissionQueryService.getLatestActivePreferredViewDiscoveriesByName("discovery")).isEqualTo(List.of(resourceView));
   }
@@ -551,7 +551,7 @@ class SubmissionQueryServiceIntegrationTest {
     entityManager.persist(resourceGroupLink);
     entityManager.flush();
 
-    var resourceView = new ResourceView(discovery.getId(), resourceDetail.getResourceName());
+    var resourceView = new ResourceView(resourceDetail.getId(), resourceDetail.getResourceName());
 
     assertThat(submissionQueryService.getLatestActivePreferredViewDiscoveriesByName("discovery")).isEqualTo(List.of(resourceView));
   }
@@ -592,7 +592,7 @@ class SubmissionQueryServiceIntegrationTest {
         null,
         null
     );
-    var resourceView = new ResourceView(discovery.getId(), displayString);
+    var resourceView = new ResourceView(resourceDetail.getId(), displayString);
 
     assertThat(submissionQueryService.getLatestActivePreferredViewDiscoveriesByName("discovery")).isEqualTo(List.of(resourceView));
   }
