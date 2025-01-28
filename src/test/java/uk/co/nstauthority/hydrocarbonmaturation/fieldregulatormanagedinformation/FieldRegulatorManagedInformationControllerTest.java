@@ -29,7 +29,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.fivium.energyportalapi.generated.types.LicenceStatus;
 import uk.co.nstauthority.hydrocarbonmaturation.AbstractSubmissionControllerTest;
@@ -49,7 +48,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.field.DeterminedFieldRestControl
 import uk.co.nstauthority.hydrocarbonmaturation.field.Field;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldConsultingAuthority;
 import uk.co.nstauthority.hydrocarbonmaturation.field.FieldForm;
-import uk.co.nstauthority.hydrocarbonmaturation.field.FieldStatusService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.NewFieldService;
 import uk.co.nstauthority.hydrocarbonmaturation.field.StartFieldController;
 import uk.co.nstauthority.hydrocarbonmaturation.field.fieldlicences.FieldLicenceService;
@@ -82,12 +80,9 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
   @MockBean
   private FieldRegulatorManagedInformationService fieldRegulatorManagedInformationService;
   @MockBean
-  private FieldStatusService fieldStatusService;
-  @MockBean
   private FieldLicenceService fieldLicenceService;
 
   private FieldForm form;
-  private BindingResult bindingResult;
   private UUID resourceId;
   private Resource resource;
 
@@ -95,7 +90,6 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
   void setUp() {
     resource = new Resource();
     form = new FieldForm();
-    bindingResult = new BeanPropertyBindingResult(form, "form");
     resourceId = UUID.randomUUID();
     resource.setId(resourceId);
     submissionDetail.getSubmission().setResource(resource);
@@ -225,6 +219,17 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
         .thenReturn(Optional.of(submissionDetail));
 
     when(responsibleTeamService.isInResponsibleTeam(USER, submissionDetail)).thenReturn(false);
+
+    mockMvc.perform(
+            get(ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
+                .getRegulatorManagedInformationPage(resourceId, null)))
+                .with(user(USER)))
+        .andExpect(status().isForbidden());
+  }
+
+  @SecurityTest
+  void getFieldRegulatorManagedInformationPage_whenNotAreaTeamUser_assertStatusForbidden() throws Exception {
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(true);
 
     mockMvc.perform(
             get(ReverseRouter.route(on(FieldRegulatorManagedInformationController.class)
@@ -809,6 +814,8 @@ class FieldRegulatorManagedInformationControllerTest extends AbstractSubmissionC
   }
 
   private void setupUserHasPermissions() {
-    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.INDUSTRY, Role.INDUSTRY_SUBMIT)).thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.NORTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.SOUTHERN_OFFSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(true);
+    when(teamQueryService.userHasRoleInTeamType(user.wuaId(), TeamType.ONSHORE_AREA, Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM)).thenReturn(true);
   }
 }

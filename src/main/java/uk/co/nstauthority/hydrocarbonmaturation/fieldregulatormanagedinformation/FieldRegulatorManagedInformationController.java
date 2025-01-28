@@ -52,7 +52,6 @@ import uk.co.nstauthority.hydrocarbonmaturation.workarea.WorkAreaController;
 @HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.NORTHERN_OFFSHORE_AREA)
 @HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.SOUTHERN_OFFSHORE_AREA)
 @HasAnyRole(role = Role.MANAGE_DISCOVERY_OR_FIELD_WITH_AREA_TEAM, teamType = TeamType.ONSHORE_AREA)
-@HasAnyRole(role = Role.INDUSTRY_SUBMIT, teamType = TeamType.INDUSTRY)
 @RequestMapping("review/resource/{resourceId}/field-regulator-managed-information/")
 public class FieldRegulatorManagedInformationController {
   public static final String PAGE_NAME = "Field information";
